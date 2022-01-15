@@ -88,7 +88,7 @@ URMADDTEXTURE *urmaddtexture_new ( uint64_t engine_flags ) {
 
 /******************************************************************************/
 void urmaddtexture_free ( URMADDTEXTURE *uat ) {
-    list_free ( &uat->ltrd, texrecord_free );
+    list_free ( &uat->ltrd, LIST_FUNCDATA(texrecord_free) );
 
     free ( uat );
 }
@@ -105,7 +105,7 @@ void addTexture_free ( void *data, uint32_t commit ) {
 
             /***If a UVMap was specially created for the occasion, delete it***/
             if ( trd->mapcreated ) {
-                g3dobject_free ( trd->map );
+                g3dobject_free ( ( G3DOBJECT * ) trd->map );
             }
 
             g3dtexture_free ( trd->tex );
@@ -118,7 +118,7 @@ void addTexture_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void addTexture_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+void addTexture_undo ( G3DURMANAGER *urm, void *data, uint64_t flags ) {
     URMADDTEXTURE *uat = ( URMADDTEXTURE * ) data;
     LIST *ltmptrd = uat->ltrd;
 
@@ -147,7 +147,7 @@ void addTexture_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
 }
 
 /******************************************************************************/
-void addTexture_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+void addTexture_redo ( G3DURMANAGER *urm, void *data, uint64_t flags ) {
     URMADDTEXTURE *uat = ( URMADDTEXTURE * ) data;
     LIST *ltmptrd = uat->ltrd;
 
@@ -212,7 +212,7 @@ void g3durm_selection_addTexture ( G3DURMANAGER *urm,
                 mapcreated = 0x01;
             }
 
-            tex = g3dtexture_new ( mes, mat, map );
+            tex = g3dtexture_new ( ( G3DOBJECT * ) mes, mat, map );
 
             g3dmesh_addTexture ( mes, tex );
 

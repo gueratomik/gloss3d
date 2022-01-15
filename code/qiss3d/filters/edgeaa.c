@@ -173,7 +173,7 @@ static uint32_t filteredgeaa_draw ( Q3DFILTER     *qfil,
 
                 switch ( bpp ) {
                     case 0x18 : {
-                        unsigned char (*img24)[0x03] = img;
+                        unsigned char (*img24)[0x03] = ( unsigned char (*)[0x03]) img;
 
                         img24[offset][0x00] = R;
                         img24[offset][0x01] = G;
@@ -181,7 +181,7 @@ static uint32_t filteredgeaa_draw ( Q3DFILTER     *qfil,
                     } break;
 
                     case 0x20 : {
-                        unsigned char (*img32)[0x04] = img;
+                        unsigned char (*img32)[0x04] = ( unsigned char (*)[0x04]) img;
 
                         img32[offset][0x00] = R;
                         img32[offset][0x01] = G;

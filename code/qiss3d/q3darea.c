@@ -165,7 +165,7 @@ void q3darea_init ( Q3DAREA   *qarea,
                        height );
 
     q3dzengine_drawObjectWithCondition_r ( &qarea->qzen,
-                                            qsce,
+                            ( Q3DOBJECT * ) qsce,
                                             objcam->iwmatrix,
                                             qcam->PJX,
                                             qcam->VPX,

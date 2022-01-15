@@ -132,9 +132,9 @@ static void q3dzengine_buildFrustrum ( Q3DZENGINE *qzen,
 
         q3dvector3f_cross ( &nearTofar,
                             &neariTonearn,
-                            &qzen->frustrum[fid] );
+          ( Q3DVECTOR3F * ) &qzen->frustrum[fid] );
 
-        q3dvector3f_normalize ( &qzen->frustrum[fid], NULL );
+        q3dvector3f_normalize ( ( Q3DVECTOR3F * ) &qzen->frustrum[fid], NULL );
 
         /*** q3dvector3f_cross sets w to 1.0f. Set it to 0.0f ***/
         qzen->frustrum[fid].w = 0.0f;
@@ -208,9 +208,9 @@ G3DSYSINFO *sinfo = g3dsysinfo_get ( );
 
     q3dvector3f_cross ( &near0Tonear1,
                         &near0Tonear3,
-                        &qzen->frustrum[0x00] );
+      ( Q3DVECTOR3F * ) &qzen->frustrum[0x00] );
 
-    q3dvector3f_normalize ( &qzen->frustrum[0x00], NULL );
+    q3dvector3f_normalize ( ( Q3DVECTOR3F * ) &qzen->frustrum[0x00], NULL );
 
     qzen->frustrum[0x00].w = - znear;
 }
@@ -655,7 +655,7 @@ static void q3dzengine_drawParticleEmitter ( Q3DZENGINE         *qzen,
                            g3dcore_multmatrix (  qprt[j].MVX, CAMX, WMVX );
 
                            q3dzengine_drawMesh ( qzen, 
-                                                 qprt[j].qref,
+                                   ( Q3DMESH * ) qprt[j].qref,
                                                  WMVX,
                                                  PJX,
                                                  VPX,

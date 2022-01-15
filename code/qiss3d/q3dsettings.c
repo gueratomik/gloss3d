@@ -338,7 +338,7 @@ static uint32_t q3dsettings_motionblurStrength ( G3DEXPORTV3DATA         *ged,
                                                  FILE                  *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexportv3_fwritel ( &mbs->strength, fdst );
+    size += g3dexportv3_fwritef ( &mbs->strength, fdst );
 
     return size;
 }
@@ -768,7 +768,7 @@ void q3dsettings_read ( G3DIMPORTV3DATA *gid,
             } break;
 
             case SIG_RENDERSETTINGS_MOTIONBLUR_STRENGTH : {
-                g3dimportv3_freadl ( &rsg->motionBlur.strength, fsrc );
+                g3dimportv3_freadf ( &rsg->motionBlur.strength, fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_MOTIONBLUR_ITERATIONS : {

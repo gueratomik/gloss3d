@@ -33,8 +33,8 @@
 /******************************************************************************/
 URMMOVEUVS *urmmoveuvs_new ( G3DUVMAP  *uvmap, 
                              LIST      *luv,
-                             G3DVECTOR *olduv,
-                             G3DVECTOR *newuv ) {
+                             G3DUV     *olduv,
+                             G3DUV     *newuv ) {
     uint32_t structsize = sizeof ( URMMOVEUVS );
 
     URMMOVEUVS *muvs = ( URMMOVEUVS * ) calloc ( 0x01, structsize );
@@ -75,7 +75,7 @@ void moveUVs_free ( void *data, uint32_t commit ) {
 void moveUVs_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMMOVEUVS *muvs = ( URMMOVEUVS * ) data;
     G3DUVMAP *uvmap  = muvs->uvmap;
-    G3DMESH *mes = ((G3DOBJECT*)uvmap)->parent;
+    G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)uvmap)->parent;
     LIST *ltmpuv = muvs->luv;
     uint32_t i = 0x00;
 
@@ -101,7 +101,7 @@ void moveUVs_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
 void moveUVs_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMMOVEUVS *muvs = ( URMMOVEUVS * ) data;
     G3DUVMAP *uvmap  = muvs->uvmap;
-    G3DMESH *mes = ((G3DOBJECT*)uvmap)->parent;
+    G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)uvmap)->parent;
     LIST *ltmpuv = muvs->luv;
     uint32_t i = 0x00;
 
@@ -127,8 +127,8 @@ void moveUVs_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
 void g3durm_uvmap_moveUVList ( G3DURMANAGER *urm,
                                G3DUVMAP     *uvmap, 
                                LIST         *luv,
-                               G3DVECTOR    *olduv,
-                               G3DVECTOR    *newuv, 
+                               G3DUV        *olduv,
+                               G3DUV        *newuv, 
                                uint32_t      return_flags ) {
     URMMOVEUVS *muvs;
 

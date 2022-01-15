@@ -138,7 +138,7 @@ static void filtervmb_merge ( Q3DFILTER     *qfil,
             switch ( bpp ) {
                 case 0x18 : {
                     uint32_t offset = ( i * fvmb->width ) + j;
-                    unsigned char (*srcimg)[0x03] = img;
+                    unsigned char (*srcimg)[0x03] = ( unsigned char (*)[0x03]) img;
 
                     if ( fvmb->abuffer[offset][0x03] ) {
                         float a0 = ( float ) fvmb->abuffer[offset][0x00] / fvmb->abuffer[offset][0x03],
@@ -391,7 +391,7 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                     if ( z <= fvmb->zbuffer[aoffset].z ) {
                             switch ( fvmb->bpp ) {
                                 case 0x18 : {
-                                    unsigned char (*srcimg)[0x03] = fvmb->img;
+                                    unsigned char (*srcimg)[0x03] = ( unsigned char (*)[0x03]) fvmb->img;
 
                                     R = srcimg[zoffset][0x00];
                                     G = srcimg[zoffset][0x01];
@@ -918,12 +918,12 @@ static void filtervmb_import_r ( Q3DFILTER *qfil,
     }
 
     if ( qobj->obj->type == G3DPARTICLEEMITTERTYPE ) {
-        Q3DPARTICLEEMITTER *qpem = qobj;
-        G3DPARTICLEEMITTER *pem = qpem->qobj.obj;
+        Q3DPARTICLEEMITTER *qpem = ( Q3DPARTICLEEMITTER * ) qobj;
+        G3DPARTICLEEMITTER *pem  = ( G3DPARTICLEEMITTER * ) qpem->qobj.obj;
 
         if ( pem->maxParticles ) {
            if ( pem->maxParticlesPerFrame ) {
-               G3DCAMERA *cam = q3dobject_getObject ( qcam );
+               G3DCAMERA *cam = ( G3DCAMERA * ) q3dobject_getObject ( ( Q3DOBJECT * ) qcam );
                G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
                uint32_t i, j;
 
@@ -954,7 +954,7 @@ static void filtervmb_import_r ( Q3DFILTER *qfil,
     }
 
     if ( qobj->obj->type == G3DINSTANCETYPE ) {
-        Q3DINSTANCE *qins = qobj;
+        Q3DINSTANCE *qins = ( Q3DINSTANCE * ) qobj;
 
         if ( qins->qref->obj->type & MESH ) {
             qmes = ( Q3DMESH * ) qins->qref;
@@ -967,7 +967,8 @@ static void filtervmb_import_r ( Q3DFILTER *qfil,
 
     if ( qmes ) {
         /*** When the subframes happen, retrieve the on-frame object ***/
-        VMBMESH *vmes = filtervmb_getObjectbyID ( qfil, fvmb->vobjID );
+        VMBMESH *vmes = ( VMBMESH * ) filtervmb_getObjectbyID ( qfil, 
+                                                                fvmb->vobjID );
 
         if ( vmes == NULL ) {
             vmes = vmbmesh_new ( qmes,
@@ -994,9 +995,11 @@ static void filtervmb_import_r ( Q3DFILTER *qfil,
     }
 
     if ( qobj->obj->type == G3DSYMMETRYTYPE ) {
+        Q3DSYMMETRY *qsym = ( Q3DSYMMETRY * ) qobj;
+
         filtervmb_importSymmetry ( qfil,
                                    qcam,
-                                   qobj,
+                                   qsym,
                                    WMVX,
                                    subframeID,
                                    frame );
@@ -1059,14 +1062,14 @@ static void filtervmb_empty ( FILTERVMB *fvmb ) {
         fvmb->zbuffer[i].z = INFINITY;
     }
 
-    list_free ( &fvmb->lvobj, vmbmesh_free );
+    list_free ( &fvmb->lvobj, (void (*)(void *)) vmbmesh_free );
 }
 
 /******************************************************************************/
 static void filtervmb_free ( Q3DFILTER *fil ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) fil->data;
 
-    list_free ( &fvmb->lvobj, vmbmesh_free );
+    list_free ( &fvmb->lvobj, (void (*)(void *)) vmbmesh_free );
 
     if ( fvmb->abuffer ) free ( fvmb->abuffer );
     if ( fvmb->zbuffer ) free ( fvmb->zbuffer );
@@ -1122,9 +1125,9 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
                                  uint32_t       to, 
                                  uint32_t       bpp, 
                                  uint32_t       width ) {
-    G3DCAMERA *cam = q3dobject_getObject ( qjob->qcam );
+    G3DCAMERA *cam = ( G3DCAMERA * ) q3dobject_getObject ( ( Q3DOBJECT * ) qjob->qcam );
     Q3DSCENE  *oriqsce = qjob->qsce;
-    G3DSCENE  *sce = q3dobject_getObject ( qjob->qsce );
+    G3DSCENE  *sce = ( G3DSCENE * ) q3dobject_getObject ( ( Q3DOBJECT * ) qjob->qsce );
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
     int32_t i, j;
@@ -1160,7 +1163,7 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
             /*** Before-frames ***/
             filtervmb_import ( qfil, 
                                befqcam,
-                               befqsce,
+               ( Q3DOBJECT * ) befqsce,
                                objcam->iwmatrix,
                                rank++,
                                fromFrame );
@@ -1203,7 +1206,7 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
 
         filtervmb_import ( qfil, 
                            qjob->qcam,
-                           qjob->qsce,
+           ( Q3DOBJECT * ) qjob->qsce,
                            objcam->iwmatrix,
                            rank++,
                            fromFrame );
@@ -1227,7 +1230,7 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
             /*** after frames ***/
             filtervmb_import ( qfil, 
                                aftqcam,
-                               aftqsce,
+               ( Q3DOBJECT * ) aftqsce,
                                objcam->iwmatrix,
                                rank++,
                                fromFrame );

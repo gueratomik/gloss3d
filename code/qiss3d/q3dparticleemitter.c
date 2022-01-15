@@ -32,7 +32,7 @@
 /******************************************************************************/
 static void q3dparticleemitter_import ( Q3DPARTICLEEMITTER *qpem, 
                                         Q3DSCENE           *qsce ) {
-    G3DPARTICLEEMITTER *pem = qpem->qobj.obj;
+    G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) qpem->qobj.obj;
     uint32_t i, j;
 
     if ( pem->maxParticles ) {
@@ -183,7 +183,7 @@ static void q3dparticleemitter_init ( Q3DPARTICLEEMITTER *qpem,
     Q3DFREE_CALLBACK(q3dparticleemitter_free),
 Q3DINTERSECT_CALLBACK(q3dparticleemitter_intersect) );
 
-    ((Q3DOBJECT*)qpem)->import = q3dparticleemitter_import;
+    ((Q3DOBJECT*)qpem)->import = Q3DIMPORT_CALLBACK(q3dparticleemitter_import);
 
 
     g3dcore_invertMatrix    ( pem->obj.wmatrix, IWMVX );

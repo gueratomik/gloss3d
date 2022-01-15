@@ -32,7 +32,7 @@
 /******************************************************************************/
 Q3DOBJECT *q3dscene_getByObject ( Q3DSCENE  *qsce, 
                                   G3DOBJECT *obj ) {
-    return q3dobject_getByObject_r ( qsce, obj );
+    return q3dobject_getByObject_r ( ( Q3DOBJECT * ) qsce, obj );
 }
 
 /******************************************************************************/
@@ -97,7 +97,7 @@ Q3DSCENE *q3dscene_import ( G3DSCENE *sce,
     qsce->qobjidx = ( Q3DOBJECT ** ) calloc ( objCount, sizeof ( Q3DOBJECT * ) );
 
     /*** build array to all qobjects for fast access ***/
-    q3dobject_exec_r ( qsce,(void(*)(Q3DOBJECT*,void*)) indexObjects, qsce );
+    q3dobject_exec_r ( ( Q3DOBJECT * ) qsce, (void(*)(Q3DOBJECT*,void*)) indexObjects, qsce );
 
     for ( i = 0x00; i < objCount; i++ ) {
         if ( qsce->qobjidx[i]->import ) {

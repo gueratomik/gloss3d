@@ -52,7 +52,7 @@ static void filtersmb_merge ( Q3DFILTER     *qfil,
             switch ( bpp ) {
                 case 0x18 : {
                     uint32_t offset = ( i * fsmb->width ) + j;
-                    unsigned char (*srcimg)[0x03] = img;
+                    unsigned char (*srcimg)[0x03] = ( unsigned char (*)[0x03]) img;
 
                     /*if ( fsmb->abuffer[offset][0x03] ) {*/
                         unsigned char a0 = ( float ) fsmb->abuffer[offset][0x00]/* / fsmb->abuffer[offset][0x03]*/,
@@ -129,7 +129,7 @@ static void filtersmb_addFrame ( Q3DFILTER     *qfil,
     uint32_t i;
 
     for ( i = 0x00; i < fsmb->width * fsmb->height; i++ ) {
-        unsigned char (*srcimg)[0x03] = img;
+        unsigned char (*srcimg)[0x03] = ( unsigned char (*)[0x03]) img;
 
 /*
         srcimg[i][0x00] += ( srcimg[i][0x00] * opacity );
@@ -153,9 +153,9 @@ static uint32_t filtersmb_draw ( Q3DFILTER     *qfil,
                                  uint32_t       to, 
                                  uint32_t       bpp, 
                                  uint32_t       width ) {
-    G3DCAMERA *cam = q3dobject_getObject ( qjob->qcam );
+    G3DCAMERA *cam = ( G3DCAMERA * ) q3dobject_getObject ( ( Q3DOBJECT * ) qjob->qcam );
     Q3DSCENE  *oriqsce = qjob->qsce;
-    G3DSCENE  *sce = q3dobject_getObject ( qjob->qsce );
+    G3DSCENE  *sce = ( G3DSCENE * ) q3dobject_getObject ( ( Q3DOBJECT * ) qjob->qsce );
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
     FILTERSMB *fsmb = ( FILTERSMB * ) qfil->data;
     int32_t i, j;

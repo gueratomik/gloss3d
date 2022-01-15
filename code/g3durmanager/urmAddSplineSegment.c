@@ -61,7 +61,7 @@ void addSplineSegment_free ( void *data, uint32_t commit ) {
 
     /*** Discard changes ***/
     if ( commit == 0x00 ) {
-        g3dcubicsegment_free ( ass->seg );
+        g3dcubicsegment_free ( ( G3DCUBICSEGMENT * ) ass->seg );
     }
 
     urmAddSplinePoint_free ( ass );

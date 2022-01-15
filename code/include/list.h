@@ -29,6 +29,11 @@
 #ifndef __LIST_H__
 #define __LIST_H__
 
+#define LIST_FUNCDATA(f)     ((void(*)(void*))f)
+#define LIST_FUNCARGDATA(f)  ((void(*)(void*,void*))f)
+#define LIST_FUNCDATA1ARG(f) ((void(*)(void*,void*))f)
+#define LIST_FUNCDATA2ARG(f) ((void(*)(void*,void*,void*))f)
+
 typedef struct _LIST {
     struct _LIST *prev;
     void         *data;

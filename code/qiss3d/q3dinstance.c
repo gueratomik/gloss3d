@@ -32,7 +32,7 @@
 /******************************************************************************/
 static void q3dinstance_import ( Q3DINSTANCE *qins, 
                                  Q3DSCENE    *qsce ) {
-    G3DINSTANCE *ins = qins->qobj.obj;
+    G3DINSTANCE *ins = ( G3DINSTANCE * ) qins->qobj.obj;
 
     qins->qref = q3dscene_getByObject ( qsce, ins->ref );
 }
@@ -116,7 +116,7 @@ static void q3dinstance_init ( Q3DINSTANCE *qins,
     Q3DFREE_CALLBACK(q3dinstance_free),
 Q3DINTERSECT_CALLBACK(q3dinstance_intersect) );
 
-    ((Q3DOBJECT*)qins)->import = q3dinstance_import;
+    ((Q3DOBJECT*)qins)->import = Q3DIMPORT_CALLBACK(q3dinstance_import);
 
     /*g3dcore_multmatrix ( obj->lmatrix, ins->smatrix, TMPX );*/
     g3dcore_invertMatrix    ( ins->smatrix, qins->ISMVX  );

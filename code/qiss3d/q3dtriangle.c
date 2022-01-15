@@ -189,7 +189,7 @@ uint32_t q3dtriangle_intersect ( Q3DTRIANGLE *qtri,
                     qray->isx.dir.y *= invert;
                     qray->isx.dir.z *= invert;
 
-                    qray->isx.qsur = qtri;
+                    qray->isx.qsur = ( Q3DSURFACE * ) qtri;
 
                     memcpy ( &qray->isx.locsrc, 
                              &qray->isx.src, sizeof ( Q3DVECTOR3F ) );
@@ -232,7 +232,7 @@ void q3dtriangle_init ( Q3DTRIANGLE *qtri,
 
     q3dvector3f_cross ( &v0v1, &v1v2, ( Q3DVECTOR3F * ) &qtri->nor );
 
-    q3dvector3f_normalize ( &qtri->nor, &qtri->surface );
+    q3dvector3f_normalize ( ( Q3DVECTOR3F * ) &qtri->nor, &qtri->surface );
 
     qtri->nor.w = - ( ( qtri->nor.x * qver[qverID0].pos.x ) + 
                       ( qtri->nor.y * qver[qverID0].pos.y ) + 

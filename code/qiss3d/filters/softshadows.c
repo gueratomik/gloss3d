@@ -80,8 +80,8 @@ static void sss ( Q3DSOFTSHADOW *qssh,
     switch ( depth ) {
         case 0x18 :
         case 0x20 : {
-            unsigned char (*refimg)[0x03] = srcimg,
-                          (*sssimg)[0x03] = dstimg;
+            unsigned char (*refimg)[0x03] = ( unsigned char (*)[0x03]) srcimg,
+                          (*sssimg)[0x03] = ( unsigned char (*)[0x03]) dstimg;
             /*** the pixel weighs x times more than adjacent pixels ***/
             uint32_t weight = 0x01;
             uint32_t dstR = refimg[offset][0x00] * weight, 

@@ -728,8 +728,8 @@ void g3durm_morpher_moveVertices ( G3DURMANAGER       *urm,
 void g3durm_uvmap_moveUVList ( G3DURMANAGER *urm,
                                G3DUVMAP     *uvmap, 
                                LIST         *luv,
-                               G3DVECTOR    *olduv,
-                               G3DVECTOR    *newuv, 
+                               G3DUV        *olduv,
+                               G3DUV        *newuv, 
                                uint32_t      return_flags );
 
 /******************************************************************************/

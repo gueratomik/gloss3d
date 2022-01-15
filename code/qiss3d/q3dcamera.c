@@ -48,7 +48,7 @@ static void q3dcamera_free ( Q3DCAMERA *qcam ) {
 static void q3dcamera_initViewport ( Q3DCAMERA *qcam,
                                      uint32_t   width, 
                                      uint32_t   height ) {
-    G3DCAMERA *cam = ( G3DCAMERA * ) q3dobject_getObject ( qcam );
+    G3DCAMERA *cam = ( G3DCAMERA * ) q3dobject_getObject ( ( Q3DOBJECT * ) qcam );
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
     double a = ( height ) ? ( double ) width / height : 0.0f;
     double f = 1.0f / tan ( ( double ) cam->focal / 2.0f * M_PI / 180.0f );

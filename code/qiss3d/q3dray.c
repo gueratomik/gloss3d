@@ -335,7 +335,7 @@ void q3dray_specular ( Q3DRAY      *qray,
                                 G3DCOLOR color = { .r = ( float ) retval.r / 255,
                                                    .g = ( float ) retval.g / 255,
                                                    .b = ( float ) retval.b / 255 };
-                                G3DLIGHT *lig = q3dobject_getObject ( qlig );
+                                G3DLIGHT *lig = ( G3DLIGHT * ) q3dobject_getObject ( ( Q3DOBJECT * ) qlig );
                                 float specularCoefficient = pow ( dot, mat->shininess );
                                     uint32_t R = ( lig->specularColor.r * mat->specular_level * color.r * specularCoefficient ),
                                              G = ( lig->specularColor.g * mat->specular_level * color.g * specularCoefficient ),
@@ -515,7 +515,7 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
                                           .z = -luxqray.dir.z };
 
                 spotDot = q3dvector3f_scalar ( &invLuxRay,
-                                               &qlig->zvec );
+                                              ( Q3DVECTOR3F * ) &qlig->zvec );
 
                 if ( spotDot > 0.0f ) {
                     spotAngle = acos ( spotDot )  * 180 / M_PI;
@@ -538,7 +538,7 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
             if ( dot > 0.0f ) {
                 float rate = dot * lig->intensity;
 
-                q3dray_specular ( qray, sdiscard, qlig, qjob->qcam, specular );
+                q3dray_specular ( qray, ( Q3DTRIANGLE * ) sdiscard, qlig, qjob->qcam, specular );
 
                 diffuse->r += ( ( lig->diffuseColor.r * rate ) * ( 1.0f - shadow ) ),
                 diffuse->g += ( ( lig->diffuseColor.g * rate ) * ( 1.0f - shadow ) ),
@@ -794,7 +794,7 @@ void q3dray_outline ( Q3DRAY *qray,
         if ( qobj->obj->type & MESH ) {
             Q3DMESH *qmes = ( Q3DMESH * ) qobj;
             Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
-            Q3DTRIANGLE *qtri = qray->isx.qsur;
+            Q3DTRIANGLE *qtri = ( Q3DTRIANGLE * ) qray->isx.qsur;
             Q3DVECTOR3F p[0x04];
             uint32_t j, nbver = 0x00;
             float avgdist = 0.0f;
@@ -1006,7 +1006,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
 
                 qmes = ( Q3DMESH * ) qobj;
 
-                qtri = qray->isx.qsur;
+                qtri = &qray->isx.qsur->tri;
             }
 
             q3darea_getZBuffer ( &qjob->qarea, 
@@ -1057,7 +1057,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                         qray->distance = locqray.distance;
 
                         qray->isx.qobj  = qobj;
-                        qray->isx.qsur  = qtri;
+                        qray->isx.qsur  = ( Q3DSURFACE * ) qtri;
 
                         memcpy ( &qray->isx.locsrc, 
                                  &locqray.isx.src, sizeof ( Q3DVECTOR3F ) );
@@ -1091,7 +1091,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
         }
 
         if ( raytrace ) {
-            if ( q3dobject_intersect_r ( qjob->qsce,
+            if ( q3dobject_intersect_r ( ( Q3DOBJECT * ) qjob->qsce,
                                          qray,
                                          sdiscard,
                                          cond,
@@ -1104,7 +1104,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                 if ( qobj->obj->type & MESH ) {
                     qmes = ( Q3DMESH * ) qobj;
 
-                    qtri = qray->isx.qsur;
+                    qtri = &qray->isx.qsur->tri;
                 }
             }
         }
@@ -1127,7 +1127,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
 
                 if ( ( qjob->qrsg->flags & DISABLETEXTURING ) == 0x00 ) {
                     q3dray_getSurfaceColor ( qray, 
-                                             qobj,
+                              ( Q3DMESH * )  qobj,
                                              qtri,
                                             &qjob->qarea,
                                              qjob->qrsg->background.widthRatio,
@@ -1158,7 +1158,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                                              &refqray ) ) {
                             uint32_t rCol = q3dray_shoot_r ( &refqray,
                                                               qjob,
-                                                              qtri,
+                                             ( Q3DSURFACE * ) qtri,
                                                               excludeIfPerfectSphere,
                                                               qobj,
                                                               frame,
@@ -1217,7 +1217,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
 
                             retcol = q3dray_shoot_r ( &frcray, 
                                                        qjob, 
-                                                       qtri,
+                                      ( Q3DSURFACE * ) qtri,
                                                        excludeIfPerfectSphere,
                                                        qobj,
                                                        frame,
@@ -1267,7 +1267,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                  ( qobj->obj->flags & OBJECTNOSHADING ) == 0x00 ) {
                 q3dray_illumination (  qray,
                                        qjob,
-                                       qtri,
+                      ( Q3DSURFACE * ) qtri,
                                        frame,
                                       &lightDiffuse,
                                       &lightSpecular,
@@ -1343,7 +1343,7 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
 
                 switch ( qjob->qrsg->background.image->bytesPerPixel ) {
                     case 0x03 : {
-                        unsigned char (*imgdata)[0x03] = qjob->qrsg->background.image->data;
+                        unsigned char (*imgdata)[0x03] = ( unsigned char (*)[0x03]) qjob->qrsg->background.image->data;
                         uint32_t R = ( uint32_t ) imgdata[offset][0x00],
                                  G = ( uint32_t ) imgdata[offset][0x01],
                                  B = ( uint32_t ) imgdata[offset][0x02];

@@ -69,15 +69,15 @@ void objectRemoveKeys_free ( void *data, uint32_t commit ) {
             list_free ( &ork->lremovedRotSegments, NULL );
             list_free ( &ork->lremovedScaSegments, NULL );
 
-            list_free ( &ork->laddedPosSegments, g3dcubicsegment_free );
-            list_free ( &ork->laddedRotSegments, g3dcubicsegment_free );
-            list_free ( &ork->laddedScaSegments, g3dcubicsegment_free );
+            list_free ( &ork->laddedPosSegments, LIST_FUNCDATA(g3dcubicsegment_free) );
+            list_free ( &ork->laddedRotSegments, LIST_FUNCDATA(g3dcubicsegment_free) );
+            list_free ( &ork->laddedScaSegments, LIST_FUNCDATA(g3dcubicsegment_free) );
         } else {
-            list_free ( &ork->lkey, g3dkey_free );
+            list_free ( &ork->lkey, LIST_FUNCDATA(g3dkey_free) );
 
-            list_free ( &ork->lremovedPosSegments, g3dcubicsegment_free );
-            list_free ( &ork->lremovedRotSegments, g3dcubicsegment_free );
-            list_free ( &ork->lremovedScaSegments, g3dcubicsegment_free );
+            list_free ( &ork->lremovedPosSegments, LIST_FUNCDATA(g3dcubicsegment_free) );
+            list_free ( &ork->lremovedRotSegments, LIST_FUNCDATA(g3dcubicsegment_free) );
+            list_free ( &ork->lremovedScaSegments, LIST_FUNCDATA(g3dcubicsegment_free) );
 
             list_free ( &ork->laddedPosSegments, NULL );
             list_free ( &ork->laddedRotSegments, NULL );
@@ -87,7 +87,7 @@ void objectRemoveKeys_free ( void *data, uint32_t commit ) {
         ltmpork = ltmpork->next;
     }
 
-    list_free ( &lork, urmObjectRemoveKeys_free );
+    list_free ( &lork, LIST_FUNCDATA(urmObjectRemoveKeys_free) );
 }
 
 /******************************************************************************/
@@ -101,17 +101,17 @@ void objectRemoveKeys_undo ( G3DURMANAGER *urm,
 
         /*** Note: here we cannot use g3dobject_addKey because  ***/
         /*** it also performs segment creation and stuff ***/
-        list_execargdata ( ork->lkey, list_insert, &ork->obj->lkey );
+        list_execargdata ( ork->lkey, LIST_FUNCARGDATA(list_insert), &ork->obj->lkey );
 
         ork->obj->nbkey += list_count ( ork->lkey );
 
-        list_execargdata ( ork->lremovedPosSegments, g3dcurve_addSegment, ork->obj->curve[0x00] );
-        list_execargdata ( ork->lremovedRotSegments, g3dcurve_addSegment, ork->obj->curve[0x01] );
-        list_execargdata ( ork->lremovedScaSegments, g3dcurve_addSegment, ork->obj->curve[0x02] );
+        list_execargdata ( ork->lremovedPosSegments, LIST_FUNCARGDATA(g3dcurve_addSegment), ork->obj->curve[0x00] );
+        list_execargdata ( ork->lremovedRotSegments, LIST_FUNCARGDATA(g3dcurve_addSegment), ork->obj->curve[0x01] );
+        list_execargdata ( ork->lremovedScaSegments, LIST_FUNCARGDATA(g3dcurve_addSegment), ork->obj->curve[0x02] );
 
-        list_execargdata ( ork->laddedPosSegments, g3dcurve_removeSegment, ork->obj->curve[0x00] );
-        list_execargdata ( ork->laddedRotSegments, g3dcurve_removeSegment, ork->obj->curve[0x01] );
-        list_execargdata ( ork->laddedScaSegments, g3dcurve_removeSegment, ork->obj->curve[0x02] );
+        list_execargdata ( ork->laddedPosSegments, LIST_FUNCARGDATA(g3dcurve_removeSegment), ork->obj->curve[0x00] );
+        list_execargdata ( ork->laddedRotSegments, LIST_FUNCARGDATA(g3dcurve_removeSegment), ork->obj->curve[0x01] );
+        list_execargdata ( ork->laddedScaSegments, LIST_FUNCARGDATA(g3dcurve_removeSegment), ork->obj->curve[0x02] );
 
         ltmpork = ltmpork->next;
     }
@@ -128,17 +128,17 @@ void objectRemoveKeys_redo ( G3DURMANAGER *urm,
 
         /*** Note: here we cannot use g3dobject_addKey because  ***/
         /*** it also performs segment creation and stuff ***/
-        list_execargdata ( ork->lkey, list_remove, &ork->obj->lkey );
+        list_execargdata ( ork->lkey, LIST_FUNCARGDATA(list_remove), &ork->obj->lkey );
 
         ork->obj->nbkey -= list_count ( ork->lkey );
 
-        list_execargdata ( ork->lremovedPosSegments, g3dcurve_removeSegment, ork->obj->curve[0x00] );
-        list_execargdata ( ork->lremovedRotSegments, g3dcurve_removeSegment, ork->obj->curve[0x01] );
-        list_execargdata ( ork->lremovedScaSegments, g3dcurve_removeSegment, ork->obj->curve[0x02] );
+        list_execargdata ( ork->lremovedPosSegments, LIST_FUNCARGDATA(g3dcurve_removeSegment), ork->obj->curve[0x00] );
+        list_execargdata ( ork->lremovedRotSegments, LIST_FUNCARGDATA(g3dcurve_removeSegment), ork->obj->curve[0x01] );
+        list_execargdata ( ork->lremovedScaSegments, LIST_FUNCARGDATA(g3dcurve_removeSegment), ork->obj->curve[0x02] );
 
-        list_execargdata ( ork->laddedPosSegments, g3dcurve_addSegment, ork->obj->curve[0x00] );
-        list_execargdata ( ork->laddedRotSegments, g3dcurve_addSegment, ork->obj->curve[0x01] );
-        list_execargdata ( ork->laddedScaSegments, g3dcurve_addSegment, ork->obj->curve[0x02] );
+        list_execargdata ( ork->laddedPosSegments, LIST_FUNCARGDATA(g3dcurve_addSegment), ork->obj->curve[0x00] );
+        list_execargdata ( ork->laddedRotSegments, LIST_FUNCARGDATA(g3dcurve_addSegment), ork->obj->curve[0x01] );
+        list_execargdata ( ork->laddedScaSegments, LIST_FUNCARGDATA(g3dcurve_addSegment), ork->obj->curve[0x02] );
 
         ltmpork = ltmpork->next;
     }

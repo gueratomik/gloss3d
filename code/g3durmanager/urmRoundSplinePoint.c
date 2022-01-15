@@ -64,6 +64,7 @@ void roundSplinePoint_free ( void *data, uint32_t commit ) {
 
     list_free ( &rsp->lselectedPoints, NULL );
     list_free ( &rsp->lsegments, NULL );
+
     free ( rsp->pos );
 
     urmRoundSplinePoint_free ( rsp );
@@ -78,11 +79,9 @@ void roundSplinePoint_undo ( G3DURMANAGER *urm,
     g3dcubicsegment_setHandlePositionFromList ( rsp->lsegments, rsp->pos );
 
     /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( rsp->spline, 
-                     NULL,
-                     NULL,
-                     NULL,
-                     UPDATEMODIFIERS, engine_flags );
+    g3dspline_update ( rsp->spline, 
+                       NULL,
+                       UPDATEMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -99,11 +98,9 @@ void roundSplinePoint_redo ( G3DURMANAGER *urm,
     ((G3DMESH*)rsp->spline)->lselver = lbackupSelectedPoints;
 
     /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( rsp->spline, 
-                     NULL,
-                     NULL,
-                     NULL,
-                     UPDATEMODIFIERS, engine_flags );
+    g3dspline_update ( rsp->spline, 
+                       NULL,
+                       UPDATEMODIFIERS, engine_flags );
 }
 
 /******************************************************************************/
@@ -128,10 +125,8 @@ void g3durm_spline_roundSelectedPoints ( G3DURMANAGER     *urm,
 
 
         /*** Rebuild the spline modifiers ***/
-        g3dmesh_update ( spline, NULL,
-                                 NULL,
-                                 NULL,
-                                 UPDATEMODIFIERS, engine_flags );
+        g3dspline_update ( spline, NULL,
+                                   UPDATEMODIFIERS, engine_flags );
 
         /* remember it for undoing */
         rsp = urmRoundSplinePoint_new ( spline, 

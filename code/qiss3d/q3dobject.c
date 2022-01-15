@@ -107,8 +107,9 @@ static void q3dobject_default_free ( Q3DOBJECT *qobj ) {
 }
 
 /******************************************************************************/
-static uint32_t q3dobject_default_intersect ( Q3DOBJECT *qobj,
-                                              Q3DRAY    *qray,
+static uint32_t q3dobject_default_intersect ( Q3DOBJECT  *qobj,
+                                              Q3DRAY     *qray,
+                                              Q3DSURFACE *discard,
                                               uint32_t  (*cond)(Q3DOBJECT *, 
                                                                 void      *),
                                               void       *condData,

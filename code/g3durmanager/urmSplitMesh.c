@@ -70,11 +70,11 @@ void splitMesh_free ( void *data, uint32_t commit ) {
     URMSPLITMESH *sms = ( URMSPLITMESH * ) data;
 
     if ( commit ) {
-        list_exec ( sms->loldver, (void(*)(void*)) g3dvertex_free );
-        list_exec ( sms->loldfac, (void(*)(void*)) g3dface_free   );
-        list_exec ( sms->loldedg, (void(*)(void*)) g3dedge_free   );
+        list_exec ( sms->loldver, LIST_FUNCDATA(g3dvertex_free) );
+        list_exec ( sms->loldfac, LIST_FUNCDATA(g3dface_free)   );
+        list_exec ( sms->loldedg, LIST_FUNCDATA(g3dedge_free)   );
     } else {
-        g3dmesh_free ( sms->splmes );
+        g3dmesh_free ( ( G3DOBJECT * ) sms->splmes );
     }
 
     urmSplitMesh_free ( sms );
@@ -88,14 +88,15 @@ void splitMesh_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     g3dmesh_unselectAllFaces ( mes );
 
     /*** restore deleted vertices ***/
-    list_execargdata ( sms->loldver, (void(*)(void*,void*)) g3dmesh_addVertex, mes );
+    list_execargdata ( sms->loldver, LIST_FUNCARGDATA(g3dmesh_addVertex), mes );
 
     /*** restore deleted faces ***/
-    list_execargdata ( sms->loldedg, (void(*)(void*,void*)) g3dmesh_addEdge, mes );
-    list_execargdata ( sms->loldfac, (void(*)(void*,void*)) g3dmesh_addFace, mes );
+    list_execargdata ( sms->loldedg, LIST_FUNCARGDATA(g3dmesh_addEdge), mes );
+    list_execargdata ( sms->loldfac, LIST_FUNCARGDATA(g3dmesh_addFace), mes );
 
     /*** delete created mesh ***/
-    g3dobject_removeChild ( ((G3DOBJECT*)mes)->parent, sms->splmes, engine_flags );
+    g3dobject_removeChild ( ((G3DOBJECT*)mes)->parent, 
+                            (G3DOBJECT*)sms->splmes, engine_flags );
 
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,
@@ -115,13 +116,14 @@ void splitMesh_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     g3dmesh_unselectAllVertices ( mes );
 
     /*** delete old faces ***/
-    list_execargdata ( sms->loldfac, (void(*)(void*,void*)) g3dmesh_removeFace, mes );
+    list_execargdata ( sms->loldfac, LIST_FUNCARGDATA(g3dmesh_removeFace), mes );
 
     /*** Deleted old vertices ***/
-    list_execargdata ( sms->loldver, (void(*)(void*,void*)) g3dmesh_removeVertex, mes );
+    list_execargdata ( sms->loldver, LIST_FUNCARGDATA(g3dmesh_removeVertex), mes );
 
     /*** add created vertex ***/
-    g3dobject_addChild ( ((G3DOBJECT*)mes)->parent, sms->splmes, engine_flags );
+    g3dobject_addChild ( ((G3DOBJECT*)mes)->parent,
+                          (G3DOBJECT*)sms->splmes, engine_flags );
 
 
     /*** Rebuild the mesh with modifiers ***/
@@ -153,7 +155,7 @@ void g3durm_mesh_split ( G3DURMANAGER *urm,
                                          &loldfac, 
                                           engine_flags );
 
-    g3dobject_addChild ( ((G3DOBJECT*)mes)->parent, splmes, engine_flags );
+    g3dobject_addChild ( ((G3DOBJECT*)mes)->parent, ( G3DOBJECT * ) splmes, engine_flags );
 
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, NULL,

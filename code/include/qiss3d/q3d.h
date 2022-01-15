@@ -223,6 +223,8 @@ typedef G3DRGBA         Q3DRGBA;
 
 /******************************************************************************/
 #define Q3DFREE_CALLBACK(f)      ((void(*)(Q3DOBJECT*))f)
+#define Q3DIMPORT_CALLBACK(f)    ((void(*)(Q3DOBJECT*, \
+                                           Q3DSCENE * ))f)
 #define Q3DINTERSECT_CALLBACK(f) ((uint32_t(*)(Q3DOBJECT*,\
                                                Q3DRAY*,\
                                                Q3DSURFACE*,\

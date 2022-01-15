@@ -53,7 +53,7 @@ void q3djob_end ( Q3DJOB *qjob ) {
 /******************************************************************************/
 void q3djob_freeFilters ( Q3DJOB *qjob ) {
     uint32_t nbfil = sizeof ( Q3DFILTERSET ) / sizeof ( Q3DFILTER * );
-    Q3DFILTER **qfil = ( Q3DFILTER * ) &qjob->filters;
+    Q3DFILTER **qfil = ( Q3DFILTER ** ) &qjob->filters;
     uint32_t i;
 
     for ( i = 0x00; i < nbfil; i++ ) {
@@ -479,8 +479,8 @@ static void q3djob_initFilters ( Q3DJOB    *qjob,
 
 /******************************************************************************/
 void q3djob_clear ( Q3DJOB *qjob ) {
-    if ( qjob->qsce ) q3dobject_free_r ( qjob->qsce );
-    if ( qjob->qcam ) q3dobject_free   ( qjob->qcam );
+    if ( qjob->qsce ) q3dobject_free_r ( ( Q3DOBJECT * ) qjob->qsce );
+    if ( qjob->qcam ) q3dobject_free   ( ( Q3DOBJECT * ) qjob->qcam );
 
     qjob->qsce = NULL;
     qjob->qcam = NULL;

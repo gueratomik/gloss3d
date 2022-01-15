@@ -65,7 +65,7 @@ void addSplinePoint_free ( void *data, uint32_t commit ) {
     if ( commit == 0x00 ) {
         g3dcurvepoint_free ( asp->pt );
 
-        if ( asp->seg ) g3dcubicsegment_free ( asp->seg );
+        if ( asp->seg ) g3dcubicsegment_free ( ( G3DCUBICSEGMENT * ) asp->seg );
     }
 
     urmAddSplinePoint_free ( asp );

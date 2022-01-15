@@ -52,8 +52,8 @@ static void saa ( unsigned char *srcimg,
     switch ( depth ) {
         case 0x18 :
         case 0x20 : {
-            unsigned char (*refimg)[0x03] = srcimg,
-                          (*saaimg)[0x03] = dstimg;
+            unsigned char (*refimg)[0x03] = ( unsigned char (*)[0x03]) srcimg,
+                          (*saaimg)[0x03] = ( unsigned char (*)[0x03]) dstimg;
             /*** the pixel weighs x times more than adjacent pixels ***/
             uint32_t weight = 0x01;
             uint32_t dstR = refimg[offset][0x00] * weight, 
@@ -114,6 +114,7 @@ static FILTERSIMPLEAA *filtersimpleaa_new ( ) {
 /******************************************************************************/
 static uint32_t filtersimpleaa_draw ( Q3DFILTER     *fil, 
                                       Q3DJOB        *qjob,
+                                      uint32_t       cpuID,
                                       float          frameID,
                                       unsigned char *img, 
                                       uint32_t       from, 
