@@ -55,7 +55,7 @@ static uint32_t g3dexportv3plane ( G3DEXPORTV3DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_PLANE_BASE,
-                                     g3dexportv3plane_base,
+                   EXPORTV3_CALLBACK(g3dexportv3plane_base),
                                      ged,
                                      pri,
                                      0xFFFFFFFF,
@@ -91,7 +91,7 @@ static uint32_t g3dexportv3tube ( G3DEXPORTV3DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_TUBE_BASE,
-                                     g3dexportv3tube_base,
+                   EXPORTV3_CALLBACK(g3dexportv3tube_base),
                                      ged,
                                      pri,
                                      0xFFFFFFFF,
@@ -127,7 +127,7 @@ static uint32_t g3dexportv3cylinder ( G3DEXPORTV3DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_CYLINDER_BASE,
-                                     g3dexportv3cylinder_base,
+                   EXPORTV3_CALLBACK(g3dexportv3cylinder_base),
                                      ged,
                                      pri,
                                      0xFFFFFFFF,
@@ -160,7 +160,7 @@ static uint32_t g3dexportv3cube ( G3DEXPORTV3DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_CUBE_BASE,
-                                     g3dexportv3cube_base,
+                   EXPORTV3_CALLBACK(g3dexportv3cube_base),
                                      ged,
                                      pri,
                                      0xFFFFFFFF,
@@ -194,7 +194,7 @@ static uint32_t g3dexportv3torus ( G3DEXPORTV3DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_TORUS_BASE,
-                                     g3dexportv3torus_base,
+                    EXPORTV3_CALLBACK(g3dexportv3torus_base),
                                      ged,
                                      pri,
                                      0xFFFFFFFF,
@@ -226,7 +226,7 @@ static uint32_t g3dexportv3sphere ( G3DEXPORTV3DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_SPHERE_BASE,
-                                     g3dexportv3sphere_base,
+                   EXPORTV3_CALLBACK(g3dexportv3sphere_base),
                                      ged,
                                      pri,
                                      0xFFFFFFFF,
@@ -244,56 +244,56 @@ uint32_t g3dexportv3primitive ( G3DEXPORTV3DATA *ged,
 
     if ( obj->type == G3DSPHERETYPE ) {
         size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_SPHERE,
-                                       g3dexportv3sphere,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV3_CALLBACK(g3dexportv3sphere),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DTORUSTYPE ) {
         size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_TORUS,
-                                       g3dexportv3torus,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV3_CALLBACK(g3dexportv3torus),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DCUBETYPE ) {
         size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_CUBE,
-                                       g3dexportv3cube,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV3_CALLBACK(g3dexportv3cube),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DCYLINDERTYPE ) {
         size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_CYLINDER,
-                                       g3dexportv3cylinder,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV3_CALLBACK(g3dexportv3cylinder),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DTUBETYPE ) {
         size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_TUBE,
-                                       g3dexportv3tube,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV3_CALLBACK(g3dexportv3tube),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DPLANETYPE ) {
         size += g3dexportv3_writeChunk ( SIG_OBJECT_PRIMITIVE_PLANE,
-                                       g3dexportv3plane,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV3_CALLBACK(g3dexportv3plane),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     return size;

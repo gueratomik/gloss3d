@@ -94,18 +94,18 @@ static uint32_t g3dexportv3spline_geometry ( G3DEXPORTV3DATA*ged,
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_SPLINE_GEOMETRY_POINTS,
-                                   g3dexportv3spline_geometryPoints,
-                                   ged,
-                                   spl,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV3_CALLBACK(g3dexportv3spline_geometryPoints),
+                                     ged,
+                                     spl,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_SPLINE_GEOMETRY_SEGMENTS,
-                                   g3dexportv3spline_geometrySegments,
-                                   ged,
-                                   spl,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV3_CALLBACK(g3dexportv3spline_geometrySegments),
+                                     ged,
+                                     spl,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -118,11 +118,11 @@ uint32_t g3dexportv3spline ( G3DEXPORTV3DATA*ged,
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_SPLINE_GEOMETRY,
-                                   g3dexportv3spline_geometry,
-                                   ged,
-                                   spl,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV3_CALLBACK(g3dexportv3spline_geometry),
+                                     ged,
+                                     spl,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }

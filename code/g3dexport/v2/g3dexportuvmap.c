@@ -148,48 +148,48 @@ uint32_t g3dexportv2uvmap ( G3DEXPORTV2DATA  *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_UVMAP_PROJECTION,
-                                   g3dexportv2uvmap_projection,
-                                   ged,
-                                   uvmap,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2uvmap_projection),
+                                     ged,
+                                     uvmap,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_UVMAP_NAME,
-                                   g3dexportv2uvmap_name,
-                                   ged,
-                                   uvmap,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2uvmap_name),
+                                     ged,
+                                     uvmap,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_UVMAP_FLAGS,
-                                   g3dexportv2uvmap_flags,
-                                   ged,
-                                   uvmap,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2uvmap_flags),
+                                     ged,
+                                     uvmap,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_UVMAP_RADIUS,
-                                   g3dexportv2uvmap_radius,
-                                   ged,
-                                   uvmap,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2uvmap_radius),
+                                     ged,
+                                     uvmap,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     if ( ((G3DOBJECT*)uvmap)->flags & UVMAPFIXED ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_UVMAP_UVSETS,
-                                       g3dexportv2uvmap_UVSets,
-                                       ged,
-                                       uvmap,
-                                       0xFFFFFFFF,
-                                       fdst );
+                      EXPORTV2_CALLBACK(g3dexportv2uvmap_UVSets),
+                                         ged,
+                                         uvmap,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_UVMAP_TRANSFORMATION,
-                                   g3dexportv2uvmap_transformation,
-                                   ged,
-                                   uvmap,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2uvmap_transformation),
+                                     ged,
+                                     uvmap,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }

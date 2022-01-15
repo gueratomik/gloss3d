@@ -72,14 +72,14 @@ static uint32_t g3dexportv2mesh_facegroupEntry ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     /*size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_FACEGROUP_NAME,
-                                   g3dexportv2mesh_facegroupName,
+                    EXPORTV2_CALLBACK(g3dexportv2mesh_facegroupName),
                                    ged,
                                    grp,
                                    0xFFFFFFFF,
                                    fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_FACEGROUP_FACES,
-                                   g3dexportv2mesh_facegroupFaces,
+                    EXPORTV2_CALLBACK(g3dexportv2mesh_facegroupFaces),
                                    ged,
                                    grp,
                                    0xFFFFFFFF,
@@ -103,11 +103,11 @@ static uint32_t g3dexportv2mesh_facegroups ( G3DEXPORTV2DATA *ged,
         grp->id = grpid++; /*** for indexation by textures ***/
 
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_FACEGROUP_ENTRY,
-                                       g3dexportv2mesh_facegroupEntry,
-                                       ged,
-                                       grp,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2mesh_facegroupEntry),
+                                         ged,
+                                         grp,
+                                         0xFFFFFFFF,
+                                         fdst );
 
         ltmpgrp = ltmpgrp->next;
     }
@@ -157,18 +157,18 @@ static uint32_t g3dexportv2mesh_weightgroupEntry ( G3DEXPORTV2DATA  *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_WEIGHTGROUP_NAME,
-                                   g3dexportv2mesh_weightgroupName,
-                                   ged,
-                                   grp,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2mesh_weightgroupName),
+                                     ged,
+                                     grp,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_WEIGHTGROUP_WEIGHTS,
-                                   g3dexportv2mesh_weightgroupWeights,
-                                   ged,
-                                   grp,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2mesh_weightgroupWeights),
+                                     ged,
+                                     grp,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -188,11 +188,11 @@ static uint32_t g3dexportv2mesh_weightgroups ( G3DEXPORTV2DATA *ged,
         grp->id = grpid++; /*** for indexation by skeleton ***/
 
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_WEIGHTGROUP_ENTRY,
-                                       g3dexportv2mesh_weightgroupEntry,
-                                       ged,
-                                       grp,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2mesh_weightgroupEntry),
+                                         ged,
+                                         grp,
+                                         0xFFFFFFFF,
+                                         fdst );
 
         ltmpgrp = ltmpgrp->next;
     }
@@ -328,29 +328,29 @@ static uint32_t g3dexportv2mesh_geometry ( G3DEXPORTV2DATA *ged,
 
     if ( mes->lver ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_GEOMETRY_VERTICES,
-                                       g3dexportv2mesh_geometryVertices,
-                                       ged,
-                                       mes,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2mesh_geometryVertices),
+                                         ged,
+                                         mes,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( mes->ledg ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_GEOMETRY_EDGES,
-                                       g3dexportv2mesh_geometryEdges,
-                                       ged,
-                                       mes,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2mesh_geometryEdges),
+                                         ged,
+                                         mes,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( mes->lfac ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_GEOMETRY_POLYGONS_WITH_EDGES,
-                                       g3dexportv2mesh_geometryPolygonsWithEdges,
-                                       ged,
-                                       mes,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2mesh_geometryPolygonsWithEdges),
+                                         ged,
+                                         mes,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     return size;
@@ -364,15 +364,15 @@ uint32_t g3dexportv2mesh ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_GEOMETRY,
-                                   g3dexportv2mesh_geometry,
-                                   ged,
-                                   mes,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2mesh_geometry),
+                                     ged,
+                                     mes,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     if ( mes->lweigrp ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_WEIGHTGROUPS,
-                                       g3dexportv2mesh_weightgroups,
+                       EXPORTV2_CALLBACK(g3dexportv2mesh_weightgroups),
                                        ged,
                                        mes,
                                        0xFFFFFFFF,
@@ -382,7 +382,7 @@ uint32_t g3dexportv2mesh ( G3DEXPORTV2DATA *ged,
     /***  Note: discontinued due to structure change ***/
     /*if ( mes->lfacgrp ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_FACEGROUPS,
-                                       g3dexportv2mesh_facegroups,
+                       EXPORTV2_CALLBACK(g3dexportv2mesh_facegroups),
                                        ged,
                                        mes,
                                        0xFFFFFFFF,

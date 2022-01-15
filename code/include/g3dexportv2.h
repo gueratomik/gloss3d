@@ -49,7 +49,7 @@
 
 #include "signaturesv2.h"
 
-#define EXPORT_CALLBACK(f) ((uint32_t(*)(G3DEXPORTV2DATA*,void*,uint32_t,FILE *))f)
+#define EXPORTV2_CALLBACK(f) ((uint32_t(*)(G3DEXPORTV2DATA*,void*,uint32_t,FILE *))f)
 
 typedef struct _G3DEXPORTV2DATA {
     G3DSCENE  *currentScene;
@@ -189,10 +189,10 @@ uint32_t g3dexportv2_fwritel ( uint32_t *l, FILE *stream );
 uint32_t g3dexportv2_fwritell ( uint64_t *ll, FILE *stream );
 
 G3DEXPORTV2EXTENSION *g3dexportv2extension_new ( uint32_t signature,
-                                             uint32_t (*write)( G3DEXPORTV2DATA      *ged, 
-                                                                G3DEXPORTV2EXTENSION *ext, 
-                                                                uint32_t            flags, 
-                                                                FILE               *fdst ),
+                                             uint32_t (*write)( G3DEXPORTV2DATA *ged, 
+                                                                void            *data, 
+                                                                uint32_t         flags, 
+                                                                FILE            *fdst ),
                                              void      *data );
 void g3dexportv2extension_free ( G3DEXPORTV2EXTENSION *ext );
 

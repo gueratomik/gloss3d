@@ -48,11 +48,11 @@ uint32_t g3dexportv2camera ( G3DEXPORTV2DATA *ged,
 
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_CAMERA_FOCAL,
-                                   g3dexportv2camera_focal,
-                                   ged,
-                                   cam,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2camera_focal),
+                                     ged,
+                                     cam,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }

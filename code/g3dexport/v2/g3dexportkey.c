@@ -97,11 +97,11 @@ static uint32_t g3dexportv2key_dataMorpherSlotOptions ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_DATA_MORPHER_SLOT_OPTIONS_RATE,
-                                   g3dexportv2key_dataMorpherSlotOptionsRate,
-                                   ged,
-                                   key,
-                                   slotID,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2key_dataMorpherSlotOptionsRate),
+                                     ged,
+                                     key,
+                                     slotID,
+                                     fdst );
 
     return size;
 }
@@ -129,18 +129,18 @@ static uint32_t g3dexportv2key_dataMorpherSlotEntry ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_DATA_MORPHER_SLOT_ID,
-                                   g3dexportv2key_dataMorpherSlotID,
-                                   ged,
-                                   key,
-                                   slotID,
-                                   fdst );
+                    EXPORTV2_CALLBACK(g3dexportv2key_dataMorpherSlotID),
+                                     ged,
+                                     key,
+                                     slotID,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_DATA_MORPHER_SLOT_OPTIONS,
-                                   g3dexportv2key_dataMorpherSlotOptions,
-                                   ged,
-                                   key,
-                                   slotID,
-                                   fdst );
+                    EXPORTV2_CALLBACK(g3dexportv2key_dataMorpherSlotOptions),
+                                     ged,
+                                     key,
+                                     slotID,
+                                     fdst );
 
     return size;
 }
@@ -159,11 +159,11 @@ static uint32_t g3dexportv2key_dataMorpherSlots ( G3DEXPORTV2DATA *ged,
 
         if ( g3dmorpherkey_isMeshPoseEnabled ( key, mpose->slotID ) ) {
             size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_DATA_MORPHER_SLOT_ENTRY,
-                                           g3dexportv2key_dataMorpherSlotEntry,
-                                           ged,
-                                           key,
-                                           mpose->slotID,
-                                           fdst );
+                           EXPORTV2_CALLBACK(g3dexportv2key_dataMorpherSlotEntry),
+                                             ged,
+                                             key,
+                                             mpose->slotID,
+                                             fdst );
         }
 
         ltmpmpose = ltmpmpose->next;
@@ -182,11 +182,11 @@ static uint32_t g3dexportv2key_dataMorpher ( G3DEXPORTV2DATA *ged,
     switch ( ged->currentObject->type ) {
         case G3DMORPHERTYPE :
             size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_DATA_MORPHER_SLOTS,
-                                           g3dexportv2key_dataMorpherSlots,
-                                           ged,
-                                           key,
-                                           0xFFFFFFFF,
-                                           fdst );
+                           EXPORTV2_CALLBACK(g3dexportv2key_dataMorpherSlots),
+                                             ged,
+                                             key,
+                                             0xFFFFFFFF,
+                                             fdst );
         break;
     }
 
@@ -211,20 +211,20 @@ static uint32_t g3dexportv2key_data ( G3DEXPORTV2DATA *ged,
     switch ( ged->currentObject->type ) {
         case G3DMORPHERTYPE :
             size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_DATA_MORPHER,
-                                           g3dexportv2key_dataMorpher,
-                                           ged,
-                                           key,
-                                           0xFFFFFFFF,
-                                           fdst );
+                           EXPORTV2_CALLBACK(g3dexportv2key_dataMorpher),
+                                             ged,
+                                             key,
+                                             0xFFFFFFFF,
+                                             fdst );
         break;
 
         case G3DLIGHTTYPE :
             size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_DATA_LIGHT,
-                                           g3dexportv2key_dataLight,
-                                           ged,
-                                           key,
-                                           0xFFFFFFFF,
-                                           fdst );
+                           EXPORTV2_CALLBACK(g3dexportv2key_dataLight),
+                                             ged,
+                                             key,
+                                             0xFFFFFFFF,
+                                             fdst );
         break;
 
         default :
@@ -294,32 +294,32 @@ static uint32_t g3dexportv2key_flags ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_FLAGS_TRANSLATION,
-                                   g3dexportv2key_flagsTranslation,
-                                   ged,
-                                   key,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2key_flagsTranslation),
+                                     ged,
+                                     key,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_FLAGS_ROTATION,
-                                   g3dexportv2key_flagsRotation,
-                                   ged,
-                                   key,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2key_flagsRotation),
+                                     ged,
+                                     key,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_FLAGS_SCALING,
-                                   g3dexportv2key_flagsScaling,
-                                   ged,
-                                   key,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2key_flagsScaling),
+                                     ged,
+                                     key,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_FLAGS_DATA,
-                                   g3dexportv2key_flagsData,
-                                   ged,
-                                   key,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2key_flagsData),
+                                     ged,
+                                     key,
+                                     0xFFFFFFFF,
+                                     fdst );
 
 
     return size;
@@ -333,35 +333,35 @@ uint32_t g3dexportv2key ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_FLAGS,
-                                   g3dexportv2key_flags,
-                                   ged,
-                                   key,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2key_flags),
+                                     ged,
+                                     key,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_TRANSFORMATION,
-                                   g3dexportv2key_transformation,
-                                   ged,
-                                   key,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2key_transformation),
+                                     ged,
+                                     key,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     if ( key->flags & KEYLOOP ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_LOOP,
-                                       g3dexportv2key_loop,
-                                       ged,
-                                       key,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2key_loop),
+                                         ged,
+                                         key,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( key->flags & KEYDATA ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_DATA,
-                                       g3dexportv2key_data,
-                                       ged,
-                                       key,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2key_data),
+                                         ged,
+                                         key,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     return size;

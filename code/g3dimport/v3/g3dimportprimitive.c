@@ -54,7 +54,7 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
                 g3dimportv3_freadl ( &slice , fsrc );
                 g3dimportv3_freadl ( &cap   , fsrc );
 
-                g3dsphere_build ( gid->currentObject,  
+                g3dsphere_build ( ( G3DPRIMITIVE * ) gid->currentObject,  
                                   slice, 
                                   cap, 
                                   radius );
@@ -69,11 +69,11 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
                 float radius;
 
                 g3dimportv3_freadf ( &radius, fsrc );
-                g3dimportv3_freadf ( &nbx   , fsrc );
+                g3dimportv3_freadl ( &nbx   , fsrc );
                 g3dimportv3_freadl ( &nby   , fsrc );
                 g3dimportv3_freadl ( &nbz   , fsrc );
 
-                g3dcube_build ( gid->currentObject,
+                g3dcube_build ( ( G3DPRIMITIVE * ) gid->currentObject,
                                 nbx,
                                 nby,
                                 nbz,
@@ -94,7 +94,7 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
                 g3dimportv3_freadl ( &cap        , fsrc );
                 g3dimportv3_freadl ( &orientation, fsrc );
 
-                g3dtorus_build ( gid->currentObject,
+                g3dtorus_build ( ( G3DPRIMITIVE * ) gid->currentObject,
                                  orientation,
                                  slice,
                                  cap,
@@ -118,7 +118,7 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
                 g3dimportv3_freadl ( &closed     , fsrc );
                 g3dimportv3_freadl ( &orientation, fsrc );
 
-                g3dcylinder_build ( gid->currentObject,
+                g3dcylinder_build ( ( G3DPRIMITIVE * ) gid->currentObject,
                                     slice,
                                     capx,
                                     capy, 
@@ -141,7 +141,7 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
                 g3dimportv3_freadf ( &thickness  , fsrc );
                 g3dimportv3_freadl ( &orientation, fsrc );
 
-                g3dtube_build ( gid->currentObject,
+                g3dtube_build ( ( G3DPRIMITIVE * ) gid->currentObject,
                                 slice,
                                 capx,
                                 capy, 
@@ -164,7 +164,7 @@ void g3dimportv3primitive ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc 
                 g3dimportv3_freadl ( &nbv        , fsrc );
                 g3dimportv3_freadl ( &orientation, fsrc );
 
-                g3dplane_build ( gid->currentObject,
+                g3dplane_build ( ( G3DPRIMITIVE * ) gid->currentObject,
                                  orientation,
                                  nbu, 
                                  nbv, 

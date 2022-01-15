@@ -112,28 +112,28 @@ static uint32_t g3dexportv3text_font ( G3DEXPORTV3DATA *ged,
 
     if ( txt->fontFaceFile ) {
         size += g3dexportv3_writeChunk ( SIG_OBJECT_TEXT_FONT_FILE,
-                                       g3dexportv3text_fontFile,
-                                       ged,
-                                       txt,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV3_CALLBACK(g3dexportv3text_fontFile),
+                                         ged,
+                                         txt,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( txt->fontFaceName ) {
         size += g3dexportv3_writeChunk ( SIG_OBJECT_TEXT_FONT_FACE,
-                                       g3dexportv3text_fontFace,
-                                       ged,
-                                       txt,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV3_CALLBACK(g3dexportv3text_fontFace),
+                                         ged,
+                                         txt,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_TEXT_FONT_SIZE,
-                                   g3dexportv3text_fontSize,
-                                   ged,
-                                   txt,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV3_CALLBACK(g3dexportv3text_fontSize),
+                                     ged,
+                                     txt,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -146,33 +146,33 @@ uint32_t g3dexportv3text ( G3DEXPORTV3DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_TEXT_FONT,
-                                   g3dexportv3text_font,
-                                   ged,
-                                   txt,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV3_CALLBACK(g3dexportv3text_font),
+                                     ged,
+                                     txt,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_TEXT_THICKNESS,
-                                   g3dexportv3text_thickness,
-                                   ged,
-                                   txt,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV3_CALLBACK(g3dexportv3text_thickness),
+                                     ged,
+                                     txt,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_TEXT_ROUNDNESS,
-                                   g3dexportv3text_roundness,
-                                   ged,
-                                   txt,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV3_CALLBACK(g3dexportv3text_roundness),
+                                     ged,
+                                     txt,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     if ( txt->text ) {
         size += g3dexportv3_writeChunk ( SIG_OBJECT_TEXT_STRING,
-                                       g3dexportv3text_string,
-                                       ged,
-                                       txt,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV3_CALLBACK(g3dexportv3text_string),
+                                         ged,
+                                         txt,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     return size;

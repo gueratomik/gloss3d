@@ -147,6 +147,7 @@
 #define  SIG_OBJECT_MORPHER_MESHPOSE_NAME                    0x6973ADDF
 #define  SIG_OBJECT_MORPHER_MESHPOSES                        0xDFAC03AC
 #define  SIG_OBJECT_MORPHER_MESHPOSE_SLOT_ID                 0x9FCAD991
+#define  SIG_OBJECT_MORPHER_MESHPOSE_SLOT_ID64               0x56F4F24C
 #define  SIG_OBJECT_MORPHER_RESETPOSITIONS                   0x14792184
 #define  SIG_OBJECT_MORPHER_VERTEX_COUNT                     0xD1AA812A
 #define  SIG_OBJECT_NOSHADING                                0xF717F39F

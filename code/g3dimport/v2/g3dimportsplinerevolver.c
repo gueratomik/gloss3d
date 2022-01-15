@@ -46,8 +46,8 @@ void g3dimportv2splinerevolver ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *
             case SIG_OBJECT_SPLINEREVOLVER_GEOMETRY : {
                 G3DSPLINEREVOLVER *srv = ( G3DSPLINEREVOLVER * ) gid->currentObject;
 
-                g3dimportv2_freadf ( &srv->nbsteps, fsrc );
-                g3dimportv2_freadf ( &srv->nbdivis, fsrc );
+                g3dimportv2_freadl ( &srv->nbsteps, fsrc );
+                g3dimportv2_freadl ( &srv->nbdivis, fsrc );
             } break;
 
             default : {

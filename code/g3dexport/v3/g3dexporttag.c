@@ -62,7 +62,7 @@ static uint32_t g3dexportv3tag_tracker ( G3DEXPORTV3DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_TAG_TRACKER_ORIENTATION,
-                                     g3dexportv3tag_trackerOrientation,
+                   EXPORTV3_CALLBACK(g3dexportv3tag_trackerOrientation),
                                      ged,
                                      ttag,
                                      flags,
@@ -73,7 +73,7 @@ static uint32_t g3dexportv3tag_tracker ( G3DEXPORTV3DATA *ged,
             /*** useful check in case the target has been removed but not freed ***/
             if ( ( ttag->target->flags & OBJECTORPHANED ) == 0x00 ) {
                 size += g3dexportv3_writeChunk ( SIG_OBJECT_TAG_TRACKER_TARGET,
-                                                 g3dexportv3tag_trackerTarget,
+                               EXPORTV3_CALLBACK(g3dexportv3tag_trackerTarget),
                                                  ged,
                                                  ttag,
                                                  flags,
@@ -95,7 +95,7 @@ uint32_t g3dexportv3tag ( G3DEXPORTV3DATA *ged,
     switch ( tag->type ) {
         case G3DTAGTRACKERTYPE : {
             size += g3dexportv3_writeChunk ( SIG_OBJECT_TAG_TRACKER,
-                                             g3dexportv3tag_tracker,
+                           EXPORTV3_CALLBACK(g3dexportv3tag_tracker),
                                              ged,
                                              tag,
                                              0xFFFFFFFF,

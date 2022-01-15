@@ -38,7 +38,7 @@ uint32_t g3dexportv2skin ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     /*size += g3dexportv2_writeChunk ( SIG_OBJECT_BONE_LENGTH,
-                                   g3dexportv2bone_length,
+                      EXPORTV2_CALLBACK(g3dexportv2bone_length),
                                    ged,
                                    bon,
                                    0xFFFFFFFF,

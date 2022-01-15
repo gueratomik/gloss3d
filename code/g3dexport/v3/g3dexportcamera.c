@@ -32,9 +32,9 @@
 
 /******************************************************************************/
 static uint32_t g3dexportv3camera_focal ( G3DEXPORTV3DATA *ged, 
-                                        G3DCAMERA     *cam, 
-                                        uint32_t       flags, 
-                                        FILE          *fdst ) {
+                                          G3DCAMERA       *cam, 
+                                          uint32_t        flags, 
+                                          FILE           *fdst ) {
     return g3dexportv3_fwritef ( &cam->focal, fdst );
 }
 
@@ -48,11 +48,11 @@ uint32_t g3dexportv3camera ( G3DEXPORTV3DATA *ged,
 
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_CAMERA_FOCAL,
-                                   g3dexportv3camera_focal,
-                                   ged,
-                                   cam,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV3_CALLBACK(g3dexportv3camera_focal),
+                                     ged,
+                                     cam,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }

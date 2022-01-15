@@ -83,28 +83,28 @@ static uint32_t g3dexportv2object_textureEntry  ( G3DEXPORTV2DATA  *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXTURE_MATERIAL,
-                                   g3dexportv2object_textureMaterial,
-                                   ged,
-                                   tex,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2object_textureMaterial),
+                                     ged,
+                                     tex,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     if ( tex->map ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXTURE_UVMAP,
-                                       g3dexportv2object_textureUVMap,
-                                       ged,
-                                       tex,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2object_textureUVMap),
+                                         ged,
+                                         tex,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( tex->flags & TEXTURERESTRICTED ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXTURE_RESTRICT,
-                                       g3dexportv2object_textureRestrict,
-                                       ged,
-                                       tex,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2object_textureRestrict),
+                                         ged,
+                                         tex,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     return size;
@@ -122,11 +122,11 @@ static uint32_t g3dexportv2object_textures  ( G3DEXPORTV2DATA  *ged,
         G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
 
         size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXTURE_ENTRY,
-                                       g3dexportv2object_textureEntry,
-                                       ged,
-                                       tex,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2object_textureEntry),
+                                         ged,
+                                         tex,
+                                         0xFFFFFFFF,
+                                         fdst );
 
         ltmptex = ltmptex->next;
     }
@@ -149,11 +149,11 @@ static uint32_t g3dexportv2object_uvmaps  ( G3DEXPORTV2DATA  *ged,
         ((G3DOBJECT*)uvmap)->id = uvmapID++;
 
         size += g3dexportv2_writeChunk ( SIG_OBJECT_UVMAP_ENTRY,
-                                       g3dexportv2uvmap,
-                                       ged,
-                                       uvmap,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2uvmap),
+                                         ged,
+                                         uvmap,
+                                         0xFFFFFFFF,
+                                         fdst );
 
         ltmpuvmap = ltmpuvmap->next;
     }
@@ -176,11 +176,11 @@ static uint32_t g3dexportv2object_keys ( G3DEXPORTV2DATA *ged,
         key->id = keyID++;
 
         size += g3dexportv2_writeChunk ( SIG_OBJECT_KEY_ENTRY,
-                                       g3dexportv2key,
-                                       ged,
-                                       key,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2key),
+                                         ged,
+                                         key,
+                                         0xFFFFFFFF,
+                                         fdst );
 
         ltmpkey = ltmpkey->next;
     }
@@ -222,142 +222,142 @@ static uint32_t g3dexportv2object_identityType ( G3DEXPORTV2DATA *ged,
 
     if ( obj->type == G3DSCENETYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_SCENE,
-                                       g3dexportv2scene,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2scene),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type & PRIMITIVE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_PRIMITIVE,
-                                       g3dexportv2primitive,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2primitive),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DMESHTYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH,
-                                       g3dexportv2mesh,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2mesh),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DCAMERATYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_CAMERA,
-                                       g3dexportv2camera,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2camera),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DLIGHTTYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT,
-                                       g3dexportv2light,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2light),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DBONETYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_BONE,
-                                       g3dexportv2bone,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2bone),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DSYMMETRYTYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_SYMMETRY,
-                                       g3dexportv2symmetry,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2symmetry),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DTEXTTYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXT,
-                                       g3dexportv2text,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2text),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DSUBDIVIDERTYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_SUBDIVIDER,
-                                       g3dexportv2subdivider,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2subdivider),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DWIREFRAMETYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_WIREFRAME,
-                                       g3dexportv2wireframe,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2wireframe),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DSPLINEREVOLVERTYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_SPLINEREVOLVER,
-                                       g3dexportv2splinerevolver,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2splinerevolver),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DSPLINETYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_SPLINE,
-                                       g3dexportv2spline,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2spline),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DFFDTYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_FFD,
-                                       g3dexportv2ffd,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2ffd),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DMORPHERTYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MORPHER,
-                                       g3dexportv2morpher,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2morpher),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DSKINTYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_SKIN,
-                                       g3dexportv2skin,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2skin),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     /*if ( obj->type  & MODIFIER ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MODIFIER,
-                                       g3dexportv2modifier,
+                     EXPORTV2_CALLBACK(g3dexportv2modifier),
                                        ged,
                                        obj,
                                        0xFFFFFFFF,
@@ -402,30 +402,30 @@ static uint32_t g3dexportv2object_identity ( G3DEXPORTV2DATA *ged,
 
     /*** write object name ***/
     size += g3dexportv2_writeChunk ( SIG_OBJECT_IDENTITY_NAME,
-                                   g3dexportv2object_identityName,
-                                   ged,
-                                   obj,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2object_identityName),
+                                     ged,
+                                     obj,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     if ( obj->parent ) {
         /*** write object parent ID ***/
         size += g3dexportv2_writeChunk ( SIG_OBJECT_IDENTITY_PARENT,
-                                       g3dexportv2object_identityParent,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2object_identityParent),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     /*** write object type ***/
     size += g3dexportv2_writeChunk ( SIG_OBJECT_IDENTITY_TYPE,
-                                   g3dexportv2object_identityType,
-                                   ged,
-                                   obj,
-                                   0xFFFFFFFF,
-                                   fdst );
-
+                   EXPORTV2_CALLBACK(g3dexportv2object_identityType),
+                                     ged,
+                                     obj,
+                                     0xFFFFFFFF,
+                                     fdst );
+  
     return size;
 }
 
@@ -453,28 +453,28 @@ uint32_t g3dexportv2object ( G3DEXPORTV2DATA *ged,
 
     /*** write objet identity ***/
     size += g3dexportv2_writeChunk ( SIG_OBJECT_IDENTITY,
-                                   g3dexportv2object_identity,
-                                   ged,
-                                   obj,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2object_identity),
+                                     ged,
+                                     obj,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     /*** write objet matrix transformations ***/
     size += g3dexportv2_writeChunk ( SIG_OBJECT_TRANSFORMATION,
-                                   g3dexportv2object_transformation,
-                                   ged,
-                                   obj,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2object_transformation),
+                                     ged,
+                                     obj,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     if ( obj->lkey ) {
         /*** write object's animation keys ***/
         size += g3dexportv2_writeChunk ( SIG_OBJECT_KEYS,
-                                       g3dexportv2object_keys,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2object_keys),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     /*** This concerns primitive as well and maybe other objects in ***/
@@ -484,30 +484,30 @@ uint32_t g3dexportv2object ( G3DEXPORTV2DATA *ged,
 
         if ( mes->luvmap ) {
             size += g3dexportv2_writeChunk ( SIG_OBJECT_UVMAPS,
-                                           g3dexportv2object_uvmaps,
-                                           ged,
-                                           mes,
-                                           0xFFFFFFFF,
-                                           fdst );
+                           EXPORTV2_CALLBACK(g3dexportv2object_uvmaps),
+                                             ged,
+                                             mes,
+                                             0xFFFFFFFF,
+                                             fdst );
         }
 
         if ( mes->ltex ) {
             size += g3dexportv2_writeChunk ( SIG_OBJECT_TEXTURES,
-                                           g3dexportv2object_textures,
-                                           ged,
-                                           mes,
-                                           0xFFFFFFFF,
-                                           fdst );
+                           EXPORTV2_CALLBACK(g3dexportv2object_textures),
+                                             ged,
+                                             mes,
+                                             0xFFFFFFFF,
+                                             fdst );
         }
     }
 
     /*** write object active or not ***/
     size += g3dexportv2_writeChunk ( SIG_OBJECT_ACTIVE,
-                                   g3dexportv2object_active,
-                                   ged,
-                                   obj,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2object_active),
+                                     ged,
+                                     obj,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }

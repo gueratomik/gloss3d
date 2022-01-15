@@ -171,9 +171,9 @@ G3DSCENE *g3dscene_importv2 ( const char *filename,
     if ( gid.currentPointArray  ) free ( gid.currentPointArray  );
  
     /* apply modifiers, compute normals */
-    g3dobject_updateMeshes_r ( gid.currentScene, flags );
+    g3dobject_updateMeshes_r ( ( G3DOBJECT * ) gid.currentScene, flags );
 
-    g3dobject_anim_r ( gid.currentScene, 0, flags );
+    g3dobject_anim_r ( ( G3DOBJECT * ) gid.currentScene, 0, flags );
 
     return gid.currentScene;
 }

@@ -51,21 +51,21 @@ uint32_t g3dexportv2extension ( G3DEXPORTV2DATA       *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( ext->signature,
-                                   g3dexportv2extension_entry,
-                                   ged,
-                                   ext,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2extension_entry),
+                                     ged,
+                                     ext,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
 
 /******************************************************************************/
 G3DEXPORTV2EXTENSION *g3dexportv2extension_new ( uint32_t signature,
-                                             uint32_t (*write)( G3DEXPORTV2DATA      *ged, 
-                                                                G3DEXPORTV2EXTENSION *ext, 
-                                                                uint32_t            flags, 
-                                                                FILE               *fdst ),
+                                             uint32_t (*write)( G3DEXPORTV2DATA *ged, 
+                                                                void            *data, 
+                                                                uint32_t         flags, 
+                                                                FILE            *fdst ),
                                              void      *data ) {
     uint32_t size = sizeof ( G3DEXPORTV2EXTENSION );
     G3DEXPORTV2EXTENSION *ext = ( G3DEXPORTV2EXTENSION * ) calloc ( 0x01, size );

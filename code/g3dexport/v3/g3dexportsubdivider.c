@@ -63,18 +63,18 @@ uint32_t g3dexportv3subdivider ( G3DEXPORTV3DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_SYNC,
-                                     g3dexportv3subdivider_sync,
+                   EXPORTV3_CALLBACK(g3dexportv3subdivider_sync),
                                      ged,
                                      sdr,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_LEVEL,
-                                   g3dexportv3subdivider_level,
-                                   ged,
-                                   sdr,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV3_CALLBACK(g3dexportv3subdivider_level),
+                                     ged,
+                                     sdr,
+                                     0xFFFFFFFF,
+                                     fdst );
 
 
 

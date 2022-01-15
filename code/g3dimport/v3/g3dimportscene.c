@@ -124,132 +124,132 @@ void g3dimportv3objects_declare ( G3DIMPORTV3DATA *gid,
                 /*** again ***/
                 switch ( chunkSignature ) {
                     case SIG_OBJECT_DECLARE_SCENE : {
-                        obj = gid->currentScene;
+                        obj = ( G3DOBJECT * ) gid->currentScene;
                     } break;
 
                     case SIG_OBJECT_DECLARE_MESH : {
-                        obj = g3dmesh_new ( gid->currentObjectID++ ,
-                                            gid->currentObjectName,
-                                            gid->engineFlags );
+                        obj = ( G3DOBJECT * ) g3dmesh_new ( gid->currentObjectID++ ,
+                                                            gid->currentObjectName,
+                                                            gid->engineFlags );
                     } break;
 
                     case SIG_OBJECT_DECLARE_NULL : {
-                        obj = g3dobject_new ( gid->currentObjectID++, 
-                                              gid->currentObjectName,
-                                              0x00 );
+                        obj = ( G3DOBJECT * ) g3dobject_new ( gid->currentObjectID++, 
+                                                              gid->currentObjectName,
+                                                              0x00 );
                     } break;
 
                     case SIG_OBJECT_DECLARE_SPHERE : {
-                        obj = g3dsphere_new ( gid->currentObjectID++, 
-                                              gid->currentObjectName );
+                        obj = ( G3DOBJECT * ) g3dsphere_new ( gid->currentObjectID++, 
+                                                              gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_TORUS : {
-                        obj = g3dtorus_new ( gid->currentObjectID++, 
-                                             gid->currentObjectName );
+                        obj = ( G3DOBJECT * ) g3dtorus_new ( gid->currentObjectID++, 
+                                                             gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_TUBE : {
-                        obj = g3dtube_new ( gid->currentObjectID++, 
-                                            gid->currentObjectName );
+                        obj = ( G3DOBJECT * ) g3dtube_new ( gid->currentObjectID++, 
+                                                            gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_CUBE : {
-                        obj = g3dcube_new ( gid->currentObjectID++, 
-                                            gid->currentObjectName );
+                        obj = ( G3DOBJECT * ) g3dcube_new ( gid->currentObjectID++, 
+                                                            gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_PLANE : {
-                        obj = g3dplane_new ( gid->currentObjectID++, 
-                                             gid->currentObjectName );
+                        obj = ( G3DOBJECT * ) g3dplane_new ( gid->currentObjectID++, 
+                                                             gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_CYLINDER : {
-                        obj = g3dcylinder_new ( gid->currentObjectID++, 
-                                                gid->currentObjectName );
+                        obj = ( G3DOBJECT * ) g3dcylinder_new ( gid->currentObjectID++, 
+                                                                gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_CAMERA : {
-                        obj = g3dcamera_new ( gid->currentObjectID++ ,
-                                              gid->currentObjectName,
-                                              0.0f, 
-                                              0.0f, 
-                                              0.1f, 
-                                              1000.0f );
+                        obj = ( G3DOBJECT * ) g3dcamera_new ( gid->currentObjectID++ ,
+                                                              gid->currentObjectName,
+                                                              0.0f, 
+                                                              0.0f, 
+                                                              0.1f, 
+                                                              1000.0f );
                     } break;
 
                     case SIG_OBJECT_DECLARE_SUBDIVIDER : {
-                        obj = g3dsubdivider_new ( gid->currentObjectID++ ,
-                                                  gid->currentObjectName,
-                                                  gid->engineFlags );
+                        obj = ( G3DOBJECT * ) g3dsubdivider_new ( gid->currentObjectID++ ,
+                                                                  gid->currentObjectName,
+                                                                  gid->engineFlags );
                     } break;
 
                     case SIG_OBJECT_DECLARE_SPLINE : {
-                        obj = g3dspline_new ( gid->currentObjectID++ ,
-                                              gid->currentObjectName,
-                                              CUBIC,
-                                              gid->engineFlags );
+                        obj = ( G3DOBJECT * ) g3dspline_new ( gid->currentObjectID++ ,
+                                                              gid->currentObjectName,
+                                                              CUBIC,
+                                                              gid->engineFlags );
                     } break;
 
                     case SIG_OBJECT_DECLARE_SPLINEREVOLVER : {
-                        obj = g3dsplinerevolver_new ( gid->currentObjectID++ ,
-                                                      gid->currentObjectName );
+                        obj = ( G3DOBJECT * ) g3dsplinerevolver_new ( gid->currentObjectID++ ,
+                                                                      gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_SKIN : {
-                        obj = g3dskin_new ( gid->currentObjectID++ ,
-                                            gid->currentObjectName,
-                                            gid->engineFlags );
+                        obj = ( G3DOBJECT * ) g3dskin_new ( gid->currentObjectID++ ,
+                                                            gid->currentObjectName,
+                                                            gid->engineFlags );
                     } break;
 
                     case SIG_OBJECT_DECLARE_FFD : {
-                        obj = g3dffd_new ( gid->currentObjectID++ ,
-                                           gid->currentObjectName );
+                        obj = ( G3DOBJECT * ) g3dffd_new ( gid->currentObjectID++ ,
+                                                           gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_WIREFRAME : {
-                        obj = g3dwireframe_new ( gid->currentObjectID++ ,
-                                                 gid->currentObjectName );
+                        obj = ( G3DOBJECT * ) g3dwireframe_new ( gid->currentObjectID++ ,
+                                                                 gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_SYMMETRY : {
-                        obj = g3dsymmetry_new ( gid->currentObjectID++ ,
-                                                gid->currentObjectName );
+                        obj = ( G3DOBJECT * ) g3dsymmetry_new ( gid->currentObjectID++ ,
+                                                                gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_TEXT : {
-                        obj = g3dtext_new ( gid->currentObjectID++ ,
-                                            gid->currentObjectName,
-                                            gid->engineFlags );
+                        obj = ( G3DOBJECT * ) g3dtext_new ( gid->currentObjectID++ ,
+                                                            gid->currentObjectName,
+                                                            gid->engineFlags );
                     } break;
 
                     case SIG_OBJECT_DECLARE_BONE : {
-                        obj = g3dbone_new ( gid->currentObjectID++ ,
-                                            gid->currentObjectName,
-                                            0.0f );
+                        obj = ( G3DOBJECT * ) g3dbone_new ( gid->currentObjectID++ ,
+                                                            gid->currentObjectName,
+                                                            0.0f );
                     } break;
 
                     case SIG_OBJECT_DECLARE_LIGHT : {
-                        obj = g3dlight_new ( gid->currentObjectID++ ,
-                                             gid->currentObjectName );
+                        obj = ( G3DOBJECT * ) g3dlight_new ( gid->currentObjectID++ ,
+                                                             gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_MORPHER : {
-                        obj = g3dmorpher_new ( gid->currentObjectID++ ,
-                                               gid->currentObjectName,
-                                               gid->engineFlags );
+                        obj = ( G3DOBJECT * ) g3dmorpher_new ( gid->currentObjectID++ ,
+                                                               gid->currentObjectName,
+                                                               gid->engineFlags );
                     } break;
 
                     case SIG_OBJECT_DECLARE_INSTANCE : {
-                        obj = g3dinstance_new ( gid->currentObjectID++ ,
-                                                gid->currentObjectName,
-                                                gid->currentScene );
+                        obj = ( G3DOBJECT * ) g3dinstance_new ( gid->currentObjectID++ ,
+                                                                gid->currentObjectName,
+                                                                gid->currentScene );
                     } break;
 
                     case SIG_OBJECT_DECLARE_PARTICLEEMITTER : {
-                        obj = g3dparticleemitter_new ( gid->currentObjectID++ ,
-                                                       gid->currentObjectName,
-                                                       gid->currentScene );
+                        obj = ( G3DOBJECT * ) g3dparticleemitter_new ( gid->currentObjectID++ ,
+                                                                       gid->currentObjectName,
+                                                                       gid->currentScene );
                     } break;
 
 
@@ -436,9 +436,9 @@ G3DSCENE *g3dscene_importv3 ( const char *filename,
     if ( gid.currentPointArray  ) free ( gid.currentPointArray  );
  
     /* apply modifiers, compute normals */
-    g3dobject_updateMeshes_r ( gid.currentScene, flags );
+    g3dobject_updateMeshes_r ( ( G3DOBJECT * ) gid.currentScene, flags );
 
-    g3dobject_anim_r ( gid.currentScene, 0, flags );
+    g3dobject_anim_r ( ( G3DOBJECT * ) gid.currentScene, 0, flags );
 
     return gid.currentScene;
 }

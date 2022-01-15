@@ -53,7 +53,7 @@
 #define EXPORTV3CHANNEL_IMAGECOLOR ( 1 << 1 )
 #define EXPORTV3CHANNEL_PROCEDURAL ( 1 << 2 )
 
-#define EXPORT_CALLBACK(f) ((uint32_t(*)(G3DEXPORTV3DATA*,void*,uint32_t,FILE *))f)
+#define EXPORTV3_CALLBACK(f) ((uint32_t(*)(G3DEXPORTV3DATA*,void*,uint32_t,FILE *))f)
 
 typedef struct _G3DEXPORTV3DATA {
     G3DSCENE  *currentScene;
@@ -67,9 +67,9 @@ typedef struct _G3DEXPORTV3DATA {
 typedef struct _G3DEXPORTV3EXTENSION {
     uint32_t signature;
     uint32_t (*write)( G3DEXPORTV3DATA *ged,
-                       void          *data,
-                       uint32_t       flags,
-                       FILE          *fdst );
+                       void            *data,
+                       uint32_t         flags,
+                       FILE            *fdst );
     void      *data;
 } G3DEXPORTV3EXTENSION;
 
@@ -208,10 +208,10 @@ uint32_t g3dexportv3_fwritel ( uint32_t *l, FILE *stream );
 uint32_t g3dexportv3_fwritell ( uint64_t *ll, FILE *stream );
 
 G3DEXPORTV3EXTENSION *g3dexportv3extension_new ( uint32_t signature,
-                                             uint32_t (*write)( G3DEXPORTV3DATA      *ged, 
-                                                                G3DEXPORTV3EXTENSION *ext, 
-                                                                uint32_t            flags, 
-                                                                FILE               *fdst ),
+                                             uint32_t (*write)( G3DEXPORTV3DATA *ged, 
+                                                                void            *data, 
+                                                                uint32_t         flags, 
+                                                                FILE            *fdst ),
                                              void      *data );
 void g3dexportv3extension_free ( G3DEXPORTV3EXTENSION *ext );
 

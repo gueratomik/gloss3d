@@ -60,7 +60,7 @@ void g3dimportv3tag ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                 g3dimportv3_freadl ( &orientation, fsrc );
 
-                g3dtrackertag_setOrientation ( tag, orientation );
+                g3dtrackertag_setOrientation ( ( G3DTRACKERTAG * ) tag, orientation );
             } break;
 
             case SIG_OBJECT_TAG_TRACKER_TARGET : {
@@ -68,7 +68,7 @@ void g3dimportv3tag ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                 g3dimportv3_freadl ( &targetID, fsrc );
 
-                g3dtrackertag_setTarget ( tag,
+                g3dtrackertag_setTarget ( ( G3DTRACKERTAG * ) tag,
                                           gid->currentObject,
                                           gid->declaredObjects[targetID],
                                           0x00 );

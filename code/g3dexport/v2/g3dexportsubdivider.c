@@ -50,11 +50,11 @@ uint32_t g3dexportv2subdivider ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_SUBDIVIDER_LEVEL,
-                                   g3dexportv2subdivider_level,
-                                   ged,
-                                   sdr,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2subdivider_level),
+                                     ged,
+                                     sdr,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }

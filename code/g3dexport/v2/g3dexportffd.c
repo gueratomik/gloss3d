@@ -79,18 +79,18 @@ uint32_t g3dexportv2ffd ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_FFD_GEOMETRY,
-                                   g3dexportv2ffd_geometry,
-                                   ged,
-                                   ffd,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2ffd_geometry),
+                                     ged,
+                                     ffd,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_FFD_UVW,
-                                   g3dexportv2ffd_uvw,
-                                   ged,
-                                   ffd,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2ffd_uvw),
+                                     ged,
+                                     ffd,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }

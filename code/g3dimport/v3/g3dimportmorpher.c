@@ -65,6 +65,7 @@ void g3dimportv3morpher ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) 
                 g3dimportv3_fread ( mposename, chunkSize, 0x01, fsrc );
             } break;
 
+            /*** deprecated ***/
             case SIG_OBJECT_MORPHER_MESHPOSE_SLOT_ID : {
                 uint32_t slotID = 0x00;
 
@@ -80,8 +81,23 @@ void g3dimportv3morpher ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) 
                                          slotID );
             } break;
 
+            case SIG_OBJECT_MORPHER_MESHPOSE_SLOT_ID64 : {
+                uint64_t slotID = 0x00;
+
+                g3dimportv3_freadll ( &slotID, fsrc );
+
+                mpose = g3dmorphermeshpose_new ( totalVertexCount, mposename );
+
+                /*** Note: directly using g3dmorpher_addMeshPose() instead ***/
+                /*** of g3dmorpher_createMeshPose prevents us from having ***/
+                /*** multiple realloc calls when adding the vertices ***/
+                g3dmorpher_addMeshPose ( mpr, 
+                                         mpose,
+                                         slotID );
+            } break;
+
             case SIG_OBJECT_MORPHER_MESHPOSE_GEOMETRY : {
-                G3DMESH *mes = ((G3DOBJECT*)mpr)->parent;
+                G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
                 /*** Note: this is not efficient and should be ***/
                 /*** buffered somewhere ***/
                 G3DVERTEX **ver = ( G3DVERTEX ** ) list_to_reversed_array ( mes->lver );
@@ -96,9 +112,9 @@ void g3dimportv3morpher ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) 
                     G3DVECTOR vpos;
 
                     g3dimportv3_freadl ( &verID, fsrc );
-                    g3dimportv3_freadl ( &vpos.x, fsrc );
-                    g3dimportv3_freadl ( &vpos.y, fsrc );
-                    g3dimportv3_freadl ( &vpos.z, fsrc );
+                    g3dimportv3_freadf ( &vpos.x, fsrc );
+                    g3dimportv3_freadf ( &vpos.y, fsrc );
+                    g3dimportv3_freadf ( &vpos.z, fsrc );
 
                     g3dmorpher_addVertexPose ( mpr,
                                                ver[verID],

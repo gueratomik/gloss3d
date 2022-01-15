@@ -37,11 +37,11 @@ static uint32_t g3dexportv2channel_alpha ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL,
-                                   g3dexportv2channel,
-                                   ged,
-                                  &mat->alpha,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel),
+                                     ged,
+                                    &mat->alpha,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -67,18 +67,18 @@ static uint32_t g3dexportv2channel_displacement ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_MATERIAL_DISPLACEMENT_STRENGTH,
-                                   g3dexportv2material_displacementStrength,
-                                   ged,
-                                   mat,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2material_displacementStrength),
+                                     ged,
+                                     mat,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL,
-                                   g3dexportv2channel,
-                                   ged,
-                                  &mat->displacement,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel),
+                                     ged,
+                                    &mat->displacement,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -104,18 +104,18 @@ static uint32_t g3dexportv2channel_bump ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_MATERIAL_BUMP_STRENGTH,
-                                   g3dexportv2material_bumpStrength,
-                                   ged,
-                                   mat,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2material_bumpStrength),
+                                     ged,
+                                     mat,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL,
-                                   g3dexportv2channel,
-                                   ged,
-                                  &mat->bump,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel),
+                                     ged,
+                                    &mat->bump,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -128,11 +128,11 @@ static uint32_t g3dexportv2channel_refraction ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL,
-                                   g3dexportv2channel,
-                                   ged,
-                                  &mat->refraction,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel),
+                                     ged,
+                                    &mat->refraction,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -145,11 +145,11 @@ static uint32_t g3dexportv2channel_reflection ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL,
-                                   g3dexportv2channel,
-                                   ged,
-                                  &mat->reflection,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel),
+                                     ged,
+                                    &mat->reflection,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -186,25 +186,25 @@ static uint32_t g3dexportv2material_specular ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_MATERIAL_SPECULAR_SHININESS,
-                                   g3dexportv2material_specularShininess,
-                                   ged,
-                                   mat,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2material_specularShininess),
+                                     ged,
+                                     mat,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_MATERIAL_SPECULAR_LEVEL,
-                                   g3dexportv2material_specularLevel,
-                                   ged,
-                                   mat,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2material_specularLevel),
+                                     ged,
+                                     mat,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL,
-                                   g3dexportv2channel,
-                                   ged,
-                                  &mat->specular,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel),
+                                     ged,
+                                    &mat->specular,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -217,11 +217,11 @@ static uint32_t g3dexportv2material_diffuse ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL,
-                                   g3dexportv2channel,
-                                   ged,
-                                  &mat->diffuse,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel),
+                                     ged,
+                                    &mat->diffuse,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -245,7 +245,7 @@ static uint32_t g3dexportv2material_flags ( G3DEXPORTV2DATA *ged,
                                           FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexportv2_fwritef ( &mat->flags, fdst );
+    size += g3dexportv2_fwritel ( &mat->flags, fdst );
 
     return size;
 }
@@ -258,80 +258,80 @@ uint32_t g3dexportv2material  ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_MATERIAL_NAME,
-                                   g3dexportv2material_name,
-                                   ged,
-                                   mat,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2material_name),
+                                     ged,
+                                     mat,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_MATERIAL_FLAGS,
-                                   g3dexportv2material_flags,
-                                   ged,
-                                   mat,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2material_flags),
+                                     ged,
+                                     mat,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     if ( mat->flags & DIFFUSE_ENABLED ) {
         size += g3dexportv2_writeChunk ( SIG_MATERIAL_DIFFUSE,
-                                       g3dexportv2material_diffuse,
-                                       ged,
-                                       mat,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2material_diffuse),
+                                         ged,
+                                         mat,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( mat->flags & SPECULAR_ENABLED ) {
         size += g3dexportv2_writeChunk ( SIG_MATERIAL_SPECULAR,
-                                       g3dexportv2material_specular,
-                                       ged,
-                                       mat,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2material_specular),
+                                         ged,
+                                         mat,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( mat->flags & REFLECTION_ENABLED ) {
         size += g3dexportv2_writeChunk ( SIG_MATERIAL_REFLECTION,
-                                       g3dexportv2channel_reflection,
-                                       ged,
-                                       mat,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2channel_reflection),
+                                         ged,
+                                         mat,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( mat->flags & REFRACTION_ENABLED ) {
         size += g3dexportv2_writeChunk ( SIG_MATERIAL_REFRACTION,
-                                       g3dexportv2channel_refraction,
-                                       ged,
-                                       mat,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2channel_refraction),
+                                         ged,
+                                         mat,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( mat->flags & BUMP_ENABLED ) {
         size += g3dexportv2_writeChunk ( SIG_MATERIAL_BUMP,
-                                       g3dexportv2channel_bump,
-                                       ged,
-                                       mat,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2channel_bump),
+                                         ged,
+                                         mat,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( mat->flags & DISPLACEMENT_ENABLED ) {
         size += g3dexportv2_writeChunk ( SIG_MATERIAL_DISPLACEMENT,
-                                       g3dexportv2channel_displacement,
-                                       ged,
-                                       mat,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2channel_displacement),
+                                         ged,
+                                         mat,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( mat->flags & ALPHA_ENABLED ) {
         size += g3dexportv2_writeChunk ( SIG_MATERIAL_ALPHA,
-                                       g3dexportv2channel_alpha,
-                                       ged,
-                                       mat,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2channel_alpha),
+                                         ged,
+                                         mat,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     return size;

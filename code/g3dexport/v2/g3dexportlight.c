@@ -81,18 +81,18 @@ static uint32_t g3dexportv2light_shadow ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT_SHADOW_CASTING,
-                                   g3dexportv2light_shadowCasting,
-                                   ged,
-                                   lig,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2light_shadowCasting),
+                                     ged,
+                                     lig,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT_SHADOW_COLOR,
-                                   g3dexportv2light_shadowColor,
-                                   ged,
-                                   lig,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2light_shadowColor),
+                                     ged,
+                                     lig,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -169,50 +169,50 @@ uint32_t g3dexportv2light ( G3DEXPORTV2DATA *ged,
 
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT_INTENSITY,
-                                   g3dexportv2light_intensity,
-                                   ged,
-                                   lig,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2light_intensity),
+                                     ged,
+                                     lig,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     if ( ((G3DOBJECT*)lig)->flags & LIGHTCASTSHADOWS ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT_SHADOW,
-                                       g3dexportv2light_shadow,
-                                       ged,
-                                       lig,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2light_shadow),
+                                         ged,
+                                         lig,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( ((G3DOBJECT*)lig)->flags & SPOTLIGHT ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT_SPOT,
-                                       g3dexportv2light_spot,
-                                       ged,
-                                       lig,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2light_spot),
+                                         ged,
+                                         lig,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT_DIFFUSE,
-                                   g3dexportv2light_diffuse,
-                                   ged,
-                                   lig,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2light_diffuse),
+                                     ged,
+                                     lig,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT_SPECULAR,
-                                   g3dexportv2light_specular,
-                                   ged,
-                                   lig,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2light_specular),
+                                     ged,
+                                     lig,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_LIGHT_AMBIENT,
-                                   g3dexportv2light_ambient,
-                                   ged,
-                                   lig,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2light_ambient),
+                                     ged,
+                                     lig,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }

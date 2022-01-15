@@ -61,7 +61,7 @@ void g3dimportv2bone ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                 g3dimportv2_freadl ( &sknID, fsrc );
 
-                skn = g3dobject_getChildByID ( gid->currentScene, 
+                skn = ( G3DSKIN * ) g3dobject_getChildByID ( ( G3DOBJECT * ) gid->currentScene, 
                                                sknID );
             } break;
 
@@ -80,7 +80,7 @@ void g3dimportv2bone ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 g3dimportv2_freadl ( &grpID, fsrc );
                 g3dimportv2_freadl ( &objID, fsrc );
 
-                child = g3dobject_getChildByID ( gid->currentScene, objID );
+                child = g3dobject_getChildByID ( ( G3DOBJECT * ) gid->currentScene, objID );
 
                 if ( child ) {
                     if ( child->type == G3DMESHTYPE ) {

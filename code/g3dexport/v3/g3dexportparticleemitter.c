@@ -303,49 +303,49 @@ uint32_t g3dexportv3particleemitter ( G3DEXPORTV3DATA    *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_STARTAT,
-                                     g3dexportv3particleemitter_startAt,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_startAt),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_ENDAT,
-                                     g3dexportv3particleemitter_endAt,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_endAt),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_TYPE,
-                                     g3dexportv3particleemitter_type,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_type),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_PERFRAME,
-                                     g3dexportv3particleemitter_perFrame,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_perFrame),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_LIFETIME,
-                                     g3dexportv3particleemitter_lifetime,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_lifetime),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_RADIUS,
-                                     g3dexportv3particleemitter_radius,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_radius),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_DISPLAYPARTICLES,
-                                     g3dexportv3particleemitter_displayParticles,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_displayParticles),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
@@ -354,35 +354,35 @@ uint32_t g3dexportv3particleemitter ( G3DEXPORTV3DATA    *ged,
     /*******************************************************************/
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_INITIAL_ACCELERATION,
-                                     g3dexportv3particleemitter_initialAcceleration,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_initialAcceleration),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_INITIAL_SPEED,
-                                     g3dexportv3particleemitter_initialSpeed,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_initialSpeed),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_INITIAL_SCALING,
-                                     g3dexportv3particleemitter_initialScaling,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_initialScaling),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_INITIAL_ROTATION,
-                                     g3dexportv3particleemitter_initialRotation,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_initialRotation),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_INITIAL_TRANSPARENCY,
-                                     g3dexportv3particleemitter_initialTransparency,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_initialTransparency),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
@@ -391,35 +391,35 @@ uint32_t g3dexportv3particleemitter ( G3DEXPORTV3DATA    *ged,
     /*******************************************************************/
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_FINAL_ACCELERATION,
-                                     g3dexportv3particleemitter_finalAcceleration,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_finalAcceleration),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_FINAL_SPEED,
-                                     g3dexportv3particleemitter_finalSpeed,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_finalSpeed),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_FINAL_SCALING,
-                                     g3dexportv3particleemitter_finalScaling,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_finalScaling),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_FINAL_ROTATION,
-                                     g3dexportv3particleemitter_finalRotation,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_finalRotation),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_FINAL_TRANSPARENCY,
-                                     g3dexportv3particleemitter_finalTransparency,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_finalTransparency),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
@@ -428,35 +428,35 @@ uint32_t g3dexportv3particleemitter ( G3DEXPORTV3DATA    *ged,
     /*******************************************************************/
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_INITIALVAR_ACCELERATION,
-                                     g3dexportv3particleemitter_initialVarAcceleration,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_initialVarAcceleration),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_INITIALVAR_SPEED,
-                                     g3dexportv3particleemitter_initialVarSpeed,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_initialVarSpeed),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_INITIALVAR_SCALING,
-                                     g3dexportv3particleemitter_initialVarScaling,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_initialVarScaling),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_INITIALVAR_ROTATION,
-                                     g3dexportv3particleemitter_initialVarRotation,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_initialVarRotation),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,
                                      fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_PARTICLEEMITTER_INITIALVAR_TRANSPARENCY,
-                                     g3dexportv3particleemitter_initialVarTransparency,
+                   EXPORTV3_CALLBACK(g3dexportv3particleemitter_initialVarTransparency),
                                      ged,
                                      pem,
                                      0xFFFFFFFF,

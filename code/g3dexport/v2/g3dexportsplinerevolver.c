@@ -50,11 +50,11 @@ uint32_t g3dexportv2splinerevolver ( G3DEXPORTV2DATA    *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_SPLINEREVOLVER_GEOMETRY,
-                                   g3dexportv2splinerevolver_geometry,
-                                   ged,
-                                   srv,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2splinerevolver_geometry),
+                                     ged,
+                                     srv,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }

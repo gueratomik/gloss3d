@@ -41,7 +41,7 @@ static uint32_t g3dexportv2root_objects ( G3DEXPORTV2DATA *ged,
     ged->objectID = 0x00;
 
     /*** flatten the object tree ***/
-    g3dobject_treeToList_r ( sce, &lobj );
+    g3dobject_treeToList_r ( ( G3DOBJECT * ) sce, &lobj );
 
     ltmpobj = lobj;
 
@@ -51,11 +51,11 @@ static uint32_t g3dexportv2root_objects ( G3DEXPORTV2DATA *ged,
         ged->currentObject = obj;
 
         size += g3dexportv2_writeChunk ( SIG_OBJECT_ENTRY,
-                                       g3dexportv2object,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2object),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
 
         ged->currentObject = NULL;
 
@@ -79,11 +79,11 @@ static uint32_t g3dexportv2root_extensions ( G3DEXPORTV2DATA *ged,
         G3DEXPORTV2EXTENSION *ext = ( G3DEXPORTV2EXTENSION * ) ltmpext->data;
 
         size += g3dexportv2_writeChunk ( SIG_EXTENSION_ENTRY,
-                                       g3dexportv2extension,
-                                       ged,
-                                       ext,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2extension),
+                                         ged,
+                                         ext,
+                                         0xFFFFFFFF,
+                                         fdst );
 
         ltmpext = ltmpext->next;
     }
@@ -106,11 +106,11 @@ static uint32_t g3dexportv2scene_materials ( G3DEXPORTV2DATA *ged,
         mat->id = matID++;
 
         size += g3dexportv2_writeChunk ( SIG_MATERIAL_ENTRY,
-                                       g3dexportv2material,
-                                       ged,
-                                       mat,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2material),
+                                         ged,
+                                         mat,
+                                         0xFFFFFFFF,
+                                         fdst );
 
         ltmpmat = ltmpmat->next;
     }
@@ -126,11 +126,11 @@ uint32_t g3dexportv2scene ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_MATERIALS,
-                                   g3dexportv2scene_materials,
-                                   ged,
-                                   sce,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2scene_materials),
+                                     ged,
+                                     sce,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -144,19 +144,19 @@ uint32_t g3dexportv2root ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_OBJECTS,
-                                   g3dexportv2root_objects,
-                                   ged,
-                                   sce,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2root_objects),
+                                     ged,
+                                     sce,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     if ( ged->lext ) {
         size += g3dexportv2_writeChunk ( SIG_EXTENSIONS,
-                                       g3dexportv2root_extensions,
-                                       ged,
-                                       sce,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2root_extensions),
+                                         ged,
+                                         sce,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     return size;
@@ -188,11 +188,11 @@ void g3dscene_exportv2 ( G3DSCENE *sce,
     ged.lext         = lextension;
 
     size = g3dexportv2_writeChunk ( SIG_ROOT,
-                                  g3dexportv2root,
-                                 &ged,
-                                  sce,
-                                  0xFFFFFFFF,
-                                  fdst );
+                  EXPORTV2_CALLBACK(g3dexportv2root),
+                                   &ged,
+                                    sce,
+                                    0xFFFFFFFF,
+                                    fdst );
 
     fprintf ( stderr, "%d bytes written\n", size );
 

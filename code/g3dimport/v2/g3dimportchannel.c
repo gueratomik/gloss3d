@@ -91,7 +91,7 @@ void g3dimportv2channel ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) 
             } break;
 
             case SIG_CHANNEL_PROCEDURAL_NOISE : {
-                G3DPROCEDURAL *proc = g3dproceduralnoise_new ( );
+                G3DPROCEDURAL *proc = ( G3DPROCEDURAL * ) g3dproceduralnoise_new ( );
 
                 g3dchannel_setProcedural ( gid->currentChannel, proc );
             } break;
@@ -170,7 +170,7 @@ void g3dimportv2channel ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) 
             } break;
 
             case SIG_CHANNEL_PROCEDURAL_CHESS : {
-                G3DPROCEDURAL *proc = g3dproceduralchess_new ( );
+                G3DPROCEDURAL *proc =  ( G3DPROCEDURAL * ) g3dproceduralchess_new ( );
 
                 g3dchannel_setProcedural ( gid->currentChannel, proc );
             } break;
@@ -178,24 +178,20 @@ void g3dimportv2channel ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) 
             case SIG_CHANNEL_PROCEDURAL_CHESS_COLORS : {
                 G3DPROCEDURAL *proc = gid->currentChannel->proc;
                 G3DPROCEDURALCHESS *chess = ( G3DPROCEDURALCHESS * ) proc;
-                G3DCOLOR color1, color2;
 
-                g3dimportv2_freadf ( &color1.r, fsrc );
-                g3dimportv2_freadf ( &color1.g, fsrc );
-                g3dimportv2_freadf ( &color1.b, fsrc );
-                g3dimportv2_freadf ( &color1.a, fsrc );
+                g3dimportv2_freadf ( &chess->color1.r, fsrc );
+                g3dimportv2_freadf ( &chess->color1.g, fsrc );
+                g3dimportv2_freadf ( &chess->color1.b, fsrc );
+                g3dimportv2_freadf ( &chess->color1.a, fsrc );
 
-                g3dimportv2_freadf ( &color2.r, fsrc );
-                g3dimportv2_freadf ( &color2.g, fsrc );
-                g3dimportv2_freadf ( &color2.b, fsrc );
-                g3dimportv2_freadf ( &color2.a, fsrc );
-
-                g3dcolor_toRGBA ( &color1, &chess->color1 );
-                g3dcolor_toRGBA ( &color2, &chess->color2 );
+                g3dimportv2_freadf ( &chess->color2.r, fsrc );
+                g3dimportv2_freadf ( &chess->color2.g, fsrc );
+                g3dimportv2_freadf ( &chess->color2.b, fsrc );
+                g3dimportv2_freadf ( &chess->color2.a, fsrc );
             } break;
 
             case SIG_CHANNEL_PROCEDURAL_BRICK : {
-                G3DPROCEDURAL *proc = g3dproceduralbrick_new ( );
+                G3DPROCEDURAL *proc =  ( G3DPROCEDURAL * ) g3dproceduralbrick_new ( );
 
                 g3dchannel_setProcedural ( gid->currentChannel, proc );
             } break;
@@ -213,20 +209,16 @@ void g3dimportv2channel ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) 
             case SIG_CHANNEL_PROCEDURAL_BRICK_COLORS : {
                 G3DPROCEDURAL *proc = gid->currentChannel->proc;
                 G3DPROCEDURALBRICK *brick = ( G3DPROCEDURALBRICK * ) proc;
-                G3DCOLOR color1, color2;
 
-                g3dimportv2_freadf ( &color1.r, fsrc );
-                g3dimportv2_freadf ( &color1.g, fsrc );
-                g3dimportv2_freadf ( &color1.b, fsrc );
-                g3dimportv2_freadf ( &color1.a, fsrc );
+                g3dimportv2_freadf ( &brick->brickColor.r, fsrc );
+                g3dimportv2_freadf ( &brick->brickColor.g, fsrc );
+                g3dimportv2_freadf ( &brick->brickColor.b, fsrc );
+                g3dimportv2_freadf ( &brick->brickColor.a, fsrc );
 
-                g3dimportv2_freadf ( &color2.r, fsrc );
-                g3dimportv2_freadf ( &color2.g, fsrc );
-                g3dimportv2_freadf ( &color2.b, fsrc );
-                g3dimportv2_freadf ( &color2.a, fsrc );
-
-                g3dcolor_toRGBA ( &color1, &brick->brickColor   );
-                g3dcolor_toRGBA ( &color2, &brick->spacingColor );
+                g3dimportv2_freadf ( &brick->spacingColor.r, fsrc );
+                g3dimportv2_freadf ( &brick->spacingColor.g, fsrc );
+                g3dimportv2_freadf ( &brick->spacingColor.b, fsrc );
+                g3dimportv2_freadf ( &brick->spacingColor.a, fsrc );
             } break;
 
             case SIG_CHANNEL_PROCEDURAL_RESOLUTION : {

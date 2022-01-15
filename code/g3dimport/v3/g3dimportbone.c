@@ -62,7 +62,7 @@ void g3dimportv3bone ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                 g3dimportv3_freadl ( &sknID, fsrc );
 
-                skn = g3dobject_getChildByID ( gid->currentScene, 
+                skn = ( G3DSKIN * ) g3dobject_getChildByID ( ( G3DOBJECT * ) gid->currentScene, 
                                                sknID );
             } break;
 
@@ -81,7 +81,7 @@ void g3dimportv3bone ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 g3dimportv3_freadl ( &grpID, fsrc );
                 g3dimportv3_freadl ( &objID, fsrc );
 
-                child = g3dobject_getChildByID ( gid->currentScene, objID );
+                child = g3dobject_getChildByID ( ( G3DOBJECT * ) gid->currentScene, objID );
 
                 if ( child ) {
                     if ( child->type == G3DMESHTYPE ) {
@@ -90,7 +90,9 @@ void g3dimportv3bone ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                         grp = g3dmesh_getWeightGroupByID ( mes, grpID );
 
                         if ( grp ) {
-                            gid->currentRig = g3dbone_addWeightGroup ( bon, skn, grp );
+                            gid->currentRig = g3dbone_addWeightGroup ( bon, 
+                                                                       skn, 
+                                                                       grp );
                         }
                     }
                 }

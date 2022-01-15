@@ -64,18 +64,18 @@ uint32_t g3dexportv2wireframe ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_WIREFRAME_ALGO,
-                                   g3dexportv2wireframe_algo,
-                                   ged,
-                                   wfm,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2wireframe_algo),
+                                     ged,
+                                     wfm,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_WIREFRAME_GEOMETRY,
-                                   g3dexportv2wireframe_geometry,
-                                   ged,
-                                   wfm,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2wireframe_geometry),
+                                     ged,
+                                     wfm,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }

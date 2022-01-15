@@ -93,25 +93,25 @@ static uint32_t g3dexportv2morpher_meshPoseEntry ( G3DEXPORTV2DATA      *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_NAME,
-                                   g3dexportv2morpher_meshPoseName,
-                                   ged,
-                                   mpose,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2morpher_meshPoseName),
+                                     ged,
+                                     mpose,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_SLOT_ID,
-                                   g3dexportv2morpher_meshPoseSlotID,
-                                   ged,
-                                   mpose,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2morpher_meshPoseSlotID),
+                                     ged,
+                                     mpose,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_GEOMETRY,
-                                   g3dexportv2morpher_meshPoseGeometry,
-                                   ged,
-                                   mpose,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2morpher_meshPoseGeometry),
+                                     ged,
+                                     mpose,
+                                     0xFFFFFFFF,
+                                     fdst );
 
 
     return size;
@@ -132,11 +132,11 @@ static uint32_t g3dexportv2morpher_meshPoses ( G3DEXPORTV2DATA *ged,
         mpose->id = poseID++;
 
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSE_ENTRY,
-                                       g3dexportv2morpher_meshPoseEntry,
-                                       ged,
-                                       mpose,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2morpher_meshPoseEntry),
+                                         ged,
+                                         mpose,
+                                         0xFFFFFFFF,
+                                         fdst );
 
         ltmpmpose = ltmpmpose->next;
     }
@@ -167,18 +167,18 @@ uint32_t g3dexportv2morpher ( G3DEXPORTV2DATA *ged,
 
     if ( mpr->lmpose ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MORPHER_VERTEX_COUNT,
-                                       g3dexportv2morpher_vertexCount,
-                                       ged,
-                                       mpr,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2morpher_vertexCount),
+                                         ged,
+                                         mpr,
+                                         0xFFFFFFFF,
+                                         fdst );
 
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MORPHER_MESHPOSES,
-                                       g3dexportv2morpher_meshPoses,
-                                       ged,
-                                       mpr,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2morpher_meshPoses),
+                                         ged,
+                                         mpr,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     return size;

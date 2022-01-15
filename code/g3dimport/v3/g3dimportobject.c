@@ -279,7 +279,9 @@ void g3dimportv3object ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                 mat = g3dscene_getMaterialByID ( gid->currentScene, matID );
 
-                gid->currentTexture = g3dtexture_new ( mes, mat, NULL );
+                gid->currentTexture = g3dtexture_new ( ( G3DOBJECT * ) mes, 
+                                                       mat, 
+                                                       NULL );
 
                 g3dmesh_addTexture ( mes, gid->currentTexture );
             } break;
@@ -290,7 +292,7 @@ void g3dimportv3object ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                 g3dimportv3_freadl ( &uvmapID, fsrc );
 
-                uvmap = g3dmesh_getUVMapByID ( gid->currentObject, uvmapID );
+                uvmap = g3dmesh_getUVMapByID ( ( G3DMESH * ) gid->currentObject, uvmapID );
 
                 gid->currentTexture->map = uvmap;
             } break;
@@ -309,7 +311,7 @@ void g3dimportv3object ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                     g3dimportv3_freadl ( &facgrpID, fsrc );
 
-                    facgrp = g3dmesh_getFacegroupByID ( gid->currentObject, facgrpID );
+                    facgrp = g3dmesh_getFacegroupByID ( ( G3DMESH * ) gid->currentObject, facgrpID );
 
                     g3dtexture_restrictFacegroup ( gid->currentTexture, facgrp );
                 }

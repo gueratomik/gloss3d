@@ -123,47 +123,47 @@ uint32_t g3dexportv2primitive ( G3DEXPORTV2DATA *ged,
 
     if ( obj->type == G3DSPHERETYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_PRIMITIVE_SPHERE,
-                                       g3dexportv2sphere,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2sphere),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DTORUSTYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_PRIMITIVE_TORUS,
-                                       g3dexportv2torus,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2torus),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DCUBETYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_PRIMITIVE_CUBE,
-                                       g3dexportv2cube,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2cube),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DCYLINDERTYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_PRIMITIVE_CYLINDER,
-                                       g3dexportv2cylinder,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2cylinder),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( obj->type == G3DPLANETYPE ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_PRIMITIVE_PLANE,
-                                       g3dexportv2plane,
-                                       ged,
-                                       obj,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2plane),
+                                         ged,
+                                         obj,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     return size;

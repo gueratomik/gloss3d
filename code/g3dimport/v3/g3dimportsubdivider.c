@@ -49,7 +49,8 @@ void g3dimportv3subdivider ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc
 
                 g3dimportv3_freadl ( &sync, fsrc );
 
-                if ( sync ) ((G3DOBJECT*)sdr)->flags |= SYNCLEVELS;
+                if ( sync ) ((G3DOBJECT*)sdr)->flags |=   SYNCLEVELS;
+                else        ((G3DOBJECT*)sdr)->flags &= (~SYNCLEVELS);
             } break;
 
             case SIG_OBJECT_SUBDIVIDER_LEVEL : {

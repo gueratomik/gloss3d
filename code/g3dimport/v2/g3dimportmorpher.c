@@ -81,7 +81,7 @@ void g3dimportv2morpher ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) 
             } break;
 
             case SIG_OBJECT_MORPHER_MESHPOSE_GEOMETRY : {
-                G3DMESH *mes = ((G3DOBJECT*)mpr)->parent;
+                G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
                 /*** Note: this is not efficient and should be ***/
                 /*** buffered somewhere ***/
                 G3DVERTEX **ver = ( G3DVERTEX ** ) list_to_reversed_array ( mes->lver );
@@ -96,9 +96,9 @@ void g3dimportv2morpher ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) 
                     G3DVECTOR vpos;
 
                     g3dimportv2_freadl ( &verID, fsrc );
-                    g3dimportv2_freadl ( &vpos.x, fsrc );
-                    g3dimportv2_freadl ( &vpos.y, fsrc );
-                    g3dimportv2_freadl ( &vpos.z, fsrc );
+                    g3dimportv2_freadf ( &vpos.x, fsrc );
+                    g3dimportv2_freadf ( &vpos.y, fsrc );
+                    g3dimportv2_freadf ( &vpos.z, fsrc );
 
                     g3dmorpher_addVertexPose ( mpr,
                                                ver[verID],

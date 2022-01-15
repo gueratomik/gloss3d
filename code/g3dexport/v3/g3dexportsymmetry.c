@@ -61,18 +61,18 @@ uint32_t g3dexportv3symmetry ( G3DEXPORTV3DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_SYMMETRY_PLANE,
-                                   g3dexportv3symmetry_plane,
-                                   ged,
-                                   sym,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV3_CALLBACK(g3dexportv3symmetry_plane),
+                                     ged,
+                                     sym,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_SYMMETRY_MERGELIMIT,
-                                   g3dexportv3symmetry_mergeLimit,
-                                   ged,
-                                   sym,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV3_CALLBACK(g3dexportv3symmetry_mergeLimit),
+                                     ged,
+                                     sym,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }

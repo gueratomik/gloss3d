@@ -102,7 +102,7 @@ void g3dimportv3spline ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                                                 posHandle[0x01][0x01],
                                                 posHandle[0x01][0x02] );
 
-                    g3dcurve_addSegment ( spl->curve, seg );
+                    g3dcurve_addSegment ( spl->curve, ( G3DCURVESEGMENT * ) seg );
                 }
             } break;
 

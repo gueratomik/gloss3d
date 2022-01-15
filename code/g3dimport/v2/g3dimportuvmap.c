@@ -84,6 +84,7 @@ void g3dimportv2uvmap ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
             case SIG_OBJECT_UVMAP_TRANSFORMATION : {
                 G3DOBJECT *obj = ( G3DOBJECT * ) gid->currentUVMap;
+                G3DMESH *mes = ( G3DMESH * ) gid->currentObject;
 
                 g3dimportv2_freadf ( &obj->pos.x, fsrc );
                 g3dimportv2_freadf ( &obj->pos.y, fsrc );
@@ -103,8 +104,7 @@ void g3dimportv2uvmap ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 g3dobject_updateMatrix_r ( obj, gid->engineFlags );
 
                 if ( ( obj->flags & UVMAPFIXED ) == 0x00 ) {
-                    g3duvmap_applyProjection ( gid->currentUVMap,
-                                               gid->currentObject );
+                    g3duvmap_applyProjection ( gid->currentUVMap, mes );
                 }
             } break;
 

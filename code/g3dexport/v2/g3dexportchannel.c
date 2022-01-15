@@ -130,46 +130,46 @@ static uint32_t g3dexportv2channel_proceduralNoise ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL_PROCEDURAL_NOISE_COLORPAIR_COUNT,
-                                   g3dexportv2channel_proceduralNoiseColorPairCount,
-                                   ged,
-                                   cha,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel_proceduralNoiseColorPairCount),
+                                     ged,
+                                     cha,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL_PROCEDURAL_NOISE_COLORPAIRS,
-                                   g3dexportv2channel_proceduralNoiseColorPairs,
-                                   ged,
-                                   cha,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel_proceduralNoiseColorPairs),
+                                     ged,
+                                     cha,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL_PROCEDURAL_NOISE_THRESHOLDS,
-                                   g3dexportv2channel_proceduralNoiseThresholds,
-                                   ged,
-                                   cha,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel_proceduralNoiseThresholds),
+                                     ged,
+                                     cha,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL_PROCEDURAL_NOISE_OCTAVES,
-                                   g3dexportv2channel_proceduralNoiseOctaves,
-                                   ged,
-                                   cha,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel_proceduralNoiseOctaves),
+                                     ged,
+                                     cha,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL_PROCEDURAL_NOISE_INTERPOLATION,
-                                   g3dexportv2channel_proceduralNoiseInterpolation,
-                                   ged,
-                                   cha,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel_proceduralNoiseInterpolation),
+                                     ged,
+                                     cha,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL_PROCEDURAL_NOISE_GRADIENTS,
-                                   g3dexportv2channel_proceduralNoiseGradients,
-                                   ged,
-                                   cha,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel_proceduralNoiseGradients),
+                                     ged,
+                                     cha,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -194,21 +194,17 @@ static uint32_t g3dexportv2channel_proceduralChessColors ( G3DEXPORTV2DATA *ged,
                                                          uint32_t       flags, 
                                                          FILE          *fdst ) {
     G3DPROCEDURALCHESS *chess = ( G3DPROCEDURALCHESS * ) cha->proc;
-    G3DCOLOR color1, color2;
     uint32_t size = 0x00;
 
-    g3drgba_toColor ( &chess->color1, &color1 );
-    g3drgba_toColor ( &chess->color2, &color2 );
+    size += g3dexportv2_fwritef ( &chess->color1.r, fdst );
+    size += g3dexportv2_fwritef ( &chess->color1.g, fdst );
+    size += g3dexportv2_fwritef ( &chess->color1.b, fdst );
+    size += g3dexportv2_fwritef ( &chess->color1.a, fdst );
 
-    size += g3dexportv2_fwritef ( &color1.r, fdst );
-    size += g3dexportv2_fwritef ( &color1.g, fdst );
-    size += g3dexportv2_fwritef ( &color1.b, fdst );
-    size += g3dexportv2_fwritef ( &color1.a, fdst );
-
-    size += g3dexportv2_fwritef ( &color2.r, fdst );
-    size += g3dexportv2_fwritef ( &color2.g, fdst );
-    size += g3dexportv2_fwritef ( &color2.b, fdst );
-    size += g3dexportv2_fwritef ( &color2.a, fdst );
+    size += g3dexportv2_fwritef ( &chess->color2.r, fdst );
+    size += g3dexportv2_fwritef ( &chess->color2.g, fdst );
+    size += g3dexportv2_fwritef ( &chess->color2.b, fdst );
+    size += g3dexportv2_fwritef ( &chess->color2.a, fdst );
 
     return size;
 }
@@ -221,18 +217,18 @@ static uint32_t g3dexportv2channel_proceduralChess ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL_PROCEDURAL_CHESS_COLORS,
-                                   g3dexportv2channel_proceduralChessColors,
-                                   ged,
-                                   cha,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel_proceduralChessColors),
+                                     ged,
+                                     cha,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL_PROCEDURAL_CHESS_GEOMETRY,
-                                   g3dexportv2channel_proceduralChessGeometry,
-                                   ged,
-                                   cha,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel_proceduralChessGeometry),
+                                     ged,
+                                     cha,
+                                     0xFFFFFFFF,
+                                     fdst );
     return size;
 }
 
@@ -258,21 +254,17 @@ static uint32_t g3dexportv2channel_proceduralBrickColors ( G3DEXPORTV2DATA *ged,
                                                          uint32_t       flags, 
                                                          FILE          *fdst ) {
     G3DPROCEDURALBRICK *brick = ( G3DPROCEDURALBRICK * ) cha->proc;
-    G3DCOLOR color1, color2;
     uint32_t size = 0x00;
 
-    g3drgba_toColor ( &brick->brickColor  , &color1 );
-    g3drgba_toColor ( &brick->spacingColor, &color2 );
+    size += g3dexportv2_fwritef ( &brick->brickColor.r, fdst );
+    size += g3dexportv2_fwritef ( &brick->brickColor.g, fdst );
+    size += g3dexportv2_fwritef ( &brick->brickColor.b, fdst );
+    size += g3dexportv2_fwritef ( &brick->brickColor.a, fdst );
 
-    size += g3dexportv2_fwritef ( &color1.r, fdst );
-    size += g3dexportv2_fwritef ( &color1.g, fdst );
-    size += g3dexportv2_fwritef ( &color1.b, fdst );
-    size += g3dexportv2_fwritef ( &color1.a, fdst );
-
-    size += g3dexportv2_fwritef ( &color2.r, fdst );
-    size += g3dexportv2_fwritef ( &color2.g, fdst );
-    size += g3dexportv2_fwritef ( &color2.b, fdst );
-    size += g3dexportv2_fwritef ( &color2.a, fdst );
+    size += g3dexportv2_fwritef ( &brick->spacingColor.r, fdst );
+    size += g3dexportv2_fwritef ( &brick->spacingColor.g, fdst );
+    size += g3dexportv2_fwritef ( &brick->spacingColor.b, fdst );
+    size += g3dexportv2_fwritef ( &brick->spacingColor.a, fdst );
 
     return size;
 }
@@ -285,18 +277,18 @@ static uint32_t g3dexportv2channel_proceduralBrick ( G3DEXPORTV2DATA *ged,
     uint32_t size = 0x00;
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL_PROCEDURAL_BRICK_COLORS,
-                                   g3dexportv2channel_proceduralBrickColors,
-                                   ged,
-                                   cha,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel_proceduralBrickColors),
+                                     ged,
+                                     cha,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL_PROCEDURAL_BRICK_GEOMETRY,
-                                   g3dexportv2channel_proceduralBrickGeometry,
-                                   ged,
-                                   cha,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel_proceduralBrickGeometry),
+                                     ged,
+                                     cha,
+                                     0xFFFFFFFF,
+                                     fdst );
     return size;
 }
 
@@ -324,29 +316,29 @@ static uint32_t g3dexportv2channel_procedural ( G3DEXPORTV2DATA *ged,
     switch ( cha->proc->type ) {
         case PROCEDURALNOISE :
             size += g3dexportv2_writeChunk ( SIG_CHANNEL_PROCEDURAL_NOISE,
-                                           g3dexportv2channel_proceduralNoise,
-                                           ged,
-                                           cha,
-                                           0xFFFFFFFF,
-                                           fdst );
+                           EXPORTV2_CALLBACK(g3dexportv2channel_proceduralNoise),
+                                             ged,
+                                             cha,
+                                             0xFFFFFFFF,
+                                             fdst );
         break;
 
         case PROCEDURALCHESS :
             size += g3dexportv2_writeChunk ( SIG_CHANNEL_PROCEDURAL_CHESS,
-                                           g3dexportv2channel_proceduralChess,
-                                           ged,
-                                           cha,
-                                           0xFFFFFFFF,
-                                           fdst );
+                           EXPORTV2_CALLBACK(g3dexportv2channel_proceduralChess),
+                                             ged,
+                                             cha,
+                                             0xFFFFFFFF,
+                                             fdst );
         break;
 
         case PROCEDURALBRICK :
             size += g3dexportv2_writeChunk ( SIG_CHANNEL_PROCEDURAL_BRICK,
-                                           g3dexportv2channel_proceduralBrick,
-                                           ged,
-                                           cha,
-                                           0xFFFFFFFF,
-                                           fdst );
+                           EXPORTV2_CALLBACK(g3dexportv2channel_proceduralBrick),
+                                             ged,
+                                             cha,
+                                             0xFFFFFFFF,
+                                             fdst );
         break;
 
         default :
@@ -354,11 +346,11 @@ static uint32_t g3dexportv2channel_procedural ( G3DEXPORTV2DATA *ged,
     }
 
     size += g3dexportv2_writeChunk ( SIG_CHANNEL_PROCEDURAL_RESOLUTION,
-                                   g3dexportv2channel_proceduralResolution,
-                                   ged,
-                                   cha,
-                                   0xFFFFFFFF,
-                                   fdst );
+                   EXPORTV2_CALLBACK(g3dexportv2channel_proceduralResolution),
+                                     ged,
+                                     cha,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     return size;
 }
@@ -401,32 +393,32 @@ uint32_t g3dexportv2channel  ( G3DEXPORTV2DATA *ged,
 
     if ( cha->flags & USESOLIDCOLOR ) {
         size += g3dexportv2_writeChunk ( SIG_CHANNEL_SOLID,
-                                       g3dexportv2channel_solid,
-                                       ged,
-                                       cha,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2channel_solid),
+                                         ged,
+                                         cha,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( ( cha->flags & USEIMAGECOLOR ) &&
          ( cha->image                 ) &&
          ( cha->image->filename       ) ) {
         size += g3dexportv2_writeChunk ( SIG_CHANNEL_IMAGE,
-                                       g3dexportv2channel_image,
-                                       ged,
-                                       cha,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2channel_image),
+                                         ged,
+                                         cha,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     if ( ( cha->flags & USEPROCEDURAL ) &&
          ( cha->proc                  ) ) {
         size += g3dexportv2_writeChunk ( SIG_CHANNEL_PROCEDURAL,
-                                       g3dexportv2channel_procedural,
-                                       ged,
-                                       cha,
-                                       0xFFFFFFFF,
-                                       fdst );
+                       EXPORTV2_CALLBACK(g3dexportv2channel_procedural),
+                                         ged,
+                                         cha,
+                                         0xFFFFFFFF,
+                                         fdst );
     }
 
     return size;

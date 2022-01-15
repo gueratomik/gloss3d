@@ -53,7 +53,7 @@ uint32_t g3dexportv2myobject ( G3DEXPORTV2DATA *ged,
 
 
     size += g3dexportv2_writeChunk ( SIG_XXXXXXX,
-                                   g3dexportv2xxxxx,
+                   EXPORTV2_CALLBACK(g3dexportv2xxxxx),
                                    ged,
                                    myobject,
                                    0xFFFFFFFF,

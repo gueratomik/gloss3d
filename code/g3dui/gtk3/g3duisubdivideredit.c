@@ -35,7 +35,9 @@ static void updateSubdivisionForm ( GtkWidget *, G3DUI * );
 static void subdivSyncCbk  ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    common_g3duisubdivideredit_subdivSyncCbk ( gui );
+    if ( gui->lock == 0x00 ) {
+        common_g3duisubdivideredit_subdivSyncCbk ( gui );
+    }
 }
 
 /******************************************************************************/
