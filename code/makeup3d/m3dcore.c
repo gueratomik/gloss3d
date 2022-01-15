@@ -27,11 +27,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <lips3d/lips3d.h>
+#include <makeup3d/makeup3d.h>
 
 /******************************************************************************/
 /*** return 0x01 to request for update, 0x00 otherzise ***/
-uint32_t l3dcore_setUpdateArea ( int32_t   x1,
+uint32_t m3dcore_setUpdateArea ( int32_t   x1,
                                  int32_t   y1,
                                  int32_t   x2,
                                  int32_t   y2,
@@ -72,7 +72,7 @@ uint32_t l3dcore_setUpdateArea ( int32_t   x1,
 }
 
 /******************************************************************************/
-int l3dcore_paintPoint ( L3DPATTERN    *pattern,
+int m3dcore_paintPoint ( M3DPATTERN    *pattern,
                          uint32_t       color,
                          float          pressure,
                          int32_t        x,
@@ -120,7 +120,7 @@ int l3dcore_paintPoint ( L3DPATTERN    *pattern,
 }
 
 /******************************************************************************/
-int l3core_paintCircle ( L3DPATTERN    *pattern,
+int m3dcore_paintCircle ( M3DPATTERN    *pattern,
                          uint32_t       color,
                          float          pressure,
                          int32_t        xp,
@@ -183,7 +183,7 @@ int l3core_paintCircle ( L3DPATTERN    *pattern,
 }
 
 /******************************************************************************/
-int l3core_paintRectangle ( L3DPATTERN    *pattern,
+int m3dcore_paintRectangle ( M3DPATTERN    *pattern,
                             uint32_t       color,
                             float          pressure,
                             int32_t        x1,
@@ -238,7 +238,7 @@ int l3core_paintRectangle ( L3DPATTERN    *pattern,
 }
 
 /******************************************************************************/
-int l3core_paintLine ( L3DPATTERN    *pattern,
+int m3dcore_paintLine ( M3DPATTERN    *pattern,
                        uint32_t       color,
                        float          pressure,
                        int32_t        x1,
@@ -271,7 +271,7 @@ int l3core_paintLine ( L3DPATTERN    *pattern,
                 y     += py;
             }
 
-            l3dpattern_paint ( pattern,
+            m3dpattern_paint ( pattern,
                                color,
                                pressure,
                                x,
@@ -294,7 +294,7 @@ int l3core_paintLine ( L3DPATTERN    *pattern,
                 x     += px;
             }
 
-            l3dpattern_paint ( pattern,
+            m3dpattern_paint ( pattern,
                                color,
                                pressure,
                                x,

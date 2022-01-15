@@ -48,40 +48,40 @@ static gboolean gtk_uvmapeditor_configure     ( GtkWidget *, GdkEvent *, gpointe
 static void     gtk_uvmapeditor_size_allocate ( GtkWidget *, GtkAllocation * );
 static void     gtk_uvmapeditor_event         ( GtkWidget *, GdkEvent *, gpointer );
 
-gboolean l3dui_showGL ( GtkWidget *widget, 
+gboolean m3dui_showGL ( GtkWidget *widget, 
                                    cairo_t   *cr,
                                    gpointer   user_data );
-void l3dui_initGL ( GtkWidget *widget, 
+void m3dui_initGL ( GtkWidget *widget, 
                                gpointer   user_data );
-void l3dui_sizeGL ( GtkWidget    *widget, 
+void m3dui_sizeGL ( GtkWidget    *widget, 
                                GdkRectangle *allocation, 
                                gpointer      user_data );
-static gboolean l3dui_inputGL ( GtkWidget *widget,
+static gboolean m3dui_inputGL ( GtkWidget *widget,
                                            GdkEvent  *gdkev, 
                                            gpointer   user_data );
-gboolean l3dui_destroyGL ( GtkWidget *widget, 
+gboolean m3dui_destroyGL ( GtkWidget *widget, 
                                      GdkEvent  *event, 
                                      gpointer   user_data );
 
 /******************************************************************************/
-void l3dui_updateMouseToolEdit ( L3DUI *lui ) {
-    LIST *ltmpwidget = lui->lmtools;
+void m3dui_updateMouseToolEdit ( M3DUI *mui ) {
+    LIST *ltmpwidget = mui->lmtools;
 
     while ( ltmpwidget ) {
         GtkWidget *widget = ( GtkWidget * ) ltmpwidget->data;
 
-        updateL3DMouseTool ( widget, lui );
+        updateM3DMouseTool ( widget, mui );
 
         ltmpwidget = ltmpwidget->next;
     }
 
-    /*g3dui_redrawWidgetList ( lui->gui, lui->lmtools );*/
+    /*g3dui_redrawWidgetList ( mui->gui, mui->lmtools );*/
 }
 
 /******************************************************************************/
-void l3dui_setUVMouseTool ( GtkWidget *widget, gpointer user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
-    G3DUI        *gui = lui->gui;
+void m3dui_setUVMouseTool ( GtkWidget *widget, gpointer user_data ) {
+    M3DUI *mui = ( M3DUI * ) user_data;
+    G3DUI        *gui = mui->gui;
     G3DUIGTK3    *ggt = ( G3DUIGTK3    * ) gui->toolkit_data;
     const char  *name = gtk_widget_get_name ( widget );
     G3DMOUSETOOL *uvmou = common_g3dui_getMouseTool ( gui, name );
@@ -90,7 +90,7 @@ void l3dui_setUVMouseTool ( GtkWidget *widget, gpointer user_data ) {
     if ( gui->lock ) return;
 
     if ( uvmou ) {
-        common_l3dui_setUVMouseTool ( lui, cam, uvmou );
+        common_m3dui_setUVMouseTool ( mui, cam, uvmou );
 
         if ( ( uvmou->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
             /*** Remember that widget ID, for example to be unset when a toggle button 
@@ -119,21 +119,21 @@ void l3dui_setUVMouseTool ( GtkWidget *widget, gpointer user_data ) {
         fprintf ( stderr, "No such mousetool %s\n", name );
     }
 
-    l3dui_updateMouseToolEdit ( lui );
+    m3dui_updateMouseToolEdit ( mui );
 }
 
 /******************************************************************************/
-void l3dui_undoCbk ( GtkWidget *widget, gpointer user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
+void m3dui_undoCbk ( GtkWidget *widget, gpointer user_data ) {
+    M3DUI *mui = ( M3DUI * ) user_data;
 
-    common_l3dui_undoCbk ( lui );
+    common_m3dui_undoCbk ( mui );
 }
 
 /******************************************************************************/
-void l3dui_redoCbk ( GtkWidget *widget, gpointer user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
+void m3dui_redoCbk ( GtkWidget *widget, gpointer user_data ) {
+    M3DUI *mui = ( M3DUI * ) user_data;
 
-    common_l3dui_redoCbk ( lui );
+    common_m3dui_redoCbk ( mui );
 }
 
 /******************************************************************************/
@@ -293,7 +293,7 @@ static void gtk_uvmapeditor_event ( GtkWidget *widget, GdkEvent *event,
                                                 gpointer user_data ) {
     static int xmid, ymid, xori, yori;
     GtkUVMapEditor *guv = ( GtkUVMapEditor * ) widget;
-    L3DUI *lui = &guv->lui;
+    M3DUI *mui = &guv->mui;
     static int xold, yold, grabbing;
     uint32_t width, height;
     static G3DPIVOT *piv;
@@ -310,13 +310,13 @@ static void gtk_uvmapeditor_event ( GtkWidget *widget, GdkEvent *event,
             GdkEventButton *bev = ( GdkEventButton * ) event;
             area = gtk_uvmapeditor_getDrawingArea ( widget );
 
-            lui->buttonID = common_l3dui_getCurrentButton ( lui, bev->x, 
+            mui->buttonID = common_m3dui_getCurrentButton ( mui, bev->x, 
                                                                               bev->y );
 
             xori = xold = bev->x;
             yori = yold = bev->y;
 
-            if ( ( lui->buttonID > -1 ) && ( grabbing == 0x00 ) ) { 
+            if ( ( mui->buttonID > -1 ) && ( grabbing == 0x00 ) ) { 
                 gdk_window_set_cursor ( gtk_widget_get_window ( gtk_widget_get_toplevel ( widget ) ), 
                                         gdk_cursor_new ( GDK_BLANK_CURSOR ) );
 
@@ -331,8 +331,8 @@ static void gtk_uvmapeditor_event ( GtkWidget *widget, GdkEvent *event,
         case GDK_BUTTON_RELEASE : {
             GdkEventButton *bev = ( GdkEventButton * ) event;
 
-            if ( lui->buttonID > -1 ) {
-                switch ( lui->buttonID ) {
+            if ( mui->buttonID > -1 ) {
+                switch ( mui->buttonID ) {
                     default:
                         if ( grabbing ) {
                             gtk_uvmapeditor_ungrab_pointer ( widget, event );
@@ -347,7 +347,7 @@ static void gtk_uvmapeditor_event ( GtkWidget *widget, GdkEvent *event,
             }
 
             /*** Reset selected button flag ***/
-            lui->buttonID = -1;
+            mui->buttonID = -1;
 
             gtk_uvmapeditor_redraw_menu ( widget );
         } break;
@@ -356,12 +356,12 @@ static void gtk_uvmapeditor_event ( GtkWidget *widget, GdkEvent *event,
             GdkEventMotion *mev = ( GdkEventMotion * ) event;
 
             /*** If pressed ***/
-            if ( lui->buttonID > -1 && grabbing ) {
+            if ( mui->buttonID > -1 && grabbing ) {
 
-                switch ( lui->buttonID ) {
+                switch ( mui->buttonID ) {
                     case UVMAPZOOMBUTTON : {
                         if ( mev->state & GDK_BUTTON1_MASK ) {
-                            common_l3dui_moveForward ( lui, 
+                            common_m3dui_moveForward ( mui, 
                                                                   mev->x, 
                                                                   xold );
                         }
@@ -369,7 +369,7 @@ static void gtk_uvmapeditor_event ( GtkWidget *widget, GdkEvent *event,
 
                     case UVMAPTRANSLATEBUTTON : {
                         if ( mev->state & GDK_BUTTON1_MASK ) {
-                            common_l3dui_moveSideward ( lui,
+                            common_m3dui_moveSideward ( mui,
                                                                    mev->x,
                                                                    mev->y, 
                                                                    xold, 
@@ -377,7 +377,7 @@ static void gtk_uvmapeditor_event ( GtkWidget *widget, GdkEvent *event,
                         }
 
                         if ( mev->state & GDK_BUTTON3_MASK ) {
-                            common_l3dui_moveForward ( lui, 
+                            common_m3dui_moveForward ( mui, 
                                                                   mev->x, 
                                                                   xold );
                         }
@@ -415,9 +415,9 @@ static void gtk_uvmapeditor_size_allocate ( GtkWidget     *widget,
                                             GtkAllocation *allocation ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
     GtkUVMapEditor *guv = ( GtkUVMapEditor * ) widget;
-    L3DUI *lui = &guv->lui;
+    M3DUI *mui = &guv->mui;
 
-    common_l3dui_resize ( lui, 
+    common_m3dui_resize ( mui, 
                                      allocation->width, 
                                      allocation->height );
 
@@ -469,37 +469,37 @@ static void gtk_uvmapeditor_size_allocate ( GtkWidget     *widget,
         }
 
         if ( GTK_IS_DRAWING_AREA(child) ) {
-            gdkrec.x       = lui->arearec.x;
-            gdkrec.y       = lui->arearec.y;
-            gdkrec.width   = lui->arearec.width;
-            gdkrec.height  = lui->arearec.height;
+            gdkrec.x       = mui->arearec.x;
+            gdkrec.y       = mui->arearec.y;
+            gdkrec.width   = mui->arearec.width;
+            gdkrec.height  = mui->arearec.height;
 
             gtk_widget_size_allocate ( child, &gdkrec );
         }
 
         if ( strcmp ( child_name, "PATTERNLIST" ) == 0x00 ) {
-            gdkrec.x       = lui->patternrec.x;
-            gdkrec.y       = lui->patternrec.y;
-            gdkrec.width   = lui->patternrec.width;
-            gdkrec.height  = lui->patternrec.height;
+            gdkrec.x       = mui->patternrec.x;
+            gdkrec.y       = mui->patternrec.y;
+            gdkrec.width   = mui->patternrec.width;
+            gdkrec.height  = mui->patternrec.height;
 
             gtk_widget_size_allocate ( child, &gdkrec );
         }
 
         if ( strcmp ( child_name, "FGBGBUTTON" ) == 0x00 ) {
-            gdkrec.x       = lui->fgbgrec.x;
-            gdkrec.y       = lui->fgbgrec.y;
-            gdkrec.width   = lui->fgbgrec.width;
-            gdkrec.height  = lui->fgbgrec.height;
+            gdkrec.x       = mui->fgbgrec.x;
+            gdkrec.y       = mui->fgbgrec.y;
+            gdkrec.width   = mui->fgbgrec.width;
+            gdkrec.height  = mui->fgbgrec.height;
 
             gtk_widget_size_allocate ( child, &gdkrec );
         }
 
         if ( strcmp ( child_name, "MOUSETOOL" ) == 0x00 ) {
-            gdkrec.x       = lui->toolrec.x;
-            gdkrec.y       = lui->toolrec.y;
-            gdkrec.width   = lui->toolrec.width;
-            gdkrec.height  = lui->toolrec.height;
+            gdkrec.x       = mui->toolrec.x;
+            gdkrec.y       = mui->toolrec.y;
+            gdkrec.width   = mui->toolrec.width;
+            gdkrec.height  = mui->toolrec.height;
 
             gtk_widget_size_allocate ( child, &gdkrec );
         }
@@ -537,7 +537,7 @@ static gboolean gtk_area_filter ( GdkXEvent *xevent,
 static gboolean gtk_uvmapeditor_expose ( GtkWidget *widget, cairo_t *cr ) {
     GtkUVMapEditorClass *guv_class = ( GtkUVMapEditorClass * ) G_OBJECT_GET_CLASS ( widget);
     GtkUVMapEditor *guv = ( GtkUVMapEditor * ) widget;
-    L3DUI *lui = &guv->lui;
+    M3DUI *mui = &guv->mui;
 
     if ( gtk_widget_is_drawable ( widget ) ) {
         GtkStyleContext *context = gtk_widget_get_style_context ( widget );
@@ -551,18 +551,18 @@ static gboolean gtk_uvmapeditor_expose ( GtkWidget *widget, cairo_t *cr ) {
         for ( i = 0x00; i < NBUVMAPBUTTON; i++ ) {
             GdkPixbuf *icon = guv_class->icon[i];
 
-            if ( i == lui->buttonID ) {
+            if ( i == mui->buttonID ) {
                 cairo_set_source_rgb ( cr, 0.25f, 0.25f, 0.25f );
 
-                cairo_rectangle ( cr, lui->rec[i].x, 
-                                      lui->rec[i].y, 
-                                      lui->rec[i].width, 
-                                      lui->rec[i].height );
+                cairo_rectangle ( cr, mui->rec[i].x, 
+                                      mui->rec[i].y, 
+                                      mui->rec[i].width, 
+                                      mui->rec[i].height );
                 cairo_fill ( cr );
             }
 
-            gdk_cairo_set_source_pixbuf ( cr, icon, lui->rec[i].x, 
-                                                    lui->rec[i].y );
+            gdk_cairo_set_source_pixbuf ( cr, icon, mui->rec[i].x, 
+                                                    mui->rec[i].y );
             cairo_paint ( cr );
         }
     }
@@ -573,14 +573,14 @@ static gboolean gtk_uvmapeditor_expose ( GtkWidget *widget, cairo_t *cr ) {
 /******************************************************************************/
 static void gtk_uvmapeditor_init ( GtkUVMapEditor *guv ) {
     GtkWidget *widget = ( GtkWidget * ) guv;
-    L3DUI *lui   = &guv->lui;
+    M3DUI *mui   = &guv->mui;
 
-    lui->engine_flags = VIEWVERTEXUV;
+    mui->engine_flags = VIEWVERTEXUV;
 
     /*** Expose event won't be called if we dont set has_window ***/
     gtk_widget_set_has_window ( widget, TRUE );
 
-    common_g3duiview_init ( lui, gtk_widget_get_allocated_width  ( widget ), 
+    common_g3duiview_init ( mui, gtk_widget_get_allocated_width  ( widget ), 
                                   gtk_widget_get_allocated_height ( widget ) );
 }
 
@@ -595,47 +595,47 @@ static void gtk_uvmapeditor_init ( GtkUVMapEditor *guv ) {
 
 static void selectChannelCbk( GtkWidget *widget, 
                               gpointer   user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
+    M3DUI *mui = ( M3DUI * ) user_data;
     GtkComboBoxText *cmbt = GTK_COMBO_BOX_TEXT(widget);
     const char *str  = gtk_combo_box_text_get_active_text ( cmbt );
 
-    lui->engine_flags = ( lui->engine_flags & (~UVCHANNELMASK) );
+    mui->engine_flags = ( mui->engine_flags & (~UVCHANNELMASK) );
 
     if ( strcmp ( str, DIFFUSECHANNELSTR ) == 0x00 ) {
-        SHOWCHANNEL(lui->engine_flags,DIFFUSECHANNELID);
+        SHOWCHANNEL(mui->engine_flags,DIFFUSECHANNELID);
     }
 
     if ( strcmp ( str, SPECULARCHANNELSTR ) == 0x00 ) {
-        SHOWCHANNEL(lui->engine_flags,SPECULARCHANNELID);
+        SHOWCHANNEL(mui->engine_flags,SPECULARCHANNELID);
     }
 
     if ( strcmp ( str, DISPLACEMENTCHANNELSTR ) == 0x00 ) {
-        SHOWCHANNEL(lui->engine_flags,DISPLACEMENTCHANNELID);
+        SHOWCHANNEL(mui->engine_flags,DISPLACEMENTCHANNELID);
     }
 
     if ( strcmp ( str, ALPHACHANNELSTR ) == 0x00 ) {
-        SHOWCHANNEL(lui->engine_flags,ALPHACHANNELID);
+        SHOWCHANNEL(mui->engine_flags,ALPHACHANNELID);
     }
 
     if ( strcmp ( str, BUMPCHANNELSTR ) == 0x00 ) {
-        SHOWCHANNEL(lui->engine_flags,BUMPCHANNELID);
+        SHOWCHANNEL(mui->engine_flags,BUMPCHANNELID);
     }
 
     if ( strcmp ( str, REFLECTIONCHANNELSTR ) == 0x00 ) {
-        SHOWCHANNEL(lui->engine_flags,REFLECTIONCHANNELID);
+        SHOWCHANNEL(mui->engine_flags,REFLECTIONCHANNELID);
     }
 
     if ( strcmp ( str, REFRACTIONCHANNELSTR ) == 0x00 ) {
-        SHOWCHANNEL(lui->engine_flags,REFRACTIONCHANNELID);
+        SHOWCHANNEL(mui->engine_flags,REFRACTIONCHANNELID);
     }
 
     /*** resize selection mask and zbuffer ***/
-    common_l3dui_resizeBuffers ( lui );
+    common_m3dui_resizeBuffers ( mui );
 }
 
 /******************************************************************************/
 static void createChannelSelection ( GtkWidget        *parent, 
-                                     L3DUI *lui,
+                                     M3DUI *mui,
                                      char             *name,
                                      gint              x,
                                      gint              y,
@@ -649,7 +649,7 @@ static void createChannelSelection ( GtkWidget        *parent,
 
     gtk_fixed_put ( GTK_FIXED(parent), cmb, x, y );
 
-    g_signal_connect ( cmb, "changed", G_CALLBACK(selectChannelCbk), lui );
+    g_signal_connect ( cmb, "changed", G_CALLBACK(selectChannelCbk), mui );
 
     gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, DIFFUSECHANNELSTR      );
     gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, SPECULARCHANNELSTR     );
@@ -669,7 +669,7 @@ static void gtk_uvmapeditor_realize ( GtkWidget *widget ) {
     GdkWindow *parent_window = gtk_widget_get_parent_window ( widget );
     GtkStyleContext  *style  = gtk_widget_get_style_context ( widget );
     GtkUVMapEditor *guv = ( GtkUVMapEditor * ) widget;
-    L3DUI *lui = &guv->lui;
+    M3DUI *mui = &guv->mui;
     GdkWindowAttr attributes;
     GtkAllocation allocation;
     GdkWindow *window;
@@ -689,7 +689,7 @@ static void gtk_uvmapeditor_realize ( GtkWidget *widget ) {
     attributes.wclass       = GDK_INPUT_OUTPUT;
     attributes.event_mask   = gtk_widget_get_events (widget);
 
-    common_l3dui_init ( lui, allocation.width, allocation.height );
+    common_m3dui_init ( mui, allocation.width, allocation.height );
 
     attributes.event_mask  |=  ( GDK_EXPOSURE_MASK            |
                                  GDK_KEY_PRESS_MASK           |
@@ -715,7 +715,7 @@ static void gtk_uvmapeditor_realize ( GtkWidget *widget ) {
 GtkWidget *gtk_uvmapeditor_new ( ) {
     GObject *gob = g_object_new ( gtk_uvmapeditor_get_type ( ), NULL );
     GtkUVMapEditor *guv = ( GtkUVMapEditor * ) gob;
-    L3DUI *lui = &guv->lui;
+    M3DUI *mui = &guv->mui;
 
     return ( GtkWidget * ) gob;
 }
@@ -732,7 +732,7 @@ gboolean gtk_uvmapeditor_destroy ( GtkWidget *widget, gpointer   user_data ) {
     ggt->currentUVMouseToolButton = NULL;
 
     /*** Free the undo-redo stack ***/
-    /*g3durmanager_free ( guv->lui.uvurm );*/
+    /*g3durmanager_free ( guv->mui.uvurm );*/
 
     return FALSE;
 }
@@ -745,7 +745,7 @@ GtkWidget *createUVMapEditor ( GtkWidget *parent,
                                gint       height ) {
     GdkRectangle gdkrec = { 0x00, 0x00, width, height };
     GtkWidget *guv = gtk_uvmapeditor_new ( );
-    L3DUI *lui = &((GtkUVMapEditor*)guv)->lui;
+    M3DUI *mui = &((GtkUVMapEditor*)guv)->mui;
     GtkWidget *area/* = gtk_uvmapeditor_getGLArea ( guv )*/;
     GtkWidget *mbar;
     GtkWidget *tbar;
@@ -792,16 +792,16 @@ GtkWidget *createUVMapEditor ( GtkWidget *parent,
     createFaceModeMeshMenu     ( area, gui );
     createSculptModeMeshMenu   ( area, gui );*/
 
-    g_signal_connect ( G_OBJECT (area), "size-allocate"       , G_CALLBACK (l3dui_sizeGL    ), gui );
-    g_signal_connect ( G_OBJECT (area), "realize"             , G_CALLBACK (l3dui_initGL    ), gui );
-    g_signal_connect ( G_OBJECT (area), "draw"                , G_CALLBACK (l3dui_showGL    ), gui );
-    g_signal_connect ( G_OBJECT (area), "destroy-event"       , G_CALLBACK (l3dui_destroyGL ), gui );
+    g_signal_connect ( G_OBJECT (area), "size-allocate"       , G_CALLBACK (m3dui_sizeGL    ), gui );
+    g_signal_connect ( G_OBJECT (area), "realize"             , G_CALLBACK (m3dui_initGL    ), gui );
+    g_signal_connect ( G_OBJECT (area), "draw"                , G_CALLBACK (m3dui_showGL    ), gui );
+    g_signal_connect ( G_OBJECT (area), "destroy-event"       , G_CALLBACK (m3dui_destroyGL ), gui );
 
-    g_signal_connect ( G_OBJECT (area), "motion_notify_event" , G_CALLBACK (l3dui_inputGL), gui );
-    g_signal_connect ( G_OBJECT (area), "key_press_event"     , G_CALLBACK (l3dui_inputGL), gui );
-    g_signal_connect ( G_OBJECT (area), "key_release_event"   , G_CALLBACK (l3dui_inputGL), gui );
-    g_signal_connect ( G_OBJECT (area), "button_press_event"  , G_CALLBACK (l3dui_inputGL), gui );
-    g_signal_connect ( G_OBJECT (area), "button_release_event", G_CALLBACK (l3dui_inputGL), gui );
+    g_signal_connect ( G_OBJECT (area), "motion_notify_event" , G_CALLBACK (m3dui_inputGL), gui );
+    g_signal_connect ( G_OBJECT (area), "key_press_event"     , G_CALLBACK (m3dui_inputGL), gui );
+    g_signal_connect ( G_OBJECT (area), "key_release_event"   , G_CALLBACK (m3dui_inputGL), gui );
+    g_signal_connect ( G_OBJECT (area), "button_press_event"  , G_CALLBACK (m3dui_inputGL), gui );
+    g_signal_connect ( G_OBJECT (area), "button_release_event", G_CALLBACK (m3dui_inputGL), gui );
 
     /*** Add the widget to the list uvmap editors, allowing us to ***/
     /*** refresh all of them when an action was done.             ***/
@@ -809,7 +809,7 @@ GtkWidget *createUVMapEditor ( GtkWidget *parent,
 
     gtk_widget_show ( area );
 
-    ((GtkUVMapEditor*)guv)->lui.gui = gui;
+    ((GtkUVMapEditor*)guv)->mui.gui = gui;
 
     mbar = createUVMapEditorModeBar ( guv, 
                                       gui,
@@ -827,34 +827,34 @@ GtkWidget *createUVMapEditor ( GtkWidget *parent,
                                       width,
                                       32 );
 
-    createUVMenuBar   ( guv, lui, "MENUBAR", 0x00,
+    createUVMenuBar   ( guv, mui, "MENUBAR", 0x00,
                                                0x00,
                                                width,
                                                32 );
 
-    createPatternList ( guv, lui, "PATTERNLIST", 0x00,
+    createPatternList ( guv, mui, "PATTERNLIST", 0x00,
                                                   0x00,
                                                   256,
                                                   128 );
 
-    createChannelSelection ( guv, lui, "CHANNELSELECTION", 0x00, 0x00, 0x80 );
+    createChannelSelection ( guv, mui, "CHANNELSELECTION", 0x00, 0x00, 0x80 );
 
     createFgBgButton ( guv, gui, "FGBGBUTTON", 0x00, 0x00, 0x30, 0x30 );
-    createL3DMouseToolEdit ( guv, lui, "MOUSETOOL", 0x00, 0x00, 256, 256 );
+    createM3DMouseToolEdit ( guv, mui, "MOUSETOOL", 0x00, 0x00, 256, 256 );
 
     gtk_widget_show ( guv );
 
     gtk_container_add ( GTK_CONTAINER(parent), guv );
 
     /*** size mask and z buffers ***/
-    common_l3dui_resizeBuffers ( lui );
+    common_m3dui_resizeBuffers ( mui );
 
 
     return guv;
 }
 
 /******************************************************************************/
-static gboolean l3dui_inputGL ( GtkWidget *widget,
+static gboolean m3dui_inputGL ( GtkWidget *widget,
                                            GdkEvent  *gdkev, 
                                            gpointer   user_data ) {
     static int i;
@@ -862,7 +862,7 @@ static gboolean l3dui_inputGL ( GtkWidget *widget,
 
     GdkEventButton   *bev  = ( GdkEventButton * ) gdkev;
     GtkUVMapEditor   *guv  = ( GtkUVMapEditor * ) gtk_widget_get_parent ( widget );
-    L3DUI *lui = &guv->lui;
+    M3DUI *mui = &guv->mui;
     G3DUIGTK3      *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
     static double xold, yold;
     GdkDisplay     *gdkdpy = gtk_widget_get_display ( widget );
@@ -872,14 +872,14 @@ static gboolean l3dui_inputGL ( GtkWidget *widget,
     Display    *dpy    = gdk_x11_display_get_xdisplay ( gdkdpy );
     Window      win    = gdk_x11_window_get_xid       ( gdkwin );
 
-    glXMakeCurrent ( dpy, win, lui->glctx );
+    glXMakeCurrent ( dpy, win, mui->glctx );
 #endif
 
 #ifdef __MINGW32__
     HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
     HDC dc = GetDC ( hWnd );
 
-    wglMakeCurrent ( dc, lui->glctx );
+    wglMakeCurrent ( dc, mui->glctx );
 
     ReleaseDC ( hWnd, dc );
 #endif
@@ -954,15 +954,15 @@ static gboolean l3dui_inputGL ( GtkWidget *widget,
 
         gdkevent_to_g3devent ( gdkev, &g3dev );
 
-        gui->uvmou->mask    = lui->mask;
-        gui->uvmou->zbuffer = lui->zbuffer;
+        gui->uvmou->mask    = mui->mask;
+        gui->uvmou->zbuffer = mui->zbuffer;
 
         if ( gui->uvmou->tool ) {
             uint32_t msk = gui->uvmou->tool ( gui->uvmou, 
                                               gui->sce,
-                                              &lui->cam,
-                                              /*lui->uvurm*/gui->urm,
-                                              lui->engine_flags, &g3dev );
+                                              &mui->cam,
+                                              /*mui->uvurm*/gui->urm,
+                                              mui->engine_flags, &g3dev );
 
             common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
 
@@ -976,16 +976,16 @@ static gboolean l3dui_inputGL ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-gboolean l3dui_destroyGL ( GtkWidget *widget, 
+gboolean m3dui_destroyGL ( GtkWidget *widget, 
                                       GdkEvent  *event, 
                                       gpointer   user_data ) {
     GtkUVMapEditor   *guv    = ( GtkUVMapEditor * ) gtk_widget_get_parent ( widget );
-    L3DUI *lui   = &guv->lui;
+    M3DUI *mui   = &guv->mui;
     GdkDisplay       *gdkdpy = gtk_widget_get_display ( widget );
     GdkWindow        *gdkwin = gtk_widget_get_window  ( widget );
     G3DUI            *gui    = ( G3DUI * ) user_data;
 
-    common_l3dui_destroyGL ( lui );
+    common_m3dui_destroyGL ( mui );
 
     /*list_remove ( &gui->luvmapeditor,  guv );*/
 
@@ -993,11 +993,11 @@ gboolean l3dui_destroyGL ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-void l3dui_sizeGL ( GtkWidget    *widget, 
+void m3dui_sizeGL ( GtkWidget    *widget, 
                                GdkRectangle *allocation, 
                                gpointer      user_data ) {
     GtkUVMapEditor   *guv    = ( GtkUVMapEditor * ) gtk_widget_get_parent ( widget );
-    L3DUI *lui   = &guv->lui;
+    M3DUI *mui   = &guv->mui;
     GdkDisplay       *gdkdpy = gtk_widget_get_display ( widget );
     GdkWindow        *gdkwin = gtk_widget_get_window  ( widget );
     G3DUI            *gui    = ( G3DUI * ) user_data;
@@ -1011,18 +1011,18 @@ void l3dui_sizeGL ( GtkWidget    *widget,
         Display    *dpy    = gdk_x11_display_get_xdisplay ( gdkdpy );
         Window      win    = gdk_x11_window_get_xid       ( gdkwin );
 
-        glXMakeCurrent ( dpy, win, lui->glctx );
+        glXMakeCurrent ( dpy, win, mui->glctx );
     #endif
 
     #ifdef __MINGW32__
         HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
         HDC dc = GetDC ( hWnd );
 
-        wglMakeCurrent ( dc, lui->glctx );
+        wglMakeCurrent ( dc, mui->glctx );
 
         ReleaseDC ( hWnd, dc );
     #endif
-        common_l3dui_sizeGL ( lui, allocation->width, 
+        common_m3dui_sizeGL ( mui, allocation->width, 
                                                allocation->height );
 
         gtk_widget_queue_draw ( widget );
@@ -1030,10 +1030,10 @@ void l3dui_sizeGL ( GtkWidget    *widget,
 }
 
 /******************************************************************************/
-void l3dui_initGL ( GtkWidget *widget, 
+void m3dui_initGL ( GtkWidget *widget, 
                                gpointer   user_data ) {
     GtkUVMapEditor   *guv      = ( GtkView * ) gtk_widget_get_parent ( widget );
-    L3DUI *lui     = &guv->lui;
+    M3DUI *mui     = &guv->mui;
     GdkWindow        *p_window = gtk_widget_get_parent_window ( widget );
     GdkDisplay       *gdkdpy   = gtk_widget_get_display ( widget );
     GdkWindow        *gdkwin   = gtk_widget_get_window  ( widget );
@@ -1096,14 +1096,14 @@ void l3dui_initGL ( GtkWidget *widget,
     win = gdk_x11_window_get_xid ( gdkwin );
 
     /*** Create OpenGL Context ***/
-    lui->glctx = glXCreateContext( dis, vi, gui->sharedCtx, True );
+    mui->glctx = glXCreateContext( dis, vi, gui->sharedCtx, True );
 
-    if ( gui->sharedCtx == NULL ) gui->sharedCtx = lui->glctx;
+    if ( gui->sharedCtx == NULL ) gui->sharedCtx = mui->glctx;
 
     /*** Set Context as the current context ***/
-    glXMakeCurrent ( dis, win, lui->glctx );
+    glXMakeCurrent ( dis, win, mui->glctx );
 
-    common_l3dui_initGL ( lui );
+    common_m3dui_initGL ( mui );
 
     /*** Free the memory assigned for GLwNvisualInfo ***/
     free ( vi );
@@ -1140,25 +1140,25 @@ void l3dui_initGL ( GtkWidget *widget,
         return 0x00;
     }
 
-    lui->glctx = wglCreateContext ( dc );
+    mui->glctx = wglCreateContext ( dc );
 
-    if ( lui->gui->sharedCtx == NULL ) lui->gui->sharedCtx = lui->glctx;
-    else wglShareLists( lui->gui->sharedCtx, lui->glctx );
+    if ( mui->gui->sharedCtx == NULL ) mui->gui->sharedCtx = mui->glctx;
+    else wglShareLists( mui->gui->sharedCtx, mui->glctx );
 	
-    wglMakeCurrent ( dc,  lui->glctx );
+    wglMakeCurrent ( dc,  mui->glctx );
 
-    common_l3dui_initGL ( lui );
+    common_m3dui_initGL ( mui );
 
     ReleaseDC ( hWnd, dc );
 #endif
 }
 
 /******************************************************************************/
-gboolean l3dui_showGL ( GtkWidget *widget, 
+gboolean m3dui_showGL ( GtkWidget *widget, 
                                    cairo_t   *cr,
                                    gpointer   user_data ) {
     GtkUVMapEditor   *guv    = ( GtkUVMapEditor * ) gtk_widget_get_parent ( widget );
-    L3DUI *lui   = &guv->lui;
+    M3DUI *mui   = &guv->mui;
     GdkDisplay       *gdkdpy = gtk_widget_get_display       ( widget );
     GdkWindow        *gdkwin = gtk_widget_get_window        ( widget );
     G3DUI            *gui    = ( G3DUI * ) user_data;
@@ -1180,9 +1180,9 @@ gboolean l3dui_showGL ( GtkWidget *widget,
 
 #ifdef __linux__
     /*** Set Context as the current context ***/
-    glXMakeCurrent ( dpy, win, lui->glctx );
+    glXMakeCurrent ( dpy, win, mui->glctx );
 
-    common_l3dui_showGL ( lui, gui, gui->uvmou, lui->engine_flags );
+    common_m3dui_showGL ( mui, gui, gui->uvmou, mui->engine_flags );
 
     glXSwapBuffers ( dpy, win );
 
@@ -1191,9 +1191,9 @@ gboolean l3dui_showGL ( GtkWidget *widget,
 
 #ifdef __MINGW32__
     /*** Set Context as the current context ***/
-    wglMakeCurrent ( dc, lui->glctx );
+    wglMakeCurrent ( dc, mui->glctx );
 
-    common_l3dui_showGL ( lui, gui, gui->uvmou, lui->engine_flags );
+    common_m3dui_showGL ( mui, gui, gui->uvmou, mui->engine_flags );
 
     SwapBuffers ( dc );
 

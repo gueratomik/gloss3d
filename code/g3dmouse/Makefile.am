@@ -32,5 +32,5 @@ LIBGLOSSG3DMOUSE_C_FILES = g3dmousetool.c             \
                            gloss3d/rotate.c           \
                            gloss3d/sculpt.c           \
                            gloss3d/scale.c            \
-                           lips3d/spray.c
+                           makeup3d/spray.c
 

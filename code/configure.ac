@@ -106,7 +106,7 @@ AC_OUTPUT([g3dengine/Makefile          \
            g3dcom/Makefile     \
            g3dui/Makefile        \
            g3durmanager/Makefile \
-           lips3d/Makefile \
+           makeup3d/Makefile \
            qiss3d/Makefile])
 
 #           r3dnet/Makefile

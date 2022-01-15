@@ -95,7 +95,7 @@ static void selectVertexPose_undo ( G3DURMANAGER *urm,
     URMSELECTVERTEXPOSE *avp = ( URMSELECTVERTEXPOSE * ) data;
 
     if ( ((G3DOBJECT*)avp->mpr)->parent->type == G3DMESHTYPE ) {
-        G3DMESH *mes = ((G3DOBJECT*)avp->mpr)->parent;
+        G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)avp->mpr)->parent;
         LIST *ltmpver = avp->lselnew;
 
         while ( ltmpver ) {
@@ -112,7 +112,7 @@ static void selectVertexPose_undo ( G3DURMANAGER *urm,
             ltmpver = ltmpver->next;
         }
 
-        list_execargdata ( avp->lselold, g3dmesh_selectVertex, mes );
+        list_execargdata ( avp->lselold, LIST_FUNCARGDATA(g3dmesh_selectVertex), mes );
     }
 
     g3dscene_updatePivot ( avp->sce, engine_flags );
@@ -125,10 +125,10 @@ static void selectVertexPose_redo ( G3DURMANAGER *urm,
     URMSELECTVERTEXPOSE *avp = ( URMSELECTVERTEXPOSE * ) data;
 
     if ( ((G3DOBJECT*)avp->mpr)->parent->type == G3DMESHTYPE ) {
-        G3DMESH *mes = ((G3DOBJECT*)avp->mpr)->parent;
+        G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)avp->mpr)->parent;
         LIST *ltmpver = avp->lselnew;
 
-        list_execargdata ( avp->lselold, g3dmesh_unselectVertex, mes );
+        list_execargdata ( avp->lselold, LIST_FUNCARGDATA(g3dmesh_unselectVertex), mes );
 
         while ( ltmpver ) {
             G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;

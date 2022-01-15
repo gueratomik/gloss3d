@@ -97,7 +97,7 @@ void objectPose_free ( void *data, uint32_t commit ) {
         ltmpop = ltmpop->next;
     }
 
-    list_free ( &ltmpop, urmObjectPose_free );
+    list_free ( &ltmpop, LIST_FUNCDATA(urmObjectPose_free) );
 }
 
 /******************************************************************************/

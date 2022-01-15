@@ -27,10 +27,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <lips3d/lips3d.h>
+#include <makeup3d/makeup3d.h>
 
-static int l3dbasepen_press ( L3DOBJECT     *obj,
-                              L3DPATTERN    *pattern,
+static int m3dbasepen_press ( M3DOBJECT     *obj,
+                              M3DPATTERN    *pattern,
                               uint32_t       fgcolor,
                               uint32_t       bgcolor,
                               int32_t        x,
@@ -43,8 +43,8 @@ static int l3dbasepen_press ( L3DOBJECT     *obj,
                               unsigned char *zbuffer,
                               uint32_t      *updcoord,
                               uint64_t       engine_flags );
-static int l3dbasepen_move ( L3DOBJECT     *obj,
-                             L3DPATTERN    *pattern,
+static int m3dbasepen_move ( M3DOBJECT     *obj,
+                             M3DPATTERN    *pattern,
                              uint32_t       fgcolor,
                              uint32_t       bgcolor,
                              int32_t        x,
@@ -57,8 +57,8 @@ static int l3dbasepen_move ( L3DOBJECT     *obj,
                              unsigned char *zbuffer,
                              uint32_t      *updcoord,
                              uint64_t       engine_flags );
-static int l3dbasepen_release ( L3DOBJECT     *obj,
-                                L3DPATTERN    *pattern,
+static int m3dbasepen_release ( M3DOBJECT     *obj,
+                                M3DPATTERN    *pattern,
                                 uint32_t       fgcolor,
                                 uint32_t       bgcolor,
                                 int32_t        x,
@@ -73,9 +73,9 @@ static int l3dbasepen_release ( L3DOBJECT     *obj,
                                 uint64_t       engine_flags );
 
 /******************************************************************************/
-L3DBASEPEN* l3dbasepen_new ( ) {
-    uint32_t structSize = sizeof ( L3DBASEPEN );
-    L3DBASEPEN *basepen = ( L3DBASEPEN * ) calloc ( 0x01, structSize );
+M3DBASEPEN* m3dbasepen_new ( ) {
+    uint32_t structSize = sizeof ( M3DBASEPEN );
+    M3DBASEPEN *basepen = ( M3DBASEPEN * ) calloc ( 0x01, structSize );
 
     if ( basepen == NULL ) {
         fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
@@ -85,18 +85,18 @@ L3DBASEPEN* l3dbasepen_new ( ) {
 
     basepen->pressure    = 1.0f;
 
-    l3dobject_init ( basepen,
+    m3dobject_init ( basepen,
                      NULL,
-                     l3dbasepen_press,
-                     l3dbasepen_move,
-                     l3dbasepen_release );
+                     m3dbasepen_press,
+                     m3dbasepen_move,
+                     m3dbasepen_release );
 
     return basepen;
 }
 
 /******************************************************************************/
-static int l3dbasepen_press ( L3DOBJECT     *obj,
-                              L3DPATTERN    *pattern,
+static int m3dbasepen_press ( M3DOBJECT     *obj,
+                              M3DPATTERN    *pattern,
                               uint32_t       fgcolor,
                               uint32_t       bgcolor,
                               int32_t        x,
@@ -109,7 +109,7 @@ static int l3dbasepen_press ( L3DOBJECT     *obj,
                               unsigned char *zbuffer,
                               uint32_t      *updcoord,
                               uint64_t       engine_flags ) {
-    L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
+    M3DBASEPEN *basepen = ( M3DBASEPEN * ) obj;
 
     basepen->oldx = x;
     basepen->oldy = y;
@@ -117,7 +117,7 @@ static int l3dbasepen_press ( L3DOBJECT     *obj,
     memset ( zbuffer, 0x00, width * height );
 
     if ( updcoord ) {
-        if ( l3dcore_setUpdateArea ( x,
+        if ( m3dcore_setUpdateArea ( x,
                                      y,
                                      x, 
                                      y, 
@@ -129,7 +129,7 @@ static int l3dbasepen_press ( L3DOBJECT     *obj,
         }
     }
 
-    l3dpattern_paint ( pattern,
+    m3dpattern_paint ( pattern,
                        fgcolor,
                        basepen->pressure,
                        x,
@@ -142,12 +142,12 @@ static int l3dbasepen_press ( L3DOBJECT     *obj,
                        zbuffer,
                        engine_flags );
 
-    return L3DUPDATESUBIMAGE;
+    return M3DUPDATESUBIMAGE;
 }
 
 /******************************************************************************/
-static int l3dbasepen_move ( L3DOBJECT     *obj,
-                             L3DPATTERN    *pattern,
+static int m3dbasepen_move ( M3DOBJECT     *obj,
+                             M3DPATTERN    *pattern,
                              uint32_t       fgcolor,
                              uint32_t       bgcolor,
                              int32_t        x,
@@ -160,12 +160,12 @@ static int l3dbasepen_move ( L3DOBJECT     *obj,
                              unsigned char *zbuffer,
                              uint32_t      *updcoord,
                              uint64_t       engine_flags ) {
-    if ( engine_flags & L3DBUTTON1PRESSED ) {
+    if ( engine_flags & M3DBUTTON1PRESSED ) {
         /*y = 100;*/
-        L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
+        M3DBASEPEN *basepen = ( M3DBASEPEN * ) obj;
 
         if ( updcoord ) {
-            if ( l3dcore_setUpdateArea ( basepen->oldx,
+            if ( m3dcore_setUpdateArea ( basepen->oldx,
                                          basepen->oldy,
                                          x, 
                                          y, 
@@ -177,33 +177,33 @@ static int l3dbasepen_move ( L3DOBJECT     *obj,
             }
         }
 
-        l3core_paintLine ( pattern,
-                           fgcolor,
-                           basepen->pressure,
-                           basepen->oldx,
-                           basepen->oldy,
-                           x,
-                           y,
-                           buffer,
-                           width,
-                           height, 
-                           bpp, 
-                           mask,
-                           zbuffer,
-                           engine_flags );
+        m3dcore_paintLine ( pattern,
+                            fgcolor,
+                            basepen->pressure,
+                            basepen->oldx,
+                            basepen->oldy,
+                            x,
+                            y,
+                            buffer,
+                            width,
+                            height, 
+                            bpp, 
+                            mask,
+                            zbuffer,
+                            engine_flags );
 
         basepen->oldx = x;
         basepen->oldy = y;
 
-        return L3DUPDATESUBIMAGE;
+        return M3DUPDATESUBIMAGE;
     }
 
     return 0x00;
 }
 
 /******************************************************************************/
-static int l3dbasepen_release ( L3DOBJECT     *obj,
-                                L3DPATTERN    *pattern,
+static int m3dbasepen_release ( M3DOBJECT     *obj,
+                                M3DPATTERN    *pattern,
                                 uint32_t       fgcolor,
                                 uint32_t       bgcolor,
                                 int32_t        x,
@@ -216,10 +216,10 @@ static int l3dbasepen_release ( L3DOBJECT     *obj,
                                 unsigned char *zbuffer,
                                 uint32_t      *updcoord,
                                 uint64_t       engine_flags ) {
-    L3DBASEPEN *basepen = ( L3DBASEPEN * ) obj;
+    M3DBASEPEN *basepen = ( M3DBASEPEN * ) obj;
 
     if ( updcoord ) {
-        if ( l3dcore_setUpdateArea ( x,
+        if ( m3dcore_setUpdateArea ( x,
                                      y,
                                      x, 
                                      y, 
@@ -231,5 +231,5 @@ static int l3dbasepen_release ( L3DOBJECT     *obj,
         }
     }
 
-    return L3DUPDATESUBIMAGE;
+    return M3DUPDATESUBIMAGE;
 }

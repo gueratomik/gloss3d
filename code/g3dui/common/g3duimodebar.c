@@ -39,7 +39,7 @@
 #include <xpm/sculptmode.xpm>
 
 /******************************************************************************/
-void common_l3dui_setMode ( L3DUI *lui, 
+void common_m3dui_setMode ( M3DUI *lui, 
                                        const char       *modename ) {
     uint64_t curflags = lui->engine_flags & (~UVMODEMASK);
     uint64_t newmode = 0x00;

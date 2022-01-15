@@ -64,13 +64,13 @@ static void cutSpline_free ( void    *data,
 
     /*** Discard changes ***/
     if ( commit == 0x00 ) {
-        list_free ( &csp->laddedSegments  , g3dcubicsegment_free );
-        list_free ( &csp->laddedPoints    , g3dcurvepoint_free  );
+        list_free ( &csp->laddedSegments  , LIST_FUNCDATA(g3dcubicsegment_free) );
+        list_free ( &csp->laddedPoints    , LIST_FUNCDATA(g3dcurvepoint_free)  );
         list_free ( &csp->lremovedSegments, NULL  );
     } else {
         list_free ( &csp->laddedSegments  , NULL  );
         list_free ( &csp->laddedPoints    , NULL  );
-        list_free ( &csp->lremovedSegments, g3dcubicsegment_free );
+        list_free ( &csp->lremovedSegments, LIST_FUNCDATA(g3dcubicsegment_free) );
     }
 
     urmCutSpline_free ( csp );
@@ -84,11 +84,11 @@ static void cutSpline_undo ( G3DURMANAGER *urm,
     G3DSPLINE *spline = ( G3DSPLINE * ) csp->spline;
 
     /* remove deleted segments */
-    list_execargdata ( csp->laddedSegments  , g3dcurve_removeSegment, spline->curve );
+    list_execargdata ( csp->laddedSegments  , LIST_FUNCARGDATA(g3dcurve_removeSegment), spline->curve );
     /* remove added points */
-    list_execargdata ( csp->laddedPoints    , g3dcurve_removePoint  , spline->curve );
+    list_execargdata ( csp->laddedPoints    , LIST_FUNCARGDATA(g3dcurve_removePoint)  , spline->curve );
     /* restore deleted segments */
-    list_execargdata ( csp->lremovedSegments, g3dcurve_addSegment   , spline->curve );
+    list_execargdata ( csp->lremovedSegments, LIST_FUNCARGDATA(g3dcurve_addSegment)   , spline->curve );
 
     /*** Rebuild the spline modifiers ***/
     g3dspline_update ( spline, NULL, RESETMODIFIERS, engine_flags );
@@ -102,11 +102,11 @@ static void cutSpline_redo ( G3DURMANAGER *urm,
     G3DSPLINE *spline = ( G3DSPLINE * ) csp->spline;
 
     /* remove deleted segments */
-    list_execargdata ( csp->lremovedSegments, g3dcurve_removeSegment, spline->curve );
+    list_execargdata ( csp->lremovedSegments, LIST_FUNCARGDATA(g3dcurve_removeSegment), spline->curve );
     /* re-add new points */
-    list_execargdata ( csp->laddedPoints    , g3dcurve_addPoint     , spline->curve );
+    list_execargdata ( csp->laddedPoints    , LIST_FUNCARGDATA(g3dcurve_addPoint)     , spline->curve );
     /* re-add new segments */
-    list_execargdata ( csp->laddedSegments  , g3dcurve_addSegment   , spline->curve );
+    list_execargdata ( csp->laddedSegments  , LIST_FUNCARGDATA(g3dcurve_addSegment)   , spline->curve );
 
     /*** Rebuild the spline modifiers ***/
     g3dspline_update ( spline, NULL, RESETMODIFIERS, engine_flags );

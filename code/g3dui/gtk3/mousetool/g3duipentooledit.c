@@ -38,38 +38,38 @@
 static void setIncrementalCbk  ( GtkWidget *widget, 
                                  gpointer   user_data ) {
     int incremental = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
-    L3DUI *lui = ( L3DUI * ) user_data;
+    M3DUI *mui = ( M3DUI * ) user_data;
 
-    common_g3duipentooledit_setIncrementalCbk ( lui, incremental );
+    common_g3duipentooledit_setIncrementalCbk ( mui, incremental );
 }
 
 /******************************************************************************/
 static void setRadiusCbk  ( GtkWidget *widget, 
                             gpointer   user_data ) {
     int radius = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
-    L3DUI *lui = ( L3DUI * ) user_data;
+    M3DUI *mui = ( M3DUI * ) user_data;
 
-    common_g3duipentooledit_setRadiusCbk ( lui, radius );
+    common_g3duipentooledit_setRadiusCbk ( mui, radius );
 }
 
 /******************************************************************************/
 static void setPressureCbk  ( GtkWidget *widget, gpointer user_data ) {
     float pressure = ( float ) gtk_range_get_value ( GTK_RANGE(widget) );
-    L3DUI *lui = ( L3DUI * ) user_data;
+    M3DUI *mui = ( M3DUI * ) user_data;
 
-    common_g3duipentooledit_setPressureCbk ( lui, pressure / 100.0f );
+    common_g3duipentooledit_setPressureCbk ( mui, pressure / 100.0f );
 }
 
 /******************************************************************************/
 void updatePenToolEdit ( GtkWidget        *widget,
-                         L3DUI *lui ) {
+                         M3DUI *mui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    L3DMOUSETOOL *tool = common_g3dui_getMouseTool ( lui->gui, PENTOOL );
-    L3DMOUSETOOLPEN *pen = ( L3DMOUSETOOLPEN * ) tool;
-    L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
+    M3DMOUSETOOL *tool = common_g3dui_getMouseTool ( mui->gui, PENTOOL );
+    M3DMOUSETOOLPEN *pen = ( M3DMOUSETOOLPEN * ) tool;
+    M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
 
     /*** prevent a loop ***/
-    lui->gui->lock = 0x01;
+    mui->gui->lock = 0x01;
 
     while ( children ) {
         GtkWidget *child = ( GtkWidget * ) children->data;
@@ -99,7 +99,7 @@ void updatePenToolEdit ( GtkWidget        *widget,
             GtkRange *ran = GTK_RANGE(child);
 
             if ( strcmp ( child_name, EDITPENTOOLPRESSURE ) == 0x00 ) {
-                L3DBASEPEN *bpobj = ( L3DBASEPEN * ) tool->obj;
+                M3DBASEPEN *bpobj = ( M3DBASEPEN * ) tool->obj;
 
                 gtk_range_set_value ( ran, ( bpobj->pressure * 100.0f ) );
             }
@@ -108,19 +108,19 @@ void updatePenToolEdit ( GtkWidget        *widget,
         children =  g_list_next ( children );
     }
 
-    lui->gui->lock = 0x00;
+    mui->gui->lock = 0x00;
 }
 
 /******************************************************************************/
 static void Realize ( GtkWidget *widget, gpointer user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
+    M3DUI *mui = ( M3DUI * ) user_data;
 
-    updatePenToolEdit ( widget, lui );
+    updatePenToolEdit ( widget, mui );
 }
 
 /******************************************************************************/
 GtkWidget *createPenToolEdit ( GtkWidget        *parent, 
-                               L3DUI *lui,
+                               M3DUI *mui,
                                char             *name,
                                gint              x,
                                gint              y,
@@ -137,23 +137,23 @@ GtkWidget *createPenToolEdit ( GtkWidget        *parent,
 
     gtk_fixed_put ( GTK_FIXED(parent), frm, x, y );
 
-    g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), lui );
+    g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), mui );
 
 
-    createSimpleLabel ( frm, lui, EDITPENTOOLPRESSURE,
+    createSimpleLabel ( frm, mui, EDITPENTOOLPRESSURE,
                         0x00, 
                         0x00, 
                         0x60,
                         24 );
-    createHorizontalScale ( frm, lui, EDITPENTOOLPRESSURE,
+    createHorizontalScale ( frm, mui, EDITPENTOOLPRESSURE,
                                  96,   0, 160,  24,
                                  0.0f, 100.0f, 1.0f, setPressureCbk );
 
-    createIntegerText     ( frm, lui, EDITPENTOOLRADIUS, 
+    createIntegerText     ( frm, mui, EDITPENTOOLRADIUS, 
                                   0, 256,
                                   0, 24, 96,  32, setRadiusCbk );
 
-    createToggleLabel     ( frm, lui, EDITPENTOOLINCREMENTAL,
+    createToggleLabel     ( frm, mui, EDITPENTOOLINCREMENTAL,
                                   0, 48, 96,  24, setIncrementalCbk );
 
 

@@ -1333,7 +1333,7 @@ void g3dui_resizeUVMapEditors ( G3DUI *gui ) {
         GtkUVMapEditor *guv = ( GtkUVMapEditor * ) ltmp->data;
 
         /*** resize buffers ***/
-        common_l3dui_resizeBuffers ( &guv->lui );
+        common_m3dui_resizeBuffers ( &guv->mui );
 
         ltmp = ltmp->next;
     }
@@ -1402,7 +1402,7 @@ G3DCAMERA *g3dui_getCurrentUVMapEditorCamera ( G3DUI *gui ) {
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     GtkUVMapEditor *guv = ( GtkView * ) gtk_widget_get_parent ( ggt->currentUVMapEditor );
 
-    return &guv->lui.cam;
+    return &guv->mui.cam;
 }
 
 /******************************************************************************/

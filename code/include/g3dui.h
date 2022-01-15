@@ -917,15 +917,15 @@ typedef struct _G3DUIVIEW {
 /******************************************************************************/
 #define NBUVMAPBUTTON   0x02
 #define BUTTONSIZE      0x10 /*** 16x16 ***/
-#define L3DBOARDWIDTH          256
-#define L3DPATTERNBOARDWIDTH   256
-#define L3DPATTERNBOARDHEIGHT  128
-#define L3DMENUBARHEIGHT        32
-#define L3DTOOLBARHEIGHT        32
+#define M3DBOARDWIDTH          256
+#define M3DPATTERNBOARDWIDTH   256
+#define M3DPATTERNBOARDHEIGHT  128
+#define M3DMENUBARHEIGHT        32
+#define M3DTOOLBARHEIGHT        32
 #define UVMAPTRANSLATEBUTTON 0x00
 #define UVMAPZOOMBUTTON      0x01
 
-typedef struct _L3DUI {
+typedef struct _M3DUI {
     uint64_t       engine_flags;
     G3DUIRECTANGLE rec[NBUVMAPBUTTON];       /*** pixmaps position ***/
     G3DUIRECTANGLE arearec;
@@ -948,9 +948,9 @@ typedef struct _L3DUI {
     G3DUI         *gui;
     char          *mask;
     char          *zbuffer;
-    L3DPATTERN    *selpat;
+    M3DPATTERN    *selpat;
     LIST         *lmtools; /*** list of mousetools widget ***/
-} L3DUI;
+} M3DUI;
 
 /******************************* g3duiview.c **********************************/
 void common_g3duiview_resize ( G3DUIVIEW *, uint32_t, uint32_t );
@@ -1102,7 +1102,7 @@ typedef struct _PATTERNLISTDATA {
     uint32_t preview_width;
     uint32_t preview_height;
     uint32_t preview_border;
-    L3DPATTERN *patterns[NBPATTERNS];
+    M3DPATTERN *patterns[NBPATTERNS];
 } PATTERNLISTDATA;
 
 /******************************************************************************/
@@ -1202,7 +1202,7 @@ void      common_g3dui_openG3DFile          ( G3DUI *, const char * );
 void      common_g3dui_setMouseTool         ( G3DUI        *gui, 
                                               G3DCAMERA    *cam,
                                               G3DMOUSETOOL *mou );
-void      common_l3dui_setUVMouseTool ( L3DUI *lui, 
+void      common_m3dui_setUVMouseTool ( M3DUI *mui, 
                                                    G3DCAMERA    *cam, 
                                                    G3DMOUSETOOL *mou );
 void      common_g3dui_saveG3DFile          ( G3DUI * );
@@ -1210,7 +1210,7 @@ void      common_g3dui_setFileName          ( G3DUI *, const char * );
 void      common_g3dui_resizeWidget         ( G3DUI *, uint32_t, 
                                                        uint32_t );
 void      common_g3dui_setMode              ( G3DUI *, const char * );
-void common_l3dui_setMode ( L3DUI *lui, 
+void common_m3dui_setMode ( M3DUI *mui, 
                                        const char       *modename );
 void      common_g3dui_dispatchGLMenuButton ( G3DUI *, G3DMOUSETOOL *,
                                                        uint32_t );
@@ -1615,36 +1615,36 @@ void g3dui_read ( G3DIMPORTV3DATA *gid,
                   G3DUI         *gui );
 
 /******************************************************************************/
-LIST *common_l3dui_getUV ( G3DSCENE *sce,
+LIST *common_m3dui_getUV ( G3DSCENE *sce,
                                       int32_t           xm,
                                       int32_t           ym,
                                       uint32_t          width,
                                       uint32_t          height );
-void common_l3dui_plotUVSet ( L3DUI *lui, 
+void common_m3dui_plotUVSet ( M3DUI *mui, 
                                          G3DUVSET         *uvset );
-void common_l3dui_plotUV ( L3DUI *lui, 
+void common_m3dui_plotUV ( M3DUI *mui, 
                                       G3DUV            *uv );
-void common_l3dui_showGL ( L3DUI *lui,
+void common_m3dui_showGL ( M3DUI *mui,
                                       G3DUI            *gui,
                                       G3DMOUSETOOL     *mou,
                                       uint64_t engine_flags );
-void common_l3dui_initGL ( L3DUI *lui );
-void common_l3dui_sizeGL ( L3DUI *lui, 
+void common_m3dui_initGL ( M3DUI *mui );
+void common_m3dui_sizeGL ( M3DUI *mui, 
                                       uint32_t          width, 
                                       uint32_t          height );
-void common_l3dui_resize ( L3DUI *lui, 
+void common_m3dui_resize ( M3DUI *mui, 
                                       uint32_t          width, 
                                       uint32_t          height );
-void common_l3dui_init ( L3DUI *lui, 
+void common_m3dui_init ( M3DUI *mui, 
                                     uint32_t          width,
                                     uint32_t          height );
-int common_l3dui_getCurrentButton ( L3DUI *lui,
+int common_m3dui_getCurrentButton ( M3DUI *mui,
                                                int x,
                                                int y );
-void common_l3dui_moveForward ( L3DUI *lui, 
+void common_m3dui_moveForward ( M3DUI *mui, 
                                            int32_t           x, 
                                            int32_t           xold );
-void common_l3dui_moveSideward ( L3DUI *lui, 
+void common_m3dui_moveSideward ( M3DUI *mui, 
                                             int32_t           x, 
                                             int32_t           y, 
                                             int32_t           xold, 
@@ -1691,13 +1691,13 @@ void common_g3duisplinerevolveredit_splineRevolverDivisCbk ( G3DUI *gui,
                                                              int    level );
 void common_g3duisplinerevolveredit_splineRevolverStepsCbk ( G3DUI *gui,
                                                              int    level );
-void common_l3dui_setCanevas ( L3DUI *lui );
-void common_l3dui_destroyGL ( L3DUI *lui );
+void common_m3dui_setCanevas ( M3DUI *mui );
+void common_m3dui_destroyGL ( M3DUI *mui );
 
-void common_l3dui_uv2verCbk ( L3DUI *lui );
-void common_l3dui_ver2uvCbk ( L3DUI *lui );
-void common_l3dui_uvset2facCbk ( L3DUI *lui );
-void common_l3dui_fac2uvsetCbk ( L3DUI *lui );
+void common_m3dui_uv2verCbk ( M3DUI *mui );
+void common_m3dui_ver2uvCbk ( M3DUI *mui );
+void common_m3dui_uvset2facCbk ( M3DUI *mui );
+void common_m3dui_fac2uvsetCbk ( M3DUI *mui );
 
 /******************************************************************************/
 void common_g3duicameraedit_dofEnableCbk ( G3DUI *gui );
@@ -1726,25 +1726,25 @@ void common_g3duimeshposelist_renameCurrentPoseCbk ( G3DUI *gui,
 void common_g3duimeshposelist_deleteSelectedPoseCbk ( G3DUI *gui );
 void common_g3duimeshposelist_selectPoseCbk ( G3DUI *gui, G3DMORPHERMESHPOSE *mps );
 
-void common_l3dui_redoCbk ( L3DUI *lui );
-void common_l3dui_undoCbk ( L3DUI *lui );
+void common_m3dui_redoCbk ( M3DUI *mui );
+void common_m3dui_undoCbk ( M3DUI *mui );
 
-void common_l3dui_resizeBuffers ( L3DUI *lui );
-void common_l3dui_fillWithColor ( L3DUI *lui, 
+void common_m3dui_resizeBuffers ( M3DUI *mui );
+void common_m3dui_fillWithColor ( M3DUI *mui, 
                                   uint32_t color );
 
-G3DIMAGE *common_l3dui_getWorkingChannel ( L3DUI *lui );
-G3DIMAGE *common_l3dui_getWorkingImage   ( L3DUI *lui );
-void common_l3dui_fgfill ( L3DUI *lui );
+G3DIMAGE *common_m3dui_getWorkingChannel ( M3DUI *mui );
+G3DIMAGE *common_m3dui_getWorkingImage   ( M3DUI *mui );
+void common_m3dui_fgfill ( M3DUI *mui );
 
-void common_g3duipentooledit_setRadiusCbk ( L3DUI *lui, 
+void common_g3duipentooledit_setRadiusCbk ( M3DUI *mui, 
                                             float             radius );
-void common_g3duipentooledit_setPressureCbk ( L3DUI *lui, 
+void common_g3duipentooledit_setPressureCbk ( M3DUI *mui, 
                                               float             pressure );
-void common_g3duipentooledit_setIncrementalCbk ( L3DUI *lui, 
+void common_g3duipentooledit_setIncrementalCbk ( M3DUI *mui, 
                                                  uint32_t          inc );
 
-void common_g3duibuckettooledit_setToleranceCbk ( L3DUI   *lui, 
+void common_g3duibuckettooledit_setToleranceCbk ( M3DUI   *mui, 
                                                   uint32_t tolerance );
 
 /******************************************************************************/

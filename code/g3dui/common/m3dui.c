@@ -32,9 +32,9 @@
 #define CLEARCOLOR 100
 
 /******************************************************************************/
-G3DIMAGE *common_l3dui_getWorkingChannel ( L3DUI *lui ) {
-    G3DUI        *gui = lui->gui;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( lui->gui->sce );
+G3DIMAGE *common_m3dui_getWorkingChannel ( M3DUI *mui ) {
+    G3DUI        *gui = mui->gui;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
         if ( obj->type & MESH ) {
@@ -48,7 +48,7 @@ G3DIMAGE *common_l3dui_getWorkingChannel ( L3DUI *lui ) {
                 G3DMATERIAL *mat = tex->mat;
 
                 if ( mat ) {
-                    uint32_t channelID = GETCHANNEL(lui->engine_flags);
+                    uint32_t channelID = GETCHANNEL(mui->engine_flags);
                     G3DCHANNEL *chn = g3dmaterial_getChannelByID(mat,channelID);
 
                     if ( chn ) {
@@ -63,8 +63,8 @@ G3DIMAGE *common_l3dui_getWorkingChannel ( L3DUI *lui ) {
 }
 
 /******************************************************************************/
-G3DIMAGE *common_l3dui_getWorkingImage ( L3DUI *lui ) {
-    G3DCHANNEL *chn = common_l3dui_getWorkingChannel ( lui );
+G3DIMAGE *common_m3dui_getWorkingImage ( M3DUI *mui ) {
+    G3DCHANNEL *chn = common_m3dui_getWorkingChannel ( mui );
 
     if ( chn ) {
         if ( chn->flags & USEIMAGECOLOR ) {
@@ -78,19 +78,19 @@ G3DIMAGE *common_l3dui_getWorkingImage ( L3DUI *lui ) {
 }
 
 /******************************************************************************/
-void common_l3dui_setUVMouseTool ( L3DUI *lui, 
+void common_m3dui_setUVMouseTool ( M3DUI *mui, 
                                               G3DCAMERA        *cam, 
                                               G3DMOUSETOOL     *mou ) {
-    G3DUI *gui = lui->gui;
+    G3DUI *gui = mui->gui;
 
     /*** Call the mouse tool initialization function once. This ***/
     /*** can be used by this function to initialize some values ***/
     if ( mou ) {
         if ( mou->init ) {
             uint32_t msk = mou->init ( mou, gui->sce,
-                                           &lui->cam,
-                                            /*lui->uvurm*/
-                                            gui->urm, lui->engine_flags );
+                                           &mui->cam,
+                                            /*mui->uvurm*/
+                                            gui->urm, mui->engine_flags );
 
             common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
         }
@@ -104,9 +104,9 @@ void common_l3dui_setUVMouseTool ( L3DUI *lui,
 }
 
 /******************************************************************************/
-void common_l3dui_fillWithColor ( L3DUI *lui, 
+void common_m3dui_fillWithColor ( M3DUI *mui, 
                                              uint32_t          color ) {
-    G3DIMAGE *img = common_l3dui_getWorkingImage ( lui );
+    G3DIMAGE *img = common_m3dui_getWorkingImage ( mui );
 
     if ( img ) {
         unsigned char R = ( color & 0x00FF0000 ) >> 0x10,
@@ -118,7 +118,7 @@ void common_l3dui_fillWithColor ( L3DUI *lui,
             for ( j = 0x00; j < img->width; j++ ) {
                 uint32_t offset = ( i * img->width ) + j;
 
-                if ( lui->mask[offset] ) {
+                if ( mui->mask[offset] ) {
                     switch ( img->bytesPerPixel ) {
                         case 0x03 : {
                             unsigned char (*buffer)[0x03] = img->data;
@@ -142,28 +142,28 @@ void common_l3dui_fillWithColor ( L3DUI *lui,
 }
 
 /******************************************************************************/
-void common_l3dui_resizeBuffers ( L3DUI *lui ) {
-    G3DIMAGE *img = common_l3dui_getWorkingImage ( lui );
-    L3DMOUSETOOL *seltool = common_g3dui_getMouseTool ( lui->gui,
+void common_m3dui_resizeBuffers ( M3DUI *mui ) {
+    G3DIMAGE *img = common_m3dui_getWorkingImage ( mui );
+    M3DMOUSETOOL *seltool = common_g3dui_getMouseTool ( mui->gui,
                                                         SELECTTOOL );
 
-    seltool->obj->reset ( seltool->obj, lui->engine_flags );
+    seltool->obj->reset ( seltool->obj, mui->engine_flags );
 
     if ( img ) {
         if ( img->width && img->height ) {
             uint32_t size = img->width *
                             img->height;
-            lui->mask    = realloc ( lui->mask   , size );
-            lui->zbuffer = realloc ( lui->zbuffer, size );
+            mui->mask    = realloc ( mui->mask   , size );
+            mui->zbuffer = realloc ( mui->zbuffer, size );
 
-            memset ( lui->mask, 0xFF, size );
+            memset ( mui->mask, 0xFF, size );
         }
     }
 }
 
 /******************************************************************************/
-void common_l3dui_uvset2facCbk ( L3DUI *lui ) {
-    G3DOBJECT *obj = g3dscene_getLastSelected ( lui->gui->sce );
+void common_m3dui_uvset2facCbk ( M3DUI *mui ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
 
@@ -199,8 +199,8 @@ void common_l3dui_uvset2facCbk ( L3DUI *lui ) {
                     lselnew = list_copy ( mes->lselfac );
 
                     /*** remember selection ***/
-                    g3durm_mesh_pickFaces  ( lui->gui->urm,
-                                             lui->gui->sce,
+                    g3durm_mesh_pickFaces  ( mui->gui->urm,
+                                             mui->gui->sce,
                                              mes,
                                              lselold,
                                              lselnew,
@@ -214,8 +214,8 @@ void common_l3dui_uvset2facCbk ( L3DUI *lui ) {
 }
 
 /******************************************************************************/
-void common_l3dui_fac2uvsetCbk ( L3DUI *lui ) {
-    G3DOBJECT *obj = g3dscene_getLastSelected ( lui->gui->sce );
+void common_m3dui_fac2uvsetCbk ( M3DUI *mui ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
 
@@ -252,9 +252,9 @@ void common_l3dui_fac2uvsetCbk ( L3DUI *lui ) {
                     lselnew = list_copy ( curmap->lseluvset );
 
                     /*** remember selection ***/
-                    g3durm_uvmap_pickUVSets  ( /*lui->uvurm*/
-                                               lui->gui->urm,
-                                               lui->gui->sce,
+                    g3durm_uvmap_pickUVSets  ( /*mui->uvurm*/
+                                               mui->gui->urm,
+                                               mui->gui->sce,
                                                curmap,
                                                lselold,
                                                lselnew,
@@ -268,8 +268,8 @@ void common_l3dui_fac2uvsetCbk ( L3DUI *lui ) {
 }
 
 /******************************************************************************/
-void common_l3dui_uv2verCbk ( L3DUI *lui ) {
-    G3DOBJECT *obj = g3dscene_getLastSelected ( lui->gui->sce );
+void common_m3dui_uv2verCbk ( M3DUI *mui ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
@@ -310,8 +310,8 @@ void common_l3dui_uv2verCbk ( L3DUI *lui ) {
                     lselnew = list_copy ( mes->lselver );
 
                     /*** remember selection ***/
-                    g3durm_mesh_pickVertices  ( lui->gui->urm,
-                                                lui->gui->sce,
+                    g3durm_mesh_pickVertices  ( mui->gui->urm,
+                                                mui->gui->sce,
                                                 mes,
                                                 lselold,
                                                 lselnew,
@@ -325,8 +325,8 @@ void common_l3dui_uv2verCbk ( L3DUI *lui ) {
 }
 
 /******************************************************************************/
-void common_l3dui_ver2uvCbk ( L3DUI *lui ) {
-    G3DOBJECT *obj = g3dscene_getLastSelected ( lui->gui->sce );
+void common_m3dui_ver2uvCbk ( M3DUI *mui ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
 
@@ -368,9 +368,9 @@ void common_l3dui_ver2uvCbk ( L3DUI *lui ) {
                     lselnew = list_copy ( curmap->lseluv );
 
                     /*** remember selection ***/
-                    g3durm_uvmap_pickUVs  ( /*lui->uvurm*/
-                                            lui->gui->urm, 
-                                            lui->gui->sce,
+                    g3durm_uvmap_pickUVs  ( /*mui->uvurm*/
+                                            mui->gui->urm, 
+                                            mui->gui->sce,
                                             curmap,
                                             lselold,
                                             lselnew,
@@ -384,12 +384,12 @@ void common_l3dui_ver2uvCbk ( L3DUI *lui ) {
 }
 
 /******************************************************************************/
-void common_l3dui_undoCbk ( L3DUI *lui ) {
+void common_m3dui_undoCbk ( M3DUI *mui ) {
     uint32_t return_value;
 
-    return_value = g3durmanager_undo ( /*lui->uvurm*/lui->gui->urm, lui->engine_flags );
+    return_value = g3durmanager_undo ( /*mui->uvurm*/mui->gui->urm, mui->engine_flags );
 
-    common_g3dui_interpretMouseToolReturnFlags ( lui->gui, return_value );
+    common_g3dui_interpretMouseToolReturnFlags ( mui->gui, return_value );
 
     /*if ( return_value & REDRAWVIEW ) {
         g3dui_redrawGLViews ( gui );
@@ -405,12 +405,12 @@ void common_l3dui_undoCbk ( L3DUI *lui ) {
 }
 
 /******************************************************************************/
-void common_l3dui_redoCbk ( L3DUI *lui ) {
+void common_m3dui_redoCbk ( M3DUI *mui ) {
     uint32_t return_value;
 
-    return_value = g3durmanager_redo ( /*lui->uvurm*/lui->gui->urm, lui->engine_flags );
+    return_value = g3durmanager_redo ( /*mui->uvurm*/mui->gui->urm, mui->engine_flags );
 
-    common_g3dui_interpretMouseToolReturnFlags ( lui->gui, return_value );
+    common_g3dui_interpretMouseToolReturnFlags ( mui->gui, return_value );
 
     /*if ( return_value & REDRAWVIEW ) {
         g3dui_redrawGLViews ( gui );
@@ -426,38 +426,38 @@ void common_l3dui_redoCbk ( L3DUI *lui ) {
 }
 
 /******************************************************************************/
-void common_l3dui_moveSideward ( L3DUI *lui, 
+void common_m3dui_moveSideward ( M3DUI *mui, 
                                             int32_t           x, 
                                             int32_t           y, 
                                             int32_t           xold, 
                                             int32_t           yold ) {
-    lui->cam.obj.pos.x -= ( ( float ) ( x - xold ) * 0.005f );
-    lui->cam.obj.pos.y += ( ( float ) ( y - yold ) * 0.005f );
+    mui->cam.obj.pos.x -= ( ( float ) ( x - xold ) * 0.005f );
+    mui->cam.obj.pos.y += ( ( float ) ( y - yold ) * 0.005f );
 
-    g3dobject_updateMatrix ( ( G3DOBJECT * ) &lui->cam, lui->gui->engine_flags );
+    g3dobject_updateMatrix ( ( G3DOBJECT * ) &mui->cam, mui->gui->engine_flags );
 
-    common_l3dui_setCanevas ( lui );
+    common_m3dui_setCanevas ( mui );
 }
 
 
 /******************************************************************************/
-void common_l3dui_moveForward ( L3DUI *lui, 
+void common_m3dui_moveForward ( M3DUI *mui, 
                                            int32_t           x, 
                                            int32_t           xold ) {
-    lui->cam.ortho.z -= ( ( float ) ( x - xold ) * 0.000005f );
+    mui->cam.ortho.z -= ( ( float ) ( x - xold ) * 0.000005f );
 
-    if ( lui->cam.ortho.z < 0.00001f ) lui->cam.ortho.z = 0.00001f;
+    if ( mui->cam.ortho.z < 0.00001f ) mui->cam.ortho.z = 0.00001f;
 
-    lui->cam.ortho.x = lui->cam.ortho.z;
-    lui->cam.ortho.y = lui->cam.ortho.z;
+    mui->cam.ortho.x = mui->cam.ortho.z;
+    mui->cam.ortho.y = mui->cam.ortho.z;
 
-    g3dobject_updateMatrix ( ( G3DOBJECT * ) &lui->cam, lui->gui->engine_flags );
+    g3dobject_updateMatrix ( ( G3DOBJECT * ) &mui->cam, mui->gui->engine_flags );
 
-    common_l3dui_setCanevas ( lui );
+    common_m3dui_setCanevas ( mui );
 }
 
 /******************************************************************************/
-void common_l3dui_setCanevas ( L3DUI *lui ) {
+void common_m3dui_setCanevas ( M3DUI *mui ) {
 
 }
 
@@ -469,13 +469,13 @@ void common_l3dui_setCanevas ( L3DUI *lui ) {
 /* we need to track the mouse after a click, something I think, will be easier*/
 /* to achieve that way. I might be wrong though :-/.                          */
 /******************************************************************************/
-int common_l3dui_getCurrentButton ( L3DUI *lui,
+int common_m3dui_getCurrentButton ( M3DUI *mui,
                                                int x,
                                                int y ) {
     int i;
 
     for ( i = 0x00; i < NBUVMAPBUTTON; i++ ) {
-        G3DUIRECTANGLE *rec = &lui->rec[i];
+        G3DUIRECTANGLE *rec = &mui->rec[i];
 
         if ( ( ( x >= rec->x ) && ( x <= ( rec->x + rec->width  ) ) ) &&
              ( ( y >= rec->y ) && ( y <= ( rec->y + rec->height ) ) ) ) {
@@ -487,96 +487,96 @@ int common_l3dui_getCurrentButton ( L3DUI *lui,
 }
 
 /******************************************************************************/
-void common_l3dui_destroyGL ( L3DUI *lui ) {
+void common_m3dui_destroyGL ( M3DUI *mui ) {
 
 }
 
 /******************************************************************************/
-void common_l3dui_init ( L3DUI *lui, 
+void common_m3dui_init ( M3DUI *mui, 
                                     uint32_t          width,
                                     uint32_t          height ) {
-    lui->buttonID = -1;
+    mui->buttonID = -1;
 
     /*** as we use an identity projection matrix, the coorinates system will ***/
     /*** be from -1.0f to 1.0f. So we have to move our UVMAP to the center ***/
     /*** of this coordinates system by shifting it by 0.5f ***/
-    lui->cam.obj.pos.x =  0.5f;
-    lui->cam.obj.pos.y =  0.5f;
-    lui->cam.obj.pos.z =  0.0f;
+    mui->cam.obj.pos.x =  0.5f;
+    mui->cam.obj.pos.y =  0.5f;
+    mui->cam.obj.pos.z =  0.0f;
 
-    lui->cam.obj.rot.x = 0.0f;
-    lui->cam.obj.rot.y = 0.0f;
-    lui->cam.obj.rot.z = 0.0f;
+    mui->cam.obj.rot.x = 0.0f;
+    mui->cam.obj.rot.y = 0.0f;
+    mui->cam.obj.rot.z = 0.0f;
 
-    lui->cam.obj.sca.x = 1.0f;
-    lui->cam.obj.sca.y = 1.0f;
-    lui->cam.obj.sca.z = 1.0f;
+    mui->cam.obj.sca.x = 1.0f;
+    mui->cam.obj.sca.y = 1.0f;
+    mui->cam.obj.sca.z = 1.0f;
 
-    lui->cam.obj.flags |= CAMERAORTHOGRAPHIC;
-	lui->cam.ortho.x = 0.0f;
-    lui->cam.ortho.y = 0.0f;
-    lui->cam.ortho.z = 0.001f;
-    lui->cam.znear   = -1000.0f;
-    lui->cam.zfar    = 1000.0f;
+    mui->cam.obj.flags |= CAMERAORTHOGRAPHIC;
+	mui->cam.ortho.x = 0.0f;
+    mui->cam.ortho.y = 0.0f;
+    mui->cam.ortho.z = 0.001f;
+    mui->cam.znear   = -1000.0f;
+    mui->cam.zfar    = 1000.0f;
 	
-	lui->cam.obj.name = "UVMapEditor Camera";
+	mui->cam.obj.name = "UVMapEditor Camera";
 	
-    /*lui->uvurm = g3durmanager_new ( lui->gui->conf.undolevel );*/
+    /*mui->uvurm = g3durmanager_new ( mui->gui->conf.undolevel );*/
 
-    lui->engine_flags = VIEWVERTEXUV;
+    mui->engine_flags = VIEWVERTEXUV;
 
-    g3dobject_updateMatrix ( ( G3DOBJECT * ) &lui->cam, lui->gui->engine_flags );
+    g3dobject_updateMatrix ( ( G3DOBJECT * ) &mui->cam, mui->gui->engine_flags );
 
     /*** projection matrix will never change ***/
-    g3dcore_identityMatrix ( lui->cam.pmatrix );
+    g3dcore_identityMatrix ( mui->cam.pmatrix );
 }
 
 /******************************************************************************/
-void common_l3dui_resize ( L3DUI *lui, 
+void common_m3dui_resize ( M3DUI *mui, 
                                       uint32_t          width, 
                                       uint32_t          height ) {
-    int i, xpos = ( width - BUTTONSIZE - L3DPATTERNBOARDWIDTH ), brd = 0x02;
+    int i, xpos = ( width - BUTTONSIZE - M3DPATTERNBOARDWIDTH ), brd = 0x02;
 
     /*** set rectangle position for each button ***/
     for ( i = 0x00; i < NBUVMAPBUTTON; i++, xpos = ( xpos - BUTTONSIZE - brd ) ) {
-        lui->rec[i].x      = xpos;
-        lui->rec[i].y      = TOOLBARBUTTONSIZE + 0x20;
-        lui->rec[i].width  = BUTTONSIZE;
-        lui->rec[i].height = BUTTONSIZE - TOOLBARBUTTONSIZE - 0x20;
+        mui->rec[i].x      = xpos;
+        mui->rec[i].y      = TOOLBARBUTTONSIZE + 0x20;
+        mui->rec[i].width  = BUTTONSIZE;
+        mui->rec[i].height = BUTTONSIZE - TOOLBARBUTTONSIZE - 0x20;
     }
 
-    lui->arearec.x      = MODEBARBUTTONSIZE;
-    lui->arearec.y      = L3DMENUBARHEIGHT + L3DTOOLBARHEIGHT + BUTTONSIZE;
-    lui->arearec.width  = width - MODEBARBUTTONSIZE - L3DBOARDWIDTH;
-    lui->arearec.height = height - lui->arearec.y;
+    mui->arearec.x      = MODEBARBUTTONSIZE;
+    mui->arearec.y      = M3DMENUBARHEIGHT + M3DTOOLBARHEIGHT + BUTTONSIZE;
+    mui->arearec.width  = width - MODEBARBUTTONSIZE - M3DBOARDWIDTH;
+    mui->arearec.height = height - mui->arearec.y;
 
-    lui->patternrec.x      = lui->arearec.x + lui->arearec.width;
-    lui->patternrec.y      = L3DMENUBARHEIGHT + L3DTOOLBARHEIGHT;
-    lui->patternrec.width  = L3DBOARDWIDTH;
-    lui->patternrec.height = L3DPATTERNBOARDHEIGHT;
-
-
-    lui->fgbgrec.x      = lui->arearec.x + lui->arearec.width + ( L3DPATTERNBOARDWIDTH / 0x02 ) - 0x18;
-    lui->fgbgrec.y      = lui->patternrec.y + lui->patternrec.height;
-    lui->fgbgrec.width  = 0x30;
-    lui->fgbgrec.height = 0x30;
-
-    lui->toolrec.x      = lui->patternrec.x;
-    lui->toolrec.y      = lui->patternrec.y + lui->patternrec.height + 0x30;
-    lui->toolrec.width  = L3DPATTERNBOARDWIDTH;
-    lui->toolrec.height = height - BUTTONSIZE - 0x20 - TOOLBARBUTTONSIZE - L3DPATTERNBOARDHEIGHT - 0x30;
+    mui->patternrec.x      = mui->arearec.x + mui->arearec.width;
+    mui->patternrec.y      = M3DMENUBARHEIGHT + M3DTOOLBARHEIGHT;
+    mui->patternrec.width  = M3DBOARDWIDTH;
+    mui->patternrec.height = M3DPATTERNBOARDHEIGHT;
 
 
-    common_l3dui_setCanevas ( lui );
+    mui->fgbgrec.x      = mui->arearec.x + mui->arearec.width + ( M3DPATTERNBOARDWIDTH / 0x02 ) - 0x18;
+    mui->fgbgrec.y      = mui->patternrec.y + mui->patternrec.height;
+    mui->fgbgrec.width  = 0x30;
+    mui->fgbgrec.height = 0x30;
+
+    mui->toolrec.x      = mui->patternrec.x;
+    mui->toolrec.y      = mui->patternrec.y + mui->patternrec.height + 0x30;
+    mui->toolrec.width  = M3DPATTERNBOARDWIDTH;
+    mui->toolrec.height = height - BUTTONSIZE - 0x20 - TOOLBARBUTTONSIZE - M3DPATTERNBOARDHEIGHT - 0x30;
+
+
+    common_m3dui_setCanevas ( mui );
 }
 
 /******************************************************************************/
-void common_l3dui_showGL ( L3DUI *lui,
+void common_m3dui_showGL ( M3DUI *mui,
                                       G3DUI            *gui,
                                       G3DMOUSETOOL     *mou,
                                       uint64_t          engine_flags ) {
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
-    L3DMOUSETOOL *seltool = common_g3dui_getMouseTool ( gui, SELECTTOOL );
+    M3DMOUSETOOL *seltool = common_g3dui_getMouseTool ( gui, SELECTTOOL );
 
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -618,17 +618,17 @@ void common_l3dui_showGL ( L3DUI *lui,
 
                             glMatrixMode(GL_PROJECTION);
                             glLoadIdentity();
-                            g3dcamera_project ( &lui->cam, 0x00  );
+                            g3dcamera_project ( &mui->cam, 0x00  );
 
                             glMatrixMode ( GL_MODELVIEW );
                             glLoadIdentity ( );
 
                             /*** preserve image aspect ratio ***/
-                            lui->cam.obj.sca.y = whRatio;
+                            mui->cam.obj.sca.y = whRatio;
 
-                            g3dobject_updateMatrix ( &lui->cam.obj, lui->gui->engine_flags );
+                            g3dobject_updateMatrix ( &mui->cam.obj, mui->gui->engine_flags );
 
-                            g3dcamera_view ( &lui->cam, 0x00  );
+                            g3dcamera_view ( &mui->cam, 0x00  );
 
                             glEnable ( GL_COLOR_MATERIAL );
                             glColor3ub ( 0xFF, 0xFF, 0xFF );
@@ -682,17 +682,17 @@ void common_l3dui_showGL ( L3DUI *lui,
 }
 
 /******************************************************************************/
-void common_l3dui_sizeGL ( L3DUI *lui, 
+void common_m3dui_sizeGL ( M3DUI *mui, 
                                       uint32_t          width, 
                                       uint32_t          height ) {
     glViewport ( 0, 0, width, height );
 
-    lui->arearec.width   = width;
-    lui->arearec.height  = height;
+    mui->arearec.width   = width;
+    mui->arearec.height  = height;
 }
 
 /******************************************************************************/
-void common_l3dui_initGL ( L3DUI *lui ) {
+void common_m3dui_initGL ( M3DUI *mui ) {
     float clearColorf = ( float ) CLEARCOLOR / 255.0f;
 
     /*** Set clear color for the OpenGL Window ***/

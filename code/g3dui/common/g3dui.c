@@ -1040,25 +1040,25 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
     /********************************/
 
     common_g3dui_addMouseTool ( gui,
-                                l3dmousetoolpen_new ( ), 
+                                m3dmousetoolpen_new ( ), 
                                 0x00 );
 
     /********************************/
 
     common_g3dui_addMouseTool ( gui,
-                                l3dmousetooleraser_new ( ), 
+                                m3dmousetooleraser_new ( ), 
                                 0x00 );
 
     /********************************/
 
     common_g3dui_addMouseTool ( gui,
-                                l3dmousetoolselect_new ( ), 
+                                m3dmousetoolselect_new ( ), 
                                 0x00 );
 
     /********************************/
 
     common_g3dui_addMouseTool ( gui,
-                                l3dmousetoolbucket_new ( ),
+                                m3dmousetoolbucket_new ( ),
                                 0x00 );
 }
 

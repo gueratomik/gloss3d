@@ -36,7 +36,7 @@
 /******************************************************************************/
 #include <list.h>
 #include <g3dengine/g3dengine.h>
-#include <lips3d/lips3d.h>
+#include <makeup3d/makeup3d.h>
 #include <g3durmanager.h>
 
 /******************************************************************************/
@@ -276,21 +276,21 @@ typedef struct _G3DMESHFAC {
 } G3DMESHFAC;
 
 /******************************************************************************/
-typedef struct _L3DMOUSETOOL {
+typedef struct _M3DMOUSETOOL {
     G3DMOUSETOOL gtool;
-    L3DOBJECT   *obj;
-} L3DMOUSETOOL, L3DMOUSETOOLSELECTEAREA, L3DMOUSETOOLSELECTOR;
+    M3DOBJECT   *obj;
+} M3DMOUSETOOL, M3DMOUSETOOLSELECTEAREA, M3DMOUSETOOLSELECTOR;
 
 /******************************************************************************/
-typedef struct _L3DMOUSETOOLPEN {
-    L3DMOUSETOOL ltool;
+typedef struct _M3DMOUSETOOLPEN {
+    M3DMOUSETOOL ltool;
     uint32_t     incremental;
-} L3DMOUSETOOLPEN, L3DMOUSETOOLERASER;
+} M3DMOUSETOOLPEN, M3DMOUSETOOLERASER;
 
 /******************************************************************************/
-typedef struct _L3DMOUSETOOLBUCKET {
-    L3DMOUSETOOL ltool;
-} L3DMOUSETOOLBUCKET;
+typedef struct _M3DMOUSETOOLBUCKET {
+    M3DMOUSETOOL ltool;
+} M3DMOUSETOOLBUCKET;
 
 /******************************************************************************/
 void g3dmousetool_init ( G3DMOUSETOOL *gtool,
@@ -311,7 +311,7 @@ void g3dmousetool_init ( G3DMOUSETOOL *gtool,
                                         G3DEvent * ),
                          uint32_t flags );
 
-void l3dmousetool_init ( L3DMOUSETOOL *ltool,
+void m3dmousetool_init ( M3DMOUSETOOL *ltool,
                          char *name, char key, const char **icon,
                          uint32_t (*init) ( G3DMOUSETOOL *,
                                             G3DSCENE *, 
@@ -386,9 +386,9 @@ G3DMOUSETOOLROTATEUV *g3dmousetoolrotateUV_new ( );
 G3DMOUSETOOLREMOVEVERTEXPOSE *g3dmousetoolremovevertexpose_new ( );
 
 /******************************************************************************/
-L3DMOUSETOOLSELECTOR *l3dmousetoolselect_new ( );
-L3DMOUSETOOLPEN          *l3dmousetoolpen_new ( );
-L3DMOUSETOOLERASER       *l3dmousetooleraser_new ( );
-L3DMOUSETOOLBUCKET *l3dmousetoolbucket_new ( );
+M3DMOUSETOOLSELECTOR *m3dmousetoolselect_new ( );
+M3DMOUSETOOLPEN          *m3dmousetoolpen_new ( );
+M3DMOUSETOOLERASER       *m3dmousetooleraser_new ( );
+M3DMOUSETOOLBUCKET *m3dmousetoolbucket_new ( );
 
 #endif

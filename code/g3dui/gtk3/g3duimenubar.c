@@ -938,10 +938,10 @@ static G3DUIMENU uvhelp_menu = { "Help",
 
 /******************************************************************************/
 /******************************************************************************/
-void l3dui_resizeChannelImageCbk ( GtkWidget *widget, 
+void m3dui_resizeChannelImageCbk ( GtkWidget *widget, 
                                               gpointer   user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
-    G3DCHANNEL *chn = common_l3dui_getWorkingChannel ( lui );
+    M3DUI *lui = ( M3DUI * ) user_data;
+    G3DCHANNEL *chn = common_m3dui_getWorkingChannel ( lui );
 
     if ( chn ) {
         GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
@@ -957,36 +957,36 @@ void l3dui_resizeChannelImageCbk ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-void l3dui_fgfillCbk ( GtkWidget *widget, gpointer user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
-    L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
+void m3dui_fgfillCbk ( GtkWidget *widget, gpointer user_data ) {
+    M3DUI *lui = ( M3DUI * ) user_data;
+    M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
 
-    common_l3dui_fillWithColor ( lui, sysinfo->fgcolor );
+    common_m3dui_fillWithColor ( lui, sysinfo->fgcolor );
 }
 
 /******************************************************************************/
-void l3dui_bgfillCbk ( GtkWidget *widget, gpointer user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
-    L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
+void m3dui_bgfillCbk ( GtkWidget *widget, gpointer user_data ) {
+    M3DUI *lui = ( M3DUI * ) user_data;
+    M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
 
-    common_l3dui_fillWithColor ( lui, sysinfo->bgcolor );
+    common_m3dui_fillWithColor ( lui, sysinfo->bgcolor );
 }
 
 /******************************************************************************/
 static G3DUIMENU uvimage_menu_resize = { MENU_RESIZEIMAGE,
                                          G3DUIMENUTYPE_PUSHBUTTON,
                                          NULL,
-                                         l3dui_resizeChannelImageCbk };
+                                         m3dui_resizeChannelImageCbk };
 
 static G3DUIMENU uvimage_menu_fgfill = { MENU_FGFILL,
                                          G3DUIMENUTYPE_PUSHBUTTON,
                                          NULL,
-                                         l3dui_fgfillCbk };
+                                         m3dui_fgfillCbk };
 
 static G3DUIMENU uvimage_menu_bgfill = { MENU_BGFILL,
                                          G3DUIMENUTYPE_PUSHBUTTON,
                                          NULL,
-                                         l3dui_bgfillCbk };
+                                         m3dui_bgfillCbk };
 
 /******************************************************************************/
 static G3DUIMENU uvimage_menu = { "Image",
@@ -1000,37 +1000,37 @@ static G3DUIMENU uvimage_menu = { "Image",
 
 /******************************************************************************/
 /******************************************************************************/
-void l3dui_fac2uvsetCbk ( GtkWidget *widget, gpointer user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
+void m3dui_fac2uvsetCbk ( GtkWidget *widget, gpointer user_data ) {
+    M3DUI *lui = ( M3DUI * ) user_data;
 
-    common_l3dui_fac2uvsetCbk ( lui );
+    common_m3dui_fac2uvsetCbk ( lui );
 
     g3dui_redrawUVMapEditors ( lui->gui );
 }
 
 /******************************************************************************/
-void l3dui_uvset2facCbk ( GtkWidget *widget, gpointer user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
+void m3dui_uvset2facCbk ( GtkWidget *widget, gpointer user_data ) {
+    M3DUI *lui = ( M3DUI * ) user_data;
 
-    common_l3dui_uvset2facCbk ( lui );
+    common_m3dui_uvset2facCbk ( lui );
 
     g3dui_redrawGLViews ( lui->gui );
 }
 
 /******************************************************************************/
-void l3dui_ver2uvCbk ( GtkWidget *widget, gpointer user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
+void m3dui_ver2uvCbk ( GtkWidget *widget, gpointer user_data ) {
+    M3DUI *lui = ( M3DUI * ) user_data;
 
-    common_l3dui_ver2uvCbk ( lui );
+    common_m3dui_ver2uvCbk ( lui );
 
     g3dui_redrawUVMapEditors ( lui->gui );
 }
 
 /******************************************************************************/
-void l3dui_uv2verCbk ( GtkWidget *widget, gpointer user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
+void m3dui_uv2verCbk ( GtkWidget *widget, gpointer user_data ) {
+    M3DUI *lui = ( M3DUI * ) user_data;
 
-    common_l3dui_uv2verCbk ( lui );
+    common_m3dui_uv2verCbk ( lui );
 
     g3dui_redrawGLViews ( lui->gui );
 }
@@ -1039,32 +1039,32 @@ void l3dui_uv2verCbk ( GtkWidget *widget, gpointer user_data ) {
 static G3DUIMENU uvedit_menu_undo      = { MENU_UNDO,
                                            G3DUIMENUTYPE_PUSHBUTTON,
                                            NULL,
-                                           l3dui_undoCbk };
+                                           m3dui_undoCbk };
 
 static G3DUIMENU uvedit_menu_redo      = { MENU_REDO,
                                            G3DUIMENUTYPE_PUSHBUTTON,
                                            NULL,
-                                           l3dui_redoCbk };
+                                           m3dui_redoCbk };
 
 static G3DUIMENU uvedit_menu_uv2ver    = { MENU_VERTEXFROMUV,
                                            G3DUIMENUTYPE_PUSHBUTTON,
                                            NULL,
-                                           l3dui_uv2verCbk };
+                                           m3dui_uv2verCbk };
 
 static G3DUIMENU uvedit_menu_ver2uv    = { MENU_UVFROMVERTEX,
                                            G3DUIMENUTYPE_PUSHBUTTON,
                                            NULL,
-                                           l3dui_ver2uvCbk };
+                                           m3dui_ver2uvCbk };
 
 static G3DUIMENU uvedit_menu_uvset2fac = { MENU_FACEFROMUVSET,
                                            G3DUIMENUTYPE_PUSHBUTTON,
                                            NULL,
-                                           l3dui_uvset2facCbk };
+                                           m3dui_uvset2facCbk };
 
 static G3DUIMENU uvedit_menu_fac2uvset = { MENU_UVSETFROMFACE,
                                            G3DUIMENUTYPE_PUSHBUTTON,
                                            NULL,
-                                           l3dui_fac2uvsetCbk };
+                                           m3dui_fac2uvsetCbk };
 
 /******************************************************************************/
 static G3DUIMENU uvedit_menu = { "Edit",
@@ -1080,9 +1080,9 @@ static G3DUIMENU uvedit_menu = { "Edit",
                                             NULL } };
 
 /******************************************************************************/
-void l3dui_loadImageByChannelIDCbk ( GtkWidget *widget, 
+void m3dui_loadImageByChannelIDCbk ( GtkWidget *widget, 
                                      gpointer   user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
+    M3DUI *lui = ( M3DUI * ) user_data;
     G3DUI *gui = ( G3DUI * ) lui->gui;
     G3DUIGTK3 *ggt = gui->toolkit_data;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
@@ -1104,17 +1104,17 @@ void l3dui_loadImageByChannelIDCbk ( GtkWidget *widget,
                 g3dui_loadImageForChannel ( gui, chn );
 
                 /*** resize selection mask and zbuffer ***/
-                common_l3dui_resizeBuffers ( lui );
+                common_m3dui_resizeBuffers ( lui );
             }
         }
     }
 }
 
 /******************************************************************************/
-void l3dui_createChannelImageCbk ( GtkWidget *widget, 
+void m3dui_createChannelImageCbk ( GtkWidget *widget, 
                                    gpointer   user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
-    G3DCHANNEL *chn = common_l3dui_getWorkingChannel ( lui );
+    M3DUI *lui = ( M3DUI * ) user_data;
+    G3DCHANNEL *chn = common_m3dui_getWorkingChannel ( lui );
 
     if ( chn ) {
         GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
@@ -1133,12 +1133,12 @@ void l3dui_createChannelImageCbk ( GtkWidget *widget,
 static G3DUIMENU uvfile_menu_createChannelImage = { MENU_CREATECHANNELIMAGE,
                                                     G3DUIMENUTYPE_PUSHBUTTON,
                                                     NULL,
-                                                    l3dui_createChannelImageCbk };
+                                                    m3dui_createChannelImageCbk };
 
 static G3DUIMENU uvfile_menu_openChannelImage   = { MENU_OPENCHANNELIMAGE,
                                                     G3DUIMENUTYPE_PUSHBUTTON,
                                                     NULL,
-                                                   l3dui_loadImageByChannelIDCbk };
+                                                   m3dui_loadImageByChannelIDCbk };
 
 /******************************************************************************/
 static G3DUIMENU uvfile_menu = { "File",
@@ -1163,7 +1163,7 @@ static G3DUIMENU uvrootnode = { "Bar",
 
 /******************************************************************************/
 GtkWidget *createUVMenuBar ( GtkWidget *parent,  
-                             L3DUI      *lui,
+                             M3DUI      *lui,
                              char      *name,
                              gint       x,
                              gint       y,

@@ -53,17 +53,17 @@ static void selector_draw ( G3DMOUSETOOL *gtool,
                             uint64_t engine_flags );
 
 /******************************************************************************/
-L3DMOUSETOOLBUCKET *l3dmousetoolbucket_new ( ) {
-    uint32_t structsize = sizeof ( L3DMOUSETOOLBUCKET );
+M3DMOUSETOOLBUCKET *m3dmousetoolbucket_new ( ) {
+    uint32_t structsize = sizeof ( M3DMOUSETOOLBUCKET );
     void *memarea = calloc ( 0x01, structsize );
-    L3DMOUSETOOLBUCKET *mtb =  ( L3DMOUSETOOLBUCKET * ) memarea;
-    L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) mtb;
+    M3DMOUSETOOLBUCKET *mtb =  ( M3DMOUSETOOLBUCKET * ) memarea;
+    M3DMOUSETOOL *ltool = ( M3DMOUSETOOL * ) mtb;
 
     if ( mtb == NULL ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    l3dmousetool_init ( ltool,
+    m3dmousetool_init ( ltool,
                         BUCKETTOOL,
                         's',
                         NULL,
@@ -72,23 +72,23 @@ L3DMOUSETOOLBUCKET *l3dmousetoolbucket_new ( ) {
                         pen_tool,
                         MOUSETOOLREADWRITE );
 
-    ltool->obj = l3dbucket_new ( );
+    ltool->obj = m3dbucket_new ( );
 
     return mtb;
 }
 
 /******************************************************************************/
-L3DMOUSETOOLSELECTOR *l3dmousetoolselect_new ( ) {
-    uint32_t structsize = sizeof ( L3DMOUSETOOLSELECTOR );
+M3DMOUSETOOLSELECTOR *m3dmousetoolselect_new ( ) {
+    uint32_t structsize = sizeof ( M3DMOUSETOOLSELECTOR );
     void *memarea = calloc ( 0x01, structsize );
-    L3DMOUSETOOLSELECTOR *sr =  ( L3DMOUSETOOLSELECTOR * ) memarea;
-    L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) sr;
+    M3DMOUSETOOLSELECTOR *sr =  ( M3DMOUSETOOLSELECTOR * ) memarea;
+    M3DMOUSETOOL *ltool = ( M3DMOUSETOOL * ) sr;
 
     if ( sr == NULL ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    l3dmousetool_init ( ltool,
+    m3dmousetool_init ( ltool,
                         SELECTTOOL,
                         's',
                         NULL,
@@ -97,23 +97,23 @@ L3DMOUSETOOLSELECTOR *l3dmousetoolselect_new ( ) {
                         pen_tool,
                         MOUSETOOLREADONLY );
 
-    ltool->obj = l3dselector_new ( );
+    ltool->obj = m3dselector_new ( );
 
     return sr;
 }
 
 /******************************************************************************/
-L3DMOUSETOOLPEN *l3dmousetoolpen_new ( ) {
-    uint32_t structsize = sizeof ( L3DMOUSETOOLPEN );
+M3DMOUSETOOLPEN *m3dmousetoolpen_new ( ) {
+    uint32_t structsize = sizeof ( M3DMOUSETOOLPEN );
     void *memarea = calloc ( 0x01, structsize );
-    L3DMOUSETOOLPEN *pn =  ( L3DMOUSETOOLPEN * ) memarea;
-    L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) pn;
+    M3DMOUSETOOLPEN *pn =  ( M3DMOUSETOOLPEN * ) memarea;
+    M3DMOUSETOOL *ltool = ( M3DMOUSETOOL * ) pn;
 
     if ( pn == NULL ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    l3dmousetool_init ( ltool,
+    m3dmousetool_init ( ltool,
                         PENTOOL,
                         's',
                         NULL,
@@ -122,23 +122,23 @@ L3DMOUSETOOLPEN *l3dmousetoolpen_new ( ) {
                         pen_tool,
                         MOUSETOOLREADWRITE );
 
-    ltool->obj = l3dbasepen_new ( );
+    ltool->obj = m3dbasepen_new ( );
 
     return pn;
 }
 
 /******************************************************************************/
-L3DMOUSETOOLERASER *l3dmousetooleraser_new ( ) {
-    uint32_t structsize = sizeof ( L3DMOUSETOOLERASER );
+M3DMOUSETOOLERASER *m3dmousetooleraser_new ( ) {
+    uint32_t structsize = sizeof ( M3DMOUSETOOLERASER );
     void *memarea = calloc ( 0x01, structsize );
-    L3DMOUSETOOLERASER *er =  ( L3DMOUSETOOLERASER * ) memarea;
-    L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) er;
+    M3DMOUSETOOLERASER *er =  ( M3DMOUSETOOLERASER * ) memarea;
+    M3DMOUSETOOL *ltool = ( M3DMOUSETOOL * ) er;
 
     if ( er == NULL ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    l3dmousetool_init ( ltool,
+    m3dmousetool_init ( ltool,
                         ERASERTOOL,
                         's',
                         NULL,
@@ -147,7 +147,7 @@ L3DMOUSETOOLERASER *l3dmousetooleraser_new ( ) {
                         eraser_tool,
                         MOUSETOOLREADWRITE );
 
-    ltool->obj = l3dbasepen_new ( );
+    ltool->obj = m3dbasepen_new ( );
 
 
     return er;
@@ -157,9 +157,9 @@ L3DMOUSETOOLERASER *l3dmousetooleraser_new ( ) {
 static void selector_draw ( G3DMOUSETOOL *gtool, 
                             G3DSCENE     *sce, 
                             uint64_t engine_flags ) {
-    L3DMOUSETOOLSELECTOR *sr =  ( L3DMOUSETOOLSELECTOR * ) gtool;
-    L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) sr;
-    L3DSELECTOR *sel = ( L3DSELECTOR * ) ltool->obj;
+    M3DMOUSETOOLSELECTOR *sr =  ( M3DMOUSETOOLSELECTOR * ) gtool;
+    M3DMOUSETOOL *ltool = ( M3DMOUSETOOL * ) sr;
+    M3DSELECTOR *sel = ( M3DSELECTOR * ) ltool->obj;
     LIST *ltmplin = sel->llines;
     double sx[0x04], sy[0x04], sz[0x04];
 
@@ -171,7 +171,7 @@ static void selector_draw ( G3DMOUSETOOL *gtool,
     glEnable ( GL_LINE_STIPPLE );
     glBegin ( GL_LINES );
     while ( ltmplin ) {
-        L3DSELECTORLINE *lin = ( L3DSELECTORLINE * ) ltmplin->data;
+        M3DSELECTORLINE *lin = ( M3DSELECTORLINE * ) ltmplin->data;
 
         glVertex3f ( lin->srcpt->u, lin->srcpt->v, 0.0f );
         glVertex3f ( lin->dstpt->u, lin->dstpt->v, 0.0f );
@@ -187,7 +187,7 @@ static void selector_draw ( G3DMOUSETOOL *gtool,
     glEnable ( GL_LINE_STIPPLE );
     glBegin ( GL_LINES );
     while ( ltmplin ) {
-        L3DSELECTORLINE *lin = ( L3DSELECTORLINE * ) ltmplin->data;
+        M3DSELECTORLINE *lin = ( M3DSELECTORLINE * ) ltmplin->data;
 
         glVertex3f ( lin->srcpt->u, lin->srcpt->v, 0.0f );
         glVertex3f ( lin->dstpt->u, lin->dstpt->v, 0.0f );
@@ -204,7 +204,7 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                    G3DSCENE     *sce, 
                    G3DCAMERA    *cam,
                    G3DURMANAGER *urm,
-                   L3DPATTERN   *pattern,
+                   M3DPATTERN   *pattern,
                    uint32_t      fgcolor,
                    uint32_t      bgcolor,
                    uint64_t engine_flags, 
@@ -214,8 +214,8 @@ int basepen_tool ( G3DMOUSETOOL *mou,
     static GLint VPX[0x04];
     static G3DOBJECT *obj;
     static G3DMESH *mes;
-    L3DMOUSETOOL *ltool = ( L3DMOUSETOOL * ) mou;
-    L3DMOUSETOOLPEN *pen = ( L3DMOUSETOOLPEN * ) mou;
+    M3DMOUSETOOL *ltool = ( M3DMOUSETOOL * ) mou;
+    M3DMOUSETOOLPEN *pen = ( M3DMOUSETOOLPEN * ) mou;
     double mx, my, mz;
     int32_t updcoord[0x04];
     static double oldx, oldy;
@@ -295,8 +295,8 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                     x2 = updcoord[0x02];
                                     y2 = updcoord[0x03];
 
-                                    if ( ( retval & L3DUPDATESUBIMAGE ) || 
-                                         ( retval & L3DUPDATEIMAGE    ) ) {
+                                    if ( ( retval & M3DUPDATESUBIMAGE ) || 
+                                         ( retval & M3DUPDATEIMAGE    ) ) {
                                         g3dimage_bind ( chn->image );
 
                                         chn->image->flags |= ALTEREDIMAGE;
@@ -335,9 +335,9 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                 if ( chn->image ) {
                                     G3DIMAGE *image = chn->image;
                                     uint32_t retval = 0x00;
-                                    uint32_t l3dFlags = 0x00;
+                                    uint32_t m3dFlags = 0x00;
 
-                                    l3dFlags |= ( mev->state & G3DButton1Mask ) ? L3DBUTTON1PRESSED : 0x00;
+                                    m3dFlags |= ( mev->state & G3DButton1Mask ) ? M3DBUTTON1PRESSED : 0x00;
 
                                     gluUnProject ( mev->x, 
                                                    VPX[0x03] - mev->y, 
@@ -386,14 +386,14 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                                                 mou->mask,
                                                                 mou->zbuffer,
                                                                 updcoord,
-                                                                l3dFlags );
+                                                                m3dFlags );
 
                                     if ( updcoord[0x00] < x1 ) x1 = updcoord[0x00];
                                     if ( updcoord[0x01] < y1 ) y1 = updcoord[0x01];
                                     if ( updcoord[0x02] > x2 ) x2 = updcoord[0x02];
                                     if ( updcoord[0x03] > y2 ) y2 = updcoord[0x03];
 
-                                    if ( retval & L3DUPDATESUBIMAGE ) {
+                                    if ( retval & M3DUPDATESUBIMAGE ) {
                                         uint32_t updw = updcoord[0x02] - 
                                                         updcoord[0x00] + 0x01,
                                                  updh = updcoord[0x03] - 
@@ -417,8 +417,8 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                         glDisable ( GL_TEXTURE_2D );
                                     }
 
-                                    if ( ( retval & L3DUPDATESUBIMAGE ) || 
-                                         ( retval & L3DUPDATEIMAGE    ) ) {
+                                    if ( ( retval & M3DUPDATESUBIMAGE ) || 
+                                         ( retval & M3DUPDATEIMAGE    ) ) {
                                         chn->image->flags |= ALTEREDIMAGE;
                                     }
                                 }
@@ -478,8 +478,8 @@ int basepen_tool ( G3DMOUSETOOL *mou,
                                                                    updcoord,
                                                                    0x00 );
 
-                                    if ( ( retval & L3DUPDATESUBIMAGE ) || 
-                                         ( retval & L3DUPDATEIMAGE    ) ) {
+                                    if ( ( retval & M3DUPDATESUBIMAGE ) || 
+                                         ( retval & M3DUPDATEIMAGE    ) ) {
                                         g3dimage_bind ( chn->image );
 
                                         chn->image->flags |= ALTEREDIMAGE;
@@ -528,7 +528,7 @@ static int pen_tool ( G3DMOUSETOOL *mou,
                       G3DURMANAGER *urm,
                       uint64_t      engine_flags, 
                       G3DEvent     *event ) {
-    L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
+    M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
 
     return basepen_tool ( mou, 
                           sce,
@@ -548,7 +548,7 @@ static int eraser_tool ( G3DMOUSETOOL *mou,
                          G3DURMANAGER *urm,
                          uint64_t engine_flags, 
                          G3DEvent     *event ) {
-    L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
+    M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
 
     return basepen_tool ( mou, 
                           sce,

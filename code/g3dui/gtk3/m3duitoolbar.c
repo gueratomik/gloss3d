@@ -60,40 +60,40 @@
 /******************************************************************************/
 static void setSquareSelectorCbk ( GtkWidget *widget, 
                                    gpointer   user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
-    G3DUI *gui = ( G3DUI * ) lui->gui;
-    L3DMOUSETOOL *uvmou = common_g3dui_getMouseTool ( gui, SELECTTOOL );
+    M3DUI *mui = ( M3DUI * ) user_data;
+    G3DUI *gui = ( G3DUI * ) mui->gui;
+    M3DMOUSETOOL *uvmou = common_g3dui_getMouseTool ( gui, SELECTTOOL );
 
     if ( gui->lock ) return;
 
     if ( uvmou ) {
-        l3dselector_setMode ( ( L3DSELECTOR * ) uvmou->obj, SELECTORMODESQUARE );
+        m3dselector_setMode ( ( M3DSELECTOR * ) uvmou->obj, SELECTORMODESQUARE );
 
-        l3dui_setUVMouseTool ( widget, user_data );
+        m3dui_setUVMouseTool ( widget, user_data );
     }
 }
 
 /******************************************************************************/
 static void setRandomSelectorCbk ( GtkWidget *widget, 
                                    gpointer   user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
-    G3DUI *gui = ( G3DUI * ) lui->gui;
-    L3DMOUSETOOL *uvmou = common_g3dui_getMouseTool ( gui, SELECTTOOL );
+    M3DUI *mui = ( M3DUI * ) user_data;
+    G3DUI *gui = ( G3DUI * ) mui->gui;
+    M3DMOUSETOOL *uvmou = common_g3dui_getMouseTool ( gui, SELECTTOOL );
 
     if ( gui->lock ) return;
 
     if ( uvmou ) {
-        l3dselector_setMode ( ( L3DSELECTOR * ) uvmou->obj, SELECTORMODERANDOM );
+        m3dselector_setMode ( ( M3DSELECTOR * ) uvmou->obj, SELECTORMODERANDOM );
 
-        l3dui_setUVMouseTool ( widget, user_data );
+        m3dui_setUVMouseTool ( widget, user_data );
     }
 }
 
 /******************************************************************************/
-void l3dui_saveimageasCbk ( GtkWidget *widget, 
+void m3dui_saveimageasCbk ( GtkWidget *widget, 
                                   gpointer   user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
-    G3DUI *gui = ( G3DUI * ) lui->gui;
+    M3DUI *mui = ( M3DUI * ) user_data;
+    G3DUI *gui = ( G3DUI * ) mui->gui;
     G3DUIGTK3 *ggt = gui->toolkit_data;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
 
@@ -107,7 +107,7 @@ void l3dui_saveimageasCbk ( GtkWidget *widget,
 
             if ( tex ) {
                 G3DMATERIAL *mat = tex->mat;
-                uint32_t chnID = GETCHANNEL(lui->engine_flags);
+                uint32_t chnID = GETCHANNEL(mui->engine_flags);
                 G3DCHANNEL  *chn = g3dmaterial_getChannelByID ( mat, chnID );
 
                 g3dui_saveChannelAlteredImage ( gui,
@@ -121,10 +121,10 @@ void l3dui_saveimageasCbk ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-void l3dui_saveimageCbk ( GtkWidget *widget, 
+void m3dui_saveimageCbk ( GtkWidget *widget, 
                                 gpointer   user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
-    G3DUI *gui = ( G3DUI * ) lui->gui;
+    M3DUI *mui = ( M3DUI * ) user_data;
+    G3DUI *gui = ( G3DUI * ) mui->gui;
     G3DUIGTK3 *ggt = gui->toolkit_data;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
 
@@ -138,7 +138,7 @@ void l3dui_saveimageCbk ( GtkWidget *widget,
 
             if ( tex ) {
                 G3DMATERIAL *mat = tex->mat;
-                uint32_t chnID = GETCHANNEL(lui->engine_flags);
+                uint32_t chnID = GETCHANNEL(mui->engine_flags);
                 G3DCHANNEL  *chn = g3dmaterial_getChannelByID ( mat, chnID );
 
                 g3dui_saveChannelAlteredImage ( gui,
@@ -152,10 +152,10 @@ void l3dui_saveimageCbk ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-void l3dui_unselectAreaCbk ( GtkWidget *widget, 
+void m3dui_unselectAreaCbk ( GtkWidget *widget, 
                              gpointer   user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
-    G3DUI *gui = ( G3DUI * ) lui->gui;
+    M3DUI *mui = ( M3DUI * ) user_data;
+    G3DUI *gui = ( G3DUI * ) mui->gui;
     G3DUIGTK3 *ggt = gui->toolkit_data;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
 
@@ -169,10 +169,10 @@ void l3dui_unselectAreaCbk ( GtkWidget *widget,
 
             if ( tex ) {
                 G3DMATERIAL *mat = tex->mat;
-                uint32_t chnID = GETCHANNEL(lui->engine_flags);
+                uint32_t chnID = GETCHANNEL(mui->engine_flags);
                 G3DCHANNEL  *chn = g3dmaterial_getChannelByID ( mat, chnID );
 
-                common_l3dui_resizeBuffers ( lui );
+                common_m3dui_resizeBuffers ( mui );
             }
         }
     }
@@ -187,7 +187,7 @@ GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent,
                                       gint       width,
                                       gint       height ) {
     GtkUVMapEditor *guv = ( GtkUVMapEditor * ) parent;
-    L3DUI *lui = &guv->lui;
+    M3DUI *mui = &guv->mui;
     GdkRectangle gdkrec = { x, y, width, height };
     GtkWidget *bar = gtk_toolbar_new ( );
     GtkWidget *grp = NULL;
@@ -198,11 +198,11 @@ GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent,
 
     gtk_toolbar_set_style(GTK_TOOLBAR(bar), GTK_TOOLBAR_ICONS);
 
-    addToolBarPushButton   ( bar, lui, MENU_NEWSCENE  , newfile_xpm, l3dui_createChannelImageCbk );
+    addToolBarPushButton   ( bar, mui, MENU_NEWSCENE  , newfile_xpm, m3dui_createChannelImageCbk );
 
    /********************************/
 
-    addToolBarPushButton   ( bar, lui, MENU_OPENFILE  , openfile_xpm, l3dui_loadImageByChannelIDCbk );
+    addToolBarPushButton   ( bar, mui, MENU_OPENFILE  , openfile_xpm, m3dui_loadImageByChannelIDCbk );
 
    /********************************/
 
@@ -214,59 +214,59 @@ GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent,
 
    /********************************/
 
-    addToolBarPushButton   ( bar, lui, MENU_SAVEIMAGEAS, saveimageas_xpm, l3dui_saveimageasCbk   );
+    addToolBarPushButton   ( bar, mui, MENU_SAVEIMAGEAS, saveimageas_xpm, m3dui_saveimageasCbk   );
 
    /********************************/
 
-    addToolBarPushButton   ( bar, lui, MENU_SAVEIMAGE, saveimage_xpm, l3dui_saveimageCbk   );
+    addToolBarPushButton   ( bar, mui, MENU_SAVEIMAGE, saveimage_xpm, m3dui_saveimageCbk   );
 
    /********************************/
 
-    addToolBarPushButton   ( bar, lui, MENU_UNDO     , undo_xpm  , l3dui_undoCbk );
+    addToolBarPushButton   ( bar, mui, MENU_UNDO     , undo_xpm  , m3dui_undoCbk );
 
    /********************************/
 
-    addToolBarPushButton   ( bar, lui, MENU_REDO     , redo_xpm  , l3dui_redoCbk );
+    addToolBarPushButton   ( bar, mui, MENU_REDO     , redo_xpm  , m3dui_redoCbk );
 
    /********************************/
 
-    addToolBarToggleButton ( bar, lui, PICKUVTOOL    , pick_xpm  , l3dui_setUVMouseTool );
+    addToolBarToggleButton ( bar, mui, PICKUVTOOL    , pick_xpm  , m3dui_setUVMouseTool );
  
     /********************************/
 
-    addToolBarToggleButton ( bar, lui, MOVEUVTOOL    , move_xpm  , l3dui_setUVMouseTool );
+    addToolBarToggleButton ( bar, mui, MOVEUVTOOL    , move_xpm  , m3dui_setUVMouseTool );
  
     /********************************/
 
-    addToolBarToggleButton ( bar, lui, SCALEUVTOOL   , scale_xpm , l3dui_setUVMouseTool );
+    addToolBarToggleButton ( bar, mui, SCALEUVTOOL   , scale_xpm , m3dui_setUVMouseTool );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, lui, ROTATEUVTOOL  , rotate_xpm , l3dui_setUVMouseTool );
+    addToolBarToggleButton ( bar, mui, ROTATEUVTOOL  , rotate_xpm , m3dui_setUVMouseTool );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, lui, SELECTTOOL, selectarea_xpm, setSquareSelectorCbk );
+    addToolBarToggleButton ( bar, mui, SELECTTOOL, selectarea_xpm, setSquareSelectorCbk );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, lui, SELECTTOOL, selectrandom_xpm, setRandomSelectorCbk );
+    addToolBarToggleButton ( bar, mui, SELECTTOOL, selectrandom_xpm, setRandomSelectorCbk );
 
     /********************************/
 
-    addToolBarPushButton   ( bar, lui, MENU_UNSELECTAREA, unselectarea_xpm  , l3dui_unselectAreaCbk );
+    addToolBarPushButton   ( bar, mui, MENU_UNSELECTAREA, unselectarea_xpm  , m3dui_unselectAreaCbk );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, lui, PENTOOL, pen_xpm, l3dui_setUVMouseTool );
+    addToolBarToggleButton ( bar, mui, PENTOOL, pen_xpm, m3dui_setUVMouseTool );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, lui, BUCKETTOOL, bucket_xpm, l3dui_setUVMouseTool );
+    addToolBarToggleButton ( bar, mui, BUCKETTOOL, bucket_xpm, m3dui_setUVMouseTool );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, lui, ERASERTOOL, eraser_xpm, l3dui_setUVMouseTool );
+    addToolBarToggleButton ( bar, mui, ERASERTOOL, eraser_xpm, m3dui_setUVMouseTool );
 
 
 

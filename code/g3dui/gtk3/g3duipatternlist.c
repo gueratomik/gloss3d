@@ -31,7 +31,7 @@
 
 /******************************************************************************/
 static void Resize ( GtkWidget *, GdkRectangle *, gpointer );
-static GTK3PATTERNPREVIEW *gtk3patternpreview_new ( L3DPATTERN  *pat );
+static GTK3PATTERNPREVIEW *gtk3patternpreview_new ( M3DPATTERN  *pat );
 
 /******************************************************************************/
 static GTK3PATTERNPREVIEW *patternlistdata_pickPreview ( PATTERNLISTDATA *pdata,
@@ -98,7 +98,7 @@ static uint32_t patternlistdata_arrangePreviews ( PATTERNLISTDATA *pdata,
 
 /******************************************************************************/
 static void patternlistdata_addPreview ( PATTERNLISTDATA *pdata, 
-                                         L3DPATTERN      *pat ) {
+                                         M3DPATTERN      *pat ) {
     GTK3PATTERNPREVIEW *preview = gtk3patternpreview_new ( pat );
 
     list_insert ( &pdata->lpreview, preview );
@@ -110,7 +110,7 @@ void g3duipatternlist_input ( GtkWidget *widget,
                               gpointer   user_data ) {
     PATTERNLISTDATA *pdata = g_object_get_data ( G_OBJECT(widget),
                                                  GTK3WIDGETDATA );
-    L3DUI *lui = ( L3DUI * ) user_data;
+    M3DUI *lui = ( M3DUI * ) user_data;
     G3DUI *gui = lui->gui;
 
     switch ( gdkev->type ) {
@@ -124,17 +124,17 @@ void g3duipatternlist_input ( GtkWidget *widget,
             preview = patternlistdata_pickPreview ( pdata, bev->x, bev->y );
 
             if ( preview ) {
-                L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
+                M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
 
                 /*** resize to the size of the pattern used until now ***/
                 if ( sysinfo->pattern ) {
-                    l3dpattern_resize ( preview->pat, sysinfo->pattern->size );
+                    m3dpattern_resize ( preview->pat, sysinfo->pattern->size );
                 }
 
-                l3dsysinfo_setPattern ( sysinfo, preview->pat );
+                m3dsysinfo_setPattern ( sysinfo, preview->pat );
                 /*lui->selpat = preview->pat; */
 
-                l3dui_updateMouseToolEdit ( lui );
+                m3dui_updateMouseToolEdit ( lui );
             }
         } break;
 
@@ -225,7 +225,7 @@ void gtk3patternpreview_create ( GTK3PATTERNPREVIEW *preview ) {
 }
 
 /******************************************************************************/
-static GTK3PATTERNPREVIEW *gtk3patternpreview_new ( L3DPATTERN  *pat ) {
+static GTK3PATTERNPREVIEW *gtk3patternpreview_new ( M3DPATTERN  *pat ) {
     void *memarea = calloc ( 0x01, sizeof ( GTK3PATTERNPREVIEW ) );
     GTK3PATTERNPREVIEW *preview = ( GTK3PATTERNPREVIEW * ) memarea;
 
@@ -249,7 +249,7 @@ static void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
                                                   GTK3WIDGETDATA );
     GtkStyleContext *context = gtk_widget_get_style_context ( widget );
     LIST *ltmppreview = pdata->lpreview;
-    L3DUI *lui = ( L3DUI * ) user_data;
+    M3DUI *lui = ( M3DUI * ) user_data;
     G3DUI    *gui = lui->gui;
     G3DSCENE *sce = gui->sce;
     GtkAllocation allocation;
@@ -283,7 +283,7 @@ static void Realize ( GtkWidget *widget, gpointer user_data ) {
     PATTERNLISTDATA *pdata = g_object_get_data ( G_OBJECT(widget),
                                                   GTK3WIDGETDATA );
     GtkStyleContext *context = gtk_widget_get_style_context ( widget );
-    L3DUI *lui = ( L3DUI * ) user_data;
+    M3DUI *lui = ( M3DUI * ) user_data;
     G3DUI    *gui = lui->gui;
     int i;
 
@@ -311,7 +311,7 @@ static void Resize ( GtkWidget *widget, GdkRectangle *allocation,
 
 /******************************************************************************/
 GtkWidget *createPatternList ( GtkWidget        *parent, 
-                               L3DUI *lui,
+                               M3DUI *lui,
                                char             *name,
                                gint              x,
                                gint              y,
@@ -320,7 +320,7 @@ GtkWidget *createPatternList ( GtkWidget        *parent,
     PATTERNLISTDATA *pdata = common_patternlistdata_new ( 0x20 );
     GdkRectangle scrrec = { 0, 0, width, height };
     GdkRectangle drwrec = { 0, 0, 0x120, 0x120  };
-    L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
+    M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
     GtkWidget *scr, *drw;
     int i;
 
@@ -362,7 +362,7 @@ GtkWidget *createPatternList ( GtkWidget        *parent,
         patternlistdata_addPreview ( pdata,  pdata->patterns[i] );
     }
 
-    l3dsysinfo_setPattern ( sysinfo, pdata->patterns[0x07] );
+    m3dsysinfo_setPattern ( sysinfo, pdata->patterns[0x07] );
 
     g_signal_connect ( G_OBJECT (drw), "draw"      ,
                                        G_CALLBACK(Draw), lui );

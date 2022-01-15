@@ -52,13 +52,13 @@ if HAVE_GTK3
                             common/g3duitrackertagedit.c \
                             common/g3duitubeedit.c \
                             common/g3duiuvmapedit.c \
-                            common/l3dui.c \
+                            common/m3dui.c \
                             common/g3duiview.c \
                             common/g3duiviewexport.c \
                             common/g3duiweightgrouplist.c \
                             common/g3duiwireframeedit.c \
                             common/mousetool/g3duig3dmousetooledit.c \
-                            common/mousetool/g3duil3dmousetooledit.c \
+                            common/mousetool/g3duim3dmousetooledit.c \
                             common/mousetool/g3duicutmeshtooledit.c \
                             common/mousetool/g3duipicktooledit.c \
                             common/mousetool/g3duipentooledit.c \
@@ -117,14 +117,14 @@ if HAVE_GTK3
                             gtk3/g3duitubeedit.c \
                             gtk3/g3duiuvmenubar.c \
                             gtk3/g3duiuvmapedit.c \
-                            gtk3/l3dui.c \
-                            gtk3/l3duitoolbar.c \
+                            gtk3/m3dui.c \
+                            gtk3/m3duitoolbar.c \
                             gtk3/g3duiview.c \
                             gtk3/g3duiweightgrouplist.c \
                             gtk3/g3duiwireframeedit.c \
                             gtk3/q3dpreview.c \
                             gtk3/mousetool/g3duig3dmousetooledit.c \
-                            gtk3/mousetool/g3duil3dmousetooledit.c \
+                            gtk3/mousetool/g3duim3dmousetooledit.c \
                             gtk3/mousetool/g3duicutmeshtooledit.c \
                             gtk3/mousetool/g3duipicktooledit.c \
                             gtk3/mousetool/g3duipentooledit.c \

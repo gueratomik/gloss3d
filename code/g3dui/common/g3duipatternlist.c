@@ -53,18 +53,18 @@ PATTERNLISTDATA *common_patternlistdata_new ( uint32_t size ) {
     pdata->preview_width  = size  + ( pdata->preview_border * 0x02 );
     pdata->preview_height = size  + ( pdata->preview_border * 0x02 );
 
-    pdata->patterns[0x0B] = l3dplainrectanglepattern_new ( size );
-    pdata->patterns[0x0A] = l3dplaincirclepattern_new    ( size );
-    pdata->patterns[0x09] = l3dfadedcirclepattern_new    ( size, 1.0f, 0.00f );
-    pdata->patterns[0x08] = l3dfadedcirclepattern_new    ( size, 1.0f, 0.10f );
-    pdata->patterns[0x07] = l3dfadedcirclepattern_new    ( size, 1.0f, 0.25f );
-    pdata->patterns[0x06] = l3dfadedcirclepattern_new    ( size, 1.0f, 0.50f );
-    pdata->patterns[0x05] = l3dbrushpattern_new          ( size, &brush_0 );
-    pdata->patterns[0x04] = l3dbrushpattern_new          ( size, &brush_1 );
-    pdata->patterns[0x03] = l3dbrushpattern_new          ( size, &brush_2 );
-    pdata->patterns[0x02] = l3dbrushpattern_new          ( size, &brush_3 );
-    pdata->patterns[0x01] = l3dbrushpattern_new          ( size, &brush_4 );
-    pdata->patterns[0x00] = l3dbrushpattern_new          ( size, &brush_5 );
+    pdata->patterns[0x0B] = m3dplainrectanglepattern_new ( size );
+    pdata->patterns[0x0A] = m3dplaincirclepattern_new    ( size );
+    pdata->patterns[0x09] = m3dfadedcirclepattern_new    ( size, 1.0f, 0.00f );
+    pdata->patterns[0x08] = m3dfadedcirclepattern_new    ( size, 1.0f, 0.10f );
+    pdata->patterns[0x07] = m3dfadedcirclepattern_new    ( size, 1.0f, 0.25f );
+    pdata->patterns[0x06] = m3dfadedcirclepattern_new    ( size, 1.0f, 0.50f );
+    pdata->patterns[0x05] = m3dbrushpattern_new          ( size, &brush_0 );
+    pdata->patterns[0x04] = m3dbrushpattern_new          ( size, &brush_1 );
+    pdata->patterns[0x03] = m3dbrushpattern_new          ( size, &brush_2 );
+    pdata->patterns[0x02] = m3dbrushpattern_new          ( size, &brush_3 );
+    pdata->patterns[0x01] = m3dbrushpattern_new          ( size, &brush_4 );
+    pdata->patterns[0x00] = m3dbrushpattern_new          ( size, &brush_5 );
 
     return pdata;
 }

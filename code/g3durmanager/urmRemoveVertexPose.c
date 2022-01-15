@@ -85,7 +85,7 @@ static void removeVertexPose_undo ( G3DURMANAGER *urm,
     URMREMOVEVERTEXPOSE *rvp = ( URMREMOVEVERTEXPOSE * ) data;
 
     if ( ((G3DOBJECT*)rvp->mpr)->parent->type == G3DMESHTYPE ) {
-        G3DMESH *mes = ((G3DOBJECT*)rvp->mpr)->parent;
+        G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)rvp->mpr)->parent;
         LIST *ltmpver = rvp->lver;
         G3DVECTOR *pos = rvp->pos;
 
@@ -113,7 +113,7 @@ static void removeVertexPose_redo ( G3DURMANAGER *urm,
     URMREMOVEVERTEXPOSE *rvp = ( URMREMOVEVERTEXPOSE * ) data;
 
     if ( ((G3DOBJECT*)rvp->mpr)->parent->type == G3DMESHTYPE ) {
-        G3DMESH *mes = ((G3DOBJECT*)rvp->mpr)->parent;
+        G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)rvp->mpr)->parent;
         LIST *ltmpver = rvp->lver;
 
         while ( ltmpver ) {

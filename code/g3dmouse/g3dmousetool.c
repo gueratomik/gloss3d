@@ -65,7 +65,7 @@ void g3dmousetool_init ( G3DMOUSETOOL *gtool,
 }
 
 /******************************************************************************/
-void l3dmousetool_init ( L3DMOUSETOOL *ltool,
+void m3dmousetool_init ( M3DMOUSETOOL *ltool,
                          char *name, char key, const char **icon,
                          uint32_t (*init) ( G3DMOUSETOOL *,
                                             G3DSCENE *, 

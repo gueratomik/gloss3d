@@ -71,7 +71,7 @@ void removeTexture_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void removeTexture_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+void removeTexture_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMREMOVETEXTURE *urt = ( URMREMOVETEXTURE * ) data;
 
     if ( urt->obj->type & MESH ) {
@@ -93,12 +93,12 @@ void removeTexture_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
                          NULL,
                          NULL,
                          NULL,
-                         RESETMODIFIERS, flags );
+                         RESETMODIFIERS, engine_flags );
     }
 }
 
 /******************************************************************************/
-void removeTexture_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+void removeTexture_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMREMOVETEXTURE *urt = ( URMREMOVETEXTURE * ) data;
 
     if ( urt->obj->type & MESH ) {
@@ -111,7 +111,7 @@ void removeTexture_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
                          NULL,
                          NULL,
                          NULL,
-                         RESETMODIFIERS, flags );
+                         RESETMODIFIERS, engine_flags );
     }
 }
 

@@ -34,7 +34,7 @@
 
 /******************************************************************************/
 typedef struct _CHANNELIMAGEDATA {
-    L3DUI *lui;
+    M3DUI *lui;
     G3DCHANNEL       *chn;
     uint32_t          width;
     uint32_t          height;
@@ -72,7 +72,7 @@ static void updateChannelImageDialog ( GtkWidget        *widget,
 }
 
 /******************************************************************************/
-CHANNELIMAGEDATA *channelimagedata_new ( L3DUI *lui, 
+CHANNELIMAGEDATA *channelimagedata_new ( M3DUI *lui, 
                                          G3DCHANNEL       *chn,
                                          uint32_t          resize ) {
     void *memarea = calloc ( 0x01, sizeof ( CHANNELIMAGEDATA ) );
@@ -162,7 +162,7 @@ static void okCbk ( GtkWidget *widget,
     g3dui_updateMaterialEdit ( gui );
 
    /*** resize selection mask and zbuffer ***/
-   common_l3dui_resizeBuffers ( cid->lui );
+   common_m3dui_resizeBuffers ( cid->lui );
 
     gtk_widget_destroy ( gtk_widget_get_ancestor ( widget, GTK_TYPE_WINDOW ) );
 }
@@ -183,7 +183,7 @@ static void Realize ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 GtkWidget* createChannelImage ( GtkWidget        *parent,
-                                L3DUI *lui,
+                                M3DUI *lui,
                                 G3DCHANNEL       *chn,
                                 uint32_t          resize,
                                 char             *name,

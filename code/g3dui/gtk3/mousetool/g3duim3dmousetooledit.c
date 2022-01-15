@@ -30,10 +30,10 @@
 #include <g3dui_gtk3.h>
 
 /******************************************************************************/
-void updateL3DMouseTool ( GtkWidget        *widget, 
-                          L3DUI *lui ) {
+void updateM3DMouseTool ( GtkWidget        *widget, 
+                          M3DUI *mui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    G3DMOUSETOOL *mou = lui->gui->uvmou;
+    G3DMOUSETOOL *mou = mui->gui->uvmou;
 
     if ( mou ) {
         while ( children ) {
@@ -41,8 +41,8 @@ void updateL3DMouseTool ( GtkWidget        *widget,
             const char *child_name = gtk_widget_get_name ( child );
 
             if ( strcmp ( child_name, mou->name ) == 0x00 ) {
-                if ( strcmp ( mou->name, PENTOOL    ) == 0x00 ) updatePenToolEdit    ( child, lui );
-                if ( strcmp ( mou->name, BUCKETTOOL ) == 0x00 ) updateBucketToolEdit ( child, lui );
+                if ( strcmp ( mou->name, PENTOOL    ) == 0x00 ) updatePenToolEdit    ( child, mui );
+                if ( strcmp ( mou->name, BUCKETTOOL ) == 0x00 ) updateBucketToolEdit ( child, mui );
 
                 gtk_widget_show ( child );
             } else {
@@ -66,20 +66,20 @@ void updateL3DMouseTool ( GtkWidget        *widget,
 
 /******************************************************************************/
 static void Realize ( GtkWidget *widget, gpointer user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
+    M3DUI *mui = ( M3DUI * ) user_data;
 
-    updateL3DMouseTool ( widget, lui );
+    updateM3DMouseTool ( widget, mui );
 }
 
 /******************************************************************************/
-GtkWidget *createL3DMouseToolEdit ( GtkWidget        *parent, 
-                                    L3DUI *lui,
+GtkWidget *createM3DMouseToolEdit ( GtkWidget        *parent, 
+                                    M3DUI *mui,
                                     char             *name,
                                     gint              x,
                                     gint              y,
                                     gint              width,
                                     gint              height ) {
-    G3DUI *gui = lui->gui;
+    G3DUI *gui = mui->gui;
     GdkRectangle scrrec = { 0, 0, width, height };
     GdkRectangle frmrec = { 0, 0, 256, 256 };
     GtkWidget *label = gtk_label_new ( name );
@@ -105,14 +105,14 @@ GtkWidget *createL3DMouseToolEdit ( GtkWidget        *parent,
     gtk_scrolled_window_add_with_viewport ( GTK_SCROLLED_WINDOW(scr), frm );
 #endif
 
-    g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), lui );
+    g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), mui );
 
     /*** This is type dependent: hidden if not of ***/
     /*** selected object type showed otherwise.   ***/
-    createPenToolEdit    ( frm, lui, PENTOOL   , 0, 0, 256, 192 );
-    createBucketToolEdit ( frm, lui, BUCKETTOOL, 0, 0, 256, 192 );
+    createPenToolEdit    ( frm, mui, PENTOOL   , 0, 0, 256, 192 );
+    createBucketToolEdit ( frm, mui, BUCKETTOOL, 0, 0, 256, 192 );
 
-    list_insert ( &lui->lmtools, frm );
+    list_insert ( &mui->lmtools, frm );
 
     gtk_widget_show ( frm );
     gtk_widget_show ( scr );

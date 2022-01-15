@@ -145,7 +145,7 @@ am__objects_1 = g3dmousetool.lo gloss3d/createCube.lo \
 	gloss3d/invertNormal.lo gloss3d/empty.lo \
 	gloss3d/extrudeFace.lo gloss3d/weldvertices.lo gloss3d/move.lo \
 	gloss3d/pick.lo gloss3d/rotate.lo gloss3d/sculpt.lo \
-	gloss3d/scale.lo lips3d/spray.lo
+	gloss3d/scale.lo makeup3d/spray.lo
 am_libgloss_g3dmouse_la_OBJECTS = $(am__objects_1)
 libgloss_g3dmouse_la_OBJECTS = $(am_libgloss_g3dmouse_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -189,7 +189,8 @@ am__depfiles_remade = ./$(DEPDIR)/g3dmousetool.Plo \
 	gloss3d/$(DEPDIR)/scale.Plo gloss3d/$(DEPDIR)/sculpt.Plo \
 	gloss3d/$(DEPDIR)/triangulate.Plo \
 	gloss3d/$(DEPDIR)/untriangulate.Plo \
-	gloss3d/$(DEPDIR)/weldvertices.Plo lips3d/$(DEPDIR)/spray.Plo
+	gloss3d/$(DEPDIR)/weldvertices.Plo \
+	makeup3d/$(DEPDIR)/spray.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -392,7 +393,7 @@ LIBGLOSSG3DMOUSE_C_FILES = g3dmousetool.c             \
                            gloss3d/rotate.c           \
                            gloss3d/sculpt.c           \
                            gloss3d/scale.c            \
-                           lips3d/spray.c
+                           makeup3d/spray.c
 
 all: all-am
 
@@ -520,14 +521,14 @@ gloss3d/sculpt.lo: gloss3d/$(am__dirstamp) \
 	gloss3d/$(DEPDIR)/$(am__dirstamp)
 gloss3d/scale.lo: gloss3d/$(am__dirstamp) \
 	gloss3d/$(DEPDIR)/$(am__dirstamp)
-lips3d/$(am__dirstamp):
-	@$(MKDIR_P) lips3d
-	@: > lips3d/$(am__dirstamp)
-lips3d/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) lips3d/$(DEPDIR)
-	@: > lips3d/$(DEPDIR)/$(am__dirstamp)
-lips3d/spray.lo: lips3d/$(am__dirstamp) \
-	lips3d/$(DEPDIR)/$(am__dirstamp)
+makeup3d/$(am__dirstamp):
+	@$(MKDIR_P) makeup3d
+	@: > makeup3d/$(am__dirstamp)
+makeup3d/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) makeup3d/$(DEPDIR)
+	@: > makeup3d/$(DEPDIR)/$(am__dirstamp)
+makeup3d/spray.lo: makeup3d/$(am__dirstamp) \
+	makeup3d/$(DEPDIR)/$(am__dirstamp)
 
 libgloss-g3dmouse.la: $(libgloss_g3dmouse_la_OBJECTS) $(libgloss_g3dmouse_la_DEPENDENCIES) $(EXTRA_libgloss_g3dmouse_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libgloss_g3dmouse_la_OBJECTS) $(libgloss_g3dmouse_la_LIBADD) $(LIBS)
@@ -536,8 +537,8 @@ mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f gloss3d/*.$(OBJEXT)
 	-rm -f gloss3d/*.lo
-	-rm -f lips3d/*.$(OBJEXT)
-	-rm -f lips3d/*.lo
+	-rm -f makeup3d/*.$(OBJEXT)
+	-rm -f makeup3d/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -569,7 +570,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/triangulate.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/untriangulate.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gloss3d/$(DEPDIR)/weldvertices.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@lips3d/$(DEPDIR)/spray.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@makeup3d/$(DEPDIR)/spray.Plo@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -607,7 +608,7 @@ mostlyclean-libtool:
 clean-libtool:
 	-rm -rf .libs _libs
 	-rm -rf gloss3d/.libs gloss3d/_libs
-	-rm -rf lips3d/.libs lips3d/_libs
+	-rm -rf makeup3d/.libs makeup3d/_libs
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -729,8 +730,8 @@ distclean-generic:
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
 	-rm -f gloss3d/$(DEPDIR)/$(am__dirstamp)
 	-rm -f gloss3d/$(am__dirstamp)
-	-rm -f lips3d/$(DEPDIR)/$(am__dirstamp)
-	-rm -f lips3d/$(am__dirstamp)
+	-rm -f makeup3d/$(DEPDIR)/$(am__dirstamp)
+	-rm -f makeup3d/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -768,7 +769,7 @@ distclean: distclean-am
 	-rm -f gloss3d/$(DEPDIR)/triangulate.Plo
 	-rm -f gloss3d/$(DEPDIR)/untriangulate.Plo
 	-rm -f gloss3d/$(DEPDIR)/weldvertices.Plo
-	-rm -f lips3d/$(DEPDIR)/spray.Plo
+	-rm -f makeup3d/$(DEPDIR)/spray.Plo
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -841,7 +842,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gloss3d/$(DEPDIR)/triangulate.Plo
 	-rm -f gloss3d/$(DEPDIR)/untriangulate.Plo
 	-rm -f gloss3d/$(DEPDIR)/weldvertices.Plo
-	-rm -f lips3d/$(DEPDIR)/spray.Plo
+	-rm -f makeup3d/$(DEPDIR)/spray.Plo
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

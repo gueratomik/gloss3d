@@ -87,7 +87,7 @@ URMREMOVEMATERIAL *urmremovematerial_new ( G3DSCENE    *sce,
 
 /******************************************************************************/
 void urmremovematerial_free ( URMREMOVEMATERIAL *rma ) {
-    list_free ( &rma->ludt, urmremovetexture_free );
+    list_free ( &rma->ludt, LIST_FUNCDATA(urmremovetexture_free) );
 
     free ( rma );
 }
@@ -104,7 +104,7 @@ void removeMaterial_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void removeMaterial_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+void removeMaterial_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMREMOVEMATERIAL *rma = ( URMREMOVEMATERIAL * ) data;
     LIST *ltmpudt = rma->ludt;
 
@@ -114,7 +114,7 @@ void removeMaterial_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
         URMREMOVETEXTURE *udt = ( URMREMOVETEXTURE * ) ltmpudt->data;
         LIST *ltmpfacgrp = udt->lfacgrp;
 
-        g3dmesh_addTexture ( udt->obj, udt->tex );
+        g3dmesh_addTexture ( ( G3DMESH * ) udt->obj, udt->tex );
 
         while ( ltmpfacgrp ) {
             G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) ltmpfacgrp->data;
@@ -129,7 +129,7 @@ void removeMaterial_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
 }
 
 /******************************************************************************/
-void removeMaterial_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+void removeMaterial_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMREMOVEMATERIAL *rma = ( URMREMOVEMATERIAL * ) data;
 
     g3dscene_removeMaterial ( rma->sce, rma->mat );
@@ -139,7 +139,7 @@ void removeMaterial_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
 void g3durm_scene_removeMaterial ( G3DURMANAGER *urm,
                                    G3DSCENE     *sce,
                                    G3DMATERIAL  *mat,
-                                   uint64_t engine_flags,
+                                   uint64_t      engine_flags,
                                    uint32_t      return_flags ) {
     URMREMOVEMATERIAL *rma = urmremovematerial_new ( sce, mat, engine_flags );
 

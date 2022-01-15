@@ -228,7 +228,7 @@ GtkWidget *gtk_view_getGLArea ( GtkWidget *widget );
 /************************** GTK UVMap Editor Widget ***************************/
 typedef struct _GtkUVMapEditor {
     GtkFixed  parent_instance;
-    L3DUI lui;
+    M3DUI mui;
     cairo_surface_t *surface;
 } GtkUVMapEditor;
 
@@ -249,7 +249,7 @@ GtkWidget *gtk_uvmapeditor_getDrawingArea ( GtkWidget *widget );
 /************************** GTK PatternList Widget ***************************/
 typedef struct _GTK3PATTERNPREVIEW {
     GdkPixbuf     *img;
-    L3DPATTERN    *pat;
+    M3DPATTERN    *pat;
     G3DUIRECTANGLE rec;
 } GTK3PATTERNPREVIEW;
 
@@ -704,7 +704,7 @@ void g3duimateriallist_size              ( GtkWidget *, GdkRectangle *,
 
 void gtk3_g3dui_setMode   ( GtkWidget *, gpointer );
 void g3dui_setMouseTool   ( GtkWidget *, gpointer );
-void l3dui_setUVMouseTool ( GtkWidget *, gpointer );
+void m3dui_setUVMouseTool ( GtkWidget *, gpointer );
 gboolean gtk3_showGL      ( GtkWidget *, cairo_t *, gpointer );
 void gtk3_initGL          ( GtkWidget *, gpointer );
 void gtk3_sizeGL          ( GtkWidget *, GdkRectangle *, gpointer );
@@ -807,10 +807,10 @@ uint32_t filtertostatusbar_getStatus ( Q3DFILTER *fil );
 void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui );
 void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui );
 
-void l3dui_undoCbk ( GtkWidget *widget, gpointer user_data );
-void l3dui_redoCbk ( GtkWidget *widget, gpointer user_data );
-void l3dui_uv2verCbk ( GtkWidget *widget, gpointer user_data );
-void l3dui_ver2uvCbk ( GtkWidget *widget, gpointer user_data );
+void m3dui_undoCbk ( GtkWidget *widget, gpointer user_data );
+void m3dui_redoCbk ( GtkWidget *widget, gpointer user_data );
+void m3dui_uv2verCbk ( GtkWidget *widget, gpointer user_data );
+void m3dui_ver2uvCbk ( GtkWidget *widget, gpointer user_data );
 
 GtkWidget *createRenderWindowMenuBar ( GtkWidget         *parent,
                                        G3DUIRENDERWINDOW *rwn,
@@ -845,7 +845,7 @@ GtkWidget *createObjectsMenuBar ( GtkWidget *parent,
                                   gint       height );
 
 GtkWidget *createUVMenuBar ( GtkWidget        *parent,  
-                             L3DUI *lui,
+                             M3DUI *mui,
                              char             *name,
                              gint              x,
                              gint              y,
@@ -861,7 +861,7 @@ GtkWidget *createFgBgButton ( GtkWidget *parent,
                               gint       height );
 
 GtkWidget* createChannelImage ( GtkWidget        *parent,
-                                L3DUI *lui,
+                                M3DUI *mui,
                                 G3DCHANNEL       *chn,
                                 uint32_t          resize,
                                 char             *name,
@@ -887,7 +887,7 @@ GtkWidget *createUVMapEditorToolBar ( GtkWidget *parent,
                                       gint       height );
 
 GtkWidget *createPatternList ( GtkWidget        *parent, 
-                               L3DUI *lui,
+                               M3DUI *mui,
                                char             *name,
                                gint              x,
                                gint              y,
@@ -921,14 +921,14 @@ uint32_t g3dui_saveChannelAlteredImage ( G3DUI      *gui,
                                          uint32_t    ask,
                                          uint32_t    rename );
 
-void l3dui_loadImageByChannelIDCbk ( GtkWidget *widget, 
+void m3dui_loadImageByChannelIDCbk ( GtkWidget *widget, 
                                                 gpointer   user_data );
 
-void l3dui_createChannelImageCbk ( GtkWidget *widget, 
+void m3dui_createChannelImageCbk ( GtkWidget *widget, 
                                               gpointer   user_data );
 
 GtkWidget *createPenToolEdit ( GtkWidget        *parent, 
-                               L3DUI *lui,
+                               M3DUI *mui,
                                char             *name,
                                gint              x,
                                gint              y,
@@ -936,10 +936,10 @@ GtkWidget *createPenToolEdit ( GtkWidget        *parent,
                                gint              height );
 
 void updatePenToolEdit ( GtkWidget        *widget,
-                         L3DUI *lui );
+                         M3DUI *mui );
 
 GtkWidget *createBucketToolEdit ( GtkWidget        *parent, 
-                                  L3DUI *lui,
+                                  M3DUI *mui,
                                   char             *name,
                                   gint              x,
                                   gint              y,
@@ -947,18 +947,18 @@ GtkWidget *createBucketToolEdit ( GtkWidget        *parent,
                                   gint              height );
 
 void updateBucketToolEdit ( GtkWidget *widget,
-                            L3DUI     *lui );
+                            M3DUI     *mui );
 
-GtkWidget *createL3DMouseToolEdit ( GtkWidget        *parent, 
-                                    L3DUI *lui,
+GtkWidget *createM3DMouseToolEdit ( GtkWidget        *parent, 
+                                    M3DUI *mui,
                                     char             *name,
                                     gint              x,
                                     gint              y,
                                     gint              width,
                                     gint              height );
-void updateL3DMouseTool ( GtkWidget        *widget, 
-                          L3DUI *lui );
-void l3dui_updateMouseToolEdit ( L3DUI *lui );
+void updateM3DMouseTool ( GtkWidget        *widget, 
+                          M3DUI *mui );
+void m3dui_updateMouseToolEdit ( M3DUI *mui );
 
 GtkWidget *createMorpherEdit ( GtkWidget *parent,
                                G3DUI     *gui,

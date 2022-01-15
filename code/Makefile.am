@@ -23,7 +23,7 @@ SUBDIRS = g3dengine \
           g3dcom \
           g3dui \
           g3durmanager \
-          lips3d \
+          makeup3d \
           qiss3d
 #          r3dnet
 
@@ -38,7 +38,7 @@ if HAVE_GTK3
                          g3dcom/libgloss-g3dcom.la \
                          g3dui/libgloss-g3dui-gtk3.la \
                          g3durmanager/libgloss-g3durmanager.la \
-                         lips3d/libgloss-lips3d.la \
+                         makeup3d/libgloss-makeup3d.la \
                          qiss3d/libgloss-q3d.la
 #                         r3dnet/libgloss-r3dnet.la
 
@@ -57,7 +57,7 @@ if HAVE_MOTIF
                           g3dcom/libgloss-g3dcom.la \
                           g3dui/libgloss-g3dui-motif.la \
                           g3durmanager/libgloss-g3durmanager.la \
-                          lips3d/libgloss-lips3d.la \
+                          makeup3d/libgloss-makeup3d.la \
                           qiss3d/libgloss-q3d.la
 #                          r3dnet/libgloss-r3dnet.la
 
@@ -111,7 +111,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        include/g3dengine/g3dparticleemitter.h \
                        include/g3dengine/g3dskin.h \
                        include/g3dengine/g3dvector.h \
-                       include/lips3d/lips3d.h \
+                       include/makeup3d/makeup3d.h \
                        include/g3d.h \
                        include/g3dimport.h \
                        include/g3dimportv2.h \

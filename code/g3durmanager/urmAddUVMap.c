@@ -64,19 +64,19 @@ void addUVMap_free ( void *data, uint32_t commit ) {
     if ( commit ) {
         list_free ( &uau->lnewuvset, NULL );
     } else {
-        g3duvmap_free ( uau->uvmap );
+        g3duvmap_free ( ( G3DOBJECT * ) uau->uvmap );
 
-        list_free ( &uau->lnewuvset, g3duvset_free );
+        list_free ( &uau->lnewuvset, LIST_FUNCDATA(g3duvset_free) );
     }
 
     urmadduvmap_free ( uau );
 }
 
 /******************************************************************************/
-void addUVMap_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+void addUVMap_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMADDUVMAP *uau = ( URMADDUVMAP * ) data;
 
-    g3dmesh_removeUVMap ( uau->mes, uau->uvmap, NULL, NULL, flags );
+    g3dmesh_removeUVMap ( uau->mes, uau->uvmap, NULL, NULL, engine_flags );
 
     /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
     /* Commented out: this is called in g3dmesh_removeUVMap() ***/
@@ -88,7 +88,7 @@ void addUVMap_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
 }
 
 /******************************************************************************/
-void addUVMap_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+void addUVMap_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMADDUVMAP *uau = ( URMADDUVMAP * ) data;
     LIST *ltmpnewuvset = uau->lnewuvset;
 
@@ -107,7 +107,7 @@ void addUVMap_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
     g3dmesh_addUVMap ( uau->mes, 
                        uau->uvmap, 
                        NULL, /*** no need to backp uvsets this time **/
-                       flags );
+                       engine_flags );
 
     /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
     /*** Commented out. See comment below ***/

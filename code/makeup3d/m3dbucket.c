@@ -27,12 +27,12 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <lips3d/lips3d.h>
+#include <makeup3d/makeup3d.h>
 
-static int l3dbucket_reset ( L3DBUCKET *sel,
+static int m3dbucket_reset ( M3DBUCKET *sel,
                                uint64_t     engine_flags );
-static int l3dbucket_press ( L3DOBJECT     *obj,
-                               L3DPATTERN    *pattern,
+static int m3dbucket_press ( M3DOBJECT     *obj,
+                               M3DPATTERN    *pattern,
                                uint32_t       fgcolor,
                                uint32_t       bgcolor,
                                int32_t        x,
@@ -45,8 +45,8 @@ static int l3dbucket_press ( L3DOBJECT     *obj,
                                unsigned char *zbuffer,
                                uint32_t      *updcoord,
                                uint64_t engine_flags );
-static int l3dbucket_move ( L3DOBJECT     *obj,
-                              L3DPATTERN    *pattern,
+static int m3dbucket_move ( M3DOBJECT     *obj,
+                              M3DPATTERN    *pattern,
                               uint32_t       fgcolor,
                               uint32_t       bgcolor,
                               int32_t        x,
@@ -59,8 +59,8 @@ static int l3dbucket_move ( L3DOBJECT     *obj,
                               unsigned char *zbuffer,
                               uint32_t      *updcoord,
                               uint64_t engine_flags );
-static int l3dbucket_release ( L3DOBJECT     *obj,
-                                 L3DPATTERN    *pattern,
+static int m3dbucket_release ( M3DOBJECT     *obj,
+                                 M3DPATTERN    *pattern,
                                  uint32_t       fgcolor,
                                  uint32_t       bgcolor,
                                  int32_t        x,
@@ -190,9 +190,9 @@ static void floodFill ( int32_t        x,
 }
 
 /******************************************************************************/
-L3DBUCKET* l3dbucket_new ( ) {
-    uint32_t structSize = sizeof ( L3DBUCKET );
-    L3DBUCKET *bkt = ( L3DBUCKET * ) calloc ( 0x01, structSize );
+M3DBUCKET* m3dbucket_new ( ) {
+    uint32_t structSize = sizeof ( M3DBUCKET );
+    M3DBUCKET *bkt = ( M3DBUCKET * ) calloc ( 0x01, structSize );
 
     if ( bkt == NULL ) {
         fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
@@ -202,25 +202,25 @@ L3DBUCKET* l3dbucket_new ( ) {
 
     bkt->tolerance = 0x04;
 
-    l3dobject_init ( bkt,
-                     l3dbucket_reset,
-                     l3dbucket_press,
-                     l3dbucket_move,
-                     l3dbucket_release );
+    m3dobject_init ( bkt,
+                     m3dbucket_reset,
+                     m3dbucket_press,
+                     m3dbucket_move,
+                     m3dbucket_release );
 
     return bkt;
 }
 
 /******************************************************************************/
-static int l3dbucket_reset ( L3DBUCKET *bkt,
+static int m3dbucket_reset ( M3DBUCKET *bkt,
                              uint64_t   engine_flags ) {
 
     return 0x00;
 }
 
 /******************************************************************************/
-static int l3dbucket_press ( L3DOBJECT     *obj,
-                             L3DPATTERN    *pattern,
+static int m3dbucket_press ( M3DOBJECT     *obj,
+                             M3DPATTERN    *pattern,
                              uint32_t       fgcolor,
                              uint32_t       bgcolor,
                              int32_t        x,
@@ -233,7 +233,7 @@ static int l3dbucket_press ( L3DOBJECT     *obj,
                              unsigned char *zbuffer,
                              uint32_t      *updcoord,
                              uint64_t       engine_flags ) {
-    L3DBUCKET *bkt = ( L3DBUCKET * ) obj;
+    M3DBUCKET *bkt = ( M3DBUCKET * ) obj;
 
     if ( updcoord ) {
         updcoord[0x00] = 0x00;
@@ -246,8 +246,8 @@ static int l3dbucket_press ( L3DOBJECT     *obj,
 }
 
 /******************************************************************************/
-static int l3dbucket_move ( L3DOBJECT     *obj,
-                            L3DPATTERN    *pattern,
+static int m3dbucket_move ( M3DOBJECT     *obj,
+                            M3DPATTERN    *pattern,
                             uint32_t       fgcolor,
                             uint32_t       bgcolor,
                             int32_t        x,
@@ -260,7 +260,7 @@ static int l3dbucket_move ( L3DOBJECT     *obj,
                             unsigned char *zbuffer,
                             uint32_t      *updcoord,
                             uint64_t       engine_flags ) {
-    L3DBUCKET *bkt = ( L3DBUCKET * ) obj;
+    M3DBUCKET *bkt = ( M3DBUCKET * ) obj;
 
     if ( updcoord ) {
         updcoord[0x00] = 0x00;
@@ -273,8 +273,8 @@ static int l3dbucket_move ( L3DOBJECT     *obj,
 }
 
 /******************************************************************************/
-static int l3dbucket_release ( L3DOBJECT     *obj,
-                               L3DPATTERN    *pattern,
+static int m3dbucket_release ( M3DOBJECT     *obj,
+                               M3DPATTERN    *pattern,
                                uint32_t       fgcolor,
                                uint32_t       bgcolor,
                                int32_t        x,
@@ -287,7 +287,7 @@ static int l3dbucket_release ( L3DOBJECT     *obj,
                                unsigned char *zbuffer,
                                uint32_t      *updcoord,
                                uint64_t       engine_flags ) {
-    L3DBUCKET *bkt = ( L3DBUCKET * ) obj;
+    M3DBUCKET *bkt = ( M3DBUCKET * ) obj;
 
     memset ( zbuffer, 0x00, width * height );
 
@@ -331,5 +331,5 @@ static int l3dbucket_release ( L3DOBJECT     *obj,
         updcoord[0x03] = height - 1;
     }
 
-    return L3DUPDATEIMAGE;
+    return M3DUPDATEIMAGE;
 }

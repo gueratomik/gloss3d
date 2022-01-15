@@ -30,13 +30,13 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duibuckettooledit_setToleranceCbk ( L3DUI   *lui, 
+void common_g3duibuckettooledit_setToleranceCbk ( M3DUI   *mui, 
                                                   uint32_t tolerance ) {
-    L3DMOUSETOOL *tool = common_g3dui_getMouseTool ( lui->gui, BUCKETTOOL );
-    L3DMOUSETOOLBUCKET *mtb = ( L3DMOUSETOOLBUCKET * ) tool;
-    L3DBUCKET *bkt = mtb->ltool.obj;
+    M3DMOUSETOOL *tool = common_g3dui_getMouseTool ( mui->gui, BUCKETTOOL );
+    M3DMOUSETOOLBUCKET *mtb = ( M3DMOUSETOOLBUCKET * ) tool;
+    M3DBUCKET *bkt = mtb->ltool.obj;
 
-    if ( lui->gui->lock ) return;
+    if ( mui->gui->lock ) return;
 
     bkt->tolerance = tolerance;
 }

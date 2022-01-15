@@ -65,7 +65,7 @@ static void setForegroundColor ( GtkDialog *dialog,
     gtk_color_chooser_get_rgba ( GTK_COLOR_CHOOSER ( dialog ), &color );
 
     if ( response_id == GTK_RESPONSE_OK ) {
-        L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
+        M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
         uint32_t R = color.red   * 255.0f,
                  G = color.green * 255.0f,
                  B = color.blue  * 255.0f;
@@ -85,7 +85,7 @@ static void setBackgroundColor ( GtkDialog *dialog,
     gtk_color_chooser_get_rgba ( GTK_COLOR_CHOOSER ( dialog ), &color );
 
     if ( response_id == GTK_RESPONSE_OK ) {
-        L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
+        M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
         uint32_t R = color.red   * 255.0f,
                  G = color.green * 255.0f,
                  B = color.blue  * 255.0f;
@@ -101,7 +101,7 @@ static void Input ( GtkWidget *widget,
                     GdkEvent  *gdkev, 
                     gpointer   user_data ) {
     FGBGDATASTRUCT *fgbgdata = ( FGBGDATASTRUCT * ) user_data;
-    L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
+    M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
 
     switch ( gdkev->type ) {
         case GDK_BUTTON_RELEASE : {
@@ -201,7 +201,7 @@ static void Draw ( GtkWidget *widget,
     GtkAllocation allocation;
     cairo_text_extents_t te;
     int32_t x1, y1, x2, y2;
-    L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
+    M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
     float FR = ( ( sysinfo->fgcolor & 0x00FF0000 ) >> 16 ) / 255.0f,
           FG = ( ( sysinfo->fgcolor & 0x0000FF00 ) >>  8 ) / 255.0f,
           FB = ( ( sysinfo->fgcolor & 0x000000FF ) >>  0 ) / 255.0f;

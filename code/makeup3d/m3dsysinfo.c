@@ -27,18 +27,18 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <lips3d/lips3d.h>
+#include <makeup3d/makeup3d.h>
 
 /******************************************************************************/
-void l3dsysinfo_reset ( L3DSYSINFO *sysinfo ) {
+void m3dsysinfo_reset ( M3DSYSINFO *sysinfo ) {
     sysinfo->bgcolor = 0xFFFFFFFF;
     sysinfo->fgcolor = 0x00000000;
 }
 
 /******************************************************************************/
-static L3DSYSINFO *l3dsysinfo_new ( ) {
-    uint32_t structSize = sizeof ( L3DSYSINFO );
-    L3DSYSINFO *sysinfo = ( L3DSYSINFO * ) calloc ( 0x01, structSize );
+static M3DSYSINFO *m3dsysinfo_new ( ) {
+    uint32_t structSize = sizeof ( M3DSYSINFO );
+    M3DSYSINFO *sysinfo = ( M3DSYSINFO * ) calloc ( 0x01, structSize );
 
     if ( sysinfo == NULL ) {
         fprintf ( stderr, "%s: calloc failed\n", __func__ );
@@ -46,34 +46,34 @@ static L3DSYSINFO *l3dsysinfo_new ( ) {
         return NULL;
     }
 
-    l3dsysinfo_reset ( sysinfo );
+    m3dsysinfo_reset ( sysinfo );
 
     return sysinfo;
 }
 
 /******************************************************************************/
-L3DSYSINFO *l3dsysinfo_get ( ) {
+M3DSYSINFO *m3dsysinfo_get ( ) {
     /*** This way we don't need a sysinfo global variable or pass it as an ***/
     /*** argument. The first call to g3dsysinfo_get create the sysinfo     ***/
     /*** structure and later calls can retrieve it.                        ***/
-    static L3DSYSINFO *sysinfo = NULL;
+    static M3DSYSINFO *sysinfo = NULL;
 
-    if ( sysinfo == NULL ) sysinfo = l3dsysinfo_new ( );
+    if ( sysinfo == NULL ) sysinfo = m3dsysinfo_new ( );
 
     return sysinfo;
 }
 
 /******************************************************************************/
-void l3dsysinfo_setPattern ( L3DSYSINFO *sysinfo, L3DPATTERN *pattern ) {
+void m3dsysinfo_setPattern ( M3DSYSINFO *sysinfo, M3DPATTERN *pattern ) {
     sysinfo->pattern = pattern;
 }
 
 /******************************************************************************/
-void l3dsysinfo_setForegroundColor ( L3DSYSINFO *sysinfo, uint32_t fgcolor ) {
+void m3dsysinfo_setForegroundColor ( M3DSYSINFO *sysinfo, uint32_t fgcolor ) {
     sysinfo->fgcolor = fgcolor;
 }
 
 /******************************************************************************/
-void l3dsysinfo_setBackgroundColor ( L3DSYSINFO *sysinfo, uint32_t bgcolor ) {
+void m3dsysinfo_setBackgroundColor ( M3DSYSINFO *sysinfo, uint32_t bgcolor ) {
     sysinfo->bgcolor = bgcolor;
 }

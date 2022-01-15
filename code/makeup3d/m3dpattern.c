@@ -27,10 +27,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <lips3d/lips3d.h>
+#include <makeup3d/makeup3d.h>
 
 /******************************************************************************/
-int l3dpattern_paint ( L3DPATTERN    *pattern,
+int m3dpattern_paint ( M3DPATTERN    *pattern,
                        uint32_t       color,
                        float          pressure,
                        int32_t        x,
@@ -49,7 +49,7 @@ int l3dpattern_paint ( L3DPATTERN    *pattern,
     uint8_t B = ( color & 0x000000FF ) >>  0;
 
     if ( pattern->size == 0x01 ) {
-        l3dcore_paintPoint( pattern,
+        m3dcore_paintPoint( pattern,
                             color,
                             pressure,
                             x,
@@ -136,12 +136,12 @@ int l3dpattern_paint ( L3DPATTERN    *pattern,
 }
 
 /******************************************************************************/
-void l3dpattern_generatePlainRectangle ( L3DPATTERN *pattern ) {
+void m3dpattern_generatePlainRectangle ( M3DPATTERN *pattern ) {
     memset ( pattern->buffer, 0xFF, pattern->size * pattern->size );
 }
 
 /******************************************************************************/
-void l3dpattern_generatePlainCircle ( L3DPATTERN *pattern ) {
+void m3dpattern_generatePlainCircle ( M3DPATTERN *pattern ) {
     uint32_t radius = pattern->size / 0x02;
     uint32_t xp = radius, yp = radius;
     uint32_t x, y, rdiff = ( radius * radius );
@@ -164,8 +164,8 @@ void l3dpattern_generatePlainCircle ( L3DPATTERN *pattern ) {
 }
 
 /******************************************************************************/
-void l3dpattern_generateBrush ( L3DPATTERN *pattern ) {
-    L3DBRUSHPATTERN *bp = ( L3DBRUSHPATTERN * ) pattern;
+void m3dpattern_generateBrush ( M3DPATTERN *pattern ) {
+    M3DBRUSHPATTERN *bp = ( M3DBRUSHPATTERN * ) pattern;
     float hratio = ( float ) bp->brush->height / pattern->size,
           wratio = ( float ) bp->brush->width  / pattern->size;
     uint32_t i, j;
@@ -195,8 +195,8 @@ void l3dpattern_generateBrush ( L3DPATTERN *pattern ) {
 }
 
 /******************************************************************************/
-void l3dpattern_generateFadedCircle ( L3DPATTERN *pattern ) {
-    L3DFADEDCIRCLEPATTERN *fcp = ( L3DFADEDCIRCLEPATTERN * ) pattern;
+void m3dpattern_generateFadedCircle ( M3DPATTERN *pattern ) {
+    M3DFADEDCIRCLEPATTERN *fcp = ( M3DFADEDCIRCLEPATTERN * ) pattern;
     uint32_t rad = pattern->size / 0x02;
     uint32_t xp = rad, yp = rad;
     uint32_t x, y, rdiff = ( rad * rad ) * fcp->radius;
@@ -228,7 +228,7 @@ void l3dpattern_generateFadedCircle ( L3DPATTERN *pattern ) {
 }
 
 /******************************************************************************/
-void l3dpattern_resize ( L3DPATTERN *pattern, uint32_t size ) {
+void m3dpattern_resize ( M3DPATTERN *pattern, uint32_t size ) {
     if ( size ) {
         pattern->size = size;
 
@@ -242,20 +242,20 @@ void l3dpattern_resize ( L3DPATTERN *pattern, uint32_t size ) {
 }
 
 /******************************************************************************/
-void l3dpattern_init ( L3DPATTERN *pattern,
+void m3dpattern_init ( M3DPATTERN *pattern,
                        uint32_t    size,
-                       void(*generate)(L3DPATTERN*)) {
+                       void(*generate)(M3DPATTERN*)) {
     pattern->generate = generate;
 
-    l3dpattern_resize ( ( L3DPATTERN * ) pattern, size );
+    m3dpattern_resize ( ( M3DPATTERN * ) pattern, size );
 }
 
 /******************************************************************************/
-L3DPLAINRECTANGLEPATTERN *l3dplainrectanglepattern_new ( uint32_t size ) {
-    uint32_t structSize = sizeof ( L3DPLAINRECTANGLEPATTERN );
-    L3DPLAINRECTANGLEPATTERN *prp;
+M3DPLAINRECTANGLEPATTERN *m3dplainrectanglepattern_new ( uint32_t size ) {
+    uint32_t structSize = sizeof ( M3DPLAINRECTANGLEPATTERN );
+    M3DPLAINRECTANGLEPATTERN *prp;
 
-    prp = ( L3DPLAINRECTANGLEPATTERN * ) calloc ( 0x01, structSize );
+    prp = ( M3DPLAINRECTANGLEPATTERN * ) calloc ( 0x01, structSize );
 
     if ( prp == NULL ) {
         fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
@@ -263,20 +263,20 @@ L3DPLAINRECTANGLEPATTERN *l3dplainrectanglepattern_new ( uint32_t size ) {
         return NULL;
     }
 
-    l3dpattern_init ( ( L3DPATTERN * ) prp, 
+    m3dpattern_init ( ( M3DPATTERN * ) prp, 
                                        size, 
-                                       l3dpattern_generatePlainRectangle );
+                                       m3dpattern_generatePlainRectangle );
 
 
     return prp;
 }
 
 /******************************************************************************/
-L3DPLAINCIRCLEPATTERN *l3dplaincirclepattern_new ( uint32_t size ) {
-    uint32_t structSize = sizeof ( L3DPLAINCIRCLEPATTERN );
-    L3DPLAINCIRCLEPATTERN *pcp;
+M3DPLAINCIRCLEPATTERN *m3dplaincirclepattern_new ( uint32_t size ) {
+    uint32_t structSize = sizeof ( M3DPLAINCIRCLEPATTERN );
+    M3DPLAINCIRCLEPATTERN *pcp;
 
-    pcp = ( L3DPLAINCIRCLEPATTERN * ) calloc ( 0x01, structSize );
+    pcp = ( M3DPLAINCIRCLEPATTERN * ) calloc ( 0x01, structSize );
 
     if ( pcp == NULL ) {
         fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
@@ -284,22 +284,22 @@ L3DPLAINCIRCLEPATTERN *l3dplaincirclepattern_new ( uint32_t size ) {
         return NULL;
     }
 
-    l3dpattern_init ( ( L3DPATTERN * ) pcp, 
+    m3dpattern_init ( ( M3DPATTERN * ) pcp, 
                                        size, 
-                                       l3dpattern_generatePlainCircle );
+                                       m3dpattern_generatePlainCircle );
 
 
     return pcp;
 }
 
 /******************************************************************************/
-L3DFADEDCIRCLEPATTERN *l3dfadedcirclepattern_new ( uint32_t size, 
+M3DFADEDCIRCLEPATTERN *m3dfadedcirclepattern_new ( uint32_t size, 
                                                    float    radius,
                                                    float    fullPartRate ) {
-    uint32_t structSize = sizeof ( L3DFADEDCIRCLEPATTERN );
-    L3DFADEDCIRCLEPATTERN *fcp;
+    uint32_t structSize = sizeof ( M3DFADEDCIRCLEPATTERN );
+    M3DFADEDCIRCLEPATTERN *fcp;
 
-    fcp = ( L3DFADEDCIRCLEPATTERN * ) calloc ( 0x01, structSize );
+    fcp = ( M3DFADEDCIRCLEPATTERN * ) calloc ( 0x01, structSize );
 
     if ( fcp == NULL ) {
         fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
@@ -310,19 +310,19 @@ L3DFADEDCIRCLEPATTERN *l3dfadedcirclepattern_new ( uint32_t size,
     fcp->radius = radius;
     fcp->fullPartRate = fullPartRate;
 
-    l3dpattern_init ( ( L3DPATTERN * ) fcp, 
+    m3dpattern_init ( ( M3DPATTERN * ) fcp, 
                                        size, 
-                                       l3dpattern_generateFadedCircle );
+                                       m3dpattern_generateFadedCircle );
 
 
     return fcp;
 }
 
 /******************************************************************************/
-L3DBRUSHPATTERN *l3dbrushpattern_new ( uint32_t      size, 
-                                       L3DGIMPBRUSH *brush ) {
-    uint32_t structSize = sizeof ( L3DBRUSHPATTERN );
-    L3DBRUSHPATTERN *bp = ( L3DBRUSHPATTERN * ) calloc ( 0x01, structSize );
+M3DBRUSHPATTERN *m3dbrushpattern_new ( uint32_t      size, 
+                                       M3DGIMPBRUSH *brush ) {
+    uint32_t structSize = sizeof ( M3DBRUSHPATTERN );
+    M3DBRUSHPATTERN *bp = ( M3DBRUSHPATTERN * ) calloc ( 0x01, structSize );
 
     if ( bp == NULL ) {
         fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
@@ -332,9 +332,9 @@ L3DBRUSHPATTERN *l3dbrushpattern_new ( uint32_t      size,
 
     bp->brush = brush;
 
-    l3dpattern_init ( ( L3DPATTERN * ) bp, 
+    m3dpattern_init ( ( M3DPATTERN * ) bp, 
                                        size, 
-                                       l3dpattern_generateBrush );
+                                       m3dpattern_generateBrush );
 
 
     return bp;

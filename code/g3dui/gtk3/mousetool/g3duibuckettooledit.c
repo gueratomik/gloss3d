@@ -35,21 +35,21 @@
 static void setToleranceCbk  ( GtkWidget *widget, 
                                gpointer   user_data ) {
     int tolerance = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
-    L3DUI *lui = ( L3DUI * ) user_data;
+    M3DUI *mui = ( M3DUI * ) user_data;
 
-    common_g3duibuckettooledit_setToleranceCbk ( lui, tolerance );
+    common_g3duibuckettooledit_setToleranceCbk ( mui, tolerance );
 }
 
 /******************************************************************************/
 void updateBucketToolEdit ( GtkWidget *widget,
-                            L3DUI     *lui ) {
+                            M3DUI     *mui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    L3DMOUSETOOL *tool = common_g3dui_getMouseTool ( lui->gui, BUCKETTOOL );
-    L3DMOUSETOOLBUCKET *mtb = ( L3DMOUSETOOLBUCKET * ) tool;
-    L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
+    M3DMOUSETOOL *tool = common_g3dui_getMouseTool ( mui->gui, BUCKETTOOL );
+    M3DMOUSETOOLBUCKET *mtb = ( M3DMOUSETOOLBUCKET * ) tool;
+    M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
 
     /*** prevent a loop ***/
-    lui->gui->lock = 0x01;
+    mui->gui->lock = 0x01;
 
     while ( children ) {
         GtkWidget *child = ( GtkWidget * ) children->data;
@@ -59,7 +59,7 @@ void updateBucketToolEdit ( GtkWidget *widget,
             GtkSpinButton *spb = GTK_SPIN_BUTTON(child);
 
             if ( strcmp ( child_name, EDITBUCKETTOOLTOLERANCE   ) == 0x00 ) {
-                L3DBUCKET *bkt = mtb->ltool.obj;
+                M3DBUCKET *bkt = mtb->ltool.obj;
 
                 gtk_spin_button_set_value ( spb, bkt->tolerance );
             }
@@ -68,19 +68,19 @@ void updateBucketToolEdit ( GtkWidget *widget,
         children =  g_list_next ( children );
     }
 
-    lui->gui->lock = 0x00;
+    mui->gui->lock = 0x00;
 }
 
 /******************************************************************************/
 static void Realize ( GtkWidget *widget, gpointer user_data ) {
-    L3DUI *lui = ( L3DUI * ) user_data;
+    M3DUI *mui = ( M3DUI * ) user_data;
 
-    updateBucketToolEdit ( widget, lui );
+    updateBucketToolEdit ( widget, mui );
 }
 
 /******************************************************************************/
 GtkWidget *createBucketToolEdit ( GtkWidget        *parent, 
-                                  L3DUI *lui,
+                                  M3DUI *mui,
                                   char             *name,
                                   gint              x,
                                   gint              y,
@@ -97,9 +97,9 @@ GtkWidget *createBucketToolEdit ( GtkWidget        *parent,
 
     gtk_fixed_put ( GTK_FIXED(parent), frm, x, y );
 
-    g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), lui );
+    g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), mui );
 
-    createIntegerText     ( frm, lui, EDITBUCKETTOOLTOLERANCE, 
+    createIntegerText     ( frm, mui, EDITBUCKETTOOLTOLERANCE, 
                                   0, 256,
                                   0, 24, 96,  32, setToleranceCbk );
 

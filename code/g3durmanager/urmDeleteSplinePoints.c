@@ -67,8 +67,8 @@ static void deleteSplinePoints_free ( void    *data,
         list_free ( &dsp->lremovedSegments, NULL );
         list_free ( &dsp->lremovedPoints  , NULL );
     } else {
-        list_free ( &dsp->lremovedSegments, g3dcubicsegment_free );
-        list_free ( &dsp->lremovedPoints  , g3dcurvepoint_free  );
+        list_free ( &dsp->lremovedSegments, LIST_FUNCDATA(g3dcubicsegment_free) );
+        list_free ( &dsp->lremovedPoints  , LIST_FUNCDATA(g3dcurvepoint_free)  );
     }
 
     urmDeleteSplinePoints_free ( dsp );

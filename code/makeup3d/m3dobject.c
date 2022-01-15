@@ -27,14 +27,14 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <lips3d/lips3d.h>
+#include <makeup3d/makeup3d.h>
 
 /******************************************************************************/
-void l3dobject_init ( L3DOBJECT  *obj,
-                      int (*reset) ( L3DOBJECT     *obj,
+void m3dobject_init ( M3DOBJECT  *obj,
+                      int (*reset) ( M3DOBJECT     *obj,
                                      uint64_t engine_flags ),
-                      int (*press) ( L3DOBJECT     *obj,
-                                     L3DPATTERN    *pattern,
+                      int (*press) ( M3DOBJECT     *obj,
+                                     M3DPATTERN    *pattern,
                                      uint32_t       fgcolor,
                                      uint32_t       bgcolor,
                                      int32_t        x,
@@ -47,8 +47,8 @@ void l3dobject_init ( L3DOBJECT  *obj,
                                      unsigned char *zbuffer,
                                      uint32_t      *updcoord,
                                      uint64_t engine_flags ),
-                     int (*move) ( L3DOBJECT     *obj,
-                                   L3DPATTERN    *pattern,
+                     int (*move) ( M3DOBJECT     *obj,
+                                   M3DPATTERN    *pattern,
                                    uint32_t       fgcolor,
                                    uint32_t       bgcolor,
                                    int32_t        x,
@@ -61,8 +61,8 @@ void l3dobject_init ( L3DOBJECT  *obj,
                                    unsigned char *zbuffer,
                                    uint32_t      *updcoord,
                                    uint64_t engine_flags ),
-                     int (*release) ( L3DOBJECT     *obj,
-                                      L3DPATTERN    *pattern,
+                     int (*release) ( M3DOBJECT     *obj,
+                                      M3DPATTERN    *pattern,
                                       uint32_t       fgcolor,
                                       uint32_t       bgcolor,
                                       int32_t        x,

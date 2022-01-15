@@ -27,7 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <lips3d/lips3d.h>
+#include <makeup3d/makeup3d.h>
 
 #define SNAPDISTANCE 0x40
 
@@ -37,12 +37,12 @@
 #define LINEFORCEBIT  0x10
 #define LINEBITMASK   0x0F
 
-static void l3dselector_findMinMax ( L3DSELECTOR *sel );
+static void m3dselector_findMinMax ( M3DSELECTOR *sel );
 
-static int l3dselector_reset ( L3DSELECTOR *sel,
+static int m3dselector_reset ( M3DSELECTOR *sel,
                                uint64_t     engine_flags );
-static int l3dselector_press ( L3DOBJECT     *obj,
-                               L3DPATTERN    *pattern,
+static int m3dselector_press ( M3DOBJECT     *obj,
+                               M3DPATTERN    *pattern,
                                uint32_t       fgcolor,
                                uint32_t       bgcolor,
                                int32_t        x,
@@ -55,8 +55,8 @@ static int l3dselector_press ( L3DOBJECT     *obj,
                                unsigned char *zbuffer,
                                uint32_t      *updcoord,
                                uint64_t engine_flags );
-static int l3dselector_move ( L3DOBJECT     *obj,
-                              L3DPATTERN    *pattern,
+static int m3dselector_move ( M3DOBJECT     *obj,
+                              M3DPATTERN    *pattern,
                               uint32_t       fgcolor,
                               uint32_t       bgcolor,
                               int32_t        x,
@@ -69,8 +69,8 @@ static int l3dselector_move ( L3DOBJECT     *obj,
                               unsigned char *zbuffer,
                               uint32_t      *updcoord,
                               uint64_t engine_flags );
-static int l3dselector_release ( L3DOBJECT     *obj,
-                                 L3DPATTERN    *pattern,
+static int m3dselector_release ( M3DOBJECT     *obj,
+                                 M3DPATTERN    *pattern,
                                  uint32_t       fgcolor,
                                  uint32_t       bgcolor,
                                  int32_t        x,
@@ -85,18 +85,18 @@ static int l3dselector_release ( L3DOBJECT     *obj,
                                  uint64_t engine_flags );
 
 /******************************************************************************/
-static void l3dselectorpoint_free ( L3DSELECTORPOINT *pt ) {
+static void m3dselectorpoint_free ( M3DSELECTORPOINT *pt ) {
     free ( pt );
 }
 
 /******************************************************************************/
-L3DSELECTORPOINT* l3dselectorpoint_new ( int32_t  x, 
+M3DSELECTORPOINT* m3dselectorpoint_new ( int32_t  x, 
                                          int32_t  y,
                                          uint32_t width,
                                          uint32_t height ) {
-    uint32_t structSize = sizeof ( L3DSELECTORPOINT );
+    uint32_t structSize = sizeof ( M3DSELECTORPOINT );
     void *memarea = calloc ( 0x01, structSize );
-    L3DSELECTORPOINT *spt = ( L3DSELECTORPOINT * ) memarea;
+    M3DSELECTORPOINT *spt = ( M3DSELECTORPOINT * ) memarea;
 
     if ( spt == NULL ) {
         fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
@@ -113,7 +113,7 @@ L3DSELECTORPOINT* l3dselectorpoint_new ( int32_t  x,
 }
 
 /******************************************************************************/
-static void l3dselectorline_free ( L3DSELECTORLINE *lin ) {
+static void m3dselectorline_free ( M3DSELECTORLINE *lin ) {
     free ( lin );
 }
 
@@ -239,11 +239,11 @@ static void line_trace ( int32_t          x1,
 #endif
 
 /******************************************************************************/
-L3DSELECTORLINE* l3dselectorline_new ( L3DSELECTORPOINT *srcpt, 
-                                       L3DSELECTORPOINT *dstpt ) {
-    uint32_t structSize = sizeof ( L3DSELECTORLINE );
+M3DSELECTORLINE* m3dselectorline_new ( M3DSELECTORPOINT *srcpt, 
+                                       M3DSELECTORPOINT *dstpt ) {
+    uint32_t structSize = sizeof ( M3DSELECTORLINE );
     void *memarea = calloc ( 0x01, structSize );
-    L3DSELECTORLINE *lin = ( L3DSELECTORLINE * ) memarea;
+    M3DSELECTORLINE *lin = ( M3DSELECTORLINE * ) memarea;
 
     if ( lin == NULL ) {
         fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
@@ -258,15 +258,15 @@ L3DSELECTORLINE* l3dselectorline_new ( L3DSELECTORPOINT *srcpt,
 }
 
 /******************************************************************************/
-void l3dselector_setMode ( L3DSELECTOR        *sel,
-                           L3DSELECTORMODEENUM mode ) {
+void m3dselector_setMode ( M3DSELECTOR        *sel,
+                           M3DSELECTORMODEENUM mode ) {
     sel->mode = mode;
 }
 
 /******************************************************************************/
-L3DSELECTOR* l3dselector_new ( ) {
-    uint32_t structSize = sizeof ( L3DSELECTOR );
-    L3DSELECTOR *sel = ( L3DSELECTOR * ) calloc ( 0x01, structSize );
+M3DSELECTOR* m3dselector_new ( ) {
+    uint32_t structSize = sizeof ( M3DSELECTOR );
+    M3DSELECTOR *sel = ( M3DSELECTOR * ) calloc ( 0x01, structSize );
 
     if ( sel == NULL ) {
         fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
@@ -276,25 +276,25 @@ L3DSELECTOR* l3dselector_new ( ) {
 
     sel->mode = SELECTORMODERANDOM;
 
-    l3dobject_init ( sel,
-                     l3dselector_reset,
-                     l3dselector_press,
-                     l3dselector_move,
-                     l3dselector_release );
+    m3dobject_init ( sel,
+                     m3dselector_reset,
+                     m3dselector_press,
+                     m3dselector_move,
+                     m3dselector_release );
 
     return sel;
 }
 
 /******************************************************************************/
-static void l3dselector_generateMask (  L3DSELECTOR   *sel,
+static void m3dselector_generateMask (  M3DSELECTOR   *sel,
                                         uint32_t       width, 
                                         uint32_t       height,
                                         unsigned char *mask ) {
-    l3dselector_findMinMax ( sel );
+    m3dselector_findMinMax ( sel );
 
     uint32_t selWidth  = abs ( sel->xmax - sel->xmin ) + 0x01,
              selHeight = abs ( sel->ymax - sel->ymin ) + 0x01;
-    L3DSYSINFO *sysinfo = l3dsysinfo_get ( );
+    M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
 
     if ( selWidth && selHeight ) {
         uint32_t maskSize = selWidth * selHeight;
@@ -313,10 +313,10 @@ static void l3dselector_generateMask (  L3DSELECTOR   *sel,
         }
 
         while ( ltmplin ) {
-            L3DSELECTORLINE *pLine = ( ltmplin->prev ) ? 
-                                     ( L3DSELECTORLINE * ) ltmplin->prev->data : 
+            M3DSELECTORLINE *pLine = ( ltmplin->prev ) ? 
+                                     ( M3DSELECTORLINE * ) ltmplin->prev->data : 
                                                            sel->firstLine;
-            L3DSELECTORLINE *cLine = ( L3DSELECTORLINE * ) ltmplin->data;
+            M3DSELECTORLINE *cLine = ( M3DSELECTORLINE * ) ltmplin->data;
             uint32_t sameSide = 0x00;
 
             if ( ( cLine->srcpt->y <= cLine->dstpt->y ) && 
@@ -397,22 +397,22 @@ static void l3dselector_generateMask (  L3DSELECTOR   *sel,
 }
 
 /******************************************************************************/
-static int l3dselector_reset ( L3DSELECTOR *sel,
+static int m3dselector_reset ( M3DSELECTOR *sel,
                                uint64_t     engine_flags ) {
     sel->closed = 0x00;
 
     sel->firstPoint = sel->lastPoint = NULL;
     sel->firstLine  = sel->lastLine  = NULL;
 
-    list_free ( &sel->llines , l3dselectorline_free  );
-    list_free ( &sel->lpoints, l3dselectorpoint_free );
+    list_free ( &sel->llines , m3dselectorline_free  );
+    list_free ( &sel->lpoints, m3dselectorpoint_free );
 
     return 0x00;
 }
 
 /******************************************************************************/
-static int l3dselector_pressSquare ( L3DOBJECT     *obj,
-                                     L3DPATTERN    *pattern,
+static int m3dselector_pressSquare ( M3DOBJECT     *obj,
+                                     M3DPATTERN    *pattern,
                                      uint32_t       fgcolor,
                                      uint32_t       bgcolor,
                                      int32_t        x,
@@ -425,16 +425,16 @@ static int l3dselector_pressSquare ( L3DOBJECT     *obj,
                                      unsigned char *zbuffer,
                                      uint32_t      *updcoord,
                                      uint64_t       engine_flags ) {
-    L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
+    M3DSELECTOR *sel = ( M3DSELECTOR * ) obj;
 
     if ( sel->closed == 0x00 ) {
-        L3DSELECTORPOINT *pt;
-        L3DSELECTORLINE *lin;
+        M3DSELECTORPOINT *pt;
+        M3DSELECTORLINE *lin;
 
-        sel->sqpt[0x00] = l3dselectorpoint_new ( x, y, width, height );
-        sel->sqpt[0x01] = l3dselectorpoint_new ( x, y, width, height );
-        sel->sqpt[0x02] = l3dselectorpoint_new ( x, y, width, height );
-        sel->sqpt[0x03] = l3dselectorpoint_new ( x, y, width, height );
+        sel->sqpt[0x00] = m3dselectorpoint_new ( x, y, width, height );
+        sel->sqpt[0x01] = m3dselectorpoint_new ( x, y, width, height );
+        sel->sqpt[0x02] = m3dselectorpoint_new ( x, y, width, height );
+        sel->sqpt[0x03] = m3dselectorpoint_new ( x, y, width, height );
 
         sel->firstPoint = sel->sqpt[0x00];
         sel->lastPoint  = sel->sqpt[0x03];
@@ -444,13 +444,13 @@ static int l3dselector_pressSquare ( L3DOBJECT     *obj,
         list_insert ( &sel->lpoints, sel->sqpt[0x02] );
         list_insert ( &sel->lpoints, sel->sqpt[0x03] );
 
-        sel->sqlin[0x00] = l3dselectorline_new ( sel->sqpt[0x00], 
+        sel->sqlin[0x00] = m3dselectorline_new ( sel->sqpt[0x00], 
                                                  sel->sqpt[0x01] );
-        sel->sqlin[0x01] = l3dselectorline_new ( sel->sqpt[0x01], 
+        sel->sqlin[0x01] = m3dselectorline_new ( sel->sqpt[0x01], 
                                                  sel->sqpt[0x02] );
-        sel->sqlin[0x02] = l3dselectorline_new ( sel->sqpt[0x02], 
+        sel->sqlin[0x02] = m3dselectorline_new ( sel->sqpt[0x02], 
                                                  sel->sqpt[0x03] );
-        sel->sqlin[0x03] = l3dselectorline_new ( sel->sqpt[0x03], 
+        sel->sqlin[0x03] = m3dselectorline_new ( sel->sqpt[0x03], 
                                                  sel->sqpt[0x00] );
 
         list_insert ( &sel->llines, sel->sqlin[0x00] );
@@ -465,15 +465,15 @@ static int l3dselector_pressSquare ( L3DOBJECT     *obj,
     } else {
         /*** Note: we put this here but normally the reset callback should
              also do the job ***/
-        l3dselector_reset ( sel, engine_flags );
+        m3dselector_reset ( sel, engine_flags );
     }
 
     return 0x00;
 }
 
 /******************************************************************************/
-static int l3dselector_pressRandom ( L3DOBJECT     *obj,
-                                     L3DPATTERN    *pattern,
+static int m3dselector_pressRandom ( M3DOBJECT     *obj,
+                                     M3DPATTERN    *pattern,
                                      uint32_t       fgcolor,
                                      uint32_t       bgcolor,
                                      int32_t        x,
@@ -486,18 +486,18 @@ static int l3dselector_pressRandom ( L3DOBJECT     *obj,
                                      unsigned char *zbuffer,
                                      uint32_t      *updcoord,
                                      uint64_t       engine_flags ) {
-    L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
+    M3DSELECTOR *sel = ( M3DSELECTOR * ) obj;
 
     if ( sel->closed ) {
-        l3dselector_reset ( sel, engine_flags );
+        m3dselector_reset ( sel, engine_flags );
     }
 
     return 0x00;
 }
 
 /******************************************************************************/
-static int l3dselector_moveSquare ( L3DOBJECT     *obj,
-                                    L3DPATTERN    *pattern,
+static int m3dselector_moveSquare ( M3DOBJECT     *obj,
+                                    M3DPATTERN    *pattern,
                                     uint32_t       fgcolor,
                                     uint32_t       bgcolor,
                                     int32_t        x,
@@ -510,9 +510,9 @@ static int l3dselector_moveSquare ( L3DOBJECT     *obj,
                                     unsigned char *zbuffer,
                                     uint32_t      *updcoord,
                                     uint64_t       engine_flags ) {
-    L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
+    M3DSELECTOR *sel = ( M3DSELECTOR * ) obj;
 
-    if ( engine_flags & L3DBUTTON1PRESSED ) {
+    if ( engine_flags & M3DBUTTON1PRESSED ) {
         if ( sel->closed ) {
             float u = ( float ) x / width,
                   v = ( float ) y / height;
@@ -535,8 +535,8 @@ static int l3dselector_moveSquare ( L3DOBJECT     *obj,
 }
 
 /******************************************************************************/
-static int l3dselector_moveRandom ( L3DOBJECT     *obj,
-                                    L3DPATTERN    *pattern,
+static int m3dselector_moveRandom ( M3DOBJECT     *obj,
+                                    M3DPATTERN    *pattern,
                                     uint32_t       fgcolor,
                                     uint32_t       bgcolor,
                                     int32_t        x,
@@ -549,7 +549,7 @@ static int l3dselector_moveRandom ( L3DOBJECT     *obj,
                                     unsigned char *zbuffer,
                                     uint32_t      *updcoord,
                                     uint64_t       engine_flags ) {
-    L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
+    M3DSELECTOR *sel = ( M3DSELECTOR * ) obj;
 
     if ( sel->closed == 0x00 ) {
         if ( sel->lastPoint ) {
@@ -596,12 +596,12 @@ static void gettime ( uint64_t *milliseconds ) {
 #endif
 
 /******************************************************************************/
-static void l3dselector_findMinMax ( L3DSELECTOR *sel ) {
+static void m3dselector_findMinMax ( M3DSELECTOR *sel ) {
     LIST *ltmppt = sel->lpoints;
     uint32_t init = 0x00;
 
     while ( ltmppt ) {
-        L3DSELECTORPOINT *pt = ( L3DSELECTORPOINT * ) ltmppt->data;
+        M3DSELECTORPOINT *pt = ( M3DSELECTORPOINT * ) ltmppt->data;
 
         if ( init == 0x00 ) {
             sel->xmax = sel->xmin = pt->x;
@@ -620,8 +620,8 @@ static void l3dselector_findMinMax ( L3DSELECTOR *sel ) {
 }
 
 /******************************************************************************/
-static int l3dselector_releaseSquare ( L3DOBJECT     *obj,
-                                       L3DPATTERN    *pattern,
+static int m3dselector_releaseSquare ( M3DOBJECT     *obj,
+                                       M3DPATTERN    *pattern,
                                        uint32_t       fgcolor,
                                        uint32_t       bgcolor,
                                        int32_t        x,
@@ -634,7 +634,7 @@ static int l3dselector_releaseSquare ( L3DOBJECT     *obj,
                                        unsigned char *zbuffer,
                                        uint32_t      *updcoord,
                                        uint64_t       engine_flags ) {
-    L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
+    M3DSELECTOR *sel = ( M3DSELECTOR * ) obj;
 
     /* the if statement is need only in case we get a release without a press */
     if ( sel->closed ) {
@@ -642,17 +642,17 @@ static int l3dselector_releaseSquare ( L3DOBJECT     *obj,
              ( sel->sqpt[0x00]->y == sel->sqpt[0x03]->y ) ) {
             memset ( mask, 0xFF, width * height );
 
-            l3dselector_reset ( sel, engine_flags );
+            m3dselector_reset ( sel, engine_flags );
         } else {
-            l3dselector_generateMask ( sel, width, height, mask );
+            m3dselector_generateMask ( sel, width, height, mask );
         }
     }
     return 0;
 }
 
 /******************************************************************************/
-static int l3dselector_releaseRandom ( L3DOBJECT     *obj,
-                                       L3DPATTERN    *pattern,
+static int m3dselector_releaseRandom ( M3DOBJECT     *obj,
+                                       M3DPATTERN    *pattern,
                                        uint32_t       fgcolor,
                                        uint32_t       bgcolor,
                                        int32_t        x,
@@ -665,7 +665,7 @@ static int l3dselector_releaseRandom ( L3DOBJECT     *obj,
                                        unsigned char *zbuffer,
                                        uint32_t      *updcoord,
                                        uint64_t       engine_flags ) {
-    L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
+    M3DSELECTOR *sel = ( M3DSELECTOR * ) obj;
     static uint64_t oldmilliseconds;
     static int32_t oldx, oldy;
     uint32_t doubleClicked = 0x00;
@@ -690,19 +690,19 @@ static int l3dselector_releaseRandom ( L3DOBJECT     *obj,
         }
     } else {
         if ( sel->closed == 0x00 ) {
-            L3DSELECTORPOINT *pt;
-            L3DSELECTORLINE *lin;
+            M3DSELECTORPOINT *pt;
+            M3DSELECTORLINE *lin;
 
             if ( sel->firstPoint == NULL ) {
-                sel->firstPoint = l3dselectorpoint_new ( x, y, width, height );
+                sel->firstPoint = m3dselectorpoint_new ( x, y, width, height );
 
                 list_insert ( &sel->lpoints, sel->firstPoint );
 
-                pt = l3dselectorpoint_new ( x, y, width, height );
+                pt = m3dselectorpoint_new ( x, y, width, height );
 
                 list_insert ( &sel->lpoints, pt );
 
-                sel->firstLine = l3dselectorline_new ( sel->firstPoint, pt );
+                sel->firstLine = m3dselectorline_new ( sel->firstPoint, pt );
                 sel->lastLine  = sel->firstLine;
 
                 list_insert ( &sel->llines, sel->lastLine );
@@ -718,17 +718,17 @@ static int l3dselector_releaseRandom ( L3DOBJECT     *obj,
                        ( distY * distY ) ) < SNAPDISTANCE ) {
                     list_remove ( &sel->lpoints, sel->lastLine->dstpt );
 
-                    l3dselectorpoint_free ( sel->lastLine->dstpt );
+                    m3dselectorpoint_free ( sel->lastLine->dstpt );
 
                     sel->lastLine->dstpt = sel->firstPoint;
 
                     sel->closed = 0x01;
                 } else {
-                    pt = l3dselectorpoint_new ( x, y, width, height );
+                    pt = m3dselectorpoint_new ( x, y, width, height );
 
                     list_insert ( &sel->lpoints, pt );
 
-                    sel->lastLine = l3dselectorline_new ( sel->lastPoint, pt );
+                    sel->lastLine = m3dselectorline_new ( sel->lastPoint, pt );
 
                     list_insert ( &sel->llines, sel->lastLine );
 
@@ -745,9 +745,9 @@ static int l3dselector_releaseRandom ( L3DOBJECT     *obj,
         if ( list_count ( sel->llines ) <= 0x02 ) {
             memset ( mask, 0xFF, width * height );
 
-            l3dselector_reset ( sel, engine_flags );
+            m3dselector_reset ( sel, engine_flags );
         } else {
-            l3dselector_generateMask ( sel, width, height, mask );
+            m3dselector_generateMask ( sel, width, height, mask );
         }
     }
 
@@ -759,8 +759,8 @@ static int l3dselector_releaseRandom ( L3DOBJECT     *obj,
 }
 
 /******************************************************************************/
-static int l3dselector_press ( L3DOBJECT     *obj,
-                               L3DPATTERN    *pattern,
+static int m3dselector_press ( M3DOBJECT     *obj,
+                               M3DPATTERN    *pattern,
                                uint32_t       fgcolor,
                                uint32_t       bgcolor,
                                int32_t        x,
@@ -773,11 +773,11 @@ static int l3dselector_press ( L3DOBJECT     *obj,
                                unsigned char *zbuffer,
                                uint32_t      *updcoord,
                                uint64_t       engine_flags ) {
-    L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
+    M3DSELECTOR *sel = ( M3DSELECTOR * ) obj;
 
     switch ( sel->mode ) {
         case SELECTORMODERANDOM :
-            return l3dselector_pressRandom ( obj,
+            return m3dselector_pressRandom ( obj,
                                              pattern,
                                              fgcolor,
                                              bgcolor,
@@ -794,7 +794,7 @@ static int l3dselector_press ( L3DOBJECT     *obj,
         break;
 
         case SELECTORMODESQUARE :
-            return l3dselector_pressSquare ( obj,
+            return m3dselector_pressSquare ( obj,
                                              pattern,
                                              fgcolor,
                                              bgcolor,
@@ -818,8 +818,8 @@ static int l3dselector_press ( L3DOBJECT     *obj,
 }
 
 /******************************************************************************/
-static int l3dselector_move ( L3DOBJECT     *obj,
-                              L3DPATTERN    *pattern,
+static int m3dselector_move ( M3DOBJECT     *obj,
+                              M3DPATTERN    *pattern,
                               uint32_t       fgcolor,
                               uint32_t       bgcolor,
                               int32_t        x,
@@ -832,11 +832,11 @@ static int l3dselector_move ( L3DOBJECT     *obj,
                               unsigned char *zbuffer,
                               uint32_t      *updcoord,
                               uint64_t       engine_flags ) {
-    L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
+    M3DSELECTOR *sel = ( M3DSELECTOR * ) obj;
 
     switch ( sel->mode ) {
         case SELECTORMODERANDOM :
-            return l3dselector_moveRandom ( obj,
+            return m3dselector_moveRandom ( obj,
                                             pattern,
                                             fgcolor,
                                             bgcolor,
@@ -853,7 +853,7 @@ static int l3dselector_move ( L3DOBJECT     *obj,
         break;
 
         case SELECTORMODESQUARE :
-            return l3dselector_moveSquare ( obj,
+            return m3dselector_moveSquare ( obj,
                                             pattern,
                                             fgcolor,
                                             bgcolor,
@@ -877,8 +877,8 @@ static int l3dselector_move ( L3DOBJECT     *obj,
 }
 
 /******************************************************************************/
-static int l3dselector_release ( L3DOBJECT     *obj,
-                                 L3DPATTERN    *pattern,
+static int m3dselector_release ( M3DOBJECT     *obj,
+                                 M3DPATTERN    *pattern,
                                  uint32_t       fgcolor,
                                  uint32_t       bgcolor,
                                  int32_t        x,
@@ -891,11 +891,11 @@ static int l3dselector_release ( L3DOBJECT     *obj,
                                  unsigned char *zbuffer,
                                  uint32_t      *updcoord,
                                  uint64_t       engine_flags ) {
-    L3DSELECTOR *sel = ( L3DSELECTOR * ) obj;
+    M3DSELECTOR *sel = ( M3DSELECTOR * ) obj;
 
     switch ( sel->mode ) {
         case SELECTORMODERANDOM :
-            return l3dselector_releaseRandom ( obj,
+            return m3dselector_releaseRandom ( obj,
                                                pattern,
                                                fgcolor,
                                                bgcolor,
@@ -912,7 +912,7 @@ static int l3dselector_release ( L3DOBJECT     *obj,
         break;
 
         case SELECTORMODESQUARE :
-            return l3dselector_releaseSquare ( obj,
+            return m3dselector_releaseSquare ( obj,
                                                pattern,
                                                fgcolor,
                                                bgcolor,

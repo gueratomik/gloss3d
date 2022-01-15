@@ -72,14 +72,14 @@ static void removeTag_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-static void removeTag_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+static void removeTag_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMREMOVETAG *urt = ( URMREMOVETAG * ) data;
 
     g3dobject_addTag ( urt->obj, urt->tag );
 }
 
 /******************************************************************************/
-static void removeTag_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+static void removeTag_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMREMOVETAG *urt = ( URMREMOVETAG * ) data;
 
     g3dobject_removeTag ( urt->obj, urt->tag );

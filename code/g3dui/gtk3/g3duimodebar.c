@@ -48,11 +48,11 @@
 #include <xpm/pathmode.xpm>
 
 /******************************************************************************/
-void l3dui_setUVMode ( GtkWidget *widget, gpointer user_data ) {
+void m3dui_setUVMode ( GtkWidget *widget, gpointer user_data ) {
     const char *modename = gtk_widget_get_name ( widget );
-    L3DUI *lui = ( L3DUI * ) user_data;
+    M3DUI *lui = ( M3DUI * ) user_data;
 
-    common_l3dui_setMode ( lui, modename );
+    common_m3dui_setMode ( lui, modename );
 
     /*g3dui_redrawGLViews ( gui );*/
 }
@@ -179,8 +179,8 @@ GtkWidget *createUVMapEditorModeBar ( GtkWidget *parent,
 
     gtk_orientable_set_orientation ( GTK_ORIENTABLE(bar), GTK_ORIENTATION_VERTICAL );
 
-    grp = addModeBarButton ( bar, grp , &guv->lui, MODE_VIEWVERTEX, vertexmode_xpm, l3dui_setUVMode );
-          addModeBarButton ( bar, grp , &guv->lui, MODE_VIEWFACE  , facemode_xpm  , l3dui_setUVMode );
+    grp = addModeBarButton ( bar, grp , &guv->mui, MODE_VIEWVERTEX, vertexmode_xpm, m3dui_setUVMode );
+          addModeBarButton ( bar, grp , &guv->mui, MODE_VIEWFACE  , facemode_xpm  , m3dui_setUVMode );
 
     gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(bar), 0 );
 

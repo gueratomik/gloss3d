@@ -66,9 +66,9 @@ void removeUVMap_free ( void *data, uint32_t commit ) {
     URMREMOVEUVMAP *uru = ( URMREMOVEUVMAP * ) data;
 
     if ( commit ) {
-        g3duvmap_free ( uru->uvmap );
+        g3duvmap_free ( ( G3DOBJECT * ) uru->uvmap );
 
-        list_free ( &uru->lolduvset, g3duvset_free );
+        list_free ( &uru->lolduvset, LIST_FUNCDATA(g3duvset_free) );
     } else {
         list_free ( &uru->lolduvset, NULL );
     }
@@ -77,7 +77,7 @@ void removeUVMap_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void removeUVMap_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+void removeUVMap_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMREMOVEUVMAP *uru = ( URMREMOVEUVMAP * ) data;
     LIST *ltmpolduvset = uru->lolduvset;
     LIST *ltmpoldtex = uru->loldtex;
@@ -102,7 +102,7 @@ void removeUVMap_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
         ltmpoldtex = ltmpoldtex->next;
     }
 
-    g3dmesh_addUVMap ( uru->mes, uru->uvmap, NULL, flags );
+    g3dmesh_addUVMap ( uru->mes, uru->uvmap, NULL, engine_flags );
 
     /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
     /* Commented out: this is called in g3dmesh_removeUVMap */
@@ -114,14 +114,14 @@ void removeUVMap_undo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
 }
 
 /******************************************************************************/
-void removeUVMap_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
+void removeUVMap_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMREMOVEUVMAP *uru = ( URMREMOVEUVMAP * ) data;
 
     g3dmesh_removeUVMap ( uru->mes, 
                           uru->uvmap, 
                           NULL, /*** no need to backp uvsets this time **/
                           NULL, /** no need to backup textures this time **/
-                          flags );
+                          engine_flags );
 
     /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
     /* Commented out: this is called in g3dmesh_removeUVMap */
@@ -136,7 +136,7 @@ void removeUVMap_redo ( G3DURMANAGER *urm, void *data, uint32_t flags ) {
 void g3durm_mesh_removeUVMap ( G3DURMANAGER *urm,
                                G3DMESH      *mes,
                                G3DUVMAP     *uvmap, 
-                               uint64_t engine_flags,
+                               uint64_t      engine_flags,
                                uint32_t      return_flags ) {
     LIST *lolduvset = NULL;
     LIST *loldtex = NULL;
