@@ -93,7 +93,6 @@ void unTriangulate_undo ( G3DURMANAGER *urm,
 
     list_execargdata ( ums->lnewfac, (void(*)(void*,void*)) g3dmesh_removeFace     , ums->mes );
 
-    list_execargdata ( ums->loldedg, (void(*)(void*,void*)) g3dmesh_addEdge        , ums->mes );
     list_execargdata ( ums->loldfac, (void(*)(void*,void*)) g3dmesh_addSelectedFace, ums->mes );
 
     g3dmesh_faceNormal   ( mes );
@@ -122,7 +121,6 @@ void unTriangulate_redo ( G3DURMANAGER *urm,
 
     list_execargdata ( ums->loldfac, (void(*)(void*,void*)) g3dmesh_removeFace     , ums->mes );
 
-    list_execargdata ( ums->lnewedg, (void(*)(void*,void*)) g3dmesh_addEdge        , ums->mes );
     list_execargdata ( ums->lnewfac, (void(*)(void*,void*)) g3dmesh_addSelectedFace, ums->mes );
 
     g3dmesh_faceNormal   ( mes );

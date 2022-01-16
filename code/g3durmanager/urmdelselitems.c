@@ -123,7 +123,6 @@ static void deleteSelectedItems_undo ( G3DURMANAGER *urm,
             LIST *ltmpver = dsi->loldselver;
             LIST *ltmpfac = dsi->loldselfac;
             LIST *ltmpedg = dsi->loldseledg;
-            LIST *ltmporphedg = dsi->lorphanedEdges;
 
             while ( ltmpver ) {
                 G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -131,14 +130,6 @@ static void deleteSelectedItems_undo ( G3DURMANAGER *urm,
                 g3dmesh_addVertex ( mes, ver );
 
                 ltmpver = ltmpver->next;
-            }
-
-            while ( ltmporphedg ) {
-                G3DEDGE *edg = ( G3DEDGE * ) ltmporphedg->data;
-
-                g3dmesh_addEdge ( mes, edg );
-
-                ltmporphedg = ltmporphedg->next;
             }
 
             while ( ltmpfac ) {

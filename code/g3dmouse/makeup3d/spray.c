@@ -220,7 +220,7 @@ int basepen_tool ( G3DMOUSETOOL *mou,
     int32_t updcoord[0x04];
     static double oldx, oldy;
     static G3DIMAGE *bckimg; /** image for undo redo ***/
-    static uint32_t x1, y1, x2, y2;
+    static  int32_t x1, y1, x2, y2;
 
     if ( myGLActiveTexture == NULL ) {
 #ifdef __MINGW32__

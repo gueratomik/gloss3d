@@ -91,7 +91,6 @@ void splitMesh_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     list_execargdata ( sms->loldver, LIST_FUNCARGDATA(g3dmesh_addVertex), mes );
 
     /*** restore deleted faces ***/
-    list_execargdata ( sms->loldedg, LIST_FUNCARGDATA(g3dmesh_addEdge), mes );
     list_execargdata ( sms->loldfac, LIST_FUNCARGDATA(g3dmesh_addFace), mes );
 
     /*** delete created mesh ***/

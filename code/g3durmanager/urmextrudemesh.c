@@ -108,7 +108,6 @@ static void extrudeMesh_undo ( G3DURMANAGER *urm,
     list_execargdata ( ems->lnewfac, (void(*)(void*,void*)) g3dmesh_removeFace  , mes );
     list_execargdata ( ems->lnewver, (void(*)(void*,void*)) g3dmesh_removeVertex, mes );
 
-    list_execargdata ( ems->loldedg, (void(*)(void*,void*)) g3dmesh_addEdge, mes );
     list_execargdata ( ems->loldfac, (void(*)(void*,void*)) g3dmesh_addFace, mes );
 
     /*** reset vertex position ***/
@@ -136,7 +135,7 @@ static void extrudeMesh_redo ( G3DURMANAGER *urm,
     list_execargdata ( ems->loldfac, (void(*)(void*,void*)) g3dmesh_removeFace, mes );
 
     list_execargdata ( ems->lnewver, (void(*)(void*,void*)) g3dmesh_addVertex, mes );
-    list_execargdata ( ems->lnewedg, (void(*)(void*,void*)) g3dmesh_addEdge  , mes );
+
     list_execargdata ( ems->lnewfac, (void(*)(void*,void*)) g3dmesh_addFace  , mes );
 
     /*** reset vertex position ***/

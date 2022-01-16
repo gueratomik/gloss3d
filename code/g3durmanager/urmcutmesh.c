@@ -100,7 +100,6 @@ static void cutMesh_undo ( G3DURMANAGER *urm,
     list_execargdata ( cms->lnewfac, (void(*)(void*,void*)) g3dmesh_removeFace  , cms->mes );
     list_execargdata ( cms->lnewver, (void(*)(void*,void*)) g3dmesh_removeVertex, cms->mes );
 
-    list_execargdata ( cms->loldedg, (void(*)(void*,void*)) g3dmesh_addEdge, cms->mes );
     list_execargdata ( cms->loldfac, (void(*)(void*,void*)) g3dmesh_addFace, cms->mes );
 
     /*** Rebuild the cut mesh ***/
@@ -128,7 +127,6 @@ static void cutMesh_redo ( G3DURMANAGER *urm,
     list_execargdata ( cms->loldfac, (void(*)(void*,void*)) g3dmesh_removeFace, cms->mes );
 
     list_execargdata ( cms->lnewver, (void(*)(void*,void*)) g3dmesh_addVertex, cms->mes );
-    list_execargdata ( cms->lnewedg, (void(*)(void*,void*)) g3dmesh_addEdge  , cms->mes );
     list_execargdata ( cms->lnewfac, (void(*)(void*,void*)) g3dmesh_addFace  , cms->mes );
 
     /*** Rebuild the cut mesh ***/

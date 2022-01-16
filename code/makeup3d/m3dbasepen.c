@@ -41,7 +41,7 @@ static int m3dbasepen_press ( M3DOBJECT     *obj,
                               uint32_t       bpp,
                               unsigned char *mask,
                               unsigned char *zbuffer,
-                              uint32_t      *updcoord,
+                              int32_t       *updcoord,
                               uint64_t       engine_flags );
 static int m3dbasepen_move ( M3DOBJECT     *obj,
                              M3DPATTERN    *pattern,
@@ -55,7 +55,7 @@ static int m3dbasepen_move ( M3DOBJECT     *obj,
                              uint32_t       bpp,
                              unsigned char *mask,
                              unsigned char *zbuffer,
-                             uint32_t      *updcoord,
+                             int32_t       *updcoord,
                              uint64_t       engine_flags );
 static int m3dbasepen_release ( M3DOBJECT     *obj,
                                 M3DPATTERN    *pattern,
@@ -69,7 +69,7 @@ static int m3dbasepen_release ( M3DOBJECT     *obj,
                                 uint32_t       bpp,
                                 unsigned char *mask,
                                 unsigned char *zbuffer,
-                                uint32_t      *updcoord,
+                                int32_t       *updcoord,
                                 uint64_t       engine_flags );
 
 /******************************************************************************/
@@ -107,7 +107,7 @@ static int m3dbasepen_press ( M3DOBJECT     *obj,
                               uint32_t       bpp,
                               unsigned char *mask,
                               unsigned char *zbuffer,
-                              uint32_t      *updcoord,
+                              int32_t       *updcoord,
                               uint64_t       engine_flags ) {
     M3DBASEPEN *basepen = ( M3DBASEPEN * ) obj;
 
@@ -158,7 +158,7 @@ static int m3dbasepen_move ( M3DOBJECT     *obj,
                              uint32_t       bpp,
                              unsigned char *mask,
                              unsigned char *zbuffer,
-                             uint32_t      *updcoord,
+                             int32_t       *updcoord,
                              uint64_t       engine_flags ) {
     if ( engine_flags & M3DBUTTON1PRESSED ) {
         /*y = 100;*/
@@ -214,7 +214,7 @@ static int m3dbasepen_release ( M3DOBJECT     *obj,
                                 uint32_t       bpp,
                                 unsigned char *mask,
                                 unsigned char *zbuffer,
-                                uint32_t      *updcoord,
+                                int32_t       *updcoord,
                                 uint64_t       engine_flags ) {
     M3DBASEPEN *basepen = ( M3DBASEPEN * ) obj;
 

@@ -1854,8 +1854,6 @@ void g3dmesh_attachFaceEdges ( G3DMESH *mes, G3DFACE *fac ) {
                 if ( ( edg->ver[0x00] == fac->ver[n] ) ||
                      ( edg->ver[0x01] == fac->ver[n] ) ) {
                     fac->edg[i] = edg;
-
-                    g3dedge_addFace ( edg, fac );
                 }
 
                 ltmpedg = ltmpedg->next;
@@ -1864,28 +1862,14 @@ void g3dmesh_attachFaceEdges ( G3DMESH *mes, G3DFACE *fac ) {
             /*** if the above search has failed, create the edge ***/
             if ( fac->edg[i] == NULL ) {
                 fac->edg[i] = g3dedge_new ( fac->ver[i], fac->ver[n] );
-
-                g3dmesh_addEdge ( mes, fac->edg[i] );
-
-                g3dedge_addFace ( fac->edg[i], fac );
             }
-
-
-        } else {
-            /*** I used to compare fac->edg[i]->lfac, but this is faulty ***/
-            /*** Indeed, sometimes we want to call g3dmesh_addEdge()     ***/
-            /*** independently, and in that case, edg->lfac will be NULL ***/
-            /*** even if the edge already belongs to the mesh. The only  ***/
-            /*** way to get sure the edge was added to the mesh, is to   ***/
-            /*** check the topology related to the vertices, because     ***/ 
-            /***  g3dmesh_addEdge() is reponsible for it.                ***/
-
-            if ( fac->edg[i]->ver[0x00]->ledg == NULL ) {
-                g3dmesh_addEdge ( mes, fac->edg[i] );
-            }
-
-            g3dedge_addFace ( fac->edg[i], fac );
         }
+
+        if ( fac->edg[i]->lfac == NULL ) {
+            g3dmesh_addEdge ( mes, fac->edg[i] );
+        }
+
+        g3dedge_addFace ( fac->edg[i], fac );
     }
 }
 
@@ -1939,8 +1923,6 @@ void g3dmesh_clone ( G3DMESH   *mes,
         G3DEDGE *oriedg = ( G3DEDGE * ) _GETEDGE(mes,ltmpedg);
         G3DEDGE *cpyedg = g3dedge_new ( vertab[oriedg->ver[0x00]->id],
                                         vertab[oriedg->ver[0x01]->id] );
-
-        g3dmesh_addEdge ( cpymes, cpyedg );
 
         edgtab[edgid] = cpyedg;
 
@@ -3787,45 +3769,6 @@ void g3dmesh_addFace ( G3DMESH *mes,
 
         fac->typeID = mes->nbqua++;
     }
-
-    g3dmesh_attachFaceVertices  ( mes, fac );
-
-    /*** Create Edges if required ***/
-    g3dmesh_attachFaceEdges  ( mes, fac );
-
-    /*** Create UVSets if required ***/
-    g3dmesh_assignFaceUVSets ( mes, fac );
-}
-
-/******************************************************************************/
-void g3dmesh_addFaceWithEdges ( G3DMESH *mes, 
-                                G3DFACE *fac,
-                                G3DEDGE *edg0,
-                                G3DEDGE *edg1,
-                                G3DEDGE *edg2,
-                                G3DEDGE *edg3 ) {
-    uint32_t i;
-
-    list_insert ( &mes->lfac, fac );
-
-    fac->id = mes->nbfac++;
-
-    if ( fac->nbver == 0x03 ) {
-        list_insert ( &mes->ltri, fac );
-
-        fac->typeID = mes->nbtri++;
-    }
-
-    if ( fac->nbver == 0x04 ) {
-        list_insert ( &mes->lqua, fac );
-
-        fac->typeID = mes->nbqua++;
-    }
-
-    fac->edg[0x00] = edg0;
-    fac->edg[0x01] = edg1;
-    fac->edg[0x02] = edg2;
-    fac->edg[0x03] = ( fac->nbver == 0x04 ) ? edg3 : NULL;
 
     g3dmesh_attachFaceVertices  ( mes, fac );
 

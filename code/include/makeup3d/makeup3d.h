@@ -88,7 +88,7 @@ typedef struct _M3DOBJECT {
                      uint32_t           bpp,
                      unsigned char     *mask,
                      unsigned char     *zbuffer,
-                     uint32_t          *updcoord,
+                      int32_t          *updcoord,
                      uint64_t engine_flags );
     int (*move)    ( struct _M3DOBJECT *obj,
                      M3DPATTERN        *pattern,
@@ -102,7 +102,7 @@ typedef struct _M3DOBJECT {
                      uint32_t           bpp,
                      unsigned char     *mask,
                      unsigned char     *zbuffer,
-                     uint32_t          *updcoord,
+                      int32_t          *updcoord,
                      uint64_t engine_flags );
     int (*release) ( struct _M3DOBJECT *obj,
                      M3DPATTERN        *pattern,
@@ -116,7 +116,7 @@ typedef struct _M3DOBJECT {
                      uint32_t           bpp,
                      unsigned char     *mask,
                      unsigned char     *zbuffer,
-                     uint32_t          *updcoord,
+                      int32_t          *updcoord,
                      uint64_t engine_flags );
 } M3DOBJECT;
 
@@ -312,7 +312,7 @@ void m3dobject_init ( M3DOBJECT  *obj,
                                       uint32_t       bpp,
                                       unsigned char *mask,
                                       unsigned char *zbuffer,
-                                      uint32_t      *updcoord,
+                                       int32_t      *updcoord,
                                       uint64_t       engine_flags ),
                       int (*move)   ( M3DOBJECT     *obj,
                                       M3DPATTERN    *pattern,
@@ -326,7 +326,7 @@ void m3dobject_init ( M3DOBJECT  *obj,
                                       uint32_t       bpp,
                                       unsigned char *mask,
                                       unsigned char *zbuffer,
-                                      uint32_t      *updcoord,
+                                       int32_t      *updcoord,
                                       uint64_t       engine_flags ),
                      int (*release) ( M3DOBJECT     *obj,
                                       M3DPATTERN    *pattern,
@@ -340,7 +340,7 @@ void m3dobject_init ( M3DOBJECT  *obj,
                                       uint32_t       bpp,
                                       unsigned char *mask,
                                       unsigned char *zbuffer,
-                                      uint32_t      *updcoord,
+                                       int32_t      *updcoord,
                                       uint64_t       engine_flags ) );
 
 /******************************************************************************/

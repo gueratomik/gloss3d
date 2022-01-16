@@ -438,11 +438,6 @@ G3DEDGE *g3dedge_new ( G3DVERTEX *v0,
     edg->ver[0x00] = v0;
     edg->ver[0x01] = v1;
 
-    /*** add this edge to the vertex list of edges ***/
-    g3dvertex_addEdge ( v0, edg );
-    g3dvertex_addEdge ( v1, edg );
-
-
     return edg;
 }
 

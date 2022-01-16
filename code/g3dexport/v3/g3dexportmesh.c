@@ -249,9 +249,9 @@ static uint32_t g3dexportv3mesh_geometryPolygonsWithEdges ( G3DEXPORTV3DATA *ged
 
 /******************************************************************************/
 static uint32_t g3dexportv3mesh_geometryPolygons ( G3DEXPORTV3DATA *ged, 
-                                                 G3DMESH       *mes, 
-                                                 uint32_t       flags, 
-                                                 FILE          *fdst ) {
+                                                   G3DMESH       *mes, 
+                                                   uint32_t       flags, 
+                                                   FILE          *fdst ) {
     LIST *ltmpfac = mes->lfac;
     uint32_t size = 0x00;
     uint32_t fid = 0x00;
@@ -348,18 +348,9 @@ static uint32_t g3dexportv3mesh_geometry ( G3DEXPORTV3DATA *ged,
                                          fdst );
     }
 
-    if ( mes->ledg ) {
-        size += g3dexportv3_writeChunk ( SIG_OBJECT_MESH_GEOMETRY_EDGES,
-                       EXPORTV3_CALLBACK(g3dexportv3mesh_geometryEdges),
-                                         ged,
-                                         mes,
-                                         0xFFFFFFFF,
-                                         fdst );
-    }
-
     if ( mes->lfac ) {
-        size += g3dexportv3_writeChunk ( SIG_OBJECT_MESH_GEOMETRY_POLYGONS_WITH_EDGES,
-                       EXPORTV3_CALLBACK(g3dexportv3mesh_geometryPolygonsWithEdges),
+        size += g3dexportv3_writeChunk ( SIG_OBJECT_MESH_GEOMETRY_POLYGONS,
+                       EXPORTV3_CALLBACK(g3dexportv3mesh_geometryPolygons),
                                          ged,
                                          mes,
                                          0xFFFFFFFF,
