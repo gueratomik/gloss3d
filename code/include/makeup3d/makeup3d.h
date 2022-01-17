@@ -50,7 +50,7 @@
 
 /******************************************************************************/
 typedef struct _M3DPATTERN {
-    int (*generate)( struct _M3DPATTERN *pattern );
+    void (*generate)( struct _M3DPATTERN *pattern );
     uint32_t size;
     unsigned char *buffer;
 } M3DPATTERN;
@@ -71,6 +71,54 @@ M3DSYSINFO *m3dsysinfo_get ( );
 void m3dsysinfo_setPattern ( M3DSYSINFO *sysinfo, M3DPATTERN *pattern );
 void m3dsysinfo_setForegroundColor ( M3DSYSINFO *sysinfo, uint32_t fgcolor );
 void m3dsysinfo_setBackgroundColor ( M3DSYSINFO *sysinfo, uint32_t bgcolor );
+
+#define M3DPRESS_CALLBACK(f)   ((int(*)(M3DOBJECT *, \
+                                        M3DPATTERN *, \
+                                        uint32_t, \
+                                        uint32_t, \
+                                        int32_t, \
+                                        int32_t, \
+                                        unsigned char *, \
+                                        uint32_t ,  \
+                                        uint32_t , \
+                                        uint32_t , \
+                                        unsigned char *, \
+                                        unsigned char *, \
+                                        int32_t *, \
+                                        uint64_t ))f)
+
+#define M3DMOVE_CALLBACK(f)    ((int(*)(M3DOBJECT *, \
+                                        M3DPATTERN *, \
+                                        uint32_t, \
+                                        uint32_t, \
+                                        int32_t, \
+                                        int32_t, \
+                                        unsigned char *, \
+                                        uint32_t ,  \
+                                        uint32_t , \
+                                        uint32_t , \
+                                        unsigned char *, \
+                                        unsigned char *, \
+                                        int32_t *, \
+                                        uint64_t ))f)
+
+#define M3DRELEASE_CALLBACK(f) ((int(*)(M3DOBJECT *, \
+                                        M3DPATTERN *, \
+                                        uint32_t, \
+                                        uint32_t, \
+                                        int32_t, \
+                                        int32_t, \
+                                        unsigned char *, \
+                                        uint32_t ,  \
+                                        uint32_t , \
+                                        uint32_t , \
+                                        unsigned char *, \
+                                        unsigned char *, \
+                                        int32_t *, \
+                                        uint64_t ))f)
+
+#define M3DRESET_CALLBACK(f)   ((int(*)(M3DOBJECT *, \
+                                        uint64_t ))f)
 
 /******************************************************************************/
 typedef struct _M3DOBJECT {

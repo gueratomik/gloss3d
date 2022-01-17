@@ -102,7 +102,7 @@ int m3dpattern_paint ( M3DPATTERN    *pattern,
                                     break;
 
                                     case 0x18 : {
-                                        unsigned char (*b24)[0x03] = buffer;
+                                        unsigned char (*b24)[0x03] = ( unsigned char (*)[0x03] ) buffer;
                                         unsigned char BR = b24[boffset][0x00],
                                                       BG = b24[boffset][0x01],
                                                       BB = b24[boffset][0x02];
@@ -180,7 +180,7 @@ void m3dpattern_generateBrush ( M3DPATTERN *pattern ) {
 
             switch ( bp->brush->bytes_per_pixel ) {
                 case 0x03 : {
-                    unsigned char (*bdata)[0x03] = bp->brush->pixel_data;
+                    unsigned char (*bdata)[0x03] = ( unsigned char (*)[0x03] ) bp->brush->pixel_data;
 
                     pattern->buffer[poffset] = ( bdata[boffset][0x00] + 
                                                  bdata[boffset][0x01] + 

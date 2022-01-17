@@ -62,6 +62,10 @@ typedef struct _G3DCURVEPOINT {
   G3DCUBICHANDLE,
   G3DQUADRATICHANDLE;
 
+#define GETPOINT_CALLBACK(f) ((void(*)(G3DCURVESEGMENT *,\
+                                       float, \
+                                       G3DVECTOR * ))f)
+
 /******************************************************************************/
 typedef struct _G3DCURVESEGMENT {
     uint32_t id;

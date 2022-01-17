@@ -562,7 +562,7 @@ G3DCUBICSEGMENT *g3dcubicsegment_new ( G3DCURVEPOINT *pt0,
     uint32_t size = sizeof ( G3DCUBICSEGMENT );
     G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) calloc ( 0x01, size );
 
-    csg->seg.getPoint = g3dcubicsegment_getPoint;
+    csg->seg.getPoint = GETPOINT_CALLBACK(g3dcubicsegment_getPoint);
 
     csg->seg.pt[P0IDX] = pt0;
     csg->seg.pt[P1IDX] = pt1;
@@ -625,7 +625,7 @@ void g3dquadraticsegment_init ( G3DQUADRATICSEGMENT *qsg,
                                 float                hx, 
                                 float                hy,
                                 float                hz ) {
-    qsg->seg.getPoint = g3dquadraticsegment_getPoint;
+    qsg->seg.getPoint = GETPOINT_CALLBACK(g3dquadraticsegment_getPoint);
 
     qsg->seg.pt[P0IDX] = pt0;
     qsg->seg.pt[P1IDX] = pt1;
@@ -702,7 +702,7 @@ G3DCURVE *g3dcurve_copy ( G3DCURVE *curve, uint64_t engine_flags ) {
 
 
 
-            g3dcurve_addSegment ( newSpline, newSeg );
+            g3dcurve_addSegment ( newSpline, ( G3DCURVESEGMENT * ) newSeg );
 
             ltmpseg = ltmpseg->next;
         }
@@ -794,7 +794,7 @@ void g3dcurve_pickPoints ( G3DCURVE *curve, uint64_t engine_flags ) {
     while ( ltmppt ) {
         G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
 
-        g3dpick_setName ( pt );
+        g3dpick_setName ( ( uint64_t ) pt );
         g3dpick_drawPoint ( pt->pos.x, pt->pos.y, pt->pos.z );
 
         ltmppt = ltmppt->next;
@@ -832,7 +832,7 @@ void g3dcurve_pickSegments ( G3DCURVE *curve, uint64_t engine_flags ) {
         if ( curve->type == CUBIC ) {
             G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) seg;
 
-            g3dpick_setName ( csg );
+            g3dpick_setName ( ( uint64_t ) csg );
             g3dcurvesegment_pick ( seg,
                                    0.0f, 
                                    1.0f,
@@ -943,8 +943,8 @@ void g3dcurve_draw ( G3DCURVE *curve, uint64_t engine_flags ) {
 void g3dcurve_free ( G3DOBJECT *obj ) {
     G3DCURVE *curve = ( G3DCURVE * ) obj;
 
-    list_free ( &curve->lseg, g3dcubicsegment_free );
-    list_free ( &curve->lpt, g3dcurvepoint_free );
+    list_free ( &curve->lseg, LIST_FUNCDATA(g3dcubicsegment_free) );
+    list_free ( &curve->lpt, LIST_FUNCDATA(g3dcurvepoint_free) );
 }
 
 /******************************************************************************/
@@ -995,7 +995,8 @@ void g3dcurve_insertPointWithinSegment ( G3DCURVE        *curve,
 
     switch ( curve->type ) {
         case CUBIC : {
-            newSeg[0x00] = g3dcubicsegment_new ( seg->pt[P0IDX],
+            newSeg[0x00] = ( G3DCURVESEGMENT * ) 
+                           g3dcubicsegment_new ( seg->pt[P0IDX],
                                                  pt,
                                                  seg->pt[P0HANDLEIDX]->pos.x,
                                                  seg->pt[P0HANDLEIDX]->pos.y,
@@ -1004,7 +1005,8 @@ void g3dcurve_insertPointWithinSegment ( G3DCURVE        *curve,
                                                  0.0f,
                                                  0.0f );
 
-            newSeg[0x01] = g3dcubicsegment_new ( pt,
+            newSeg[0x01] = ( G3DCURVESEGMENT * ) 
+                           g3dcubicsegment_new ( pt,
                                                  seg->pt[P1IDX],
                                                  0.0f,
                                                  0.0f,
@@ -1110,8 +1112,8 @@ void g3dcurve_addSegment ( G3DCURVE        *curve,
     if ( curve->type == CUBIC ) {
         G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) seg;
 
-        g3dcurvepoint_addSegment ( csg->seg.pt[P0IDX], csg );
-        g3dcurvepoint_addSegment ( csg->seg.pt[P1IDX], csg );
+        g3dcurvepoint_addSegment ( csg->seg.pt[P0IDX], ( G3DCURVESEGMENT * ) csg );
+        g3dcurvepoint_addSegment ( csg->seg.pt[P1IDX], ( G3DCURVESEGMENT * ) csg );
     }
 
     curve->nbseg++;
@@ -1125,8 +1127,8 @@ void g3dcurve_removeSegment ( G3DCURVE        *curve,
     if ( curve->type == CUBIC ) {
         G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) seg;
 
-        g3dcurvepoint_removeSegment ( csg->seg.pt[P0IDX], csg );
-        g3dcurvepoint_removeSegment ( csg->seg.pt[P1IDX], csg );
+        g3dcurvepoint_removeSegment ( csg->seg.pt[P0IDX], ( G3DCURVESEGMENT * ) csg );
+        g3dcurvepoint_removeSegment ( csg->seg.pt[P1IDX], ( G3DCURVESEGMENT * ) csg );
     }
 
     curve->nbseg--;

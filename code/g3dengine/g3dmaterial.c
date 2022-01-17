@@ -35,7 +35,7 @@ LIST *g3dmaterial_getObjects ( G3DMATERIAL *mat, G3DSCENE *sce ) {
     LIST *lis = NULL;
     LIST *ltmpobj;
 
-    g3dobject_treeToList_r ( sce, &lobj );
+    g3dobject_treeToList_r ( ( G3DOBJECT * ) sce, &lobj );
 
     ltmpobj = lobj;
 

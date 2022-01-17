@@ -306,7 +306,7 @@ uint32_t g3dlight_draw ( G3DLIGHT  *lig,
     if ( engine_flags & NOLIGHTING ) {
         glDisable ( lig->lid );
     } else {
-        if ( g3dobject_isActive ( lig ) ) {
+        if ( g3dobject_isActive ( ( G3DOBJECT * ) lig ) ) {
             glEnable ( lig->lid );
 
             ret = DRAW_LIGHTON;
@@ -416,7 +416,7 @@ static void g3dlight_anim ( G3DLIGHT *lig,
            *nextKey = NULL,
            *currKey = NULL;
 
-    if ( g3dobject_isActive ( lig ) == 0x00 ) return;
+    if ( g3dobject_isActive ( ( G3DOBJECT * ) lig ) == 0x00 ) return;
 
     frame = g3dobject_getKeys ( obj, 
                                 frame, 

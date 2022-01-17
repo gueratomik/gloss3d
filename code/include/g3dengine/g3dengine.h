@@ -539,8 +539,8 @@ if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
 #define _NEXTFACE(mes,ltmpfac) \
 if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
     G3DSUBFACE *subfac = ( G3DSUBFACE * ) ltmpfac; \
-    ltmpfac = ++subfac; \
-    if ( ltmpfac == ( ( G3DSUBFACE * ) mes->lfac + mes->nbfac ) ) { \
+    ltmpfac = (LIST*)((G3DSUBFACE*)++subfac); \
+    if ( ltmpfac == ( LIST * ) ( ( G3DSUBFACE * ) mes->lfac + mes->nbfac ) ) { \
         ltmpfac = NULL; \
     } \
 } else { \
@@ -750,6 +750,15 @@ typedef struct _G3DRIG    G3DRIG;
 typedef struct _G3DTAG    G3DTAG;
 typedef struct _G3DSCENE  G3DSCENE;
 
+#define GEOMETRYMOVE_CALLBACK(f) ((void(*)(G3DMESH *, \
+                                           LIST *,\
+                                           LIST *,\
+                                           LIST *,\
+                                           G3DMODIFYOP,\
+                                           uint64_t ))f)
+
+#define TRANSFORM_CALLBACK(f) ((void(*)(G3DOBJECT *, \
+                                 uint64_t))f)
 #define COPY_CALLBACK(f)       ((G3DOBJECT*(*)(G3DOBJECT*,uint32_t,const char*,uint64_t))f)
 #define ACTIVATE_CALLBACK(f)   ((void(*)      (G3DOBJECT*,uint64_t))f)
 #define DEACTIVATE_CALLBACK(f) ((void(*)      (G3DOBJECT*,uint64_t))f)
@@ -760,6 +769,7 @@ typedef struct _G3DSCENE  G3DSCENE;
 #define FREE_CALLBACK(f)       ((void(*)      (G3DOBJECT*))f)
 #define PICK_CALLBACK(f)       ((uint32_t(*)  (G3DOBJECT*,G3DCAMERA*,uint64_t))f)
 #define ANIM_CALLBACK(f)       ((void(*)      (G3DOBJECT*,float,uint64_t))f)
+#define POSE_CALLBACK(f) ((void(*) (G3DOBJECT*,G3DKEY*))f)
 
 /******************************************************************************/
 typedef struct _G3DOBJECT {
@@ -1155,7 +1165,7 @@ typedef enum  {
                                                              G3DVECTOR *, \
                                                              void * ),  \
                                                   void *,               \
-                                                  uint32_t))f)
+                                                  uint64_t))f)
 
 struct _G3DMESH {
     G3DOBJECT obj; /*** Mesh inherits G3DOBJECT ***/
@@ -1254,13 +1264,14 @@ struct _G3DKEY {
     } data;
 };
 
-#define POSE_CALLBACK(f) ((void(*) (G3DOBJECT**,G3DKEY*))f)
-
 /******************************************************************************/
 
 
 #define MODIFY_CALLBACK(f)       ((uint32_t(*) (G3DMODIFIER*, \
                                                 G3DMODIFYOP,  \
+                                                uint64_t))f)
+#define MODDRAW_CALLBACK(f)      ((uint32_t(*) (G3DMODIFIER*, \
+                                                G3DCAMERA*,  \
                                                 uint64_t))f)
 
 /******************************************************************************/
@@ -1273,8 +1284,8 @@ typedef struct _G3DMODIFIER {
                                      G3DCAMERA   *curcam,
                                      uint64_t     engine_flags );
     G3DOBJECT *oriobj; /*** original mesh   ***/
-    G3DOBJECT *stkpos; /*** stack positions ***/
-    G3DOBJECT *stknor; /*** stack normals   ***/
+    G3DVECTOR *stkpos; /*** stack positions ***/
+    G3DVECTOR *stknor; /*** stack normals   ***/
     G3DVECTOR *verpos;
     G3DVECTOR *vernor;
 } G3DMODIFIER;
@@ -3157,7 +3168,7 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
                         uint32_t   (*Draw)        ( G3DOBJECT *, G3DCAMERA *, 
                                                                  uint64_t ),
                         void       (*Free)        ( G3DOBJECT * ),
-                        void       (*Pick)        ( G3DOBJECT *, G3DCAMERA *, 
+                        uint32_t   (*Pick)        ( G3DOBJECT *, G3DCAMERA *, 
                                                                  uint64_t ),
                         void       (*Pose)        ( G3DOBJECT *, G3DKEY * ),
                         G3DOBJECT* (*Copy)        ( G3DOBJECT *, uint32_t,
@@ -3171,10 +3182,12 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
                         void       (*AddChild)    ( G3DOBJECT *, G3DOBJECT *,
                                                                  uint64_t ),
                         void       (*SetParent)   ( G3DOBJECT *, 
-                                                    G3DOBJECT *, 
+                                                    G3DOBJECT *,
                                                     G3DOBJECT *, 
                                                     uint64_t ),
-                        uint32_t   (*Modify)      ( G3DMODIFIER *, uint64_t ) );
+                        uint32_t   (*Modify)      ( G3DMODIFIER *, 
+                                                    G3DMODIFYOP,
+                                                    uint64_t ) );
 uint32_t g3dmodifier_draw ( G3DMODIFIER *mod,
                             G3DCAMERA   *cam, 
                             uint64_t     engine_flags );

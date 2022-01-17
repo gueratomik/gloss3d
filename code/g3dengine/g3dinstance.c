@@ -136,7 +136,7 @@ void g3dinstance_init ( G3DINSTANCE *ins,
                         uint32_t     id, 
                         char        *name,
                         G3DSCENE    *sce ) {
-    g3dobject_init ( ins, 
+    g3dobject_init ( ( G3DOBJECT * ) ins, 
                      G3DINSTANCETYPE,
                      id, 
                      name, 
@@ -152,7 +152,7 @@ void g3dinstance_init ( G3DINSTANCE *ins,
    ADDCHILD_CALLBACK(NULL),
                      NULL );
 
-    ((G3DOBJECT*)ins)->transform = g3dinstance_transform;
+    ((G3DOBJECT*)ins)->transform = TRANSFORM_CALLBACK(g3dinstance_transform);
 
     ins->orientation = INSTANCEYZ;
     ins->sce = sce;

@@ -99,7 +99,7 @@ int m3dcore_paintPoint ( M3DPATTERN    *pattern,
                     break;
 
                     case 0x18 : {
-                        unsigned char (*buffer24)[0x03] = buffer;
+                        unsigned char (*buffer24)[0x03] = ( unsigned char (*)[0x03] ) buffer;
 
                         buffer24[offset][0x00] = R;
                         buffer24[offset][0x01] = G;
@@ -160,7 +160,7 @@ int m3dcore_paintCircle ( M3DPATTERN    *pattern,
                                 break;
 
                                 case 0x18 : {
-                                    unsigned char (*buffer24)[0x03] = buffer;
+                                    unsigned char (*buffer24)[0x03] = ( unsigned char (*)[0x03] ) buffer;
 
                                     buffer24[offset][0x00] = ( R * pressure ) + ( buffer24[offset][0x00] * invPressure ) ;
                                     buffer24[offset][0x01] = ( G * pressure ) + ( buffer24[offset][0x01] * invPressure ) ;
@@ -216,7 +216,7 @@ int m3dcore_paintRectangle ( M3DPATTERN    *pattern,
                             break;
 
                             case 0x18 : {
-                                unsigned char (*buffer24)[0x03] = buffer;
+                                unsigned char (*buffer24)[0x03] = ( unsigned char (*)[0x03] ) buffer;
 
                                 buffer24[offset][0x00] = R;
                                 buffer24[offset][0x01] = G;

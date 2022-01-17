@@ -476,9 +476,9 @@ G3DCAMERA *g3dcamera_new ( uint32_t id,
     }
 
     g3dobject_init ( obj, G3DCAMERATYPE, id, name, 0x00,
-                                                   g3dcamera_draw,
-                                                   g3dcamera_free,
-                                                   g3dcamera_pick,
+                                     DRAW_CALLBACK(g3dcamera_draw),
+                                     FREE_CALLBACK(g3dcamera_free),
+                                     PICK_CALLBACK(g3dcamera_pick),
                                                    NULL,
                                      COPY_CALLBACK(g3dcamera_copy),
                                                    NULL,
@@ -487,7 +487,7 @@ G3DCAMERA *g3dcamera_new ( uint32_t id,
                                                    NULL,
                                                    NULL );
 
-    obj->transform = g3dcamera_transform;
+    obj->transform = TRANSFORM_CALLBACK(g3dcamera_transform);
 
 
     cam->focal = focal;

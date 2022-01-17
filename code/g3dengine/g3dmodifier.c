@@ -68,8 +68,8 @@ uint32_t g3dmodifier_default_dump ( G3DMODIFIER *mod,
                                                    void * ),
                                     void *data,
                                     uint64_t engine_flags ) {
-    if ( g3dobject_isActive ( mod ) ) {
-        G3DMESH *mes = mod->oriobj;
+    if ( g3dobject_isActive ( ( G3DOBJECT * ) mod ) ) {
+        G3DMESH *mes = ( G3DMESH * ) mod->oriobj;
         LIST *ltmpfac = mes->lfac;
         uint32_t i, verID = 0x00;
 
@@ -102,12 +102,12 @@ void g3dmodifier_modifyChildren ( G3DMODIFIER *mod,
     while ( ltmpchildren ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
 
-        g3dmodifier_modify_r ( child,
-                               mod->oriobj, 
-                               mod->stkpos, 
-                               mod->stknor,
-                               op,
-                               engine_flags );
+        g3dmodifier_modify_r ( ( G3DMODIFIER * ) child,
+                                                 mod->oriobj, 
+                                                 mod->stkpos, 
+                                                 mod->stknor,
+                                                 op,
+                                                 engine_flags );
 
         ltmpchildren = ltmpchildren->next;        
     }
@@ -160,7 +160,7 @@ G3DMODIFIER *g3dmodifier_modify_r ( G3DMODIFIER *mod,
 
         while ( ltmpchildren ) {
             G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
-            G3DMODIFIER *last = g3dmodifier_modify_r ( child,
+            G3DMODIFIER *last = g3dmodifier_modify_r ( ( G3DMODIFIER * ) child,
                                                        oriobj, 
                                                        stkpos, 
                                                        stknor,
@@ -182,9 +182,10 @@ void g3dmodifier_setParent ( G3DMODIFIER *mod,
                              G3DOBJECT   *oldParent,
                              uint64_t     engine_flags ) {
     if ( parent ) {
-        G3DMESH *mes = ( parent->type & MESH ) ? parent : 
-                                       g3dobject_getActiveParentByType ( parent,
-                                                                         MESH );
+        G3DMESH *mes = ( parent->type & MESH ) ?
+                           ( G3DMESH * ) parent : 
+                           ( G3DMESH * ) g3dobject_getActiveParentByType ( parent,
+                                                                           MESH );
 
         if ( mes ) {
             g3dmesh_update ( mes,
@@ -200,9 +201,10 @@ void g3dmodifier_setParent ( G3DMODIFIER *mod,
     }
 
     if ( oldParent ) {
-        G3DMESH *oldmes = ( oldParent->type & MESH ) ? oldParent : 
-                                   g3dobject_getActiveParentByType ( oldParent,
-                                                                     MESH );
+        G3DMESH *oldmes = ( oldParent->type & MESH ) ? 
+                           ( G3DMESH * ) oldParent : 
+                           ( G3DMESH * ) g3dobject_getActiveParentByType ( oldParent,
+                                                                           MESH );
 
         if ( oldmes ) {
             g3dmesh_update ( oldmes,
@@ -227,7 +229,7 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
                         uint32_t   (*Draw)        ( G3DOBJECT *, G3DCAMERA *, 
                                                                  uint64_t ),
                         void       (*Free)        ( G3DOBJECT * ),
-                        void       (*Pick)        ( G3DOBJECT *, G3DCAMERA *, 
+                        uint32_t   (*Pick)        ( G3DOBJECT *, G3DCAMERA *, 
                                                                  uint64_t ),
                         void       (*Pose)        ( G3DOBJECT *, G3DKEY * ),
                         G3DOBJECT* (*Copy)        ( G3DOBJECT *, uint32_t,
@@ -244,7 +246,10 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
                                                     G3DOBJECT *,
                                                     G3DOBJECT *, 
                                                     uint64_t ),
-                        uint32_t   (*Modify)      ( G3DMODIFIER *, uint64_t ) ) {
+                        uint32_t   (*Modify)      ( G3DMODIFIER *, 
+                                                    G3DMODIFYOP,
+                                                    uint64_t ) ) {
+
     g3dobject_init ( (G3DOBJECT*)mod, type, id, name, object_flags,
                                           Draw,
                                           Free,
@@ -259,7 +264,7 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
 
     mod->modify      = Modify;
 
-    mod->mes.dump    = g3dmodifier_default_dump;
+    mod->mes.dump    = DUMP_CALLBACK(g3dmodifier_default_dump);
 
     ((G3DMESH*)mod)->gouraudScalarLimit = cos ( 44.99 * M_PI / 180 );
 

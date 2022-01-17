@@ -112,7 +112,7 @@ void g3dmesh_selectFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp ) {
 
 /******************************************************************************/
 void g3dmesh_unselectAllFacegroups ( G3DMESH *mes ) {
-    list_free ( &mes->lselfacgrp, g3dfacegroup_unsetSelected );
+    list_free ( &mes->lselfacgrp, LIST_FUNCDATA(g3dfacegroup_unsetSelected) );
 }
 
 /******************************************************************************/
@@ -176,7 +176,7 @@ void g3dmesh_selectUVMap ( G3DMESH *mes, G3DUVMAP *map ) {
 
 /******************************************************************************/
 void g3dmesh_unselectAllUVMaps ( G3DMESH *mes ) {
-    list_free ( &mes->lseluvmap, g3dobject_unsetSelected );
+    list_free ( &mes->lseluvmap, LIST_FUNCDATA(g3dobject_unsetSelected) );
 }
 
 /******************************************************************************/
@@ -548,12 +548,12 @@ void g3dmesh_modify ( G3DMESH    *mes,
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
 
         if ( child->type & MODIFIER ) {
-            mes->lastmod = g3dmodifier_modify_r ( child,
-                                                  mes,
-                                                  NULL,
-                                                  NULL,
-                                                  op,
-                                                  engine_flags );
+            mes->lastmod = g3dmodifier_modify_r ( ( G3DMODIFIER * ) child,
+                                                  ( G3DOBJECT   * ) mes,
+                                                                    NULL,
+                                                                    NULL,
+                                                                    op,
+                                                                    engine_flags );
         }
 
         ltmpchildren = ltmpchildren->next;        
@@ -596,7 +596,7 @@ void g3dmesh_dump ( G3DMESH *mes,
 
     if ( mes->lastmod ) {
         if ( mes->lastmod->mes.dump ) {
-            mes->lastmod->mes.dump ( mes->lastmod,
+            mes->lastmod->mes.dump ( ( G3DMESH * ) mes->lastmod,
                                      Alloc, 
                                      Dump, 
                                      data, 

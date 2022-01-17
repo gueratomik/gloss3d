@@ -249,7 +249,7 @@ void g3dface_initSubface ( G3DFACE      *fac,
             /*** when doing displacement, at each level. Same for sculpting ***/
                  ( ( engine_flags & NODISPLACEMENT ) == 0x00 ) || 
                  ( fac->heightmap ) ) {
-                g3dface_normal ( subfac );
+                g3dface_normal ( ( G3DFACE * ) subfac );
             }
 
             g3dsubface_importUVSets ( subfac, fac, i, subuvs, curdiv );
@@ -389,7 +389,7 @@ void g3dface_unmark ( G3DFACE *fac ) {
 void g3dface_getSharedEdgesFromList ( LIST *lfac, LIST **ledg ) {
     LIST *ltmpfac = lfac;
 
-    list_exec ( lfac, g3dface_mark );
+    list_exec ( lfac, LIST_FUNCDATA(g3dface_mark) );
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -424,8 +424,8 @@ void g3dface_getSharedEdgesFromList ( LIST *lfac, LIST **ledg ) {
     }
 
     /*** clear temporary flags ***/
-    list_exec ( (*ledg), g3dedge_unmark );
-    list_exec (   lfac , g3dface_unmark );
+    list_exec ( (*ledg), LIST_FUNCDATA(g3dedge_unmark) );
+    list_exec (   lfac , LIST_FUNCDATA(g3dface_unmark) );
 }
 
 /******************************************************************************/
@@ -1942,7 +1942,7 @@ G3DEDGE *g3dface_compare ( G3DFACE *fac,
 /******************************************************************************/
 void g3dface_free ( G3DFACE *fac ) {
     /*printf ( "freeing memory for face\n" );*/
-    list_free ( &fac->luvs, g3duvset_free );
+    list_free ( &fac->luvs, LIST_FUNCDATA(g3duvset_free) );
 
     free ( fac );
 }

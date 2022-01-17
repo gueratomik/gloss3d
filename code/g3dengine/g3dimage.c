@@ -93,7 +93,7 @@ void g3dimage_getNormal ( G3DIMAGE  *img,
 
     switch ( img->bytesPerPixel ) {
         case 0x04 : {
-            unsigned char (*imgdata)[0x04] = img->data;
+            unsigned char (*imgdata)[0x04] =  ( unsigned char (*)[0x04] ) img->data;
             uint32_t R0 = imgdata[offset0][0],
                      G0 = imgdata[offset0][1],
                      B0 = imgdata[offset0][2];
@@ -110,7 +110,7 @@ void g3dimage_getNormal ( G3DIMAGE  *img,
         } break;
 
         case 0x03 : {
-            unsigned char (*imgdata)[0x03] = img->data;
+            unsigned char (*imgdata)[0x03] = ( unsigned char (*)[0x03] ) img->data;
             uint32_t R0 = imgdata[offset0][0],
                      G0 = imgdata[offset0][1],
                      B0 = imgdata[offset0][2];
@@ -233,8 +233,8 @@ void g3dimage_merge ( G3DIMAGE *dstimg,
                       G3DIMAGE *srcimg,
                       uint32_t  xoffset,
                       uint32_t  yoffset ) {
-    unsigned char (*dstdata)[0x03] = dstimg->data,
-                  (*srcdata)[0x03] = srcimg->data;
+    unsigned char (*dstdata)[0x03] =  ( unsigned char (*)[0x03] ) dstimg->data,
+                  (*srcdata)[0x03] =  ( unsigned char (*)[0x03] ) srcimg->data;
     uint32_t i, j;
 
     for ( i = 0x00; i < srcimg->height; i++ ) {
@@ -268,8 +268,8 @@ G3DIMAGE *g3dimage_getSubImage ( G3DIMAGE *srcimg,
                                       subheight,
                                       srcimg->bytesPerPixel * 0x08,
                                       0x00 );
-    unsigned char (*subdata)[0x03] = subimg->data,
-                  (*imgdata)[0x03] = srcimg->data;
+    unsigned char (*subdata)[0x03] =  ( unsigned char (*)[0x03] ) subimg->data,
+                  (*imgdata)[0x03] =  ( unsigned char (*)[0x03] ) srcimg->data;
     uint32_t i, j;
 
     for ( i = 0x00; i < subheight; i++ ) {
@@ -456,8 +456,8 @@ void g3dimage_resize ( G3DIMAGE *img,
 
             switch ( img->bytesPerPixel ) {
                 case 0x03 : {
-                    unsigned char (*newData)[0x03] = data;
-                    unsigned char (*oldData)[0x03] = img->data;
+                    unsigned char (*newData)[0x03] =  ( unsigned char (*)[0x03] ) data;
+                    unsigned char (*oldData)[0x03] =  ( unsigned char (*)[0x03] ) img->data;
 
                     newData[newOffset][0x00] = oldData[oldOffset][0x00];
                     newData[newOffset][0x01] = oldData[oldOffset][0x01];
@@ -681,7 +681,7 @@ void g3dimage_initFromJpeg ( G3DIMAGE   *img,
                  imgheight = g3dcore_getNextPowerOfTwo ( jpgheight );
         uint32_t oribytesperline = jpgwidth * jpgdepth,
                  imgbytesperline = imgwidth * jpgdepth;
-        unsigned char (*oridata)[0x03] = jpgdata;
+        unsigned char (*oridata)[0x03] =  ( unsigned char (*)[0x03] ) jpgdata;
         unsigned char (*imgdata)[0x03];
         uint32_t i, j;
 

@@ -276,11 +276,11 @@ M3DSELECTOR* m3dselector_new ( ) {
 
     sel->mode = SELECTORMODERANDOM;
 
-    m3dobject_init ( sel,
-                     m3dselector_reset,
-                     m3dselector_press,
-                     m3dselector_move,
-                     m3dselector_release );
+    m3dobject_init ( ( M3DOBJECT * ) sel,
+                     M3DRESET_CALLBACK  ( m3dselector_reset   ),
+                     M3DPRESS_CALLBACK  ( m3dselector_press   ),
+                     M3DMOVE_CALLBACK   ( m3dselector_move    ),
+                     M3DRELEASE_CALLBACK( m3dselector_release ) );
 
     return sel;
 }
@@ -308,8 +308,8 @@ static void m3dselector_generateMask (  M3DSELECTOR   *sel,
         memset ( mask, 0x00, width * height );
 
         if ( sysinfo->debug ) {
-            selJPG = ( unsigned char * ) calloc ( 0x03, maskSize );
-            selWRF = ( unsigned char * ) calloc ( 0x03, maskSize );
+            selJPG = ( unsigned char (*)[0x03] ) calloc ( 0x03, maskSize );
+            selWRF = ( unsigned char (*)[0x03] ) calloc ( 0x03, maskSize );
         }
 
         while ( ltmplin ) {
@@ -387,8 +387,17 @@ static void m3dselector_generateMask (  M3DSELECTOR   *sel,
         free ( selMask );
 
         if ( sysinfo->debug ) {
-            g3dcore_writeJpeg ( "mask.jpg", selWidth, selHeight, 24, selJPG );
-            g3dcore_writeJpeg ( "wire.jpg", selWidth, selHeight, 24, selWRF );
+            g3dcore_writeJpeg ( "mask.jpg", 
+                                selWidth,  
+                                selHeight, 
+                                24, 
+            ( unsigned char * ) selJPG );
+
+            g3dcore_writeJpeg ( "wire.jpg", 
+                                selWidth, 
+                                selHeight, 
+                                24, 
+            ( unsigned char * ) selWRF );
 
             free ( selJPG );
             free ( selWRF );
@@ -404,8 +413,8 @@ static int m3dselector_reset ( M3DSELECTOR *sel,
     sel->firstPoint = sel->lastPoint = NULL;
     sel->firstLine  = sel->lastLine  = NULL;
 
-    list_free ( &sel->llines , m3dselectorline_free  );
-    list_free ( &sel->lpoints, m3dselectorpoint_free );
+    list_free ( &sel->llines , LIST_FUNCDATA(m3dselectorline_free)  );
+    list_free ( &sel->lpoints, LIST_FUNCDATA(m3dselectorpoint_free) );
 
     return 0x00;
 }

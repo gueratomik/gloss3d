@@ -129,7 +129,7 @@ static void floodFill ( int32_t        x,
                         if ( zbuffer[noffset] == 0x00 ) {
                             switch ( bpp ) {
                                 case 0x18 : {
-                                    unsigned char (*buffer24)[0x03] = buffer;
+                                    unsigned char (*buffer24)[0x03] = ( unsigned char (*)[0x03] ) buffer;
 
                                     if ( ( buffer24[noffset][0x00] >= ( oldR - tolerance ) ) &&
                                          ( buffer24[noffset][0x00] <= ( oldR + tolerance ) ) &&
@@ -173,7 +173,7 @@ static void floodFill ( int32_t        x,
 
             switch ( bpp ) {
                 case 0x18 : {
-                    unsigned char (*buffer24)[0x03] = buffer;
+                    unsigned char (*buffer24)[0x03] = ( unsigned char (*)[0x03] ) buffer;
 
                     buffer24[soffset][0x00] = newR;
                     buffer24[soffset][0x01] = newG;
@@ -202,11 +202,11 @@ M3DBUCKET* m3dbucket_new ( ) {
 
     bkt->tolerance = 0x04;
 
-    m3dobject_init ( bkt,
-                     m3dbucket_reset,
-                     m3dbucket_press,
-                     m3dbucket_move,
-                     m3dbucket_release );
+    m3dobject_init ( ( M3DOBJECT * ) bkt,
+                     M3DRESET_CALLBACK   ( m3dbucket_reset ),
+                     M3DPRESS_CALLBACK   ( m3dbucket_press ),
+                     M3DMOVE_CALLBACK    ( m3dbucket_move ),
+                     M3DRELEASE_CALLBACK ( m3dbucket_release ) );
 
     return bkt;
 }
@@ -297,7 +297,7 @@ static int m3dbucket_release ( M3DOBJECT     *obj,
 
         switch ( bpp ) {
             case 0x18 : {
-                unsigned char (*buffer24)[0x03] = buffer;
+                unsigned char (*buffer24)[0x03] = ( unsigned char (*)[0x03] ) buffer;
                 uint8_t newR = ( fgcolor & 0x00FF0000 ) >> 0x10,
                         newG = ( fgcolor & 0x0000FF00 ) >> 0x08,
                         newB = ( fgcolor & 0x000000FF ) >> 0x00;

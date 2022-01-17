@@ -115,7 +115,7 @@ void g3dbone_transform ( G3DBONE *bon,
                                  rig->defmatrix );
 
             if ( ( engine_flags & ONGOINGANIMATION ) == 0x00 ) {
-                g3dmesh_modify ( rig->skn->mod.oriobj,
+                g3dmesh_modify ( ( G3DMESH * ) rig->skn->mod.oriobj,
                                  G3DMODIFYOP_MODIFY, /** todo: should be STARTUPDATE, UPDATE and ENDUPDATE ***/
                                  engine_flags );
             }
@@ -432,7 +432,7 @@ static void g3dbone_activate ( G3DBONE *bon,
 
 /******************************************************************************/
 void g3dbone_fix ( G3DBONE *bon, uint64_t engine_flags ) {
-    g3dobject_activate ( bon, engine_flags );
+    g3dobject_activate ( ( G3DOBJECT * ) bon, engine_flags );
 }
 
 /******************************************************************************/
@@ -479,7 +479,7 @@ static void g3dbone_deactivate ( G3DBONE *bon,
 /******************************************************************************/
 void g3dbone_unfix ( G3DBONE *bon,
                      uint64_t engine_flags ) {
-    g3dobject_deactivate ( bon, engine_flags );
+    g3dobject_deactivate ( ( G3DOBJECT * ) bon, engine_flags );
 }
 
 /******************************************************************************/
@@ -521,14 +521,14 @@ G3DBONE *g3dbone_new ( uint32_t id,
                                    PICK_CALLBACK(g3dbone_pick),
                                                  NULL,
                                                  NULL,
-                                                 g3dbone_activate,
-                                                 g3dbone_deactivate,
+                               ACTIVATE_CALLBACK(g3dbone_activate),
+                             DEACTIVATE_CALLBACK(g3dbone_deactivate),
                                                  NULL,
                                                  NULL,
                                                  NULL );
 
     /*obj->anim      = g3dbone_anim;*/
-    obj->transform = g3dbone_transform;
+    obj->transform = TRANSFORM_CALLBACK ( g3dbone_transform );
 
     bon->len = len;
 

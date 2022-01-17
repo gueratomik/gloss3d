@@ -55,7 +55,7 @@ static G3DOBJECT *g3dffd_commit ( G3DFFD        *ffd,
                                   uint64_t       engine_flags ) {
     G3DOBJECT *obj    = ( G3DOBJECT * ) ffd;
 
-    if ( g3dobject_isActive ( ffd ) ) {
+    if ( g3dobject_isActive ( ( G3DOBJECT * ) ffd ) ) {
         if ( ffd->mod.oriobj ) {
             G3DMESH *parmes = ( G3DMESH * ) ffd->mod.oriobj;
             G3DMESH *cpymes = g3dmesh_new ( ((G3DOBJECT*)parmes)->id,
@@ -87,9 +87,10 @@ static G3DOBJECT *g3dffd_commit ( G3DFFD        *ffd,
                 ffd->mod.verpos[i].z += lmespos.z;
             }
 
-            g3dobject_importTransformations ( cpymes, parmes );
+            g3dobject_importTransformations ( ( G3DOBJECT * ) cpymes, 
+                                              ( G3DOBJECT * ) parmes );
 
-            return cpymes;
+            return ( G3DOBJECT * ) cpymes;
         }
     }
 
@@ -267,7 +268,7 @@ static void g3dffd_onGeometryMove ( G3DFFD     *ffd,
                             G3DMODIFYOP_UPDATESELF,
                             engine_flags );
 
-            g3dmodifier_modifyChildren ( ffd,
+            g3dmodifier_modifyChildren ( ( G3DMODIFIER * ) ffd,
                                          op,
                                          engine_flags );
         }
@@ -495,7 +496,10 @@ static void g3dffd_setParent ( G3DFFD    *ffd,
                                G3DOBJECT *parent,
                                G3DOBJECT *oldParent,
                                uint64_t   engine_flags ) {
-    g3dmodifier_setParent ( ffd, parent, oldParent, engine_flags );
+    g3dmodifier_setParent ( ( G3DMODIFIER * ) ffd, 
+                                              parent, 
+                                              oldParent, 
+                                              engine_flags );
 }
 
 
@@ -506,13 +510,17 @@ static uint32_t g3dffd_moddraw ( G3DOBJECT *obj,
     G3DFFD *ffd = ( G3DFFD * ) obj;
 
     if ( g3dobject_isActive ( obj ) ) {
-        g3dmesh_drawModified ( ffd->mod.oriobj,
-                               cam,
-                               ffd->mod.verpos,
-                               ffd->mod.vernor,
-                               engine_flags );
+        if ( ffd->mod.oriobj ) {
+            G3DMESH * mes = ( G3DMESH * ) ffd->mod.oriobj;
 
-        return 0x00;
+            g3dmesh_drawModified ( mes,
+                                   cam,
+                                   ffd->mod.verpos,
+                                   ffd->mod.vernor,
+                                   engine_flags );
+
+            return 0x00;
+        }
     }
 
     return 0x00;
@@ -560,11 +568,11 @@ G3DFFD *g3dffd_new ( uint32_t id, char *name ) {
                                SETPARENT_CALLBACK(g3dffd_setParent),
                                   MODIFY_CALLBACK(g3dffd_modify) );
 
-    ((G3DMESH*)mod)->onGeometryMove = g3dffd_onGeometryMove;
+    ((G3DMESH*)mod)->onGeometryMove = GEOMETRYMOVE_CALLBACK(g3dffd_onGeometryMove);
 
     /*obj->flags |= OBJECTNOSYMMETRY;*/
 
-    mod->moddraw = g3dffd_moddraw;
+    mod->moddraw = MODDRAW_CALLBACK(g3dffd_moddraw);
 
     return ffd;
 }

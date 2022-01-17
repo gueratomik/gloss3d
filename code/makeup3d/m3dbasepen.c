@@ -85,11 +85,11 @@ M3DBASEPEN* m3dbasepen_new ( ) {
 
     basepen->pressure    = 1.0f;
 
-    m3dobject_init ( basepen,
-                     NULL,
-                     m3dbasepen_press,
-                     m3dbasepen_move,
-                     m3dbasepen_release );
+    m3dobject_init ( ( M3DOBJECT* ) basepen,
+                                    NULL,
+                                    m3dbasepen_press,
+                                    m3dbasepen_move,
+                                    m3dbasepen_release );
 
     return basepen;
 }
