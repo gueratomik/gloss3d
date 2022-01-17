@@ -1763,6 +1763,7 @@ G3DFACE *g3dface_newWithEdges ( G3DVERTEX **ver,
     uint32_t i;
 
     fac = ( G3DFACE * ) calloc ( 0x01, sizeof ( G3DFACE ) );
+
     if ( fac == NULL ) {
         fprintf ( stderr, "g3dface_new: calloc failed\n" );
 

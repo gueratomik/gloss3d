@@ -751,8 +751,8 @@ typedef struct _G3DTAG    G3DTAG;
 typedef struct _G3DSCENE  G3DSCENE;
 
 #define COPY_CALLBACK(f)       ((G3DOBJECT*(*)(G3DOBJECT*,uint32_t,const char*,uint64_t))f)
-#define ACTIVATE_CALLBACK(f)   ((void(*)      (G3DOBJECT*,uint32_t))f)
-#define DEACTIVATE_CALLBACK(f) ((void(*)      (G3DOBJECT*,uint32_t))f)
+#define ACTIVATE_CALLBACK(f)   ((void(*)      (G3DOBJECT*,uint64_t))f)
+#define DEACTIVATE_CALLBACK(f) ((void(*)      (G3DOBJECT*,uint64_t))f)
 #define COMMIT_CALLBACK(f)     ((G3DOBJECT*(*)(G3DOBJECT*,uint32_t,const char *,uint64_t))f)
 #define ADDCHILD_CALLBACK(f)   ((void(*)      (G3DOBJECT*,G3DOBJECT*,uint64_t))f)
 #define SETPARENT_CALLBACK(f)  ((void(*)      (G3DOBJECT*,G3DOBJECT*,G3DOBJECT*,uint64_t))f)
@@ -2186,25 +2186,25 @@ void       g3dobject_init ( G3DOBJECT   *obj,
                             const char  *name,
                             uint32_t     object_flags,
                             uint32_t   (*Draw)      ( G3DOBJECT *, G3DCAMERA *, 
-                                                                   uint32_t ),
+                                                                   uint64_t ),
                             void       (*Free)      ( G3DOBJECT * ),
-                            void       (*Pick)      ( G3DOBJECT *, G3DCAMERA *,
-                                                                   uint32_t ),
+                            uint32_t   (*Pick)      ( G3DOBJECT *, G3DCAMERA *,
+                                                                   uint64_t ),
                             void       (*Pose)      ( G3DOBJECT *, G3DKEY * ),
                             G3DOBJECT* (*Copy)      ( G3DOBJECT *, uint32_t,
                                                                    const char *,
-                                                                   uint32_t ),
-                            void       (*Activate)  ( G3DOBJECT *, uint32_t ),
-                            void       (*Deactivate)( G3DOBJECT *, uint32_t ),
+                                                                   uint64_t ),
+                            void       (*Activate)  ( G3DOBJECT *, uint64_t ),
+                            void       (*Deactivate)( G3DOBJECT *, uint64_t ),
                             G3DOBJECT* (*Commit)    ( G3DOBJECT *, uint32_t,
                                                                    const char *,
-                                                                   uint32_t ),
+                                                                   uint64_t ),
                             void       (*AddChild)  ( G3DOBJECT *, G3DOBJECT *,
-                                                                   uint32_t ),
+                                                                   uint64_t ),
                             void       (*SetParent) ( G3DOBJECT *,
                                                       G3DOBJECT *,
                                                       G3DOBJECT *,
-                                                      uint32_t ) );
+                                                      uint64_t ) );
 void g3dobject_addTag ( G3DOBJECT *obj, 
                         G3DTAG    *tag );
 void g3dobject_removeTag ( G3DOBJECT *obj, 
@@ -2451,7 +2451,6 @@ void g3dmesh_init ( G3DMESH *mes,
                     uint64_t engine_flags );
 void       g3dmesh_free                 ( G3DOBJECT * );
 /******************************** Mesh API ************************************/
-void       g3dmesh_addEdge              ( G3DMESH *, G3DEDGE * );
 G3DUVMAP  *g3dmesh_getSelectedUVMap     ( G3DMESH *mes );
 void       g3dmesh_selectUVMap          ( G3DMESH *mes, G3DUVMAP *map );
 void       g3dmesh_unselectAllUVMaps    ( G3DMESH *mes );

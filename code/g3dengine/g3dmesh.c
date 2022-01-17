@@ -30,6 +30,17 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
+static void g3dmesh_addEdge ( G3DMESH *mes,
+                              G3DEDGE *edg ) {
+    list_insert ( &mes->ledg, edg );
+
+    edg->id = mes->nbedg++;
+
+    g3dvertex_addEdge ( edg->ver[0x00], edg );
+    g3dvertex_addEdge ( edg->ver[0x01], edg );
+}
+
+/******************************************************************************/
 G3DFACEGROUP *g3dmesh_getFacegroupByID ( G3DMESH *mes, uint32_t id ) {
     LIST *ltmpfacgrp = mes->lfacgrp;
 
@@ -363,7 +374,8 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
                 oriedg[edg->id] = g3dedge_new ( oriver[edg->ver[0x00]->id],
                                                 oriver[edg->ver[0x01]->id] );
 
-                g3dmesh_addEdge ( symmes, oriedg[edg->id] );
+                /*** commented out: now handled by g3dmesh_addFace() ***/
+                /*g3dmesh_addEdge ( symmes, oriedg[edg->id] );*/
 
                 /*** Don't mirror vertices that are welded ***/
                 if ( ( ( edg->ver[0x00]->flags & VERTEXSYMYZ ) ||
@@ -377,7 +389,8 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
                     symedg[edg->id] = g3dedge_new ( symver[edg->ver[0x00]->id],
                                                     symver[edg->ver[0x01]->id] );
 
-                    g3dmesh_addEdge ( symmes, symedg[edg->id] );
+                    /*** commented out: now handled by g3dmesh_addFace() ***/
+                    /*g3dmesh_addEdge ( symmes, symedg[edg->id] );*/
                 }
             }
 
@@ -583,7 +596,7 @@ void g3dmesh_dump ( G3DMESH *mes,
 
     if ( mes->lastmod ) {
         if ( mes->lastmod->mes.dump ) {
-            mes->lastmod->mes.dump ( mes->lastmod, 
+            mes->lastmod->mes.dump ( mes->lastmod,
                                      Alloc, 
                                      Dump, 
                                      data, 
@@ -628,7 +641,7 @@ uint32_t g3dmesh_default_dump ( G3DMESH *mes,
         _NEXTFACE(mes,ltmpfac);
     }
 
-    return MODIFIERTAKESOVER;
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -3597,17 +3610,6 @@ void g3dmesh_addVertex ( G3DMESH   *mes,
     if ( obj->parent && obj->parent->childvertexchange ) {
         obj->parent->childvertexchange ( obj->parent, obj, ver );
     }
-}
-
-/******************************************************************************/
-void g3dmesh_addEdge ( G3DMESH *mes,
-                       G3DEDGE *edg ) {
-    list_insert ( &mes->ledg, edg );
-
-    edg->id = mes->nbedg++;
-
-    g3dvertex_addEdge ( edg->ver[0x00], edg );
-    g3dvertex_addEdge ( edg->ver[0x01], edg );
 }
 
 /******************************************************************************/

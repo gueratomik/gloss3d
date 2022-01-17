@@ -271,7 +271,7 @@ static uint32_t g3dwireframe_opUpdate ( G3DWIREFRAME *wir,
 /******************************************************************************/
 static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
                                         uint64_t      engine_flags ) {
-    G3DOBJECT *obj    = ( G3DOBJECT * ) wir;
+    G3DOBJECT *obj = ( G3DOBJECT * ) wir;
 
     g3dmesh_clearGeometry ( (G3DMESH*) wir );
 
@@ -357,13 +357,15 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
                 g3dsubedge_init ( &wir->modedg[((edg->id)*2)+0], (G3DVERTEX*)&wir->modver[(v0ID*2)],
                                                                  (G3DVERTEX*)&wir->modver[(v1ID*2)] );
 
-                g3dmesh_addEdge ( (G3DMESH*)wir, (G3DEDGE*)&wir->modedg[((edg->id)*2)+0] );
+                /*** commented out: now handled by g3dmesh_addFace() ***/
+                /*g3dmesh_addEdge ( (G3DMESH*)wir, (G3DEDGE*)&wir->modedg[((edg->id)*2)+0] );*/
 
                 wir->modedg[((edg->id)*2)+1].edg.flags |= EDGEORIGINAL;
                 g3dsubedge_init ( &wir->modedg[((edg->id)*2)+1], (G3DVERTEX*)&wir->modver[(v0ID*2)+1],
                                                                  (G3DVERTEX*)&wir->modver[(v1ID*2)+1] );
 
-                g3dmesh_addEdge ( (G3DMESH*)wir, (G3DEDGE*)&wir->modedg[((edg->id)*2)+1] );
+                /*** commented out: now handled by g3dmesh_addFace() ***/
+                /*g3dmesh_addEdge ( (G3DMESH*)wir, (G3DEDGE*)&wir->modedg[((edg->id)*2)+1] );*/
 
                 _NEXTEDGE(mes,ltmpedg);
             }
@@ -419,19 +421,22 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
                     g3dsubedge_init ( &wir->modedg[edgOffset+i], (G3DVERTEX*)&wir->modver[verOffset+i],
                                                                  (G3DVERTEX*)&wir->modver[verOffset+n] );
 
-                    g3dmesh_addEdge ( (G3DMESH*)wir, (G3DEDGE*)&wir->modedg[edgOffset+i] );
+                    /*** commented out: now handled by g3dmesh_addFace() ***/
+                    /*g3dmesh_addEdge ( (G3DMESH*)wir, (G3DEDGE*)&wir->modedg[edgOffset+i] );*/
 
                     wir->modedg[edgOffset+(fac->nbver)+i].edg.flags |= EDGEORIGINAL;
                     g3dsubedge_init ( &wir->modedg[edgOffset+(fac->nbver)+i], (G3DVERTEX*)&wir->modver[verOffset+i],
                                                                               (G3DVERTEX*)&wir->modver[(fac->ver[i]->id*2)+0] );
 
-                    g3dmesh_addEdge ( (G3DMESH*)wir, (G3DEDGE*)&wir->modedg[edgOffset+(fac->nbver)+i] );
+                    /*** commented out: now handled by g3dmesh_addFace() ***/
+                    /*g3dmesh_addEdge ( (G3DMESH*)wir, (G3DEDGE*)&wir->modedg[edgOffset+(fac->nbver)+i] );*/
 
                     wir->modedg[edgOffset+(fac->nbver*2)+i].edg.flags |= EDGEORIGINAL;
                     g3dsubedge_init ( &wir->modedg[edgOffset+(fac->nbver*2)+i], (G3DVERTEX*)&wir->modver[verOffset+i],
                                                                                 (G3DVERTEX*)&wir->modver[(fac->ver[i]->id*2)+1] );
 
-                    g3dmesh_addEdge ( (G3DMESH*)wir, (G3DEDGE*)&wir->modedg[edgOffset+(fac->nbver*2)+i] );
+                    /*** commented out: now handled by g3dmesh_addFace() ***/
+                    /*g3dmesh_addEdge ( (G3DMESH*)wir, (G3DEDGE*)&wir->modedg[edgOffset+(fac->nbver*2)+i] );*/
                 }
 
                 /*** Face creation ***/
@@ -455,6 +460,7 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
 
                     g3dface_initWithEdges ( (G3DFACE*)&wir->modfac[facOffset+(i*2)+0], ver, 
                                                                                        edg, 0x04 );
+
                     g3dmesh_addFace ( (G3DMESH*)wir, (G3DFACE*)&wir->modfac[facOffset+(i*2)+0] );
 
                     ver[0x00] = (G3DVERTEX*)&wir->modver[(fac->ver[i]->id*2)+1];
@@ -469,6 +475,7 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
 
                     g3dface_initWithEdges ( (G3DFACE*)&wir->modfac[facOffset+(i*2)+1], ver, 
                                                                                        edg, 0x04 );
+
                     g3dmesh_addFace ( (G3DMESH*)wir, (G3DFACE*)&wir->modfac[facOffset+(i*2)+1] );
 
                     /*modfac[facOffset+(i*0x03)+2].nbver = 0x04;

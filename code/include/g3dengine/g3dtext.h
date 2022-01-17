@@ -80,7 +80,6 @@ G3DCHARACTER *g3dcharacter_new ( uint32_t code );
 void g3dcharacter_empty ( G3DCHARACTER *chr );
 void g3dcharacter_free ( G3DCHARACTER *chr );
 void g3dcharacter_addVertex ( G3DCHARACTER *chr, G3DVERTEX *ver );
-void g3dcharacter_addEdge ( G3DCHARACTER *chr, G3DEDGE *edg );
 void g3dcharacter_addFace ( G3DCHARACTER *chr, G3DFACE *fac );
 G3DCHARACTER *g3dtext_getCharacterByCode ( G3DTEXT *txt, uint32_t code );
 void g3dtext_mergeCharacter ( G3DTEXT      *txt, 
@@ -106,9 +105,9 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
 void g3dcharacter_generateThickness ( G3DCHARACTER *chr,
                                       float         thickness,
                                       uint64_t engine_flags );
-void g3dtext_generate ( G3DOBJECT *obj,
-                        uint32_t  fromCharacter,
-                        uint32_t  toCharacter,
+void g3dtext_generate ( G3DTEXT   *txt,
+                        uint32_t   fromCharacter,
+                        uint32_t   toCharacter,
                         uint64_t engine_flags );
 void g3dtext_free ( G3DOBJECT *obj );
 

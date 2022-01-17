@@ -50,9 +50,9 @@ G3DCHARACTER *g3dcharacter_new ( uint32_t code ) {
 
 /******************************************************************************/
 void g3dcharacter_empty ( G3DCHARACTER *chr ) {
-    list_free ( &chr->lver, g3dvertex_free );
-    list_free ( &chr->ledg, g3dedge_free   );
-    list_free ( &chr->lfac, g3dface_free   );
+    list_free ( &chr->lver, LIST_FUNCDATA(g3dvertex_free) );
+    list_free ( &chr->ledg, LIST_FUNCDATA(g3dedge_free)   );
+    list_free ( &chr->lfac, LIST_FUNCDATA(g3dface_free)   );
 }
 
 /******************************************************************************/
@@ -70,8 +70,11 @@ void g3dcharacter_addVertex ( G3DCHARACTER *chr, G3DVERTEX *ver ) {
 }
 
 /******************************************************************************/
-void g3dcharacter_addEdge ( G3DCHARACTER *chr, G3DEDGE *edg ) {
+static void g3dcharacter_addEdge ( G3DCHARACTER *chr, G3DEDGE *edg ) {
     list_insert ( &chr->ledg, edg );
+
+    g3dvertex_addEdge ( edg->ver[0x00], edg );
+    g3dvertex_addEdge ( edg->ver[0x01], edg );
 
     edg->id = chr->nbedg++;
 }
@@ -82,21 +85,20 @@ void g3dcharacter_addFace ( G3DCHARACTER *chr, G3DFACE *fac ) {
 
     for ( i = 0x00; i < fac->nbver; i++ ) {
         uint32_t n = ( i + 0x01 ) % fac->nbver;
-        G3DEDGE *edg = fac->edg[i];
 
-        if ( edg == NULL ) {
-            if ( ( edg = g3dedge_seek ( chr->ledg, fac->ver[i], 
-                                                   fac->ver[n] ) ) == NULL ) {
+        if ( ( fac->edg[i] = g3dedge_seek ( chr->ledg, 
+                                            fac->ver[i], 
+                                            fac->ver[n] ) ) == NULL ) {
+            G3DEDGE *edg = g3dedge_new ( fac->ver[i], 
+                                         fac->ver[n] );
 
-                edg = g3dedge_new ( fac->ver[i], fac->ver[n] );
-
-                g3dcharacter_addEdge ( chr, edg );
-            }
+            g3dcharacter_addEdge ( chr, edg );
 
             fac->edg[i] = edg;
         }
 
-        g3dedge_addFace ( edg, fac );
+        g3dvertex_addFace ( fac->ver[i], fac );
+        g3dedge_addFace   ( fac->edg[i], fac );
     }
 
     list_insert ( &chr->lfac, fac );
@@ -133,7 +135,6 @@ void g3dtext_mergeCharacter ( G3DTEXT      *txt,
                               uint32_t      invert, /* 0 or 1 */
                               uint64_t engine_flags ) {
     G3DMESH *txtmes = ( G3DMESH * ) txt;
-
 
     switch ( chr->code ) {
         case '\n' :
@@ -181,7 +182,8 @@ void g3dtext_mergeCharacter ( G3DTEXT      *txt,
                     edgtab[edg->id] = g3dedge_new ( vertab[edg->ver[0]->id],
                                                     vertab[edg->ver[1]->id] );
 
-                    g3dmesh_addEdge ( txtmes, edgtab[edg->id] );
+                    /*** commented out: now handled by g3dmesh_addFace() ***/
+                    /*g3dmesh_addEdge ( txtmes, edgtab[edg->id] );*/
 
                     ltmpedg = ltmpedg->next;
                 }
@@ -243,7 +245,7 @@ void g3dtext_mergeCharacter ( G3DTEXT      *txt,
 
 /******************************************************************************/
 void g3dtext_empty ( G3DTEXT *txt ) {
-    list_free ( &txt->lchr, g3dcharacter_free );
+    list_free ( &txt->lchr, LIST_FUNCDATA(g3dcharacter_free) );
 
     txt->nbchr = 0x00;
 
@@ -251,7 +253,7 @@ void g3dtext_empty ( G3DTEXT *txt ) {
     txt->nextCharacterPosition.y = 0.0f;
     txt->nextCharacterPosition.z = 0.0f;
 
-    g3dmesh_empty ( txt );
+    g3dmesh_empty ( ( G3DMESH * ) txt );
 }
 
 /******************************************************************************/
@@ -497,7 +499,7 @@ void g3dtext_setThickness ( G3DTEXT *txt,
         }
     }
 
-    g3dmesh_updateBbox ( txt );
+    g3dmesh_updateBbox ( ( G3DMESH * ) txt );
 }
 
 /******************************************************************************/
@@ -522,12 +524,13 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
     uint32_t j;
     uint32_t divFactor = 1000;
 
-
     if ( ( chr == NULL ) && txt->face ) {
         chr = g3dcharacter_new ( code );
 
+        g3dtext_addCharacter ( txt, chr );
+
         memset ( coords, 0x00, sizeof ( coords ) );
-        
+
         if ( chr->code != '\n' ) {
             glyph_index = FT_Get_Char_Index ( txt->face, code );
 
@@ -617,12 +620,12 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
                                                     tessData[j][1],
                                                     tessData[j][2] );
 
-                        g3dcurvesegment_draw ( &qsg, 
+                        g3dcurvesegment_draw ( ( G3DCURVESEGMENT * ) &qsg, 
                                                  0.0f, 
                                                  1.0f, 
                                                  nbStepsPerSegment,
                                                  tobj,
-                                                 coords[nbStepsPerSegment*handleID++],
+                           ( double (*)[0x03] )  coords[nbStepsPerSegment*handleID++],
                                                  DRAW_FOR_TESSELLATION,
                                                  engine_flags );
 
@@ -835,13 +838,11 @@ void g3dcharacter_generateThickness ( G3DCHARACTER *chr,
         LIST *ltmpedg = chr->ledg;
         LIST *ltmpver = chr->lver;
         G3DVERTEX **vertab = NULL;
-        G3DEDGE   **edgtab = NULL;
         uint32_t vertexID = 0x00;
         uint32_t edgeID = 0x00;
 
         vertab = calloc ( nbOriginalVertices, sizeof ( G3DVERTEX * ) );
-        edgtab = calloc ( nbOriginalEdges +
-                          nbOriginalVertices, sizeof ( G3DEDGE * ) );
+
 
         while ( ltmpver ) {
             G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -858,10 +859,7 @@ void g3dcharacter_generateThickness ( G3DCHARACTER *chr,
             vertab[ver->id]->nor.y =  ver->nor.y;
             vertab[ver->id]->nor.z = -ver->nor.z;
 
-            edgtab[nbOriginalEdges + ver->id] = g3dedge_new ( ver, vertab[ver->id] );
-
             g3dcharacter_addVertex ( chr, vertab[ver->id] );
-            g3dcharacter_addEdge   ( chr, edgtab[nbOriginalEdges + ver->id] );
 
             ltmpver = ltmpver->next;
         }
@@ -872,14 +870,8 @@ void g3dcharacter_generateThickness ( G3DCHARACTER *chr,
         while ( ltmpedg ) {
             G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
             G3DVERTEX *v[0x04];
-            G3DEDGE *e[0x04];
 
             edg->id = edgeID++;
-
-            edgtab[edg->id] = g3dedge_new ( vertab[edg->ver[0]->id], 
-                                            vertab[edg->ver[1]->id] );
-
-            g3dcharacter_addEdge ( chr, edgtab[edg->id] );
 
             if ( edg->nbfac == 0x01 ) {
                 v[0x00] = edg->ver[1];
@@ -887,12 +879,7 @@ void g3dcharacter_generateThickness ( G3DCHARACTER *chr,
                 v[0x02] = vertab[edg->ver[0]->id];
                 v[0x03] = vertab[edg->ver[1]->id];
 
-                e[0x00] = edg;
-                e[0x01] = edgtab[nbOriginalEdges + edg->ver[0]->id];
-                e[0x02] = edgtab[edg->id];
-                e[0x03] = edgtab[nbOriginalEdges + edg->ver[1]->id];
-
-                G3DFACE *newfac = g3dface_newWithEdges ( v, e, 0x04 );
+                G3DFACE *newfac = g3dface_new ( v, 0x04 );
 
                 g3dcharacter_addFace ( chr, newfac );
             }
@@ -905,15 +892,11 @@ void g3dcharacter_generateThickness ( G3DCHARACTER *chr,
         to the list and not added. ***/
         while ( ltmpfac ) {
             G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-            G3DFACE *newfac;
             G3DVERTEX *v[0x03] = { vertab[fac->ver[0x02]->id],
                                    vertab[fac->ver[0x01]->id],
                                    vertab[fac->ver[0x00]->id] };
-            G3DEDGE *e[0x03] = { edgtab[fac->edg[0x02]->id],
-                                 edgtab[fac->edg[0x01]->id],
-                                 edgtab[fac->edg[0x00]->id] };
 
-            newfac = g3dface_newWithEdges ( v, e, 0x03 );
+            G3DFACE *newfac = g3dface_new ( v, 0x03 );
 
             g3dcharacter_addFace ( chr, newfac );
 
@@ -921,16 +904,15 @@ void g3dcharacter_generateThickness ( G3DCHARACTER *chr,
         }
 
         free ( vertab );
-        free ( edgtab );
     }
 }
 
 /******************************************************************************/
-void g3dtext_generate ( G3DOBJECT *obj,
+void g3dtext_generate ( G3DTEXT   *txt,
                         uint32_t   fromCharacter,
                         uint32_t   toCharacter,
                         uint64_t engine_flags ) {
-    G3DTEXT *txt = ( G3DTEXT * ) obj;
+    G3DOBJECT *obj = ( G3DOBJECT * ) txt;
     uint32_t i;
 
     if ( txt->text ) {
@@ -948,12 +930,14 @@ void g3dtext_generate ( G3DOBJECT *obj,
                                            &items_written,
                                             NULL );
 
+
         gluTessProperty ( tobj, GLU_TESS_BOUNDARY_ONLY, GL_FALSE );
-        gluTessCallback ( tobj, GLU_TESS_BEGIN_DATA , g3dtext_beginGroup );
-        gluTessCallback ( tobj, GLU_TESS_VERTEX_DATA, g3dtext_vertex3dv  );
-        gluTessCallback ( tobj, GLU_TESS_END_DATA   , g3dtext_endGroup   );
+        gluTessCallback ( tobj, GLU_TESS_BEGIN_DATA , (_GLUfuncptr) g3dtext_beginGroup );
+        gluTessCallback ( tobj, GLU_TESS_VERTEX_DATA, (_GLUfuncptr) g3dtext_vertex3dv  );
+        gluTessCallback ( tobj, GLU_TESS_END_DATA   , (_GLUfuncptr) g3dtext_endGroup   );
         /*gluTessCallback ( tobj, GLU_TESS_COMBINE    , g3dtext_combine    );*/
-        gluTessCallback ( tobj, GLU_TESS_ERROR      , g3dtext_error      );
+        gluTessCallback ( tobj, GLU_TESS_ERROR      , (_GLUfuncptr) g3dtext_error      );
+
 
         for ( i = 0; i < items_written; i++ ) {
             uint32_t characterCode = str[i];
@@ -964,6 +948,7 @@ void g3dtext_generate ( G3DOBJECT *obj,
                                                             engine_flags );
 
             if ( chr ) {
+
                 g3dtext_mergeCharacter ( txt, 
                                          chr,
                                          0x00,
@@ -976,7 +961,7 @@ void g3dtext_generate ( G3DOBJECT *obj,
         gluDeleteTess(tobj);
     }
 
-    g3dmesh_update ( txt, NULL,
+    g3dmesh_update ( ( G3DMESH * ) txt, NULL,
                              NULL,
                              NULL,
                              UPDATEFACEPOSITION |
@@ -984,16 +969,22 @@ void g3dtext_generate ( G3DOBJECT *obj,
                              UPDATEVERTEXNORMAL | 
                              RESETMODIFIERS, engine_flags );
 
-    g3dmesh_updateBbox ( txt );
+    g3dmesh_updateBbox ( ( G3DMESH * ) txt );
 
     /*FT_Render_Glyph ( text->face->glyph, FT_RENDER_MODE_NORMAL );*/
 }
 
 /******************************************************************************/
 void g3dtext_free ( G3DOBJECT *obj ) {
-    G3DTEXT *text = ( G3DTEXT * ) obj;
+    G3DTEXT *txt = ( G3DTEXT * ) obj;
 
-    /*g3dmesh_free ( mes );*/
+    g3dtext_empty ( txt );
+
+    if ( txt->text ) {
+        free ( txt->text );
+    }
+
+    g3dmesh_free ( ( G3DOBJECT * ) txt );
 }
 
 /******************************************************************************/
@@ -1023,7 +1014,7 @@ void g3dtext_init ( G3DTEXT *txt,
 
     /*** TODO: add more parameters (function pointers) to g3dmesh_init ***/
     /*** and remove the call to g3dobject_init ***/
-    g3dmesh_init ( txt, id, name, engine_flags );
+    g3dmesh_init ( ( G3DMESH * ) txt, id, name, engine_flags );
 
     g3dobject_init ( obj, G3DTEXTTYPE, id, name, 0x00,
                                      DRAW_CALLBACK(g3dmesh_draw),

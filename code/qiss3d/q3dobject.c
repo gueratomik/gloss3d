@@ -307,14 +307,15 @@ Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
 
     if ( ( obj->flags & OBJECTINACTIVE ) == 0x00 ) {
         switch ( obj->type ) {
-            case G3DSPHERETYPE   :
-            case G3DCUBETYPE     :
-            case G3DPLANETYPE    :
-            case G3DTORUSTYPE    :
-            case G3DCYLINDERTYPE :
-            case G3DTUBETYPE     :
+            case G3DSPHERETYPE         :
+            case G3DCUBETYPE           :
+            case G3DPLANETYPE          :
+            case G3DTORUSTYPE          :
+            case G3DCYLINDERTYPE       :
+            case G3DTUBETYPE           :
+            case G3DTEXTTYPE           :
             case G3DSPLINEREVOLVERTYPE :
-            case G3DMESHTYPE     : {
+            case G3DMESHTYPE           : {
                 G3DMESH *mes = ( G3DMESH * ) obj;
                 Q3DMESH *qmes = q3dmesh_new ( mes, 
                                               qsce->qobjID++,

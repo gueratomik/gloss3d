@@ -39,11 +39,7 @@ void g3duirenderprocess_savejpg ( G3DUIRENDERPROCESS *rps, char *filename ) {
 }
 
 /******************************************************************************/
-G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t  id,
-                                             G3DUI     *gui,
-                                             Q3DJOB  *qjob,
-                                             Q3DFILTER *towindow,
-                                             Q3DFILTER *toframe ) {
+G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t  id ) {
     uint32_t size = sizeof ( G3DUIRENDERPROCESS );
     G3DUIRENDERPROCESS *rps = ( G3DUIRENDERPROCESS * ) calloc ( 0x01, size );
 
@@ -54,14 +50,22 @@ G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t  id,
     }
 
     rps->id   = id;
+
+    return rps;
+}
+
+/******************************************************************************/
+void g3duirenderprocess_init ( G3DUIRENDERPROCESS *rps,
+                               G3DUI              *gui,
+                               Q3DJOB             *qjob,
+                               Q3DFILTER          *towindow,
+                               Q3DFILTER          *toframe ) {
     rps->qjob = qjob;
 
     rps->gui = gui;
 
     rps->towindow = towindow;
     rps->toframe = toframe;
-
-    return rps;
 }
 
 /******************************************************************************/

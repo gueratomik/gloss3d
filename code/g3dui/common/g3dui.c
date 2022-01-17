@@ -74,6 +74,16 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
         pthread_attr_t attr;
         pthread_t tid;
 
+        /*** Remember the thread id for cancelling on mouse input e.g ***/
+        /*** We use the widget as an ID. This is done before QJOB creation ***/
+        /*** becaue preparing the scene might take some time during which ***/
+        /*** a user could start another rendering thread. So the association***/
+        /** is made in g3duirenderprocess_init ( ) **/
+        rps = g3duirenderprocess_new ( id );
+
+        /*** register the renderprocess so that we can cancel it ***/
+        list_insert ( &gui->lrps, rps );
+
         /*r3dfilter_setType ( towin, FILTERLINE );*/
 
         pthread_attr_init ( &attr );
@@ -90,9 +100,7 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
                             makepreview, 
                             job_flags );
 
-        /*** Remember the thread id for cancelling on mouse input e.g ***/
-        /*** We use the widget as an ID ***/
-        rps = g3duirenderprocess_new ( id, gui, qjob, towindow, toframe );
+        g3duirenderprocess_init( rps, gui, qjob, towindow, toframe );
 
         /*** launch rays in a thread ***/
         if ( sequence ) {
@@ -100,70 +108,6 @@ G3DUIRENDERPROCESS *common_g3dui_render_q3d ( G3DUI       *gui,
         } else {
             pthread_create ( &rps->tid, &attr, (void*(*)(void*))g3duirenderprocess_render_frame_t, rps );
         }
-
-        /*** register the renderprocess so that we can cancel it ***/
-        list_insert ( &gui->lrps, rps );
-
-        /*** prepare to release resources after thread termination ***/
-        /*pthread_detach ( tid );*/
-    /*}*/
-
-    return rps;
-}
-
-/******************************************************************************/
-G3DUIRENDERPROCESS *common_g3dui_render ( G3DUI       *gui,
-                                          Q3DSETTINGS *rsg,
-                                          Q3DFILTER   *towindow,
-                                          Q3DFILTER   *toframe,
-                                          Q3DFILTER   *tostatus,
-                                          Q3DFILTER   *makepreview,
-                                          float        resetFrame,
-                                          uint64_t     id,
-                                          uint32_t     sequence ) {
-    G3DSCENE *sce = rsg->input.sce;
-    G3DCAMERA *cam = rsg->input.cam;
-
-    /*** Don't start a new render before the current one has finished ***/
-    /*if ( rpc == NULL ) {*/
-        G3DUIRENDERPROCESS *rps;
-        Q3DJOB *qjob  = NULL;
-        G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-
-        pthread_attr_t attr;
-        pthread_t tid;
-
-        /*r3dfilter_setType ( towin, FILTERLINE );*/
-
-        pthread_attr_init ( &attr );
-
-        /*** start thread son all CPUs ***/
-        pthread_attr_setscope ( &attr, PTHREAD_SCOPE_SYSTEM );
-
-        qjob = q3djob_new ( rsg, 
-                            sce, 
-                            cam, 
-                            towindow, 
-                            toframe,
-                            tostatus, 
-                            makepreview, 
-                            0x00 );
-
-        /*** Remember the thread id for cancelling on mouse input e.g ***/
-        /*** We use the widget as an ID ***/
-        rps = g3duirenderprocess_new ( id, gui, qjob, NULL/*towin*/, NULL/*tobuf*/ );
-
-        /*** launch rays in a thread ***/
-        if ( sequence ) {
-            pthread_create ( &rps->tid, 
-                             &attr, (void*(*)(void*))g3duirenderprocess_render_sequence_t, rps );
-        } else {
-            pthread_create ( &rps->tid, 
-                             &attr, (void*(*)(void*))g3duirenderprocess_render_frame_t, rps );
-        }
-
-        /*** register the renderprocess so that we can cancel it ***/
-        list_insert ( &gui->lrps, rps );
 
         /*** prepare to release resources after thread termination ***/
         /*pthread_detach ( tid );*/
@@ -274,7 +218,8 @@ void common_g3dui_addRenderSettings ( G3DUI *gui, Q3DSETTINGS *rsg ) {
 }
 
 /******************************************************************************/
-G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByID ( G3DUI *gui, uint64_t id ) {
+G3DUIRENDERPROCESS *common_g3dui_getRenderProcessByID ( G3DUI   *gui, 
+                                                        uint64_t id ) {
     LIST *ltmprps = gui->lrps;
 
     while ( ltmprps ) {
@@ -333,7 +278,7 @@ uint32_t common_g3dui_cancelRenderByID ( G3DUI *gui, uint64_t id ) {
     G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, id );
 
     if ( rps ) {
-        q3djob_end ( rps->qjob );
+        if ( rps->qjob ) q3djob_end ( rps->qjob );
 
         /*** Commented out: creates a deadlock with the mutex from ***/
         /*** gotoframe filter. Need to investigate more ***/

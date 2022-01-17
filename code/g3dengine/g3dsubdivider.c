@@ -379,11 +379,12 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
             }
         }
 
-        for ( i = 0x00; i < nbCommitEdg; i++ ) {
+        /*** commented out: now handled by g3dmesh_addFace() ***/
+        /*for ( i = 0x00; i < nbCommitEdg; i++ ) {
             if ( commitEdges[i] ) {
                 g3dmesh_addEdge ( commitMesh, commitEdges[i] );
             }
-        }
+        }*/
 
         for ( i = 0x00; i < nbCommitFac; i++ ) {
             if ( commitFaces[i] ) {
@@ -620,7 +621,7 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
                 list_free ( &sdr->lsubfac, NULL );
             }
 
-            return MODIFIERTAKESOVER;
+            return MODIFIERTAKESOVER | MODIFIERBUILDSNEWMESH;
         }
     }
 

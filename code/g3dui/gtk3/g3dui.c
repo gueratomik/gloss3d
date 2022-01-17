@@ -297,77 +297,77 @@ void g3dui_renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
              height = gtk_widget_get_allocated_height ( ggt->curogl );
     GtkView *gvw = ( GtkView * ) gtk_widget_get_parent ( ggt->curogl );
 
-    /*** We recreate the XImage for each rendering because the viewing window ***/
-    /*** size could change in between. So, clear() and init() ***/
-    g3duirenderbuffer_clear ( &gvw->view.rbuf );
-
-    g3duirenderbuffer_init ( &gvw->view.rbuf, 
-                              ggt->curogl );
-#ifdef __linux__
-    Q3DFILTER *progressiveDisplay = q3dfilter_toWindow_new ( gvw->view.rbuf.dis,
-                                                             gvw->view.rbuf.win,
-                                                             gvw->view.rbuf.gc,
-                                                             gvw->view.rbuf.ximg,
-                                                             0x01 );
-#endif
-#ifdef __MINGW32__
-    Q3DFILTER *progressiveDisplay = q3dfilter_toWindow_new ( gvw->view.rbuf.hWnd,
-                                                             gvw->view.rbuf.wimg,
-                                                             0x01 );
-#endif
-
     G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, 
                                                      ( uint64_t ) ggt->curogl );
 
     if ( rps ) {
         /* First cancel running render on that window  if any */
         common_g3dui_cancelRenderByID ( gui, ( uint64_t ) ggt->curogl );
+    } else {
+        /*** We recreate the XImage for each rendering because the viewing window ***/
+        /*** size could change in between. So, clear() and init() ***/
+        g3duirenderbuffer_clear ( &gvw->view.rbuf );
+
+        g3duirenderbuffer_init ( &gvw->view.rbuf, 
+                                  ggt->curogl );
+    #ifdef __linux__
+        Q3DFILTER *progressiveDisplay = q3dfilter_toWindow_new ( gvw->view.rbuf.dis,
+                                                                 gvw->view.rbuf.win,
+                                                                 gvw->view.rbuf.gc,
+                                                                 gvw->view.rbuf.ximg,
+                                                                 0x01 );
+    #endif
+    #ifdef __MINGW32__
+        Q3DFILTER *progressiveDisplay = q3dfilter_toWindow_new ( gvw->view.rbuf.hWnd,
+                                                                 gvw->view.rbuf.wimg,
+                                                                 0x01 );
+    #endif
+
+        G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+        float backgroundWidthRatio = ( ( float ) sysinfo->renderRectangle[0x01].x -
+                                                 sysinfo->renderRectangle[0x00].x ) / width;
+        /* declared static because must survive */
+        static Q3DSETTINGS viewRsg;
+        G3DCAMERA *cam = g3dui_getCurrentViewCamera ( gui );
+
+        q3dsettings_copy ( &viewRsg, gui->currsg );
+
+        viewRsg.input.sce      = gui->sce;
+        viewRsg.input.cam      = cam;
+
+        viewRsg.background.widthRatio = backgroundWidthRatio;
+
+        viewRsg.output.x1 = 0x00;
+        viewRsg.output.x2 = width - 1;
+        viewRsg.output.y1 = 0x00;
+        viewRsg.output.y2 = height - 1;
+        viewRsg.output.width = width;
+        viewRsg.output.height = height;
+        viewRsg.background.image = sysinfo->backgroundImage;
+
+        viewRsg.output.startframe = gui->curframe;
+
+        viewRsg.flags = gui->currsg->flags & ( RENDERWIREFRAME |
+                                               DISABLETEXTURING |
+                                               WIREFRAMELIGHTING |
+                                               ENABLEAA        |
+                                               RENDERDOF       |
+                                               RENDERFOG );
+
+        g3dui_setHourGlass ( gui );
+
+        rps = common_g3dui_render_q3d ( gui, 
+                                       &viewRsg,
+                                        progressiveDisplay,
+                                        gui->toframe,
+                                        NULL,
+                                        NULL,
+                                        cam,
+                                        gui->curframe,
+                           ( uint64_t ) ggt->curogl,
+                                        0x00,
+                                        JOBFREEONCOMPLETION );
     }
-
-    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-    float backgroundWidthRatio = ( ( float ) sysinfo->renderRectangle[0x01].x -
-                                             sysinfo->renderRectangle[0x00].x ) / width;
-    /* declared static because must survive */
-    static Q3DSETTINGS viewRsg;
-    G3DCAMERA *cam = g3dui_getCurrentViewCamera ( gui );
-
-    q3dsettings_copy ( &viewRsg, gui->currsg );
-
-    viewRsg.input.sce      = gui->sce;
-    viewRsg.input.cam      = cam;
-
-    viewRsg.background.widthRatio = backgroundWidthRatio;
-
-    viewRsg.output.x1 = 0x00;
-    viewRsg.output.x2 = width - 1;
-    viewRsg.output.y1 = 0x00;
-    viewRsg.output.y2 = height - 1;
-    viewRsg.output.width = width;
-    viewRsg.output.height = height;
-    viewRsg.background.image = sysinfo->backgroundImage;
-
-    viewRsg.output.startframe = gui->curframe;
-
-    viewRsg.flags = gui->currsg->flags & ( RENDERWIREFRAME |
-                                           DISABLETEXTURING |
-                                           WIREFRAMELIGHTING |
-                                           ENABLEAA        |
-                                           RENDERDOF       |
-                                           RENDERFOG );
-
-    g3dui_setHourGlass ( gui );
-
-    rps = common_g3dui_render_q3d ( gui, 
-                                   &viewRsg,
-                                    progressiveDisplay,
-                                    gui->toframe,
-                                    NULL,
-                                    NULL,
-                                    cam,
-                                    gui->curframe,
-                       ( uint64_t ) ggt->curogl,
-                                    0x00,
-                                    JOBFREEONCOMPLETION );
 
     g3dui_unsetHourGlass ( gui );
 }

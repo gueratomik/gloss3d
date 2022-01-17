@@ -683,7 +683,19 @@ void q3dzengine_drawObjectWithCondition ( Q3DZENGINE *qzen,
 
         g3dcore_multmatrix ( qobj->obj->lmatrix, MVX, WMVX );
 
-        if ( qobj->obj->type & MESH ) {
+        if (   ( qobj->obj->type & MESH ) &&
+             ( ( qobj->obj->type & MODIFIER ) == 0x00 ) ) {
+            Q3DMESH *qmes = ( Q3DMESH * ) qobj;
+
+            q3dzengine_drawMesh ( qzen, 
+                                  qmes,
+                                  WMVX,
+                                  PJX,
+                                  VPX,
+                                  frame );
+        }
+
+        if ( qobj->obj->type == G3DSPLINEREVOLVERTYPE ) {
             Q3DMESH *qmes = ( Q3DMESH * ) qobj;
 
             q3dzengine_drawMesh ( qzen, 

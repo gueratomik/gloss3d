@@ -830,11 +830,12 @@ typedef struct _G3DUIRENDERPROCESS {
 } G3DUIRENDERPROCESS;
 
 /****************************** g3duirenderprocess.c **************************/
-G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t   id,
-                                             G3DUI     *gui,
-                                             Q3DJOB  *qjob,
-                                             Q3DFILTER *filter_to_window,
-                                             Q3DFILTER *filter_to_buffer );
+G3DUIRENDERPROCESS *g3duirenderprocess_new ( uint64_t   id );
+void g3duirenderprocess_init ( G3DUIRENDERPROCESS *rps,
+                               G3DUI              *gui,
+                               Q3DJOB             *qjob,
+                               Q3DFILTER          *towindow,
+                               Q3DFILTER          *toframe );
 void g3duirenderprocess_free     ( G3DUIRENDERPROCESS * );
 void g3duirenderprocess_filename ( G3DUIRENDERPROCESS *, char * );
 void g3duirenderprocess_savejpg  ( G3DUIRENDERPROCESS *, char * );

@@ -103,9 +103,11 @@ Q3DVERTEXSET *q3dmesh_getVertexSet ( Q3DMESH *qmes,
                                      float    frame ) {
     uint32_t i;
 
-    for ( i = 0x00; i < qmes->nbVertexSet; i++ ) {
-        if ( qmes->vertexSet[i].frame == frame ) {
-            return &qmes->vertexSet[i];
+    if ( qmes->nbVertexSet ) {
+        for ( i = 0x00; i < qmes->nbVertexSet; i++ ) {
+            if ( qmes->vertexSet[i].frame == frame ) {
+                return &qmes->vertexSet[i];
+            }
         }
     }
 
@@ -168,31 +170,35 @@ static void q3dmesh_allocArrays ( Q3DMESH *qmes,
     uint32_t memsize = 0x00;
     uint32_t i;
 
-    qmes->nbqver = nbqver;
+    if ( nbqver ) {
+        qmes->nbqver = nbqver;
 
-    q3dmesh_addVertexSet ( qmes, frame );
+        q3dmesh_addVertexSet ( qmes, frame );
 
-    qmes->qtri = ( Q3DTRIANGLE * ) calloc ( nbqtri, sizeof ( Q3DTRIANGLE ) );
+        if ( nbqtri ) {
+            qmes->nbqtri = nbqtri;
 
-    if ( qmes->qtri == NULL ) {
-        fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
+            qmes->qtri = ( Q3DTRIANGLE * ) calloc ( qmes->nbqtri, sizeof ( Q3DTRIANGLE ) );
 
-        return;
-    }
+            if ( qmes->qtri == NULL ) {
+                fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
 
-    qmes->nbqtri = nbqtri;
-
-    qmes->curtri = qmes->qtri;
-
-    if ( ( dump_flags & GEOMETRYONLY ) == 0x00 ) {
-        if ( nbquvs ) {
-            qmes->quvs = ( Q3DUVSET * ) calloc ( nbquvs, sizeof ( Q3DUVSET ) );
-
-            for ( i = 0x00; i < nbqtri; i++ ) {
-                qmes->qtri[i].quvs = &qmes->quvs[(i * nbuvmap)];
+                return;
             }
 
-            qmes->nbquvs = nbquvs;
+            qmes->curtri = qmes->qtri;
+
+            if ( ( dump_flags & GEOMETRYONLY ) == 0x00 ) {
+                if ( nbquvs ) {
+                    qmes->nbquvs = nbquvs;
+
+                    qmes->quvs = ( Q3DUVSET * ) calloc ( nbquvs, sizeof ( Q3DUVSET ) );
+
+                    for ( i = 0x00; i < nbqtri; i++ ) {
+                        qmes->qtri[i].quvs = &qmes->quvs[(i * nbuvmap)];
+                    }
+                }
+            }
         }
     }
 
