@@ -36,7 +36,7 @@ void g3dscene_checkReferredObjects ( G3DSCENE *sce ) {
     while ( ltmpref ) {
         G3DREFERRED *ref = ( G3DREFERRED * ) ltmpref->data;
 
-        if ( g3dobject_seekByPtr_r ( sce, ref->obj ) ) {
+        if ( g3dobject_seekByPtr_r ( ( G3DOBJECT * ) sce, ref->obj ) ) {
             ref->available = 0x01;
         } else {
             ref->available = 0x00;
@@ -91,7 +91,7 @@ void g3dscene_removeReferredObject ( G3DSCENE *sce,
 /******************************************************************************/
 void g3dscene_addReferredObject ( G3DSCENE *sce, 
                                   G3DOBJECT *obj ) {
-    if ( g3dscene_isObjectReferred ( sce, obj ) == NULL ) {
+    if ( g3dscene_isObjectReferred ( sce, obj ) == 0x00 ) {
         G3DREFERRED *ref = ( G3DREFERRED * ) calloc ( 0x01, sizeof ( G3DREFERRED ) );
 
         ref->obj = obj;
@@ -105,7 +105,7 @@ void g3dscene_addReferredObject ( G3DSCENE *sce,
 /******************************************************************************/
 void g3dscene_updateMeshes ( G3DSCENE *sce, 
                              uint64_t  engine_flags ) {
-    g3dobject_updateMeshes_r ( sce, engine_flags );
+    g3dobject_updateMeshes_r ( ( G3DOBJECT * ) sce, engine_flags );
 }
 
 /******************************************************************************/
@@ -402,7 +402,7 @@ uint32_t g3dscene_deleteSelectedObjects ( G3DSCENE *sce,
         ltmp = ltmp->next;
     }
 
-    list_free ( &sce->lsel, g3dobject_unsetSelected );
+    list_free ( &sce->lsel, LIST_FUNCDATA(g3dobject_unsetSelected) );
 
     g3dscene_updatePivot ( sce, engine_flags );
 
@@ -538,7 +538,7 @@ void g3dscene_unselectObject ( G3DSCENE *sce,
 void g3dscene_selectObject ( G3DSCENE  *sce, 
                              G3DOBJECT *obj,
                              uint64_t   engine_flags ) {
-    if ( obj != sce ) {
+    if ( obj != ( G3DOBJECT * ) sce ) {
         if ( list_seek ( sce->lsel, obj ) == NULL ) {
             g3dobject_setSelected ( obj ); /*** set SELECTION flags ***/
 
@@ -707,7 +707,10 @@ static uint32_t updateMeshesFromImage ( G3DOBJECT *obj,
 void g3dscene_updateMeshesFromImage ( G3DSCENE *sce,
                                       G3DIMAGE *img,
                                       uint64_t  engine_flags ) {
-    g3dobject_browse ( sce, updateMeshesFromImage, img, engine_flags );
+    g3dobject_browse ( ( G3DOBJECT * ) sce, 
+                     OBJECTBROWSE_FUNC(updateMeshesFromImage), 
+                                       img, 
+                                       engine_flags );
 }
 
 /******************************************************************************/

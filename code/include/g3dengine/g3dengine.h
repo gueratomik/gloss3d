@@ -509,8 +509,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define _NEXTVERTEX(mes,ltmpver) \
 if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
     G3DSUBVERTEX *subver = ( G3DSUBVERTEX * ) ltmpver; \
-    ltmpver = ++subver; \
-    if ( ltmpver == ( ( G3DSUBVERTEX * ) mes->lver + mes->nbver ) ) { \
+    ltmpver = (LIST*)((G3DSUBVERTEX*)++subver); \
+    if ( ltmpver == ( LIST * ) ( ( G3DSUBVERTEX * ) mes->lver + mes->nbver ) ) { \
         ltmpver = NULL; \
     } \
 } else { \
@@ -524,8 +524,8 @@ if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
 #define _NEXTEDGE(mes,ltmpedg) \
 if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
     G3DSUBEDGE *subedg = ( G3DSUBEDGE * ) ltmpedg; \
-    ltmpedg = ++subedg; \
-    if ( ltmpedg == ( ( G3DSUBEDGE * ) mes->ledg + mes->nbedg ) ) { \
+    ltmpedg = (LIST*)((G3DSUBEDGE*)++subedg); \
+    if ( ltmpedg == ( LIST * ) ( ( G3DSUBEDGE * ) mes->ledg + mes->nbedg ) ) { \
         ltmpedg = NULL; \
     } \
 } else { \
@@ -534,7 +534,8 @@ if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
 
 /******************************************************************************/
 #define _GETFACE(mes,ltmpfac) \
-(((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) ? ( G3DSUBFACE * ) ltmpfac : ltmpfac->data;
+(((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) ? ( G3DFACE * ) ltmpfac : \
+                                                     ( G3DFACE * ) ltmpfac->data
 
 #define _NEXTFACE(mes,ltmpfac) \
 if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
@@ -770,6 +771,9 @@ typedef struct _G3DSCENE  G3DSCENE;
 #define PICK_CALLBACK(f)       ((uint32_t(*)  (G3DOBJECT*,G3DCAMERA*,uint64_t))f)
 #define ANIM_CALLBACK(f)       ((void(*)      (G3DOBJECT*,float,uint64_t))f)
 #define POSE_CALLBACK(f) ((void(*) (G3DOBJECT*,G3DKEY*))f)
+
+#define OBJECTKEY_FUNC(f) ((void(*)(G3DKEY*,void*))f)
+#define OBJECTBROWSE_FUNC(f) ((uint32_t (*)(G3DOBJECT*,void*,uint64_t))f)
 
 /******************************************************************************/
 typedef struct _G3DOBJECT {
@@ -2172,11 +2176,11 @@ void g3dobject_connectPositionSegmentFromFrame ( G3DOBJECT *obj,
                                                  float      frame );
 
 void g3dobject_stitchScalingCurve   ( G3DOBJECT *obj, 
-                                      LIST      *laddedSegments );
+                                      LIST      **laddedSegments );
 void g3dobject_stitchRotationCurve  ( G3DOBJECT *obj, 
-                                      LIST      *laddedSegments );
+                                      LIST      **laddedSegments );
 void g3dobject_stitchPositionCurve  ( G3DOBJECT *obj, 
-                                      LIST      *laddedSegments );
+                                      LIST      **laddedSegments );
 
 void g3dobject_stitchTransformations ( G3DOBJECT *obj,
                                        LIST     **laddedPosSegments,
@@ -2399,8 +2403,8 @@ G3DPRIMITIVE *g3dprimitive_new ( uint32_t id,
                                  char    *name, 
                                  void    *data,
                                  uint32_t datalen );
-void          g3dprimitive_free    ( G3DOBJECT *obj );
-uint32_t g3dprimitive_draw ( G3DOBJECT *obj, 
+void          g3dprimitive_free    ( G3DPRIMITIVE *pri );
+uint32_t g3dprimitive_draw ( G3DPRIMITIVE *pri, 
                              G3DCAMERA *curcam, 
                              uint64_t   engine_flags );
 G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, 
@@ -3093,7 +3097,7 @@ void g3dpivot_init ( G3DPIVOT  *piv,
                      G3DCURSOR *csr, 
                      uint64_t engine_flags );
 G3DPIVOT *g3dpivot_new ( G3DCAMERA *cam, 
-                         G3DVECTOR *pos, 
+                         G3DCURSOR *csr, 
                          uint64_t   engine_flags );
 void      g3dpivot_orbit ( G3DPIVOT *, float, float );
 

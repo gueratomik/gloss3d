@@ -184,7 +184,7 @@ G3DQUADRATICSEGMENT *g3dquadraticsegment_new ( G3DCURVEPOINT *pt0,
                                                float           hy,
                                                float           hz );
 G3DCURVE *g3dcurve_copy ( G3DCURVE *curve, uint64_t engine_flags );
-void g3dcurve_free ( G3DOBJECT *obj );
+void g3dcurve_free ( G3DCURVE *curve );
 void g3dcurve_addPoint ( G3DCURVE      *curve, 
                          G3DCURVEPOINT *pt );
 void g3dcurve_removePoint ( G3DCURVE      *curve, 

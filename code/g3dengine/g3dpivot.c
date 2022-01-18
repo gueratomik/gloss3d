@@ -169,7 +169,7 @@ void g3dpivot_init ( G3DPIVOT  *piv,
 
 /******************************************************************************/
 G3DPIVOT *g3dpivot_new ( G3DCAMERA *cam, 
-                         G3DVECTOR *pos, 
+                         G3DCURSOR *csr, 
                          uint64_t   engine_flags ) {
     G3DPIVOT *piv = ( G3DPIVOT * ) calloc ( 0x01, sizeof ( G3DPIVOT ) );
 
@@ -179,7 +179,7 @@ G3DPIVOT *g3dpivot_new ( G3DCAMERA *cam,
         return NULL;
     }
 
-    g3dpivot_init ( piv, cam, pos, engine_flags );
+    g3dpivot_init ( piv, cam, csr, engine_flags );
 
 
     return piv;

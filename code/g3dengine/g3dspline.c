@@ -58,7 +58,7 @@ uint32_t g3dspline_pick ( G3DOBJECT *obj,
         }
     } else {
         if ( engine_flags & VIEWOBJECT ) {
-            g3dpick_setName ( spline );
+            g3dpick_setName ( ( uint64_t ) spline );
             g3dcurve_pick ( spline->curve, engine_flags );
         }
     }
@@ -83,8 +83,10 @@ void g3dspline_modify ( G3DSPLINE  *spl,
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
 
         if ( child->type & MODIFIER ) {
-            spl->lastmod = g3dmodifier_modify_r ( child,
-                                                  spl,
+            G3DMODIFIER *mod = ( G3DMODIFIER * ) child;
+
+            spl->lastmod = g3dmodifier_modify_r ( mod,
+                                  ( G3DOBJECT * ) spl,
                                                   NULL,
                                                   NULL,
                                                   op,

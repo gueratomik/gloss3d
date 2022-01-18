@@ -690,7 +690,9 @@ void g3dimage_initFromJpeg ( G3DIMAGE   *img,
         img->wratio = ( float ) jpgwidth  / img->width;
         img->hratio = ( float ) jpgheight / img->height;
 
-        img->data = imgdata = calloc ( imgheight, imgbytesperline );
+        imgdata = ( unsigned char (*)[0x03] ) calloc ( imgheight, imgbytesperline );
+
+        img->data = ( unsigned char * ) imgdata;
 
         /* gluScaleImage crashes sometimes, I don't know why */
         /*gluScaleImage ( GL_RGB, 

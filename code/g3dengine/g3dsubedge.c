@@ -222,7 +222,7 @@ uint32_t g3dsubedge_createFaceInnerEdge ( G3DSUBEDGE    *subedg,
         uint32_t i;
 
         /*** The central face is managed by g3dface_setInnerVertex() ***/
-        if ( subfac != (G3DSUBFACE*)faccmp ) {
+        if ( subfac != (G3DSUBFACE*) faccmp ) {
             subfac->subver = (*subverptr)++;
 
             memcpy ( &subfac->subver->pos, &subfac->fac.pos, sizeof ( G3DVECTOR ) );
@@ -258,7 +258,7 @@ uint32_t g3dsubedge_createFaceInnerEdge ( G3DSUBEDGE    *subedg,
             }
 
             /*** Whole topology is needed only when fac is the central face ***/
-            if ( subfac == faccmp ) {
+            if ( subfac == (G3DSUBFACE*) faccmp ) {
                 g3dsubvertex_addEdge ( ( G3DSUBVERTEX * ) (*subedgptr)->edg.ver[0x00], ( G3DEDGE * ) (*subedgptr) );
                 g3dsubvertex_addEdge ( ( G3DSUBVERTEX * ) (*subedgptr)->edg.ver[0x01], ( G3DEDGE * ) (*subedgptr) );
             } else {
@@ -277,7 +277,10 @@ uint32_t g3dsubedge_createFaceInnerEdge ( G3DSUBEDGE    *subedg,
 
 /******************************************************************************/
 void g3dsubedge_normal ( G3DSUBEDGE *subedg ) {
-    g3dedge_getSubdivisionNormal ( subedg, NULL, NULL, &subedg->nor );
+    g3dedge_getSubdivisionNormal ( ( G3DEDGE * ) subedg,
+                                                 NULL,
+                                                 NULL,
+                                                &subedg->nor );
 }
 
 /******************************************************************************/
@@ -291,8 +294,8 @@ void g3dsubedge_init ( G3DSUBEDGE *subedg, G3DVERTEX *v0, G3DVERTEX *v1 ) {
     subedg->edg.ver[0x01] = v1;
 
     /*** add this edge to the vertex list of edges ***/
-    g3dsubvertex_addEdge ( v0, subedg );
-    g3dsubvertex_addEdge ( v1, subedg );
+    g3dsubvertex_addEdge ( ( G3DSUBVERTEX * ) v0, subedg );
+    g3dsubvertex_addEdge ( ( G3DSUBVERTEX * ) v1, subedg );
 }
 
 /******************************************************************************/

@@ -179,7 +179,7 @@ static void g3dparticleemitter_initParticle ( G3DPARTICLEEMITTER *pem,
         g3dvector_matrix ( &speed, pem->TIWMVX, &wspeed );
 
         g3dparticle_init ( prt,
-                           g3dobject_getRandomChild ( pem ),
+                           g3dobject_getRandomChild ( ( G3DOBJECT * ) pem ),
                           &wpos,
                           &sca,
                           &rot,
@@ -402,7 +402,7 @@ static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem,
            *currKey = NULL;
     float deltaFrame;
 
-    if ( g3dobject_isActive ( pem ) == 0x00 ) return;
+    if ( g3dobject_isActive ( ( G3DOBJECT * ) pem ) == 0x00 ) return;
 
     frame = g3dobject_getKeys ( &pem->obj, 
                                 frame, 
@@ -523,7 +523,7 @@ void g3dparticleemitter_init ( G3DPARTICLEEMITTER *pem,
                                uint32_t            id, 
                                char               *name,
                                G3DSCENE           *sce ) {
-    g3dobject_init ( pem, 
+    g3dobject_init ( ( G3DOBJECT * ) pem, 
                      G3DPARTICLEEMITTERTYPE,
                      id, 
                      name, 
@@ -539,7 +539,7 @@ void g3dparticleemitter_init ( G3DPARTICLEEMITTER *pem,
    ADDCHILD_CALLBACK(NULL),
                      NULL );
 
-    ((G3DOBJECT*)pem)->transform = g3dparticleemitter_transform;
+    ((G3DOBJECT*)pem)->transform = TRANSFORM_CALLBACK(g3dparticleemitter_transform);
 
     /*pem->orientation = INSTANCEYZ;*/
 

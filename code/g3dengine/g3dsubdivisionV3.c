@@ -1120,13 +1120,13 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
 
 
     for ( i = 0x00; i < fac->nbver; i++ ) {
-        g3dedge_getSubdivisionPosition ( &initialInnerEdges[i], NULL, &initialInnerEdges[i].pos );
-        g3dedge_getSubdivisionNormal   ( &initialInnerEdges[i], NULL, NULL, &initialInnerEdges[i].nor );
+        g3dedge_getSubdivisionPosition ( ( G3DEDGE * ) &initialInnerEdges[i], NULL, &initialInnerEdges[i].pos );
+        g3dedge_getSubdivisionNormal   ( ( G3DEDGE * ) &initialInnerEdges[i], NULL, NULL, &initialInnerEdges[i].nor );
     }
 
     for ( i = 0x00; i < (*nbOuterEdges); i++ ) {
-        g3dedge_getSubdivisionPosition ( &initialOuterEdges[i], NULL, &initialOuterEdges[i].pos );
-        g3dedge_getSubdivisionNormal   ( &initialOuterEdges[i], NULL, NULL, &initialOuterEdges[i].nor );
+        g3dedge_getSubdivisionPosition ( ( G3DEDGE * ) &initialOuterEdges[i], NULL, &initialOuterEdges[i].pos );
+        g3dedge_getSubdivisionNormal   ( ( G3DEDGE * ) &initialOuterEdges[i], NULL, NULL, &initialOuterEdges[i].nor );
     }
 
     return subdiv_flags;

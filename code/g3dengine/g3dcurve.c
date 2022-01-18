@@ -940,8 +940,7 @@ void g3dcurve_draw ( G3DCURVE *curve, uint64_t engine_flags ) {
 }*/
 
 /******************************************************************************/
-void g3dcurve_free ( G3DOBJECT *obj ) {
-    G3DCURVE *curve = ( G3DCURVE * ) obj;
+void g3dcurve_free ( G3DCURVE *curve ) {
 
     list_free ( &curve->lseg, LIST_FUNCDATA(g3dcubicsegment_free) );
     list_free ( &curve->lpt, LIST_FUNCDATA(g3dcurvepoint_free) );

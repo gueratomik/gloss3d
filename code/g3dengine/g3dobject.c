@@ -684,7 +684,7 @@ void g3dobject_scaleSelectedKeys ( G3DOBJECT *obj,
                          .reference = reference };
 
     g3dobject_moveSelectedKeys ( obj, 
-                                 scaleKeyFunc, 
+                  OBJECTKEY_FUNC(scaleKeyFunc), 
                                 &skd,
                                  lremovedKeys,
                                  lremovedPosSegments,
@@ -716,7 +716,7 @@ void g3dobject_driftSelectedKeys ( G3DOBJECT *obj,
     DRIFTKEYDATA dkd = { .drift = drift };
 
     g3dobject_moveSelectedKeys ( obj, 
-                                 driftKeyFunc, 
+                  OBJECTKEY_FUNC(driftKeyFunc), 
                                 &dkd,
                                  lremovedKeys,
                                  lremovedPosSegments,
@@ -831,9 +831,9 @@ void g3dobject_anim_position ( G3DOBJECT *obj,
         memcpy ( &obj->pos, &framekey->pos, sizeof ( G3DVECTOR ) );
     } else {
         if ( prevkey && nextkey ) {
-            G3DCUBICSEGMENT *csg = g3dcurve_seekSegment ( obj->curve[0x00], 
-                                                         &prevkey->curvePoint[0x00],
-                                                         &nextkey->curvePoint[0x00] );
+            G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * )  g3dcurve_seekSegment ( obj->curve[0x00], 
+                                                                                &prevkey->curvePoint[0x00],
+                                                                                &nextkey->curvePoint[0x00] );
 
             float ratio = ( ( updframe       - prevkey->frame ) /
                             ( nextkey->frame - prevkey->frame ) );
@@ -868,9 +868,9 @@ void g3dobject_anim_rotation ( G3DOBJECT *obj,
         memcpy ( &obj->rot, &framekey->rot, sizeof ( G3DVECTOR ) );
     } else {
         if ( prevkey && nextkey ) {
-            G3DCUBICSEGMENT *csg = g3dcurve_seekSegment ( obj->curve[0x01], 
-                                                         &prevkey->curvePoint[0x01],
-                                                         &nextkey->curvePoint[0x01] );
+            G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) g3dcurve_seekSegment ( obj->curve[0x01], 
+                                                                               &prevkey->curvePoint[0x01],
+                                                                               &nextkey->curvePoint[0x01] );
             float ratio = ( ( updframe       - prevkey->frame ) /
                             ( nextkey->frame - prevkey->frame ) );
             G3DQUATERNION qsrc, qdst, qout;
@@ -929,9 +929,9 @@ void g3dobject_anim_scaling ( G3DOBJECT *obj,
         memcpy ( &obj->sca, &framekey->sca, sizeof ( G3DVECTOR ) );
     } else {
         if ( prevkey && nextkey ) {
-            G3DCUBICSEGMENT *csg = g3dcurve_seekSegment ( obj->curve[0x02], 
-                                                         &prevkey->curvePoint[0x02],
-                                                         &nextkey->curvePoint[0x02] );
+            G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) g3dcurve_seekSegment ( obj->curve[0x02], 
+                                                                               &prevkey->curvePoint[0x02],
+                                                                               &nextkey->curvePoint[0x02] );
             float ratio = ( ( updframe       - prevkey->frame ) /
                             ( nextkey->frame - prevkey->frame ) );
 
@@ -990,7 +990,7 @@ uint32_t g3dobject_hasRiggedBone_r ( G3DOBJECT *obj ) {
     while ( ltmpobj ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpobj->data;
 
-        if ( g3dobject_hasRiggedBone_r ( ( G3DBONE * ) child ) ) return 0x01;
+        if ( g3dobject_hasRiggedBone_r ( ( G3DOBJECT * ) child ) ) return 0x01;
 
         ltmpobj = ltmpobj->next;
     }
@@ -1118,8 +1118,8 @@ static void curve_addTransformation ( G3DCURVE      *curve,
                                                          0.0f,
                                                          0.0f );
 
-            g3dcurve_addPoint ( curve, pt );
-            g3dcurve_addSegment ( curve, seg );
+            g3dcurve_addPoint   ( curve, pt );
+            g3dcurve_addSegment ( curve, ( G3DCURVESEGMENT * ) seg );
             g3dcurvepoint_roundCubicSegments ( prevPt );
 
             if ( laddedSegments ) list_insert ( laddedSegments, seg );
@@ -1134,8 +1134,8 @@ static void curve_addTransformation ( G3DCURVE      *curve,
                                                          0.0f,
                                                          0.0f,
                                                          0.0f );
-            g3dcurve_addPoint ( curve, pt );
-            g3dcurve_addSegment ( curve, seg );
+            g3dcurve_addPoint   ( curve, pt );
+            g3dcurve_addSegment ( curve, ( G3DCURVESEGMENT * ) seg );
             g3dcurvepoint_roundCubicSegments ( nextPt );
 
             if ( laddedSegments ) list_insert ( laddedSegments, seg );
@@ -1245,14 +1245,14 @@ static void g3dobject_stitchCurve ( G3DOBJECT *obj,
                                                      &nextKey->curvePoint[curveID]  );
 
             if ( csg == NULL ) {
-                csg = g3dcubicsegment_new ( &key->curvePoint[curveID],
-                                        &nextKey->curvePoint[curveID],
-                                             0.0f, 
-                                             0.0f,
-                                             0.0f,
-                                             0.0f,
-                                             0.0f,
-                                             0.0f );
+                csg = ( G3DCURVESEGMENT * ) g3dcubicsegment_new ( &key->curvePoint[curveID],
+                                                                  &nextKey->curvePoint[curveID],
+                                                                       0.0f, 
+                                                                       0.0f,
+                                                                       0.0f,
+                                                                       0.0f,
+                                                                       0.0f,
+                                                                       0.0f );
 
                 g3dcurve_addSegment ( obj->curve[curveID], csg );
 
@@ -1268,20 +1268,20 @@ static void g3dobject_stitchCurve ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-void g3dobject_stitchPositionCurve  ( G3DOBJECT *obj, 
-                                      LIST      *laddedSegments ) {
+void g3dobject_stitchPositionCurve  ( G3DOBJECT  *obj, 
+                                      LIST      **laddedSegments ) {
     g3dobject_stitchCurve ( obj, 0x00, laddedSegments );
 }
 
 /******************************************************************************/
-void g3dobject_stitchRotationCurve  ( G3DOBJECT *obj, 
-                                      LIST      *laddedSegments ) {
+void g3dobject_stitchRotationCurve  ( G3DOBJECT  *obj, 
+                                      LIST      **laddedSegments ) {
     g3dobject_stitchCurve ( obj, 0x01, laddedSegments );
 }
 
 /******************************************************************************/
-void g3dobject_stitchScalingCurve  ( G3DOBJECT *obj, 
-                                     LIST      *laddedSegments ) {
+void g3dobject_stitchScalingCurve  ( G3DOBJECT  *obj, 
+                                     LIST      **laddedSegments ) {
     g3dobject_stitchCurve ( obj, 0x02, laddedSegments );
 }
 

@@ -37,7 +37,7 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
 static void g3dsubdivider_anim ( G3DSUBDIVIDER *sdr, 
                                  float          frame, 
                                  uint64_t       engine_flags ) {
-    if ( g3dobject_isActive ( sdr ) ) {
+    if ( g3dobject_isActive ( ( G3DOBJECT * ) sdr ) ) {
         if ( ((G3DOBJECT*)sdr)->parent->type == G3DSKINTYPE ) {
             g3dsubdivider_modify ( sdr, G3DMODIFYOP_MODIFY, engine_flags );
         }
@@ -99,7 +99,10 @@ void g3dsubdivider_setParent ( G3DSUBDIVIDER *sdr,
                                uint64_t       engine_flags ) {
     g3dsubdivider_reset ( sdr );
 
-    g3dmodifier_setParent ( sdr, parent, oldParent, engine_flags );
+    g3dmodifier_setParent ( ( G3DMODIFIER * ) sdr, 
+                                              parent, 
+                                              oldParent, 
+                                              engine_flags );
 }
 
 /******************************************************************************/
@@ -785,7 +788,7 @@ static void unbindMaterials ( G3DMESH *mes,
 
     while ( ltmptex ) {
         G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
-        G3DUVSET *uvset = g3dface_getUVSet ( fac, tex->mat );
+        G3DUVSET *uvset = g3dface_getUVSet ( fac, tex->map );
         G3DMATERIAL *mat = tex->mat;
         G3DIMAGE    *difimg = NULL;
 
@@ -954,7 +957,7 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
 
     ((G3DOBJECT*)sdr)->anim = ANIM_CALLBACK(g3dsubdivider_anim);
 
-    mod->moddraw = g3dsubdivider_moddraw;
+    mod->moddraw = MODDRAW_CALLBACK(g3dsubdivider_moddraw);
 }
 
 /******************************************************************************/

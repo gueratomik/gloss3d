@@ -52,7 +52,7 @@ void g3dsubvertex_elevate ( G3DSUBVERTEX *subver, uint32_t (*qua_indexes)[0x04],
             uint32_t i;
 
             for ( i = 0x00; i < fac->nbver; i++ ) {
-                if ( fac->ver[i] == subver ) {
+                if ( fac->ver[i] == ( G3DVERTEX * ) subver ) {
                     uint32_t verID = ( fac->flags & FACEFROMQUAD ) ? qua_indexes[fac->id][i] :
                                                                      tri_indexes[fac->id][i];
 

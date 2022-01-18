@@ -73,7 +73,10 @@ static void g3dskin_setParent ( G3DSKIN   *skn,
                                 G3DOBJECT *parent,
                                 G3DOBJECT *oldParent,
                                 uint64_t   engine_flags ) {
-    g3dmodifier_setParent ( skn, parent, oldParent, engine_flags );
+    g3dmodifier_setParent ( ( G3DMODIFIER * ) skn, 
+                                              parent, 
+                                              oldParent, 
+                                              engine_flags );
 }
 
 /******************************************************************************/
@@ -151,20 +154,21 @@ static void g3dskin_anim ( G3DSKIN *skn,
                            float    frame, 
                            uint64_t engine_flags ) {
 
-    if ( g3dobject_isActive ( skn ) ) {
+    if ( g3dobject_isActive ( ( G3DOBJECT * ) skn ) ) {
         g3dskin_modify ( skn, G3DMODIFYOP_UPDATE, engine_flags );
 
 
-        g3dmesh_updateModified ( skn->mod.oriobj,
-                                 skn,
-                                 engine_flags );
+        g3dmesh_updateModified ( ( G3DMESH * ) skn->mod.oriobj,
+                             ( G3DMODIFIER * ) skn,
+                                               engine_flags );
     }
 }
 
 /******************************************************************************/
 static void g3dskin_activate ( G3DSKIN *skn,
                                uint64_t engine_flags ) {
-    G3DOBJECT *parent = g3dobject_getActiveParentByType ( skn, MESH );
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( ( G3DOBJECT * ) skn, 
+                                                                         MESH );
 
     if ( parent ) {
         G3DMESH *parmes = ( G3DMESH * ) parent;
@@ -201,14 +205,14 @@ static uint32_t g3dskin_moddraw ( G3DSKIN *skn,
 
     if ( skn->mod.oriobj ) {
         if ( skn->mod.oriobj->type & MESH ) {
-            G3DMESH *orimes = skn->mod.oriobj;
+            G3DMESH *orimes = ( G3DMESH * ) skn->mod.oriobj;
             LIST *ltmpver = orimes->lver;
 
-            g3dmesh_drawModified ( skn->mod.oriobj,
-                                   cam,
-                                   skn->mod.verpos,
-                                   skn->mod.vernor,
-                                   engine_flags );
+            g3dmesh_drawModified ( ( G3DMESH * ) skn->mod.oriobj,
+                                                 cam,
+                                                 skn->mod.verpos,
+                                                 skn->mod.vernor,
+                                                 engine_flags );
 
             return 0x00;
         }
@@ -245,7 +249,7 @@ static void g3dskin_init ( G3DSKIN *skn,
 
     ((G3DOBJECT*)skn)->anim = ANIM_CALLBACK(g3dskin_anim);
 
-    mod->moddraw = g3dskin_moddraw;
+    mod->moddraw = MODDRAW_CALLBACK(g3dskin_moddraw);
 }
 
 /******************************************************************************/

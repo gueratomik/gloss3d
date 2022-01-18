@@ -55,7 +55,9 @@ void g3dsymmetry_convert_r ( G3DOBJECT *obj,
 
         switch ( child->type ) {
             case G3DMESHTYPE :
-                symobj = g3dmesh_symmetricMerge ( child, MVX, engine_flags );
+                symobj = g3dmesh_symmetricMerge ( ( G3DMESH * ) child, 
+                                                                MVX,
+                                                                engine_flags );
             break;
    
             default:
@@ -80,8 +82,8 @@ void g3dsymmetry_convert_r ( G3DOBJECT *obj,
 /*****************************************************************************/
 static G3DOBJECT *g3dsymmetry_commit ( G3DSYMMETRY *sym, 
                                        uint64_t     engine_flags ) {
-    G3DOBJECT *obj = g3dobject_new ( g3dobject_getID   ( sym ),
-                                     g3dobject_getName ( sym ), 0x00 );
+    G3DOBJECT *obj = g3dobject_new ( g3dobject_getID   ( ( G3DOBJECT * ) sym ),
+                                     g3dobject_getName ( ( G3DOBJECT * ) sym ), 0x00 );
     double *worldMatrix = ((G3DOBJECT*)sym)->wmatrix;
     double  matrix[0x10];
 
@@ -90,7 +92,7 @@ static G3DOBJECT *g3dsymmetry_commit ( G3DSYMMETRY *sym,
     g3dobject_importTransformations ( ( G3DOBJECT * ) obj,
                                       ( G3DOBJECT * ) sym );
 
-    g3dsymmetry_convert_r ( obj, sym, matrix, engine_flags );
+    g3dsymmetry_convert_r ( obj, ( G3DOBJECT * ) sym, matrix, engine_flags );
 
 
 
@@ -387,14 +389,14 @@ G3DSYMMETRY *g3dsymmetry_new ( uint32_t id,
     g3dsymmetry_setMergeLimit ( sym, 0.02f );
 
     g3dobject_init ( obj, G3DSYMMETRYTYPE, id, name, 0x00,
-                                                     g3dsymmetry_draw,
-                                                     g3dsymmetry_free,
+                                     DRAW_CALLBACK ( g3dsymmetry_draw ),
+                                     FREE_CALLBACK ( g3dsymmetry_free ),
                                                      NULL,
                                                      NULL,
-                                                     g3dsymmetry_copy,
-                                                     g3dsymmetry_activate,
-                                                     g3dsymmetry_deactivate,
-                                                     g3dsymmetry_commit,
+                                     COPY_CALLBACK ( g3dsymmetry_copy ),
+                                 ACTIVATE_CALLBACK ( g3dsymmetry_activate ),
+                               DEACTIVATE_CALLBACK ( g3dsymmetry_deactivate ),
+                                   COMMIT_CALLBACK ( g3dsymmetry_commit ),
                                                      NULL,
                                                      NULL );
 

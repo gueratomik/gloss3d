@@ -95,27 +95,27 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri,
 }
 
 /******************************************************************************/
-static uint32_t g3dprimitive_pick ( G3DOBJECT *obj, 
-                                    G3DCAMERA *curcam, 
-                                    uint64_t   engine_flags ) {
-    g3dmesh_pick( obj, curcam, engine_flags );
+static uint32_t g3dprimitive_pick ( G3DPRIMITIVE *pri, 
+                                    G3DCAMERA    *curcam, 
+                                    uint64_t      engine_flags ) {
+    g3dmesh_pick( ( G3DMESH * ) pri, curcam, engine_flags );
 
     return 0x00;
 }
 
 /******************************************************************************/
-uint32_t g3dprimitive_draw ( G3DOBJECT *obj, 
-                             G3DCAMERA *curcam, 
-                             uint64_t   engine_flags ) {
-    g3dmesh_draw ( ( G3DMESH * ) obj, curcam, engine_flags & (~MODEMASK) | VIEWOBJECT );
+uint32_t g3dprimitive_draw ( G3DPRIMITIVE *pri, 
+                             G3DCAMERA    *curcam, 
+                             uint64_t      engine_flags ) {
+    g3dmesh_draw ( ( G3DMESH * ) pri, 
+                                 curcam, 
+                                 engine_flags & (~MODEMASK) | VIEWOBJECT );
 
     return 0x00;
 }
 
 /******************************************************************************/
-void g3dprimitive_free ( G3DOBJECT *obj ) {
-    G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-
+void g3dprimitive_free ( G3DPRIMITIVE *pri ) {
     if ( pri->data ) {
         free ( pri->data );
     }
