@@ -236,7 +236,7 @@ G3DWEIGHTGROUP *g3dweightgroup_new ( G3DMESH *mes, char *name ) {
 
 /******************************************************************************/
 void g3dweightgroup_free ( G3DWEIGHTGROUP *grp ) {
-    list_free ( &grp->lwei, g3dweight_free );
+    list_free ( &grp->lwei,  LIST_FUNCDATA ( g3dweight_free ) );
     /*list_free ( &grp->lver, NULL );*/
 
     free ( grp );

@@ -99,13 +99,13 @@ void g3dspline_modify ( G3DSPLINE  *spl,
     if ( spl->lastmod ) {
         if ( spl->lastmod->mes.obj.flags & MODIFIERNEEDSNORMALUPDATE ) {
             if ( ( spl->lastmod->mes.obj.type & MESH ) == 0x00 ) {
-                g3dmesh_update ( spl->lastmod, 
-                                 NULL, /*** update vertices    ***/
-                                 NULL, /*** update edges       ***/
-                                 NULL, /*** update faces       ***/
-                                 UPDATEFACENORMAL   |
-                                 UPDATEVERTEXNORMAL,
-                                 engine_flags );
+                g3dmesh_update ( ( G3DMESH * ) spl->lastmod, 
+                                               NULL, /*** update vertices    ***/
+                                               NULL, /*** update edges       ***/
+                                               NULL, /*** update faces       ***/
+                                               UPDATEFACENORMAL   |
+                                               UPDATEVERTEXNORMAL,
+                                               engine_flags );
             }
         }
     }

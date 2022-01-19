@@ -504,7 +504,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 
 /******************************************************************************/
 #define _GETVERTEX(mes,ltmpver) \
-(((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) ? ( G3DSUBVERTEX * ) ltmpver : ltmpver->data;
+((((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) ? ( G3DVERTEX * ) ltmpver : \
+                                                      ( G3DVERTEX * ) ltmpver->data )
 
 #define _NEXTVERTEX(mes,ltmpver) \
 if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
@@ -519,7 +520,8 @@ if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
 
 /******************************************************************************/
 #define _GETEDGE(mes,ltmpedg) \
-(((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) ? ( G3DSUBEDGE * ) ltmpedg : ltmpedg->data;
+((((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) ? ( G3DEDGE * ) ltmpedg : \
+                                                      ( G3DEDGE * ) ltmpedg->data )
 
 #define _NEXTEDGE(mes,ltmpedg) \
 if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
@@ -534,8 +536,8 @@ if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
 
 /******************************************************************************/
 #define _GETFACE(mes,ltmpfac) \
-(((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) ? ( G3DFACE * ) ltmpfac : \
-                                                     ( G3DFACE * ) ltmpfac->data
+((((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) ? ( G3DFACE * ) ltmpfac : \
+                                                      ( G3DFACE * ) ltmpfac->data )
 
 #define _NEXTFACE(mes,ltmpfac) \
 if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \

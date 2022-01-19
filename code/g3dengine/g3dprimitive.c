@@ -107,7 +107,7 @@ static uint32_t g3dprimitive_pick ( G3DPRIMITIVE *pri,
 uint32_t g3dprimitive_draw ( G3DPRIMITIVE *pri, 
                              G3DCAMERA    *curcam, 
                              uint64_t      engine_flags ) {
-    g3dmesh_draw ( ( G3DMESH * ) pri, 
+    g3dmesh_draw ( ( G3DOBJECT * ) pri, 
                                  curcam, 
                                  engine_flags & (~MODEMASK) | VIEWOBJECT );
 

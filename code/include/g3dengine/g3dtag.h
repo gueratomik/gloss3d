@@ -46,6 +46,27 @@ extern "C" {
 #define TAGSELECTED ( 1 << 0 )
 #define TAGHIDDEN   ( 1 << 1 )
 
+
+#define TAG_FREEFUNC(f)       ((void(*)(G3DTAG*))f)
+#define TAG_PREANIMFUNC(f)    ((uint32_t(*)(G3DTAG*, \
+                                            G3DOBJECT *, \
+                                            float, \
+                                            uint64_t ))f)
+#define TAG_POSTANIMFUNC(f)   ((uint32_t(*)(G3DTAG*, \
+                                            G3DOBJECT *, \
+                                            float, \
+                                            uint64_t ))f)
+
+#define TAG_ADDFUNC(f)        ((uint32_t(*)(G3DTAG *, \
+                                            G3DOBJECT *, \
+                                            uint64_t ))f)
+#define TAG_REMOVEFUNC(f)     ((uint32_t(*)(G3DTAG *, \
+                                            G3DOBJECT *, \
+                                            uint64_t ))f)
+#define TAG_TRANSFORMFUNC(f)  ((uint32_t(*)(G3DTAG *, \
+                                            G3DOBJECT *, \
+                                            uint64_t ))f)
+
 /**
  * @struct G3DTAG
  * @brief .

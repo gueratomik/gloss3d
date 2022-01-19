@@ -1291,7 +1291,7 @@ static void weldifneighbour ( G3DVERTEX   *ver,
                 wcr->newver->pos.y += ver->pos.y;
                 wcr->newver->pos.z += ver->pos.z;
 
-                ver->subver = ( G3DSUBVERTEX * ) wcr->newver;
+                ver->subver = ( struct _G3DSUBVERTEX * ) wcr->newver;
 
                 wcr->count++;
         }

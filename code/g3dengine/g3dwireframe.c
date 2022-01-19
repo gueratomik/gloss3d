@@ -37,7 +37,10 @@ void g3dwireframe_setParent ( G3DWIREFRAME *wir,
                               G3DOBJECT    *parent,
                               G3DOBJECT    *oldParent,
                               uint64_t      engine_flags ) {
-    g3dmodifier_setParent ( wir, parent, oldParent, engine_flags );
+    g3dmodifier_setParent ( ( G3DMODIFIER * ) wir, 
+                                              parent, 
+                                              oldParent, 
+                                              engine_flags );
 }
 
 /******************************************************************************/
@@ -560,9 +563,9 @@ static void g3dwireframe_deactivate ( G3DWIREFRAME *wir,
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
     if ( parent ) {
-        g3dmesh_modify ( wir, 
-                         G3DMODIFYOP_MODIFY,
-                         engine_flags );
+        g3dmesh_modify ( ( G3DMESH * ) wir, 
+                                       G3DMODIFYOP_MODIFY,
+                                       engine_flags );
     }
 }
 
@@ -586,7 +589,9 @@ static uint32_t g3dwireframe_moddraw ( G3DWIREFRAME *wir,
         /* is selected */
         if ( viewSkin ) obj->flags |= OBJECTSELECTED;
 
-        g3dmesh_draw ( wir, cam, engine_flags & (~forbidden_modes) );
+        g3dmesh_draw ( ( G3DOBJECT * ) wir, 
+                                     cam, 
+                                     engine_flags & (~forbidden_modes) );
 
         if ( viewSkin ) obj->flags &= (~OBJECTSELECTED);
     }
@@ -612,28 +617,32 @@ G3DWIREFRAME *g3dwireframe_new ( uint32_t id,
         return NULL;
     }
 
-    g3dmodifier_init ( mod, G3DWIREFRAMETYPE, id, name, OBJECTNOTRANSLATION     | 
-                                                        OBJECTNOROTATION        |
-                                                        OBJECTNOSCALING         |
-                                                        TRIANGULAR              |
-                                                        MODIFIERNEEDSNORMALUPDATE,
-                                                        NULL,
-                                                        g3dwireframe_free,
-                                                        NULL,
-                                                        NULL,
-                                                        g3dwireframe_copy,
-                                                        g3dwireframe_activate,
-                                                        g3dwireframe_deactivate,
-                                                        g3dmesh_copy,
-                                                        NULL,
-                                                        g3dwireframe_setParent,
-                                                        g3dwireframe_modify );
+    g3dmodifier_init ( mod, 
+                       G3DWIREFRAMETYPE, 
+                       id,
+                       name, 
+                       OBJECTNOTRANSLATION     | 
+                       OBJECTNOROTATION        |
+                       OBJECTNOSCALING         |
+                       TRIANGULAR              |
+                       MODIFIERNEEDSNORMALUPDATE,
+                       NULL,
+       FREE_CALLBACK ( g3dwireframe_free ),
+                       NULL,
+                       NULL,
+       COPY_CALLBACK ( g3dwireframe_copy ),
+   ACTIVATE_CALLBACK ( g3dwireframe_activate ),
+ DEACTIVATE_CALLBACK ( g3dwireframe_deactivate ),
+     COMMIT_CALLBACK ( g3dmesh_copy ),
+                       NULL,
+  SETPARENT_CALLBACK ( g3dwireframe_setParent ),
+     MODIFY_CALLBACK ( g3dwireframe_modify ) );
 
     wir->thickness = 0.05f;
 
     ((G3DMESH*)wir)->dump = g3dmesh_default_dump;
 
-    mod->moddraw = g3dwireframe_moddraw;
+    mod->moddraw = MODDRAW_CALLBACK ( g3dwireframe_moddraw );
 
     return wir;
 }

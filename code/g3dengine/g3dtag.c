@@ -139,19 +139,19 @@ G3DTAG *g3dvibratortag_new ( uint32_t id ) {
         return NULL;
     }
 
-    g3dtag_init ( vtag, 
-                  G3DTAGVIBRATORTYPE,
-                  id,
-                  0x00,
-                  "Vibrator",
-                  NULL,
-                  NULL,
-                  g3dvibratortag_free,
-                  NULL,
-                  g3dvibratortag_preAnim,
-                  g3dvibratortag_postAnim,
-                  NULL,
-                  NULL );
+    g3dtag_init ( ( G3DTAG * )  vtag, 
+                                G3DTAGVIBRATORTYPE,
+                                id,
+                                0x00,
+                                "Vibrator",
+                                NULL,
+                                NULL,
+               TAG_FREEFUNC   ( g3dvibratortag_free ),
+                                NULL,
+             TAG_PREANIMFUNC  ( g3dvibratortag_preAnim ),
+             TAG_POSTANIMFUNC ( g3dvibratortag_postAnim ),
+                                NULL,
+                                NULL );
 
     vtag->posAmp.x = 0.0f;
     vtag->posAmp.y = 0.0f;
@@ -165,7 +165,7 @@ G3DTAG *g3dvibratortag_new ( uint32_t id ) {
     vtag->scaAmp.y = 0.0f;
     vtag->scaAmp.z = 0.0f;
 
-    return vtag;
+    return ( G3DTAG * ) vtag;
 }
 
 /******************************************************************************/
@@ -359,24 +359,24 @@ G3DTAG *g3dtrackertag_new ( uint32_t  id,
         return NULL;
     }
 
-    g3dtag_init ( ttag, 
-                  G3DTAGTRACKERTYPE,
-                  id, 
-                  0x00,
-                  "Tracker",
-                  g3dtrackertag_add,
-                  g3dtrackertag_remove,
-                  g3dtrackertag_free,
-                  g3dtrackertag_transform,
-                  NULL,
-                  NULL,
-                  NULL,
-                  NULL );
+    g3dtag_init ( ( G3DTAG * ) ttag, 
+                               G3DTAGTRACKERTYPE,
+                               id, 
+                               0x00,
+                               "Tracker",
+                 TAG_ADDFUNC ( g3dtrackertag_add ),
+              TAG_REMOVEFUNC ( g3dtrackertag_remove ),
+                TAG_FREEFUNC ( g3dtrackertag_free ),
+           TAG_TRANSFORMFUNC ( g3dtrackertag_transform ),
+                               NULL,
+                               NULL,
+                               NULL,
+                               NULL );
 
     ttag->sce = sce;
     ttag->orientation = TARGET_ZAXIS;
 
-    return ttag;
+    return ( G3DTAG * ) ttag;
 }
 
 /******************************************************************************/
@@ -386,8 +386,8 @@ static uint32_t g3dtargettag_transform ( G3DTARGETTAG *ttag,
     /*** check if tracker object has been removed (but not freed) ***/
     if ( ttag->tracker ) {
         if ( g3dscene_isObjectReferred ( ttag->sce, ttag->tracker ) ) {
-            G3DTRACKERTAG *trackerTag = g3dobject_getTagByID ( ttag->tracker, 
-                                                               ttag->trackerTagID );
+            G3DTRACKERTAG *trackerTag = ( G3DTRACKERTAG * ) g3dobject_getTagByID ( ttag->tracker, 
+                                                                                   ttag->trackerTagID );
 
             g3dtrackertag_transform ( trackerTag, ttag->tracker, engine_flags );
         }
@@ -399,8 +399,8 @@ static uint32_t g3dtargettag_transform ( G3DTARGETTAG *ttag,
 /******************************************************************************/
 static void g3dtargettag_free ( G3DTARGETTAG *ttag ) {
     if ( g3dscene_isObjectReferred ( ttag->sce, ttag->tracker ) ) {
-        G3DTRACKERTAG *trackerTag = g3dobject_getTagByID ( ttag->tracker, 
-                                                           ttag->trackerTagID );
+        G3DTRACKERTAG *trackerTag = ( G3DTRACKERTAG * ) g3dobject_getTagByID ( ttag->tracker, 
+                                                                               ttag->trackerTagID );
 
         trackerTag->target = NULL;
     }
@@ -410,7 +410,7 @@ static void g3dtargettag_free ( G3DTARGETTAG *ttag ) {
 G3DTAG *g3dtargettag_new ( uint32_t   id, 
                            G3DSCENE  *sce,
                            G3DOBJECT *tracker ) {
-    G3DTARGETTAG *ttag = ( G3DTRACKERTAG * ) calloc ( 0x01, sizeof ( G3DTARGETTAG ) );
+    G3DTARGETTAG *ttag = ( G3DTARGETTAG * ) calloc ( 0x01, sizeof ( G3DTARGETTAG ) );
 
     if ( ttag == NULL ) {
         fprintf ( stderr, "%s: calloc failed\n", __func__) ;
@@ -418,22 +418,22 @@ G3DTAG *g3dtargettag_new ( uint32_t   id,
         return NULL;
     }
 
-    g3dtag_init ( ttag, 
-                  G3DTAGTARGETTYPE,
-                  id, 
-                  TAGHIDDEN,
-                  "Target",
-                  NULL,
-                  NULL,
-                  g3dtargettag_free,
-                  g3dtargettag_transform,
-                  NULL,
-                  NULL,
-                  NULL,
-                  NULL );
+    g3dtag_init ( ( G3DTAG * ) ttag, 
+                               G3DTAGTARGETTYPE,
+                               id, 
+                               TAGHIDDEN,
+                               "Target",
+                               NULL,
+                               NULL,
+                TAG_FREEFUNC ( g3dtargettag_free ),
+           TAG_TRANSFORMFUNC ( g3dtargettag_transform ),
+                               NULL,
+                               NULL,
+                               NULL,
+                               NULL );
 
     ttag->sce = sce;
     ttag->tracker = tracker;
 
-    return ttag;
+    return ( G3DTAG * ) ttag;
 }

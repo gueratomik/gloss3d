@@ -54,11 +54,13 @@ void g3dsymmetry_convert_r ( G3DOBJECT *obj,
         G3DOBJECT *symobj;
 
         switch ( child->type ) {
-            case G3DMESHTYPE :
-                symobj = g3dmesh_symmetricMerge ( ( G3DMESH * ) child, 
-                                                                MVX,
-                                                                engine_flags );
-            break;
+            case G3DMESHTYPE : {
+                G3DMESH *mes = ( G3DMESH * ) child;
+
+                symobj = ( G3DOBJECT * ) g3dmesh_symmetricMerge ( mes, 
+                                                                  MVX,
+                                                                  engine_flags );
+            } break;
    
             default:
                 symobj = child->copy ( child, child->id, 

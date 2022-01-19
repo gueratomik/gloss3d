@@ -69,7 +69,7 @@ void g3duvmap_selectUVSet ( G3DUVMAP *uvmap, G3DUVSET *uvset ) {
 
 /******************************************************************************/
 void g3duvmap_unselectAllUVSets ( G3DUVMAP *uvmap ) {
-    list_free ( &uvmap->lseluvset, g3duvset_unsetSelected );
+    list_free ( &uvmap->lseluvset, LIST_FUNCDATA ( g3duvset_unsetSelected ) );
 }
 
 /******************************************************************************/
@@ -115,7 +115,7 @@ void g3duvmap_selectUV ( G3DUVMAP *uvmap, G3DUV *uv ) {
 
 /******************************************************************************/
 void g3duvmap_unselectAllUVs ( G3DUVMAP *uvmap ) {
-    list_free ( &uvmap->lseluv, g3duv_unsetSelected );
+    list_free ( &uvmap->lseluv, LIST_FUNCDATA ( g3duv_unsetSelected ) );
 }
 
 /******************************************************************************/
