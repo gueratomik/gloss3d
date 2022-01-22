@@ -665,14 +665,17 @@ void g3duvmap_transform ( G3DOBJECT *obj,
     if ( parent->type  & MESH ) {
         G3DMESH *mes = ( G3DMESH * ) parent;
 
-        if ( ( obj->flags & UVMAPFIXED ) == 0x00 ) {
-            g3duvmap_applyProjection ( map, mes );
+        if ( ( ( engine_flags     & ONGOINGANIMATION ) == 0x00 ) ||
+             ( ( map->projection == UVMAPBACKGROUND  )         ) ) {
+            if ( ( obj->flags & UVMAPFIXED ) == 0x00 ) {
+                g3duvmap_applyProjection ( map, mes );
 
-            g3dmesh_update ( mes, 
-                             NULL,
-                             NULL,
-                             NULL,
-                             RESETMODIFIERS, engine_flags );
+                g3dmesh_update ( mes, 
+                                 NULL,
+                                 NULL,
+                                 NULL,
+                                 RESETMODIFIERS, engine_flags );
+            }
         }
     }
 }
