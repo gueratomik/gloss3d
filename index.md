@@ -7,7 +7,7 @@ Gloss3D is an open-source 3D modeler tool with some texturing, animation and ren
 
 ![Image](http://velotrip.free.fr/GLOSS3D/Gloss3D_facial_anim.png)
 
-{% include youtubePlayer.html id="4EU7vvSvV-0" %}
+{% include youtubePlayer.html id="IbLPYQnjYac" %}
 
 ### History
 
