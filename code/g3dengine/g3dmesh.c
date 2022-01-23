@@ -4268,13 +4268,14 @@ void g3dmesh_onGeometryMove ( G3DMESH    *mes,
 void g3dmesh_transform ( G3DMESH *mes, uint64_t engine_flags ) {
     LIST *ltmpuvmap = mes->luvmap;
 
-    while ( ltmpuvmap ) {
+    /*** Commented out: too slow and unnecessary ***/
+    /*while ( ltmpuvmap ) {
         G3DUVMAP *map = ( G3DUVMAP * ) ltmpuvmap->data;
 
         g3dobject_updateMatrix ( ( G3DOBJECT * ) map, engine_flags );
 
         ltmpuvmap = ltmpuvmap->next;
-    }
+    }*/
 }
 
 /******************************************************************************/
