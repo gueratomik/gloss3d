@@ -53,14 +53,14 @@ G3DMOUSETOOLCUTMESH *g3dmousetoolcutmesh_new ( ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    g3dmousetool_init ( cm,
-                        CUTMESHTOOL,
-                        's',
-                        NULL,
-                        NULL,
-                        cutMesh_draw,
-                        cutMesh_tool,
-                        0x00 );
+    g3dmousetool_init ( ( G3DMOUSETOOL * ) cm,
+                                           CUTMESHTOOL,
+                                           's',
+                                           NULL,
+                                           NULL,
+                                           cutMesh_draw,
+                                           cutMesh_tool,
+                                           0x00 );
 
     cm->restrict_to_selection = 0x01;
 

@@ -48,14 +48,14 @@ G3DMOUSETOOLPICK *g3dmousetoolpick_new ( ) {
         fprintf ( stderr, "pickTool_new: Memory allocation failed\n" );
     }
 
-    g3dmousetool_init ( pt,
-                        PICKTOOL,
-                        's',
-                        NULL,
-                        NULL,
-                        pick_draw,
-                        pick_tool,
-                        0x00 );
+    g3dmousetool_init ( ( G3DMOUSETOOL * ) pt,
+                                           PICKTOOL,
+                                           's',
+                                           NULL,
+                                           NULL,
+                                           pick_draw,
+                                           pick_tool,
+                                           0x00 );
 
     pt->only_visible  = 0x01;
 
@@ -76,14 +76,14 @@ G3DMOUSETOOLPICKUV *g3dmousetoolpickUV_new ( ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    g3dmousetool_init ( pt,
-                        PICKUVTOOL,
-                        's',
-                        NULL,
-                        NULL,
-                        pick_draw,
-                        pickUV_tool,
-                        0x00 );
+    g3dmousetool_init ( ( G3DMOUSETOOL * ) pt,
+                                           PICKUVTOOL,
+                                           's',
+                                           NULL,
+                                           NULL,
+                                           pick_draw,
+                                           pickUV_tool,
+                                           0x00 );
 
     pt->only_visible  = 0x01;
 
@@ -488,7 +488,11 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
         if ( pt->only_visible ) {
             g3dpick_enableDepthTest  ( );
             g3dpick_setAction ( NULL, NULL );
-            g3dobject_pick_r ( sce, cam, VIEWOBJECT );
+
+            g3dobject_pick_r ( ( G3DOBJECT * ) sce, 
+                                               cam, 
+                                               VIEWOBJECT );
+
             g3dpick_setEpsilon ( 0.0001f );
         }
     }
@@ -503,8 +507,11 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
             g3dscene_unselectAllObjects ( sce, engine_flags );
         }
 
-        g3dpick_setAction ( actionSelectObject, &cpd );
-        g3dobject_pick_r ( sce, cam, VIEWOBJECT );
+        g3dpick_setAction ( G3DPICK_ACTIONFUNC( actionSelectObject ), &cpd );
+
+        g3dobject_pick_r ( ( G3DOBJECT * ) sce, 
+                                           cam, 
+                                           VIEWOBJECT );
     } else {
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
@@ -516,8 +523,11 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
         	    CURVEPICKDATA cpd = { .curve =  obj->curve[0x00],
                         	          .flags = 0x00 };
 
-        	    g3dpick_setAction ( actionSelectPoint, &cpd );
-        	    g3dobject_pick_r ( sce, cam, VIEWPATH );
+        	    g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionSelectPoint ), &cpd );
+
+        	    g3dobject_pick_r ( ( G3DOBJECT * ) sce, 
+                                                   cam, 
+                                                   VIEWPATH );
 		    }
 
 	        if ( ( obj->type == G3DMESHTYPE ) ||
@@ -561,7 +571,8 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                 }
 
 		        if ( engine_flags & VIEWVERTEXUV ) {
-        	        g3dpick_setAction ( actionSelectVertexUV, &mpd );
+        	        g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionSelectVertexUV ), &mpd );
+
                     /*** directly call g3dmesh_pickUVs() to bypass matrix ***/
                     /*** opration. Our drawing call must depend on an ***/
                     /*** identity matrix in the UVMap Editor ***/
@@ -571,7 +582,8 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                 }
 
 		        if ( engine_flags & VIEWFACEUV ) {
-        	        g3dpick_setAction ( actionSelectFaceUV, &mpd );
+        	        g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionSelectFaceUV ), &mpd );
+
                     /*** directly call g3dmesh_pickUVs() to bypass matrix ***/
                     /*** opration. Our drawing call must depend on an ***/
                     /*** identity matrix in the UVMap Editor ***/
@@ -581,23 +593,31 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                 }
 
 		        if ( engine_flags & VIEWFACE ) {
-        	        g3dpick_setAction ( actionSelectFace, &mpd );
-        	        g3dobject_pick_r ( sce, cam, VIEWFACE );
+        	        g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionSelectFace ), &mpd );
+        	        g3dobject_pick_r ( ( G3DOBJECT * ) sce, 
+                                                       cam, 
+                                                       VIEWFACE );
 		        }
 
 		        if ( engine_flags & VIEWEDGE ) {
-        	        g3dpick_setAction ( actionSelectEdge, &mpd );
-        	        g3dobject_pick_r ( sce, cam, VIEWEDGE );
+        	        g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionSelectEdge ), &mpd );
+        	        g3dobject_pick_r ( ( G3DOBJECT * ) sce, 
+                                                       cam, 
+                                                       VIEWEDGE );
 		        }
 
 		        if ( engine_flags & VIEWVERTEX ) {
-        	        g3dpick_setAction ( actionSelectVertex, &mpd );
-        	        g3dobject_pick_r ( sce, cam, VIEWVERTEX );
+        	        g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionSelectVertex ), &mpd );
+        	        g3dobject_pick_r ( ( G3DOBJECT * ) sce, 
+                                                       cam, 
+                                                       VIEWVERTEX );
 		        }
 
 		        if ( engine_flags & VIEWSKIN ) {
-        	        g3dpick_setAction ( actionPaintVertex, &mpd );
-        	        g3dobject_pick_r ( sce, cam, VIEWVERTEX );
+        	        g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionPaintVertex ), &mpd );
+        	        g3dobject_pick_r ( ( G3DOBJECT * ) sce, 
+                                                       cam, 
+                                                       VIEWVERTEX );
 		        }
 	        }
 
@@ -613,8 +633,11 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                 }
 
 		        if ( engine_flags & VIEWVERTEX ) {
-        	        g3dpick_setAction ( actionSelectPoint, &cpd );
-        	        g3dobject_pick_r ( sce, cam, VIEWVERTEX );
+        	        g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionSelectPoint ), &cpd );
+
+        	        g3dobject_pick_r ( ( G3DOBJECT * ) sce, 
+                                                       cam, 
+                                                       VIEWVERTEX );
 		        }
 	        }
 
@@ -633,8 +656,11 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                     }
 
 		            if ( engine_flags & VIEWVERTEX ) {
-        	            g3dpick_setAction ( actionSelectVertexForPose, &mpd );
-        	            g3dobject_pick_r ( sce, cam, VIEWVERTEX );
+        	            g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionSelectVertexForPose ), &mpd );
+
+        	            g3dobject_pick_r ( ( G3DOBJECT * ) sce, 
+                                                           cam, 
+                                                           VIEWVERTEX );
 		            }
                 }
 	        }
@@ -714,7 +740,8 @@ void pick_cursor ( G3DMOUSETOOLPICK *pt,
     /*** this must be called after g3dpick_clear ***/
     g3dpick_setModelviewMatrix  ( MVX   );
 
-    g3dpick_setAction ( actionSelectAxis, &sce->csr );
+    g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionSelectAxis ), &sce->csr );
+
     g3dcursor_pick ( &sce->csr, cam, engine_flags );
 
     if ( ( sce->csr.axis[0].w == 0.0f ) &&
@@ -976,7 +1003,7 @@ int pick_tool ( G3DMOUSETOOL *mou,
                 	    G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
 
                         if ( obj->parent->type == G3DMESHTYPE ) {
-                            G3DMESH *mes = obj->parent;
+                            G3DMESH *mes = ( G3DMESH * ) obj->parent;
 
         		            if ( engine_flags & VIEWVERTEX ) {
                                 LIST *lmprver = list_copy ( mpr->lver );

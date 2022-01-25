@@ -57,9 +57,9 @@ void g3dmousetool_init ( G3DMOUSETOOL *gtool,
     strncpy ( gtool->name, name, len );
 
     gtool->icon  = icon;
-    gtool->init  = init;
-    gtool->draw  = draw;
-    gtool->tool  = tool;
+    gtool->init  = G3DMOUSE_INITFUNC(init);
+    gtool->draw  = G3DMOUSE_DRAWFUNC(draw);
+    gtool->tool  = G3DMOUSE_TOOLFUNC(tool);
     gtool->key   = key;
     gtool->flags = flags;
 }

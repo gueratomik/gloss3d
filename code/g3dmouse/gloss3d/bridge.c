@@ -57,7 +57,7 @@ G3DMOUSETOOLBRIDGE *g3dmousetoolbridge_new ( ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    g3dmousetool_init ( bt,
+    g3dmousetool_init ( ( G3DMOUSETOOL * ) bt,
                         BRIDGETOOL,
                         's',
                         NULL,
@@ -80,9 +80,11 @@ static uint32_t bridge_init ( G3DMOUSETOOL *mou,
     bt->ver[0x00] = 
     bt->ver[0x01] = 
     bt->ver[0x02] = 
-    bt->ver[0x03] =
+    bt->ver[0x03] = NULL;
+
     bt->pt[0x00]  = 
     bt->pt[0x01]  = NULL;
+
     bt->draw = 0x00;
     bt->obj  = NULL;
 
@@ -173,7 +175,7 @@ static int bridge_spline  ( G3DSPLINE    *spl,
 
             /*** remember our object for the drawing part ***/
             /*** because we need its world matrix.      ***/
-            bt->obj = spl;
+            bt->obj = ( G3DOBJECT * ) spl;
 
             /*** if any selected point ***/
             if ( spl->curve->lselpt ) {
@@ -220,7 +222,7 @@ static int bridge_spline  ( G3DSPLINE    *spl,
 
                         g3durm_spline_addSegment ( urm,
                                                    spline,
-                                                   seg,
+                            ( G3DSPLINESEGMENT * ) seg,
                                                    engine_flags,
                                                    REDRAWVIEW );
                     }
@@ -418,13 +420,25 @@ static int bridge_tool  ( G3DMOUSETOOL *mou,
             if ( obj->type == G3DMESHTYPE ) {
                 G3DMESH *mes = ( G3DMESH * ) obj;
 
-                return bridge_mesh ( mes, mou, sce, cam, urm, engine_flags, event );
+                return bridge_mesh ( mes, 
+                                     mou, 
+                                     sce, 
+                                     cam, 
+                                     urm, 
+                                     engine_flags, 
+                                     event );
             }
 
             if ( obj->type & SPLINE ) {
                 G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 
-                return bridge_spline ( obj, mou, sce, cam, urm, engine_flags, event );
+                return bridge_spline ( ( G3DSPLINE * ) obj, 
+                                                       mou, 
+                                                       sce, 
+                                                       cam, 
+                                                       urm, 
+                                                       engine_flags, 
+                                                       event );
             }
         }
     }

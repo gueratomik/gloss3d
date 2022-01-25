@@ -57,14 +57,14 @@ G3DMOUSETOOLSCALE *g3dmousetoolscale_new ( ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    g3dmousetool_init ( sc,
-                        SCALETOOL,
-                        's',
-                        NULL,
-                        NULL,
-                        NULL,
-                        scale_tool,
-                        0x00 );
+    g3dmousetool_init ( ( G3DMOUSETOOL * ) sc,
+                                           SCALETOOL,
+                                           's',
+                                           NULL,
+                                           NULL,
+                                           NULL,
+                                           scale_tool,
+                                           0x00 );
 
     return sc;
 }
@@ -79,14 +79,14 @@ G3DMOUSETOOLSCALEUV *g3dmousetoolscaleUV_new ( ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    g3dmousetool_init ( sc,
-                        SCALEUVTOOL,
-                        's',
-                        NULL,
-                        NULL,
-                        NULL,
-                        scaleUV_tool,
-                        0x00 );
+    g3dmousetool_init ( ( G3DMOUSETOOL * ) sc,
+                                           SCALEUVTOOL,
+                                           's',
+                                           NULL,
+                                           NULL,
+                                           NULL,
+                                           scaleUV_tool,
+                                           0x00 );
 
     return sc;
 }
@@ -302,6 +302,8 @@ int scaleUV_tool ( G3DMOUSETOOL *mou,
 
                         case G3DButtonRelease : {
                             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+                            G3DOBJECT *parobj = ((G3DOBJECT*)uvmap)->parent;
+                            G3DMESH   *parmes = ( G3DMESH * ) parobj;
 
                             /*** simulate click and release ***/
                             if ( ( bev->x == mouseXpress ) && 
@@ -312,7 +314,12 @@ int scaleUV_tool ( G3DMOUSETOOL *mou,
                                                         .weight = 0.0f,
                                                         .radius = PICKMINRADIUS };
 
-                                pickUV_tool ( &pt, sce, cam, urm, engine_flags, event );
+                                pickUV_tool ( ( G3DMOUSETOOL * ) &pt, 
+                                                                  sce, 
+                                                                  cam, 
+                                                                  urm, 
+                                                                  engine_flags, 
+                                                                  event );
 
                                 /*** cancel arrays allocated for undo-redo ***/
                                 if ( olduv ) free ( olduv );
@@ -331,7 +338,7 @@ int scaleUV_tool ( G3DMOUSETOOL *mou,
                             list_free ( &lseluv, NULL );
 
                             /** TODO: do this only for subdivided meshes ***/
-                            g3dmesh_update ( ((G3DOBJECT*)uvmap)->parent, 
+                            g3dmesh_update ( parmes, 
                                              NULL,
                                              NULL,
                                              NULL,
@@ -467,7 +474,12 @@ static int scale_morpher ( G3DMORPHER       *mpr,
                                                     .weight = 0.0f,
                                                     .radius = PICKMINRADIUS };
 
-                            pick_tool ( &pt, sce, cam, urm, engine_flags, event );
+                            pick_tool ( ( G3DMOUSETOOL * ) &pt, 
+                                                            sce, 
+                                                            cam, 
+                                                            urm, 
+                                                            engine_flags, 
+                                                            event );
                         } else {
                             if ( lver ) {
                                 newpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
@@ -644,12 +656,22 @@ static int scale_mesh ( G3DMESH          *mes,
                                         .weight = 0.0f,
                                         .radius = PICKMINRADIUS };
 
-                pick_tool ( &pt, sce, cam, urm, engine_flags, event );
+                pick_tool ( ( G3DMOUSETOOL * ) &pt, 
+                                                sce, 
+                                                cam, 
+                                                urm, 
+                                                engine_flags, 
+                                                event );
             }
 
             g3dvertex_copyPositionFromList ( lver, &newpos );
 
-            g3durm_mesh_moveVertexList ( urm, mes, lver, ledg, lfac, NULL,
+            g3durm_mesh_moveVertexList ( urm, 
+                                         mes, 
+                                         lver, 
+                                         ledg, 
+                                         lfac, 
+                                         NULL,
                                          oldpos, 
                                          newpos, 
                                          REDRAWVIEW );
@@ -657,11 +679,12 @@ static int scale_mesh ( G3DMESH          *mes,
             g3dmesh_updateBbox ( mes );
 
             if ( mes->onGeometryMove ) {
-                mes->onGeometryMove ( mes, lver, 
-                                           ledg, 
-                                           lfac, 
-                                           G3DMODIFYOP_ENDUPDATE,
-                                           engine_flags );
+                mes->onGeometryMove ( mes, 
+                                      lver, 
+                                      ledg, 
+                                      lfac, 
+                                      G3DMODIFYOP_ENDUPDATE,
+                                      engine_flags );
             }
 
             /*g3dmesh_modify ( mes,
@@ -754,7 +777,7 @@ static int scale_object ( LIST        *lobj,
 
             if ( mev->state & G3DButton1Mask ) {
                 G3DDOUBLEVECTOR dif = { 0.0f, 0.0f, 0.0f }; /** local pivot ***/
-                G3DVECTOR *axis = &sce->csr.axis;
+                G3DVECTOR *axis = ( G3DVECTOR * ) &sce->csr.axis;
                 G3DDOUBLEVECTOR endpos;
                 double ROTX[0x10];
 
@@ -837,7 +860,12 @@ static int scale_object ( LIST        *lobj,
                 /*** and that was not used at all ***/
                 g3durmanager_undo ( urm, engine_flags );
 
-                pick_tool ( &pt, sce, cam, urm, engine_flags, event );
+                pick_tool ( ( G3DMOUSETOOL * ) &pt, 
+                                                sce, 
+                                                cam, 
+                                                urm, 
+                                                engine_flags, 
+                                                event );
             } else {
                 urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
             }

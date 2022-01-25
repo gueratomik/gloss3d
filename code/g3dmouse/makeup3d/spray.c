@@ -72,7 +72,7 @@ M3DMOUSETOOLBUCKET *m3dmousetoolbucket_new ( ) {
                         pen_tool,
                         MOUSETOOLREADWRITE );
 
-    ltool->obj = m3dbucket_new ( );
+    ltool->obj = ( M3DOBJECT * ) m3dbucket_new ( );
 
     return mtb;
 }
@@ -97,7 +97,7 @@ M3DMOUSETOOLSELECTOR *m3dmousetoolselect_new ( ) {
                         pen_tool,
                         MOUSETOOLREADONLY );
 
-    ltool->obj = m3dselector_new ( );
+    ltool->obj = ( M3DOBJECT * ) m3dselector_new ( );
 
     return sr;
 }
@@ -122,7 +122,7 @@ M3DMOUSETOOLPEN *m3dmousetoolpen_new ( ) {
                         pen_tool,
                         MOUSETOOLREADWRITE );
 
-    ltool->obj = m3dbasepen_new ( );
+    ltool->obj = ( M3DOBJECT * ) m3dbasepen_new ( );
 
     return pn;
 }
@@ -147,7 +147,7 @@ M3DMOUSETOOLERASER *m3dmousetooleraser_new ( ) {
                         eraser_tool,
                         MOUSETOOLREADWRITE );
 
-    ltool->obj = m3dbasepen_new ( );
+    ltool->obj = ( M3DOBJECT * ) m3dbasepen_new ( );
 
 
     return er;

@@ -61,14 +61,14 @@ G3DMOUSETOOLEXTRUDEFACE *g3dmousetoolextrudeface_new ( ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    g3dmousetool_init ( ef,
-                        EXTRUDEFACETOOL,
-                        's',
-                        NULL,
-                        extrudeFace_init,
-                        NULL,
-                        extrudeFace_tool,
-                        0x00 );
+    g3dmousetool_init ( ( G3DMOUSETOOL * ) ef,
+                                           EXTRUDEFACETOOL,
+                                           's',
+                                           NULL,
+                                           extrudeFace_init,
+                                           NULL,
+                                           extrudeFace_tool,
+                                           0x00 );
 
     return ef;
 }
@@ -83,14 +83,14 @@ G3DMOUSETOOLEXTRUDEFACE *g3dmousetoolextrudeinner_new ( ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    g3dmousetool_init ( ef,
-                        EXTRUDEINNERTOOL,
-                        's',
-                        NULL,
-                        extrudeInner_init,
-                        NULL,
-                        extrudeFace_tool,
-                        0x00 );
+    g3dmousetool_init ( ( G3DMOUSETOOL * ) ef,
+                                           EXTRUDEINNERTOOL,
+                                           's',
+                                           NULL,
+                                           extrudeInner_init,
+                                           NULL,
+                                           extrudeFace_tool,
+                                           0x00 );
 
     return ef;
 }

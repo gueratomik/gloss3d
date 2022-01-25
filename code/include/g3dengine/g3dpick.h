@@ -39,6 +39,9 @@
 extern "C" {
 #endif
 
+#define G3DPICK_ACTIONFUNC(f) ((uint32_t(*)(uint64_t, \
+                                            void *))f)
+
 /******************************************************************************/
 /**
  * draw a Point for picking.

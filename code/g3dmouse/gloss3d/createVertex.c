@@ -148,10 +148,11 @@ static int createVertex_tool ( G3DMOUSETOOL *mou,
                         }
 
                         if ( lastpt ) {
-                            seg = g3dcubicsegment_new ( pt,
-                                                        lastpt,
-                                                        0.0f, 0.0f, 0.0f,
-                                                        0.0f, 0.0f, 0.0f );
+                            seg = ( G3DCURVESEGMENT * ) 
+                                      g3dcubicsegment_new ( pt,
+                                                            lastpt,
+                                                            0.0f, 0.0f, 0.0f,
+                                                            0.0f, 0.0f, 0.0f );
                         }
 
                         g3durm_spline_addPoint ( urm,

@@ -57,14 +57,14 @@ G3DMOUSETOOLROTATE *g3dmousetoolrotate_new ( ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    g3dmousetool_init ( rt,
-                        ROTATETOOL,
-                        's',
-                        NULL,
-                        NULL,
-                        NULL,
-                        rotate_tool,
-                        0x00 );
+    g3dmousetool_init ( ( G3DMOUSETOOL * ) rt,
+                                           ROTATETOOL,
+                                           's',
+                                           NULL,
+                                           NULL,
+                                           NULL,
+                                           rotate_tool,
+                                           0x00 );
 
     return rt;
 }
@@ -79,14 +79,14 @@ G3DMOUSETOOLROTATEUV *g3dmousetoolrotateUV_new ( ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    g3dmousetool_init ( rt,
-                        ROTATEUVTOOL,
-                        's',
-                        NULL,
-                        NULL,
-                        NULL,
-                        rotateUV_tool,
-                        0x00 );
+    g3dmousetool_init ( ( G3DMOUSETOOL * ) rt,
+                                           ROTATEUVTOOL,
+                                           's',
+                                           NULL,
+                                           NULL,
+                                           NULL,
+                                           rotateUV_tool,
+                                           0x00 );
 
     return rt;
 }
@@ -309,6 +309,8 @@ static int rotateUV_tool ( G3DMOUSETOOL *mou,
 
                         case G3DButtonRelease : {
                             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+                            G3DOBJECT *parobj = ((G3DOBJECT*)uvmap)->parent;
+                            G3DMESH   *parmes = ( G3DMESH * ) parobj;
 
                             /*** simulate click and release ***/
                             if ( ( bev->x == mouseXpress ) && 
@@ -319,7 +321,12 @@ static int rotateUV_tool ( G3DMOUSETOOL *mou,
                                                           .weight = 0.0f,
                                                           .radius = PICKMINRADIUS };
 
-                                pickUV_tool ( &pt, sce, cam, urm, engine_flags, event );
+                                pickUV_tool ( ( G3DMOUSETOOL * ) &pt, 
+                                                                  sce, 
+                                                                  cam, 
+                                                                  urm, 
+                                                                  engine_flags, 
+                                                                  event );
 
                                 /*** cancel arrays allocated for undo-redo ***/
                                 if ( olduv ) free ( olduv );
@@ -338,7 +345,7 @@ static int rotateUV_tool ( G3DMOUSETOOL *mou,
                             list_free ( &lseluv, NULL );
 
                             /** TODO: do this only for subdivided meshes ***/
-                            g3dmesh_update ( ((G3DOBJECT*)uvmap)->parent, 
+                            g3dmesh_update ( parmes, 
                                              NULL,
                                              NULL,
                                              NULL,
@@ -512,7 +519,12 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
                                                     .weight = 0.0f,
                                                     .radius = PICKMINRADIUS };
 
-                            pick_tool ( &pt, sce, cam, urm, engine_flags, event );
+                            pick_tool ( ( G3DMOUSETOOL * ) &pt, 
+                                                            sce, 
+                                                            cam, 
+                                                            urm, 
+                                                            engine_flags, 
+                                                            event );
                         } else {
                             if ( lver ) {
                                 newpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
@@ -712,12 +724,22 @@ static int rotate_mesh ( G3DMESH          *mes,
                                         .weight = 0.0f,
                                         .radius = PICKMINRADIUS };
 
-                pick_tool ( &pt, sce, cam, urm, engine_flags, event );
+                pick_tool ( ( G3DMOUSETOOL * ) &pt, 
+                                                sce, 
+                                                cam, 
+                                                urm, 
+                                                engine_flags, 
+                                                event );
             }
 
             g3dvertex_copyPositionFromList ( lver, &newpos );
 
-            g3durm_mesh_moveVertexList ( urm, mes, lver, ledg, lfac, NULL,
+            g3durm_mesh_moveVertexList ( urm, 
+                                         mes, 
+                                         lver, 
+                                         ledg, 
+                                         lfac, 
+                                         NULL,
                                          oldpos, 
                                          newpos, 
                                          REDRAWVIEW );
@@ -823,7 +845,7 @@ static int rotate_object ( LIST        *lobj,
 
             if ( mev->state & G3DButton1Mask ) {
                 G3DVECTOR dif = { 0.0f, 0.0f, 0.0f, 0.0f }; /** local pivot ***/
-                G3DVECTOR *axis = &sce->csr.axis;
+                G3DVECTOR *axis = ( G3DVECTOR * ) &sce->csr.axis;
                 G3DDOUBLEVECTOR endpos;
                 double ROTX[0x10];
 
@@ -950,7 +972,12 @@ static int rotate_object ( LIST        *lobj,
                 /*** and that was not used at all ***/
                 g3durmanager_undo ( urm, engine_flags );
 
-                pick_tool ( &pt, sce, cam, urm, engine_flags, event );
+                pick_tool ( ( G3DMOUSETOOL * ) &pt, 
+                                                sce, 
+                                                cam, 
+                                                urm, 
+                                                engine_flags, 
+                                                event );
             } else {
                 urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
             }
