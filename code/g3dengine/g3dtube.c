@@ -135,13 +135,11 @@ void g3dtube_build ( G3DPRIMITIVE *pri,
         }
     }
 
-    g3dmesh_update ( ( G3DMESH * ) pri, 
-                                   NULL,
-                                   NULL,
-                                   NULL,
-                                   UPDATEFACEPOSITION |
+    pri->mes.obj.update_flags |= ( UPDATEFACEPOSITION |
                                    UPDATEFACENORMAL   |
-                                   UPDATEVERTEXNORMAL , 0x00 );
+                                   UPDATEVERTEXNORMAL );
+
+    g3dmesh_update ( ( G3DMESH * ) pri, 0x00 );
 
     obj->bbox.xmin = obj->bbox.ymin = - outerRadius;
     obj->bbox.zmin = 0.0f;

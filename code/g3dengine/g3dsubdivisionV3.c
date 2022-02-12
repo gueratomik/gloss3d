@@ -1159,6 +1159,8 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
     uint32_t original_subdiv_level = subdiv_level;
     /*static int init;
     static uint32_t old_level = 0x00;*/
+    G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac, SCULTEXTNAME );
+
 
     /*if ( init == 0x00 || old_level != subdiv_level ) */
     g3dsubdivisionV3_prepare ( sdv, mes, fac, subdiv_level );
@@ -1205,7 +1207,6 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
     curOuterEdges    = outerEdges;
     curInnerVertices = innerVertices;
     curOuterVertices = outerVertices;
-
     innerFaces    += 0x01;
     outerFaces    += nbOuterFaces;
     innerEdges    += fac->nbver;
@@ -1233,18 +1234,22 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                 g3dvertex_normal ( &curInnerVertices[i].ver, 0x00 );
             }
 
-            if ( subdiv_flags & SUBDIVISIONELEVATE ) {
+            if ( fse ) {
                 for ( i = 0x00; i < nbInnerVertices; i++ ) {
                     /*if ( &curInnerVertices[i].ver.flags & VERTEXSCULTPED ) {*/
-                        g3dsubvertex_elevate ( &curInnerVertices[i], qua_indexes, 
-                                                                     tri_indexes );
+                        g3dsubvertex_elevate ( &curInnerVertices[i],
+                                                fse->pos,
+                                                tri_indexes, 
+                                                qua_indexes );
                     /*}*/
                 }
 
                 for ( i = 0x00; i < nbOuterVertices; i++ ) {
                     /*if ( &curInnerVertices[i].ver.flags & VERTEXSCULTPED ) {*/
-                        g3dsubvertex_elevate ( &curOuterVertices[i], qua_indexes, 
-                                                                     tri_indexes );
+                        g3dsubvertex_elevate ( &curOuterVertices[i],
+                                                fse->pos,
+                                                tri_indexes, 
+                                                qua_indexes );
                     /*}*/
                 }
             }
@@ -1259,7 +1264,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                 }
             }
 
-            if (   ( subdiv_flags & SUBDIVISIONELEVATE ) ||
+            if (   fse ||
                  ( ( engine_flags & NODISPLACEMENT     ) == 0 ) ) {
                 for ( i = 0x00; i < nbInnerFaces; i++ ) {
                     g3dface_normal ( &curInnerFaces[i].fac );
@@ -1272,20 +1277,6 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                 for ( i = 0x00; i < nbInnerVertices; i++ ) {
                     g3dvertex_normal ( &curInnerVertices[i].ver, 0x00 );
                 }
-            }
-
-            if ( (engine_flags & SELECTMODE) && (engine_flags & VIEWSCULPT) ) {
-                for ( i = 0x00; i < nbInnerVertices; i++ ) {
-                    curInnerVertices[i].ver.id = ( fac->id << 0x10 ) | curInnerVertices[i].ver.id;
-
-                    glLoadName ( ( GLint ) curInnerVertices[i].ver.id );
-                    glBegin ( GL_POINTS );
-                    glVertex3fv ( (GLfloat*)&curInnerVertices[i].ver.pos );
-                    glEnd ( );
-                }
-
-
-                return nbInnerFaces;
             }
 
             if ( init_flags & SUBDIVISIONCLEANVERTICES ) {

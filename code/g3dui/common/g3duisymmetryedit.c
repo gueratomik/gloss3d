@@ -50,12 +50,11 @@ void common_g3duisymmetryedit_limitCbk ( G3DUI *gui, float limit ) {
 
                 g3dsymmetry_meshChildChange ( sym, mes );
 
-                g3dmesh_update ( mes, NULL,
-                                      NULL,
-                                      NULL,
-                                      UPDATEVERTEXNORMAL |
-                                      UPDATEFACENORMAL | 
-                                      RESETMODIFIERS, gui->engine_flags );
+                mes->obj.update_flags |= ( UPDATEVERTEXNORMAL |
+                                           UPDATEFACENORMAL | 
+                                           RESETMODIFIERS );
+
+                g3dmesh_update ( mes, gui->engine_flags );
             }
 
             ltmpobj = ltmpobj->next;

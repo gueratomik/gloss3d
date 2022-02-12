@@ -114,29 +114,37 @@ void g3dbone_transform ( G3DBONE *bon,
                                  lmatrix, 
                                  rig->defmatrix );
 
-            if ( ( engine_flags & ONGOINGANIMATION ) == 0x00 ) {
-                g3dmesh_modify ( ( G3DMESH * ) rig->skn->mod.oriobj,
-                                 G3DMODIFYOP_MODIFY, /** todo: should be STARTUPDATE, UPDATE and ENDUPDATE ***/
-                                 engine_flags );
-            }
-
+            /*** mark for update ***/
+            rig->skn->mod.mes.obj.update_flags |= UPDATESKIN;
 
             ltmprig = ltmprig->next;
         }
     }
 }
 
+
+/******************************************************************************/
+void g3dbone_updateRigs ( G3DBONE *bon, 
+                          uint64_t engine_flags ) {
+    G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
+
+    if ( ( objbon->flags & OBJECTINACTIVE ) == 0x00 ) {
+        LIST *ltmprig = bon->lrig;
+
+        while ( ltmprig ) {
+            G3DRIG *rig = ( G3DRIG * ) ltmprig->data;
+
+            g3dobject_update_r ( rig->skn, engine_flags );
+
+            ltmprig = ltmprig->next;
+        }
+    }
+}
+
+
 /******************************************************************************/
 void g3dbone_update ( G3DBONE *bon ) {
-    G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
-    G3DOBJECT *parent = objbon->parent;
-    LIST *ltmp = bon->lrig;
 
-    while ( ltmp ) {
-        G3DRIG  *rig = ( G3DRIG * ) ltmp->data;
-
-        ltmp = ltmp->next;
-    }
 }
 
 /******************************************************************************/

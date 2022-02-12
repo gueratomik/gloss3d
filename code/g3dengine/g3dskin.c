@@ -150,17 +150,16 @@ static uint32_t g3dskin_modify ( G3DSKIN    *skn,
 }
 
 /******************************************************************************/
-static void g3dskin_anim ( G3DSKIN *skn, 
-                           float    frame, 
-                           uint64_t engine_flags ) {
+static void g3dskin_update ( G3DSKIN *skn,
+                             uint64_t engine_flags ) {
+    if ( skn->mod.mes.obj.update_flags & UPDATESKIN ) {
+        if ( g3dobject_isActive ( ( G3DOBJECT * ) skn ) ) {
+            g3dskin_modify ( skn, G3DMODIFYOP_UPDATE, engine_flags );
 
-    if ( g3dobject_isActive ( ( G3DOBJECT * ) skn ) ) {
-        g3dskin_modify ( skn, G3DMODIFYOP_UPDATE, engine_flags );
-
-
-        g3dmesh_updateModified ( ( G3DMESH * ) skn->mod.oriobj,
-                             ( G3DMODIFIER * ) skn,
-                                               engine_flags );
+            g3dmesh_updateModified ( ( G3DMESH * ) skn->mod.oriobj,
+                                 ( G3DMODIFIER * ) skn,
+                                                   engine_flags );
+        }
     }
 }
 
@@ -247,7 +246,8 @@ static void g3dskin_init ( G3DSKIN *skn,
     SETPARENT_CALLBACK(g3dskin_setParent),
        MODIFY_CALLBACK(g3dskin_modify) );
 
-    ((G3DOBJECT*)skn)->anim = ANIM_CALLBACK(g3dskin_anim);
+    ((G3DOBJECT*)skn)->anim   = ANIM_CALLBACK(NULL);
+    ((G3DOBJECT*)skn)->update = UPDATE_CALLBACK(g3dskin_update);
 
     mod->moddraw = MODDRAW_CALLBACK(g3dskin_moddraw);
 }

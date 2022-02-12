@@ -355,12 +355,10 @@ void g3dscene_removeMaterial ( G3DSCENE *sce, G3DMATERIAL *mat ) {
                 if ( tex->mat == mat ) {
                     g3dmesh_removeTexture ( mes, tex );
 
+                    mes->obj.update_flags |= RESETMODIFIERS;
+
                     /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-                    g3dmesh_update ( mes, 
-                                     NULL,
-                                     NULL,
-                                     NULL,
-                                     RESETMODIFIERS, 0x00 );
+                    g3dmesh_update ( mes, 0x00 );
                 }
 
                 ltmptex = ltmptexnext;
@@ -552,10 +550,7 @@ void g3dscene_selectObject ( G3DSCENE  *sce,
                 /*** This is needed when, for example, we are in vertex painting ***/
                 /*** mode, we change the object selection. Our buffered mesh ***/
                 /*** must be entirely rebuilt because it must change color (red)***/
-                g3dmesh_update ( mes, NULL,
-                                      NULL,
-                                      NULL,
-                                      0x00, engine_flags );
+                g3dmesh_update ( mes, engine_flags );
             }
 
             list_append ( &sce->lsel, obj );
@@ -690,10 +685,9 @@ static uint32_t updateMeshesFromImage ( G3DOBJECT *obj,
             G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
 
             if ( tex->mat->displacement.image == img ) {
-                g3dmesh_update ( mes, NULL,
-                                      NULL,
-                                      NULL,
-                                      RESETMODIFIERS, engine_flags );
+                mes->obj.update_flags |= RESETMODIFIERS;
+
+                g3dmesh_update ( mes, engine_flags );
             }
 
             ltmptex = ltmptex->next;

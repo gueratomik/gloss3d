@@ -37,10 +37,14 @@ static void gotoframe ( G3DUI *gui, GOTOFRAME *gtf ) {
     /*** On real time stuff ***/
     gui->engine_flags |= ONGOINGANIMATION;
 /*printf("g3dgotoframe %s %f\n", __func__, gtf->frame );*/
+
     g3dobject_anim_r ( ( G3DOBJECT * ) gui->sce, 
                                        gtf->frame, 
                                        gui->engine_flags |
                                        gtf->extra_engine_flags );
+
+    g3dobject_update_r ( ( G3DOBJECT * ) gui->sce, gui->engine_flags );
+
 
     g3dui_redrawGLViews  ( gui );
     g3dui_redrawTimeline ( gui );

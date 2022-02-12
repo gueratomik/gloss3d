@@ -141,11 +141,11 @@ GtkWidget *createModeBar ( GtkWidget *parent, G3DUI *gui,
           addModeBarButton ( bar, grp , gui, MODE_VIEWVERTEX, vertexmode_test_xpm, g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWEDGE  , edgemode_test_xpm  , g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWFACE  , facemode_test_xpm  , g3dui_setMode );
+          addModeBarButton ( bar, grp , gui, MODE_VIEWSCULPT, sculptmode_xpm, g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWSKIN  , skinmode_test_xpm  , g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWUVWMAP, uvwmapmode_test_xpm, g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWAXIS  , axismode_test_xpm  , g3dui_setMode );
           addModeBarButton ( bar, grp , gui, MODE_VIEWPATH  , pathmode_xpm  , g3dui_setMode );
-          /*addModeBarButton ( bar, grp , gui, MODE_VIEWSCULPT, sculptmode_xpm, g3dui_setMode );*/
 
     gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(bar), 0 );
 

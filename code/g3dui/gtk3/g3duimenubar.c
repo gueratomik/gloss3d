@@ -346,6 +346,22 @@ void g3duitimeline_deleteKeysCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+void g3duitimeline_scaleKeysDialogCbk ( GtkWidget *widget, gpointer user_data ) {
+    G3DUITIMELINE *tim = ( G3DUITIMELINE * ) user_data;
+    GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+
+    createScaleKeysDialog ( dial,
+                            tim->grp.gui,
+                            "Scale Keys",
+                            0,
+                            0,
+                            150,
+                            96 );
+
+    gtk_widget_show ( dial );
+}
+
+/******************************************************************************/
 void g3duitimeline_scaleKeysCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUITIMELINE *tim = ( G3DUITIMELINE * ) user_data;
 
@@ -368,7 +384,7 @@ static G3DUIMENU time_menu_delete = { TIMEMENU_DELETE,
 static G3DUIMENU time_menu_scale = { TIMEMENU_SCALE,
                                      G3DUIMENUTYPE_PUSHBUTTON,
                                      NULL,
-                                     g3duitimeline_scaleKeysCbk };
+                                     g3duitimeline_scaleKeysDialogCbk };
 
 static G3DUIMENU time_menu_select = { TIMEMENU_SELECT,
                                       G3DUIMENUTYPE_PUSHBUTTON,
@@ -380,8 +396,8 @@ static G3DUIMENU time_menu = { "_Options",
                                G3DUIMENUTYPE_SUBMENU,
                                NULL,
                                NULL,
-                              .nodes = { /*&time_menu_scale,
-                                         &time_menu_select,*/
+                              .nodes = { /*&time_menu_select,*/
+                                         &time_menu_scale,
                                          &time_menu_delete,
                                           NULL } };
 

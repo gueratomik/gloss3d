@@ -494,13 +494,10 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
 
                             list_free ( &lseluv, NULL );
 
+                            parmes->obj.update_flags |= RESETMODIFIERS;
+
                             /** TODO: do this only for subdivided meshes ***/
-                            g3dmesh_update ( parmes, 
-                                             NULL,
-                                             NULL,
-                                             NULL,
-                                             RESETMODIFIERS, 
-                                             engine_flags );
+                            g3dmesh_update ( parmes, engine_flags );
 
                             olduv = newuv = NULL;
                         } return REDRAWVIEW            | 
@@ -1043,6 +1040,10 @@ int move_object ( LIST        *lobj,
 
                         /** adjust move amplitude with scaling factor ***/
                         g3dcore_getMatrixScale ( obj->wmatrix, &sca );
+
+                        if ( obj->type == G3DBONETYPE ) {
+                            g3dbone_updateRigs ( ( G3DOBJECT * ) obj, engine_flags );
+                        }
                     } else {
                         G3DVECTOR zero = { 0.0f, 0.0f, 0.0f, 1.0f }, lzero;
 

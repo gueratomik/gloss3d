@@ -80,6 +80,36 @@ Edge ID
 }*/
 
 /******************************************************************************/
+void g3dface_addExtension ( G3DFACE          *fac,
+                            G3DFACEEXTENSION *ext ) {
+    list_insert ( &fac->lext, ext );
+}
+
+/******************************************************************************/
+void g3dface_removeExtension ( G3DFACE          *fac, 
+                               G3DFACEEXTENSION *ext ) {
+    list_remove ( &fac->lext, ext );
+}
+
+/******************************************************************************/
+G3DFACEEXTENSION *g3dface_getExtension ( G3DFACE *fac,
+                                         uint32_t name ) {
+    LIST *ltmpext = fac->lext;
+
+    while ( ltmpext ) {
+        G3DFACEEXTENSION *ext = ( G3DFACEEXTENSION * ) ltmpext->data;
+
+        if ( ext->name == name ) {
+            return ext;
+        }
+
+        ltmpext = ltmpext->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 void g3dface_getAveragePositionFromList ( LIST *lver, G3DVECTOR *pos ) {
     uint32_t nb = 0x00;
     LIST *ltmp = lver;
@@ -1850,9 +1880,7 @@ uint32_t g3dface_checkOrientation ( G3DFACE *fac ) {
     uint32_t i;
 
     for ( i = 0x00; i < fac->nbver; i++ ) {
-                    /*** p = previous, n = next ***/
-        int pi = ( i + fac->nbver - 0x01 ) % fac->nbver,
-            ni = ( i + 0x01 ) % fac->nbver;
+        uint32_t n = ( i + 0x01 ) % fac->nbver;
         G3DEDGE *edg = fac->edg[i];
         LIST *ltmpfac = edg->lfac;
 
@@ -1862,15 +1890,14 @@ uint32_t g3dface_checkOrientation ( G3DFACE *fac ) {
 
             if ( nei != fac ) {   
                 for ( j = 0x00; j < nei->nbver; j++ ) {
-                    /*** p = previous, n = next ***/
-                    int pj = ( j + nei->nbver - 0x01 ) % nei->nbver,
-                        nj = ( j + 0x01 ) % nei->nbver;
+                    uint32_t k = ( j + 0x01 ) % nei->nbver;
 
-                    if ( nei->ver[j] == fac->ver[i] ) {
-                        if ( nei->ver[pj] == fac->ver[pi] ) return 0x01;
-                        if ( nei->ver[pj] == fac->ver[ni] ) return 0x00;
-                        if ( nei->ver[nj] == fac->ver[pi] ) return 0x00;
-                        if ( nei->ver[nj] == fac->ver[ni] ) return 0x01;
+                    if ( nei->ver[k] == fac->ver[i] ) {
+                        if ( nei->ver[j] == fac->ver[n] ) {
+                            return 0x00;
+                        } else {
+                            return 0x01;
+                        }
                     }
                 }
             }
@@ -1879,7 +1906,7 @@ uint32_t g3dface_checkOrientation ( G3DFACE *fac ) {
         }
     }
 
-    return 0x00;
+    return 0x01;
 }
 
 /******************************************************************************/

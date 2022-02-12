@@ -98,14 +98,13 @@ void unTriangulate_undo ( G3DURMANAGER *urm,
     g3dmesh_faceNormal   ( mes );
     g3dmesh_vertexNormal ( mes );
 
+    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                               UPDATEFACENORMAL   |
+                               UPDATEVERTEXNORMAL |
+                               RESETMODIFIERS );
+
     /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, NULL,
-                          NULL,
-                          NULL,
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL |
-                          RESETMODIFIERS, engine_flags );
+    g3dmesh_update ( mes, engine_flags );
 }
 
 /******************************************************************************/
@@ -126,14 +125,13 @@ void unTriangulate_redo ( G3DURMANAGER *urm,
     g3dmesh_faceNormal   ( mes );
     g3dmesh_vertexNormal ( mes );
 
+    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                               UPDATEFACENORMAL   |
+                               UPDATEVERTEXNORMAL |
+                               RESETMODIFIERS );
+
     /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, NULL,
-                          NULL,
-                          NULL,
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL |
-                          RESETMODIFIERS, engine_flags );
+    g3dmesh_update ( mes, engine_flags );
 }
 
 /******************************************************************************/
@@ -149,14 +147,13 @@ void g3durm_mesh_untriangulate ( G3DURMANAGER *urm,
 
     g3dmesh_untriangulate ( mes, &loldfac, &lnewfac );
 
+    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                               UPDATEFACENORMAL   |
+                               UPDATEVERTEXNORMAL |
+                               RESETMODIFIERS );
+
     /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, NULL,
-                          NULL,
-                          NULL,
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL |
-                          RESETMODIFIERS, engine_flags );
+    g3dmesh_update ( mes, engine_flags );
 
     g3dmesh_faceNormal   ( mes );
     g3dmesh_vertexNormal ( mes );
@@ -182,14 +179,13 @@ void g3durm_mesh_triangulate ( G3DURMANAGER *urm,
 
     g3dmesh_triangulate ( mes, &loldfac, &lnewfac, clockwise );
 
+    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                               UPDATEFACENORMAL   |
+                               UPDATEVERTEXNORMAL |
+                               RESETMODIFIERS );
+
     /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, NULL,
-                          NULL,
-                          NULL,
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL |
-                          RESETMODIFIERS, engine_flags );
+    g3dmesh_update ( mes, engine_flags );
 
     /*** Triangulate and unTriagulate feature use ***/
     /*** the same functions and data structures. ***/

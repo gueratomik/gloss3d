@@ -135,12 +135,10 @@ void addTexture_undo ( G3DURMANAGER *urm, void *data, uint64_t flags ) {
 
         g3dmesh_removeTexture ( trd->mes, trd->tex );
 
+        trd->mes->obj.update_flags |= RESETMODIFIERS;
+
         /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-        g3dmesh_update ( trd->mes, 
-                         NULL,
-                         NULL,
-                         NULL,
-                         RESETMODIFIERS, flags );
+        g3dmesh_update ( trd->mes, flags );
 
         ltmptrd = ltmptrd->next;
     }
@@ -163,12 +161,10 @@ void addTexture_redo ( G3DURMANAGER *urm, void *data, uint64_t flags ) {
 
         g3dmesh_addTexture ( trd->mes, trd->tex );
 
+        trd->mes->obj.update_flags |= RESETMODIFIERS;
+
         /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-        g3dmesh_update ( trd->mes, 
-                         NULL,
-                         NULL,
-                         NULL,
-                         RESETMODIFIERS, flags );
+        g3dmesh_update ( trd->mes, flags );
 
         ltmptrd = ltmptrd->next;
     }
@@ -216,12 +212,10 @@ void g3durm_selection_addTexture ( G3DURMANAGER *urm,
 
             g3dmesh_addTexture ( mes, tex );
 
+            mes->obj.update_flags |= RESETMODIFIERS;
+
             /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-            g3dmesh_update ( mes, 
-                             NULL,
-                             NULL,
-                             NULL,
-                             RESETMODIFIERS, engine_flags );
+            g3dmesh_update ( mes, engine_flags );
 
             list_insert ( &uat->ltrd, texrecord_new ( mes, 
                                                       tex, 

@@ -1105,11 +1105,10 @@ void common_g3dui_alignNormalsCbk ( G3DUI *gui ) {
 
         g3dmesh_alignFaces ( mes );
 
+        mes->obj.update_flags |= RESETMODIFIERS;
+
         /*** Update subdivision if we are in buffered mode. ***/
-        g3dmesh_update ( mes, NULL,
-                              NULL,
-                              NULL,
-                              RESETMODIFIERS, gui->engine_flags );
+        g3dmesh_update ( mes, gui->engine_flags );
 
 
     }

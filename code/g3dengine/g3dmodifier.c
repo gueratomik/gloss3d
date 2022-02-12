@@ -182,40 +182,34 @@ void g3dmodifier_setParent ( G3DMODIFIER *mod,
                              G3DOBJECT   *oldParent,
                              uint64_t     engine_flags ) {
     if ( parent ) {
-        G3DMESH *mes = ( parent->type & MESH ) ?
+        G3DMESH *mes = ( parent->type & EDITABLE ) ?
                            ( G3DMESH * ) parent : 
                            ( G3DMESH * ) g3dobject_getActiveParentByType ( parent,
-                                                                           MESH );
+                                                                           EDITABLE );
 
         if ( mes ) {
-            g3dmesh_update ( mes,
-                             NULL,
-                             NULL,
-                             NULL,
-                             UPDATEFACEPOSITION |
-                             UPDATEFACENORMAL   |
-                             UPDATEVERTEXNORMAL |
-                             RESETMODIFIERS, 
-                             engine_flags );
+            mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                                       UPDATEFACENORMAL   |
+                                       UPDATEVERTEXNORMAL |
+                                       RESETMODIFIERS );
+
+            g3dmesh_update ( mes, engine_flags );
         }
     }
 
     if ( oldParent ) {
-        G3DMESH *oldmes = ( oldParent->type & MESH ) ? 
+        G3DMESH *oldmes = ( oldParent->type & EDITABLE ) ?
                            ( G3DMESH * ) oldParent : 
                            ( G3DMESH * ) g3dobject_getActiveParentByType ( oldParent,
-                                                                           MESH );
+                                                                           EDITABLE );
 
         if ( oldmes ) {
-            g3dmesh_update ( oldmes,
-                             NULL,
-                             NULL,
-                             NULL,
-                             UPDATEFACEPOSITION |
-                             UPDATEFACENORMAL   |
-                             UPDATEVERTEXNORMAL |
-                             RESETMODIFIERS, 
-                             engine_flags );
+            oldmes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                                          UPDATEFACENORMAL   |
+                                          UPDATEVERTEXNORMAL |
+                                          RESETMODIFIERS );
+
+            g3dmesh_update ( oldmes, engine_flags );
         }
     }
 }

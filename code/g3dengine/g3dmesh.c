@@ -282,14 +282,13 @@ void g3dmesh_moveAxis ( G3DMESH *mes,
         ltmpver = ltmpver->next;
     }
 
+    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                               UPDATEFACENORMAL   |
+                               UPDATEVERTEXNORMAL |
+                               RESETMODIFIERS );
+
     /*g3dmesh_updateBbox ( mes );*/
-    g3dmesh_update ( mes, NULL,
-                          NULL,
-                          NULL,
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL |
-                          RESETMODIFIERS, engine_flags );
+    g3dmesh_update ( mes, engine_flags );
 }
 
 /******************************************************************************/
@@ -496,13 +495,12 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
         if ( symedg ) free ( symedg );
     }
 
-    g3dmesh_update ( symmes, NULL, /*** update vertices    ***/
-                             NULL, /*** update edges       ***/
-                             NULL, /*** update faces       ***/
-                             UPDATEFACEPOSITION |
-                             UPDATEFACENORMAL   |
-                             UPDATEVERTEXNORMAL,
-                             engine_flags );
+    symmes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                                  UPDATEFACENORMAL   |
+                                  UPDATEVERTEXNORMAL );
+
+    g3dmesh_update ( symmes, engine_flags );
+
 
     return symmes;
 }
@@ -753,14 +751,12 @@ G3DMESH *g3dmesh_merge ( LIST    *lobj,
         ltmpobj = ltmpobj->next;
     }
 
-    g3dmesh_update ( mrg, NULL, /*** update vertices    ***/
-                          NULL, /*** update edges       ***/
-                          NULL, /*** update faces       ***/
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL |
-                          COMPUTEUVMAPPING,
-                          engine_flags );
+    mrg->obj.update_flags |= ( UPDATEFACEPOSITION |
+                               UPDATEFACENORMAL   |
+                               UPDATEVERTEXNORMAL |
+                               COMPUTEUVMAPPING );
+
+    g3dmesh_update ( mrg, engine_flags );
 
     g3dmesh_updateBbox ( mrg );
 
@@ -1085,10 +1081,7 @@ void g3dmesh_removeUVMap ( G3DMESH  *mes,
     }
 
     /*** We must alloc memory for the subdivided uvsets ***/
-    g3dmesh_update ( mes, NULL,
-                          NULL,
-                          NULL,
-                          0x00, engine_flags );
+    g3dmesh_update ( mes, engine_flags );
 }
 
 /******************************************************************************/
@@ -1121,10 +1114,7 @@ void g3dmesh_addUVMap ( G3DMESH  *mes,
     }
 
     /*** We must alloc memory for the subdivided uvsets ***/
-    g3dmesh_update ( mes, NULL,
-                          NULL,
-                          NULL,
-                          0x00, engine_flags );
+    g3dmesh_update ( mes, engine_flags );
 
     /*g3duvmap_adjustFlatProjection ( map, mes );*/
 }
@@ -1976,13 +1966,12 @@ void g3dmesh_clone ( G3DMESH   *mes,
 
     g3dmesh_updateBbox ( cpymes );
 
+    cpymes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                                  UPDATEFACENORMAL   |
+                                  UPDATEVERTEXNORMAL );
+
     /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( cpymes, NULL,
-                             NULL,
-                             NULL,
-                             UPDATEFACEPOSITION |
-                             UPDATEFACENORMAL   |
-                             UPDATEVERTEXNORMAL, engine_flags );
+    g3dmesh_update ( cpymes, engine_flags );
 }
 
 /******************************************************************************/
@@ -2242,7 +2231,7 @@ void g3dmesh_untriangulate ( G3DMESH *mes, LIST **loldfac,
             g3dmesh_addSelectedFace ( mes, qua );
 
             /*** I'm not sure this works ***/
-            if ( g3dface_checkOrientation ( qua ) == 0x00 ) {
+            if ( g3dface_checkOrientation ( qua ) ) {
                 g3dface_invertNormal ( qua );
             }
 
@@ -2459,31 +2448,27 @@ void g3dmesh_allocSubPatterns ( G3DMESH *mes, uint32_t level ) {
 }
 
 /******************************************************************************/
-void g3dmesh_update ( G3DMESH *mes, 
-                      LIST    *lver, /*** update vertices    ***/
-                      LIST    *ledg, /*** update edges       ***/
-                      LIST    *lfac, /*** update faces       ***/
-                      uint32_t update_flags,
+void g3dmesh_update ( G3DMESH *mes,
                       uint64_t engine_flags ) {
     G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
 
-    if ( ( update_flags & UPDATEFACEPOSITION ) ||
-         ( update_flags & UPDATEFACENORMAL   ) ) {
+    if ( ( mes->obj.update_flags & UPDATEFACEPOSITION ) ||
+         ( mes->obj.update_flags & UPDATEFACENORMAL   ) ) {
 
-        LIST *ltmpfac = ( lfac ) ? lfac : mes->lfac;
+        LIST *ltmpfac = ( mes->lupdfac ) ? mes->lupdfac : mes->lfac;
         /*** Always update face first. Vertices normals are computed from it***/
         while ( ltmpfac ) {
             G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
 
-            if ( update_flags & UPDATEFACEPOSITION ) g3dface_position ( fac );
-            if ( update_flags & UPDATEFACENORMAL   ) g3dface_normal   ( fac );
+            if ( mes->obj.update_flags & UPDATEFACEPOSITION ) g3dface_position ( fac );
+            if ( mes->obj.update_flags & UPDATEFACENORMAL   ) g3dface_normal   ( fac );
 
             _NEXTFACE(mes,ltmpfac);
         }
     }
 
-    if ( update_flags & UPDATEVERTEXNORMAL ) {
-        LIST *ltmpver = ( lver ) ? lver : mes->lver;
+    if ( mes->obj.update_flags & UPDATEVERTEXNORMAL ) {
+        LIST *ltmpver = ( mes->lupdver ) ? mes->lupdver : mes->lver;
 
         /*** Update Vertices normals ***/
         while ( ltmpver ) {
@@ -2500,7 +2485,7 @@ void g3dmesh_update ( G3DMESH *mes,
         }
     }
 
-    if ( update_flags & COMPUTEUVMAPPING ) {
+    if ( mes->obj.update_flags & COMPUTEUVMAPPING ) {
         LIST *lmap = g3dobject_getChildrenByType ( ( G3DOBJECT * ) mes, G3DUVMAPTYPE );
         LIST *ltmpmap = lmap;
 
@@ -2508,7 +2493,7 @@ void g3dmesh_update ( G3DMESH *mes,
             G3DUVMAP *map = ( G3DUVMAP * ) ltmpmap->data;
             G3DOBJECT *objmap = ( G3DOBJECT * ) map;
 
-            LIST *ltmpfac = ( lfac ) ? lfac : mes->lfac;
+            LIST *ltmpfac = ( mes->lupdfac ) ? mes->lupdfac : mes->lfac;
 
             while ( ltmpfac ) {
                 G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -2530,11 +2515,15 @@ void g3dmesh_update ( G3DMESH *mes,
         list_free ( &lmap, NULL );
     }
 
-    if ( update_flags & RESETMODIFIERS ) {
+    if ( mes->obj.update_flags & RESETMODIFIERS ) {
         g3dmesh_modify ( mes,
                          G3DMODIFYOP_MODIFY,
                          engine_flags );
     }
+
+    mes->lupdfac = NULL;
+    mes->lupdedg = NULL;
+    mes->lupdver = NULL;
 }
 
 /******************************************************************************/
@@ -3841,10 +3830,7 @@ void g3dmesh_invertFaceSelection ( G3DMESH *mes,
 
     list_free ( &lselfac, NULL );
 
-    g3dmesh_update ( mes, NULL,
-                          NULL,
-                          NULL,
-                          0x00, engine_flags );
+    g3dmesh_update ( mes, engine_flags );
 }
 
 /******************************************************************************/
@@ -3868,10 +3854,7 @@ void g3dmesh_invertEdgeSelection ( G3DMESH *mes,
 
     list_free ( &lseledg, NULL );
 
-    g3dmesh_update ( mes, NULL,
-                          NULL,
-                          NULL,
-                          0x00, engine_flags );
+    g3dmesh_update ( mes, engine_flags );
 }
 
 /******************************************************************************/
@@ -3895,10 +3878,7 @@ void g3dmesh_invertVertexSelection ( G3DMESH *mes,
 
     list_free ( &lselver, NULL );
 
-    g3dmesh_update ( mes, NULL,
-                          NULL,
-                          NULL,
-                          0x00, engine_flags );
+    g3dmesh_update ( mes, engine_flags );
 }
 
 /******************************************************************************/
@@ -4251,17 +4231,21 @@ void g3dmesh_onGeometryMove ( G3DMESH    *mes,
                               LIST       *lfac,
                               G3DMODIFYOP op,
                               uint64_t    engine_flags ) {
-    g3dmesh_update ( mes, lver,
-                          ledg,
-                          lfac,
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL |
-                          COMPUTEUVMAPPING, engine_flags );
+
+    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                               UPDATEFACENORMAL   |
+                               UPDATEVERTEXNORMAL |
+                               COMPUTEUVMAPPING );
+
+    mes->lupdfac = lfac;
+    mes->lupdedg = ledg;
+    mes->lupdver = lver;
+
+    g3dmesh_update ( mes, engine_flags );
 
     g3dmesh_modify ( mes,
                      op,
-                     engine_flags ); 
+                     engine_flags );
 }
 
 /******************************************************************************/
@@ -4312,6 +4296,7 @@ void g3dmesh_init ( G3DMESH *mes,
     mes->onGeometryMove = g3dmesh_onGeometryMove;
 
     mes->dump           = g3dmesh_default_dump;
+    mes->obj.update     = UPDATE_CALLBACK(g3dmesh_update);
 
     /*** mesh have morph capacities ***/
     /*g3dobject_addExtension ( ( G3DOBJECT* ) mes, ext );

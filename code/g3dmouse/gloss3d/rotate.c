@@ -344,13 +344,10 @@ static int rotateUV_tool ( G3DMOUSETOOL *mou,
 
                             list_free ( &lseluv, NULL );
 
+                            parmes->obj.update_flags |= RESETMODIFIERS;
+
                             /** TODO: do this only for subdivided meshes ***/
-                            g3dmesh_update ( parmes, 
-                                             NULL,
-                                             NULL,
-                                             NULL,
-                                             RESETMODIFIERS, 
-                                             engine_flags );
+                            g3dmesh_update ( parmes, engine_flags );
 
                             olduv = newuv = NULL;
                         } return REDRAWVIEW            | 
@@ -910,6 +907,10 @@ static int rotate_object ( LIST        *lobj,
                             /*** update cursor matrix ***/
                             memcpy ( sce->csr.matrix, 
                                      obj->wmatrix, sizeof ( double ) * 0x10 );
+
+                            if ( obj->type == G3DBONETYPE ) {
+                                g3dbone_updateRigs ( ( G3DOBJECT * ) obj, engine_flags );
+                            }
                         }
 
                         if ( engine_flags & VIEWAXIS ) {

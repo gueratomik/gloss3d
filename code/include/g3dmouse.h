@@ -261,9 +261,14 @@ typedef struct _SCULPTFACE {
 /******************************************************************************/
 typedef struct _G3DMOUSETOOLSCULPT {
     G3DMOUSETOOL  tool;
+    int start; 
     int32_t coord[0x04];   /*** x1, y1, x2, y2                     ***/
-    int only_visible;
-    int radius;
+    uint32_t only_visible; /*** true or false                      ***/
+    float weight;          /*** Paint weight                       ***/
+    uint32_t operation;    /*** Add (0x01) or remove (0x00) weight ***/
+    uint32_t radius;
+
+
     float pressure;
     int ctrl_key;
     LIST *lscf; /*** SCULPTFACE list ***/

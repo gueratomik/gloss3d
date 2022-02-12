@@ -518,6 +518,8 @@ static gboolean panToolInput ( GtkWidget *widget,
                             g3dobject_anim_r ( ( G3DOBJECT * ) sce, gui->curframe,
                                                                     gui->engine_flags );
 
+                            g3dobject_update_r ( ( G3DOBJECT * ) sce, gui->engine_flags );
+
                             g3dui_updateCoords  ( gui );
                             g3dui_redrawGLViews ( gui );
                         } else {

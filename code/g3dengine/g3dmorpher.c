@@ -270,14 +270,12 @@ void g3dmorpher_optimize ( G3DMORPHER *mpr ) {
     if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
 
-        g3dmesh_update ( mes,
-                         NULL,
-                         NULL,
-                         NULL,
-                         UPDATEFACEPOSITION |
-                         UPDATEFACENORMAL   |
-                         UPDATEVERTEXNORMAL |
-                         RESETMODIFIERS, 0x00 );
+        mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                                   UPDATEFACENORMAL   |
+                                   UPDATEVERTEXNORMAL |
+                                   RESETMODIFIERS );
+
+        g3dmesh_update ( mes, 0x00 );
     }
 }
 

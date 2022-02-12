@@ -871,10 +871,9 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                              ( obj->type == G3DMESHTYPE ) ) {
                             g3dsymmetry_meshChildChange ( ( G3DSYMMETRY * ) dst, ( G3DMESH * ) obj );
 
-                            g3dmesh_update ( ( G3DMESH * ) obj, NULL,
-                                                  NULL,
-                                                  NULL,
-                                                  UPDATEFACEPOSITION, gui->engine_flags );
+                            obj->update_flags |= UPDATEFACEPOSITION;
+
+                            g3dmesh_update ( ( G3DMESH * ) obj, gui->engine_flags );
                         }
 
                         g3dui_updateCoords ( gui );

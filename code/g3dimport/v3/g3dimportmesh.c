@@ -216,12 +216,11 @@ void g3dimportv3mesh ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                     }
                 }
 
-                g3dmesh_update ( mes, NULL,
-                                      NULL,
-                                      NULL,
-                                      UPDATEVERTEXNORMAL  |
-                                      UPDATEFACEPOSITION  |
-                                      UPDATEFACENORMAL, gid->engineFlags );
+                mes->obj.update_flags |= ( UPDATEVERTEXNORMAL  |
+                                           UPDATEFACEPOSITION  |
+                                           UPDATEFACENORMAL );
+
+                g3dmesh_update ( mes, gid->engineFlags );
             } break;
 
             default : {

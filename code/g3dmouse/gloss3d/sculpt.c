@@ -32,6 +32,8 @@
 /* each function must return FALSE for redrawing the OGL Widget it belongs to */
 /* only or TRUE to redraw all OGL Widgets                                     */
 
+#ifdef unused
+
 static int sculpt_tool ( G3DMOUSETOOL *mou, 
                          G3DSCENE     *sce, 
                          G3DCAMERA    *cam,
@@ -368,3 +370,5 @@ static int sculpt_tool ( G3DMOUSETOOL *mou,
 
     return REDRAWVIEW;
 }
+
+#endif

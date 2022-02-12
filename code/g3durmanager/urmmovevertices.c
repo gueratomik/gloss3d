@@ -103,15 +103,18 @@ static void moveVertices_undo ( G3DURMANAGER *urm,
 
     g3dmesh_updateBbox ( mvs->mes );
 
+    mes->lupdfac = mvs->lfac;
+    mes->lupdedg = mvs->ledg;
+    mes->lupdver = mvs->lver;
+
+    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                               UPDATEFACENORMAL   |
+                               UPDATEVERTEXNORMAL |
+                               COMPUTEUVMAPPING   | 
+                               UPDATEMODIFIERS );
+
     /*** update faces and subdivided faces ***/
-    g3dmesh_update ( mes, mvs->lver,
-                          mvs->ledg,
-                          mvs->lfac,
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL |
-                          COMPUTEUVMAPPING | 
-                          UPDATEMODIFIERS, engine_flags );
+    g3dmesh_update ( mes, engine_flags );
 
     /*** TODO: understand why those 2 calls are needed. It's becoming ***/
     /*** messy I  dont even know why the faces dont get correctly ***/
@@ -143,15 +146,18 @@ static void moveVertices_redo ( G3DURMANAGER *urm,
 
     g3dmesh_updateBbox ( mvs->mes );
 
+    mes->lupdfac = mvs->lfac;
+    mes->lupdedg = mvs->ledg;
+    mes->lupdver = mvs->lver;
+
+    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                               UPDATEFACENORMAL   |
+                               UPDATEVERTEXNORMAL |
+                               COMPUTEUVMAPPING   | 
+                               UPDATEMODIFIERS );
+
     /*** update faces and subdivided faces ***/
-    g3dmesh_update ( mes, mvs->lver,
-                          mvs->ledg,
-                          mvs->lfac,
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL |
-                          COMPUTEUVMAPPING |
-                          UPDATEMODIFIERS, engine_flags );
+    g3dmesh_update ( mes, engine_flags );
 
     /*** TODO: understand why those 2 calls are needed. It's becoming ***/
     /*** messy I  dont even know why the faces dont get correctly ***/

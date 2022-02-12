@@ -440,5 +440,7 @@ G3DSCENE *g3dscene_importv3 ( const char *filename,
 
     g3dobject_anim_r ( ( G3DOBJECT * ) gid.currentScene, 0, flags );
 
+    g3dobject_update_r ( ( G3DOBJECT * ) gid.currentScene, flags );
+
     return gid.currentScene;
 }

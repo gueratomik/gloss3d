@@ -81,10 +81,9 @@ void g3dmaterial_updateMeshes ( G3DMATERIAL *mat,
             if ( obj->type & MESH ) {
                 G3DMESH *mes = ( G3DMESH * ) obj;
 
-                g3dmesh_update ( mes, NULL,
-                                      NULL,
-                                      NULL,
-                                      RESETMODIFIERS, engine_flags );
+                mes->obj.update_flags = RESETMODIFIERS;
+
+                g3dmesh_update ( mes, engine_flags );
 
             }
         }

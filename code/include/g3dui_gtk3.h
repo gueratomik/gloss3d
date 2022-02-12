@@ -914,6 +914,14 @@ GtkWidget* createProceduralNoiseEdit ( GtkWidget           *parent,
                                        gint                height,
                                        uint32_t            bindGL );
 
+GtkWidget *createScaleKeysDialog ( GtkWidget *parent,
+                                   G3DUI     *gui,
+                                   char      *name,
+                                   gint       x,
+                                   gint       y,
+                                   gint       width,
+                                   gint       height );
+
 uint32_t g3dui_saveAlteredImages ( G3DUI *gui );
 uint32_t g3dui_saveChannelAlteredImage ( G3DUI      *gui,
                                          char       *materialName,

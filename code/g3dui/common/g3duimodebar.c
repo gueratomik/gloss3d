@@ -97,20 +97,18 @@ void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
         if ( ( newmode & VIEWSKIN ) || ( oldmode & VIEWSKIN ) ) {
-            g3dmesh_update ( mes, NULL,
-                                  NULL,
-                                  NULL,
-                                  RESETMODIFIERS, gui->engine_flags );
+            mes->obj.update_flags |= RESETMODIFIERS;
+
+            g3dmesh_update ( mes, gui->engine_flags );
         }
 
         /*** The below restores the face ***/
         /*** color when we switch modes ***/
         if ( ( newmode & VIEWFACE ) || ( oldmode & VIEWFACE ) ) {
             if ( mes->lselfac ) {
-                g3dmesh_update ( mes, NULL,
-                                      NULL,
-                                      NULL,
-                                      RESETMODIFIERS, gui->engine_flags );
+                mes->obj.update_flags |= RESETMODIFIERS;
+
+                g3dmesh_update ( mes, gui->engine_flags );
             }
         }
     }

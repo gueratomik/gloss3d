@@ -103,6 +103,7 @@ if HAVE_GTK3
                             gtk3/g3duirenderedit.c \
                             gtk3/g3duirenderprocess.c \
                             gtk3/g3duirenderwindow.c \
+                            gtk3/g3duiscalekeysdialog.c \
                             gtk3/g3duisphereedit.c \
                             gtk3/g3duisplinerevolveredit.c \
                             gtk3/g3duisubdivideredit.c \

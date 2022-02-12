@@ -63,11 +63,10 @@ void common_g3duiuvmap_projectionCbk ( G3DUI *gui, const char *projection ) {
 
             g3duvmap_applyProjection ( uvmap, mes );
 
+            mes->obj.update_flags |= RESETMODIFIERS;
+
             /*** might need to recompute displacement ***/
-            g3dmesh_update ( mes, NULL,
-                                  NULL,
-                                  NULL,
-                                  RESETMODIFIERS, gui->engine_flags );
+            g3dmesh_update ( mes, gui->engine_flags );
         }
 
         g3dui_redrawGLViews ( gui );

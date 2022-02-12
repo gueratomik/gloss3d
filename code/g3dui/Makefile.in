@@ -184,16 +184,17 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duiproceduralnoiseedit.c \
 	gtk3/g3duiproceduralgradientedit.c gtk3/g3duiquad.c \
 	gtk3/g3duirenderedit.c gtk3/g3duirenderprocess.c \
-	gtk3/g3duirenderwindow.c gtk3/g3duisphereedit.c \
-	gtk3/g3duisplinerevolveredit.c gtk3/g3duisubdivideredit.c \
-	gtk3/g3duisymmetryedit.c gtk3/g3duitextedit.c \
-	gtk3/g3duitextureedit.c gtk3/g3duitimeboard.c \
-	gtk3/g3duitimeline.c gtk3/g3duitoolbar.c gtk3/g3duitorusedit.c \
-	gtk3/g3duitrackertagedit.c gtk3/g3duitubeedit.c \
-	gtk3/g3duiuvmenubar.c gtk3/g3duiuvmapedit.c gtk3/m3dui.c \
-	gtk3/m3duitoolbar.c gtk3/g3duiview.c \
-	gtk3/g3duiweightgrouplist.c gtk3/g3duiwireframeedit.c \
-	gtk3/q3dpreview.c gtk3/mousetool/g3duig3dmousetooledit.c \
+	gtk3/g3duirenderwindow.c gtk3/g3duiscalekeysdialog.c \
+	gtk3/g3duisphereedit.c gtk3/g3duisplinerevolveredit.c \
+	gtk3/g3duisubdivideredit.c gtk3/g3duisymmetryedit.c \
+	gtk3/g3duitextedit.c gtk3/g3duitextureedit.c \
+	gtk3/g3duitimeboard.c gtk3/g3duitimeline.c gtk3/g3duitoolbar.c \
+	gtk3/g3duitorusedit.c gtk3/g3duitrackertagedit.c \
+	gtk3/g3duitubeedit.c gtk3/g3duiuvmenubar.c \
+	gtk3/g3duiuvmapedit.c gtk3/m3dui.c gtk3/m3duitoolbar.c \
+	gtk3/g3duiview.c gtk3/g3duiweightgrouplist.c \
+	gtk3/g3duiwireframeedit.c gtk3/q3dpreview.c \
+	gtk3/mousetool/g3duig3dmousetooledit.c \
 	gtk3/mousetool/g3duim3dmousetooledit.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
 	gtk3/mousetool/g3duipicktooledit.c \
@@ -278,6 +279,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/g3duiquad.lo gtk3/g3duirenderedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duirenderprocess.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duirenderwindow.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duiscalekeysdialog.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duisphereedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duisplinerevolveredit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duisubdivideredit.lo \
@@ -413,6 +415,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	gtk3/$(DEPDIR)/g3duirenderedit.Plo \
 	gtk3/$(DEPDIR)/g3duirenderprocess.Plo \
 	gtk3/$(DEPDIR)/g3duirenderwindow.Plo \
+	gtk3/$(DEPDIR)/g3duiscalekeysdialog.Plo \
 	gtk3/$(DEPDIR)/g3duisphereedit.Plo \
 	gtk3/$(DEPDIR)/g3duisplinerevolveredit.Plo \
 	gtk3/$(DEPDIR)/g3duisubdivideredit.Plo \
@@ -710,6 +713,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duirenderedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duirenderprocess.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duirenderwindow.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duiscalekeysdialog.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duisphereedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duisplinerevolveredit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duisubdivideredit.c \
@@ -1017,6 +1021,8 @@ gtk3/g3duirenderprocess.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duirenderwindow.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duiscalekeysdialog.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duisphereedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duisplinerevolveredit.lo: gtk3/$(am__dirstamp) \
@@ -1191,6 +1197,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duirenderedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duirenderprocess.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duirenderwindow.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiscalekeysdialog.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duisphereedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duisplinerevolveredit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duisubdivideredit.Plo@am__quote@ # am--include-marker
@@ -1490,6 +1497,7 @@ distclean: distclean-am
 	-rm -f gtk3/$(DEPDIR)/g3duirenderedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duirenderprocess.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duirenderwindow.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duiscalekeysdialog.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duisphereedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duisplinerevolveredit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duisubdivideredit.Plo
@@ -1657,6 +1665,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gtk3/$(DEPDIR)/g3duirenderedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duirenderprocess.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duirenderwindow.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duiscalekeysdialog.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duisphereedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duisplinerevolveredit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duisubdivideredit.Plo

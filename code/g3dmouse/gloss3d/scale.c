@@ -337,13 +337,10 @@ int scaleUV_tool ( G3DMOUSETOOL *mou,
 
                             list_free ( &lseluv, NULL );
 
+                            parmes->obj.update_flags |= RESETMODIFIERS;
+
                             /** TODO: do this only for subdivided meshes ***/
-                            g3dmesh_update ( parmes, 
-                                             NULL,
-                                             NULL,
-                                             NULL,
-                                             RESETMODIFIERS, 
-                                             engine_flags );
+                            g3dmesh_update ( parmes, engine_flags );
 
                             olduv = newuv = NULL;
                         } return REDRAWVIEW            | 
@@ -884,8 +881,8 @@ static int scale_tool ( G3DMOUSETOOL *mou,
                         G3DSCENE     *sce,
                         G3DCAMERA    *cam,
                         G3DURMANAGER *urm, 
-                        uint64_t engine_flags, 
-                        G3DEvent    *event ) {
+                        uint64_t      engine_flags, 
+                        G3DEvent     *event ) {
     static GLint VPX[0x04];
     static LIST *lver, *lfac, *lsub, *ledg, *ffdlsub, *lvtx;
     static G3DMESHFAC **msftab; /*** list of faces to update from skinning ***/

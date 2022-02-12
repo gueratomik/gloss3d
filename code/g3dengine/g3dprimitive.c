@@ -72,13 +72,12 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri,
                                               obj->name, 
                                               engine_flags );
 
+    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                               UPDATEFACENORMAL   |
+                               UPDATEVERTEXNORMAL );
+
     /*** prepare the precomputed values for Catmull-Clark Subdivision ***/
-    g3dmesh_update ( mes, NULL,
-                          NULL,
-                          NULL,
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL, engine_flags );
+    g3dmesh_update ( mes, engine_flags );
 
     if ( obj->parent ) {
         G3DOBJECT *parent = obj->parent;

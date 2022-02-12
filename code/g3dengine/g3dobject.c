@@ -145,13 +145,12 @@ void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint64_t engine_flags ) {
     if ( obj->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
+        mes->obj.update_flags |= ( UPDATEVERTEXNORMAL |
+                                   UPDATEFACENORMAL |
+                                   RESETMODIFIERS );
+
         /*** Rebuild mesh ***/
-        g3dmesh_update ( mes, NULL,
-                              NULL,
-                              NULL,
-                              UPDATEVERTEXNORMAL |
-                              UPDATEFACENORMAL |
-                              RESETMODIFIERS, engine_flags );
+        g3dmesh_update ( mes, engine_flags );
     }
 
     while ( ltmpchildren ) {
@@ -1876,6 +1875,33 @@ uint32_t g3dobject_draw_r ( G3DOBJECT *obj,
     glPopMatrix ( );
 
     return ret;
+}
+
+/******************************************************************************/
+void g3dobject_update ( G3DOBJECT *obj,
+                        uint64_t   engine_flags ) {
+    if ( obj->update ) {
+        obj->update ( obj, engine_flags );
+    }
+
+    obj->update_flags = 0x00;
+}
+
+/******************************************************************************/
+void g3dobject_update_r ( G3DOBJECT *obj,
+                          uint64_t   engine_flags ) {
+    LIST *ltmpchildren = obj->lchildren;
+
+    g3dobject_update ( obj, engine_flags );
+
+    /*** draw children objects after ***/
+    while ( ltmpchildren ) {
+        G3DOBJECT *sub = ( G3DOBJECT * ) ltmpchildren->data;
+
+        g3dobject_update_r ( sub, engine_flags );
+
+        ltmpchildren = ltmpchildren->next;
+    }
 }
 
 /******************************************************************************/

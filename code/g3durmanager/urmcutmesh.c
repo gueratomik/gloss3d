@@ -102,14 +102,13 @@ static void cutMesh_undo ( G3DURMANAGER *urm,
 
     list_execargdata ( cms->loldfac, (void(*)(void*,void*)) g3dmesh_addFace, cms->mes );
 
+    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                               UPDATEFACENORMAL   |
+                               UPDATEVERTEXNORMAL |
+                               RESETMODIFIERS );
+
     /*** Rebuild the cut mesh ***/
-    g3dmesh_update ( mes, NULL,
-                          NULL,
-                          NULL,
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL |
-                          RESETMODIFIERS, engine_flags );
+    g3dmesh_update ( mes, engine_flags );
 }
 
 /******************************************************************************/
@@ -129,14 +128,13 @@ static void cutMesh_redo ( G3DURMANAGER *urm,
     list_execargdata ( cms->lnewver, (void(*)(void*,void*)) g3dmesh_addVertex, cms->mes );
     list_execargdata ( cms->lnewfac, (void(*)(void*,void*)) g3dmesh_addFace  , cms->mes );
 
+    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                               UPDATEFACENORMAL   |
+                               UPDATEVERTEXNORMAL |
+                               RESETMODIFIERS );
+
     /*** Rebuild the cut mesh ***/
-    g3dmesh_update ( mes, NULL,
-                          NULL,
-                          NULL,
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL |
-                          RESETMODIFIERS, engine_flags );
+    g3dmesh_update ( mes, engine_flags );
 }
 
 /******************************************************************************/
@@ -159,13 +157,12 @@ void g3durm_mesh_cut ( G3DURMANAGER *urm,
                   restricted, 
                   engine_flags );
 
-    g3dmesh_update ( mes, NULL,
-                          NULL,
-                          NULL,
-                          UPDATEFACEPOSITION |
-                          UPDATEFACENORMAL   |
-                          UPDATEVERTEXNORMAL |
-                          RESETMODIFIERS, engine_flags );
+    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+                               UPDATEFACENORMAL   |
+                               UPDATEVERTEXNORMAL |
+                               RESETMODIFIERS );
+
+    g3dmesh_update ( mes, engine_flags );
 
     cms = urmcutmesh_new ( mes, loldfac, lnewver, lnewfac );
 

@@ -153,6 +153,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /************************ G3DOBJECT's draw callback return flags **************/
 #define DRAW_LIGHTON          ( 1 << 0 )
 
+
 /******************************* UVMAp Editor flags ***************************/
 #define VIEWVERTEXUV       ((uint64_t)1  << 29 )
 #define VIEWFACEUV         ((uint64_t)1  << 30 )
@@ -210,14 +211,14 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DOBJECTTYPE     ( OBJECT )
 #define G3DNULLTYPE       ( G3DOBJECTTYPE )
 #define G3DMESHTYPE       ( OBJECT | MESH | EDITABLE )
-#define G3DPRIMITIVETYPE  ( OBJECT | MESH | PRIMITIVE )
-#define G3DSPHERETYPE     ( OBJECT | MESH | PRIMITIVE | SPHERE )
-#define G3DPLANETYPE      ( OBJECT | MESH | PRIMITIVE | PLANE )
-#define G3DTORUSTYPE      ( OBJECT | MESH | PRIMITIVE | TORUS )
-#define G3DCUBETYPE       ( OBJECT | MESH | PRIMITIVE | CUBE )
-#define G3DCYLINDERTYPE   ( OBJECT | MESH | PRIMITIVE | CYLINDER )
-#define G3DTUBETYPE       ( OBJECT | MESH | PRIMITIVE | TUBE )
-#define G3DCONETYPE       ( OBJECT | MESH | PRIMITIVE | CONE )
+#define G3DPRIMITIVETYPE  ( OBJECT | MESH | EDITABLE | PRIMITIVE )
+#define G3DSPHERETYPE     ( OBJECT | MESH | EDITABLE | PRIMITIVE | SPHERE   )
+#define G3DPLANETYPE      ( OBJECT | MESH | EDITABLE | PRIMITIVE | PLANE    )
+#define G3DTORUSTYPE      ( OBJECT | MESH | EDITABLE | PRIMITIVE | TORUS    )
+#define G3DCUBETYPE       ( OBJECT | MESH | EDITABLE | PRIMITIVE | CUBE     )
+#define G3DCYLINDERTYPE   ( OBJECT | MESH | EDITABLE | PRIMITIVE | CYLINDER )
+#define G3DTUBETYPE       ( OBJECT | MESH | EDITABLE | PRIMITIVE | TUBE     )
+#define G3DCONETYPE       ( OBJECT | MESH | EDITABLE | PRIMITIVE | CONE     )
 #define G3DSYMMETRYTYPE   ( OBJECT | MULTIPLIER | SYMMETRY )
 #define G3DCAMERATYPE     ( OBJECT | CAMERA )
 #define G3DSCENETYPE      ( OBJECT | SCENE )
@@ -420,6 +421,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define DISPLAYPARTICLES      (  1 << 17 )
 #define KEYPARTICLEEMITTER    (  1 << 18 )
 
+/******************************** Update flags ********************************/
 #define COMPUTEFACEPOINT         (  1       )
 #define COMPUTEEDGEPOINT         (  1 <<  1 )
 #define NOVERTEXNORMAL           (  1 <<  2 )
@@ -430,6 +432,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define UPDATEMODIFIERS          (  1 <<  7 )
 #define COMPUTEUVMAPPING         (  1 <<  8 )
 #define EDGECOMPUTENORMAL        (  1 <<  9 )
+#define UPDATESKIN               (  1 << 10 )
+
 /*** Mesh color ***/
 #define MESHCOLORUB 0x80
 #define MESHCOLORF  0.5f
@@ -753,26 +757,60 @@ typedef struct _G3DRIG    G3DRIG;
 typedef struct _G3DTAG    G3DTAG;
 typedef struct _G3DSCENE  G3DSCENE;
 
-#define GEOMETRYMOVE_CALLBACK(f) ((void(*)(G3DMESH *, \
-                                           LIST *,\
-                                           LIST *,\
-                                           LIST *,\
-                                           G3DMODIFYOP,\
-                                           uint64_t ))f)
+#define GEOMETRYMOVE_CALLBACK(f) ((void(*)      (G3DMESH *, \
+                                                 LIST *,\
+                                                 LIST *,\
+                                                 LIST *,\
+                                                 G3DMODIFYOP,\
+                                                 uint64_t ))f)
 
-#define TRANSFORM_CALLBACK(f) ((void(*)(G3DOBJECT *, \
-                                 uint64_t))f)
-#define COPY_CALLBACK(f)       ((G3DOBJECT*(*)(G3DOBJECT*,uint32_t,const char*,uint64_t))f)
-#define ACTIVATE_CALLBACK(f)   ((void(*)      (G3DOBJECT*,uint64_t))f)
-#define DEACTIVATE_CALLBACK(f) ((void(*)      (G3DOBJECT*,uint64_t))f)
-#define COMMIT_CALLBACK(f)     ((G3DOBJECT*(*)(G3DOBJECT*,uint32_t,const char *,uint64_t))f)
-#define ADDCHILD_CALLBACK(f)   ((void(*)      (G3DOBJECT*,G3DOBJECT*,uint64_t))f)
-#define SETPARENT_CALLBACK(f)  ((void(*)      (G3DOBJECT*,G3DOBJECT*,G3DOBJECT*,uint64_t))f)
-#define DRAW_CALLBACK(f)       ((uint32_t(*)  (G3DOBJECT*,G3DCAMERA*,uint64_t))f)
-#define FREE_CALLBACK(f)       ((void(*)      (G3DOBJECT*))f)
-#define PICK_CALLBACK(f)       ((uint32_t(*)  (G3DOBJECT*,G3DCAMERA*,uint64_t))f)
-#define ANIM_CALLBACK(f)       ((void(*)      (G3DOBJECT*,float,uint64_t))f)
-#define POSE_CALLBACK(f) ((void(*) (G3DOBJECT*,G3DKEY*))f)
+#define TRANSFORM_CALLBACK(f)    ((void(*)      (G3DOBJECT *,  \
+                                                 uint64_t))f)
+
+#define COPY_CALLBACK(f)         ((G3DOBJECT*(*)(G3DOBJECT*,   \
+                                                 uint32_t,     \
+                                                 const char*,  \
+                                                 uint64_t))f)    
+
+#define ACTIVATE_CALLBACK(f)     ((void(*)      (G3DOBJECT*,   \
+                                                 uint64_t))f)    
+
+#define DEACTIVATE_CALLBACK(f)   ((void(*)      (G3DOBJECT*,   \
+                                                 uint64_t))f)    
+
+#define COMMIT_CALLBACK(f)       ((G3DOBJECT*(*)(G3DOBJECT*,   \
+                                                 uint32_t,     \
+                                                 const char *, \
+                                                 uint64_t))f)
+
+#define ADDCHILD_CALLBACK(f)     ((void(*)      (G3DOBJECT*,   \
+                                                 G3DOBJECT*,   \
+                                                 uint64_t))f)    
+
+#define SETPARENT_CALLBACK(f)    ((void(*)      (G3DOBJECT*,   \
+                                                 G3DOBJECT*,   \
+                                                 G3DOBJECT*,   \
+                                                 uint64_t))f)
+
+#define DRAW_CALLBACK(f)         ((uint32_t(*)  (G3DOBJECT*,   \
+                                                 G3DCAMERA*,   \
+                                                 uint64_t))f)
+
+#define FREE_CALLBACK(f)         ((void(*)      (G3DOBJECT*))f)
+
+#define PICK_CALLBACK(f)         ((uint32_t(*)  (G3DOBJECT*,   \
+                                                 G3DCAMERA*,   \
+                                                 uint64_t))f)
+
+#define ANIM_CALLBACK(f)         ((void(*)      (G3DOBJECT*,   \
+                                                 float,        \
+                                                 uint64_t))f)
+
+#define POSE_CALLBACK(f)         ((void(*)      (G3DOBJECT*,   \
+                                                 G3DKEY*))f)
+
+#define UPDATE_CALLBACK(f)       ((void(*)      (G3DOBJECT*,   \
+                                                 uint64_t))f)
 
 #define OBJECTKEY_FUNC(f) ((void(*)(G3DKEY*,void*))f)
 #define OBJECTBROWSE_FUNC(f) ((uint32_t (*)(G3DOBJECT*,void*,uint64_t))f)
@@ -782,6 +820,7 @@ typedef struct _G3DOBJECT {
     uint32_t id;            /*** Object ID               ***/
     uint64_t type;          /*** Flag for object type    ***/
     uint32_t flags;         /*** selected or not etc ... ***/
+    uint32_t update_flags;
     char *name;             /*** Object's name           ***/
     G3DVECTOR pos;          /*** Object center position  ***/
     G3DVECTOR rot;          /*** Object center angles    ***/
@@ -795,14 +834,20 @@ typedef struct _G3DOBJECT {
     double iwmatrix[0x10];  /*** Inverse World matrix, i.e absolute ***/
     double  rmatrix[0x10];   /*** rotation matrix ***/
     /*** Drawing function ***/
-    uint32_t (*draw)          ( struct _G3DOBJECT *, struct _G3DCAMERA *, 
-                                                     uint64_t );
+    uint32_t (*draw)          ( struct _G3DOBJECT *obj, 
+                                struct _G3DCAMERA *cam, 
+                                        uint64_t   engine_flags );
     /*** Free memory function ***/
-    void     (*free)          ( struct _G3DOBJECT * );
+    void     (*free)          ( struct _G3DOBJECT *obj );
     /*** Object selection ***/
-    uint32_t     (*pick)      ( struct _G3DOBJECT *, struct _G3DCAMERA *,
-                                                     uint64_t );
-    void (*anim)( struct _G3DOBJECT *, float frame, uint64_t );
+    uint32_t     (*pick)      ( struct _G3DOBJECT *obj, 
+                                struct _G3DCAMERA *cam,
+                                        uint64_t   engine_flags );
+    void     (*anim)          ( struct  _G3DOBJECT *obj,
+                                float    frame, 
+                                uint64_t engine_flags );
+    void     (*update)        ( struct  _G3DOBJECT *obj,
+                                         uint64_t   engine_flags );
     void     (*pose)          ( struct _G3DOBJECT *, G3DKEY * );
     /* Object copy */
     struct _G3DOBJECT*(*copy) ( struct _G3DOBJECT *, uint32_t,
@@ -1049,6 +1094,7 @@ typedef struct _G3DFACE {
     float            surface;/*** used by the raytracer               ***/
     G3DHEIGHTMAP    *heightmap;
     LIST            *lfacgrp; /*** list of facegroups it belong s to ***/
+    LIST            *lext;    /*** list of face extensions                  ***/
 } G3DFACE;
 
 #include <g3dengine/g3dcurve.h>
@@ -1196,6 +1242,10 @@ struct _G3DMESH {
     
     G3DMODIFIER *lastmod;
 
+    LIST *lupdfac;
+    LIST *lupdedg;
+    LIST *lupdver;
+
     uint32_t verid;
     uint32_t edgid;
     uint32_t facid;
@@ -1251,6 +1301,37 @@ typedef struct _G3DVERTEXEXTENSION {
 
 void g3dvertexextension_init ( G3DVERTEXEXTENSION *ext,
                                uint32_t            name );
+
+/******************************************************************************/
+typedef struct _G3DFACEEXTENSION {
+    uint32_t name;
+} G3DFACEEXTENSION;
+
+typedef struct _G3DFACESCULPTEXTENSION {
+    G3DFACEEXTENSION ext;
+    G3DVECTOR       *pos;
+    uint32_t         nbver;
+} G3DFACESCULPTEXTENSION;
+
+void g3dfaceextension_init ( G3DFACEEXTENSION *ext,
+                             uint32_t          name );
+
+void g3dface_addExtension ( G3DFACE          *fac,
+                            G3DFACEEXTENSION *ext );
+
+G3DFACEEXTENSION *g3dface_getExtension ( G3DFACE *fac,
+                                         uint32_t name );
+
+void g3dface_removeExtension ( G3DFACE          *fac, 
+                               G3DFACEEXTENSION *ext );
+
+#define SCULTEXTNAME 0xF6FE3790
+
+G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint32_t extensionName,
+                                                     uint32_t level );
+
+void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse, 
+                                     uint32_t                nbver );
 
 /******************************************************************************/
 struct _G3DKEY {
@@ -1344,6 +1425,7 @@ typedef struct _G3DSUBDIVIDER {
     uint32_t     subdiv_preview;
     uint32_t     subdiv_render;
     LIST        *lsubfac;
+    G3DFACE    **factab;
 } G3DSUBDIVIDER;
 
 /******************************************************************************/
@@ -1624,8 +1706,10 @@ void       g3dvertex_createSubEdge ( G3DVERTEX *, G3DSUBVERTEX *, G3DFACE *,
 void       g3dsubvertex_addEdge ( G3DSUBVERTEX *, G3DEDGE * );
 void g3dsubvertex_renumberArray ( G3DSUBVERTEX *subver, 
                                   uint32_t nbver );
-void       g3dsubvertex_elevate ( G3DSUBVERTEX *, uint32_t (*)[0x04],
-                                                  uint32_t (*)[0x04] );
+void       g3dsubvertex_elevate ( G3DSUBVERTEX *, 
+                                  G3DVECTOR    *sculptmap,
+                                  uint32_t    (*tri_indexes)[0x04],
+                                  uint32_t    (*qua_indexes)[0x04] );
 uint32_t   g3dvertex_setOuterEdges ( G3DVERTEX *, G3DSUBVERTEX  *,
                                                   G3DEDGE       *,
                                                   G3DEDGE       *,
@@ -2125,6 +2209,10 @@ void g3dobject_scaleSelectedKeys ( G3DOBJECT *obj,
 G3DOBJECT *g3dobject_findReferred_r ( G3DOBJECT *obj );
 G3DOBJECT *g3dobject_getRandomChild ( G3DOBJECT *obj );
 uint32_t g3dobject_hasRiggedBone_r ( G3DOBJECT *obj );
+void g3dobject_update            ( G3DOBJECT *obj,
+                                   uint64_t   engine_flags );
+void g3dobject_update_r          ( G3DOBJECT *obj,
+                                   uint64_t   engine_flags );
 void g3dobject_driftSelectedKeys ( G3DOBJECT *obj,
                                    float      drift,
                                    LIST     **lremovedKeys,
@@ -2659,11 +2747,7 @@ void       g3dmesh_removeMaterial                ( G3DMESH *, G3DMATERIAL * );
 LIST      *g3dmesh_getTexturesFromMaterial       ( G3DMESH *, G3DMATERIAL * );
 LIST      *g3dmesh_getTexturesFromUVMap          ( G3DMESH *, G3DUVMAP * );
 
-void g3dmesh_update ( G3DMESH *mes, 
-                      LIST    *lver, /*** update vertices    ***/
-                      LIST    *ledg, /*** update edges       ***/
-                      LIST    *lfac, /*** update faces       ***/
-                      uint32_t update_flags,
+void g3dmesh_update ( G3DMESH *mes,
                       uint64_t engine_flags );
 void g3dmesh_fillSubdividedFaces ( G3DMESH *mes,
                                    LIST    *lfac,
@@ -2894,6 +2978,8 @@ G3DRIG *g3dbone_addRig ( G3DBONE *bon,
                          G3DSKIN *skn );
 void g3dbone_removeRig ( G3DBONE *bon,
                          G3DSKIN *skn );
+void g3dbone_updateRigs ( G3DBONE *bon, 
+                          uint64_t engine_flags );
 void       g3dcamera_free     ( G3DOBJECT * );
 uint32_t g3dcamera_pick ( G3DCAMERA *cam, 
                           G3DCAMERA *curcam, 

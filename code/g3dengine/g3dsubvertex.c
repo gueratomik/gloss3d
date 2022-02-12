@@ -40,23 +40,33 @@ void g3dsubvertex_renumberArray ( G3DSUBVERTEX *subver, uint32_t nbver ) {
 }
 
 /******************************************************************************/
-void g3dsubvertex_elevate ( G3DSUBVERTEX *subver, uint32_t (*qua_indexes)[0x04],
-                                                  uint32_t (*tri_indexes)[0x04] ) {
+void g3dsubvertex_elevate ( G3DSUBVERTEX *subver,
+                            G3DVECTOR    *sculptmap,
+                            uint32_t    (*tri_indexes)[0x04],
+                            uint32_t    (*qua_indexes)[0x04] ) {
     G3DVECTOR pos = { 0.0f, 0.0f, 0.0f, 1.0f };
     LIST *ltmpfac = subver->ver.lfac;
 
+   if ( sculptmap[subver->ver.id].w ) {
+       subver->ver.pos.x += sculptmap[subver->ver.id].x;
+       subver->ver.pos.y += sculptmap[subver->ver.id].y;
+       subver->ver.pos.z += sculptmap[subver->ver.id].z;
+   }
+
+#ifdef unused
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
-        if ( fac->heightmap && qua_indexes && tri_indexes ) {
+        if ( /*fac->heightmap*/ sculptmap && qua_indexes && tri_indexes ) {
             uint32_t i;
 
             for ( i = 0x00; i < fac->nbver; i++ ) {
                 if ( fac->ver[i] == ( G3DVERTEX * ) subver ) {
+/*
                     uint32_t verID = ( fac->flags & FACEFROMQUAD ) ? qua_indexes[fac->id][i] :
                                                                      tri_indexes[fac->id][i];
-
-                    if ( fac->heightmap->heights[verID].flags & HEIGHTSET ) {
+*/
+                    if ( sculptmap[fac->ver[i]->id] & HEIGHTSET ) {
                         pos.x  += ( subver->ver.nor.x * fac->heightmap->heights[verID].elevation );
                         pos.y  += ( subver->ver.nor.y * fac->heightmap->heights[verID].elevation );
                         pos.z  += ( subver->ver.nor.z * fac->heightmap->heights[verID].elevation );
@@ -73,6 +83,7 @@ void g3dsubvertex_elevate ( G3DSUBVERTEX *subver, uint32_t (*qua_indexes)[0x04],
         subver->ver.pos.y += ( pos.y / subver->ver.nbfac );
         subver->ver.pos.z += ( pos.z / subver->ver.nbfac );
     }
+#endif
 }
 
 /******************************************************************************/
