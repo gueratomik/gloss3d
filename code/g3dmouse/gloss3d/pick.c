@@ -410,16 +410,36 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
     uint32_t nbver = ( fac->nbver == 0x03 ) ? sdr->nbVerticesPerTriangle :
                                               sdr->nbVerticesPerQuad;
     G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
-                                                         SCULTEXTNAME );
+                                            ( uint64_t ) sdr );
+
+    if ( sdr->subdiv_preview > sdr->sculptResolution ) {
+        g3dsubdivider_setScupltResolution ( sdr, sdr->subdiv_preview );
+    }
 
     if ( fse == NULL ) {
-        fse = g3dfacesculptextension_new ( SCULTEXTNAME, nbver );
+        uint32_t nbFacesPerTriangle,
+                 nbEdgesPerTriangle,
+                 nbVerticesPerTriangle;
+        uint32_t nbFacesPerQuad,
+                 nbEdgesPerQuad,
+                 nbVerticesPerQuad;
+        uint32_t nbver;
+
+        g3dtriangle_evalSubdivision ( sdr->sculptResolution, 
+                                      &nbFacesPerTriangle, 
+                                      &nbEdgesPerTriangle,
+                                      &nbVerticesPerTriangle );
+        g3dquad_evalSubdivision     ( sdr->sculptResolution,
+                                      &nbFacesPerQuad, 
+                                      &nbEdgesPerQuad,
+                                      &nbVerticesPerQuad );
+
+        nbver = ( fac->nbver == 0x03 ) ? nbVerticesPerTriangle : 
+                                         nbVerticesPerQuad;
+
+        fse = g3dfacesculptextension_new ( ( uint64_t ) sdr, nbver );
 
         g3dface_addExtension ( fac, fse );
-    } else {
-        if ( nbver > fse->nbver ) {
-            g3dfacesculptextension_adjust ( fse, nbver );
-        }
     }
 
     fse->pos[rtverID].x += ( fac->nor.x * 0.01f );
@@ -700,9 +720,9 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                                                        cam, 
                                                        VIEWSCULPT );
 
-                    sdr->mod.oriobj->update_flags |= UPDATEMODIFIERS;
-
-                    g3dmesh_update ( sdr->mod.oriobj, engine_flags );
+                    g3dsubdivider_fillBuffers ( sdr,
+                                                sdr->lsubfac,
+                                                engine_flags );
 		        }
 	        }
 

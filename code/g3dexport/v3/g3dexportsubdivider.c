@@ -30,6 +30,79 @@
 #include <g3dexportv3.h>
 
 /******************************************************************************/
+static uint32_t g3dexportv3subdivider_scultmapGeometry ( G3DEXPORTV3DATA        *ged, 
+                                                         G3DFACESCULPTEXTENSION *fse, 
+                                                         uint32_t                flags, 
+                                                         FILE                    *fdst ) {
+
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3subdivider_scultmapFaceID ( G3DEXPORTV3DATA *ged, 
+                                                       void            *unused, 
+                                                       uint32_t         flags, 
+                                                       FILE            *fdst ) {
+
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3subdivider_scultmap ( G3DEXPORTV3DATA *ged, 
+                                                 G3DSUBDIVIDER   *sdr, 
+                                                 uint32_t         flags, 
+                                                 FILE            *fdst ) {
+
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3subdivider_scultmaps ( G3DEXPORTV3DATA *ged, 
+                                                  G3DSUBDIVIDER   *sdr, 
+                                                  uint32_t         flags, 
+                                                  FILE            *fdst ) {
+    G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
+    LIST *ltmpfac = mes->lfac;
+    uint32_t nbFacesPerTriangle,
+             nbEdgesPerTriangle,
+             nbVerticesPerTriangle;
+    uint32_t nbFacesPerQuad,
+             nbEdgesPerQuad,
+             nbVerticesPerQuad;
+    uint32_t size = 0x00;
+
+    g3dtriangle_evalSubdivision ( sculptResolution, 
+                                  &nbFacesPerTriangle, 
+                                  &nbEdgesPerTriangle,
+                                  &nbVerticesPerTriangle );
+    g3dquad_evalSubdivision     ( sculptResolution,
+                                  &nbFacesPerQuad, 
+                                  &nbEdgesPerQuad,
+                                  &nbVerticesPerQuad );
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
+        G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
+                                                ( uint64_t ) sdr );
+
+        if ( fse ) {
+            uint32_t nbver = ( fac->nbver == 0x03 ) ? nbVerticesPerTriangle :
+                                                      nbVerticesPerQuad;
+
+            g3dfacesculptextension_adjust ( fse, nbver );
+        }
+
+        _NEXTFACE(mes,ltmpfac);
+    }
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_SYNC,
+                   EXPORTV3_CALLBACK(g3dexportv3subdivider_scultmapEntry),
+                                     ged,
+                                     sdr,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t g3dexportv3subdivider_sync ( G3DEXPORTV3DATA *ged, 
                                              G3DSUBDIVIDER   *sdr, 
                                              uint32_t         flags, 
@@ -71,6 +144,13 @@ uint32_t g3dexportv3subdivider ( G3DEXPORTV3DATA *ged,
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_LEVEL,
                    EXPORTV3_CALLBACK(g3dexportv3subdivider_level),
+                                     ged,
+                                     sdr,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_SCULPTMAPS,
+                   EXPORTV3_CALLBACK(g3dexportv3subdivider_sculptmaps),
                                      ged,
                                      sdr,
                                      0xFFFFFFFF,

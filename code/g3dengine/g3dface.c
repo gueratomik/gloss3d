@@ -228,7 +228,6 @@ uint32_t g3dface_isFullyMirrored ( G3DFACE *fac ) {
 /*****************************************************************************/
 void g3dface_initSubface ( G3DFACE      *fac, 
                            G3DSUBFACE   *subfac,
-                           G3DHEIGHTMAP *mainheightmap,
                            G3DVERTEX    *oriver,
                            G3DVERTEX    *orivercpy,
                            G3DSUBUVSET  *subuvs,
@@ -247,6 +246,8 @@ void g3dface_initSubface ( G3DFACE      *fac,
     subfac->fac.nbver = 0x04;
     subfac->fac.luvs  = NULL;
     subfac->fac.nbuvs = 0;
+
+    subfac->fac.lext = fac->lext;
 
     /* to uncomment */
     /*subfac->rtluim = fac->rtluim;*/

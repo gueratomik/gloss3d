@@ -117,14 +117,17 @@ static void g3dsubdivision_importInnerEdge ( G3DSUBDIVISION *sdv,
 static void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
                                              G3DEDGE        *edg, 
                                              G3DSUBEDGE     *newedg );
-static void g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
-                                             G3DFACE        *fac, 
-                                             G3DSUBFACE     *newfac );
-static void g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
-                                             G3DFACE        *fac, 
-                                             G3DSUBFACE     *newfac );
+static uint32_t g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
+                                                 uint64_t        sculptExtensionName,
+                                                 G3DFACE        *fac, 
+                                                 G3DSUBFACE     *newfac );
+static uint32_t g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
+                                                 uint64_t        sculptExtensionName,
+                                                 G3DFACE        *fac, 
+                                                 G3DSUBFACE     *newfac );
 static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
                                             G3DMESH        *mes,
+                                            uint64_t        sculptExtensionName,
                                             G3DVECTOR      *stkpos,
                                             G3DVECTOR      *stknor,
                                             G3DFACE        *fac,
@@ -913,9 +916,13 @@ static void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
 }
 
 /******************************************************************************/
-static void g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
-                                             G3DFACE        *fac,
-                                             G3DSUBFACE     *newfac ) {
+static uint32_t g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
+                                                 uint64_t        sculptExtensionName,
+                                                 G3DFACE        *fac,
+                                                 G3DSUBFACE     *newfac ) {
+    G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac, 
+                                                         sculptExtensionName );
+
     /*** reset only the struct but don't lose time reseting the  ***/
     /*** embedded linked list at the end of the G3DSUBFACE structure **/
     memset ( newfac, 0x00, sizeof ( G3DSUBFACE ) );
@@ -928,7 +935,7 @@ static void g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
     newfac->fac.flags  = fac->flags | FACEINNER;
     newfac->fac.flags |= ( fac->nbver == 0x04 ) ? FACEFROMQUAD : 
                                                   FACEFROMTRIANGLE;
-    newfac->fac.heightmap = fac->heightmap;
+    newfac->fac.lext = fac->lext;
 
     /*** no need to copy the uv mapping. It' won't get changed ***/
     newfac->fac.luvs  = fac->luvs;
@@ -936,12 +943,19 @@ static void g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
 
     /*  to uncomment */
     /*newfac->fac.rtluim  = fac->rtluim*/;
+
+    if ( fse ) return 0x01;
+
+    return 0x00;
 }
 
 /******************************************************************************/
-static void g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
-                                             G3DFACE        *fac,
-                                             G3DSUBFACE     *newfac ) {
+static uint32_t g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
+                                                 uint64_t        sculptExtensionName,
+                                                 G3DFACE        *fac,
+                                                 G3DSUBFACE     *newfac ) {
+    G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac, 
+                                                         sculptExtensionName );
     G3DVERTEX *newver;
     G3DEDGE   *newedg;
     uint32_t i;
@@ -957,7 +971,7 @@ static void g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
     newfac->fac.flags |= ( fac->nbver == 0x04 ) ? FACEFROMQUAD : 
                                                   FACEFROMTRIANGLE;
     newfac->fac.nbver = fac->nbver;
-    newfac->fac.heightmap = fac->heightmap;
+    newfac->fac.lext = fac->lext;
 
     memcpy ( &newfac->fac.ver, &fac->ver, sizeof ( G3DVERTEX * ) * 0x04 );
     memcpy ( &newfac->fac.edg, &fac->edg, sizeof ( G3DEDGE   * ) * 0x04 );
@@ -968,6 +982,10 @@ static void g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
         newfac->fac.ver[i] = g3dsubdivision_lookVertexUp ( sdv, fac->ver[i] );
         newfac->fac.edg[i] = g3dsubdivision_lookEdgeUp   ( sdv, fac->edg[i] );
     }
+
+    if ( fse ) return 0x01;
+
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -976,6 +994,7 @@ static void g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
 /*** convenient to deal with arrays. ***/
 static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
                                             G3DMESH        *mes,
+                                            uint64_t        sculptExtensionName,
                                             G3DVECTOR      *stkverpos,
                                             G3DVECTOR      *stkvernor,
                                             G3DFACE        *fac,
@@ -1007,7 +1026,12 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
 
     (*nbOuterFaces) = (*nbOuterEdges) = (*nbOuterVertices) = 0x00;
 
-    g3dsubdivision_importInnerFace ( sdv, fac, innerFace );
+    if ( g3dsubdivision_importInnerFace ( sdv, 
+                                          sculptExtensionName, 
+                                          fac, 
+                                          innerFace ) ) {
+        subdiv_flags |= SUBDIVISIONELEVATE;
+    }
 
     /*** Step2 : set new vertices ***/
     for ( i = 0x00; i < fac->nbver; i++ ) {
@@ -1081,10 +1105,6 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
         while ( ltmpfac ) {
             G3DFACE *outfac = ( G3DFACE * ) ltmpfac->data;
 
-            if ( outfac->heightmap ) {
-                subdiv_flags |= SUBDIVISIONELEVATE;
-            }
-
             if ( outfac != fac ) {
                 for ( j = 0x00; j < outfac->nbver; j++ ) {
                     if ( g3dsubdivision_lookVertexUp ( sdv, outfac->ver[j] ) ==  NULL ) {
@@ -1101,7 +1121,12 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
                 if ( g3dsubdivision_lookFaceUp ( sdv, outfac ) == NULL ) {
                     G3DSUBFACE *newfac = outerFaces++; (*nbOuterFaces)++;
 
-                    g3dsubdivision_importOuterFace ( sdv, outfac, newfac );
+                    if ( g3dsubdivision_importOuterFace ( sdv, 
+                                                          sculptExtensionName, 
+                                                          outfac, 
+                                                          newfac ) ) {
+                        subdiv_flags |= SUBDIVISIONELEVATE;
+                    }
                 }
             }
 
@@ -1147,6 +1172,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       G3DEDGE       **commitEdges,
                                       G3DFACE       **commitFaces,
                                       LIST           *ltex,
+                                      uint64_t        sculptExtensionName,
                                       uint32_t      (*qua_indexes)[0x04], /*** for sculpt mode ***/
                                       uint32_t      (*tri_indexes)[0x04], /*** for sculpt mode ***/
                                       uint32_t        subdiv_level,
@@ -1159,7 +1185,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
     uint32_t original_subdiv_level = subdiv_level;
     /*static int init;
     static uint32_t old_level = 0x00;*/
-    G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac, SCULTEXTNAME );
+    G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac, sculptExtensionName );
 
 
     /*if ( init == 0x00 || old_level != subdiv_level ) */
@@ -1184,7 +1210,8 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
     /*if ( sdv->nbInnerUVSets ) memset ( innerUVSets  , 0x00, sizeof ( sdv->nbInnerUVSets ) );*/
 
     subdiv_flags |= g3dsubdivisionV3_copyFace ( sdv, 
-                                                mes, 
+                                                mes,
+                                                sculptExtensionName,
                                                 stkverpos,
                                                 stkvernor,
                                                 fac, 
@@ -1234,11 +1261,11 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                 g3dvertex_normal ( &curInnerVertices[i].ver, 0x00 );
             }
 
-            if ( fse ) {
+            if ( subdiv_flags & SUBDIVISIONELEVATE ) {
                 for ( i = 0x00; i < nbInnerVertices; i++ ) {
                     /*if ( &curInnerVertices[i].ver.flags & VERTEXSCULTPED ) {*/
                         g3dsubvertex_elevate ( &curInnerVertices[i],
-                                                fse->pos,
+                                                sculptExtensionName,
                                                 tri_indexes, 
                                                 qua_indexes );
                     /*}*/
@@ -1247,7 +1274,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                 for ( i = 0x00; i < nbOuterVertices; i++ ) {
                     /*if ( &curInnerVertices[i].ver.flags & VERTEXSCULTPED ) {*/
                         g3dsubvertex_elevate ( &curOuterVertices[i],
-                                                fse->pos,
+                                                sculptExtensionName,
                                                 tri_indexes, 
                                                 qua_indexes );
                     /*}*/
@@ -1646,7 +1673,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 
                         memset ( subfac, 0x00, sizeof ( G3DSUBFACE ) );
 
-                        g3dface_initSubface ( polygon, subfac, fac->heightmap,
+                        g3dface_initSubface ( polygon, subfac, 
                                                               &curInnerVertices[i].ver,
                                                    (G3DVERTEX*)curInnerVertices[i].ver.subver, innerUVSets, qua_indexes,
                                                                                                             tri_indexes, loopID, subdiv_level, object_flags, subdiv_flags, engine_flags );
@@ -1656,7 +1683,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 
                         memset ( subfac, 0x00, sizeof ( G3DSUBFACE ) );
 
-                        g3dface_initSubface ( polygon, subfac, fac->heightmap,
+                        g3dface_initSubface ( polygon, subfac, 
                                                               &curInnerVertices[i].ver,
                                                    (G3DVERTEX*)curInnerVertices[i].ver.subver, outerUVSets, qua_indexes,
                                                                                                             tri_indexes, loopID, subdiv_level, object_flags, subdiv_flags, engine_flags );

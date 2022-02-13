@@ -1325,8 +1325,6 @@ G3DFACEEXTENSION *g3dface_getExtension ( G3DFACE *fac,
 void g3dface_removeExtension ( G3DFACE          *fac, 
                                G3DFACEEXTENSION *ext );
 
-#define SCULTEXTNAME 0xF6FE3790
-
 G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint32_t extensionName,
                                                      uint32_t level );
 
@@ -1424,6 +1422,7 @@ typedef struct _G3DSUBDIVIDER {
     uint32_t     nbFacesPerQuad;
     uint32_t     subdiv_preview;
     uint32_t     subdiv_render;
+    uint32_t     sculptResolution;
     LIST        *lsubfac;
     G3DFACE    **factab;
 } G3DSUBDIVIDER;
@@ -1707,7 +1706,7 @@ void       g3dsubvertex_addEdge ( G3DSUBVERTEX *, G3DEDGE * );
 void g3dsubvertex_renumberArray ( G3DSUBVERTEX *subver, 
                                   uint32_t nbver );
 void       g3dsubvertex_elevate ( G3DSUBVERTEX *, 
-                                  G3DVECTOR    *sculptmap,
+                                  uint64_t     sculptExtensionName,
                                   uint32_t    (*tri_indexes)[0x04],
                                   uint32_t    (*qua_indexes)[0x04] );
 uint32_t   g3dvertex_setOuterEdges ( G3DVERTEX *, G3DSUBVERTEX  *,
@@ -2104,7 +2103,6 @@ void g3dface_drawSimple  ( G3DFACE *fac,
 uint32_t g3dface_checkOrientation ( G3DFACE * );
 void g3dface_initSubface ( G3DFACE *fac, 
                            G3DSUBFACE   *subfac,
-                           G3DHEIGHTMAP *mainheightmap,
                            G3DVERTEX    *oriver,
                            G3DVERTEX    *orivercpy,
                            G3DSUBUVSET  *subuvs,
@@ -3221,6 +3219,9 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
                                  uint64_t       engine_flags );
 void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr, 
                                   uint64_t       engine_flags );
+void g3dsubdivider_setScupltResolution ( G3DSUBDIVIDER *sdr,
+                                         uint32_t       sculptResolution );
+uint32_t g3dsubdivider_hasScultMaps ( G3DSUBDIVIDER *sdr );
 
 /******************************************************************************/
 void g3dprocedural_init ( G3DPROCEDURAL *,

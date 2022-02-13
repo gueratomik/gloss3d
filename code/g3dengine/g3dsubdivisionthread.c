@@ -55,6 +55,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
                                  uint32_t              nbFacesPerQuad,
                                  uint32_t              cpuID,
                                  uint32_t              subdiv_level,
+                                 uint64_t              sculptExtensionName,
                                  uint64_t engine_flags ) {
     std->mes                   = mes;
     std->stkpos                = stkpos;
@@ -74,6 +75,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
     std->nbFacesPerTriangle    = nbFacesPerTriangle;
     std->nbFacesPerQuad        = nbFacesPerQuad;
     std->cpuID                 = cpuID;
+    std->sculptExtensionName = sculptExtensionName;
     std->subdiv_level          = subdiv_level;
     std->engine_flags          = engine_flags;
 
@@ -104,7 +106,8 @@ G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
                                                  uint32_t     nbFacesPerQuad,
                                                  uint32_t     cpuID,
                                                  uint32_t     subdiv_level,
-                                                 uint64_t engine_flags ) {
+                                                 uint64_t     sculptExtensionName,
+                                                 uint64_t     engine_flags ) {
     uint32_t structSize = sizeof ( G3DSUBDIVISIONTHREAD );
     G3DSUBDIVISIONTHREAD *std = (G3DSUBDIVISIONTHREAD *) calloc ( 0x01,
                                                                   structSize );
@@ -135,6 +138,7 @@ G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
                                 nbFacesPerQuad,
                                 cpuID,
                                 subdiv_level,
+                                sculptExtensionName,
                                 engine_flags );
 
     return std;
@@ -185,6 +189,7 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
                                      NULL,
                                      NULL,
                                      mes->ltex,
+                                     sdt->sculptExtensionName,
                     (uint32_t (*)[4])sdt->qua_indexes,
                     (uint32_t (*)[4])sdt->tri_indexes,
                                      sdt->subdiv_level,
