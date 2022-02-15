@@ -264,7 +264,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define VERTEXSUBDIVIDED   (  1 << 16  )
 #define VERTEXINNER        (  1 << 17  )
 #define VERTEXOUTER        (  1 << 18  )
-#define VERTEXSCULPTED     (  1 << 19  )
+#define VERTEXELEVATED     (  1 << 19  )
 
 #define VERTEXONEDGE       (  1 << 20  )
 #define VERTEXSTITCHABLE   (  1 << 21  )
@@ -1326,9 +1326,11 @@ void g3dface_removeExtension ( G3DFACE          *fac,
                                G3DFACEEXTENSION *ext );
 
 G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint32_t extensionName,
+                                                     G3DFACE *fac,
                                                      uint32_t level );
 
 void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse, 
+                                     G3DFACE                *fac,
                                      uint32_t                nbver );
 
 /******************************************************************************/

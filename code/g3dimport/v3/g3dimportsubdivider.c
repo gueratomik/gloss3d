@@ -33,6 +33,7 @@
 /******************************************************************************/
 void g3dimportv3subdivider ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
     uint32_t chunkSignature, chunkSize;
+    G3DFACESCULPTEXTENSION *fse;
 
     g3dimportv3data_incrementIndentLevel ( gid );
 
@@ -43,6 +44,43 @@ void g3dimportv3subdivider ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc
         PRINT_CHUNK_INFO(chunkSignature,chunkSize,gid->indentLevel);
 
         switch ( chunkSignature ) {
+            case SIG_OBJECT_SUBDIVIDER_SCULPTMAP_GEOMETRY : {
+                G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) gid->currentObject;
+
+                g3dimportv3_fread ( fse->pos, 
+                                    sizeof ( G3DVECTOR ), 
+                                    fse->nbver,
+                                    fsrc );
+            } break;
+
+            case SIG_OBJECT_SUBDIVIDER_SCULPTMAP_FACEID : {
+                G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) gid->currentObject;
+                uint32_t faceID;
+                G3DFACE *fac;
+
+                g3dimportv3_freadl ( &faceID, fsrc );
+
+                fac = gid->currentFaceArray[faceID];
+
+                fse = g3dfacesculptextension_new ( ( uint64_t ) sdr,
+                                                                fac,
+                                                                sdr->sculptResolution );
+                g3dface_addExtension ( fac, fse );
+            } break;
+
+            case SIG_OBJECT_SUBDIVIDER_SCULPTMAP_ENTRY : {
+            } break;
+
+            case SIG_OBJECT_SUBDIVIDER_SCULPTMAPS_RESOLUTION : {
+                G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) gid->currentObject;
+
+                g3dimportv3_freadl ( &sdr->sculptResolution, fsrc );
+            } break;
+
+            case SIG_OBJECT_SUBDIVIDER_SCULPTMAPS : {
+
+            } break;
+
             case SIG_OBJECT_SUBDIVIDER_SYNC : {
                 G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) gid->currentObject;
                 uint32_t sync;

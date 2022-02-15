@@ -30,52 +30,89 @@
 #include <g3dexportv3.h>
 
 /******************************************************************************/
-static uint32_t g3dexportv3subdivider_scultmapGeometry ( G3DEXPORTV3DATA        *ged, 
-                                                         G3DFACESCULPTEXTENSION *fse, 
-                                                         uint32_t                flags, 
-                                                         FILE                    *fdst ) {
-
-}
+typedef struct _G3DEXPORTSCULPTMAP {
+    G3DFACE                *fac;
+    G3DFACESCULPTEXTENSION *fse;
+} G3DEXPORTSCULPTMAP;
 
 /******************************************************************************/
-static uint32_t g3dexportv3subdivider_scultmapFaceID ( G3DEXPORTV3DATA *ged, 
-                                                       void            *unused, 
-                                                       uint32_t         flags, 
-                                                       FILE            *fdst ) {
-
-}
-
-/******************************************************************************/
-static uint32_t g3dexportv3subdivider_scultmap ( G3DEXPORTV3DATA *ged, 
-                                                 G3DSUBDIVIDER   *sdr, 
-                                                 uint32_t         flags, 
-                                                 FILE            *fdst ) {
-
-}
-
-/******************************************************************************/
-static uint32_t g3dexportv3subdivider_scultmaps ( G3DEXPORTV3DATA *ged, 
-                                                  G3DSUBDIVIDER   *sdr, 
-                                                  uint32_t         flags, 
-                                                  FILE            *fdst ) {
-    G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
-    LIST *ltmpfac = mes->lfac;
-    uint32_t nbFacesPerTriangle,
-             nbEdgesPerTriangle,
-             nbVerticesPerTriangle;
-    uint32_t nbFacesPerQuad,
-             nbEdgesPerQuad,
-             nbVerticesPerQuad;
+static uint32_t g3dexportv3subdivider_scultmapGeometry ( G3DEXPORTV3DATA    *ged, 
+                                                         G3DEXPORTSCULPTMAP *esm, 
+                                                         uint32_t            flags, 
+                                                         FILE               *fdst ) {
     uint32_t size = 0x00;
 
-    g3dtriangle_evalSubdivision ( sculptResolution, 
-                                  &nbFacesPerTriangle, 
-                                  &nbEdgesPerTriangle,
-                                  &nbVerticesPerTriangle );
-    g3dquad_evalSubdivision     ( sculptResolution,
-                                  &nbFacesPerQuad, 
-                                  &nbEdgesPerQuad,
-                                  &nbVerticesPerQuad );
+    size += g3dexportv3_fwrite ( esm->fse->pos,
+                                 sizeof ( G3DVECTOR ),
+                                 esm->fse->nbver,
+                                 fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3subdivider_scultmapFaceID ( G3DEXPORTV3DATA    *ged, 
+                                                       G3DEXPORTSCULPTMAP *esm, 
+                                                       uint32_t            flags, 
+                                                       FILE               *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_fwritel ( &esm->fac->id, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3subdivider_scultmap ( G3DEXPORTV3DATA    *ged, 
+                                                 G3DEXPORTSCULPTMAP *esm, 
+                                                 uint32_t            flags, 
+                                                 FILE               *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_SCULPTMAP_FACEID,
+                   EXPORTV3_CALLBACK(g3dexportv3subdivider_scultmapFaceID),
+                                     ged,
+                                     esm,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_SCULPTMAP_GEOMETRY,
+                   EXPORTV3_CALLBACK(g3dexportv3subdivider_scultmapGeometry),
+                                     ged,
+                                     esm,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3subdivider_scultmapsResolution ( G3DEXPORTV3DATA *ged, 
+                                                            G3DSUBDIVIDER   *sdr, 
+                                                            uint32_t         flags, 
+                                                            FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_fwritel ( &sdr->sculptResolution, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
+static uint32_t g3dexportv3subdivider_sculptmaps ( G3DEXPORTV3DATA *ged, 
+                                                   G3DSUBDIVIDER   *sdr, 
+                                                   uint32_t         flags, 
+                                                   FILE            *fdst ) {
+    G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
+    LIST *ltmpfac = mes->lfac;
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_SCULPTMAPS_RESOLUTION,
+                   EXPORTV3_CALLBACK(g3dexportv3subdivider_scultmapsResolution),
+                                     ged,
+                                     sdr,
+                                     0xFFFFFFFF,
+                                     fdst );
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
@@ -83,21 +120,21 @@ static uint32_t g3dexportv3subdivider_scultmaps ( G3DEXPORTV3DATA *ged,
                                                 ( uint64_t ) sdr );
 
         if ( fse ) {
-            uint32_t nbver = ( fac->nbver == 0x03 ) ? nbVerticesPerTriangle :
-                                                      nbVerticesPerQuad;
+            G3DEXPORTSCULPTMAP esm = { .fac = fac,
+                                       .fse = fse };
 
-            g3dfacesculptextension_adjust ( fse, nbver );
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_SCULPTMAP_ENTRY,
+                           EXPORTV3_CALLBACK(g3dexportv3subdivider_scultmap),
+                                             ged,
+                                            &esm,
+                                             flags,
+                                             fdst );
         }
 
         _NEXTFACE(mes,ltmpfac);
     }
 
-    size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_SYNC,
-                   EXPORTV3_CALLBACK(g3dexportv3subdivider_scultmapEntry),
-                                     ged,
-                                     sdr,
-                                     0xFFFFFFFF,
-                                     fdst );
+
 
     return size;
 }
@@ -130,9 +167,9 @@ static uint32_t g3dexportv3subdivider_level ( G3DEXPORTV3DATA *ged,
 
 /******************************************************************************/
 uint32_t g3dexportv3subdivider ( G3DEXPORTV3DATA *ged, 
-                               G3DSUBDIVIDER *sdr, 
-                               uint32_t       flags, 
-                               FILE          *fdst ) {
+                                 G3DSUBDIVIDER *sdr, 
+                                 uint32_t       flags, 
+                                 FILE          *fdst ) {
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_SYNC,
@@ -149,14 +186,15 @@ uint32_t g3dexportv3subdivider ( G3DEXPORTV3DATA *ged,
                                      0xFFFFFFFF,
                                      fdst );
 
-    size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_SCULPTMAPS,
-                   EXPORTV3_CALLBACK(g3dexportv3subdivider_sculptmaps),
-                                     ged,
-                                     sdr,
-                                     0xFFFFFFFF,
-                                     fdst );
-
-
+    if ( g3dsubdivider_hasScultMaps ( sdr ) ) {
+        size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_SCULPTMAPS,
+                       EXPORTV3_CALLBACK(g3dexportv3subdivider_sculptmaps),
+                                         ged,
+                                         sdr,
+                                         0xFFFFFFFF,
+                                         fdst );
+    }
 
     return size;
 }
+

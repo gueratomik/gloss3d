@@ -266,7 +266,7 @@ SIG_ROOT=0x44335347
 ------------------------------- SIG_OBJECT_SUBDIVIDER_SCULPTMAP_ENTRY
 ----------------------------------- SIG_OBJECT_SUBDIVIDER_SCULPTMAP_FACEID
 --------------------------------------- FaceID  ( uint32_t )
------------------------------------ SIG_OBJECT_SUBDIVIDER_SCULPTMAP_GEOMTRY
+----------------------------------- SIG_OBJECT_SUBDIVIDER_SCULPTMAP_GEOMETRY
 --------------------------------------- Array (float-float-float-float)
 
 ----------------------- SIG_OBJECT_SPLINE

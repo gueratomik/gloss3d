@@ -407,37 +407,18 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
     uint32_t facID = ( name >> 0x20 );
     uint32_t rtverID = name & 0xFFFFFFFF;
     G3DFACE *fac = sdr->factab[facID];
-    uint32_t nbver = ( fac->nbver == 0x03 ) ? sdr->nbVerticesPerTriangle :
-                                              sdr->nbVerticesPerQuad;
     G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
                                             ( uint64_t ) sdr );
 
+    /*** adjust resolution for existing maps ***/
     if ( sdr->subdiv_preview > sdr->sculptResolution ) {
         g3dsubdivider_setScupltResolution ( sdr, sdr->subdiv_preview );
     }
 
     if ( fse == NULL ) {
-        uint32_t nbFacesPerTriangle,
-                 nbEdgesPerTriangle,
-                 nbVerticesPerTriangle;
-        uint32_t nbFacesPerQuad,
-                 nbEdgesPerQuad,
-                 nbVerticesPerQuad;
-        uint32_t nbver;
-
-        g3dtriangle_evalSubdivision ( sdr->sculptResolution, 
-                                      &nbFacesPerTriangle, 
-                                      &nbEdgesPerTriangle,
-                                      &nbVerticesPerTriangle );
-        g3dquad_evalSubdivision     ( sdr->sculptResolution,
-                                      &nbFacesPerQuad, 
-                                      &nbEdgesPerQuad,
-                                      &nbVerticesPerQuad );
-
-        nbver = ( fac->nbver == 0x03 ) ? nbVerticesPerTriangle : 
-                                         nbVerticesPerQuad;
-
-        fse = g3dfacesculptextension_new ( ( uint64_t ) sdr, nbver );
+        fse = g3dfacesculptextension_new ( ( uint64_t ) sdr,
+                                                        fac,
+                                                        sdr->sculptResolution );
 
         g3dface_addExtension ( fac, fse );
     }

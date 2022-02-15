@@ -34,32 +34,97 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
                                        G3DMODIFYOP    op,
                                        uint64_t       engine_flags );
 
-
-
 /******************************************************************************/
-void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse, 
-                                     uint32_t                nbver ) {
+void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
+                                     G3DFACE                *fac,
+                                     uint32_t                level ) {
 
-    if ( nbver > fse->nbver ) {
-        uint32_t i;
+    uint32_t currentMask = 0x00;
+    uint32_t parentMask = 0x00;
+    uint32_t i;
 
-        fse->pos = realloc ( fse->pos, sizeof ( G3DVECTOR ) * nbver );
+    /*** Note : must start at 1. Level 0 means no subdivs ***/
+    for ( i = 0x01; i < level; i++ ) {
+        uint32_t (*indexes)[0x04] = g3dsubindex_get ( fac->nbver, level );
+        uint32_t nbFacesPerPolygon, 
+                 nbEdgesPerPolygon,
+                 nbVerticesPerPolygon;
+        uint32_t shift = level - 0x01;
+        uint32_t j;
 
-        /*** reset unused vectors ****/
-        for ( i = fse->nbver; i < nbver; i++ ) {
-            fse->pos[i].x = 0.0f;
-            fse->pos[i].y = 0.0f;
-            fse->pos[i].z = 0.0f;
-            fse->pos[i].w = 0.0f;
+        if ( fac->nbver == 0x03 ) {
+            g3dtriangle_evalSubdivision ( level,
+                                         &nbFacesPerPolygon, 
+                                         &nbEdgesPerPolygon, 
+                                         &nbVerticesPerPolygon );
         }
 
-        fse->nbver = nbver;
+        if ( fac->nbver == 0x04 ) {
+            g3dquad_evalSubdivision     ( level,
+                                         &nbFacesPerPolygon, 
+                                         &nbEdgesPerPolygon, 
+                                         &nbVerticesPerPolygon );
+        }
+
+        if ( fse->nbver < nbVerticesPerPolygon ) {
+            fse->pos = realloc ( fse->pos, sizeof ( G3DVECTOR ) * nbVerticesPerPolygon );
+
+            for ( j = fse->nbver; j < nbVerticesPerPolygon; j++ ) {
+                fse->pos[j].x = 0.0f;
+                fse->pos[j].y = 0.0f;
+                fse->pos[j].z = 0.0f;
+                fse->pos[j].w = 0.0f;
+            }
+        }
+
+        currentMask |= ( 0xFF << (shift*0x02) );
+
+            for ( j = 0x00; j < nbFacesPerPolygon; j++ ) {
+                uint32_t faceID = j;
+                uint32_t k;
+
+                for ( k = 0x00; k < 0x04; k++ ) {
+                    uint32_t verID = indexes[faceID][k];
+
+                    /*** recompute elevation only for vertices w/o elevation ***/
+                    if ( fse->pos[verID].w == 0.0f ) {
+                        uint32_t l;
+
+                        for ( l = 0x00; l < 0x04; l++ ) {
+                            uint32_t parID = indexes[faceID][l];
+
+                            /*** retrieve values from parent vertices only ***/
+                            if ( parID < fse->nbver ) {
+                                fse->pos[verID].x += fse->pos[parID].x;
+                                fse->pos[verID].y += fse->pos[parID].y;
+                                fse->pos[verID].z += fse->pos[parID].z;
+                                fse->pos[verID].w += 1.0f;
+                            }
+                        }
+                    }
+                }
+            }
+
+            for ( j = 0x00; j < nbVerticesPerPolygon; j++ ) {
+                if ( fse->pos[j].w > 1.0f ) {
+                    fse->pos[j].x /= fse->pos[j].w;
+                    fse->pos[j].y /= fse->pos[j].w;
+                    fse->pos[j].z /= fse->pos[j].w;
+
+                    fse->pos[j].w  = 1.0f;
+                }
+
+            }
+
+        /*** receives the correct value on last loop ***/
+        fse->nbver = nbVerticesPerPolygon;
     }
 }
 
 /******************************************************************************/
 G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint32_t extensionName,
-                                                     uint32_t nbver ) {
+                                                     G3DFACE *fac,
+                                                     uint32_t level ) {
     uint32_t size = sizeof ( G3DFACESCULPTEXTENSION );
     G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION * ) calloc ( 0x01, 
                                                                         size );
@@ -72,7 +137,7 @@ G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint32_t extensionName,
 
     g3dfaceextension_init ( ( G3DFACESCULPTEXTENSION * ) fse, extensionName );
 
-    g3dfacesculptextension_adjust ( fse, nbver );
+    g3dfacesculptextension_adjust ( fse, fac, level );
 
 
 
@@ -90,21 +155,6 @@ void g3dsubdivider_setScupltResolution ( G3DSUBDIVIDER *sdr,
             if ( sdr->mod.oriobj->type & MESH ) {
                 G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
                 LIST *ltmpfac = mes->lfac;
-                uint32_t nbFacesPerTriangle,
-                         nbEdgesPerTriangle,
-                         nbVerticesPerTriangle;
-                uint32_t nbFacesPerQuad,
-                         nbEdgesPerQuad,
-                         nbVerticesPerQuad;
-
-                g3dtriangle_evalSubdivision ( sculptResolution, 
-                                              &nbFacesPerTriangle, 
-                                              &nbEdgesPerTriangle,
-                                              &nbVerticesPerTriangle );
-                g3dquad_evalSubdivision     ( sculptResolution,
-                                              &nbFacesPerQuad, 
-                                              &nbEdgesPerQuad,
-                                              &nbVerticesPerQuad );
 
                 while ( ltmpfac ) {
                     G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
@@ -112,10 +162,9 @@ void g3dsubdivider_setScupltResolution ( G3DSUBDIVIDER *sdr,
                                                             ( uint64_t ) sdr );
 
                     if ( fse ) {
-                        uint32_t nbver = ( fac->nbver == 0x03 ) ? nbVerticesPerTriangle :
-                                                                  nbVerticesPerQuad;
-
-                        g3dfacesculptextension_adjust ( fse, nbver );
+                        g3dfacesculptextension_adjust ( fse,
+                                                        fac,
+                                                        sculptResolution );
                     }
 
                     _NEXTFACE(mes,ltmpfac);
@@ -730,14 +779,13 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
                 G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
                 G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
                                                         ( uint64_t ) sdr );
-                uint32_t nbver = ( fac->nbver == 0x03 ) ? sdr->nbVerticesPerTriangle :
-                                                          sdr->nbVerticesPerQuad;
-
                 sdr->factab[i++] = fac;
 
                 /*** resize sculptmap if any ***/
                 if ( fse ) {
-                    g3dfacesculptextension_adjust ( fse, nbver );
+                    g3dfacesculptextension_adjust ( fse, 
+                                                    fac, 
+                                                    sdr->sculptResolution );
                 }
 
                 _NEXTFACE(mes,ltmpfac);

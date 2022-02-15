@@ -178,6 +178,8 @@ uint32_t *g3dsubindex_get ( uint32_t nbver, uint32_t subdiv_level ) {
     /*** maximum subdiv level is 0x10. No one will go this deep anyway :) ***/
     static G3DSUBINDEX *subindexes[0x10];
 
+    if ( subdiv_level == 0x00 ) return NULL;
+
     if ( subdiv_level >= 0x10 ) {
         fprintf ( stderr, "g3dsubindex_get: requested subdiv level too high!\n" );
 
