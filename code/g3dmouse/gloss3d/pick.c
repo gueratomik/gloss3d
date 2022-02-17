@@ -159,9 +159,9 @@ static void shapeSelectionRectangle ( int x, int y, int32_t *coord ) {
 
 /******************************************************************************/
 /*** Var radius is the selection rectangle size in case x1 = x2 or y1 = y2  ***/
-static void closeSelectionRectangle ( G3DMOUSETOOLPICK *pt, 
-                                      int              *VPX, 
-                                      uint64_t          engine_flags ) {
+void closeSelectionRectangle ( G3DMOUSETOOLPICK *pt, 
+                               int              *VPX, 
+                               uint64_t          engine_flags ) {
     int x1 = VPX[0x00];
     int y1 = VPX[0x01];
     int x2 = VPX[0x00] + VPX[0x02];
@@ -393,8 +393,10 @@ static uint32_t actionPaintVertex ( uint64_t name, MESHPICKDATA *mpd ) {
 
 /******************************************************************************/
 typedef struct _SUBDIVIDERPICKDATA {
-    G3DSUBDIVIDER *sdr;
-    uint32_t   flags;
+    G3DSUBDIVIDER      *sdr;
+    uint32_t            flags;
+    uint32_t            round;
+    G3DMOUSETOOLSCULPT *mts;
 } SUBDIVIDERPICKDATA;
 
 /******************************************************************************/
@@ -409,6 +411,7 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
     G3DFACE *fac = sdr->factab[facID];
     G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
                                             ( uint64_t ) sdr );
+    G3DMOUSETOOLSCULPT *mts = spd->mts;
 
     /*** adjust resolution for existing maps ***/
     if ( sdr->subdiv_preview > sdr->sculptResolution ) {
@@ -423,17 +426,25 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
         g3dface_addExtension ( fac, fse );
     }
 
-    fse->pos[rtverID].x += ( fac->nor.x * 0.01f );
-    fse->pos[rtverID].y += ( fac->nor.y * 0.01f );
-    fse->pos[rtverID].z += ( fac->nor.z * 0.01f );
-    fse->pos[rtverID].w  = 1.0f;
+    if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
+        fse->pos[rtverID].x -= ( fac->nor.x * 0.01f );
+        fse->pos[rtverID].y -= ( fac->nor.y * 0.01f );
+        fse->pos[rtverID].z -= ( fac->nor.z * 0.01f );
+        fse->pos[rtverID].w  = 1.0f;
+
+        fse->flags[rtverID] |= 0x01;
+    }
+
 
     /*printf ("%d %d\n", facID, rtverID );*/
 
+    if ( list_seek ( mts->lfse, fse ) == NULL ) {
+        list_insert ( &mts->lfse, fse );
+    }
 
     /*** update this face only ***/
     if ( list_seek ( sdr->lsubfac, fac ) == NULL ) {
-        list_insert ( &sdr->lsubfac, fac ); 
+        list_insert ( &sdr->lsubfac, fac );
     }
 
     return 0x01;
@@ -691,8 +702,9 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
 
 	        if ( obj->type == G3DSUBDIVIDERTYPE ) {
         	    G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
-        	    SUBDIVIDERPICKDATA spd = { .sdr =  sdr,
-                        	               .flags = 0x00 };
+        	    SUBDIVIDERPICKDATA spd = { .sdr   = sdr,
+                        	               .flags = 0x00,
+                                           .mts   = pt };
 
 		        if ( engine_flags & VIEWSCULPT ) {
         	        g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionSculptVertex ), &spd );
@@ -704,6 +716,8 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                     g3dsubdivider_fillBuffers ( sdr,
                                                 sdr->lsubfac,
                                                 engine_flags );
+
+                    list_free ( &sdr->lsubfac, NULL );
 		        }
 	        }
 
@@ -895,54 +909,6 @@ static int weight_tool ( G3DMOUSETOOL *mou,
 }
 
 /******************************************************************************/
-static int sculpt_tool ( G3DMOUSETOOL *mou, 
-                         G3DSCENE     *sce, 
-                         G3DCAMERA    *cam,
-                         G3DURMANAGER *urm, 
-                         uint64_t      engine_flags, 
-                         G3DEvent     *event ) {
-    G3DMOUSETOOLSCULPT *pt = ( G3DMOUSETOOLSCULPT * ) mou;
-    static G3DOBJECT *obj = NULL;
-    static int VPX[0x04];
-
-    switch ( event->type ) {
-	    case G3DButtonPress : {
-            G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-
-            obj = g3dscene_getLastSelected ( sce );
-
-            glGetIntegerv ( GL_VIEWPORT, VPX );
-
-        } return REDRAWVIEW | REDRAWCURRENTOBJECT;
-
-        case G3DMotionNotify : {
-            G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
-            uint32_t ctrlClick = ( mev->state & G3DControlMask ) ? 1 : 0;
-
-            if ( obj ) {
-        	    /*if ( obj->type == G3DMESHTYPE ) {*/
-        	        pt->coord[0x00] = pt->coord[0x02] = mev->x;
-        	        pt->coord[0x01] = pt->coord[0x03] = VPX[0x03] - mev->y;
-
-        	        closeSelectionRectangle ( pt, VPX, engine_flags );
-
-                    pick_Item ( pt, sce, cam, ctrlClick, engine_flags );
-        	    /*}*/
-            }
-        } return REDRAWVIEW;
-
-        case G3DButtonRelease : {
-            obj = NULL;
-        } break;
-
-        default :
-        break;
-    }
-
-    return 0x00;
-}
-
-/******************************************************************************/
 int pickUV_tool ( G3DMOUSETOOL *mou, 
                   G3DSCENE     *sce, 
                   G3DCAMERA    *cam,
@@ -1054,9 +1020,6 @@ int pick_tool ( G3DMOUSETOOL *mou,
 
     if ( engine_flags & VIEWSKIN ) {
         return weight_tool ( mou, sce, cam, urm, engine_flags, event );
-    } else {
-    if ( engine_flags & VIEWSCULPT ) {
-        return sculpt_tool ( mou, sce, cam, urm, engine_flags, event );
     } else {
 	switch ( event->type ) {
             case G3DButtonPress : {
@@ -1252,7 +1215,6 @@ int pick_tool ( G3DMOUSETOOL *mou,
             default :
             break;
 	    }
-    }
     }
 
     return 0x00;

@@ -1095,6 +1095,7 @@ typedef struct _G3DFACE {
     G3DHEIGHTMAP    *heightmap;
     LIST            *lfacgrp; /*** list of facegroups it belong s to ***/
     LIST            *lext;    /*** list of face extensions                  ***/
+    G3DRTVERTEX     *rtvermem;
 } G3DFACE;
 
 #include <g3dengine/g3dcurve.h>
@@ -1310,6 +1311,7 @@ typedef struct _G3DFACEEXTENSION {
 typedef struct _G3DFACESCULPTEXTENSION {
     G3DFACEEXTENSION ext;
     G3DVECTOR       *pos;
+    uint32_t        *flags;
     uint32_t         nbver;
 } G3DFACESCULPTEXTENSION;
 
@@ -1328,6 +1330,8 @@ void g3dface_removeExtension ( G3DFACE          *fac,
 G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint32_t extensionName,
                                                      G3DFACE *fac,
                                                      uint32_t level );
+
+void g3dfacesculptextension_clearFlags ( G3DFACESCULPTEXTENSION *fse );
 
 void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse, 
                                      G3DFACE                *fac,

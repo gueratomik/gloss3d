@@ -29,8 +29,6 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
-extern uint32_t quad_indexes[][0x04];
-
 /******************************************************************************/
 /***
 Vertex ID

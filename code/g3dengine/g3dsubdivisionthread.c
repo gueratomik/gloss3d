@@ -175,6 +175,8 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
 
         }
 
+        fac->rtvermem = rtvermem;
+
         g3dsubdivisionV3_subdivide ( sdv, 
                                      mes,
                                      sdt->stkpos,

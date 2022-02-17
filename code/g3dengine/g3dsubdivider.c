@@ -67,7 +67,11 @@ void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
         }
 
         if ( fse->nbver < nbVerticesPerPolygon ) {
-            fse->pos = realloc ( fse->pos, sizeof ( G3DVECTOR ) * nbVerticesPerPolygon );
+            fse->pos   = realloc ( fse->pos  , sizeof ( G3DVECTOR ) * nbVerticesPerPolygon );
+
+            if ( fse->flags ) free ( fse->flags );
+
+            fse->flags = calloc ( nbVerticesPerPolygon, sizeof ( uint32_t  ) );
 
             for ( j = fse->nbver; j < nbVerticesPerPolygon; j++ ) {
                 fse->pos[j].x = 0.0f;
@@ -119,6 +123,11 @@ void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
         /*** receives the correct value on last loop ***/
         fse->nbver = nbVerticesPerPolygon;
     }
+}
+
+/******************************************************************************/
+void g3dfacesculptextension_clearFlags ( G3DFACESCULPTEXTENSION *fse ) {
+    memset ( fse->flags, 0x00, sizeof ( uint32_t ) * fse->nbver );
 }
 
 /******************************************************************************/

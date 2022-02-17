@@ -335,6 +335,7 @@ static void createSculptModeMeshMenu ( GtkWidget *widget, G3DUI *gui ) {
     list_insert ( &view->lmenu  , menu );
 }
 
+/******************************************************************************/
 /*** for some unknown reason, the gtk_popup_menu does not position my menu ***/
 /*** correctly on dual monitor configuration, so I had to make this trick ***/
 void SetMenuPosition ( GtkMenu *menu, gint *x,
@@ -409,7 +410,7 @@ static void PostMenu ( GtkWidget *widget, GdkEvent *event,
             }
 
             if ( gui->engine_flags & VIEWSCULPT ) {
-                if ( selObj->type == G3DMESHTYPE ) {
+                if ( selObj->type == G3DSUBDIVIDERTYPE ) {
                     if ( strcmp ( gtk_widget_get_name ( menu ), SCULPTMODEMESHMENUNAME   ) == 0x00 ) curmenu = menu;
                 }
             }

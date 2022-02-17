@@ -271,7 +271,7 @@ typedef struct _G3DMOUSETOOLSCULPT {
 
     float pressure;
     int ctrl_key;
-    LIST *lscf; /*** SCULPTFACE list ***/
+    LIST *lfse; /*** SCULPTFACE list ***/
 } G3DMOUSETOOLSCULPT;
 
 /******************************************************************************/
@@ -375,6 +375,10 @@ void pick_cursor ( G3DMOUSETOOLPICK *pt,
                    G3DCAMERA        *cam,
                    uint64_t engine_flags );
 
+void closeSelectionRectangle ( G3DMOUSETOOLPICK *pt, 
+                               int              *VPX, 
+                               uint64_t          engine_flags );
+
 /******************************************************************************/
 G3DMOUSETOOLCREATECYLINDER *g3dmousetoolcreatecylinder_new ( );
 G3DMOUSETOOLPICK *g3dmousetoolpick_new ( );
@@ -407,6 +411,7 @@ G3DMOUSETOOLMOVEUV *g3dmousetoolmoveUV_new ( );
 G3DMOUSETOOLSCALEUV *g3dmousetoolscaleUV_new ( );
 G3DMOUSETOOLROTATEUV *g3dmousetoolrotateUV_new ( );
 G3DMOUSETOOLREMOVEVERTEXPOSE *g3dmousetoolremovevertexpose_new ( );
+G3DMOUSETOOLSCULPT *g3dmousetoolsculpt_new ( );
 
 /******************************************************************************/
 M3DMOUSETOOLSELECTOR *m3dmousetoolselect_new ( );

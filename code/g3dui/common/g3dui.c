@@ -943,6 +943,14 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
     /********************************/
 
     common_g3dui_addMouseTool ( gui,
+                                g3dmousetoolsculpt_new ( ), 
+                                SCULPTMODETOOL | 
+                                MESHTOOL     |
+                                GLMENUTOOL );
+
+    /********************************/
+
+    common_g3dui_addMouseTool ( gui,
                                 g3dmousetoolmove_new ( ), 
                                 0x00 );
 
