@@ -406,8 +406,8 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
                              float weight,
                              uint32_t visible, uint64_t engine_flags ) {*/
     G3DSUBDIVIDER *sdr = spd->sdr;
-    uint32_t facID = ( name >> 0x20 );
-    uint32_t rtverID = name & 0xFFFFFFFF;
+    uint64_t facID = ( name >> 0x20 );
+    uint64_t rtverID = name & 0xFFFFFFFF;
     G3DFACE *fac = sdr->factab[facID];
     G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
                                             ( uint64_t ) sdr );
@@ -426,15 +426,40 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
         g3dface_addExtension ( fac, fse );
     }
 
-    if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
-        fse->pos[rtverID].x -= ( fac->nor.x * 0.01f );
-        fse->pos[rtverID].y -= ( fac->nor.y * 0.01f );
-        fse->pos[rtverID].z -= ( fac->nor.z * 0.01f );
-        fse->pos[rtverID].w  = 1.0f;
+printf("%s %d\n", __func__, rtverID);
 
-        fse->flags[rtverID] |= 0x01;
+    if ( mts->type == SCULPTINFLATE ) {
+        if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
+            fse->pos[rtverID].x += ( fac->nor.x * 0.01f );
+            fse->pos[rtverID].y += ( fac->nor.y * 0.01f );
+            fse->pos[rtverID].z += ( fac->nor.z * 0.01f );
+            fse->pos[rtverID].w  = 1.0f;
+
+            fse->flags[rtverID] |= 0x01;
+        }
     }
 
+    if ( mts->type == SCULPTCREASE ) {
+        if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
+            fse->pos[rtverID].x -= ( fac->nor.x * 0.01f );
+            fse->pos[rtverID].y -= ( fac->nor.y * 0.01f );
+            fse->pos[rtverID].z -= ( fac->nor.z * 0.01f );
+            fse->pos[rtverID].w  = 1.0f;
+
+            fse->flags[rtverID] |= 0x01;
+        }
+    }
+
+    if ( mts->type == SCULPTUNSCULPT ) {
+        if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
+            fse->pos[rtverID].x = 0.0f;
+            fse->pos[rtverID].y = 0.0f;
+            fse->pos[rtverID].z = 0.0f;
+            fse->pos[rtverID].w = 0.0f;
+
+            fse->flags[rtverID] |= 0x01;
+        }
+    }
 
     /*printf ("%d %d\n", facID, rtverID );*/
 

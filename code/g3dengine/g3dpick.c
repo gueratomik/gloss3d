@@ -255,6 +255,7 @@ static uint32_t g3dpick_point ( G3DPICK       *pick,
             if ( pick->userAction && 
                  pick->userAction ( pick->userName, 
                                     pick->userData ) ) {
+printf("%lld\n", pick->userName & 0xFFFFFFFF );
                 return 0x01;
             }
         }

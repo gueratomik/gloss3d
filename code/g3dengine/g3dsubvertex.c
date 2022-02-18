@@ -62,6 +62,7 @@ void g3dsubvertex_elevate ( G3DSUBVERTEX *subver,
                                                                      tri_indexes[fac->id][i];
 
                     if ( fse->pos[verID].w ) {
+/*printf("%s %d %d\n", __func__, subver->ver.id, verID );*/
                         pos.x += fse->pos[verID].x;
                         pos.y += fse->pos[verID].y;
                         pos.z += fse->pos[verID].z;

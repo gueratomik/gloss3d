@@ -41,8 +41,13 @@
 
 /******************************************************************************/
 #define PICKTOOL                     "Pick"
-#define SCULPTTOOL                   "Sculpt"
+
+#define INFLATETOOL                  "Inflate"
 #define SMOOTHTOOL                   "Smooth"
+#define CREASETOOL                   "Crease"
+#define FLATTENTOOL                  "Flatten"
+#define UNSCULPTTOOL                 "Erase"
+
 #define MOVETOOL                     "Move"
 #define ROTATETOOL                   "Rotate"
 #define SCALETOOL                    "Scale"
@@ -259,6 +264,15 @@ typedef struct _SCULPTFACE {
 } SCULPTFACE;
 
 /******************************************************************************/
+typedef enum {
+   SCULPTINFLATE,
+   SCULPTCREASE,
+   SCULPTFLATTEN,
+   SCULPTSMOOTH,
+   SCULPTUNSCULPT
+} SCULPTFUNCENUM;
+
+/******************************************************************************/
 typedef struct _G3DMOUSETOOLSCULPT {
     G3DMOUSETOOL  tool;
     int start; 
@@ -272,6 +286,7 @@ typedef struct _G3DMOUSETOOLSCULPT {
     float pressure;
     int ctrl_key;
     LIST *lfse; /*** SCULPTFACE list ***/
+    SCULPTFUNCENUM type;
 } G3DMOUSETOOLSCULPT;
 
 /******************************************************************************/
@@ -411,7 +426,7 @@ G3DMOUSETOOLMOVEUV *g3dmousetoolmoveUV_new ( );
 G3DMOUSETOOLSCALEUV *g3dmousetoolscaleUV_new ( );
 G3DMOUSETOOLROTATEUV *g3dmousetoolrotateUV_new ( );
 G3DMOUSETOOLREMOVEVERTEXPOSE *g3dmousetoolremovevertexpose_new ( );
-G3DMOUSETOOLSCULPT *g3dmousetoolsculpt_new ( );
+G3DMOUSETOOLSCULPT *g3dmousetoolsculpt_new ( SCULPTFUNCENUM efc );
 
 /******************************************************************************/
 M3DMOUSETOOLSELECTOR *m3dmousetoolselect_new ( );

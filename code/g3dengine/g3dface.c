@@ -252,24 +252,28 @@ void g3dface_initSubface ( G3DFACE      *fac,
 
     for ( i = 0x00; i < fac->nbver; i++ ) {
         if ( fac->ver[i] == oriver ) {
-            uint32_t p = ( i + fac->nbver - 0x01 ) % fac->nbver;
+            uint32_t  p = ( i + fac->nbver - 0x01 ) % fac->nbver;
+            uint32_t i0 =   i;
+            uint32_t i1 = ( i + 0x01 ) % 0x04;
+            uint32_t i2 = ( i + 0x02 ) % 0x04;
+            uint32_t i3 = ( i + 0x03 ) % 0x04;
 
             subfac->fac.id = fac->id | ( i << (iteration*2) );
 
-            subfac->fac.ver[0x00] = orivercpy;
-            subfac->fac.ver[0x01] = ((G3DSUBEDGE*)fac->edg[i])->subver;
-            subfac->fac.ver[0x02] = ((G3DSUBFACE*)fac)->subver;
-            subfac->fac.ver[0x03] = ((G3DSUBEDGE*)fac->edg[p])->subver;
+            subfac->fac.ver[i0] = orivercpy;
+            subfac->fac.ver[i1] = ((G3DSUBEDGE*)fac->edg[i])->subver;
+            subfac->fac.ver[i2] = ((G3DSUBFACE*)fac)->subver;
+            subfac->fac.ver[i3] = ((G3DSUBEDGE*)fac->edg[p])->subver;
 
             subfac->fac.heightmap = fac->heightmap;
 
             if ( ( curdiv > 1 ) ||
                  ( subdiv_flags & SUBDIVISIONCOMMIT ) ||
                  ( object_flags & MESHUSEISOLINES   ) ) {
-                subfac->fac.edg[0x00] = (G3DEDGE*)g3dsubedge_getSubEdge ( (G3DSUBEDGE*)fac->edg[i], (G3DVERTEX*)orivercpy, (G3DVERTEX*)((G3DSUBEDGE*)fac->edg[i])->subver );
-                subfac->fac.edg[0x01] = ((G3DSUBFACE*)fac)->innedg[i];
-                subfac->fac.edg[0x02] = ((G3DSUBFACE*)fac)->innedg[p];
-                subfac->fac.edg[0x03] = (G3DEDGE*)g3dsubedge_getSubEdge ( (G3DSUBEDGE*)fac->edg[p], (G3DVERTEX*)orivercpy, (G3DVERTEX*)((G3DSUBEDGE*)fac->edg[p])->subver );
+                subfac->fac.edg[i0] = (G3DEDGE*)g3dsubedge_getSubEdge ( (G3DSUBEDGE*)fac->edg[i], (G3DVERTEX*)orivercpy, (G3DVERTEX*)((G3DSUBEDGE*)fac->edg[i])->subver );
+                subfac->fac.edg[i1] = ((G3DSUBFACE*)fac)->innedg[i];
+                subfac->fac.edg[i2] = ((G3DSUBFACE*)fac)->innedg[p];
+                subfac->fac.edg[i3] = (G3DEDGE*)g3dsubedge_getSubEdge ( (G3DSUBEDGE*)fac->edg[p], (G3DVERTEX*)orivercpy, (G3DVERTEX*)((G3DSUBEDGE*)fac->edg[p])->subver );
             }
 
             /*** we need normal vector only on last subdivision ***/

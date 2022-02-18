@@ -56,7 +56,7 @@ static void onlyVisibleCbk  ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 void updateSculptToolEdit ( GtkWidget *widget, G3DUI *gui ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    G3DMOUSETOOL *tool = common_g3dui_getMouseTool ( gui, SCULPTTOOL );
+    G3DMOUSETOOL *tool = common_g3dui_getMouseTool ( gui, INFLATETOOL );
     G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) tool;
 
     /*** prevent a loop ***/

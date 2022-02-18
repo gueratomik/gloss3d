@@ -64,10 +64,11 @@ uint32_t directionChange ( uint32_t x, uint32_t y ) {
 }
 
 /******************************************************************************/
-G3DMOUSETOOLSCULPT *g3dmousetoolsculpt_new ( ) {
+G3DMOUSETOOLSCULPT *g3dmousetoolsculpt_new ( SCULPTFUNCENUM efc ) {
     uint32_t structsize = sizeof ( G3DMOUSETOOLSCULPT );
 
     G3DMOUSETOOLSCULPT *mts =  ( G3DMOUSETOOLSCULPT * ) calloc ( 0x01, structsize );
+    char *toolname;
 
     if ( mts == NULL ) {
         fprintf ( stderr, "sculptTool_new: Memory allocation failed\n" );
@@ -75,8 +76,34 @@ G3DMOUSETOOLSCULPT *g3dmousetoolsculpt_new ( ) {
         return NULL;
     }
 
+    switch ( efc ) {
+        case SCULPTINFLATE :
+            toolname = INFLATETOOL;
+        break;
+
+        case SCULPTCREASE :
+            toolname = CREASETOOL;
+        break;
+
+        case SCULPTFLATTEN :
+            toolname = FLATTENTOOL;
+        break;
+
+        case SCULPTSMOOTH :
+            toolname = SMOOTHTOOL;
+        break;
+
+        case SCULPTUNSCULPT :
+            toolname = UNSCULPTTOOL;
+        break;
+
+        default :
+            toolname = "NOTOOL";
+        break;
+    }
+
     g3dmousetool_init ( ( G3DMOUSETOOL * ) mts,
-                                           SCULPTTOOL,
+                                           toolname,
                                            's',
                                            NULL,
                                            NULL,
@@ -87,6 +114,7 @@ G3DMOUSETOOLSCULPT *g3dmousetoolsculpt_new ( ) {
     mts->only_visible = 0x01;
     mts->pressure     = 0.5f;
     mts->radius       = 0x20;
+    mts->type         = efc;
 
     return mts;
 }
