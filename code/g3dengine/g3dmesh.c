@@ -530,12 +530,13 @@ void g3dmesh_updateModified ( G3DMESH     *mes,
 }
 
 /******************************************************************************/
-void g3dmesh_modify ( G3DMESH    *mes,
-                      G3DMODIFYOP op,
-                      uint64_t    engine_flags ) {
+uint32_t g3dmesh_modify ( G3DMESH    *mes,
+                          G3DMODIFYOP op,
+                          uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     LIST *ltmpchildren = obj->lchildren;
 
+/* TODO: should be renumbered only on modify op ***/
     g3dmesh_renumberVertices ( mes );
     g3dmesh_renumberEdges    ( mes );
     g3dmesh_renumberFaces    ( mes );
@@ -566,6 +567,8 @@ void g3dmesh_modify ( G3DMESH    *mes,
             }
         }
     }
+
+    return 0x00;
 }
 
 /******************************************************************************/

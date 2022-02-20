@@ -26,6 +26,12 @@
 /*                         Keep It Simple Stupid !                            */
 /*                                                                            */
 /******************************************************************************/
+
+/******************************************************************************/
+/*   Note : This is by far the most complicated part of Gloss3D. It's as KISS */
+/* as possible                                                                */
+/******************************************************************************/
+
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
@@ -228,8 +234,6 @@ static void g3dsubdivisionV3_commit ( G3DMESH       *mes,
     }
     backupFaceID = ancestorFace->id;
 
-    /******************** Commit Vertices *******************/
-
     /** at most, a face will have nbVerticesPerFace vertices, none of them ***/
     /** belonging to the edges (only interior vertices ) ***/
     nbVerticesPerEdge = pow ( 2, subdiv_level ) - 1;
@@ -240,6 +244,38 @@ static void g3dsubdivisionV3_commit ( G3DMESH       *mes,
         ancestorFace->edg[i]->id = ( ancestorFace->edg[i]->id * nbVerticesPerEdge );
     }
     ancestorFace->id = ( ancestorFace->id * nbVerticesPerFace );
+
+
+
+    /******************** Commit Vertices *******************/
+
+    /*** Pre-step : prepare vertex IDs for edge-born vertices ***/
+    for ( i = 0x00; i < nbInnerEdges; i++ ) {
+        G3DSUBVERTEX *subver = innerEdges[i].edg.ver[0x01];
+        uint32_t vid = subver->ver.id;
+        uint32_t commitID;
+
+        /*** if the edge descends from an original edge, its ID is ***/
+        /*** the edge's ID++ (knowing that edge IDs are separated by ***/
+        /*** as many steps as edge vertices. ***/
+        if ( innerEdges[i].ancestorEdge ) {
+            if ( ( subver->ver.flags & VERTEXORIGINAL ) == 0x00 ) {
+                if ( innerEdges[i].edg.flags & EDGEREVERT ) {
+                    commitID = mes->nbver + innerEdges[i].ancestorEdge->id-- + ( nbVerticesPerEdge - 1 );
+                } else {
+                    commitID = mes->nbver + innerEdges[i].ancestorEdge->id++;
+                }
+
+                subver->commitID = commitID;
+            }
+        }
+    }
+
+    /*** reset **/
+    for ( i = 0x00; i < ancestorFace->nbver; i++ ) {
+        ancestorFace->edg[i]->id = backupEdgeID[i];
+    }
+
 
     /*** First commit Vertices ***/
     for ( i = 0x00; i < nbInnerVertices; i++ ) {
@@ -253,8 +289,11 @@ static void g3dsubdivisionV3_commit ( G3DMESH       *mes,
         /*** the edge's ID++ (knowing that edge IDs are separated by ***/
         /*** as many steps as edge vertices. ***/
         if ( innerVertices[i].ancestorEdge   ) {
-            commitID = mes->nbver + innerVertices[i].ancestorEdge->id++;
+            commitID = innerVertices[i].commitID;
+
+            /*commitID = mes->nbver + innerVertices[i].ancestorEdge->id++;*/
         }
+
         /*** For the other vertices (the one lying on the original face, ***/
         /*** their IDs is the face's ID++ (knowing that face IDs are ***/
         /*** separated by as many steps as face vertices. ***/
@@ -294,6 +333,7 @@ static void g3dsubdivisionV3_commit ( G3DMESH       *mes,
         if ( innerEdges[i].ancestorEdge   ) {
             commitID = innerEdges[i].ancestorEdge->id++;
         }
+
         /*** For the other vertices (the one lying on the original face, ***/
         /*** their IDs is the face's ID++ (knowing that face IDs are ***/
         /*** separated by as many steps as face vertices. ***/
@@ -410,8 +450,9 @@ static void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
         }
     }
 
-    for ( i = 0x00; i < nbInnerEdges; i++ ) {
-        if ( subdiv_flags & SUBDIVISIONDUMP ) {
+    if ( subdiv_flags & SUBDIVISIONDUMP ) {
+        for ( i = 0x00; i < nbInnerEdges; i++ ) {
+
             G3DSUBVERTEX *subver = innerEdges[i].edg.ver[0x01];
             uint32_t vid = subver->ver.id;
             uint32_t dumpID;
@@ -422,7 +463,7 @@ static void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
             if ( innerEdges[i].ancestorEdge ) {
                 if ( ( subver->ver.flags & VERTEXORIGINAL ) == 0x00 ) {
                     if ( innerEdges[i].edg.flags & EDGEREVERT ) {
-                        dumpID = mes->nbver + innerEdges[i].ancestorEdge->id-- + nbUniqueVerticesPerEdge; 
+                        dumpID = mes->nbver + innerEdges[i].ancestorEdge->id-- + ( nbUniqueVerticesPerEdge - 1 );
                     } else {
                         dumpID = mes->nbver + innerEdges[i].ancestorEdge->id++;
                     }
@@ -946,6 +987,8 @@ static void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
     if ( edg->nbfac > 0x02 ) newedg->edg.flags |= EDGEMALLOCFACES;
 
     g3dsubdivision_addEdgeLookup ( sdv, edg, newedg );
+
+    newedg->edg.flags |= ( ( revert ) ? EDGEREVERT : 0x00 );
 
     /*** inverting is REQUIRED ! otherwise the face index mapping ***/
     /*** won't work properly at the edges, which will give bad ***/

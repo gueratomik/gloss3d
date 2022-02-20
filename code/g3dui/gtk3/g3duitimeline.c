@@ -542,6 +542,9 @@ static gboolean panToolInput ( GtkWidget *widget,
         case GDK_BUTTON_RELEASE : {
             GdkEventButton *bev = ( GdkEventButton * ) gdkev;
 
+            /*** disable animation mode whatever happens ***/
+            gui->engine_flags &= (~ONGOINGANIMATION);
+
             if ( dragging ) {
                 g3duitimeline_ungrab_pointer ( widget, gdkev );
                 g3duitimeline_show_pointer   ( widget );
@@ -568,7 +571,11 @@ static gboolean panToolInput ( GtkWidget *widget,
                         int32_t xnew = common_timelinedata_getFramePos ( tdata, gui->curframe, width );
 
                         /*** Recompute buffered subdivided Meshes ***/
+/*
                         g3dscene_updateMeshes ( sce, gui->engine_flags );
+*/
+                        g3dobject_update_r ( ( G3DOBJECT * ) sce, gui->engine_flags );
+
 
                         /*** After dragging the cursor, move ***/
                         /*** the pointer to its position.    ***/
@@ -589,9 +596,6 @@ static gboolean panToolInput ( GtkWidget *widget,
 
                 /*g3duitimeline_move_pointer ( widget, gdkev, xori, yori );*/
             }
-
-            /*** disable animation mode whatever happens ***/
-            gui->engine_flags &= (~ONGOINGANIMATION);
 
             oncursor = dragging = 0x00;
 

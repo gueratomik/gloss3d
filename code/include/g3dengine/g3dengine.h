@@ -2869,9 +2869,9 @@ void g3dmesh_pickFaceUVs ( G3DMESH *mes,
                            uint64_t engine_flags );
 void g3dmesh_drawVertexUVs ( G3DMESH *mes,
                              uint64_t engine_flags );
-void g3dmesh_modify ( G3DMESH    *mes,
-                      G3DMODIFYOP op,
-                      uint64_t    engine_flags );
+uint32_t g3dmesh_modify ( G3DMESH    *mes,
+                          G3DMODIFYOP op,
+                          uint64_t    engine_flags );
 void g3dmesh_drawFaceUVs ( G3DMESH *mes,
                            uint64_t engine_flags );
 G3DTEXTURE *g3dmesh_getDefaultTexture ( G3DMESH *mes );

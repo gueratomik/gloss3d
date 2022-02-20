@@ -270,6 +270,7 @@ static void g3dsubdivider_reset ( G3DSUBDIVIDER *sdr ) {
     sdr->rtedgmem = NULL;
     sdr->rtquamem = NULL;
     sdr->rtluim   = NULL;
+    sdr->factab   = NULL;
 
     sdr->nbrtuv                = 0x00;
     sdr->nbVerticesPerTriangle = 0x00;
@@ -290,22 +291,6 @@ static void g3dsubdivider_free ( G3DSUBDIVIDER *sdr ) {
 /******************************************************************************/
 static void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr,
                                      uint64_t       engine_flags );
-
-#ifdef UNUSED
-    if ( mes->subdiv && ( objmes->flags & BUFFEREDSUBDIVISION ) ) {
-        /*** only update subdivided polygons from the just picked vertices ***/
-        LIST *lsub = g3dvertex_getFacesFromList ( lselver );
-
-        g3dmesh_update ( mes, NULL,
-                              NULL,
-                              NULL,
-                              lsub,
-                              COMPUTESUBDIVISION, engine_flags );
-
-
-        list_free ( &lsub, NULL );
-    }
-#endif
 
 /******************************************************************************/
 void g3dsubdivider_setParent ( G3DSUBDIVIDER *sdr, 
@@ -736,6 +721,7 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
     if ( sdr->mod.oriobj ) {
         if ( sdr->mod.oriobj->type & MESH ) {
             G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
+
             uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
             g3dtriangle_evalSubdivision (  sdr->subdiv_preview, 
                                           &sdr->nbFacesPerTriangle, 
@@ -745,6 +731,7 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
                                           &sdr->nbFacesPerQuad, 
                                           &sdr->nbEdgesPerQuad,
                                           &sdr->nbVerticesPerQuad );
+
             LIST *ltmpfac = mes->lfac;
             uint32_t i = 0x00;
 
@@ -757,6 +744,7 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
                            ( mes->nbqua * sdr->nbEdgesPerQuad        );
             sdr->nbrtver = ( mes->nbtri * sdr->nbVerticesPerTriangle ) +
                            ( mes->nbqua * sdr->nbVerticesPerQuad     );
+
             sdr->nbrtuv  = ( mes->nbtri * sdr->nbVerticesPerTriangle ) +
                            ( mes->nbqua * sdr->nbVerticesPerQuad     )  * nbuvmap;
 
@@ -769,6 +757,7 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
 
             /*** this is done here because g3dsubdivider_fillBuffers() uses ***/
             /*** a thread that is not aware of the sdr object ***/
+
             while ( ltmpfac ) {
                 G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
 
@@ -822,12 +811,20 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
     if ( sdr->mod.oriobj ) {
         if ( sdr->subdiv_preview > 0x00 ) {
             G3DMESH *parmes = ( G3DMESH * ) sdr->mod.oriobj;
+            uint32_t subdiv_preview = sdr->subdiv_preview;
+
+            /*** force subdiv level to 1 if scene is playing ***/ 
+            if ( engine_flags & ONGOINGANIMATION ) {
+                sdr->subdiv_preview = 0x01;
+            }
 
             if ( op == G3DMODIFYOP_MODIFY ) {
                 g3dsubdivider_allocBuffers ( sdr, engine_flags );
+
                 g3dsubdivider_fillBuffers  ( sdr,
                                              NULL, 
                                              engine_flags );
+
             }
 
             if ( op == G3DMODIFYOP_STARTUPDATE ) {
@@ -859,6 +856,10 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
 
             if ( op == G3DMODIFYOP_ENDUPDATE ) {
                 list_free ( &sdr->lsubfac, NULL );
+            }
+
+            if ( engine_flags & ONGOINGANIMATION ) {
+                sdr->subdiv_preview = subdiv_preview;
             }
 
             return MODIFIERTAKESOVER | MODIFIERBUILDSNEWMESH;
@@ -1213,7 +1214,7 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
                                                          SYNCLEVELS,
                                            DRAW_CALLBACK(NULL),
                                            FREE_CALLBACK(g3dsubdivider_free),
-                                           FREE_CALLBACK(g3dsubdivider_pick),
+                                           PICK_CALLBACK(g3dsubdivider_pick),
                                                          NULL,
                                            COPY_CALLBACK(g3dsubdivider_copy),
                                        ACTIVATE_CALLBACK(g3dsubdivider_activate),
@@ -1225,7 +1226,7 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
 
     ((G3DMESH*)sdr)->dump = DUMP_CALLBACK(g3dsubdivider_dump);
 
-    ((G3DOBJECT*)sdr)->update = ANIM_CALLBACK(g3dsubdivider_update);
+    ((G3DOBJECT*)sdr)->update = UPDATE_CALLBACK(g3dsubdivider_update);
 
     mod->moddraw = MODDRAW_CALLBACK(g3dsubdivider_moddraw);
 }
