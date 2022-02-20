@@ -1154,13 +1154,26 @@ static uint32_t g3dsubdivider_moddraw ( G3DSUBDIVIDER *sdr,
             }
 
 /******************************/
-        /*uint32_t i;
+/*        uint32_t i;
         glPushAttrib ( GL_ALL_ATTRIB_BITS );
         glDisable    ( GL_LIGHTING );
         glPointSize ( 3.0f );
 
+printf("Face ------- \n");
+        for ( i = 0x00; i < sdr->nbFacesPerQuad; i++ ) {
+printf("%d %d %d %d\n", rtquamem[i].rtver[0x00],  
+                        rtquamem[i].rtver[0x01],
+                        rtquamem[i].rtver[0x02],
+                        rtquamem[i].rtver[0x03]);
+        }
+
         for ( i = 0x00; i < sdr->nbVerticesPerQuad; i++ ) {
-            if ( i == 241 ) glColor3ub ( 0xFF, 0xFF, 0x00 );
+
+            if ( i == 25 ) glColor3ub ( 0xFF, 0xFF, 0x00 );
+            else 
+            if ( i == 0   ) glColor3ub ( 0xFF, 0xFF, 0xFF );
+            else 
+            if ( i == 1   ) glColor3ub ( 0x00, 0x00, 0x00 );
             else            glColor3ub ( 0x00, 0xFF, 0xFF );
 
             glBegin ( GL_POINTS );

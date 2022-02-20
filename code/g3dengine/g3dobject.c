@@ -2074,7 +2074,7 @@ void g3dobject_default_free ( G3DOBJECT *obj ) {
 uint32_t g3dobject_default_pick ( G3DOBJECT *obj, G3DCAMERA *cam, 
                                               uint64_t engine_flags ) {
     if ( obj->type != G3DSCENETYPE) {
-        printf("%s unimplemented for %s\n", __func__, obj->name );
+        /*printf("%s unimplemented for %s\n", __func__, obj->name );*/
     }
 }
 

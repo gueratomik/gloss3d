@@ -287,6 +287,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define EDGEINNER         (  1 << 7  )
 #define EDGEOUTER         (  1 << 8  )
 #define EDGETOPOLOGY      (  1 << 9  )
+#define EDGEREVERT        (  1 << 10 )
 /*** Can be used by functions to temporarily mark a face. Call g3dedge_mark ***/
 /*** Function MUST clear the flag after processing. Call g3dedge_unmark ***/
 #define EDGEMARKED        (  1 << 31 )

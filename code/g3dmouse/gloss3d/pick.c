@@ -426,8 +426,6 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
         g3dface_addExtension ( fac, fse );
     }
 
-printf("%s %d\n", __func__, rtverID);
-
     if ( mts->type == SCULPTINFLATE ) {
         if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
             fse->pos[rtverID].x += ( fac->nor.x * 0.01f );

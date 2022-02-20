@@ -113,10 +113,12 @@ static void g3dsubdivision_importInnerEdge ( G3DSUBDIVISION *sdv,
                                              G3DMESH        *mes,
                                              G3DEDGE        *edg, 
                                              G3DSUBEDGE     *newedg,
-                                             uint32_t        id );
+                                             uint32_t        id,
+                                             uint32_t        revert );
 static void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
                                              G3DEDGE        *edg, 
-                                             G3DSUBEDGE     *newedg );
+                                             G3DSUBEDGE     *newedg,
+                                             uint32_t        revert );
 static uint32_t g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
                                                  uint64_t        sculptExtensionName,
                                                  G3DFACE        *fac, 
@@ -408,6 +410,29 @@ static void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
         }
     }
 
+    for ( i = 0x00; i < nbInnerEdges; i++ ) {
+        if ( subdiv_flags & SUBDIVISIONDUMP ) {
+            G3DSUBVERTEX *subver = innerEdges[i].edg.ver[0x01];
+            uint32_t vid = subver->ver.id;
+            uint32_t dumpID;
+
+            /*** if the vertex descends from an original edge, its ID is ***/
+            /*** the edge's ID++ (knowing that edge IDs are separated by ***/
+            /*** as many steps as edge vertices. ***/
+            if ( innerEdges[i].ancestorEdge ) {
+                if ( ( subver->ver.flags & VERTEXORIGINAL ) == 0x00 ) {
+                    if ( innerEdges[i].edg.flags & EDGEREVERT ) {
+                        dumpID = mes->nbver + innerEdges[i].ancestorEdge->id-- + nbUniqueVerticesPerEdge; 
+                    } else {
+                        dumpID = mes->nbver + innerEdges[i].ancestorEdge->id++;
+                    }
+
+                    rtVertices[vid].id = dumpID;
+                }
+            }
+        }
+    }
+
     for ( i = 0x00; i < nbInnerVertices; i++ ) {
         uint32_t vid = innerVertices[i].ver.id;
         uint32_t texNumber = 0x00;
@@ -419,22 +444,19 @@ static void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
             /*** unchanged ***/
             if ( innerVertices[i].ancestorVertex ) {
                 dumpID = innerVertices[i].ancestorVertex->id;
+
+                rtVertices[vid].id = dumpID;
             }
-            /*** if the vertex descends from an original edge, its ID is ***/
-            /*** the edge's ID++ (knowing that edge IDs are separated by ***/
-            /*** as many steps as edge vertices. ***/
-            if ( innerVertices[i].ancestorEdge   ) {
-                dumpID = mes->nbver + innerVertices[i].ancestorEdge->id++;
-            }
+
             /*** For the other vertices (the one lying on the original face, ***/
             /*** their IDs is the face's ID++ (knowing that face IDs are ***/
             /*** separated by as many steps as face vertices. ***/
             if ( innerVertices[i].ancestorFace   ) {
                 dumpID = ( mes->nbver ) + 
                          ( mes->nbedg * nbUniqueVerticesPerEdge ) + innerVertices[i].ancestorFace->id++;
-            }
 
-            rtVertices[vid].id = dumpID;
+                rtVertices[vid].id = dumpID;
+            }
         }
 
         g3drtvertex_init ( &rtVertices[vid], &innerVertices[i].ver, 0, engine_flags );
@@ -875,7 +897,8 @@ static void g3dsubdivision_importInnerEdge ( G3DSUBDIVISION *sdv,
                                              G3DMESH        *mes,
                                              G3DEDGE        *edg,
                                              G3DSUBEDGE     *newedg,
-                                             uint32_t        id ) {
+                                             uint32_t        id,
+                                             uint32_t        revert ) {
     memset ( newedg, 0x00, sizeof ( G3DSUBEDGE ) );
 
     newedg->ancestorEdge   = edg;
@@ -891,14 +914,27 @@ static void g3dsubdivision_importInnerEdge ( G3DSUBDIVISION *sdv,
 
     g3dsubdivision_addEdgeLookup ( sdv, edg, newedg );
 
-    newedg->edg.ver[0x00] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x00] );
-    newedg->edg.ver[0x01] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x01] );
+    /*** needed for proper mapping. The order of the edge in memory matters ***/
+    newedg->edg.flags |= ( ( revert ) ? EDGEREVERT : 0x00 );
+
+    /*** inverting is REQUIRED ! otherwise the face index mapping ***/
+    /*** won't work properly at the edges, which will give bad ***/
+    /*** results when sculpting because vertices ID must follow ***/
+    /*** a precise order, even more at the edges ***/
+    if ( revert ) {
+        newedg->edg.ver[0x00] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x01] );
+        newedg->edg.ver[0x01] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x00] );
+    } else {
+        newedg->edg.ver[0x00] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x00] );
+        newedg->edg.ver[0x01] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x01] );
+    }
 }
 
 /******************************************************************************/
 static void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
                                              G3DEDGE        *edg, 
-                                             G3DSUBEDGE     *newedg ) {
+                                             G3DSUBEDGE     *newedg,
+                                             uint32_t        revert ) {
     memset ( newedg, 0x00, sizeof ( G3DSUBEDGE ) );
 
     /*** copy edges ***/
@@ -911,8 +947,17 @@ static void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
 
     g3dsubdivision_addEdgeLookup ( sdv, edg, newedg );
 
-    newedg->edg.ver[0x00] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x00] );
-    newedg->edg.ver[0x01] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x01] );
+    /*** inverting is REQUIRED ! otherwise the face index mapping ***/
+    /*** won't work properly at the edges, which will give bad ***/
+    /*** results when sculpting because vertices ID must follow ***/
+    /*** a precise order, even more at the edges ***/
+    if ( revert ) {
+        newedg->edg.ver[0x00] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x01] );
+        newedg->edg.ver[0x01] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x00] );
+    } else {
+        newedg->edg.ver[0x00] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x00] );
+        newedg->edg.ver[0x01] = g3dsubdivision_lookVertexUp ( sdv, edg->ver[0x01] );
+    }
 }
 
 /******************************************************************************/
@@ -972,10 +1017,10 @@ static uint32_t g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
                                                   FACEFROMTRIANGLE;
     newfac->fac.nbver = fac->nbver;
     newfac->fac.lext = fac->lext;
-
+/*
     memcpy ( &newfac->fac.ver, &fac->ver, sizeof ( G3DVERTEX * ) * 0x04 );
     memcpy ( &newfac->fac.edg, &fac->edg, sizeof ( G3DEDGE   * ) * 0x04 );
-
+*/
     g3dsubdivision_addFaceLookup ( sdv, fac, newfac );
 
     for ( i = 0x00; i < newfac->fac.nbver; i++ ) {
@@ -1053,11 +1098,25 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
 
         innerFace->fac.edg[i] = (G3DEDGE*)newedg;
 
-        g3dsubdivision_importInnerEdge ( sdv, 
-                                         mes, 
-                                         fac->edg[i], 
-                                         newedg, 
-                                         i );
+        /*** inverting is MANDATORY ! otherwise the face index mapping ***/
+        /*** won't work properly at the edges, which will give bad ***/
+        /*** results when sculpting because vertices ID must follow ***/
+        /*** a precise order, even more at the edges ***/
+        if ( fac->ver[i] == fac->edg[i]->ver[0x00] ) {
+            g3dsubdivision_importInnerEdge ( sdv, 
+                                             mes, 
+                                             fac->edg[i], 
+                                             newedg, 
+                                             i,
+                                             0x00 );
+        } else {
+            g3dsubdivision_importInnerEdge ( sdv, 
+                                             mes, 
+                                             fac->edg[i], 
+                                             newedg, 
+                                             i,
+                                             0x01 );
+        }
     }
 
     /*** step4 ***/
@@ -1088,9 +1147,20 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
                         }
                     }
 
-                    g3dsubdivision_importOuterEdge ( sdv, 
-                                                     outedg, 
-                                                     newedg );
+               /*** inverting is MANDATORY ! otherwise the face index mapping ***/
+               /*** won't work properly at the edges, which will give bad ***/
+               /*** results when sculpting because vertices ID must follow ***/
+               /*** a precise order, even more at the edges ***/
+                    if ( fac->ver[i] == outedg->ver[0x00] ) {
+                        g3dsubdivision_importOuterEdge ( sdv, 
+                                                         outedg, 
+                                                         newedg, 0x00 );
+                    } else {
+                        g3dsubdivision_importOuterEdge ( sdv, 
+                                                         outedg, 
+                                                         newedg, 0x01 );
+
+                    }
                 }
             }
 
@@ -1492,9 +1562,13 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                         subedg->edg.id    = curInnerEdges[i].edg.id | (j<<shifting);
                         subedg->edg.flags = curInnerEdges[i].edg.flags; /*** Inherit EDGEINNER and EDGEORIGINAL ***/
                         curInnerEdges[i].subedg[j] = subedg;
-                        curInnerEdges[i].subedg[j]->edg.ver[0] = (G3DVERTEX*)curInnerEdges[i].subver;
-                        curInnerEdges[i].subedg[j]->edg.ver[1] = (G3DVERTEX*)curInnerEdges[i].edg.ver[j]->subver;
+
+
+                        curInnerEdges[i].subedg[j]->edg.ver[0] = ( j == 0x00 ) ? (G3DVERTEX*)curInnerEdges[i].edg.ver[j]->subver : (G3DVERTEX*)curInnerEdges[i].subver;
+                        curInnerEdges[i].subedg[j]->edg.ver[1] = ( j == 0x00 ) ? (G3DVERTEX*)curInnerEdges[i].subver : (G3DVERTEX*)curInnerEdges[i].edg.ver[j]->subver;
                     }
+
+                    /*innerEdges += 0x02;*/
                 }
 
                 for ( i = 0x00; i < nbParentOuterEdges; i++ ) {
