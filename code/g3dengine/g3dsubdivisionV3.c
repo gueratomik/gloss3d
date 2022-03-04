@@ -1376,21 +1376,31 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
 
             if ( subdiv_flags & SUBDIVISIONELEVATE ) {
                 for ( i = 0x00; i < nbInnerVertices; i++ ) {
-                    /*if ( &curInnerVertices[i].ver.flags & VERTEXSCULTPED ) {*/
+                    /*** this if statement is an optimisation, not a       ***/
+                    /*** necessity. g3dsubvertex_elevate can be used alone ***/
+                    if ( curInnerVertices[i].ancestorFace ) {
+                        if ( fse ) {
+                            uint32_t vID = curInnerVertices[i].ver.id;
+
+                            curInnerVertices[i].ver.pos.x += ( fse->pos[vID].x );
+                            curInnerVertices[i].ver.pos.y += ( fse->pos[vID].y );
+                            curInnerVertices[i].ver.pos.z += ( fse->pos[vID].z );
+                        }
+                    } else {
                         g3dsubvertex_elevate ( &curInnerVertices[i],
                                                 sculptExtensionName,
                                                 tri_indexes, 
                                                 qua_indexes );
-                    /*}*/
+                    }
                 }
 
                 for ( i = 0x00; i < nbOuterVertices; i++ ) {
-                    /*if ( &curInnerVertices[i].ver.flags & VERTEXSCULTPED ) {*/
-                        g3dsubvertex_elevate ( &curOuterVertices[i],
-                                                sculptExtensionName,
-                                                tri_indexes, 
-                                                qua_indexes );
-                    /*}*/
+                    /*** no optimization here unlike the above. the vertex ID ***/
+                    /*** for outer vertices is not set ***/
+                    g3dsubvertex_elevate ( &curOuterVertices[i],
+                                            sculptExtensionName,
+                                            tri_indexes, 
+                                            qua_indexes );
                 }
             }
 
@@ -1404,7 +1414,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                 }
             }
 
-            if (   fse ||
+            if (   ( subdiv_flags & SUBDIVISIONELEVATE ) ||
                  ( ( engine_flags & NODISPLACEMENT     ) == 0 ) ) {
                 for ( i = 0x00; i < nbInnerFaces; i++ ) {
                     g3dface_normal ( &curInnerFaces[i].fac );

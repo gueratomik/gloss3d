@@ -411,6 +411,7 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
     G3DFACE *fac = sdr->factab[facID];
     G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
                                             ( uint64_t ) sdr );
+    URMSCULPTFACEEXTENSION *usfe = NULL;
     G3DMOUSETOOLSCULPT *mts = spd->mts;
 
     /*** adjust resolution for existing maps ***/
@@ -426,11 +427,35 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
         g3dface_addExtension ( fac, fse );
     }
 
+    /*printf ("%d %d\n", facID, rtverID );*/
+
+    usfe = urmsculptfaceextension_seek ( mts->lusfe, fse );
+
+    if ( usfe == NULL ) {
+        uint32_t i;
+
+        usfe = urmsculptfaceextension_new ( fse, fac );
+
+        for ( i = 0x00; i < fse->nbver; i++ ) {
+            memcpy ( &usfe->pos[i],
+                     &fse->pos[i], sizeof ( G3DVECTOR ) );
+
+            memcpy ( &usfe->nor[i],
+                     &fac->rtvermem[i].nor, sizeof ( G3DVECTOR ) );
+        }
+
+        list_insert ( &mts->lusfe, usfe ); /*** for undo / redo ***/
+    }
+
+    if ( list_seek ( mts->lfse, fse ) == NULL ) {
+        list_insert ( &mts->lfse, fse );
+    }
+
     if ( mts->type == SCULPTINFLATE ) {
         if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
-            fse->pos[rtverID].x += ( fac->nor.x * 0.01f );
-            fse->pos[rtverID].y += ( fac->nor.y * 0.01f );
-            fse->pos[rtverID].z += ( fac->nor.z * 0.01f );
+            fse->pos[rtverID].x += ( usfe->nor[rtverID].x * 0.01f );
+            fse->pos[rtverID].y += ( usfe->nor[rtverID].y * 0.01f );
+            fse->pos[rtverID].z += ( usfe->nor[rtverID].z * 0.01f );
             fse->pos[rtverID].w  = 1.0f;
 
             fse->flags[rtverID] |= 0x01;
@@ -439,9 +464,9 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
 
     if ( mts->type == SCULPTCREASE ) {
         if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
-            fse->pos[rtverID].x -= ( fac->nor.x * 0.01f );
-            fse->pos[rtverID].y -= ( fac->nor.y * 0.01f );
-            fse->pos[rtverID].z -= ( fac->nor.z * 0.01f );
+            fse->pos[rtverID].x -= ( usfe->nor[rtverID].x * 0.01f );
+            fse->pos[rtverID].y -= ( usfe->nor[rtverID].y * 0.01f );
+            fse->pos[rtverID].z -= ( usfe->nor[rtverID].z * 0.01f );
             fse->pos[rtverID].w  = 1.0f;
 
             fse->flags[rtverID] |= 0x01;
@@ -459,11 +484,6 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
         }
     }
 
-    /*printf ("%d %d\n", facID, rtverID );*/
-
-    if ( list_seek ( mts->lfse, fse ) == NULL ) {
-        list_insert ( &mts->lfse, fse );
-    }
 
     /*** update this face only ***/
     if ( list_seek ( sdr->lsubfac, fac ) == NULL ) {
@@ -575,7 +595,7 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                                                cam, 
                                                VIEWOBJECT );
 
-            g3dpick_setEpsilon ( 0.0001f );
+            g3dpick_setEpsilon ( 0.001f );
         }
     }
 

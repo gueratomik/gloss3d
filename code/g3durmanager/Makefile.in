@@ -143,8 +143,8 @@ am__objects_1 = g3durmanager.lo urmaddobject.lo urmconvertprimitive.lo \
 	urmuntriangulate.lo urmcreateface.lo urmaddvertex.lo \
 	urmAddTexture.lo urmAddTag.lo urmRemoveTag.lo \
 	urmRemoveTexture.lo urmPaintImage.lo urmAddUVMap.lo \
-	urmMorpherMoveVertices.lo urmRemoveUVMap.lo urmAddMaterial.lo \
-	urmAddMeshPose.lo urmSelectVertexPose.lo \
+	urmSculptFace.lo urmMorpherMoveVertices.lo urmRemoveUVMap.lo \
+	urmAddMaterial.lo urmAddMeshPose.lo urmSelectVertexPose.lo \
 	urmRemoveVertexPose.lo urmSelectMeshPose.lo \
 	urmRemoveMaterial.lo urmCreateFacegroup.lo
 am_libgloss_g3durmanager_la_OBJECTS = $(am__objects_1)
@@ -188,6 +188,7 @@ am__depfiles_remade = ./$(DEPDIR)/g3durmanager.Plo \
 	./$(DEPDIR)/urmRemoveVertexPose.Plo \
 	./$(DEPDIR)/urmRevertSpline.Plo \
 	./$(DEPDIR)/urmRoundSplinePoint.Plo \
+	./$(DEPDIR)/urmSculptFace.Plo \
 	./$(DEPDIR)/urmSelectMeshPose.Plo \
 	./$(DEPDIR)/urmSelectVertexPose.Plo \
 	./$(DEPDIR)/urmSplitMesh.Plo ./$(DEPDIR)/urmaddobject.Plo \
@@ -407,6 +408,7 @@ LIBGLOSSG3DURMANAGER_C_FILES = g3durmanager.c \
                                urmRemoveTexture.c \
                                urmPaintImage.c \
                                urmAddUVMap.c \
+                               urmSculptFace.c \
                                urmMorpherMoveVertices.c \
                                urmRemoveUVMap.c \
                                urmAddMaterial.c \
@@ -518,6 +520,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmRemoveVertexPose.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmRevertSpline.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmRoundSplinePoint.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmSculptFace.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmSelectMeshPose.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmSelectVertexPose.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/urmSplitMesh.Plo@am__quote@ # am--include-marker
@@ -724,6 +727,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/urmRemoveVertexPose.Plo
 	-rm -f ./$(DEPDIR)/urmRevertSpline.Plo
 	-rm -f ./$(DEPDIR)/urmRoundSplinePoint.Plo
+	-rm -f ./$(DEPDIR)/urmSculptFace.Plo
 	-rm -f ./$(DEPDIR)/urmSelectMeshPose.Plo
 	-rm -f ./$(DEPDIR)/urmSelectVertexPose.Plo
 	-rm -f ./$(DEPDIR)/urmSplitMesh.Plo
@@ -810,6 +814,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/urmRemoveVertexPose.Plo
 	-rm -f ./$(DEPDIR)/urmRevertSpline.Plo
 	-rm -f ./$(DEPDIR)/urmRoundSplinePoint.Plo
+	-rm -f ./$(DEPDIR)/urmSculptFace.Plo
 	-rm -f ./$(DEPDIR)/urmSelectMeshPose.Plo
 	-rm -f ./$(DEPDIR)/urmSelectVertexPose.Plo
 	-rm -f ./$(DEPDIR)/urmSplitMesh.Plo

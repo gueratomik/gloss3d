@@ -333,6 +333,20 @@ typedef struct _URMDELETESPLINEPOINTS {
 } URMDELETESPLINEPOINTS;
 
 /******************************************************************************/
+typedef struct _URMSCULPTFACEEXTENSION {
+    G3DFACESCULPTEXTENSION *fse;
+    G3DFACE                *fac;
+    G3DVECTOR              *pos;
+    G3DVECTOR              *nor;
+} URMSCULPTFACEEXTENSION;
+
+/******************************************************************************/
+typedef struct _URMSCULPTFACE {
+    G3DSUBDIVIDER *sdr;
+    LIST          *lusfe;
+} URMSCULPTFACE;
+
+/******************************************************************************/
 typedef struct _G3DURMANAGER {
     LIST *lprocs;
     LIST *lcurprocs;
@@ -878,5 +892,17 @@ void g3durm_objectList_scaleSelectedKeys ( G3DURMANAGER *urm,
                                            float         reference,
                                            uint64_t      engine_flags,
                                            uint32_t      return_flags );
+
+/******************************************************************************/
+URMSCULPTFACEEXTENSION *urmsculptfaceextension_new ( G3DFACESCULPTEXTENSION *fse,
+                                                     G3DFACE                *fac );
+URMSCULPTFACEEXTENSION *urmsculptfaceextension_seek ( LIST                   *lusf,
+                                                      G3DFACESCULPTEXTENSION *fse );
+void urmsculptfaceextension_free ( URMSCULPTFACEEXTENSION *usf );
+
+URMSCULPTFACE *g3durm_mesh_sculptFace ( G3DURMANAGER  *urm,
+                                        G3DSUBDIVIDER *sdr,
+                                        uint64_t       engine_flags,
+                                        uint32_t       return_flags );
 
 #endif

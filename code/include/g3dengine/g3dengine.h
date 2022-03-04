@@ -1332,6 +1332,11 @@ G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint32_t extensionName,
                                                      G3DFACE *fac,
                                                      uint32_t level );
 
+void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
+                                   G3DFACESCULPTEXTENSION *dst );
+
+void g3dfacesculptextension_free ( G3DFACESCULPTEXTENSION *fse );
+
 void g3dfacesculptextension_clearFlags ( G3DFACESCULPTEXTENSION *fse );
 
 void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse, 

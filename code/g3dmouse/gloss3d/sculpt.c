@@ -134,6 +134,7 @@ int sculpt_tool ( G3DMOUSETOOL *mou,
     G3DMOUSETOOLSCULPT *mts = ( G3DMOUSETOOLSCULPT * ) mou;
     static G3DOBJECT *obj = NULL;
     static int VPX[0x04];
+    static URMSCULPTFACE *usf;
 
     if ( engine_flags & VIEWSCULPT ) {
         switch ( event->type ) {
@@ -141,6 +142,17 @@ int sculpt_tool ( G3DMOUSETOOL *mou,
                 G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
                 obj = g3dscene_getLastSelected ( sce );
+
+                if ( obj ) {
+                    if ( obj->type == G3DSUBDIVIDERTYPE ) {
+                        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+
+                        usf = g3durm_mesh_sculptFace ( urm,
+                                                       sdr,
+                                                       engine_flags,
+                                                       REDRAWVIEW );
+                    }
+                }
 
                 /*** init ***/
                 directionChange ( bev->x, bev->y );
@@ -177,6 +189,16 @@ int sculpt_tool ( G3DMOUSETOOL *mou,
 
                 /*** also done in press event ***/
                 list_free ( &mts->lfse, NULL );
+
+                if ( usf ) {
+                    usf->lusfe = mts->lusfe;
+                }
+
+                usf = NULL;
+
+                mts->lusfe = NULL;
+
+                /*list_free ( &mts->lusf, NULL );*/
             } break;
 
             default :

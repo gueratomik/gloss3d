@@ -37,6 +37,7 @@ LIBGLOSSG3DURMANAGER_C_FILES = g3durmanager.c \
                                urmRemoveTexture.c \
                                urmPaintImage.c \
                                urmAddUVMap.c \
+                               urmSculptFace.c \
                                urmMorpherMoveVertices.c \
                                urmRemoveUVMap.c \
                                urmAddMaterial.c \

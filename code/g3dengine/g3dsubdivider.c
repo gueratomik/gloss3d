@@ -35,6 +35,13 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
                                        uint64_t       engine_flags );
 
 /******************************************************************************/
+void g3dfacesculptextension_free ( G3DFACESCULPTEXTENSION *fse ) {
+    if ( fse->nbver ) free ( fse->pos );
+
+    free ( fse );
+}
+
+/******************************************************************************/
 void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
                                      G3DFACE                *fac,
                                      uint32_t                level ) {
@@ -145,8 +152,20 @@ G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint32_t extensionName,
     g3dfacesculptextension_adjust ( fse, fac, level );
 
 
-
     return fse;
+}
+
+/******************************************************************************/
+void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
+                                   G3DFACESCULPTEXTENSION *dst ) {
+    dst->nbver = src->nbver;
+
+    dst->pos = realloc ( dst->pos, sizeof ( G3DVECTOR ) * dst->nbver );
+
+    if ( dst->nbver ) {
+        memcpy ( dst->pos, 
+                 src->pos, sizeof ( G3DVECTOR ) * dst->nbver );
+    }
 }
 
 /******************************************************************************/

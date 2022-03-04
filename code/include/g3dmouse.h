@@ -286,6 +286,7 @@ typedef struct _G3DMOUSETOOLSCULPT {
     float pressure;
     int ctrl_key;
     LIST *lfse; /*** SCULPTFACE list ***/
+    LIST *lusfe; /*** save state for undo / redo ***/
     SCULPTFUNCENUM type;
 } G3DMOUSETOOLSCULPT;
 
