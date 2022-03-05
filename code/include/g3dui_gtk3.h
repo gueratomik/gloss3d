@@ -437,7 +437,7 @@ void       updatePickToolEdit     ( GtkWidget *, G3DMOUSETOOL * );
 GtkWidget *createPickToolEdit     ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
 
-void       updateSculptToolEdit   ( GtkWidget *, G3DUI * );
+void       updateSculptToolEdit   ( GtkWidget *, G3DMOUSETOOL *tool );
 GtkWidget *createSculptToolEdit   ( GtkWidget *, G3DUI *, char *, gint, gint, 
                                                                   gint, gint );
 

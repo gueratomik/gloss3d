@@ -34,7 +34,7 @@ void q3djob_goToFrame ( Q3DJOB *qjob, float frame ) {
     qjob->curframe = frame;
 
     qjob->filters.toframe->draw ( qjob->filters.toframe, 
-                                  NULL,
+                                  qjob,
                                   0x00,
                                   frame,
                                   NULL, 

@@ -447,10 +447,6 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITWIREFRAME          "Wireframe"
 #define EDITWIREFRAMETHICKNESS "Thickness"
 
-#define EDITSCULPTTOOLVISIBLE  "Only visible"
-#define EDITSCULPTTOOLPRESSURE "Pressure"
-#define EDITSCULPTTOOLRADIUS   "Radius"
-
 #define EDITMORPHER            "Morpher"
 
 #define EDITINSTANCE           "Instance"

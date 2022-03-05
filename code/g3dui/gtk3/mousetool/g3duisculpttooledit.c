@@ -29,6 +29,35 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
+#define EDITSCULPTTOOLVISIBLE  "Only visible"
+#define EDITSCULPTTOOLRADIUS   "Radius"
+#define EDITSCULPTTOOLPRESSURE "Pressure"
+
+/******************************************************************************/
+typedef struct _G3DUISCULPTTOOLEDIT {
+    G3DUIWIDGETGROUP grp;
+
+    GtkWidget       *main;
+    GtkWidget       *visibleToggle;
+    GtkWidget       *radiusScale;
+    GtkWidget       *pressureScale;
+
+    G3DLIGHT        *editedLight;
+} G3DUISCULPTTOOLEDIT;
+
+/******************************************************************************/
+static G3DUISCULPTTOOLEDIT *g3duisculptooledit_new ( G3DUI *gui ) {
+    G3DUISCULPTTOOLEDIT *sed = calloc ( 0x01, sizeof ( G3DUISCULPTTOOLEDIT ) );
+
+    if ( sed == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__ );
+    }
+
+    sed->grp.gui = gui;
+
+    return sed; 
+}
+
 /******************************************************************************/
 static void setRadiusCbk  ( GtkWidget *widget, gpointer user_data ) {
     int radius = ( int ) gtk_range_get_value ( GTK_RANGE(widget) );
@@ -54,55 +83,78 @@ static void onlyVisibleCbk  ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-void updateSculptToolEdit ( GtkWidget *widget, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    G3DMOUSETOOL *tool = common_g3dui_getMouseTool ( gui, INFLATETOOL );
+void updateSculptToolEdit ( GtkWidget    *widget, 
+                            G3DMOUSETOOL *tool ) {
+    /*G3DMOUSETOOL *tool = common_g3dui_getMouseTool ( gui, INFLATETOOL );*/
     G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) tool;
+    G3DUISCULPTTOOLEDIT *sed = ( G3DUISCULPTTOOLEDIT * ) 
+                                    g_object_get_data ( G_OBJECT(widget),
+                                                        "private" );
 
     /*** prevent a loop ***/
-    gui->lock = 0x01;
+    sed->grp.gui->lock = 0x01;
+
+    gtk_widget_set_sensitive ( sed->visibleToggle, FALSE );
+    gtk_widget_set_sensitive ( sed->radiusScale  , FALSE );
+    gtk_widget_set_sensitive ( sed->pressureScale, FALSE );
 
     if ( sc ) {
-        while ( children ) {
-            GtkWidget *child = ( GtkWidget * ) children->data;
-            const char *child_name = gtk_widget_get_name ( child );
+        gtk_widget_set_sensitive ( sed->visibleToggle, TRUE );
+        gtk_widget_set_sensitive ( sed->radiusScale  , TRUE );
+        gtk_widget_set_sensitive ( sed->pressureScale, TRUE );
 
-            if ( GTK_IS_CHECK_BUTTON(child) ) {
-                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
+        if ( sc->only_visible ) {
+            gtk_toggle_button_set_active ( sed->visibleToggle, TRUE  );
+        } else {
+            gtk_toggle_button_set_active ( sed->visibleToggle, FALSE );
+        }
 
-                if ( strcmp ( child_name, EDITSCULPTTOOLVISIBLE ) == 0x00 ) {
-                    if ( sc->only_visible ) {
-                        gtk_toggle_button_set_active ( tbn, TRUE  );
-                    } else {
-                        gtk_toggle_button_set_active ( tbn, FALSE );
-                    } 
-                }
-            }
+        gtk_range_set_value ( sed->radiusScale  , sc->radius );
+        gtk_range_set_value ( sed->pressureScale, sc->pressure * 100.0f );
 
-            if ( GTK_IS_SCALE(child) ) {
-                GtkRange *ran = GTK_RANGE(child);
+        switch ( sc->type ) {
+            case SCULPTINFLATE :
 
-                if ( strcmp ( child_name, EDITSCULPTTOOLPRESSURE ) == 0x00 ) {
-                    gtk_range_set_value ( ran, ( sc->pressure * 100.0f ) );
-                }
+            break;
 
-                if ( strcmp ( child_name, EDITSCULPTTOOLRADIUS ) == 0x00 ) {
-                    gtk_range_set_value ( ran, sc->radius );
-                }
-            }
+            case SCULPTCREASE :
 
-            children =  g_list_next ( children );
+            break;
+
+            case SCULPTFLATTEN :
+
+            break;
+
+            case SCULPTSMOOTH :
+
+            break;
+
+            case SCULPTUNSCULPT :
+
+            break;
+
+            default :
+
+            break;
         }
     }
 
-    gui->lock = 0x00;
+    sed->grp.gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void Destroy ( GtkWidget *widget, gpointer user_data ) {
+    G3DUISCULPTTOOLEDIT *sed = ( G3DUISCULPTTOOLEDIT * ) user_data;
+
+    free ( sed );
 }
 
 /******************************************************************************/
 static void Realize ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUISCULPTTOOLEDIT *sed = ( G3DUISCULPTTOOLEDIT * ) user_data;
+    G3DUI *gui = sed->grp.gui;
 
-    updateSculptToolEdit ( widget, gui );
+    updateSculptToolEdit ( widget, gui->mou );
 }
 
 /******************************************************************************/
@@ -114,8 +166,11 @@ GtkWidget *createSculptToolEdit ( GtkWidget *parent, G3DUI *gui,
                                                      gint height ) {
     GdkRectangle gdkrec = { x, y, width, height };
     GtkWidget *frm, *ptf, *fix;
+    G3DUISCULPTTOOLEDIT *sed = g3duisculptooledit_new ( gui );
 
     frm = gtk_fixed_new ( );
+
+    g_object_set_data ( G_OBJECT(frm), "private", (gpointer) sed );
 
     gtk_widget_set_name ( frm, name );
 
@@ -123,19 +178,28 @@ GtkWidget *createSculptToolEdit ( GtkWidget *parent, G3DUI *gui,
 
     gtk_fixed_put ( GTK_FIXED(parent), frm, x, y );
 
-    g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), gui );
-
+    g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), sed );
+    g_signal_connect ( G_OBJECT (frm), "destroy", G_CALLBACK (Destroy), sed );
  
-    createToggleLabel     ( frm, gui, EDITSCULPTTOOLVISIBLE,
-                                  0,   0,  96,  32, onlyVisibleCbk  );
+    sed->visibleToggle = createToggleLabel ( frm,
+                                             gui,
+                                             EDITSCULPTTOOLVISIBLE,
+                                             0,   0,  96,  32,
+                                             onlyVisibleCbk  );
 
-    createHorizontalScale ( frm, gui, EDITSCULPTTOOLPRESSURE, 
-                                  0,  32, 256,  32,
-                                 0.0f, 100.0f, 1.0f, setPressureCbk );
+    sed->pressureScale = createHorizontalScale ( frm, 
+                                                 gui,
+                                                 EDITSCULPTTOOLPRESSURE, 
+                                                 0,  32, 256,  32,
+                                                 0.0f, 100.0f, 1.0f,
+                                                 setPressureCbk );
 
-    createHorizontalScale ( frm, gui, EDITSCULPTTOOLRADIUS, 
-                                  0,  64, 256,  32,
-                                 0.0f, 100.0f, 1.0f, setRadiusCbk   );
+    sed->radiusScale = createHorizontalScale ( frm, 
+                                               gui,
+                                               EDITSCULPTTOOLRADIUS, 
+                                               0,  64, 256,  32,
+                                               0.0f, 100.0f, 1.0f, 
+                                               setRadiusCbk   );
 
     gtk_widget_show ( frm );
 

@@ -221,30 +221,30 @@ uint32_t g3dsubdivider_hasScultMaps ( G3DSUBDIVIDER *sdr ) {
 }
 
 /******************************************************************************/
-static void g3dsubdivider_pick ( G3DSUBDIVIDER *sdr,
-                                 G3DCAMERA     *curcam, 
-                                 uint64_t       engine_flags ) {
+static void g3dsubdivider_modpick ( G3DSUBDIVIDER *sdr,
+                                    G3DCAMERA     *curcam, 
+                                    uint64_t       engine_flags ) {
     if ( g3dobject_isActive ( ( G3DOBJECT * ) sdr ) ) {
-        if ( engine_flags & VIEWSCULPT ) {
-            if ( g3dobject_isSelected ( ( G3DOBJECT * ) sdr ) ) {
-                if ( sdr->subdiv_preview ) {
-                    if ( sdr->mod.oriobj ) {
-                        if ( sdr->mod.oriobj->type & MESH ) {
-                            G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
-                            G3DRTQUAD   *rtquamem;
-                            LIST *ltmpfac = mes->lfac;
-                            uint32_t facID = 0x00;
+        if ( g3dobject_isSelected ( ( G3DOBJECT * ) sdr ) ) {
+            if ( sdr->subdiv_preview ) {
+                if ( sdr->mod.oriobj ) {
+                    if ( sdr->mod.oriobj->type & MESH ) {
+                        G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
 
-                            while ( ltmpfac ) {
-                                G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
-                                uint32_t nbrtver = ( fac->nbver == 0x03 ) ? sdr->nbVerticesPerTriangle :
-                                                                            sdr->nbVerticesPerQuad;
-                                G3DRTVERTEX *rtvermem = fac->rtvermem;
-                                uint32_t nbrtqua;
-                                uint32_t i, j;
+                        LIST *ltmpfac = mes->lfac;
+                        uint32_t facID = 0x00;
 
-                                fac->id = facID++;
+                        while ( ltmpfac ) {
+                            G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
+                            uint32_t nbrtver = ( fac->nbver == 0x03 ) ? sdr->nbVerticesPerTriangle :
+                                                                        sdr->nbVerticesPerQuad;
+                            G3DRTVERTEX *rtvermem = fac->rtvermem;
+                            uint32_t nbrtqua;
+                            uint32_t i, j;
 
+                            fac->id = facID++;
+
+                            if ( engine_flags & VIEWSCULPT ) {
                                 for ( i = 0x00; i < nbrtver; i++ ) {
                                     uint64_t name = ( ( uint64_t ) fac->id << 0x20 ) |
                                                       ( uint64_t ) i;
@@ -256,9 +256,40 @@ static void g3dsubdivider_pick ( G3DSUBDIVIDER *sdr,
                                                         rtver->pos.y, 
                                                         rtver->pos.z );
                                 }
-
-                                _NEXTFACE(mes,ltmpfac);
                             }
+
+                            if ( engine_flags & VIEWOBJECT ) {
+                                uint32_t nbrtfac  = ( fac->nbver == 0x04 ) ? sdr->nbFacesPerQuad : sdr->nbFacesPerTriangle;
+                                G3DRTQUAD *rtquamem = sdr->rtquamem;
+
+                                for ( i = 0x00; i < nbrtfac; i++ ) {
+                                    G3DRTQUAD *rtfac = rtquamem++;
+                                    uint32_t ID0 = rtfac->rtver[0x00];
+                                    uint32_t ID1 = rtfac->rtver[0x01];
+                                    uint32_t ID2 = rtfac->rtver[0x02];
+                                    uint32_t ID3 = rtfac->rtver[0x03];
+                                    G3DRTVERTEX *rtver0 = &rtvermem[ID0],
+                                                *rtver1 = &rtvermem[ID1],
+                                                *rtver2 = &rtvermem[ID2],
+                                                *rtver3 = &rtvermem[ID3];
+
+                                    g3dpick_drawFace ( 0x04,
+                                                       rtver0->pos.x, 
+                                                       rtver0->pos.y,
+                                                       rtver0->pos.z,
+                                                       rtver1->pos.x,
+                                                       rtver1->pos.y,
+                                                       rtver1->pos.z,
+                                                       rtver2->pos.x,
+                                                       rtver2->pos.y,
+                                                       rtver2->pos.z,
+                                                       rtver3->pos.x,
+                                                       rtver3->pos.y,
+                                                       rtver3->pos.z );
+                                }
+                            }
+
+                            _NEXTFACE(mes,ltmpfac);
                         }
                     }
                 }
@@ -833,7 +864,10 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
             uint32_t subdiv_preview = sdr->subdiv_preview;
 
             /*** force subdiv level to 1 if scene is playing ***/ 
-            if ( engine_flags & ONGOINGANIMATION ) {
+            if (   ( engine_flags & ONGOINGANIMATION ) &&
+                  /*** this flag to prevent subdivider ***/
+                  /*** from recomputing when rendering ***/
+                 ( ( engine_flags & ONGOINGRENDERING ) == 0x00 ) ) {
                 sdr->subdiv_preview = 0x01;
             }
 
@@ -877,7 +911,10 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
                 list_free ( &sdr->lsubfac, NULL );
             }
 
-            if ( engine_flags & ONGOINGANIMATION ) {
+            if (   ( engine_flags & ONGOINGANIMATION ) &&
+                  /*** this flag to prevent subdivider ***/
+                  /*** from recomputing when rendering ***/
+                 ( ( engine_flags & ONGOINGRENDERING ) == 0x00 ) ) {
                 sdr->subdiv_preview = subdiv_preview;
             }
 
@@ -1233,7 +1270,7 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
                                                          SYNCLEVELS,
                                            DRAW_CALLBACK(NULL),
                                            FREE_CALLBACK(g3dsubdivider_free),
-                                           PICK_CALLBACK(g3dsubdivider_pick),
+                                           PICK_CALLBACK(NULL),
                                                          NULL,
                                            COPY_CALLBACK(g3dsubdivider_copy),
                                        ACTIVATE_CALLBACK(g3dsubdivider_activate),
@@ -1248,6 +1285,7 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
     ((G3DOBJECT*)sdr)->update = UPDATE_CALLBACK(g3dsubdivider_update);
 
     mod->moddraw = MODDRAW_CALLBACK(g3dsubdivider_moddraw);
+    mod->modpick = MODPICK_CALLBACK(g3dsubdivider_modpick);
 }
 
 /******************************************************************************/

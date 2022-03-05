@@ -49,7 +49,11 @@ void updateCurrentMouseTool ( GtkWidget *widget, G3DUI *gui ) {
                 if ( strcmp ( mou->name, ROTATEUVTOOL ) == 0x00 ) updatePickToolEdit    ( child, mou );
                 if ( strcmp ( mou->name, SCALEUVTOOL  ) == 0x00 ) updatePickToolEdit    ( child, mou );
                 if ( strcmp ( mou->name, CUTMESHTOOL  ) == 0x00 ) updateCutMeshToolEdit ( child, gui );
-                if ( strcmp ( mou->name, INFLATETOOL  ) == 0x00 ) updateSculptToolEdit  ( child, gui );
+                if ( strcmp ( mou->name, INFLATETOOL  ) == 0x00 ) updateSculptToolEdit  ( child, mou );
+                if ( strcmp ( mou->name, SMOOTHTOOL   ) == 0x00 ) updateSculptToolEdit  ( child, mou );
+                if ( strcmp ( mou->name, CREASETOOL   ) == 0x00 ) updateSculptToolEdit  ( child, mou );
+                if ( strcmp ( mou->name, FLATTENTOOL  ) == 0x00 ) updateSculptToolEdit  ( child, mou );
+                if ( strcmp ( mou->name, UNSCULPTTOOL ) == 0x00 ) updateSculptToolEdit  ( child, mou );
 
                 gtk_widget_show ( child );
             } else {
@@ -129,6 +133,10 @@ GtkWidget *createG3DMouseToolEdit ( GtkWidget *parent,
     createPickToolEdit    ( frm, gui, SCALEUVTOOL , 0, 0, 320, 192 );
     createCutMeshToolEdit ( frm, gui, CUTMESHTOOL , 0, 0, 320, 320 );
     createSculptToolEdit  ( frm, gui, INFLATETOOL , 0, 0, 320, 192 );
+    createSculptToolEdit  ( frm, gui, SMOOTHTOOL  , 0, 0, 320, 192 );
+    createSculptToolEdit  ( frm, gui, CREASETOOL  , 0, 0, 320, 192 );
+    createSculptToolEdit  ( frm, gui, FLATTENTOOL , 0, 0, 320, 192 );
+    createSculptToolEdit  ( frm, gui, UNSCULPTTOOL, 0, 0, 320, 192 );
 
     list_insert ( &gui->lmtools, frm );
 

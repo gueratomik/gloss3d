@@ -30,6 +30,32 @@
 #include <g3dengine/g3dengine.h>
 
 /*****************************************************************************/
+uint32_t g3dmodifier_modpick ( G3DMODIFIER *mod,
+                               G3DCAMERA   *curcam, 
+                               uint64_t     engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) mod;
+
+    /*** default color for all objects ***/
+    glColor3ub ( 0xFF, 0xFF, 0xFF );
+
+    glPushMatrix ( );
+    glMultMatrixd ( obj->lmatrix );
+
+    if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
+    else                               glFrontFace(  GL_CCW );
+
+    if ( mod->modpick ) mod->modpick ( mod, curcam, engine_flags );
+
+    if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
+    else                               glFrontFace(  GL_CW  );
+
+    glPopMatrix ( );
+
+
+    return 0x00;
+}
+
+/*****************************************************************************/
 uint32_t g3dmodifier_moddraw ( G3DMODIFIER *mod,
                                G3DCAMERA   *curcam, 
                                uint64_t     engine_flags ) {

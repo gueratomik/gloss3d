@@ -30,9 +30,9 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duisculpttooledit_setRadiusCbk ( G3DUI *gui, int radius ) {
-    G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, INFLATETOOL );
-    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) mou;
+void common_g3duisculpttooledit_setRadiusCbk ( G3DUI *gui,
+                                               int    radius ) {
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->mou;
 
     if ( gui->lock ) return;
 
@@ -42,9 +42,9 @@ void common_g3duisculpttooledit_setRadiusCbk ( G3DUI *gui, int radius ) {
 }
 
 /******************************************************************************/
-void common_g3duisculpttooledit_setPressureCbk ( G3DUI *gui, float pressure ) {
-    G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, INFLATETOOL );
-    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) mou;
+void common_g3duisculpttooledit_setPressureCbk ( G3DUI *gui,
+                                                 float  pressure ) {
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->mou;
 
     if ( gui->lock ) return;
 
@@ -54,13 +54,13 @@ void common_g3duisculpttooledit_setPressureCbk ( G3DUI *gui, float pressure ) {
 }
 
 /******************************************************************************/
-void common_g3duisculpttooledit_onlyVisibleCbk ( G3DUI *gui, int visible_only ) {
-    G3DMOUSETOOL *mou = common_g3dui_getMouseTool ( gui, INFLATETOOL );
-    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) mou;
+void common_g3duisculpttooledit_onlyVisibleCbk ( G3DUI *gui,
+                                                 int    visible ) {
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->mou;
 
     if ( gui->lock ) return;
 
     if ( sc ) {
-        sc->only_visible = visible_only;
+        sc->only_visible = visible;
     }
 }

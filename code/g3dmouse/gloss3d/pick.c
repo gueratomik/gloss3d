@@ -453,9 +453,9 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
 
     if ( mts->type == SCULPTINFLATE ) {
         if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
-            fse->pos[rtverID].x += ( usfe->nor[rtverID].x * 0.01f );
-            fse->pos[rtverID].y += ( usfe->nor[rtverID].y * 0.01f );
-            fse->pos[rtverID].z += ( usfe->nor[rtverID].z * 0.01f );
+            fse->pos[rtverID].x += ( usfe->nor[rtverID].x * 0.01f * mts->pressure );
+            fse->pos[rtverID].y += ( usfe->nor[rtverID].y * 0.01f * mts->pressure );
+            fse->pos[rtverID].z += ( usfe->nor[rtverID].z * 0.01f * mts->pressure );
             fse->pos[rtverID].w  = 1.0f;
 
             fse->flags[rtverID] |= 0x01;
@@ -464,9 +464,9 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
 
     if ( mts->type == SCULPTCREASE ) {
         if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
-            fse->pos[rtverID].x -= ( usfe->nor[rtverID].x * 0.01f );
-            fse->pos[rtverID].y -= ( usfe->nor[rtverID].y * 0.01f );
-            fse->pos[rtverID].z -= ( usfe->nor[rtverID].z * 0.01f );
+            fse->pos[rtverID].x -= ( usfe->nor[rtverID].x * 0.01f * mts->pressure );
+            fse->pos[rtverID].y -= ( usfe->nor[rtverID].y * 0.01f * mts->pressure );
+            fse->pos[rtverID].z -= ( usfe->nor[rtverID].z * 0.01f * mts->pressure );
             fse->pos[rtverID].w  = 1.0f;
 
             fse->flags[rtverID] |= 0x01;
@@ -595,7 +595,7 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                                                cam, 
                                                VIEWOBJECT );
 
-            g3dpick_setEpsilon ( 0.001f );
+            g3dpick_setEpsilon ( 0.00001f );
         }
     }
 

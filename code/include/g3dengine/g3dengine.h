@@ -1370,6 +1370,9 @@ struct _G3DKEY {
 #define MODDRAW_CALLBACK(f)      ((uint32_t(*) (G3DMODIFIER*, \
                                                 G3DCAMERA*,  \
                                                 uint64_t))f)
+#define MODPICK_CALLBACK(f)      ((uint32_t(*) (G3DMODIFIER*, \
+                                                G3DCAMERA*,  \
+                                                uint64_t))f)
 
 /******************************************************************************/
 typedef struct _G3DMODIFIER {
@@ -1378,6 +1381,9 @@ typedef struct _G3DMODIFIER {
                                      G3DMODIFYOP  op,
                                      uint64_t     engine_flags );
     uint32_t (*moddraw)    ( struct _G3DMODIFIER *mod,
+                                     G3DCAMERA   *curcam,
+                                     uint64_t     engine_flags );
+    uint32_t (*modpick)    ( struct _G3DMODIFIER *mod,
                                      G3DCAMERA   *curcam,
                                      uint64_t     engine_flags );
     G3DOBJECT *oriobj; /*** original mesh   ***/
@@ -3257,6 +3263,9 @@ void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
 
 /******************************************************************************/
 uint32_t g3dmodifier_moddraw ( G3DMODIFIER *mod,
+                               G3DCAMERA   *curcam, 
+                               uint64_t     engine_flags );
+uint32_t g3dmodifier_modpick ( G3DMODIFIER *mod,
                                G3DCAMERA   *curcam, 
                                uint64_t     engine_flags );
 
