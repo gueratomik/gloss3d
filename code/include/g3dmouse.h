@@ -248,6 +248,7 @@ typedef struct _G3DMOUSETOOLPICK {
     float weight;          /*** Paint weight                       ***/
     uint32_t operation;    /*** Add (0x01) or remove (0x00) weight ***/
     uint32_t radius;
+    int circular;
 } G3DMOUSETOOLPICK, 
   G3DMOUSETOOLPICKUV,
   G3DMOUSETOOLMOVE,
@@ -281,6 +282,7 @@ typedef struct _G3DMOUSETOOLSCULPT {
     float weight;          /*** Paint weight                       ***/
     uint32_t operation;    /*** Add (0x01) or remove (0x00) weight ***/
     uint32_t radius;
+    int circular;
 
 
     float pressure;

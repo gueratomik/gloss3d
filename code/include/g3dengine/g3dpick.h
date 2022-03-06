@@ -115,7 +115,7 @@ void g3dpick_setViewportMatrix   ( int    *VPX );
  * Set the area matrix.
  * @param AMX The area matrix.
  */
-void g3dpick_setAreaMatrix   ( int    *AMX );
+void g3dpick_setAreaMatrix   ( int    *AMX, int circle );
 
 /**
  * Set the callback when primitive is drawn.

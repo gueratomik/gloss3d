@@ -30,6 +30,28 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+void common_g3duisculpttooledit_setCircularCbk ( G3DUI *gui ) {
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->mou;
+
+    if ( gui->lock ) return;
+
+    if ( sc ) {
+        sc->circular = 0x01;
+    }
+}
+
+/******************************************************************************/
+void common_g3duisculpttooledit_unsetCircularCbk ( G3DUI *gui ) {
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->mou;
+
+    if ( gui->lock ) return;
+
+    if ( sc ) {
+        sc->circular = 0x00;
+    }
+}
+
+/******************************************************************************/
 void common_g3duisculpttooledit_setRadiusCbk ( G3DUI *gui,
                                                int    radius ) {
     G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->mou;

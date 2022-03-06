@@ -1413,9 +1413,11 @@ void common_g3duipicktooledit_setWeightCbk   ( G3DUI *, float );
 void common_g3duipicktooledit_paintRadiusCbk ( G3DUI *, float );
 
 /**************************** SculptTool Edit  **********************************/
-void common_g3duisculpttooledit_setRadiusCbk   ( G3DUI *, int    );
-void common_g3duisculpttooledit_setPressureCbk ( G3DUI *, float  );
-void common_g3duisculpttooledit_onlyVisibleCbk ( G3DUI *, int    );
+void common_g3duisculpttooledit_setRadiusCbk     ( G3DUI *gui, int    );
+void common_g3duisculpttooledit_setPressureCbk   ( G3DUI *gui, float  );
+void common_g3duisculpttooledit_onlyVisibleCbk   ( G3DUI *gui, int    );
+void common_g3duisculpttooledit_unsetCircularCbk ( G3DUI *gui );
+void common_g3duisculpttooledit_setCircularCbk   ( G3DUI *gui );
 
 /****************************** UVMap Edit  ***********************************/
 void common_g3duiuvmap_lockUVMapCbk  ( G3DUI * );

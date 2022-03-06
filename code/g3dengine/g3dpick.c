@@ -57,19 +57,20 @@ typedef struct _G3DPICKHLINE {
 
 /******************************************************************************/
 typedef struct _G3DPICK {
-    double        MVX[0x10];
-    double        PJX[0x10];
-    int           VPX[0x04];
-    int           AMX[0x04]; /* pick matrix */
-    float        *buffer;
-    G3DPICKHLINE *hlines;
-    float         epsilon;
-    uint64_t      userName;
-    void         *userData;
-    uint32_t    (*userAction) ( uint64_t userName, void *userData );
-    uint32_t      flags;
-    float         zNear;
-    float         zFar;
+    double          MVX[0x10];
+    double          PJX[0x10];
+    int             VPX[0x04];
+    int             AMX[0x04]; /* pick matrix */
+    float          *buffer;
+    G3DPICKHLINE   *hlines;
+    float           epsilon;
+    uint64_t        userName;
+    void           *userData;
+    uint32_t      (*userAction) ( uint64_t userName, void *userData );
+    uint32_t        flags;
+    float           zNear;
+    float           zFar;
+    unsigned char  *mask;
     G3DDOUBLEVECTOR frustrum[CLIPPINGPLANES];
 } G3DPICK;
 
@@ -248,14 +249,14 @@ static uint32_t g3dpick_point ( G3DPICK       *pick,
         /*** add some epsilon against Z fghting ***/
         float depth = pick->buffer[offset] + pick->epsilon;
 
-        if  ( ( ( pick->flags & ENABLEDEPTHTEST ) == 0x00 ) ||
-              ( ( pick->flags & ENABLEDEPTHTEST ) && ( z <= depth ) ) ) {
-            pick->buffer[offset] = z;
-
-            if ( pick->userAction && 
-                 pick->userAction ( pick->userName, 
-                                    pick->userData ) ) {
-                return 0x01;
+        if ( pick->mask[offset] ) {
+            if  ( ( ( pick->flags & ENABLEDEPTHTEST ) == 0x00 ) ||
+                  ( ( pick->flags & ENABLEDEPTHTEST ) && ( z <= depth ) ) ) {
+                if ( pick->userAction && 
+                     pick->userAction ( pick->userName, 
+                                        pick->userData ) ) {
+                    return 0x01;
+                }
             }
         }
     }
@@ -288,14 +289,14 @@ static uint32_t g3dpick_line ( G3DPICK       *pick,
                 /*** add some epsilon against Z fghting ***/
                 float depth = pick->buffer[offset] + pick->epsilon;
 
-                if  ( ( ( pick->flags & ENABLEDEPTHTEST ) == 0x00 ) ||
-                      ( ( pick->flags & ENABLEDEPTHTEST ) && ( z <= depth ) ) ) {
-                    pick->buffer[offset] = z;
-
-                    if ( pick->userAction && 
-                         pick->userAction ( pick->userName, 
-                                            pick->userData ) ) {
-                        return 0x01;
+                if ( pick->mask[offset] ) {
+                    if  ( ( ( pick->flags & ENABLEDEPTHTEST ) == 0x00 ) ||
+                          ( ( pick->flags & ENABLEDEPTHTEST ) && ( z <= depth ) ) ) {
+                        if ( pick->userAction && 
+                             pick->userAction ( pick->userName, 
+                                                pick->userData ) ) {
+                            return 0x01;
+                        }
                     }
                 }
             }
@@ -317,14 +318,14 @@ static uint32_t g3dpick_line ( G3DPICK       *pick,
                 /*** add some epsilon against Z fghting ***/
                 float depth = pick->buffer[offset] + pick->epsilon;
 
-                if  ( ( ( pick->flags & ENABLEDEPTHTEST ) == 0x00 ) ||
-                      ( ( pick->flags & ENABLEDEPTHTEST ) && ( z <= depth ) ) ) {
-                    pick->buffer[offset] = z;
-
-                    if ( pick->userAction && 
-                         pick->userAction ( pick->userName, 
-                                            pick->userData ) ) {
-                        return 0x01;
+                if ( pick->mask[offset] ) {
+                    if  ( ( ( pick->flags & ENABLEDEPTHTEST ) == 0x00 ) ||
+                          ( ( pick->flags & ENABLEDEPTHTEST ) && ( z <= depth ) ) ) {
+                        if ( pick->userAction && 
+                             pick->userAction ( pick->userName, 
+                                                pick->userData ) ) {
+                            return 0x01;
+                        }
                     }
                 }
             }
@@ -446,15 +447,15 @@ static uint32_t g3dpick_fillFaceLine ( G3DPICK *pick,
 
         if ( ( x >= pick->AMX[0x00] ) && 
              ( x <= pick->AMX[0x02] ) ) {
-            if  ( ( ( pick->flags & ENABLEDEPTHTEST ) == 0x00 ) ||
-                  ( ( pick->flags & ENABLEDEPTHTEST ) && ( z <= depth ) ) ) {
-                pick->buffer[offset] = z;
+            if ( pick->mask[offset] ) {
+                if  ( ( ( pick->flags & ENABLEDEPTHTEST ) == 0x00 ) ||
+                      ( ( pick->flags & ENABLEDEPTHTEST ) && ( z <= depth ) ) ) {
+                    if ( pick->userAction && 
+                         pick->userAction ( pick->userName, 
+                                            pick->userData ) ) {
 
-                if ( pick->userAction && 
-                     pick->userAction ( pick->userName, 
-                                        pick->userData ) ) {
-
-                    return 0x01;
+                        return 0x01;
+                    }
                 }
             }
         }
@@ -730,10 +731,30 @@ void g3dpick_clear ( ) {
     if ( pick ) {
         uint32_t i;
 
-        for ( i = 0x00; i < ( pick->VPX[0x02] * pick->VPX[0x03] ); i++ ) {
-                /*** Set vectors Z-value to the maximum Z depth, in order to ***/
-                /*** be able to sort them later. ***/
-                pick->buffer[i] = 1.0f;
+        if ( ( pick->flags & ENABLEDEPTHTEST ) ) {
+        /*** Note: we could readpixels for the whole viewport, but we ***/
+        /*** restrict ourselves to the picking area for performance issues**/
+            uint32_t width  = pick->AMX[0x02] - pick->AMX[0x00] + 0x01,
+                     height = pick->AMX[0x03] - pick->AMX[0x01] + 0x01;
+
+            for ( i = 0x00; i < height; i++ ) {
+                uint32_t offset = ( ( pick->AMX[0x01] + i ) * pick->VPX[0x02] ) + 
+                                      pick->AMX[0x00];
+
+                glReadPixels ( pick->AMX[0x00],
+                               pick->AMX[0x01] + i,
+                               width,
+                               0x01,
+                               GL_DEPTH_COMPONENT,
+                               GL_FLOAT,
+                               pick->buffer + offset );
+            }
+
+
+            /*** commented out. We now use glreadpixels to retrieve the values ***/
+            /*for ( i = 0x00; i < ( pick->VPX[0x02] * pick->VPX[0x03] ); i++ ) {
+                    pick->buffer[i] = 1.0f;
+            }*/
         }
     }
 
@@ -763,10 +784,44 @@ void g3dpick_setProjectionMatrix ( double *PJX ) {
 }
 
 /******************************************************************************/
-void g3dpick_setAreaMatrix ( int *AMX ) {
+void g3dpick_setAreaMatrix ( int *AMX, int circle ) {
     G3DPICK *pick = g3dpick_get ( );
 
     if ( pick ) {
+        uint32_t width  = pick->AMX[0x02] - pick->AMX[0x00] + 0x01,
+                 height = pick->AMX[0x03] - pick->AMX[0x01] + 0x01;
+        uint32_t i;
+/*
+        memset ( pick->mask, 0x00, pick->VPX[0x02] * pick->VPX[0x03] );
+*/
+        for ( i = 0x00; i < height; i++ ) {
+            uint32_t offset = ( ( pick->AMX[0x01] + i ) * pick->VPX[0x02] ) + 
+                                  pick->AMX[0x00];
+
+            memset ( pick->mask + offset, 0xFF, width );
+        }
+
+        if ( circle ) {
+            uint32_t midx = width  * 0.5f,
+                     midy = height * 0.5f;
+            uint32_t radius = width * 0.5f;
+            uint32_t r2 = radius * radius;
+            uint32_t j;
+
+            for ( i = 0x00; i < height; i++ ) {
+                for ( j = 0x00; j < width; j++ ) {
+                    uint32_t offset = ( ( pick->AMX[0x01] + i ) * pick->VPX[0x02] ) + 
+                                        ( pick->AMX[0x00] + j );
+                    int x = ( int ) j - midx,
+                        y = ( int ) i - midy;
+
+                    if ( ( ( y * y ) + ( x * x ) ) > r2 ) {
+                        pick->mask[offset] = 0x00;
+                    }
+                }
+            }
+        }
+
         memcpy ( pick->AMX, AMX, sizeof ( int ) * 0x04 );
     }
 }
@@ -782,6 +837,8 @@ void g3dpick_setViewportMatrix ( int *VPX ) {
         memcpy ( pick->VPX, VPX, sizeof ( int ) * 0x04 );
 
         pick->buffer = ( float * ) realloc ( pick->buffer, buffersize );
+
+        pick->mask = realloc ( pick->mask, pick->VPX[0x02] * pick->VPX[0x03] );
 
         pick->hlines = ( G3DPICKHLINE * ) realloc ( pick->hlines, hlinesize );
     }

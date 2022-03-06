@@ -580,24 +580,28 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
     /*** is mandatory ***/
     g3dpick_setViewportMatrix   ( VPX   );
     g3dpick_setProjectionMatrix ( PJX   );
-    g3dpick_setAreaMatrix       ( pt->coord );
-
-    /*** clear must be called once the VPX is set ***/
-    g3dpick_clear ( );
+    g3dpick_setAreaMatrix       ( pt->coord, pt->circular );
 
     if ( ( ( engine_flags & VIEWVERTEXUV ) == 0x00 ) &&
          ( ( engine_flags & VIEWFACEUV   ) == 0x00 ) ) {
         if ( pt->only_visible ) {
             g3dpick_enableDepthTest  ( );
+
+
+/*** commented out: we now use glreadpixel to get the depth value ****/
+/*
             g3dpick_setAction ( NULL, NULL );
 
             g3dobject_pick_r ( ( G3DOBJECT * ) sce, 
                                                cam, 
                                                VIEWOBJECT );
-
-            g3dpick_setEpsilon ( 0.00001f );
+*/
+            g3dpick_setEpsilon ( 0.0001f );
         }
     }
+
+    /*** clear must be called once the VPX is set and depth test is toggled ***/
+    g3dpick_clear ( );
 
     if ( engine_flags & VIEWOBJECT ) {
         SCENEPICKDATA cpd = { .sce   =  sce,
@@ -855,7 +859,7 @@ void pick_cursor ( G3DMOUSETOOLPICK *pt,
 
     g3dpick_setViewportMatrix   ( VPX   );
     g3dpick_setProjectionMatrix ( PJX   );
-    g3dpick_setAreaMatrix       ( pt->coord );
+    g3dpick_setAreaMatrix       ( pt->coord, 0 );
 
     /*** clear must be called once the VPX is set ***/
     g3dpick_clear ( );

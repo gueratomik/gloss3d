@@ -32,6 +32,8 @@
 #define EDITSCULPTTOOLVISIBLE  "Only visible"
 #define EDITSCULPTTOOLRADIUS   "Radius"
 #define EDITSCULPTTOOLPRESSURE "Pressure"
+#define EDITSCULPTTOOLSQUARED  "Squared pattern"
+#define EDITSCULPTTOOLCIRCULAR "Circular pattern"
 
 /******************************************************************************/
 typedef struct _G3DUISCULPTTOOLEDIT {
@@ -80,6 +82,22 @@ static void onlyVisibleCbk  ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui    = ( G3DUI * ) user_data;
 
     common_g3duisculpttooledit_onlyVisibleCbk ( gui, visible_only );
+}
+
+/******************************************************************************/
+static void setCircularCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duisculpttooledit_setCircularCbk ( gui );
+}
+
+/******************************************************************************/
+static void unsetCircularCbk ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3duisculpttooledit_unsetCircularCbk ( gui );
 }
 
 /******************************************************************************/
@@ -165,8 +183,9 @@ GtkWidget *createSculptToolEdit ( GtkWidget *parent, G3DUI *gui,
                                                      gint width,
                                                      gint height ) {
     GdkRectangle gdkrec = { x, y, width, height };
-    GtkWidget *frm, *ptf, *fix;
+    GtkWidget *frm, *ptf, *fix, *btn;
     G3DUISCULPTTOOLEDIT *sed = g3duisculptooledit_new ( gui );
+
 
     frm = gtk_fixed_new ( );
 
@@ -184,20 +203,50 @@ GtkWidget *createSculptToolEdit ( GtkWidget *parent, G3DUI *gui,
     sed->visibleToggle = createToggleLabel ( frm,
                                              gui,
                                              EDITSCULPTTOOLVISIBLE,
-                                             0,   0,  96,  32,
+                                             0,   0,  96,  24,
                                              onlyVisibleCbk  );
+
+          /*** Use image as texture ***/
+    btn = createRadioLabel ( frm, gui,
+                                  EDITSCULPTTOOLSQUARED,
+                                  btn,
+                                     0, 24, 96, 18,
+                                   unsetCircularCbk );
+
+          /*** Use image as texture ***/
+          createRadioLabel ( frm, gui,
+                                   EDITSCULPTTOOLCIRCULAR,
+                                   btn,
+                                     0, 48, 96, 18,
+                                   setCircularCbk );
+
+    createSimpleLabel ( frm, 
+                        gui,
+                        EDITSCULPTTOOLPRESSURE,
+                        0, 
+                        72,
+                        48,
+                        24 );
 
     sed->pressureScale = createHorizontalScale ( frm, 
                                                  gui,
                                                  EDITSCULPTTOOLPRESSURE, 
-                                                 0,  32, 256,  32,
+                                                 64,  72, 224,  32,
                                                  0.0f, 100.0f, 1.0f,
                                                  setPressureCbk );
+
+    createSimpleLabel ( frm, 
+                        gui,
+                        EDITSCULPTTOOLRADIUS,
+                        0, 
+                        96,
+                        48,
+                        24 );
 
     sed->radiusScale = createHorizontalScale ( frm, 
                                                gui,
                                                EDITSCULPTTOOLRADIUS, 
-                                               0,  64, 256,  32,
+                                               64,  96, 224,  32,
                                                0.0f, 100.0f, 1.0f, 
                                                setRadiusCbk   );
 

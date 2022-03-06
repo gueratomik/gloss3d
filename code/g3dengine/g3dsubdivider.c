@@ -257,7 +257,7 @@ static void g3dsubdivider_modpick ( G3DSUBDIVIDER *sdr,
                                                         rtver->pos.z );
                                 }
                             }
-
+/*
                             if ( engine_flags & VIEWOBJECT ) {
                                 uint32_t nbrtfac  = ( fac->nbver == 0x04 ) ? sdr->nbFacesPerQuad : sdr->nbFacesPerTriangle;
                                 G3DRTQUAD *rtquamem = sdr->rtquamem;
@@ -288,6 +288,7 @@ static void g3dsubdivider_modpick ( G3DSUBDIVIDER *sdr,
                                                        rtver3->pos.z );
                                 }
                             }
+*/
 
                             _NEXTFACE(mes,ltmpfac);
                         }
