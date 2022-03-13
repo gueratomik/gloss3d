@@ -930,7 +930,7 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
 static void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr,
                                      uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
-    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, EDITABLE );
 
     if ( parent ) {
         g3dmesh_modify ( (G3DMESH*) parent, 
@@ -943,7 +943,7 @@ static void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr,
 static void g3dsubdivider_deactivate ( G3DSUBDIVIDER *sdr, 
                                        uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
-    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, EDITABLE );
 
     if ( parent ) {
         g3dmesh_modify ( (G3DMESH*) parent, 

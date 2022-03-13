@@ -35,6 +35,8 @@ void g3dsubface_importUVSets ( G3DSUBFACE *subfac, G3DFACE   *parent,
                                                    G3DUVSET  *subuvs,
                                                    uint32_t   curdiv  ) {
     uint32_t p = ( i + parent->nbver - 0x01 ) % parent->nbver;
+    uint32_t n = ( i                 + 0x01 ) % parent->nbver;
+    uint32_t o = ( i                 + 0x02 ) % parent->nbver;
     LIST *ltmpuvs = parent->luvs;
 
     while ( ltmpuvs ) {
@@ -46,16 +48,41 @@ void g3dsubface_importUVSets ( G3DSUBFACE *subfac, G3DFACE   *parent,
         subuvs->veruv[0x00].v = uvs->veruv[i].v;
         subuvs->veruv[0x00].set = uvs;
 
-        subuvs->veruv[0x01].u = uvs->miduv[i].u;
-        subuvs->veruv[0x01].v = uvs->miduv[i].v;
+        /*** Note: this could be precalculated at previous step ***/
+        subuvs->veruv[0x01].u = ( uvs->veruv[n].u + uvs->veruv[i].u ) * 0.5f;
+        subuvs->veruv[0x01].v = ( uvs->veruv[n].v + uvs->veruv[i].v ) * 0.5f;
         subuvs->veruv[0x01].set = uvs;
 
-        subuvs->veruv[0x02].u = uvs->cenuv.u;
-        subuvs->veruv[0x02].v = uvs->cenuv.v;
-        subuvs->veruv[0x02].set = uvs;
 
-        subuvs->veruv[0x03].u = uvs->miduv[p].u;
-        subuvs->veruv[0x03].v = uvs->miduv[p].v;
+        if ( parent->nbver == 0x03 ) {
+            /*** Note: this could be precalculated at previous step ***/
+            subuvs->veruv[0x02].u = ( uvs->veruv[n].u + 
+                                      uvs->veruv[i].u +
+                                      uvs->veruv[p].u ) * 0.3333f;
+
+            /*** Note: this could be precalculated at previous step ***/
+            subuvs->veruv[0x02].v = ( uvs->veruv[n].v + 
+                                      uvs->veruv[i].v +
+                                      uvs->veruv[p].v ) * 0.3333f;
+
+            subuvs->veruv[0x02].set = uvs;
+        } else {
+            /*** Note: this could be precalculated at previous step ***/
+            subuvs->veruv[0x02].u = ( uvs->veruv[n].u + 
+                                      uvs->veruv[i].u +
+                                      uvs->veruv[o].u +
+                                      uvs->veruv[p].u ) * 0.25;
+
+            /*** Note: this could be precalculated at previous step ***/
+            subuvs->veruv[0x02].v = ( uvs->veruv[n].v + 
+                                      uvs->veruv[i].v +
+                                      uvs->veruv[o].v +
+                                      uvs->veruv[p].v ) * 0.25;
+        }
+
+        /*** Note: this could be precalculated at previous step ***/
+        subuvs->veruv[0x03].u = ( uvs->veruv[p].u + uvs->veruv[i].u ) * 0.5f;
+        subuvs->veruv[0x03].v = ( uvs->veruv[p].v + uvs->veruv[i].v ) * 0.5f;
         subuvs->veruv[0x03].set = uvs;
 
         g3dsubface_addUVSet ( subfac, subuvs, curdiv );

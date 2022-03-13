@@ -167,7 +167,7 @@ static void g3dskin_update ( G3DSKIN *skn,
 static void g3dskin_activate ( G3DSKIN *skn,
                                uint64_t engine_flags ) {
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( ( G3DOBJECT * ) skn, 
-                                                                         MESH );
+                                                                         EDITABLE );
 
     if ( parent ) {
         G3DMESH *parmes = ( G3DMESH * ) parent;
@@ -181,12 +181,23 @@ static void g3dskin_activate ( G3DSKIN *skn,
 /******************************************************************************/
 static void g3dskin_deactivate ( G3DSKIN *skn,
                                     uint64_t engine_flags ) {
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( ( G3DOBJECT * ) skn, 
+                                                                         EDITABLE );
+
     if ( skn->mod.verpos ) free ( skn->mod.verpos );
     if ( skn->mod.vernor ) free ( skn->mod.vernor );
 
     skn->mod.oriobj = NULL;
     skn->mod.verpos = NULL;
     skn->mod.vernor = NULL;
+
+    if ( parent ) {
+        G3DMESH *parmes = ( G3DMESH * ) parent;
+
+        g3dmesh_modify ( parmes, 
+                         G3DMODIFYOP_MODIFY, 
+                         engine_flags );
+    }
 }
 
 /******************************************************************************/

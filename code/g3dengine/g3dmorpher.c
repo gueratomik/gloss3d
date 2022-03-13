@@ -1083,26 +1083,38 @@ static uint32_t g3dmorpher_modify ( G3DMORPHER *mpr,
 /******************************************************************************/
 static void g3dmorpher_activate ( G3DMORPHER *mpr,
                                   uint64_t engine_flags ) {
-    if ( mpr->mod.oriobj ) {
-        if ( mpr->mod.oriobj->type & MESH ) {
-            G3DMESH *orimes = ( G3DMESH * ) mpr->mod.oriobj;
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( ( G3DOBJECT * ) mpr, 
+                                                                         EDITABLE );
 
-            g3dmesh_modify ( orimes, 
-                             G3DMODIFYOP_MODIFY, 
-                             engine_flags );
-        }
+    if ( parent ) {
+        G3DMESH *parmes = ( G3DMESH * ) parent;
+
+        g3dmesh_modify ( parmes, 
+                         G3DMODIFYOP_MODIFY, 
+                         engine_flags );
     }
 }
 
 /******************************************************************************/
 static void g3dmorpher_deactivate ( G3DMORPHER *mpr,
                                     uint64_t engine_flags ) {
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( ( G3DOBJECT * ) mpr, 
+                                                                         EDITABLE );
+
     if ( mpr->mod.verpos ) free ( mpr->mod.verpos );
     if ( mpr->mod.vernor ) free ( mpr->mod.vernor );
 
     mpr->mod.oriobj = NULL;
     mpr->mod.verpos = NULL;
     mpr->mod.vernor = NULL;
+
+    if ( parent ) {
+        G3DMESH *parmes = ( G3DMESH * ) parent;
+
+        g3dmesh_modify ( parmes, 
+                         G3DMODIFYOP_MODIFY, 
+                         engine_flags );
+    }
 }
 
 /******************************************************************************/

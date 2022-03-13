@@ -107,15 +107,17 @@ void g3dbone_transform ( G3DBONE *bon,
             G3DRIG *rig = ( G3DRIG * ) ltmprig->data;
             double lmatrix[0x10];
 
-            g3dcore_multmatrix ( objbon->wmatrix, 
-                                 rig->skn->mod.oriobj->iwmatrix, lmatrix );
+            if ( g3dobject_isActive ( ( G3DOBJECT * ) rig->skn ) ) {
+                g3dcore_multmatrix ( objbon->wmatrix, 
+                                     rig->skn->mod.oriobj->iwmatrix, lmatrix );
 
-            g3dcore_multmatrix ( rig->isknmatrix, 
-                                 lmatrix, 
-                                 rig->defmatrix );
+                g3dcore_multmatrix ( rig->isknmatrix, 
+                                     lmatrix, 
+                                     rig->defmatrix );
 
-            /*** mark for update ***/
-            rig->skn->mod.mes.obj.update_flags |= UPDATESKIN;
+                /*** mark for update ***/
+                rig->skn->mod.mes.obj.update_flags |= UPDATESKIN;
+            }
 
             ltmprig = ltmprig->next;
         }

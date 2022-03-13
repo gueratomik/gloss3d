@@ -861,6 +861,8 @@ void pick_cursor ( G3DMOUSETOOLPICK *pt,
     g3dpick_setProjectionMatrix ( PJX   );
     g3dpick_setAreaMatrix       ( pt->coord, 0 );
 
+    g3dpick_disableDepthTest  ( );
+
     /*** clear must be called once the VPX is set ***/
     g3dpick_clear ( );
 
