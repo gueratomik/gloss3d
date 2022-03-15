@@ -1314,6 +1314,7 @@ typedef struct _G3DFACESCULPTEXTENSION {
     G3DVECTOR       *pos;
     uint32_t        *flags;
     uint32_t         nbver;
+    uint32_t         level;
 } G3DFACESCULPTEXTENSION;
 
 void g3dfaceextension_init ( G3DFACEEXTENSION *ext,
@@ -1333,7 +1334,10 @@ G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint32_t extensionName,
                                                      uint32_t level );
 
 void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
-                                   G3DFACESCULPTEXTENSION *dst );
+                                   G3DFACE                *srcfac,
+                                   G3DFACESCULPTEXTENSION *dst,
+                                   G3DFACE                *dstfac,
+                                   uint32_t               *mapping );
 
 void g3dfacesculptextension_free ( G3DFACESCULPTEXTENSION *fse );
 
@@ -1341,7 +1345,7 @@ void g3dfacesculptextension_clearFlags ( G3DFACESCULPTEXTENSION *fse );
 
 void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse, 
                                      G3DFACE                *fac,
-                                     uint32_t                nbver );
+                                     uint32_t                level );
 
 /******************************************************************************/
 struct _G3DKEY {

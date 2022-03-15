@@ -47,6 +47,8 @@ void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
                                      uint32_t                level ) {
     uint32_t i;
 
+    fse->level = level;
+
     /*** Note : must start at 1. Level 0 means no subdivs ***/
     for ( i = 0x01; i <= level; i++ ) {
         uint32_t (*indexes)[0x04] = g3dsubindex_get ( fac->nbver, level );
@@ -149,6 +151,7 @@ G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint32_t extensionName,
 
     g3dfaceextension_init ( ( G3DFACESCULPTEXTENSION * ) fse, extensionName );
 
+
     g3dfacesculptextension_adjust ( fse, fac, level );
 
 
@@ -157,14 +160,54 @@ G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint32_t extensionName,
 
 /******************************************************************************/
 void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
-                                   G3DFACESCULPTEXTENSION *dst ) {
+                                   G3DFACE                *srcfac,
+                                   G3DFACESCULPTEXTENSION *dst,
+                                   G3DFACE                *dstfac,
+                                   uint32_t               *mapping ) {
     dst->nbver = src->nbver;
 
     dst->pos = realloc ( dst->pos, sizeof ( G3DVECTOR ) * dst->nbver );
 
     if ( dst->nbver ) {
-        memcpy ( dst->pos, 
-                 src->pos, sizeof ( G3DVECTOR ) * dst->nbver );
+        if ( srcfac == dstfac ) {
+            memcpy ( dst->pos, 
+                     src->pos, sizeof ( G3DVECTOR ) * dst->nbver );
+        } else {
+            uint32_t (*qua_indexes)[0x04] = g3dsubindex_get ( 0x04, src->level );
+            uint32_t (*tri_indexes)[0x04] = g3dsubindex_get ( 0x03, src->level );
+            uint32_t (*idx)[0x04] = ( srcfac->nbver == 0x03 ) ? tri_indexes : 
+                                                                qua_indexes;
+            static uint32_t default_mapping[0x04] = { 0x00, 0x01, 0x02, 0x03 };
+            uint32_t i, nbfacidx = pow ( 4, src->level );
+
+            if ( mapping == NULL ) mapping = default_mapping;
+
+            for ( i = 0x00; i < nbfacidx; i++ ) {
+                uint32_t srcFacID = i;
+                uint32_t dstFacID = 0x00;
+
+              /*** if faces were generated from triangles, some unused quad ***/
+              /*** indexes will have all their IDs set to 0. Skip them ***/
+                if ( idx[i][0x00] != idx[i][0x01] ) {
+                    uint32_t j;
+
+                    for ( j = 0x00; j < src->level; j++ ) {
+                        uint32_t pID = ( srcFacID & ( 0x3 << (j*2) ) ) >> (j*2);
+
+                        dstFacID |= ( mapping[pID] << (j*2) );
+                    }
+
+                    for ( j = 0x00; j < 0x04; j++ ) {
+                        uint32_t srcVerID = idx[srcFacID][j];
+                        uint32_t dstVerID = idx[dstFacID][mapping[j]];
+
+                        dst->pos[dstVerID].x = src->pos[srcVerID].x;
+                        dst->pos[dstVerID].y = src->pos[srcVerID].y;
+                        dst->pos[dstVerID].z = src->pos[srcVerID].z;
+                    }
+                }
+            }
+        }
     }
 }
 

@@ -540,6 +540,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MENU_ADDUVWMAP            "Add UVW Map"
 
 #define MENU_MIRRORWEIGHTGROUP    "Mirror WeightGroup"
+#define MENU_MIRRORHEIGHTMAP      "Mirror Heightmap"
 #define MENU_MIRRORXY             "Along XY plane"
 #define MENU_MIRRORYZ             "Along YZ plane"
 #define MENU_MIRRORZX             "Along ZX plane"
@@ -1251,6 +1252,7 @@ void      common_g3dui_addMorpherCbk          ( G3DUI * );
 void      common_g3dui_addSkinCbk             ( G3DUI *gui );
 void      common_g3dui_fixBoneCbk             ( G3DUI * );
 void      common_g3dui_mirrorWeightGroupCbk   ( G3DUI *, const char * );
+void      common_g3dui_mirrorHeightmapCbk     ( G3DUI *, const char * );
 void      common_g3dui_setMaterialCbk         ( G3DUI * );
 
 void      common_g3duimenubar_addUVMapCbk     ( G3DUI * );

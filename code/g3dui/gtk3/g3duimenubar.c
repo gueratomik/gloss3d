@@ -51,6 +51,11 @@ static uint32_t faceModeOnly ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+static uint32_t sculptModeOnly ( G3DUI *gui ) {
+    return ( gui->engine_flags & VIEWSCULPT ) ? 0x01 : 0x00;
+}
+
+/******************************************************************************/
 static uint32_t edgeModeOnly ( G3DUI *gui ) {
     return ( gui->engine_flags & VIEWEDGE ) ? 0x01 : 0x00;
 }
@@ -1266,6 +1271,14 @@ void g3dui_splitMeshCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+void g3dui_mirrorHeightmapCbk ( GtkWidget *widget, gpointer user_data ) {
+    const gchar *option = gtk_widget_get_name  ( widget );
+    G3DUI *gui = ( G3DUI * ) user_data;
+
+    common_g3dui_mirrorHeightmapCbk ( gui, option );
+}
+
+/******************************************************************************/
 void g3dui_mirrorWeightGroupCbk ( GtkWidget *widget, gpointer user_data ) {
     const gchar *option = gtk_widget_get_name  ( widget );
     G3DUI *gui = ( G3DUI * ) user_data;
@@ -1758,6 +1771,22 @@ static G3DUIMENU render_menu = { "Render",
 
 /******************************************************************************/
 /****************************** Functions MENU ********************************/
+static G3DUIMENU functions_menu_mirrorHeightmap_xy = { MENU_MIRRORXY,
+                                                       G3DUIMENUTYPE_PUSHBUTTON,
+                                                       sculptModeOnly,
+                                                       g3dui_mirrorHeightmapCbk };
+
+static G3DUIMENU functions_menu_mirrorHeightmap_yz = { MENU_MIRRORYZ,
+                                                       G3DUIMENUTYPE_PUSHBUTTON,
+                                                       sculptModeOnly,
+                                                       g3dui_mirrorHeightmapCbk };
+
+static G3DUIMENU functions_menu_mirrorHeightmap_zx = { MENU_MIRRORZX,
+                                                       G3DUIMENUTYPE_PUSHBUTTON,
+                                                       sculptModeOnly,
+                                                       g3dui_mirrorHeightmapCbk };
+
+/******************************************************************************/
 static G3DUIMENU functions_menu_mirrorWeightgroup_xy = { MENU_MIRRORXY,
                                                          G3DUIMENUTYPE_PUSHBUTTON,
                                                          skinModeOnly,
@@ -1785,6 +1814,15 @@ static G3DUIMENU functions_menu_splitMesh_remove = { MENU_SPLITANDREMOVE,
                                                      g3dui_splitMeshCbk };
 
 /******************************************************************************/
+static G3DUIMENU functions_menu_mirrorHM     = { MENU_MIRRORHEIGHTMAP,
+                                                 G3DUIMENUTYPE_SUBMENU,
+                                                 sculptModeOnly,
+                                                 NULL,
+                                                .nodes = { &functions_menu_mirrorHeightmap_xy,
+                                                           &functions_menu_mirrorHeightmap_yz,
+                                                           &functions_menu_mirrorHeightmap_zx,
+                                                            NULL } };
+
 static G3DUIMENU functions_menu_mirrorWG     = { MENU_MIRRORWEIGHTGROUP,
                                                  G3DUIMENUTYPE_SUBMENU,
                                                  skinModeOnly,
@@ -1818,6 +1856,7 @@ static G3DUIMENU functions_menu = { "Functions",
                                     NULL,
                                     NULL,
                                    .nodes = { &functions_menu_mirrorWG,
+                                              &functions_menu_mirrorHM,
                                               &functions_menu_splitMesh,
                                               &functions_menu_mergeMesh,
                                               &functions_menu_makeEditable,

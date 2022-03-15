@@ -421,7 +421,7 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
                                                g3dtriangle_new ( vsym2,
                                                                  vsym1,
                                                                  vsym0 ) };
-
+/*
                         tri[0x00]->edg[0x00] = oriedg[fac->edg[0x00]->id];
                         tri[0x00]->edg[0x01] = oriedg[fac->edg[0x01]->id];
                         tri[0x00]->edg[0x02] = oriedg[fac->edg[0x02]->id];
@@ -437,7 +437,7 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
                         g3dedge_addFace ( symedg[fac->edg[0x00]->id], tri[0x01] );
                         g3dedge_addFace ( symedg[fac->edg[0x01]->id], tri[0x01] );
                         g3dedge_addFace ( symedg[fac->edg[0x02]->id], tri[0x01] );
-
+*/
                         g3dmesh_addFace ( symmes, tri[0x00] );
                         g3dmesh_addFace ( symmes, tri[0x01] );
                     } break;
@@ -456,7 +456,7 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
                                                              vori2, vori3 ),
                                                g3dquad_new ( vsym3, vsym2,
                                                              vsym1, vsym0 ) };
-
+/*
                         qua[0x00]->edg[0x00] = oriedg[fac->edg[0x00]->id];
                         qua[0x00]->edg[0x01] = oriedg[fac->edg[0x01]->id];
                         qua[0x00]->edg[0x02] = oriedg[fac->edg[0x02]->id];
@@ -476,7 +476,7 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
                         g3dedge_addFace ( symedg[fac->edg[0x01]->id], qua[0x01] );
                         g3dedge_addFace ( symedg[fac->edg[0x00]->id], qua[0x01] );
                         g3dedge_addFace ( symedg[fac->edg[0x03]->id], qua[0x01] );
-
+*/
                         g3dmesh_addFace ( symmes, qua[0x00] );
                         g3dmesh_addFace ( symmes, qua[0x01] );
                     } break;

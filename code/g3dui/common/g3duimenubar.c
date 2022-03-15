@@ -287,6 +287,117 @@ void common_g3dui_splitMeshCbk ( G3DUI *gui, const char *option ) {
 }
 
 /******************************************************************************/
+static uint32_t compareFloat ( float a, float b ) {
+    float epsilon = 0.01f;
+
+    if ( ( a > ( b - epsilon ) ) && 
+         ( a < ( b + epsilon ) ) ) return 0x01;
+
+    return 0x00; 
+}
+
+/******************************************************************************/
+void common_g3dui_mirrorHeightmapCbk ( G3DUI *gui, const char *option ) {
+    G3DURMANAGER *urm = gui->urm;
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+    uint32_t orientation = 0x00;
+
+    if ( strcmp ( option, MENU_MIRRORXY ) == 0x00 ) orientation = ORIENTATIONXY;
+    if ( strcmp ( option, MENU_MIRRORYZ ) == 0x00 ) orientation = ORIENTATIONYZ;
+    if ( strcmp ( option, MENU_MIRRORZX ) == 0x00 ) orientation = ORIENTATIONZX;
+
+    if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
+        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+        G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+
+        if ( parent ) {
+            G3DMESH *mes = ( G3DMESH * ) parent;
+            LIST *ltmpselfac = mes->lselfac;
+
+            while ( ltmpselfac ) {
+                G3DFACE *selfac = ( G3DFACE * ) ltmpselfac->data;
+                LIST *ltmpfac = mes->lfac;
+
+                while ( ltmpfac ) {
+                    G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+
+                    if ( fac != selfac ) {
+                        if ( fac->nbver == selfac->nbver ) {
+                            uint32_t mirror = 0x00;
+
+                            if ( orientation == ORIENTATIONXY ) {
+                                if ( compareFloat ( fac->pos.x,  selfac->pos.x ) &&
+                                     compareFloat ( fac->pos.y,  selfac->pos.y ) &&
+                                     compareFloat ( fac->pos.z, -selfac->pos.z ) ) {
+                                    mirror = 0x01;
+                                }
+                            }
+
+                            if ( orientation == ORIENTATIONYZ ) {
+                                if ( compareFloat ( fac->pos.x, -selfac->pos.x ) &&
+                                     compareFloat ( fac->pos.y,  selfac->pos.y ) &&
+                                     compareFloat ( fac->pos.z,  selfac->pos.z ) ) {
+                                    mirror = 0x01;
+                                }
+                            }
+
+                            if ( orientation == ORIENTATIONZX ) {
+                                if ( compareFloat ( fac->pos.x,  selfac->pos.x ) &&
+                                     compareFloat ( fac->pos.y, -selfac->pos.y ) &&
+                                     compareFloat ( fac->pos.z,  selfac->pos.z ) ) {
+                                    mirror = 0x01;
+                                }
+                            }
+
+                            if ( mirror ) {
+
+                                G3DFACESCULPTEXTENSION *srcfse = g3dface_getExtension ( selfac,
+                                                                           ( uint64_t ) sdr );
+
+                                if ( srcfse ) {
+                                    G3DFACESCULPTEXTENSION *dstfse = g3dface_getExtension ( fac,
+                                                                               ( uint64_t ) sdr );
+                                    uint32_t mapping[0x04] = { 0x03, 
+                                                               0x02, 
+                                                               0x00, 
+                                                               0x01 };
+
+
+                                    if ( dstfse == NULL ) {
+                                        dstfse = g3dfacesculptextension_new ( ( uint64_t ) sdr,
+                                                                                           fac,
+                                                                                           sdr->sculptResolution );
+
+                                        g3dface_addExtension ( fac, dstfse );
+                                    }
+
+                                    g3dfacesculptextension_copy ( srcfse,
+                                                                  selfac,
+                                                                  dstfse,
+                                                                  fac,
+                                                                  mapping );
+                                }
+                            }
+                        }
+                    }
+
+                    ltmpfac = ltmpfac->next;
+                }
+                
+
+                ltmpselfac = ltmpselfac->next;
+            }
+        }
+    }
+
+    g3dui_updateAllCurrentEdit ( gui );
+    g3dui_redrawObjectList ( gui );
+    g3dui_redrawGLViews ( gui );
+    g3dui_updateMenuBar ( gui );
+}
+
+/******************************************************************************/
 void common_g3dui_mirrorWeightGroupCbk ( G3DUI *gui, const char *option ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
