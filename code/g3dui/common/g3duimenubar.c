@@ -325,12 +325,15 @@ void common_g3dui_mirrorHeightmapCbk ( G3DUI *gui, const char *option ) {
                     if ( fac != selfac ) {
                         if ( fac->nbver == selfac->nbver ) {
                             uint32_t mirror = 0x00;
+                            G3DVECTOR factor = { 1.0f, 1.0f, 1.0f, 0.0f };
 
                             if ( orientation == ORIENTATIONXY ) {
                                 if ( compareFloat ( fac->pos.x,  selfac->pos.x ) &&
                                      compareFloat ( fac->pos.y,  selfac->pos.y ) &&
                                      compareFloat ( fac->pos.z, -selfac->pos.z ) ) {
                                     mirror = 0x01;
+
+                                    factor.z = -1.0f;
                                 }
                             }
 
@@ -339,6 +342,8 @@ void common_g3dui_mirrorHeightmapCbk ( G3DUI *gui, const char *option ) {
                                      compareFloat ( fac->pos.y,  selfac->pos.y ) &&
                                      compareFloat ( fac->pos.z,  selfac->pos.z ) ) {
                                     mirror = 0x01;
+
+                                    factor.x = -1.0f;
                                 }
                             }
 
@@ -347,6 +352,8 @@ void common_g3dui_mirrorHeightmapCbk ( G3DUI *gui, const char *option ) {
                                      compareFloat ( fac->pos.y, -selfac->pos.y ) &&
                                      compareFloat ( fac->pos.z,  selfac->pos.z ) ) {
                                     mirror = 0x01;
+
+                                    factor.y = -1.0f;
                                 }
                             }
 
@@ -360,8 +367,8 @@ void common_g3dui_mirrorHeightmapCbk ( G3DUI *gui, const char *option ) {
                                                                                ( uint64_t ) sdr );
                                     uint32_t mapping[0x04] = { 0x03, 
                                                                0x02, 
-                                                               0x00, 
-                                                               0x01 };
+                                                               0x01, 
+                                                               0x00 };
 
 
                                     if ( dstfse == NULL ) {
@@ -376,7 +383,8 @@ void common_g3dui_mirrorHeightmapCbk ( G3DUI *gui, const char *option ) {
                                                                   selfac,
                                                                   dstfse,
                                                                   fac,
-                                                                  mapping );
+                                                                  mapping,
+                                                                 &factor );
                                 }
                             }
                         }

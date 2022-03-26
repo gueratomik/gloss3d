@@ -1337,7 +1337,8 @@ void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
                                    G3DFACE                *srcfac,
                                    G3DFACESCULPTEXTENSION *dst,
                                    G3DFACE                *dstfac,
-                                   uint32_t               *mapping );
+                                   uint32_t               *mapping,
+                                   G3DVECTOR              *factor );
 
 void g3dfacesculptextension_free ( G3DFACESCULPTEXTENSION *fse );
 

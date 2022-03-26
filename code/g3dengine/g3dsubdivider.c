@@ -163,7 +163,15 @@ void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
                                    G3DFACE                *srcfac,
                                    G3DFACESCULPTEXTENSION *dst,
                                    G3DFACE                *dstfac,
-                                   uint32_t               *mapping ) {
+                                   uint32_t               *mapping,
+                                   G3DVECTOR              *factor ) {
+    G3DVECTOR fac = ( factor == NULL ) ? (G3DVECTOR) { .x = 1.0f,
+                                                       .y = 1.0f,
+                                                       .z = 1.0f } : 
+                                         (G3DVECTOR) { .x = factor->x,
+                                                       .y = factor->y, 
+                                                       .z = factor->z };
+
     dst->nbver = src->nbver;
 
     dst->pos = realloc ( dst->pos, sizeof ( G3DVECTOR ) * dst->nbver );
@@ -192,7 +200,8 @@ void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
                     uint32_t j;
 
                     for ( j = 0x00; j < src->level; j++ ) {
-                        uint32_t pID = ( srcFacID & ( 0x3 << (j*2) ) ) >> (j*2);
+                        uint32_t mask = ( 0x3 << (j*2) );
+                        uint32_t pID = ( srcFacID & mask ) >> (j*2);
 
                         dstFacID |= ( mapping[pID] << (j*2) );
                     }
@@ -201,9 +210,11 @@ void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
                         uint32_t srcVerID = idx[srcFacID][j];
                         uint32_t dstVerID = idx[dstFacID][mapping[j]];
 
-                        dst->pos[dstVerID].x = src->pos[srcVerID].x;
-                        dst->pos[dstVerID].y = src->pos[srcVerID].y;
-                        dst->pos[dstVerID].z = src->pos[srcVerID].z;
+                        dst->pos[dstVerID].x = src->pos[srcVerID].x * fac.x;
+                        dst->pos[dstVerID].y = src->pos[srcVerID].y * fac.y;
+                        dst->pos[dstVerID].z = src->pos[srcVerID].z * fac.z;
+
+                        dst->pos[dstVerID].w = 1.0f;
                     }
                 }
             }
