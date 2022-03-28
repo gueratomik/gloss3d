@@ -705,8 +705,8 @@ uint32_t g3dface_bindMaterials ( G3DFACE        *fac,
                    blackSpecular[] = { 0.0f, 0.0f, 0.0f, 1.0f },
                    blackShininess  = 0.0f;
     uint32_t drawTextures = ( engine_flags & NOTEXTURE ) ? 0x00 : 0x01;
-    static GLfloat whiteDiffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f },
-                   whiteSpecular[] = { 0.0f, 0.0f, 0.0f, 1.0f },
+           GLfloat whiteDiffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f };
+    static GLfloat whiteSpecular[] = { 0.0f, 0.0f, 0.0f, 1.0f },
                    whiteAmbient[]  = { 0.0f, 0.0f, 0.0f, 1.0f },
                    whiteShininess  = 0.0f;
     static GLfloat selectDiffuse[] = { 1.0f, 0.5f, 0.0f, 1.0f };
@@ -716,11 +716,14 @@ uint32_t g3dface_bindMaterials ( G3DFACE        *fac,
 
     glDisable ( GL_COLOR_MATERIAL );
 
-    if ( ( fac->flags & FACESELECTED ) &&
+    glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) grayDiffuse );
+
+    if ( ( object_flags & OBJECTSELECTED ) &&
+         ( fac->flags & FACESELECTED ) &&
          ( engine_flags & VIEWFACE ) ) {
         glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
-    } else {
-        glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) grayDiffuse );
+
+        memcpy ( whiteDiffuse, selectDiffuse, sizeof ( whiteDiffuse ) );
     }
 
     while ( ltmptex ) {

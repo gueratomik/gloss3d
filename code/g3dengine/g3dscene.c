@@ -198,6 +198,28 @@ static void g3dscene_getPositionFromSelectedFaces ( G3DSCENE  *sce,
 }
 
 /******************************************************************************/
+static void g3dscene_getPositionFromSculptSelectedFaces ( G3DSCENE  *sce,
+                                                          G3DVECTOR *pos ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+    if ( obj->flags & OBJECTSELECTED ) {
+        switch ( obj->type ) {
+            case G3DSUBDIVIDERTYPE : {
+                G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+                G3DMESH *mes = g3dobject_getActiveParentByType ( obj, MESH );
+
+                if ( mes ) {
+                    g3dface_getAveragePositionFromList ( mes->lselfac, pos );
+                }
+            } break;
+
+            default :
+            break;
+        }
+    }
+}
+
+/******************************************************************************/
 static void g3dscene_getPositionFromSelectedEdges ( G3DSCENE  *sce,
                                                     G3DVECTOR *pos ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -246,6 +268,13 @@ uint32_t g3dscene_getPivotFromSelection ( G3DSCENE  *sce,
 
         if ( engine_flags & VIEWFACE ) {
             g3dscene_getPositionFromSelectedFaces ( sce, &sce->csr.pivot );
+
+            memcpy ( sce->csr.matrix, 
+                     obj->wmatrix, sizeof ( double ) * 0x10 );
+        }
+
+        if ( engine_flags & VIEWSCULPT ) {
+            g3dscene_getPositionFromSculptSelectedFaces ( sce, &sce->csr.pivot );
 
             memcpy ( sce->csr.matrix, 
                      obj->wmatrix, sizeof ( double ) * 0x10 );
@@ -753,6 +782,7 @@ static void g3dscene_anim ( G3DSCENE *sce,
     /*** cursor axis update not needed in edit mode ***/
     if ( ( ( engine_flags & VIEWVERTEX ) == 0x00 ) &&
          ( ( engine_flags & VIEWEDGE   ) == 0x00 ) &&
+         ( ( engine_flags & VIEWSCULPT ) == 0x00 ) &&
          ( ( engine_flags & VIEWFACE   ) == 0x00 ) ) {
         g3dscene_getPivotFromSelection ( sce, engine_flags );
     }

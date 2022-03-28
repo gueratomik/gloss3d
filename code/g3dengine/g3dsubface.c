@@ -75,13 +75,13 @@ void g3dsubface_importUVSets ( G3DSUBFACE *subfac, G3DFACE   *parent,
             subuvs->veruv[i2].u = ( uvs->veruv[n].u + 
                                       uvs->veruv[i].u +
                                       uvs->veruv[o].u +
-                                      uvs->veruv[p].u ) * 0.25;
+                                      uvs->veruv[p].u ) * 0.25f;
 
             /*** Note: this could be precalculated at previous step ***/
             subuvs->veruv[i2].v = ( uvs->veruv[n].v + 
                                       uvs->veruv[i].v +
                                       uvs->veruv[o].v +
-                                      uvs->veruv[p].v ) * 0.25;
+                                      uvs->veruv[p].v ) * 0.25f;
 
             subuvs->veruv[i2].set = uvs;
         }

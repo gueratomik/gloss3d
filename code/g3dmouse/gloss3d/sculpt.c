@@ -125,6 +125,195 @@ static void sculpt_free ( void *data ) {
 }
 
 /******************************************************************************/
+typedef struct _SUBDIVIDERPICKDATA {
+    G3DSUBDIVIDER      *sdr;
+    uint32_t            flags;
+    uint32_t            round;
+    G3DMOUSETOOLSCULPT *mts;
+} SUBDIVIDERPICKDATA;
+
+/******************************************************************************/
+static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
+/* ( G3DMESH *mes, 
+                             G3DCAMERA *curcam,
+                             float weight,
+                             uint32_t visible, uint64_t engine_flags ) {*/
+    G3DSUBDIVIDER *sdr = spd->sdr;
+    uint64_t facID = ( name >> 0x20 );
+    uint64_t rtverID = name & 0xFFFFFFFF;
+    G3DFACE *fac = sdr->factab[facID];
+    G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
+                                            ( uint64_t ) sdr );
+    URMSCULPTFACEEXTENSION *usfe = NULL;
+    G3DMOUSETOOLSCULPT *mts = spd->mts;
+
+    /*** adjust resolution for existing maps ***/
+    if ( sdr->subdiv_preview > sdr->sculptResolution ) {
+        g3dsubdivider_setScupltResolution ( sdr, sdr->subdiv_preview );
+    }
+
+    if ( fse == NULL ) {
+        fse = g3dfacesculptextension_new ( ( uint64_t ) sdr,
+                                                        fac,
+                                                        sdr->sculptResolution );
+
+        g3dface_addExtension ( fac, fse );
+    }
+
+    /*printf ("%d %d\n", facID, rtverID );*/
+
+    usfe = urmsculptfaceextension_seek ( mts->lusfe, fse );
+
+    if ( usfe == NULL ) {
+        uint32_t i;
+
+        usfe = urmsculptfaceextension_new ( fse, fac );
+
+        for ( i = 0x00; i < fse->nbver; i++ ) {
+            memcpy ( &usfe->pos[i],
+                     &fse->pos[i], sizeof ( G3DVECTOR ) );
+
+            memcpy ( &usfe->nor[i],
+                     &fac->rtvermem[i].nor, sizeof ( G3DVECTOR ) );
+        }
+
+        list_insert ( &mts->lusfe, usfe ); /*** for undo / redo ***/
+    }
+
+    if ( list_seek ( mts->lfse, fse ) == NULL ) {
+        list_insert ( &mts->lfse, fse );
+    }
+
+    if ( mts->type == SCULPTINFLATE ) {
+        if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
+            fse->pos[rtverID].x += ( usfe->nor[rtverID].x * 0.01f * mts->pressure );
+            fse->pos[rtverID].y += ( usfe->nor[rtverID].y * 0.01f * mts->pressure );
+            fse->pos[rtverID].z += ( usfe->nor[rtverID].z * 0.01f * mts->pressure );
+            fse->pos[rtverID].w  = 1.0f;
+
+            fse->flags[rtverID] |= 0x01;
+        }
+    }
+
+    if ( mts->type == SCULPTCREASE ) {
+        if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
+            fse->pos[rtverID].x -= ( usfe->nor[rtverID].x * 0.01f * mts->pressure );
+            fse->pos[rtverID].y -= ( usfe->nor[rtverID].y * 0.01f * mts->pressure );
+            fse->pos[rtverID].z -= ( usfe->nor[rtverID].z * 0.01f * mts->pressure );
+            fse->pos[rtverID].w  = 1.0f;
+
+            fse->flags[rtverID] |= 0x01;
+        }
+    }
+
+    if ( mts->type == SCULPTUNSCULPT ) {
+        if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
+            fse->pos[rtverID].x = 0.0f;
+            fse->pos[rtverID].y = 0.0f;
+            fse->pos[rtverID].z = 0.0f;
+            fse->pos[rtverID].w = 0.0f;
+
+            fse->flags[rtverID] |= 0x01;
+        }
+    }
+
+
+    /*** update this face only ***/
+    if ( list_seek ( sdr->lsubfac, fac ) == NULL ) {
+        list_insert ( &sdr->lsubfac, fac );
+    }
+
+    return 0x01;
+}
+
+/******************************************************************************/
+/*** We basically draw the scene in 2D with pointer values as pixels ***/
+void sculpt_Item ( G3DMOUSETOOLSCULPT *pt, 
+                   G3DSCENE           *sce, 
+                   G3DCAMERA          *cam,
+                   uint32_t            ctrlClick,
+                   uint64_t            engine_flags ) {
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+    static GLint  VPX[0x04];
+    static double MVX[0x10];
+    static double PJX[0x10];
+
+    glGetIntegerv ( GL_VIEWPORT, VPX );
+
+    closeSelectionRectangle ( pt, VPX, engine_flags );
+
+    glMatrixMode ( GL_PROJECTION );
+    glPushMatrix ( );
+    glLoadIdentity ( );
+    g3dcamera_project ( cam, engine_flags );
+    glGetDoublev ( GL_PROJECTION_MATRIX, PJX );
+
+    glMatrixMode ( GL_MODELVIEW );
+    glPushMatrix ( );
+    glLoadIdentity ( );
+    g3dcamera_view ( cam, 0x00 );
+
+    /*** Note: calling setViewportMatrix before setProjectionMatrix ***/
+    /*** is mandatory ***/
+    g3dpick_setViewportMatrix   ( VPX   );
+    g3dpick_setProjectionMatrix ( PJX   );
+    g3dpick_setAreaMatrix       ( pt->coord, pt->circular );
+
+    if ( ( ( engine_flags & VIEWVERTEXUV ) == 0x00 ) &&
+         ( ( engine_flags & VIEWFACEUV   ) == 0x00 ) ) {
+        if ( pt->only_visible ) {
+            g3dpick_enableDepthTest  ( );
+
+
+/*** commented out: we now use glreadpixel to get the depth value ****/
+/*
+            g3dpick_setAction ( NULL, NULL );
+
+            g3dobject_pick_r ( ( G3DOBJECT * ) sce, 
+                                               cam, 
+                                               VIEWOBJECT );
+*/
+
+            g3dpick_setEpsilon ( 0.00001f );
+        }
+    }
+
+    /*** clear must be called once the VPX is set and depth test is toggled ***/
+    g3dpick_clear ( );
+
+	if ( obj ) {
+        if ( pt->only_visible ) g3dpick_enableDepthTest  ( );
+        else                    g3dpick_disableDepthTest ( );
+
+	    if ( obj->type == G3DSUBDIVIDERTYPE ) {
+        	G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+        	SUBDIVIDERPICKDATA spd = { .sdr   = sdr,
+                        	           .flags = 0x00,
+                                       .mts   = pt };
+
+		    if ( engine_flags & VIEWSCULPT ) {
+        	    g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionSculptVertex ), &spd );
+
+        	    g3dobject_pick_r ( ( G3DOBJECT * ) sce, 
+                                                   cam, 
+                                                   VIEWSCULPT );
+
+                g3dsubdivider_fillBuffers ( sdr,
+                                            sdr->lsubfac,
+                                            engine_flags );
+
+                list_free ( &sdr->lsubfac, NULL );
+		    }
+	    }
+	}
+
+    glPopMatrix ( );
+
+    glMatrixMode ( GL_PROJECTION );
+    glPopMatrix ( );
+}
+
+/******************************************************************************/
 int sculpt_tool ( G3DMOUSETOOL *mou, 
                   G3DSCENE     *sce, 
                   G3DCAMERA    *cam,
@@ -179,7 +368,7 @@ int sculpt_tool ( G3DMOUSETOOL *mou,
 
         	            closeSelectionRectangle ( mts, VPX, engine_flags );
 
-                        pick_Item ( mts, sce, cam, ctrlClick, engine_flags );
+                        sculpt_Item ( mts, sce, cam, ctrlClick, engine_flags );
         	        }
                 }
             } return REDRAWVIEW;

@@ -129,7 +129,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
                                       VIEWFACENORMAL | VIEWVERTEXNORMAL )
 #define MODEMASK           ((uint64_t)VIEWOBJECT | VIEWUVWMAP | VIEWSKIN | \
                                       VIEWVERTEX | VIEWEDGE   | VIEWFACE | \
-                                      VIEWPATH   | VIEWAXIS )
+                                      VIEWPATH   | VIEWAXIS   | VIEWSCULPT )
 #define SELECTMODE         ((uint64_t)1  << 12 )
 #define XAXIS              ((uint64_t)1  << 13 )
 #define YAXIS              ((uint64_t)1  << 14 ) 

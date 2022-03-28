@@ -177,6 +177,8 @@ void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
     dst->pos = realloc ( dst->pos, sizeof ( G3DVECTOR ) * dst->nbver );
 
     if ( dst->nbver ) {
+        memset ( dst->pos, 0x00, sizeof ( G3DVECTOR ) * dst->nbver );
+
         if ( srcfac == dstfac ) {
             memcpy ( dst->pos, 
                      src->pos, sizeof ( G3DVECTOR ) * dst->nbver );
@@ -309,6 +311,41 @@ static void g3dsubdivider_modpick ( G3DSUBDIVIDER *sdr,
                                     g3dpick_drawPoint ( rtver->pos.x, 
                                                         rtver->pos.y, 
                                                         rtver->pos.z );
+                                }
+                            }
+
+                            if ( engine_flags & VIEWFACE ) {
+                                uint32_t nbrtfac  = ( fac->nbver == 0x04 ) ? sdr->nbFacesPerQuad :
+                                                                             sdr->nbFacesPerTriangle;
+                                G3DRTQUAD *rtquamem = sdr->rtquamem;
+                                uint64_t name = fac;
+
+                                g3dpick_setName ( name );
+
+                                for ( i = 0x00; i < nbrtfac; i++ ) {
+                                    G3DRTQUAD *rtfac = rtquamem++;
+                                    uint32_t ID0 = rtfac->rtver[0x00];
+                                    uint32_t ID1 = rtfac->rtver[0x01];
+                                    uint32_t ID2 = rtfac->rtver[0x02];
+                                    uint32_t ID3 = rtfac->rtver[0x03];
+                                    G3DRTVERTEX *rtver0 = &rtvermem[ID0],
+                                                *rtver1 = &rtvermem[ID1],
+                                                *rtver2 = &rtvermem[ID2],
+                                                *rtver3 = &rtvermem[ID3];
+
+                                    g3dpick_drawFace ( 0x04,
+                                                       rtver0->pos.x, 
+                                                       rtver0->pos.y,
+                                                       rtver0->pos.z,
+                                                       rtver1->pos.x,
+                                                       rtver1->pos.y,
+                                                       rtver1->pos.z,
+                                                       rtver2->pos.x,
+                                                       rtver2->pos.y,
+                                                       rtver2->pos.z,
+                                                       rtver3->pos.x,
+                                                       rtver3->pos.y,
+                                                       rtver3->pos.z );
                                 }
                             }
 /*
@@ -1009,35 +1046,47 @@ static void g3dsubdivider_deactivate ( G3DSUBDIVIDER *sdr,
 }
 
 /******************************************************************************/
-static void bindMaterials ( G3DMESH *mes, 
-                            G3DFACE *fac, 
-                            G3DRTUV *rtluim,
-                            uint64_t engine_flags ) {
+static void bindMaterials ( G3DSUBDIVIDER *sdr,
+                            G3DMESH       *mes, 
+                            G3DFACE       *fac, 
+                            G3DRTUV       *rtluim,
+                            uint64_t       engine_flags ) {
     static GLfloat blackDiffuse[]  = { 0.0f, 0.0f, 0.0f, 1.0f },
                    blackAmbient[]  = { 0.2f, 0.2f, 0.2f, 1.0f },
                    blackSpecular[] = { 0.0f, 0.0f, 0.0f, 1.0f },
                    blackShininess  = 0.0f;
-    static GLfloat whiteDiffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f },
-                   whiteSpecular[] = { 0.0f, 0.0f, 0.0f, 1.0f },
+           GLfloat whiteDiffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f };
+    static GLfloat whiteSpecular[] = { 0.0f, 0.0f, 0.0f, 1.0f },
                    whiteAmbient[]  = { 0.0f, 0.0f, 0.0f, 1.0f },
                    whiteShininess  = 0.0f;
     static GLfloat selectDiffuse[] = { 1.0f, 0.5f, 0.0f, 1.0f };
+    static GLfloat selectSculptDiffuse[] = { 1.0f, 0.0f, 1.0f, 1.0f };
     static GLfloat grayDiffuse[]   = { MESHCOLORF, 
                                        MESHCOLORF, 
                                        MESHCOLORF, 1.0f };
-    G3DOBJECT *obj = ( G3DOBJECT * ) mes;
+    G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     GLint arbid = GL_TEXTURE0_ARB;
     LIST *ltmptex = mes->ltex;
     LIST *ltmpuvs = fac->luvs;
 
     glDisable ( GL_COLOR_MATERIAL );
 
-    if ( ( obj->flags & OBJECTSELECTED ) &&
+    glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) grayDiffuse );
+
+    if ( ( ((G3DOBJECT*)mes)->flags & OBJECTSELECTED ) &&
          ( fac->flags & FACESELECTED ) &&
          ( engine_flags & VIEWFACE ) ) {
         glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
-    } else {
-        glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) grayDiffuse );
+
+        memcpy ( whiteDiffuse, selectDiffuse, sizeof ( whiteDiffuse ) );
+    }
+
+    if ( ( ((G3DOBJECT*)sdr)->flags & OBJECTSELECTED ) &&
+         ( fac->flags & FACESELECTED ) &&
+         ( engine_flags & VIEWSCULPT ) ) {
+        glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectSculptDiffuse );
+
+        memcpy ( whiteDiffuse, selectSculptDiffuse, sizeof ( whiteDiffuse ) );
     }
 
     while ( ltmptex ) {
@@ -1242,7 +1291,7 @@ static uint32_t g3dsubdivider_moddraw ( G3DSUBDIVIDER *sdr,
 
             if ( ( engine_flags & VIEWSKIN ) == 0x00 ) {
                 if ( ( engine_flags & NOTEXTURE ) == 0x00 ) {
-                    bindMaterials ( mes, fac, rtluim, engine_flags );
+                    bindMaterials ( sdr, mes, fac, rtluim, engine_flags );
                 }
  
                 glEnableClientState ( GL_NORMAL_ARRAY );

@@ -788,12 +788,14 @@ void g3dpick_setAreaMatrix ( int *AMX, int circle ) {
     G3DPICK *pick = g3dpick_get ( );
 
     if ( pick ) {
-        uint32_t width  = pick->AMX[0x02] - pick->AMX[0x00] + 0x01,
-                 height = pick->AMX[0x03] - pick->AMX[0x01] + 0x01;
+        uint32_t width  = AMX[0x02] - AMX[0x00] + 0x01,
+                 height = AMX[0x03] - AMX[0x01] + 0x01;
         uint32_t i;
 /*
         memset ( pick->mask, 0x00, pick->VPX[0x02] * pick->VPX[0x03] );
 */
+        memcpy ( pick->AMX, AMX, sizeof ( int ) * 0x04 );
+
         for ( i = 0x00; i < height; i++ ) {
             uint32_t offset = ( ( pick->AMX[0x01] + i ) * pick->VPX[0x02] ) + 
                                   pick->AMX[0x00];
@@ -821,8 +823,6 @@ void g3dpick_setAreaMatrix ( int *AMX, int circle ) {
                 }
             }
         }
-
-        memcpy ( pick->AMX, AMX, sizeof ( int ) * 0x04 );
     }
 }
 

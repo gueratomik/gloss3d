@@ -392,108 +392,6 @@ static uint32_t actionPaintVertex ( uint64_t name, MESHPICKDATA *mpd ) {
 }
 
 /******************************************************************************/
-typedef struct _SUBDIVIDERPICKDATA {
-    G3DSUBDIVIDER      *sdr;
-    uint32_t            flags;
-    uint32_t            round;
-    G3DMOUSETOOLSCULPT *mts;
-} SUBDIVIDERPICKDATA;
-
-/******************************************************************************/
-static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
-/* ( G3DMESH *mes, 
-                             G3DCAMERA *curcam,
-                             float weight,
-                             uint32_t visible, uint64_t engine_flags ) {*/
-    G3DSUBDIVIDER *sdr = spd->sdr;
-    uint64_t facID = ( name >> 0x20 );
-    uint64_t rtverID = name & 0xFFFFFFFF;
-    G3DFACE *fac = sdr->factab[facID];
-    G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
-                                            ( uint64_t ) sdr );
-    URMSCULPTFACEEXTENSION *usfe = NULL;
-    G3DMOUSETOOLSCULPT *mts = spd->mts;
-
-    /*** adjust resolution for existing maps ***/
-    if ( sdr->subdiv_preview > sdr->sculptResolution ) {
-        g3dsubdivider_setScupltResolution ( sdr, sdr->subdiv_preview );
-    }
-
-    if ( fse == NULL ) {
-        fse = g3dfacesculptextension_new ( ( uint64_t ) sdr,
-                                                        fac,
-                                                        sdr->sculptResolution );
-
-        g3dface_addExtension ( fac, fse );
-    }
-
-    /*printf ("%d %d\n", facID, rtverID );*/
-
-    usfe = urmsculptfaceextension_seek ( mts->lusfe, fse );
-
-    if ( usfe == NULL ) {
-        uint32_t i;
-
-        usfe = urmsculptfaceextension_new ( fse, fac );
-
-        for ( i = 0x00; i < fse->nbver; i++ ) {
-            memcpy ( &usfe->pos[i],
-                     &fse->pos[i], sizeof ( G3DVECTOR ) );
-
-            memcpy ( &usfe->nor[i],
-                     &fac->rtvermem[i].nor, sizeof ( G3DVECTOR ) );
-        }
-
-        list_insert ( &mts->lusfe, usfe ); /*** for undo / redo ***/
-    }
-
-    if ( list_seek ( mts->lfse, fse ) == NULL ) {
-        list_insert ( &mts->lfse, fse );
-    }
-
-    if ( mts->type == SCULPTINFLATE ) {
-        if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
-            fse->pos[rtverID].x += ( usfe->nor[rtverID].x * 0.01f * mts->pressure );
-            fse->pos[rtverID].y += ( usfe->nor[rtverID].y * 0.01f * mts->pressure );
-            fse->pos[rtverID].z += ( usfe->nor[rtverID].z * 0.01f * mts->pressure );
-            fse->pos[rtverID].w  = 1.0f;
-
-            fse->flags[rtverID] |= 0x01;
-        }
-    }
-
-    if ( mts->type == SCULPTCREASE ) {
-        if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
-            fse->pos[rtverID].x -= ( usfe->nor[rtverID].x * 0.01f * mts->pressure );
-            fse->pos[rtverID].y -= ( usfe->nor[rtverID].y * 0.01f * mts->pressure );
-            fse->pos[rtverID].z -= ( usfe->nor[rtverID].z * 0.01f * mts->pressure );
-            fse->pos[rtverID].w  = 1.0f;
-
-            fse->flags[rtverID] |= 0x01;
-        }
-    }
-
-    if ( mts->type == SCULPTUNSCULPT ) {
-        if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
-            fse->pos[rtverID].x = 0.0f;
-            fse->pos[rtverID].y = 0.0f;
-            fse->pos[rtverID].z = 0.0f;
-            fse->pos[rtverID].w = 0.0f;
-
-            fse->flags[rtverID] |= 0x01;
-        }
-    }
-
-
-    /*** update this face only ***/
-    if ( list_seek ( sdr->lsubfac, fac ) == NULL ) {
-        list_insert ( &sdr->lsubfac, fac );
-    }
-
-    return 0x01;
-}
-
-/******************************************************************************/
 typedef struct _CURVEPICKDATA {
     G3DCURVE  *curve;
     uint32_t   flags;
@@ -557,19 +455,19 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                  G3DCAMERA        *cam,
                  uint32_t          ctrlClick,
                  uint64_t          engine_flags ) {
-    static GLint  VPX[0x04];
+    /*static GLint  VPX[0x04];
     static double MVX[0x10];
-    static double PJX[0x10];
+    static double PJX[0x10];*/
 
-    glGetIntegerv ( GL_VIEWPORT, VPX );
+    /*glGetIntegerv ( GL_VIEWPORT, VPX );*/
 
-    closeSelectionRectangle ( pt, VPX, engine_flags );
+    closeSelectionRectangle ( pt, cam->vmatrix /*VPX*/, engine_flags );
 
-    glMatrixMode ( GL_PROJECTION );
+    /*glMatrixMode ( GL_PROJECTION );
     glPushMatrix ( );
     glLoadIdentity ( );
     g3dcamera_project ( cam, engine_flags );
-    glGetDoublev ( GL_PROJECTION_MATRIX, PJX );
+    glGetDoublev ( GL_PROJECTION_MATRIX, PJX );*/
 
     glMatrixMode ( GL_MODELVIEW );
     glPushMatrix ( );
@@ -578,8 +476,9 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
 
     /*** Note: calling setViewportMatrix before setProjectionMatrix ***/
     /*** is mandatory ***/
-    g3dpick_setViewportMatrix   ( VPX   );
-    g3dpick_setProjectionMatrix ( PJX   );
+
+    g3dpick_setViewportMatrix   ( /*VPX*/ cam->vmatrix  );
+    g3dpick_setProjectionMatrix ( /*PJX*/ cam->pmatrix  );
     g3dpick_setAreaMatrix       ( pt->coord, pt->circular );
 
     if ( ( ( engine_flags & VIEWVERTEXUV ) == 0x00 ) &&
@@ -596,7 +495,8 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                                                cam, 
                                                VIEWOBJECT );
 */
-            g3dpick_setEpsilon ( 0.0001f );
+
+            g3dpick_setEpsilon ( 0.00001f );
         }
     }
 
@@ -682,8 +582,8 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                     /*** directly call g3dmesh_pickUVs() to bypass matrix ***/
                     /*** opration. Our drawing call must depend on an ***/
                     /*** identity matrix in the UVMap Editor ***/
-                    glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
-                    g3dpick_setModelviewMatrix ( MVX );
+                    /*glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );*/
+                    g3dpick_setModelviewMatrix ( ((G3DOBJECT*)cam)->iwmatrix /*MVX*/ );
                     g3dmesh_pickVertexUVs ( mes, VIEWVERTEXUV );
                 }
 
@@ -693,8 +593,8 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                     /*** directly call g3dmesh_pickUVs() to bypass matrix ***/
                     /*** opration. Our drawing call must depend on an ***/
                     /*** identity matrix in the UVMap Editor ***/
-                    glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
-                    g3dpick_setModelviewMatrix ( MVX );
+                    /*glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );*/
+                    g3dpick_setModelviewMatrix ( ((G3DOBJECT*)cam)->iwmatrix /*MVX*/ );
                     g3dmesh_pickFaceUVs ( mes, VIEWFACEUV );
                 }
 
@@ -749,46 +649,56 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
 
 	        if ( obj->type == G3DSUBDIVIDERTYPE ) {
         	    G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
-        	    SUBDIVIDERPICKDATA spd = { .sdr   = sdr,
-                        	               .flags = 0x00,
-                                           .mts   = pt };
+        	    MESHPICKDATA mpd = { .mes    = g3dobject_getActiveParentByType ( obj, MESH ),
+                        	         .weight = pt->weight,
+                                     .flags = 0x00 };
 
-		        if ( engine_flags & VIEWSCULPT ) {
-        	        g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionSculptVertex ), &spd );
+                if ( mpd.mes ) {
+                    if ( ctrlClick ) {
+                        mpd.flags |= CTRLCLICK;
+                    } else {
+                        if ( engine_flags & VIEWSCULPT ) g3dmesh_unselectAllFaces ( mpd.mes );
+                    }
 
-        	        g3dobject_pick_r ( ( G3DOBJECT * ) sce, 
-                                                       cam, 
-                                                       VIEWSCULPT );
+		            if ( engine_flags & VIEWSCULPT ) {
+        	            g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionSelectFace ), &mpd );
 
-                    g3dsubdivider_fillBuffers ( sdr,
-                                                sdr->lsubfac,
-                                                engine_flags );
+        	            g3dobject_pick_r ( ( G3DOBJECT * ) sce, 
+                                                           cam, 
+                                                           VIEWFACE );
 
-                    list_free ( &sdr->lsubfac, NULL );
-		        }
+                        /*g3dsubdivider_fillBuffers ( sdr,
+                                                    sdr->lsubfac,
+                                                    engine_flags );
+
+                        list_free ( &sdr->lsubfac, NULL );*/
+		            }
+                }
 	        }
 
 	        if ( obj->type == G3DMORPHERTYPE ) {
         	    G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
 
-                if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
-                    G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
-        	        MORPHERPICKDATA mpd = { .mpr   =  mpr,
-                        	                .flags = 0x00 };
+                if ( ((G3DOBJECT*)mpr)->parent ) {
+                    if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
+                        G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
+        	            MORPHERPICKDATA mpd = { .mpr   =  mpr,
+                        	                    .flags = 0x00 };
 
-                    if ( ctrlClick ) {
-                        mpd.flags |= CTRLCLICK;
-                    } else {
-                        g3dmesh_unselectAllVertices ( mes );
+                        if ( ctrlClick ) {
+                            mpd.flags |= CTRLCLICK;
+                        } else {
+                            g3dmesh_unselectAllVertices ( mes );
+                        }
+
+		                if ( engine_flags & VIEWVERTEX ) {
+        	                g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionSelectVertexForPose ), &mpd );
+
+        	                g3dobject_pick_r ( ( G3DOBJECT * ) sce, 
+                                                               cam, 
+                                                               VIEWVERTEX );
+		                }
                     }
-
-		            if ( engine_flags & VIEWVERTEX ) {
-        	            g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionSelectVertexForPose ), &mpd );
-
-        	            g3dobject_pick_r ( ( G3DOBJECT * ) sce, 
-                                                           cam, 
-                                                           VIEWVERTEX );
-		            }
                 }
 	        }
 	    }
@@ -796,8 +706,8 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
 
     glPopMatrix ( );
 
-    glMatrixMode ( GL_PROJECTION );
-    glPopMatrix ( );
+    /*glMatrixMode ( GL_PROJECTION );
+    glPopMatrix ( );*/
 }
 
 /******************************************************************************/
@@ -1180,6 +1090,40 @@ int pick_tool ( G3DMOUSETOOL *mou,
                 	    }
                     }
 
+                    if ( obj->type == G3DSUBDIVIDERTYPE ) {
+                	    G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+                        G3DMESH *mes = g3dobject_getActiveParentByType ( obj, MESH );
+
+                        if ( mes ) {
+        		            if ( engine_flags & VIEWSCULPT ) {
+                	            lselold = list_copy ( mes->lselfac );
+
+                	            pick_Item ( pt, 
+                                            sce, 
+                                            cam, 
+                                            ctrlClick, 
+                                            engine_flags );
+
+                	            lselnew = list_copy ( mes->lselfac );
+
+                	            /*** remember selection ***/
+                                if ( lselold || lselnew ) {
+                	                g3durm_mesh_pickFaces  ( urm, 
+                                                             sce, 
+                                                             mes,
+                                                             lselold,
+                                                             lselnew,
+                                                             engine_flags,
+                                                             REDRAWVIEW );
+
+                                    mes->obj.update_flags |= RESETMODIFIERS;
+
+                	                g3dmesh_update ( mes, engine_flags );
+                                }
+                            }
+                        }
+                    }
+
                     if ( ( obj->type == G3DMESHTYPE ) || 
                          ( obj->type == G3DFFDTYPE  ) ) {
                 	    G3DMESH *mes = ( G3DMESH * ) obj;
@@ -1247,8 +1191,6 @@ int pick_tool ( G3DMOUSETOOL *mou,
 
                 	            g3dmesh_update ( mes, engine_flags );
                             }
-
-
         	            }
                     }
         	    }
