@@ -30,8 +30,10 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-G3DUICOPIEDITEM *g3duicopieditem_new ( G3DOBJECT *obj,
-                                       G3DKEY *key, uint32_t operation ) {
+G3DUICOPIEDITEM *g3duicopieditem_new ( G3DOBJECT              *obj,
+                                       G3DKEY                 *key,
+                                       G3DFACESCULPTEXTENSION *fse,
+                                       uint32_t                operation ) {
     uint32_t structsize = sizeof ( G3DUICOPIEDITEM );
     G3DUICOPIEDITEM *item = ( G3DUICOPIEDITEM * ) calloc ( 0x01, structsize );
 
@@ -56,6 +58,10 @@ G3DUICOPIEDITEM *g3duicopieditem_new ( G3DOBJECT *obj,
             item->key = key;
         break;
 
+        case CLIPBOARDCOPYFACESCULPT :
+            item->fse = fse;
+        break;
+
         default :
         break;
     }
@@ -76,6 +82,10 @@ void g3duicopieditem_clear ( G3DUICOPIEDITEM *item, uint32_t operation ) {
 
         case CLIPBOARDCOPYKEY :
             g3dkey_free ( item->key );
+        break;
+
+        case CLIPBOARDCOPYFACESCULPT :
+            g3dfacesculptextension_free ( item->fse );
         break;
 
         default :
@@ -148,6 +158,7 @@ void g3duiclipboard_copyObject ( G3DUICLIPBOARD *cli,
         G3DOBJECT *cpy = ( G3DOBJECT * ) g3dobject_copy ( obj, 0x00, obj->name, engine_flags );
         G3DUICOPIEDITEM *item = g3duicopieditem_new ( cpy,  /*** object  ***/
                                                       NULL, /*** not key ***/
+                                                      NULL,
                                                       CLIPBOARDCOPYOBJECT );
 
         list_insert ( &cli->lcpy, item );
@@ -157,10 +168,11 @@ void g3duiclipboard_copyObject ( G3DUICLIPBOARD *cli,
 }
 
 /******************************************************************************/
-void g3duiclipboard_paste ( G3DUICLIPBOARD *cli, G3DURMANAGER *urm,
-                                                 G3DSCENE *sce,
-                                                 G3DOBJECT *dst,
-                                                 uint32_t flags ) {
+void g3duiclipboard_paste ( G3DUICLIPBOARD *cli,
+                            G3DURMANAGER   *urm,
+                            G3DSCENE       *sce,
+                            G3DOBJECT      *dst,
+                            uint32_t        flags ) {
     switch ( cli->operation ) {
         case CLIPBOARDCOPYOBJECT : {
             LIST *ltmpcpy = cli->lcpy;
@@ -202,15 +214,83 @@ void g3duiclipboard_paste ( G3DUICLIPBOARD *cli, G3DURMANAGER *urm,
             list_free ( &lcpyobj, NULL );
         } break;
 
+        case CLIPBOARDCOPYFACESCULPT : {
+            G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+            if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
+                G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+                G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+
+                if ( parent ) {
+                    G3DMESH *mes = ( G3DMESH * ) parent;
+                    LIST *ltmpcpy = cli->lcpy;
+
+                    while ( ltmpcpy ) {
+                        G3DUICOPIEDITEM *item = ( G3DUICOPIEDITEM * ) ltmpcpy->data;
+                        LIST *ltmpfac = mes->lselfac;
+
+                        while ( ltmpfac ) {
+                            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                            G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
+                                                                                 sdr );
+
+                            if ( fse == NULL ) {
+                                fse = g3dfacesculptextension_new ( ( uint64_t ) sdr,
+                                                                                fac,
+                                                                                sdr->sculptResolution );
+
+                                g3dface_addExtension ( fac, fse );
+                            }
+
+                            if ( fse->nbver == item->fse->nbver ) {
+                                memcpy ( fse->pos, item->fse->pos, fse->nbver * sizeof ( G3DVECTOR ) );
+                            }
+
+                            ltmpfac = ltmpfac->next;
+                        }
+
+                        ltmpcpy = ltmpcpy->next;
+                    }
+                }
+            }
+        } break;
+
         default :
         break;
     }
 }
 
 /******************************************************************************/
-void g3duiclipboard_copyKey ( G3DUICLIPBOARD *cli, G3DSCENE *sce,
-                                                   G3DOBJECT *obj,
-                                                   LIST *lkey ) {
+void g3duiclipboard_copyKey ( G3DUICLIPBOARD *cli, 
+                              G3DSCENE       *sce,
+                              G3DOBJECT      *obj,
+                              LIST           *lkey ) {
     /*** First clear the clipboard ***/
     g3duiclipboard_clear ( cli );
+}
+
+/******************************************************************************/
+void g3duiclipboard_copyFaceSculptExtension ( G3DUICLIPBOARD         *cli, 
+                                              G3DSCENE               *sce,
+                                              G3DOBJECT              *obj,
+                                              G3DFACESCULPTEXTENSION *fse,
+                                              uint32_t                extensionName,
+                                              G3DFACE                *fac,
+                                              uint32_t                level ) {
+    G3DFACESCULPTEXTENSION *fsecpy = g3dfacesculptextension_new ( extensionName,
+                                                                  fac,
+                                                                  level );
+    G3DUICOPIEDITEM *item = g3duicopieditem_new ( NULL, 
+                                                  NULL,
+                                                  fsecpy,
+                                                  CLIPBOARDCOPYFACESCULPT );
+
+
+    /*** First clear the clipboard ***/
+    g3duiclipboard_clear ( cli );
+
+    cli->operation = CLIPBOARDCOPYFACESCULPT;
+    cli->sce = sce;
+
+    list_insert ( &cli->lcpy, item );
 }

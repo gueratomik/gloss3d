@@ -459,7 +459,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MODE_VIEWFACE   "Face mode"
 #define MODE_VIEWSKIN   "Skin mode"
 #define MODE_VIEWPATH   "Path mode"
-#define MODE_VIEWSCULPT "Sculpt mode"
+#define MODE_VIEWSCULPT "Subdivided displacement mode"
 #define MODE_VIEWAXIS   "Axis mode"
 #define MODE_VIEWUVWMAP "UVW mode"
 
@@ -604,9 +604,10 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 
 /******************************************************************************/
 /*** The Copy-Paste manager ***/
-#define CLIPBOARDEMPTY      0x00
-#define CLIPBOARDCOPYOBJECT 0x01
-#define CLIPBOARDCOPYKEY    0x02
+#define CLIPBOARDEMPTY          0x00
+#define CLIPBOARDCOPYOBJECT     0x01
+#define CLIPBOARDCOPYKEY        0x02
+#define CLIPBOARDCOPYFACESCULPT 0x03
 
 typedef enum _G3DUIAXIS {
     G3DUIXAXIS,
@@ -617,9 +618,11 @@ typedef enum _G3DUIAXIS {
 } G3DUIAXIS;
 
 typedef struct _G3DUICOPIEDITEM {
-    G3DOBJECT *obj;
-    G3DKEY    *key;
-    double wmatrix[0x10]; /*** We nee the world matrix for parent swapping ***/
+    G3DOBJECT              *obj;
+    G3DKEY                 *key;
+    G3DFACESCULPTEXTENSION *fse;
+/*** We nee the world matrix for parent swapping ***/
+    double                  wmatrix[0x10]; 
 } G3DUICOPIEDITEM;
 
 typedef struct _G3DUICLIPBOARD {
@@ -1174,7 +1177,10 @@ uint32_t common_timelinedata_isOnKey ( G3DUI        *gui,
 /******************************************************************************/
 
 /******************************* ClipBoard ************************************/
-G3DUICOPIEDITEM *g3duicopieditem_new   ( G3DOBJECT *, G3DKEY *, uint32_t );
+G3DUICOPIEDITEM *g3duicopieditem_new   ( G3DOBJECT              *obj, 
+                                         G3DKEY                 *key, 
+                                         G3DFACESCULPTEXTENSION *fse,
+                                         uint32_t                operation );
 void             g3duicopieditem_clear ( G3DUICOPIEDITEM *, uint32_t );
 void             g3duicopieditem_free  ( G3DUICOPIEDITEM * );
 
@@ -1194,6 +1200,13 @@ void            g3duiclipboard_paste      ( G3DUICLIPBOARD *, G3DURMANAGER *,
 void            g3duiclipboard_copyKey    ( G3DUICLIPBOARD *, G3DSCENE *,
                                                               G3DOBJECT *,
                                                               LIST * );
+void g3duiclipboard_copyFaceSculptExtension ( G3DUICLIPBOARD         *cli, 
+                                              G3DSCENE               *sce,
+                                              G3DOBJECT              *obj,
+                                              G3DFACESCULPTEXTENSION *fse,
+                                              uint32_t                extensionName,
+                                              G3DFACE                *fac,
+                                              uint32_t                level );
 
 /******************************************************************************/
 void      common_g3dui_openG3DFile          ( G3DUI *, const char * );
