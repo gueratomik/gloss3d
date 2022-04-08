@@ -30,6 +30,30 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+void common_g3duisubdivideredit_displacementHeightCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+    if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
+        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+
+        g3dsubdivider_setSculptMode ( sdr, SCULPTMODE_HEIGHT, gui->engine_flags );
+    }
+}
+
+/******************************************************************************/
+void common_g3duisubdivideredit_displacementSculptCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+
+    if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
+        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+
+        g3dsubdivider_setSculptMode ( sdr, SCULPTMODE_SCULPT, gui->engine_flags );
+    }
+}
+
+/******************************************************************************/
 void common_g3duisubdivideredit_subdivSyncCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );

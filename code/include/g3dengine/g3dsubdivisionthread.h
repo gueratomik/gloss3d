@@ -65,6 +65,7 @@ typedef struct _G3DSUBDIVISIONTHREAD {
     uint32_t     cpuID;
     uint32_t     subdiv_level;
     uint64_t     sculptExtensionName;
+    uint64_t     sculptMode;
     uint64_t     engine_flags;
     uint32_t    *qua_indexes; /*** Quad subindexes - used for sculpting ***/
     uint32_t    *tri_indexes; /*** Triangles subindexes  - used for sculpting ***/
@@ -120,6 +121,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
                                  uint32_t              cpuID,
                                  uint32_t              subdiv_level,
                                  uint64_t              sculptExtensionName,
+                                 uint32_t              sculptMode,
                                  uint64_t              engine_flags );
 
 /**
@@ -164,7 +166,8 @@ G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
                                                  uint32_t     cpuID,
                                                  uint32_t     subdiv_level,
                                                  uint64_t     sculptExtensionName,
-                                                 uint64_t engine_flags );
+                                                 uint32_t     sculptMode,
+                                                 uint64_t     engine_flags );
 
 /**
  * Multithreaded version of g3dsubdivisionV3_subdivide()

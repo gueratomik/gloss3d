@@ -155,6 +155,13 @@ typedef struct _URMUNTRIANGULATE {
 } URMUNTRIANGULATE, URMTRIANGULATE;
 
 /******************************************************************************/
+typedef struct _URMFILLHEIGTHMAP {
+    G3DSUBDIVIDER *sdr;
+    G3DVECTOR     *pos;
+    uint32_t       nbver;
+} URMFILLHEIGTHMAP;
+
+/******************************************************************************/
 typedef struct _URMEXTRUDEMESH {
     G3DMESH *mes;
     LIST *loriver;
@@ -337,6 +344,7 @@ typedef struct _URMSCULPTFACEEXTENSION {
     G3DFACESCULPTEXTENSION *fse;
     G3DFACE                *fac;
     G3DVECTOR              *pos;
+    G3DHEIGHT              *hei;
     G3DVECTOR              *nor;
 } URMSCULPTFACEEXTENSION;
 

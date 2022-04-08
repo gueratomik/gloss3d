@@ -128,11 +128,13 @@ static void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
 static uint32_t g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
                                                  uint64_t        sculptExtensionName,
                                                  G3DFACE        *fac, 
-                                                 G3DSUBFACE     *newfac );
+                                                 G3DSUBFACE     *newfac,
+                                                 uint32_t        engine_flags );
 static uint32_t g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
                                                  uint64_t        sculptExtensionName,
                                                  G3DFACE        *fac, 
-                                                 G3DSUBFACE     *newfac );
+                                                 G3DSUBFACE     *newfac,
+                                                 uint32_t        engine_flags );
 static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
                                             G3DMESH        *mes,
                                             uint64_t        sculptExtensionName,
@@ -491,34 +493,36 @@ static void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
         g3drtvertex_init ( &rtVertices[vid], &innerVertices[i].ver, 0, engine_flags );
     }
 
-    for ( i = 0x00; i < nbInnerFaces; i++ ) {
-        LIST *ltmpuvs = innerFaces[i].fac.luvs;
+    if ( rtQuads ) {
+        for ( i = 0x00; i < nbInnerFaces; i++ ) {
+            LIST *ltmpuvs = innerFaces[i].fac.luvs;
 
-        rtQuads[i].rtver[0x00] = innerFaces[i].fac.ver[0x00]->id;
-        rtQuads[i].rtver[0x01] = innerFaces[i].fac.ver[0x01]->id;
-        rtQuads[i].rtver[0x02] = innerFaces[i].fac.ver[0x02]->id;
-        rtQuads[i].rtver[0x03] = innerFaces[i].fac.ver[0x03]->id;
+            rtQuads[i].rtver[0x00] = innerFaces[i].fac.ver[0x00]->id;
+            rtQuads[i].rtver[0x01] = innerFaces[i].fac.ver[0x01]->id;
+            rtQuads[i].rtver[0x02] = innerFaces[i].fac.ver[0x02]->id;
+            rtQuads[i].rtver[0x03] = innerFaces[i].fac.ver[0x03]->id;
 
-        while ( ltmpuvs ) {
-            G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
-            uint32_t j;
+            while ( ltmpuvs ) {
+                G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
+                uint32_t j;
 
-            for ( j = 0x00; j < innerFaces[i].fac.nbver; j++ ) {
-                rtUVs[(nbInnerVertices*uvs->map->mapID)+innerFaces[i].fac.ver[j]->id].u = uvs->veruv[j].u;
-                rtUVs[(nbInnerVertices*uvs->map->mapID)+innerFaces[i].fac.ver[j]->id].v = uvs->veruv[j].v;
+                for ( j = 0x00; j < innerFaces[i].fac.nbver; j++ ) {
+                    rtUVs[(nbInnerVertices*uvs->map->mapID)+innerFaces[i].fac.ver[j]->id].u = uvs->veruv[j].u;
+                    rtUVs[(nbInnerVertices*uvs->map->mapID)+innerFaces[i].fac.ver[j]->id].v = uvs->veruv[j].v;
+                }
+
+                ltmpuvs = ltmpuvs->next;
             }
 
-            ltmpuvs = ltmpuvs->next;
-        }
+            if ( rtEdges ) {
+                for ( j = 0x00; j < innerFaces[i].fac.nbver; j++ ) {
+                    if ( innerFaces[i].fac.edg[j] && 
+                         innerFaces[i].fac.edg[j]->flags & EDGEORIGINAL ) {
+                        uint32_t edgId = innerFaces[i].fac.edg[j]->id;
 
-        if ( rtEdges ) {
-            for ( j = 0x00; j < innerFaces[i].fac.nbver; j++ ) {
-                if ( innerFaces[i].fac.edg[j] && 
-                     innerFaces[i].fac.edg[j]->flags & EDGEORIGINAL ) {
-                    uint32_t edgId = innerFaces[i].fac.edg[j]->id;
-
-                    rtEdges[edgId].rtver[0x00] = innerFaces[i].fac.edg[j]->ver[0x00]->id;
-                    rtEdges[edgId].rtver[0x01] = innerFaces[i].fac.edg[j]->ver[0x01]->id;
+                        rtEdges[edgId].rtver[0x00] = innerFaces[i].fac.edg[j]->ver[0x00]->id;
+                        rtEdges[edgId].rtver[0x01] = innerFaces[i].fac.edg[j]->ver[0x01]->id;
+                    }
                 }
             }
         }
@@ -997,10 +1001,8 @@ static void g3dsubdivision_importOuterEdge ( G3DSUBDIVISION *sdv,
 static uint32_t g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
                                                  uint64_t        sculptExtensionName,
                                                  G3DFACE        *fac,
-                                                 G3DSUBFACE     *newfac ) {
-    G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac, 
-                                                         sculptExtensionName );
-
+                                                 G3DSUBFACE     *newfac,
+                                                 uint32_t        subdiv_flags ) {
     /*** reset only the struct but don't lose time reseting the  ***/
     /*** embedded linked list at the end of the G3DSUBFACE structure **/
     memset ( newfac, 0x00, sizeof ( G3DSUBFACE ) );
@@ -1022,7 +1024,12 @@ static uint32_t g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
     /*  to uncomment */
     /*newfac->fac.rtluim  = fac->rtluim*/;
 
-    if ( fse ) return 0x01;
+    if ( ( subdiv_flags & SUBDIVISIONNOELEVATE ) == 0x00 ) {
+        G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac, 
+                                                             sculptExtensionName );
+
+        if ( fse ) return 0x01;
+    }
 
     return 0x00;
 }
@@ -1031,9 +1038,9 @@ static uint32_t g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
 static uint32_t g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
                                                  uint64_t        sculptExtensionName,
                                                  G3DFACE        *fac,
-                                                 G3DSUBFACE     *newfac ) {
-    G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac, 
-                                                         sculptExtensionName );
+                                                 G3DSUBFACE     *newfac,
+                                                 uint32_t        subdiv_flags ) {
+
     G3DVERTEX *newver;
     G3DEDGE   *newedg;
     uint32_t i;
@@ -1061,7 +1068,12 @@ static uint32_t g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
         newfac->fac.edg[i] = g3dsubdivision_lookEdgeUp   ( sdv, fac->edg[i] );
     }
 
-    if ( fse ) return 0x01;
+    if ( ( subdiv_flags & SUBDIVISIONNOELEVATE ) == 0x00 ) {
+        G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac, 
+                                                             sculptExtensionName );
+
+        if ( fse ) return 0x01;
+    }
 
     return 0x00;
 }
@@ -1107,7 +1119,9 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
     if ( g3dsubdivision_importInnerFace ( sdv, 
                                           sculptExtensionName, 
                                           fac, 
-                                          innerFace ) ) {
+                                          innerFace,
+                                          subdiv_flags ) ) {
+
         subdiv_flags |= SUBDIVISIONELEVATE;
     }
 
@@ -1224,7 +1238,9 @@ static uint32_t g3dsubdivisionV3_copyFace ( G3DSUBDIVISION *sdv,
                     if ( g3dsubdivision_importOuterFace ( sdv, 
                                                           sculptExtensionName, 
                                                           outfac, 
-                                                          newfac ) ) {
+                                                          newfac,
+                                                          subdiv_flags ) ) {
+
                         subdiv_flags |= SUBDIVISIONELEVATE;
                     }
                 }
@@ -1285,6 +1301,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       G3DFACE       **commitFaces,
                                       LIST           *ltex,
                                       uint64_t        sculptExtensionName,
+                                      uint32_t        sculptMode,
                                       uint32_t      (*qua_indexes)[0x04], /*** for sculpt mode ***/
                                       uint32_t      (*tri_indexes)[0x04], /*** for sculpt mode ***/
                                       uint32_t        subdiv_level,
@@ -1337,8 +1354,9 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                                 outerVertices,
                                                &nbOuterVertices,
                                                 subdiv_level,
-                                                object_flags,
+                                                subdiv_flags,
                                                 engine_flags );
+
 
     curInnerFaces    = innerFaces;
     curOuterFaces    = outerFaces;
@@ -1381,15 +1399,30 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                         if ( fse ) {
                             uint32_t vID = curInnerVertices[i].ver.id;
 
-                            curInnerVertices[i].ver.pos.x += ( fse->pos[vID].x );
-                            curInnerVertices[i].ver.pos.y += ( fse->pos[vID].y );
-                            curInnerVertices[i].ver.pos.z += ( fse->pos[vID].z );
+                            switch ( sculptMode ) {
+                                case SCULPTMODE_SCULPT :
+                                    if ( fse->pos[vID].w ) {
+                                        curInnerVertices[i].ver.pos.x += ( fse->pos[vID].x );
+                                        curInnerVertices[i].ver.pos.y += ( fse->pos[vID].y );
+                                        curInnerVertices[i].ver.pos.z += ( fse->pos[vID].z );
+                                    }
+                                break;
+
+                                default :
+                                    if ( fse->hei[vID].w ) {
+                                        curInnerVertices[i].ver.pos.x += ( curInnerVertices[i].ver.nor.x * fse->hei[vID].s );
+                                        curInnerVertices[i].ver.pos.y += ( curInnerVertices[i].ver.nor.y * fse->hei[vID].s );
+                                        curInnerVertices[i].ver.pos.z += ( curInnerVertices[i].ver.nor.z * fse->hei[vID].s );
+                                    }
+                                break;
+                            }
                         }
                     } else {
                         g3dsubvertex_elevate ( &curInnerVertices[i],
                                                 sculptExtensionName,
                                                 tri_indexes, 
-                                                qua_indexes );
+                                                qua_indexes,
+                                                sculptMode );
                     }
                 }
 
@@ -1399,7 +1432,8 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                     g3dsubvertex_elevate ( &curOuterVertices[i],
                                             sculptExtensionName,
                                             tri_indexes, 
-                                            qua_indexes );
+                                            qua_indexes,
+                                            sculptMode );
                 }
             }
 

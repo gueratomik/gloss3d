@@ -428,10 +428,6 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define BACKGROUNDPROJECTION  "Background"
 
 #define EDITSUBDIVIDER         "Subdivider"
-#define EDITSUBDIVIDERPREVIEW  "Subdivision (preview)"
-#define EDITSUBDIVIDERSYNC     "Sync"
-#define EDITSUBDIVIDERRENDER   "Subdivision (render)"
-
 
 #define EDITSPLINEREVOLVER      "Spline Revolver"
 #define EDITSPLINEREVOLVERSTEPS "Steps"
@@ -1202,11 +1198,8 @@ void            g3duiclipboard_copyKey    ( G3DUICLIPBOARD *, G3DSCENE *,
                                                               LIST * );
 void g3duiclipboard_copyFaceSculptExtension ( G3DUICLIPBOARD         *cli, 
                                               G3DSCENE               *sce,
-                                              G3DOBJECT              *obj,
-                                              G3DFACESCULPTEXTENSION *fse,
-                                              uint32_t                extensionName,
-                                              G3DFACE                *fac,
-                                              uint32_t                level );
+                                              G3DSUBDIVIDER          *sdr,
+                                              G3DFACE                *fac );
 
 /******************************************************************************/
 void      common_g3dui_openG3DFile          ( G3DUI *, const char * );
@@ -1696,6 +1689,8 @@ void common_g3duirenderedit_setBackgroundImageModeCbk ( G3DUI *gui );
 void common_g3duisubdivideredit_subdivSyncCbk ( G3DUI *gui );
 void common_g3duisubdivideredit_subdivRenderCbk ( G3DUI *gui, int level );
 void common_g3duisubdivideredit_subdivPreviewCbk ( G3DUI *gui, int level );
+void common_g3duisubdivideredit_displacementHeightCbk ( G3DUI *gui );
+void common_g3duisubdivideredit_displacementSculptCbk ( G3DUI *gui );
 
 void common_g3duitextedit_sizeCbk ( G3DUI *gui, uint32_t size );
 void common_g3dui_closeScene ( G3DUI *gui );

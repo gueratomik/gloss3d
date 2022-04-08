@@ -341,6 +341,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define SUBDIVISIONCOMPUTE        (  1 << 14 )
 #define SUBDIVISIONDISPLAY        (  1 << 15 )
 #define SUBDIVISIONINDEX          (  1 << 16 )
+#define SUBDIVISIONNOELEVATE      (  1 << 17 )
 
 /************************* Subdivision topology Flags *************************/
 #define NEEDEDGETOPOLOGY              (  1       )
@@ -1069,18 +1070,6 @@ typedef struct _G3DCUTEDGE {
 } G3DSCULPTMAP;*/
 
 /******************************************************************************/
-typedef struct _G3DHEIGHT {
-    float   elevation;
-    uint32_t flags;
-} G3DHEIGHT;
-
-/******************************************************************************/
-typedef struct _G3DHEIGHTMAP {
-    G3DHEIGHT *heights;
-    uint32_t maxheights;
-} G3DHEIGHTMAP;
-
-/******************************************************************************/
 typedef struct _G3DFACE {
     uint32_t         id;           /*** face ID                             ***/
     uint32_t         typeID;
@@ -1093,7 +1082,6 @@ typedef struct _G3DFACE {
     LIST            *luvs;         /*** List of UVSets                      ***/
     uint32_t         nbuvs;        /*** Number of UVSets                    ***/
     float            surface;/*** used by the raytracer               ***/
-    G3DHEIGHTMAP    *heightmap;
     LIST            *lfacgrp; /*** list of facegroups it belong s to ***/
     LIST            *lext;    /*** list of face extensions                  ***/
     G3DRTVERTEX     *rtvermem;
@@ -1309,9 +1297,15 @@ typedef struct _G3DFACEEXTENSION {
     uint32_t name;
 } G3DFACEEXTENSION;
 
+typedef struct _G3DHEIGHT {
+    float s;
+    float w;
+} G3DHEIGHT;
+
 typedef struct _G3DFACESCULPTEXTENSION {
     G3DFACEEXTENSION ext;
     G3DVECTOR       *pos;
+    G3DHEIGHT       *hei;
     uint32_t        *flags;
     uint32_t         nbver;
     uint32_t         level;
@@ -1331,14 +1325,16 @@ void g3dface_removeExtension ( G3DFACE          *fac,
 
 G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint32_t extensionName,
                                                      G3DFACE *fac,
-                                                     uint32_t level );
+                                                     uint32_t level,
+                                                     uint32_t sculptMode );
 
 void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
                                    G3DFACE                *srcfac,
                                    G3DFACESCULPTEXTENSION *dst,
                                    G3DFACE                *dstfac,
                                    uint32_t               *mapping,
-                                   G3DVECTOR              *factor );
+                                   G3DVECTOR              *factor,
+                                   uint32_t                sculptMode );
 
 void g3dfacesculptextension_free ( G3DFACESCULPTEXTENSION *fse );
 
@@ -1346,7 +1342,8 @@ void g3dfacesculptextension_clearFlags ( G3DFACESCULPTEXTENSION *fse );
 
 void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse, 
                                      G3DFACE                *fac,
-                                     uint32_t                level );
+                                     uint32_t                level,
+                                     uint32_t                sculptMode );
 
 /******************************************************************************/
 struct _G3DKEY {
@@ -1426,6 +1423,9 @@ typedef struct _G3DWIREFRAME {
 #include <g3dengine/g3dmorpher.h>
 #include <g3dengine/g3dskin.h>
 
+#define SCULPTMODE_HEIGHT 0x00
+#define SCULPTMODE_SCULPT 0x01
+
 /******************************************************************************/
 typedef struct _G3DSUBDIVIDER {
     G3DMODIFIER  mod;
@@ -1446,6 +1446,7 @@ typedef struct _G3DSUBDIVIDER {
     uint32_t     subdiv_preview;
     uint32_t     subdiv_render;
     uint32_t     sculptResolution;
+    uint32_t     sculptMode;
     LIST        *lsubfac;
     G3DFACE    **factab;
 } G3DSUBDIVIDER;
@@ -1728,10 +1729,11 @@ void       g3dvertex_createSubEdge ( G3DVERTEX *, G3DSUBVERTEX *, G3DFACE *,
 void       g3dsubvertex_addEdge ( G3DSUBVERTEX *, G3DEDGE * );
 void g3dsubvertex_renumberArray ( G3DSUBVERTEX *subver, 
                                   uint32_t nbver );
-void       g3dsubvertex_elevate ( G3DSUBVERTEX *, 
-                                  uint64_t     sculptExtensionName,
-                                  uint32_t    (*tri_indexes)[0x04],
-                                  uint32_t    (*qua_indexes)[0x04] );
+void g3dsubvertex_elevate ( G3DSUBVERTEX *subver,
+                            uint64_t      sculptExtensionName,
+                            uint32_t    (*tri_indexes)[0x04],
+                            uint32_t    (*qua_indexes)[0x04],
+                            uint32_t      sculptMode );
 uint32_t   g3dvertex_setOuterEdges ( G3DVERTEX *, G3DSUBVERTEX  *,
                                                   G3DEDGE       *,
                                                   G3DEDGE       *,
@@ -3211,8 +3213,10 @@ G3DPIVOT *g3dpivot_new ( G3DCAMERA *cam,
 void      g3dpivot_orbit ( G3DPIVOT *, float, float );
 
 /******************************************************************************/
+/*
 void          g3dheightmap_realloc ( G3DHEIGHTMAP *, uint32_t );
 G3DHEIGHTMAP *g3dheightmap_new     ( uint32_t );
+*/
 
 uint32_t *g3dsubindex_get ( uint32_t, uint32_t );
 
@@ -3242,8 +3246,11 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
                                  uint64_t       engine_flags );
 void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr, 
                                   uint64_t       engine_flags );
-void g3dsubdivider_setScupltResolution ( G3DSUBDIVIDER *sdr,
+void g3dsubdivider_setSculptResolution ( G3DSUBDIVIDER *sdr,
                                          uint32_t       sculptResolution );
+void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
+                                   uint32_t       sculptMode,
+                                   uint64_t       engine_flags );
 uint32_t g3dsubdivider_hasScultMaps ( G3DSUBDIVIDER *sdr );
 
 /******************************************************************************/

@@ -40,12 +40,24 @@ static uint32_t g3dexportv3subdivider_scultmapGeometry ( G3DEXPORTV3DATA    *ged
                                                          G3DEXPORTSCULPTMAP *esm, 
                                                          uint32_t            flags, 
                                                          FILE               *fdst ) {
+    G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) ged->currentObject;
     uint32_t size = 0x00;
 
-    size += g3dexportv3_fwrite ( esm->fse->pos,
-                                 sizeof ( G3DVECTOR ),
-                                 esm->fse->nbver,
-                                 fdst );
+    switch ( sdr->sculptMode ) {
+        case SCULPTMODE_SCULPT :
+            size += g3dexportv3_fwrite ( esm->fse->pos,
+                                         sizeof ( G3DVECTOR ),
+                                         esm->fse->nbver,
+                                         fdst );
+        break;
+
+        default :
+            size += g3dexportv3_fwrite ( esm->fse->hei,
+                                         sizeof ( G3DHEIGHT ),
+                                         esm->fse->nbver,
+                                         fdst );
+        break;
+    }
 
     return size;
 }
@@ -87,6 +99,18 @@ static uint32_t g3dexportv3subdivider_scultmap ( G3DEXPORTV3DATA    *ged,
 }
 
 /******************************************************************************/
+static uint32_t g3dexportv3subdivider_scultmapsMode ( G3DEXPORTV3DATA *ged, 
+                                                      G3DSUBDIVIDER   *sdr, 
+                                                      uint32_t         flags, 
+                                                      FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_fwritel ( &sdr->sculptMode, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t g3dexportv3subdivider_scultmapsResolution ( G3DEXPORTV3DATA *ged, 
                                                             G3DSUBDIVIDER   *sdr, 
                                                             uint32_t         flags, 
@@ -109,6 +133,13 @@ static uint32_t g3dexportv3subdivider_sculptmaps ( G3DEXPORTV3DATA *ged,
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_SCULPTMAPS_RESOLUTION,
                    EXPORTV3_CALLBACK(g3dexportv3subdivider_scultmapsResolution),
+                                     ged,
+                                     sdr,
+                                     0xFFFFFFFF,
+                                     fdst );
+
+    size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_SCULPTMAPS_MODE,
+                   EXPORTV3_CALLBACK(g3dexportv3subdivider_scultmapsMode),
                                      ged,
                                      sdr,
                                      0xFFFFFFFF,

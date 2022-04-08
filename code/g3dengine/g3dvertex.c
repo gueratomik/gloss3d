@@ -88,6 +88,7 @@ G3DVERTEX *g3dvertex_seekVertexByPosition ( LIST *lver, float x,
 }
 
 /******************************************************************************/
+/*
 void vertex_elevate ( G3DVERTEX *ver ) {
     G3DVECTOR pos = { 0.0f, 0.0f, 0.0f, 1.0f };
     LIST *ltmpfac = ver->lfac;
@@ -120,7 +121,7 @@ void vertex_elevate ( G3DVERTEX *ver ) {
         ver->pos.z += ( pos.z / ver->nbfac );
     }
 }
-
+*/
 /******************************************************************************/
 void g3dvertex_addExtension ( G3DVERTEX *ver, G3DVERTEXEXTENSION *ext ) {
     list_insert ( &ver->lext, ext );

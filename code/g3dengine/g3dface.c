@@ -204,10 +204,11 @@ void g3dface_evalSubdivision ( G3DFACE *fac,
 }
 
 /*****************************************************************************/
+/*
 void g3dface_addHeightMap ( G3DFACE *fac, G3DHEIGHTMAP *heightmap ) {
     fac->heightmap = heightmap;
 }
-
+*/
 /*****************************************************************************/
 uint32_t g3dface_isFullyMirrored ( G3DFACE *fac ) {
     uint32_t i;
@@ -270,8 +271,6 @@ void g3dface_initSubface ( G3DFACE      *fac,
             subfac->fac.ver[i2] = ((G3DSUBFACE*)fac)->subver;
             subfac->fac.ver[i3] = ((G3DSUBEDGE*)fac->edg[p])->subver;
 
-            subfac->fac.heightmap = fac->heightmap;
-
             if ( ( curdiv > 1 ) ||
                  ( subdiv_flags & SUBDIVISIONCOMMIT ) ||
                  ( object_flags & MESHUSEISOLINES   ) ) {
@@ -291,8 +290,7 @@ void g3dface_initSubface ( G3DFACE      *fac,
             if ( ( curdiv == 0x01 ) || 
             /*** we need to compute edge normals from face normals ***/
             /*** when doing displacement, at each level. Same for sculpting ***/
-                 ( ( engine_flags & NODISPLACEMENT ) == 0x00 ) || 
-                 ( fac->heightmap ) ) {
+                 ( ( engine_flags & NODISPLACEMENT ) == 0x00 ) ) {
                 g3dface_normal ( ( G3DFACE * ) subfac );
             }
 

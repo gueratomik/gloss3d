@@ -133,6 +133,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       G3DFACE       **commitFaces,
                                       LIST           *ltex,
                                       uint64_t        sculptExtensionName,
+                                      uint32_t        sculptMode,
                                       uint32_t      (*qua_indexes)[0x04], /*** for sculpt mode ***/
                                       uint32_t      (*tri_indexes)[0x04], /*** for sculpt mode ***/
                                       uint32_t        subdiv_level,

@@ -47,10 +47,21 @@ void g3dimportv3subdivider ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc
             case SIG_OBJECT_SUBDIVIDER_SCULPTMAP_GEOMETRY : {
                 G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) gid->currentObject;
 
-                g3dimportv3_fread ( fse->pos, 
-                                    sizeof ( G3DVECTOR ), 
-                                    fse->nbver,
-                                    fsrc );
+                switch ( sdr->sculptMode ) {
+                    case SCULPTMODE_SCULPT :
+                        g3dimportv3_fread ( fse->pos, 
+                                            sizeof ( G3DVECTOR ), 
+                                            fse->nbver,
+                                            fsrc );
+                    break;
+
+                    default :
+                        g3dimportv3_fread ( fse->hei, 
+                                            sizeof ( G3DHEIGHT ), 
+                                            fse->nbver,
+                                            fsrc );
+                    break;
+                }
             } break;
 
             case SIG_OBJECT_SUBDIVIDER_SCULPTMAP_FACEID : {
@@ -64,11 +75,18 @@ void g3dimportv3subdivider ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc
 
                 fse = g3dfacesculptextension_new ( ( uint64_t ) sdr,
                                                                 fac,
-                                                                sdr->sculptResolution );
+                                                                sdr->sculptResolution,
+                                                                sdr->sculptMode );
                 g3dface_addExtension ( fac, fse );
             } break;
 
             case SIG_OBJECT_SUBDIVIDER_SCULPTMAP_ENTRY : {
+            } break;
+
+            case SIG_OBJECT_SUBDIVIDER_SCULPTMAPS_MODE : {
+                G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) gid->currentObject;
+
+                g3dimportv3_freadl ( &sdr->sculptMode, fsrc );
             } break;
 
             case SIG_OBJECT_SUBDIVIDER_SCULPTMAPS_RESOLUTION : {

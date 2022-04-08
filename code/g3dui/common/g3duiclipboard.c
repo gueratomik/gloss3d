@@ -237,13 +237,28 @@ void g3duiclipboard_paste ( G3DUICLIPBOARD *cli,
                             if ( fse == NULL ) {
                                 fse = g3dfacesculptextension_new ( ( uint64_t ) sdr,
                                                                                 fac,
-                                                                                sdr->sculptResolution );
+                                                                                sdr->sculptResolution,
+                                                                                sdr->sculptMode );
 
                                 g3dface_addExtension ( fac, fse );
                             }
 
-                            if ( fse->nbver == item->fse->nbver ) {
-                                memcpy ( fse->pos, item->fse->pos, fse->nbver * sizeof ( G3DVECTOR ) );
+                            if ( fse != item->fse ) {
+                                if ( fse->nbver == item->fse->nbver ) {
+                                    switch ( sdr->sculptMode ) {
+                                        case SCULPTMODE_SCULPT :
+                                            memcpy ( fse->pos, 
+                                               item->fse->pos, 
+                                                     fse->nbver * sizeof ( G3DVECTOR ) );
+                                        break;
+
+                                        default :
+                                            memcpy ( fse->hei, 
+                                               item->fse->hei, 
+                                                     fse->nbver * sizeof ( G3DHEIGHT ) );
+                                        break;
+                                    }
+                                }
                             }
 
                             ltmpfac = ltmpfac->next;
@@ -252,6 +267,8 @@ void g3duiclipboard_paste ( G3DUICLIPBOARD *cli,
                         ltmpcpy = ltmpcpy->next;
                     }
                 }
+
+                g3dsubdivider_fillBuffers  ( sdr, NULL, flags );
             }
         } break;
 
@@ -272,25 +289,38 @@ void g3duiclipboard_copyKey ( G3DUICLIPBOARD *cli,
 /******************************************************************************/
 void g3duiclipboard_copyFaceSculptExtension ( G3DUICLIPBOARD         *cli, 
                                               G3DSCENE               *sce,
-                                              G3DOBJECT              *obj,
-                                              G3DFACESCULPTEXTENSION *fse,
-                                              uint32_t                extensionName,
-                                              G3DFACE                *fac,
-                                              uint32_t                level ) {
-    G3DFACESCULPTEXTENSION *fsecpy = g3dfacesculptextension_new ( extensionName,
-                                                                  fac,
-                                                                  level );
-    G3DUICOPIEDITEM *item = g3duicopieditem_new ( NULL, 
-                                                  NULL,
-                                                  fsecpy,
-                                                  CLIPBOARDCOPYFACESCULPT );
+                                              G3DSUBDIVIDER          *sdr,
+                                              G3DFACE                *fac ) {
+    G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac, sdr );
 
+    if ( fse ) {
+        G3DFACESCULPTEXTENSION *fsecpy = g3dfacesculptextension_new ( sdr,
+                                                                      fac,
+                                                                      sdr->sculptResolution,
+                                                                      sdr->sculptMode );
+        G3DUICOPIEDITEM *item = g3duicopieditem_new ( NULL, 
+                                                      NULL,
+                                                      fsecpy,
+                                                      CLIPBOARDCOPYFACESCULPT );
 
-    /*** First clear the clipboard ***/
-    g3duiclipboard_clear ( cli );
+        switch ( sdr->sculptMode ) {
+            case SCULPTMODE_SCULPT :
+                memcpy ( item->fse->pos, 
+                               fse->pos, fse->nbver * sizeof ( G3DVECTOR ) );
+            break;
 
-    cli->operation = CLIPBOARDCOPYFACESCULPT;
-    cli->sce = sce;
+            default :
+                memcpy ( item->fse->hei, 
+                               fse->hei, fse->nbver * sizeof ( G3DHEIGHT ) );
+            break;
+        }
 
-    list_insert ( &cli->lcpy, item );
+        /*** First clear the clipboard ***/
+        g3duiclipboard_clear ( cli );
+
+        cli->operation = CLIPBOARDCOPYFACESCULPT;
+        cli->sce = sce;
+
+        list_insert ( &cli->lcpy, item );
+    }
 }

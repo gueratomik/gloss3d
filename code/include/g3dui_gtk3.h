@@ -460,7 +460,9 @@ GtkWidget *createTubeEdit ( GtkWidget *parent, G3DUI *gui,
                                                    gint width,
                                                    gint height );
 
-void updateSubdividerEdit ( GtkWidget *widget, G3DUI *gui );
+void updateSubdividerEdit ( GtkWidget     *w, 
+                            G3DSUBDIVIDER *sdr );
+
 GtkWidget *createSubdividerEdit ( GtkWidget *parent, G3DUI *gui,
                                                      char *name,
                                                      gint x,

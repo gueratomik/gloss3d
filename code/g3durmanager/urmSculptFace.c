@@ -34,6 +34,7 @@
 void urmsculptfaceextension_free ( URMSCULPTFACEEXTENSION *usfe ) {
     if ( usfe->pos ) free ( usfe->pos );
     if ( usfe->nor ) free ( usfe->nor );
+    if ( usfe->hei ) free ( usfe->hei );
 
     free ( usfe );
 }
@@ -70,7 +71,7 @@ URMSCULPTFACEEXTENSION *urmsculptfaceextension_new ( G3DFACESCULPTEXTENSION *fse
 
     usf->pos = calloc ( fse->nbver, sizeof ( G3DVECTOR ) );
     usf->nor = calloc ( fse->nbver, sizeof ( G3DVECTOR ) );
-
+    usf->hei = calloc ( fse->nbver, sizeof ( G3DHEIGHT ) );
 
     return usf;
 }
@@ -120,23 +121,47 @@ void sculptFace_undo ( G3DURMANAGER *urm,
         URMSCULPTFACEEXTENSION *usfe = ( URMSCULPTFACEEXTENSION * ) ltmpusfe->data;
 
         if ( usfe->fse->nbver ) {
-            G3DVECTOR *tmp = calloc ( usfe->fse->nbver, sizeof ( G3DVECTOR ) );
 
-            memcpy ( tmp, 
-                     usfe->fse->pos, 
-                     usfe->fse->nbver * sizeof ( G3DVECTOR ) );
 
-            memcpy ( usfe->fse->pos,
-                     usfe->pos,
-                     usfe->fse->nbver * sizeof ( G3DVECTOR ) );
+            switch ( usf->sdr->sculptMode ) {
+                case SCULPTMODE_SCULPT : {
+                    G3DVECTOR *tmp = calloc ( usfe->fse->nbver, sizeof ( G3DVECTOR ) );
 
-            memcpy ( usfe->pos, 
-                     tmp, 
-                     usfe->fse->nbver * sizeof ( G3DVECTOR ) );
+                    memcpy ( tmp, 
+                             usfe->fse->pos, 
+                             usfe->fse->nbver * sizeof ( G3DVECTOR ) );
+
+                    memcpy ( usfe->fse->pos,
+                             usfe->pos,
+                             usfe->fse->nbver * sizeof ( G3DVECTOR ) );
+
+                    memcpy ( usfe->pos, 
+                             tmp, 
+                             usfe->fse->nbver * sizeof ( G3DVECTOR ) );
+
+                    free ( tmp );
+                } break;
+
+                default : {
+                    G3DHEIGHT *tmp = calloc ( usfe->fse->nbver, sizeof ( G3DHEIGHT ) );
+
+                    memcpy ( tmp, 
+                             usfe->fse->hei, 
+                             usfe->fse->nbver * sizeof ( G3DHEIGHT ) );
+
+                    memcpy ( usfe->fse->hei,
+                             usfe->hei,
+                             usfe->fse->nbver * sizeof ( G3DHEIGHT ) );
+
+                    memcpy ( usfe->hei, 
+                             tmp, 
+                             usfe->fse->nbver * sizeof ( G3DHEIGHT ) );
+
+                    free ( tmp );
+                } break;
+            }
 
             list_insert ( &lsubfac, usfe->fac );
-
-            free ( tmp );
         }
 
         ltmpusfe = ltmpusfe->next;

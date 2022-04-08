@@ -214,6 +214,7 @@ typedef G3DRGBA         Q3DRGBA;
 #define SIG_RENDERSETTINGS_FOG_NEAR                                 0x16200000 /* float    */
 #define SIG_RENDERSETTINGS_FOG_FAR                                  0x16300000 /* float    */
 #define SIG_RENDERSETTINGS_FOG_COLOR                                0x16400000 /* uint32_t */
+#define SIG_RENDERSETTINGS_FOG_STRENGTH                             0x16500000 /* float    */
 #define SIG_RENDERSETTINGS_DOF                                  0x17000000
 #define SIG_RENDERSETTINGS_AA                                   0x18000000
 #define SIG_RENDERSETTINGS_AA_MODE                                 0x18100000 /* uint32_t */

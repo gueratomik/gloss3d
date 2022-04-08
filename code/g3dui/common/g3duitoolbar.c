@@ -139,6 +139,7 @@ void common_g3dui_pasteSelectionCbk ( G3DUI *gui ) {
     if ( src ) dst = src->parent;
 
     g3dui_setHourGlass   ( gui );
+
     g3duiclipboard_paste ( cli, urm, sce, dst, gui->engine_flags );
 
     g3dui_redrawObjectList     ( gui );
@@ -156,9 +157,38 @@ void common_g3dui_copySelectionCbk ( G3DUI *gui ) {
     printf("copying %d object(s)\n", list_count ( sce->lsel ) );
 
     g3dui_setHourGlass ( gui );
-    g3duiclipboard_copyObject ( cli, 
-                                sce,
-                                sce->lsel, 0x01, gui->engine_flags );
+
+    if ( gui->engine_flags & VIEWOBJECT ) { 
+        g3duiclipboard_copyObject ( cli, 
+                                    sce,
+                                    sce->lsel, 0x01, gui->engine_flags );
+    }
+
+    if ( gui->engine_flags & VIEWSCULPT ) { 
+        G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+        if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
+            G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+            G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+
+            if ( parent ) {
+                G3DMESH *mes = ( G3DMESH * ) parent;
+                LIST *ltmpselfac = mes->lselfac;
+
+                while ( ltmpselfac ) {
+                    G3DFACE *selfac = ( G3DFACE * ) ltmpselfac->data;
+
+                    g3duiclipboard_copyFaceSculptExtension ( cli, 
+                                                             sce,
+                                                             sdr,
+                                                             selfac );
+
+                    break; /*** loop only once ***/
+                }
+            }
+        }
+    }
+
     g3dui_unsetHourGlass ( gui );
 }
 

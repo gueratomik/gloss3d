@@ -31,192 +31,303 @@
 
 static void updateSubdivisionForm ( GtkWidget *, G3DUI * );
 
-/******************************************************************************/
-static void subdivSyncCbk  ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+#define EDITSUBDIVIDERGENERAL            "General"
+#define EDITSUBDIVIDERPREVIEW            "Preview"
+#define EDITSUBDIVIDERRENDER             "Render"
+#define EDITSUBDIVIDERSYNC               "Sync"
+#define EDITSUBDIVIDERDISPLACEMENT       "Displacement"
+#define EDITSUBDIVIDERDISPLACEMENTMODE   "Mode"
+#define EDITSUBDIVIDERDISPLACEMENTHEIGHT "Height"
+#define EDITSUBDIVIDERDISPLACEMENTSCULPT "Sculpt"
 
-    if ( gui->lock == 0x00 ) {
-        common_g3duisubdivideredit_subdivSyncCbk ( gui );
+/******************************************************************************/
+typedef struct _G3DUISUBDIVIDEREDIT {
+    G3DUIWIDGETGROUP grp;
+
+    GtkWidget       *main;
+    GtkWidget       *previewEntry;
+    GtkWidget       *renderEntry;
+    GtkWidget       *syncToggle;
+
+    GtkWidget       *sculptRadio;
+    GtkWidget       *heightRadio;
+
+    G3DSUBDIVIDER   *editedSubdivider;
+} G3DUISUBDIVIDEREDIT;
+
+/******************************************************************************/
+static G3DUISUBDIVIDEREDIT *g3duisubdivideredit_new ( G3DUI *gui ) {
+    G3DUISUBDIVIDEREDIT *sed = calloc ( 0x01, sizeof ( G3DUISUBDIVIDEREDIT ) );
+
+    if ( sed == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__ );
     }
+
+    sed->grp.gui = gui;
+
+    return sed; 
 }
 
 /******************************************************************************/
-static void useIsoLinesCbk  ( GtkWidget *widget, gpointer user_data ) {
+/*static void useIsoLinesCbk  ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
 
-    /*common_g3duimeshedit_useIsoLinesCbk ( gui );*/
+    common_g3duimeshedit_useIsoLinesCbk ( gui );
+}*/
+
+/******************************************************************************/
+static void updateSubdividerDisplacementPanel ( G3DUISUBDIVIDEREDIT *sed ) {
+    sed->grp.gui->lock = 0x01;
+
+    if ( sed->editedSubdivider ) {
+        gtk_widget_set_sensitive ( sed->sculptRadio, TRUE );
+        gtk_widget_set_sensitive ( sed->heightRadio, TRUE );
+
+        if ( sed->editedSubdivider->sculptMode == SCULPTMODE_SCULPT ) {
+            gtk_toggle_button_set_active ( sed->sculptRadio, TRUE  );
+        } else {
+            gtk_toggle_button_set_active ( sed->sculptRadio, FALSE );
+        }
+
+        if ( sed->editedSubdivider->sculptMode == SCULPTMODE_HEIGHT ) {
+            gtk_toggle_button_set_active ( sed->heightRadio, TRUE  );
+        } else {
+            gtk_toggle_button_set_active ( sed->heightRadio, FALSE );
+        }
+    } else {
+        gtk_widget_set_sensitive ( sed->sculptRadio, FALSE );
+        gtk_widget_set_sensitive ( sed->heightRadio, FALSE );
+    }
+
+    sed->grp.gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void radioSubdivHeightCbk ( GtkWidget *widget, 
+                                   gpointer   user_data ) {
+    G3DUISUBDIVIDEREDIT *sed = ( G3DUISUBDIVIDEREDIT * ) user_data;
+
+    /*** prevents loop and possibly lock reset if some panels are updated ***/
+    if ( sed->grp.gui->lock ) return;
+
+    common_g3duisubdivideredit_displacementHeightCbk ( sed->grp.gui );
+}
+
+/******************************************************************************/
+static void radioSubdivSculptCbk ( GtkWidget *widget, 
+                                   gpointer   user_data ) {
+    G3DUISUBDIVIDEREDIT *sed = ( G3DUISUBDIVIDEREDIT * ) user_data;
+
+    /*** prevents loop and possibly lock reset if some panels are updated ***/
+    if ( sed->grp.gui->lock ) return;
+
+    common_g3duisubdivideredit_displacementSculptCbk ( sed->grp.gui );
+}
+
+/******************************************************************************/
+static GtkWidget *createSubdividerDisplacementPanel ( GtkWidget           *parent, 
+                                                      G3DUISUBDIVIDEREDIT *sed,
+                                                      char                *name,
+                                                      gint                 x,
+                                                      gint                 y,
+                                                      gint                 width,
+                                                      gint                 height ) {
+    GtkWidget *pan = createPanel ( parent, sed, name, x, y, width, height );
+
+    sed->heightRadio = createRadioLabel ( pan, 
+                                          sed,
+                                          EDITSUBDIVIDERDISPLACEMENTHEIGHT, 
+                                          NULL,
+                                          0,  0, 128, 32,
+                                          radioSubdivHeightCbk );
+
+    sed->sculptRadio = createRadioLabel ( pan, 
+                                          sed,
+                                          EDITSUBDIVIDERDISPLACEMENTSCULPT, 
+                                          sed->heightRadio,
+                                          0, 24, 128, 32,
+                                          radioSubdivSculptCbk );
+
+
+    return pan;
+}
+
+/******************************************************************************/
+static void updateSubdividerGeneralPanel ( G3DUISUBDIVIDEREDIT *sed ) {
+    sed->grp.gui->lock = 0x01;
+
+    if ( sed->editedSubdivider ) {
+        gtk_widget_set_sensitive ( sed->syncToggle   , TRUE );
+        gtk_widget_set_sensitive ( sed->previewEntry , TRUE );
+        gtk_widget_set_sensitive ( sed->renderEntry  , TRUE );
+
+        if ( ((G3DOBJECT*)sed->editedSubdivider)->flags & SYNCLEVELS ) {
+            gtk_toggle_button_set_active ( sed->syncToggle, TRUE  );
+        } else {
+            gtk_toggle_button_set_active ( sed->syncToggle, FALSE );
+        }
+
+        gtk_spin_button_set_value ( sed->previewEntry   , 
+                                    sed->editedSubdivider->subdiv_preview );
+
+        gtk_spin_button_set_value ( sed->renderEntry   , 
+                                    sed->editedSubdivider->subdiv_render );
+    } else {
+        gtk_widget_set_sensitive ( sed->syncToggle   , FALSE );
+        gtk_widget_set_sensitive ( sed->previewEntry , FALSE );
+        gtk_widget_set_sensitive ( sed->renderEntry  , FALSE );
+    }
+
+    sed->grp.gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void subdivSyncCbk  ( GtkWidget *widget, gpointer user_data ) {
+    G3DUISUBDIVIDEREDIT *sed = ( G3DUISUBDIVIDEREDIT * ) user_data;
+
+    /*** prevents loop and possibly lock reset if some panels are updated ***/
+    if ( sed->grp.gui->lock ) return;
+
+    common_g3duisubdivideredit_subdivSyncCbk ( sed->grp.gui );
 }
 
 /******************************************************************************/
 static void subdivRenderCbk  ( GtkWidget *widget, gpointer user_data ) {
+    G3DUISUBDIVIDEREDIT *sed = ( G3DUISUBDIVIDEREDIT * ) user_data;
     GtkWidget *parent = gtk_widget_get_parent     ( widget );
     int level  = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
-    G3DUI *gui = ( G3DUI * ) user_data;
 
-    if ( gui->lock == 0x00 ) {
-        if ( level >= 0x00 ) {
-            common_g3duisubdivideredit_subdivRenderCbk ( gui, level );
-        }
+    /*** prevents loop and possibly lock reset if some panels are updated ***/
+    if ( sed->grp.gui->lock ) return;
 
-        updateSubdivisionForm ( parent, gui );
+    if ( level >= 0x00 ) {
+        common_g3duisubdivideredit_subdivRenderCbk ( sed->grp.gui, level );
     }
+
+    updateSubdividerGeneralPanel ( sed );
 }
 
 /******************************************************************************/
 static void subdivPreviewCbk  ( GtkWidget *widget, gpointer user_data ) {
+    G3DUISUBDIVIDEREDIT *sed = ( G3DUISUBDIVIDEREDIT * ) user_data;
     GtkWidget *parent = gtk_widget_get_parent ( widget );
     int level  = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
-    G3DUI *gui    = ( G3DUI * ) user_data;
 
-    if ( gui->lock == 0x00 ) {
-        if ( level >= 0x00 ) {
-            common_g3duisubdivideredit_subdivPreviewCbk ( gui, level );
-        }
+    /*** prevents loop and possibly lock reset if some panels are updated ***/
+    if ( sed->grp.gui->lock ) return;
 
-        updateSubdivisionForm ( parent, gui );
-    }
-}
-
-/******************************************************************************/
-static void updateSubdivisionForm ( GtkWidget *widget, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    gui->lock = 0x01;
-
-    if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
-        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
-
-        while ( children ) {
-            GtkWidget *child = ( GtkWidget * ) children->data;
-            const char *child_name = gtk_widget_get_name ( child );
-
-            if ( GTK_IS_SPIN_BUTTON(child) ) {
-                GtkSpinButton *sbn = GTK_SPIN_BUTTON(child);
-
-                if ( strcmp ( child_name, EDITSUBDIVIDERPREVIEW ) == 0x00 ) {
-                    gtk_spin_button_set_value ( sbn, sdr->subdiv_preview );
-                }
-
-                if ( strcmp ( child_name, EDITSUBDIVIDERRENDER ) == 0x00 ) {
-                    gtk_spin_button_set_value ( sbn, sdr->subdiv_render );
-                }
-            }
-
-            if ( GTK_IS_CHECK_BUTTON(child) ) {
-                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
-
-                if ( strcmp ( child_name, EDITMESHISOLINES ) == 0x00 ) {
-                    if ( ((G3DOBJECT*)sdr)->flags & MESHUSEISOLINES ) {
-                        gtk_toggle_button_set_active ( tbn, TRUE  );
-                    } else {
-                        gtk_toggle_button_set_active ( tbn, FALSE );
-                    }
-                }
-
-                if ( strcmp ( child_name, EDITSUBDIVIDERSYNC ) == 0x00 ) {
-                    if ( ((G3DOBJECT*)sdr)->flags & SYNCLEVELS ) {
-                        gtk_toggle_button_set_active ( tbn, TRUE  );
-                    } else {
-                        gtk_toggle_button_set_active ( tbn, FALSE );
-                    }
-                }
-            }
-
-            children =  g_list_next ( children );
-        }
+    if ( level >= 0x00 ) {
+        common_g3duisubdivideredit_subdivPreviewCbk ( sed->grp.gui, level );
     }
 
-    gui->lock = 0x00;
+    updateSubdividerGeneralPanel ( sed );
 }
 
 /******************************************************************************/
-void updateSubdivisionFrame ( GtkWidget *widget, G3DUI *gui ) {
-    GtkWidget *frm = gtk_bin_get_child ( GTK_BIN(widget) );
+static GtkWidget *createSubdividerGeneralPanel ( GtkWidget           *parent, 
+                                                 G3DUISUBDIVIDEREDIT *sed,
+                                                 char                *name,
+                                                 gint                 x,
+                                                 gint                 y,
+                                                 gint                 width,
+                                                 gint                 height ) {
+    GtkWidget *pan = createPanel ( parent, sed, name, x, y, width, height );
 
-    if ( frm ) updateSubdivisionForm ( frm, gui );
+    sed->previewEntry = createIntegerText ( pan, 
+                                            sed,
+                                            EDITSUBDIVIDERPREVIEW, 
+                                            0,  9,
+                                            0,  0, 128, 32,
+                                            subdivPreviewCbk );
+
+    sed->renderEntry = createIntegerText ( pan,
+                                           sed,
+                                           EDITSUBDIVIDERRENDER,
+                                           0,  9,
+                                           0, 24, 128, 32,
+                                           subdivRenderCbk );
+
+    sed->syncToggle = createToggleLabel ( pan, 
+                                          sed,
+                                          EDITSUBDIVIDERSYNC,
+                                          230, 12, 20, 20,
+                                          subdivSyncCbk );
+
+    return pan;
 }
 
-
 /******************************************************************************/
-static void createSubdivisionFrame ( GtkWidget *frm, G3DUI *gui,
-                                                     gint x,
-                                                     gint y,
-                                                     gint width,
-                                                     gint height ) {
-    GtkWidget *sdf;
+void updateSubdividerEdit ( GtkWidget     *w, 
+                            G3DSUBDIVIDER *sdr ) {
+    G3DUISUBDIVIDEREDIT *sed = ( G3DUISUBDIVIDEREDIT * ) g_object_get_data ( G_OBJECT(w),
+                                                                             "private" );
 
-    sdf = createFrame ( frm, gui, EDITSUBDIVIDER       , x,   y, width, height );
+    sed->editedSubdivider = sdr;
 
-    createIntegerText ( sdf, gui, EDITSUBDIVIDERPREVIEW, 0, 9,
-                                                         0,   0, 128, 32,
-                                                       subdivPreviewCbk );
-
-    createToggleLabel ( sdf, gui, EDITSUBDIVIDERSYNC   , 230,  12,  20, 20,
-                                                       subdivSyncCbk );
-
-    createIntegerText ( sdf, gui, EDITSUBDIVIDERRENDER , 0, 9,
-                                                         0,  24, 128, 32,
-                                                       subdivRenderCbk );
-
-    /*createToggleLabel ( sdf, gui, EDITMESHISOLINES     , 4,  96, 200, 20,
-                                                       useIsoLinesCbk );*/
+    updateSubdividerGeneralPanel      ( sed );
+    updateSubdividerDisplacementPanel ( sed );
 }
 
-
 /******************************************************************************/
-void updateSubdividerEdit ( GtkWidget *widget, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
+static void Destroy ( GtkWidget *widget, gpointer user_data ) {
+    G3DUISUBDIVIDEREDIT *sed = ( G3DUISUBDIVIDEREDIT * ) user_data;
 
-    /*** prevent a loop ***/
-    gui->lock = 0x01;
-
-    while ( children ) {
-        GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
-
-        if ( strcmp ( child_name, EDITSUBDIVIDER ) == 0x00 ) {
-            updateSubdivisionFrame ( child, gui );
-        }
-
-        children =  g_list_next ( children );
-    }
-
-    gui->lock = 0x00;
+    free ( sed );
 }
 
 /******************************************************************************/
 static void Realize ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    G3DUISUBDIVIDEREDIT *sed = ( G3DUISUBDIVIDEREDIT * ) user_data;
 
-    updateSubdividerEdit ( widget, gui );
+    updateSubdividerEdit ( widget, NULL );
 }
 
 /******************************************************************************/
-GtkWidget *createSubdividerEdit ( GtkWidget *parent, G3DUI *gui,
-                                                     char *name,
-                                                     gint x,
-                                                     gint y,
-                                                     gint width,
-                                                     gint height ) {
-    GdkRectangle gdkrec = { x, y, width, height };
-    GtkWidget *frm, *sdf, *fix;
+GtkWidget *createSubdividerEdit ( GtkWidget *parent, 
+                                  G3DUI     *gui,
+                                  char      *name,
+                                  gint       x,
+                                  gint       y,
+                                  gint       width,
+                                  gint       height ) {
+    GdkRectangle gdkrec = { 0x00, 0x00, width, height };
+    GtkWidget *tab = gtk_notebook_new ( );
+    G3DUISUBDIVIDEREDIT *sed = g3duisubdivideredit_new ( gui );
 
-    frm = gtk_fixed_new ( );
+    g_object_set_data ( G_OBJECT(tab), "private", (gpointer) sed );
 
-    gtk_widget_set_name ( frm, name );
+    gtk_notebook_set_scrollable ( GTK_NOTEBOOK(tab), TRUE );
 
-    gtk_widget_size_allocate ( frm, &gdkrec );
+    gtk_widget_set_name ( tab, name );
 
-    gtk_fixed_put ( GTK_FIXED(parent), frm, x, y );
+    gtk_widget_size_allocate ( tab, &gdkrec );
+    /*gtk_widget_set_size_request ( tab, width, height );*/
 
-    g_signal_connect ( G_OBJECT (frm), "realize", G_CALLBACK (Realize), gui );
+    gtk_fixed_put ( GTK_FIXED(parent), tab, x, y );
 
-    createSubdivisionFrame ( frm, gui,   0,   0, 286, 140 );
+    g_signal_connect ( G_OBJECT (tab), "realize", G_CALLBACK (Realize), sed );
+    g_signal_connect ( G_OBJECT (tab), "destroy", G_CALLBACK (Destroy), sed );
 
-    gtk_widget_show ( frm );
+    createSubdividerGeneralPanel      ( tab, 
+                                        sed, 
+                                        EDITSUBDIVIDERGENERAL, 
+                                        0x00, 
+                                        0x00, 
+                                        width,
+                                        height );
+
+    createSubdividerDisplacementPanel ( tab, 
+                                        sed, 
+                                        EDITSUBDIVIDERDISPLACEMENT,
+                                        0x00,
+                                        0x00,
+                                        width,
+                                        height );
+
+    /*list_insert ( &gui->lligedit, tab );*/
+
+    gtk_widget_show ( tab );
 
 
-    return frm;
+    return tab;
 }

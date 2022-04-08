@@ -74,6 +74,8 @@
 #define INVERTNORMALTOOL             "Invert Normal"
 #define ROUNDSPLINEPOINTTOOL         "Round selection"
 #define MAKEEDITABLETOOL             "Make Editable"
+#define COPYHEIGHTMAPTOOL            "Copy Heightmap"
+#define PASTEHEIGHTMAPTOOL           "Paste Heightmap"
 
 #define PICKUVTOOL                   "Pick UV"
 #define MOVEUVTOOL                   "Move UV"
@@ -220,7 +222,9 @@ typedef struct _G3DMOUSETOOL {
   G3DMOUSETOOLWELDVERTICES,
   G3DMOUSETOOLWELDNEIGHBOURS,
   G3DMOUSETOOLINVERTNORMAL,
-  G3DMOUSETOOLREMOVEVERTEXPOSE;
+  G3DMOUSETOOLREMOVEVERTEXPOSE,
+  G3DMOUSETOOLCOPYHEIGHTMAP,
+  G3DMOUSETOOLPASTEHEIGHTMAP;
 
 /******************************************************************************/
 typedef struct _G3DMOUSETOOLBRIDGE {

@@ -149,13 +149,14 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
 
     /*** adjust resolution for existing maps ***/
     if ( sdr->subdiv_preview > sdr->sculptResolution ) {
-        g3dsubdivider_setScupltResolution ( sdr, sdr->subdiv_preview );
+        g3dsubdivider_setSculptResolution ( sdr, sdr->subdiv_preview );
     }
 
     if ( fse == NULL ) {
         fse = g3dfacesculptextension_new ( ( uint64_t ) sdr,
                                                         fac,
-                                                        sdr->sculptResolution );
+                                                        sdr->sculptResolution,
+                                                        sdr->sculptMode );
 
         g3dface_addExtension ( fac, fse );
     }
@@ -170,11 +171,20 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
         usfe = urmsculptfaceextension_new ( fse, fac );
 
         for ( i = 0x00; i < fse->nbver; i++ ) {
-            memcpy ( &usfe->pos[i],
-                     &fse->pos[i], sizeof ( G3DVECTOR ) );
+            switch ( sdr->sculptMode ) {
+                case SCULPTMODE_SCULPT :
+                    memcpy ( &usfe->pos[i],
+                             &fse->pos[i], sizeof ( G3DVECTOR ) );
 
-            memcpy ( &usfe->nor[i],
-                     &fac->rtvermem[i].nor, sizeof ( G3DVECTOR ) );
+                    memcpy ( &usfe->nor[i],
+                             &fac->rtvermem[i].nor, sizeof ( G3DVECTOR ) );
+                break;
+
+                default :
+                    memcpy ( &usfe->hei[i],
+                             &fse->hei[i], sizeof ( G3DHEIGHT ) );
+                break;
+            }
         }
 
         list_insert ( &mts->lusfe, usfe ); /*** for undo / redo ***/
@@ -186,10 +196,19 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
 
     if ( mts->type == SCULPTINFLATE ) {
         if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
-            fse->pos[rtverID].x += ( usfe->nor[rtverID].x * 0.01f * mts->pressure );
-            fse->pos[rtverID].y += ( usfe->nor[rtverID].y * 0.01f * mts->pressure );
-            fse->pos[rtverID].z += ( usfe->nor[rtverID].z * 0.01f * mts->pressure );
-            fse->pos[rtverID].w  = 1.0f;
+            switch ( sdr->sculptMode ) {
+                case SCULPTMODE_SCULPT :
+                    fse->pos[rtverID].x += ( usfe->nor[rtverID].x * 0.01f * mts->pressure );
+                    fse->pos[rtverID].y += ( usfe->nor[rtverID].y * 0.01f * mts->pressure );
+                    fse->pos[rtverID].z += ( usfe->nor[rtverID].z * 0.01f * mts->pressure );
+                    fse->pos[rtverID].w  = 1.0f;
+                break;
+
+                default :
+                    fse->hei[rtverID].s += mts->pressure * 0.01f;
+                    fse->hei[rtverID].w  = 1.0f;
+                break;
+            }
 
             fse->flags[rtverID] |= 0x01;
         }
@@ -197,10 +216,19 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
 
     if ( mts->type == SCULPTCREASE ) {
         if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
-            fse->pos[rtverID].x -= ( usfe->nor[rtverID].x * 0.01f * mts->pressure );
-            fse->pos[rtverID].y -= ( usfe->nor[rtverID].y * 0.01f * mts->pressure );
-            fse->pos[rtverID].z -= ( usfe->nor[rtverID].z * 0.01f * mts->pressure );
-            fse->pos[rtverID].w  = 1.0f;
+            switch ( sdr->sculptMode ) {
+                case SCULPTMODE_SCULPT :
+                    fse->pos[rtverID].x -= ( usfe->nor[rtverID].x * 0.01f * mts->pressure );
+                    fse->pos[rtverID].y -= ( usfe->nor[rtverID].y * 0.01f * mts->pressure );
+                    fse->pos[rtverID].z -= ( usfe->nor[rtverID].z * 0.01f * mts->pressure );
+                    fse->pos[rtverID].w  = 1.0f;
+                break;
+
+                default :
+                    fse->hei[rtverID].s -= mts->pressure * 0.01f;
+                    fse->hei[rtverID].w  = 1.0f;
+                break;
+            }
 
             fse->flags[rtverID] |= 0x01;
         }
@@ -208,10 +236,19 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
 
     if ( mts->type == SCULPTUNSCULPT ) {
         if ( ( fse->flags[rtverID] & 0x01 ) == 0x00 ) {
-            fse->pos[rtverID].x = 0.0f;
-            fse->pos[rtverID].y = 0.0f;
-            fse->pos[rtverID].z = 0.0f;
-            fse->pos[rtverID].w = 0.0f;
+            switch ( sdr->sculptMode ) {
+                case SCULPTMODE_SCULPT :
+                    fse->pos[rtverID].x = 0.0f;
+                    fse->pos[rtverID].y = 0.0f;
+                    fse->pos[rtverID].z = 0.0f;
+                    fse->pos[rtverID].w = 0.0f;
+                break;
+
+                default :
+                    fse->hei[rtverID].s = 0.0f;
+                    fse->hei[rtverID].w = 0.0f;
+                break;
+            }
 
             fse->flags[rtverID] |= 0x01;
         }

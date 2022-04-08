@@ -374,7 +374,8 @@ void common_g3dui_mirrorHeightmapCbk ( G3DUI *gui, const char *option ) {
                                     if ( dstfse == NULL ) {
                                         dstfse = g3dfacesculptextension_new ( ( uint64_t ) sdr,
                                                                                            fac,
-                                                                                           sdr->sculptResolution );
+                                                                                           sdr->sculptResolution,
+                                                                                           sdr->sculptMode );
 
                                         g3dface_addExtension ( fac, dstfse );
                                     }
@@ -384,7 +385,8 @@ void common_g3dui_mirrorHeightmapCbk ( G3DUI *gui, const char *option ) {
                                                                   dstfse,
                                                                   fac,
                                                                   mapping,
-                                                                 &factor );
+                                                                 &factor,
+                                                                  sdr->sculptMode );
                                 }
                             }
                         }

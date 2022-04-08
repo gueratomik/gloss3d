@@ -69,26 +69,26 @@ void updateCurrentEdit ( GtkWidget *widget, G3DUI *gui ) {
                 gtk_widget_show ( child );
             } else {
                 if ( wname && ( strcmp ( child_name, wname ) == 0x00 ) ) {
-                    if ( obj->type == G3DSPHERETYPE          ) updateSphereEdit         ( child, gui );
-                    if ( obj->type == G3DCUBETYPE            ) updateCubeEdit           ( child, gui );
-                    if ( obj->type == G3DCYLINDERTYPE        ) updateCylinderEdit       ( child, gui );
-                    if ( obj->type == G3DPLANETYPE           ) updatePlaneEdit          ( child, gui );
-                    if ( obj->type == G3DTORUSTYPE           ) updateTorusEdit          ( child, gui );
-                    if ( obj->type == G3DTUBETYPE            ) updateTubeEdit           ( child, gui );
-                    if ( obj->type == G3DMESHTYPE            ) updateMeshEdit           ( child, gui );
-                    if ( obj->type == G3DBONETYPE            ) updateBoneEdit           ( child, gui );
-                    if ( obj->type == G3DFFDTYPE             ) updateFFDEdit            ( child, gui );
-                    if ( obj->type == G3DSYMMETRYTYPE        ) updateSymmetryEdit       ( child, gui );
-                    if ( obj->type == G3DLIGHTTYPE           ) updateLightEdit          ( child, obj );
-                    if ( obj->type == G3DUVMAPTYPE           ) updateUVMapEdit          ( child, gui );
-                    if ( obj->type == G3DSUBDIVIDERTYPE      ) updateSubdividerEdit     ( child, gui );
-                    if ( obj->type == G3DSPLINEREVOLVERTYPE  ) updateSplineRevolverEdit ( child, gui );
-                    if ( obj->type == G3DWIREFRAMETYPE       ) updateWireframeEdit      ( child, gui );
-                    if ( obj->type == G3DTEXTTYPE            ) updateTextEdit           ( child, gui );
-                    if ( obj->type == G3DCAMERATYPE          ) updateCameraEdit         ( child, gui );
-                    if ( obj->type == G3DMORPHERTYPE         ) updateMorpherEdit        ( child, gui );
-                    if ( obj->type == G3DINSTANCETYPE        ) updateInstanceEdit       ( child, obj );
-                    if ( obj->type == G3DPARTICLEEMITTERTYPE ) updateParticleEmitterEdit       ( child, obj );
+                    if ( obj->type == G3DSPHERETYPE          ) updateSphereEdit          ( child, gui );
+                    if ( obj->type == G3DCUBETYPE            ) updateCubeEdit            ( child, gui );
+                    if ( obj->type == G3DCYLINDERTYPE        ) updateCylinderEdit        ( child, gui );
+                    if ( obj->type == G3DPLANETYPE           ) updatePlaneEdit           ( child, gui );
+                    if ( obj->type == G3DTORUSTYPE           ) updateTorusEdit           ( child, gui );
+                    if ( obj->type == G3DTUBETYPE            ) updateTubeEdit            ( child, gui );
+                    if ( obj->type == G3DMESHTYPE            ) updateMeshEdit            ( child, gui );
+                    if ( obj->type == G3DBONETYPE            ) updateBoneEdit            ( child, gui );
+                    if ( obj->type == G3DFFDTYPE             ) updateFFDEdit             ( child, gui );
+                    if ( obj->type == G3DSYMMETRYTYPE        ) updateSymmetryEdit        ( child, gui );
+                    if ( obj->type == G3DLIGHTTYPE           ) updateLightEdit           ( child, obj );
+                    if ( obj->type == G3DUVMAPTYPE           ) updateUVMapEdit           ( child, gui );
+                    if ( obj->type == G3DSUBDIVIDERTYPE      ) updateSubdividerEdit      ( child, obj );
+                    if ( obj->type == G3DSPLINEREVOLVERTYPE  ) updateSplineRevolverEdit  ( child, gui );
+                    if ( obj->type == G3DWIREFRAMETYPE       ) updateWireframeEdit       ( child, gui );
+                    if ( obj->type == G3DTEXTTYPE            ) updateTextEdit            ( child, gui );
+                    if ( obj->type == G3DCAMERATYPE          ) updateCameraEdit          ( child, gui );
+                    if ( obj->type == G3DMORPHERTYPE         ) updateMorpherEdit         ( child, gui );
+                    if ( obj->type == G3DINSTANCETYPE        ) updateInstanceEdit        ( child, obj );
+                    if ( obj->type == G3DPARTICLEEMITTERTYPE ) updateParticleEmitterEdit ( child, obj );
 
                     gtk_widget_show ( child );
                 } else {

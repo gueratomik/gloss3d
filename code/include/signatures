@@ -261,6 +261,8 @@ SIG_ROOT=0x44335347
 --------------------------- SIG_OBJECT_SUBDIVIDER_SYNC
 ------------------------------ sync (uint32)
 --------------------------- SIG_OBJECT_SUBDIVIDER_SCULPTMAPS
+------------------------------- SIG_OBJECT_SUBDIVIDER_SCULPTMAPS_MODE
+----------------------------------- sculptMode ( uint32_t )
 ------------------------------- SIG_OBJECT_SUBDIVIDER_SCULPTMAPS_RESOLUTION
 ----------------------------------- sculptRes ( uint32_t )
 ------------------------------- SIG_OBJECT_SUBDIVIDER_SCULPTMAP_ENTRY

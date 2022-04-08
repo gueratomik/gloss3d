@@ -29,6 +29,8 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
+#ifdef unused
+
 /******************************************************************************/
 void g3dheightmap_print ( G3DHEIGHTMAP *htm ) {
     uint32_t i;
@@ -73,3 +75,5 @@ G3DHEIGHTMAP *g3dheightmap_new ( uint32_t nbheights ) {
 
     return htm;
 }
+
+#endif

@@ -37,6 +37,7 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
 /******************************************************************************/
 void g3dfacesculptextension_free ( G3DFACESCULPTEXTENSION *fse ) {
     if ( fse->nbver ) free ( fse->pos );
+    if ( fse->nbver ) free ( fse->hei );
 
     free ( fse );
 }
@@ -44,7 +45,8 @@ void g3dfacesculptextension_free ( G3DFACESCULPTEXTENSION *fse ) {
 /******************************************************************************/
 void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
                                      G3DFACE                *fac,
-                                     uint32_t                level ) {
+                                     uint32_t                level,
+                                     uint32_t                sculptMode ) {
     uint32_t i;
 
     fse->level = level;
@@ -71,22 +73,50 @@ void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
                                          &nbVerticesPerPolygon );
         }
 
-        if ( fse->nbver < nbVerticesPerPolygon ) {
-            fse->pos   = realloc ( fse->pos  , sizeof ( G3DVECTOR ) * nbVerticesPerPolygon );
+        switch ( sculptMode ) {
+            case SCULPTMODE_SCULPT :
+                if ( fse->hei )  {
+                    free ( fse->hei );
 
-            if ( fse->flags ) free ( fse->flags );
+                    fse->hei = NULL;
+                }
 
-            fse->flags = calloc ( nbVerticesPerPolygon, sizeof ( uint32_t  ) );
+                fse->pos = realloc ( fse->pos, sizeof ( G3DVECTOR ) * nbVerticesPerPolygon );
+            break;
 
-            for ( j = fse->nbver; j < nbVerticesPerPolygon; j++ ) {
-                fse->pos[j].x = 0.0f;
-                fse->pos[j].y = 0.0f;
-                fse->pos[j].z = 0.0f;
+            default :
+                if ( fse->pos )  {
+                    free ( fse->pos );
 
-                fse->pos[j].w = 0.0f;
-            }
+                    fse->pos = NULL;
+                }
+
+                fse->hei = realloc ( fse->hei, sizeof ( G3DHEIGHT ) * nbVerticesPerPolygon );
+            break;
         }
 
+        fse->flags = realloc ( fse->flags, nbVerticesPerPolygon * sizeof ( uint32_t  ) );
+
+
+        for ( j = fse->nbver; j < nbVerticesPerPolygon; j++ ) {
+            switch ( sculptMode ) {
+                case SCULPTMODE_SCULPT :
+                    fse->pos[j].x = 0.0f;
+                    fse->pos[j].y = 0.0f;
+                    fse->pos[j].z = 0.0f;
+                    fse->pos[j].w = 0.0f;
+                break;
+
+                default :
+                    fse->hei[j].s = 0.0f;
+                    fse->hei[j].w = 0.0f;
+                break;
+            }
+
+            fse->flags[i] = 0x00;
+        }
+
+        if ( fse->nbver < nbVerticesPerPolygon ) {
             for ( j = 0x00; j < nbFacesPerPolygon; j++ ) {
                 uint32_t faceID = j;
                 uint32_t k;
@@ -103,11 +133,19 @@ void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
 
                             /*** retrieve values from parent vertices only ***/
                             if ( parID < fse->nbver ) {
-                                fse->pos[verID].x += fse->pos[parID].x;
-                                fse->pos[verID].y += fse->pos[parID].y;
-                                fse->pos[verID].z += fse->pos[parID].z;
+                                switch ( sculptMode ) {
+                                    case SCULPTMODE_SCULPT :
+                                        fse->pos[verID].x += fse->pos[parID].x;
+                                        fse->pos[verID].y += fse->pos[parID].y;
+                                        fse->pos[verID].z += fse->pos[parID].z;
+                                        fse->pos[verID].w += 1.0f;
+                                    break;
 
-                                fse->pos[verID].w += 1.0f;
+                                    default :
+                                        fse->hei[verID].s += fse->hei[parID].s;
+                                        fse->hei[verID].w += 1.0f;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -115,18 +153,28 @@ void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
             }
 
             for ( j = fse->nbver; j < nbVerticesPerPolygon; j++ ) {
-                if ( fse->pos[j].w > 1.0f ) {
-                    fse->pos[j].x /= fse->pos[j].w;
-                    fse->pos[j].y /= fse->pos[j].w;
-                    fse->pos[j].z /= fse->pos[j].w;
+                switch ( sculptMode ) {
+                    case SCULPTMODE_SCULPT :
+                        if ( fse->pos[j].w > 1.0f ) {
+                            fse->pos[j].x /= fse->pos[j].w;
+                            fse->pos[j].y /= fse->pos[j].w;
+                            fse->pos[j].z /= fse->pos[j].w;
+                            fse->pos[j].w  = 1.0f;
+                        }
+                    break;
 
-                    fse->pos[j].w  = 1.0f;
+                    default :
+                        if ( fse->hei[j].w > 1.0f ) {
+                            fse->hei[j].s /= fse->hei[j].w;
+                            fse->hei[j].w  = 1.0f;
+                        }
+                    break;
                 }
-
             }
 
-        /*** receives the correct value on last loop ***/
-        fse->nbver = nbVerticesPerPolygon;
+            /*** receives the correct value on last loop ***/
+            fse->nbver = nbVerticesPerPolygon;
+        }
     }
 }
 
@@ -138,7 +186,8 @@ void g3dfacesculptextension_clearFlags ( G3DFACESCULPTEXTENSION *fse ) {
 /******************************************************************************/
 G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint32_t extensionName,
                                                      G3DFACE *fac,
-                                                     uint32_t level ) {
+                                                     uint32_t level,
+                                                     uint32_t sculptMode ) {
     uint32_t size = sizeof ( G3DFACESCULPTEXTENSION );
     G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION * ) calloc ( 0x01, 
                                                                         size );
@@ -152,7 +201,7 @@ G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint32_t extensionName,
     g3dfaceextension_init ( ( G3DFACESCULPTEXTENSION * ) fse, extensionName );
 
 
-    g3dfacesculptextension_adjust ( fse, fac, level );
+    g3dfacesculptextension_adjust ( fse, fac, level, sculptMode );
 
 
     return fse;
@@ -164,7 +213,8 @@ void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
                                    G3DFACESCULPTEXTENSION *dst,
                                    G3DFACE                *dstfac,
                                    uint32_t               *mapping,
-                                   G3DVECTOR              *factor ) {
+                                   G3DVECTOR              *factor,
+                                   uint32_t                sculptMode ) {
     G3DVECTOR fac = ( factor == NULL ) ? (G3DVECTOR) { .x = 1.0f,
                                                        .y = 1.0f,
                                                        .z = 1.0f } : 
@@ -174,14 +224,39 @@ void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
 
     dst->nbver = src->nbver;
 
-    dst->pos = realloc ( dst->pos, sizeof ( G3DVECTOR ) * dst->nbver );
+    switch ( sculptMode ) {
+        case SCULPTMODE_SCULPT :
+            dst->pos = realloc ( dst->pos, sizeof ( G3DVECTOR ) * dst->nbver );
+        break;
+
+        default :
+            dst->hei = realloc ( dst->hei, sizeof ( G3DHEIGHT ) * dst->nbver );
+        break;
+    }
 
     if ( dst->nbver ) {
-        memset ( dst->pos, 0x00, sizeof ( G3DVECTOR ) * dst->nbver );
+        switch ( sculptMode ) {
+            case SCULPTMODE_SCULPT :
+                memset ( dst->pos, 0x00, sizeof ( G3DVECTOR ) * dst->nbver );
+            break;
+
+            default :
+                memset ( dst->hei, 0x00, sizeof ( G3DHEIGHT ) * dst->nbver );
+            break;
+        }
 
         if ( srcfac == dstfac ) {
-            memcpy ( dst->pos, 
-                     src->pos, sizeof ( G3DVECTOR ) * dst->nbver );
+            switch ( sculptMode ) {
+                case SCULPTMODE_SCULPT :
+                    memcpy ( dst->pos, 
+                             src->pos, sizeof ( G3DVECTOR ) * dst->nbver );
+                break;
+
+                default :
+                    memcpy ( dst->hei, 
+                             src->hei, sizeof ( G3DHEIGHT ) * dst->nbver );
+                break;
+            }
         } else {
             uint32_t (*qua_indexes)[0x04] = g3dsubindex_get ( 0x04, src->level );
             uint32_t (*tri_indexes)[0x04] = g3dsubindex_get ( 0x03, src->level );
@@ -212,11 +287,19 @@ void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
                         uint32_t srcVerID = idx[srcFacID][j];
                         uint32_t dstVerID = idx[dstFacID][mapping[j]];
 
-                        dst->pos[dstVerID].x = src->pos[srcVerID].x * fac.x;
-                        dst->pos[dstVerID].y = src->pos[srcVerID].y * fac.y;
-                        dst->pos[dstVerID].z = src->pos[srcVerID].z * fac.z;
+                        switch ( sculptMode ) {
+                            case SCULPTMODE_SCULPT :
+                                    dst->pos[dstVerID].x = src->pos[srcVerID].x * fac.x;
+                                    dst->pos[dstVerID].y = src->pos[srcVerID].y * fac.y;
+                                    dst->pos[dstVerID].z = src->pos[srcVerID].z * fac.z;
+                                    dst->pos[dstVerID].w = 1.0f;
+                            break;
 
-                        dst->pos[dstVerID].w = 1.0f;
+                            default :
+                                    dst->hei[dstVerID].s = src->hei[srcVerID].s;
+                                    dst->hei[dstVerID].w = 1.0f;
+                            break;
+                        }
                     }
                 }
             }
@@ -225,9 +308,8 @@ void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
 }
 
 /******************************************************************************/
-void g3dsubdivider_setScupltResolution ( G3DSUBDIVIDER *sdr,
+void g3dsubdivider_setSculptResolution ( G3DSUBDIVIDER *sdr,
                                          uint32_t       sculptResolution ) {
-
     if ( sculptResolution > sdr->sculptResolution ) {
         sdr->sculptResolution = sculptResolution;
 
@@ -244,11 +326,134 @@ void g3dsubdivider_setScupltResolution ( G3DSUBDIVIDER *sdr,
                     if ( fse ) {
                         g3dfacesculptextension_adjust ( fse,
                                                         fac,
-                                                        sculptResolution );
+                                                        sdr->sculptResolution,
+                                                        sdr->sculptMode );
                     }
 
                     _NEXTFACE(mes,ltmpfac);
                 }
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
+                                   uint32_t       sculptMode, 
+                                   uint64_t       engine_flags ) {
+    if ( sculptMode != sdr->sculptMode ) {
+        if ( sdr->mod.oriobj ) {
+            if ( sdr->mod.oriobj->type & MESH ) {
+                G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
+                LIST *ltmpfac = mes->lfac;
+                G3DHEIGHT *hei = NULL;
+                G3DVECTOR *pos = NULL;
+                uint32_t nbFacesPerTriangle, 
+                         nbEdgesPerTriangle,
+                         nbVerticesPerTriangle;
+                uint32_t nbFacesPerQuad,
+                         nbEdgesPerQuad,
+                         nbVerticesPerQuad;
+                G3DSYSINFO *sif = g3dsysinfo_get ( );
+                /*** Get the temporary subdivision arrays for CPU #0 ***/
+                G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, 0x00 );
+                G3DRTVERTEX *rtvermem = NULL;
+
+                while ( ltmpfac ) {
+                    G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
+                    G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
+                                                            ( uint64_t ) sdr );
+
+                    if ( fse ) {
+                        uint32_t nbv = fac->nbver;
+                        uint32_t i;
+
+                        switch ( sculptMode ) {
+                            case SCULPTMODE_SCULPT : {
+                                rtvermem = realloc ( rtvermem, fse->nbver * sizeof ( G3DRTVERTEX ) );
+
+                                g3dsubdivisionV3_subdivide ( sdv, 
+                                                             mes,
+                                                             sdr->mod.stkpos,
+                                                             sdr->mod.stknor,
+                                                             fac,
+                                                             NULL,
+                                                             NULL,
+                                                             NULL,
+                                                             rtvermem,
+                                                             NULL,
+                                                             NULL,
+                                                             NULL,
+                                                             NULL,
+                                                             mes->ltex,
+                                                ( uint64_t ) sdr,
+                                                             sdr->sculptMode,
+                                            (uint32_t (*)[4])g3dsubindex_get ( 0x04, sdr->sculptResolution ),
+                                            (uint32_t (*)[4])g3dsubindex_get ( 0x03, sdr->sculptResolution ),
+                                                             sdr->sculptResolution,
+                                                             SUBDIVISIONCOMPUTE | 
+                                                             SUBDIVISIONNOELEVATE,
+                                                             engine_flags );
+
+                                pos = ( G3DVECTOR * ) realloc ( pos, fse->nbver * sizeof ( G3DVECTOR ) ); 
+
+                                for ( i = 0x00; i < fse->nbver; i++ ) {
+
+                                    if ( fse->hei[i].w ) {
+                                        pos[i].x = fse->hei[i].s * rtvermem[i].nor.x;
+                                        pos[i].y = fse->hei[i].s * rtvermem[i].nor.y;
+                                        pos[i].z = fse->hei[i].s * rtvermem[i].nor.z;
+                                    }
+
+                                    pos[i].w = fse->hei[i].w;
+                                }
+                            } break;
+
+                            default :
+                                hei = ( G3DHEIGHT * ) realloc ( hei, fse->nbver * sizeof ( G3DHEIGHT ) ); 
+
+                                for ( i = 0x00; i < fse->nbver; i++ ) {
+                                    if ( fse->pos[i].w ) {
+                                        hei[i].s = g3dvector_length ( &fse->pos[i] );
+                                    }
+
+                                    hei[i].w = fse->pos[i].w;
+                                }
+                            break;
+                        }
+
+                        g3dfacesculptextension_adjust ( fse,
+                                                        fac,
+                                                        sdr->sculptResolution,
+                                                        sculptMode );
+
+                        switch ( sculptMode ) {
+                            case SCULPTMODE_SCULPT :
+                                memcpy ( fse->pos, 
+                                              pos,
+                                         fse->nbver * sizeof ( G3DVECTOR ) );
+                            break;
+
+                            default :
+                                memcpy ( fse->hei, 
+                                              hei,
+                                         fse->nbver * sizeof ( G3DHEIGHT ) );
+                            break;
+                        }
+                    }
+
+                    _NEXTFACE(mes,ltmpfac);
+                }
+
+                if ( pos ) free ( pos );
+                if ( hei ) free ( hei );
+
+                if ( rtvermem ) free ( rtvermem );
+
+                sdr->sculptMode = sculptMode;
+
+                g3dsubdivider_allocBuffers ( sdr, engine_flags );
+                g3dsubdivider_fillBuffers  ( sdr, NULL, engine_flags );
             }
         }
     }
@@ -570,10 +775,12 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                                                    NULL,
                                                    mes->ltex,
                                       ( uint64_t ) sdr,
+                                                   sdr->sculptMode,
                                   (uint32_t (*)[4])g3dsubindex_get ( 0x04, sdr->subdiv_render ),
                                   (uint32_t (*)[4])g3dsubindex_get ( 0x03, sdr->subdiv_render ),
                                                    sdr->subdiv_render,
-                                                   SUBDIVISIONCOMPUTE | SUBDIVISIONDUMP,
+                                                   SUBDIVISIONCOMPUTE | 
+                                                   SUBDIVISIONDUMP,
                                                    engine_flags );
 
 
@@ -711,6 +918,7 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
                                                    commitFaces,
                                                    mes->ltex,
                                       ( uint64_t ) sdr,
+                                                   sdr->sculptMode,
                                   (uint32_t (*)[4])g3dsubindex_get ( 0x04, sdr->subdiv_preview ),
                                   (uint32_t (*)[4])g3dsubindex_get ( 0x03, sdr->subdiv_preview ),
                                                    sdr->subdiv_preview,
@@ -807,6 +1015,7 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
                                                         cpuID,
                                                         sdr->subdiv_preview,
                                                         sdr,
+                                                        sdr->sculptMode,
                                                         engine_flags );
 
                 g3dsubdivisionV3_subdivide_t ( &std[0x00] );
@@ -838,6 +1047,7 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
                                                          cpuID,
                                                          sdr->subdiv_preview,
                                                          sdr,
+                                                         sdr->sculptMode,
                                                          engine_flags | 
                                                          G3DMULTITHREADING  );
 
@@ -908,7 +1118,7 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
                 _NEXTFACE(mes,ltmpfac);
             }
 
-            g3dsubdivider_setScupltResolution ( sdr,
+            g3dsubdivider_setSculptResolution ( sdr,
                                                 sdr->subdiv_preview );
 
         /*while ( ltmpfac ) {

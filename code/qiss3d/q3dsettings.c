@@ -422,6 +422,18 @@ static uint32_t q3dsettings_fogNear ( G3DEXPORTV3DATA  *ged,
 }
 
 /******************************************************************************/
+static uint32_t q3dsettings_fogStrength ( G3DEXPORTV3DATA *ged,
+                                          Q3DFOGSETTINGS  *fgs,
+                                          uint32_t         flags, 
+                                          FILE            *fdst ) {
+    uint32_t size = 0x00;
+
+    size += g3dexportv3_fwritef ( &fgs->strength, fdst );
+
+    return size;
+}
+
+/******************************************************************************/
 static uint32_t q3dsettings_fogFlags ( G3DEXPORTV3DATA  *ged,
                                        Q3DFOGSETTINGS *fgs,
                                        uint32_t        flags, 
@@ -463,6 +475,13 @@ static uint32_t q3dsettings_fog ( G3DEXPORTV3DATA  *ged,
 
     size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_FOG_COLOR,
                                    EXPORTV3_CALLBACK(q3dsettings_fogColor),
+                                   ged,
+                                   fgs,
+                                   0xFFFFFFFF,
+                                   fdst );
+
+    size += g3dexportv3_writeChunk ( SIG_RENDERSETTINGS_FOG_STRENGTH,
+                                   EXPORTV3_CALLBACK(q3dsettings_fogStrength),
                                    ged,
                                    fgs,
                                    0xFFFFFFFF,
@@ -813,6 +832,10 @@ void q3dsettings_read ( G3DIMPORTV3DATA *gid,
 
             case SIG_RENDERSETTINGS_FOG_COLOR : {
                 g3dimportv3_freadl ( &rsg->fog.color, fsrc );
+            } break;
+
+            case SIG_RENDERSETTINGS_FOG_STRENGTH : {
+                g3dimportv3_freadf ( &rsg->fog.strength, fsrc );
             } break;
 
             case SIG_RENDERSETTINGS_AA : {

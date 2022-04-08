@@ -43,8 +43,10 @@ void g3dsubvertex_renumberArray ( G3DSUBVERTEX *subver, uint32_t nbver ) {
 void g3dsubvertex_elevate ( G3DSUBVERTEX *subver,
                             uint64_t      sculptExtensionName,
                             uint32_t    (*tri_indexes)[0x04],
-                            uint32_t    (*qua_indexes)[0x04] ) {
+                            uint32_t    (*qua_indexes)[0x04],
+                            uint32_t      sculptMode ) {
     G3DVECTOR pos = { 0.0f, 0.0f, 0.0f, 1.0f };
+    G3DHEIGHT hei = { 0.0f, 0.0f };
     LIST *ltmpfac = subver->ver.lfac;
     uint32_t nbfac = 0x00;
 
@@ -60,13 +62,24 @@ void g3dsubvertex_elevate ( G3DSUBVERTEX *subver,
                 if ( fac->ver[i] == ( G3DVERTEX * ) subver ) {
                     uint32_t verID = ( fac->flags & FACEFROMQUAD ) ? qua_indexes[fac->id][i] :
                                                                      tri_indexes[fac->id][i];
+                    switch ( sculptMode ) {
+                        case SCULPTMODE_SCULPT :
+                            if ( fse->pos[verID].w ) {
+                                pos.x += fse->pos[verID].x;
+                                pos.y += fse->pos[verID].y;
+                                pos.z += fse->pos[verID].z;
 
-                    if ( fse->pos[verID].w ) {
-                        pos.x += fse->pos[verID].x;
-                        pos.y += fse->pos[verID].y;
-                        pos.z += fse->pos[verID].z;
+                                nbfac++;
+                            }
+                        break;
 
-                        nbfac++;
+                        default :
+                            if ( fse->hei[verID].w ) {
+                                hei.s += fse->hei[verID].s;
+
+                                nbfac++;
+                            }
+                        break;
                     }
                 }
             }
@@ -76,9 +89,21 @@ void g3dsubvertex_elevate ( G3DSUBVERTEX *subver,
     }
 
     if ( nbfac ) {
-        subver->ver.pos.x += ( pos.x / nbfac );
-        subver->ver.pos.y += ( pos.y / nbfac );
-        subver->ver.pos.z += ( pos.z / nbfac );
+        float elevation = hei.s / nbfac;
+
+        switch ( sculptMode ) {
+            case SCULPTMODE_SCULPT :
+                subver->ver.pos.x += ( pos.x / nbfac );
+                subver->ver.pos.y += ( pos.y / nbfac );
+                subver->ver.pos.z += ( pos.z / nbfac );
+            break;
+
+            default :
+                subver->ver.pos.x += ( subver->ver.nor.x * elevation );
+                subver->ver.pos.y += ( subver->ver.nor.y * elevation );
+                subver->ver.pos.z += ( subver->ver.nor.z * elevation );
+            break;
+        }
     }
 }
 
