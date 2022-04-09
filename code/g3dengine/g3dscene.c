@@ -743,6 +743,7 @@ void g3dscene_processAnimatedImages ( G3DSCENE *sce,
                                       float     sceneEndFrame,
                                       float     sceneFramesPerSecond,
                                       uint64_t  engine_flags ) {
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
     LIST *ltpmimg = sce->limg;
 
     while ( ltpmimg ) {
@@ -764,6 +765,21 @@ void g3dscene_processAnimatedImages ( G3DSCENE *sce,
         }
 
         ltpmimg = ltpmimg->next;
+    }
+
+    if ( sysinfo ) {
+        if ( sysinfo->backgroundImage ) {
+            if ( sysinfo->backgroundImage->flags & ANIMATEDIMAGE ) {
+                g3dimage_animate ( sysinfo->backgroundImage,
+                                   sceneStartFrame, 
+                                   sceneCurrentFrame,
+                                   sceneEndFrame,
+                                   sceneFramesPerSecond,
+                                   engine_flags );
+
+                g3dimage_bind ( sysinfo->backgroundImage );
+            }
+        }
     }
 }
 

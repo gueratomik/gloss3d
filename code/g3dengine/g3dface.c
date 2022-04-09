@@ -711,6 +711,7 @@ uint32_t g3dface_bindMaterials ( G3DFACE        *fac,
     static GLfloat grayDiffuse[]   = { MESHCOLORF, 
                                        MESHCOLORF, 
                                        MESHCOLORF, 1.0f };
+    uint32_t selection = 0x00;
 
     glDisable ( GL_COLOR_MATERIAL );
 
@@ -722,6 +723,8 @@ uint32_t g3dface_bindMaterials ( G3DFACE        *fac,
         glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
 
         memcpy ( whiteDiffuse, selectDiffuse, sizeof ( whiteDiffuse ) );
+
+        selection = 0x01;
     }
 
     while ( ltmptex ) {
@@ -746,7 +749,11 @@ uint32_t g3dface_bindMaterials ( G3DFACE        *fac,
 
         if ( mat->flags & DIFFUSE_ENABLED ) {
             if ( mat->diffuse.flags & USESOLIDCOLOR ) {
-                glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) &mat->diffuse.solid );
+                if ( selection == 0x00 ) {
+                    glMaterialfv ( GL_FRONT_AND_BACK,
+                                   GL_DIFFUSE,
+                    ( GLfloat * ) &mat->diffuse.solid );
+                }
             } else {
                 glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) whiteDiffuse );
             }

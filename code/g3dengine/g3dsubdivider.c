@@ -397,6 +397,8 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
 
                                 pos = ( G3DVECTOR * ) realloc ( pos, fse->nbver * sizeof ( G3DVECTOR ) ); 
 
+                                memset ( pos, 0x00, fse->nbver * sizeof ( G3DVECTOR ) );
+
                                 for ( i = 0x00; i < fse->nbver; i++ ) {
 
                                     if ( fse->hei[i].w ) {
@@ -411,6 +413,8 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
 
                             default :
                                 hei = ( G3DHEIGHT * ) realloc ( hei, fse->nbver * sizeof ( G3DHEIGHT ) ); 
+
+                                memset ( hei, 0x00, fse->nbver * sizeof ( G3DHEIGHT ) );
 
                                 for ( i = 0x00; i < fse->nbver; i++ ) {
                                     if ( fse->pos[i].w ) {
@@ -1278,6 +1282,7 @@ static void bindMaterials ( G3DSUBDIVIDER *sdr,
     GLint arbid = GL_TEXTURE0_ARB;
     LIST *ltmptex = mes->ltex;
     LIST *ltmpuvs = fac->luvs;
+    uint32_t selection = 0x00;
 
     glDisable ( GL_COLOR_MATERIAL );
 
@@ -1289,6 +1294,8 @@ static void bindMaterials ( G3DSUBDIVIDER *sdr,
         glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
 
         memcpy ( whiteDiffuse, selectDiffuse, sizeof ( whiteDiffuse ) );
+
+        selection = 0x01;
     }
 
     if ( ( ((G3DOBJECT*)sdr)->flags & OBJECTSELECTED ) &&
@@ -1297,6 +1304,8 @@ static void bindMaterials ( G3DSUBDIVIDER *sdr,
         glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectSculptDiffuse );
 
         memcpy ( whiteDiffuse, selectSculptDiffuse, sizeof ( whiteDiffuse ) );
+
+        selection = 0x01;
     }
 
     while ( ltmptex ) {
@@ -1321,7 +1330,11 @@ static void bindMaterials ( G3DSUBDIVIDER *sdr,
 
         if ( mat->flags & DIFFUSE_ENABLED ) {
             if ( mat->diffuse.flags & USESOLIDCOLOR ) {
-                glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) &mat->diffuse.solid );
+                if ( selection == 0x00 ) {
+                    glMaterialfv ( GL_FRONT_AND_BACK,
+                                   GL_DIFFUSE,
+                    ( GLfloat * ) &mat->diffuse.solid );
+                }
             } else {
                 glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) whiteDiffuse );
             }
