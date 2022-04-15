@@ -130,21 +130,26 @@ static uint32_t g3dexportv3mesh_facegroups ( G3DEXPORTV3DATA *ged,
 
 /******************************************************************************/
 static uint32_t g3dexportv3mesh_weightgroupWeights ( G3DEXPORTV3DATA  *ged, 
-                                                   G3DWEIGHTGROUP *grp, 
-                                                   uint32_t        flags, 
-                                                   FILE           *fdst ) {
-    LIST *ltmpwei = grp->lwei;
+                                                     G3DWEIGHTGROUP *grp, 
+                                                     uint32_t        flags, 
+                                                     FILE           *fdst ) {
+    G3DMESH *mes = grp->mes;
+    LIST *ltmpver = mes->lver;
     uint32_t size = 0x00;
+    uint32_t count = g3dmesh_getWeightgroupCount ( mes, grp );
 
-    size += g3dexportv3_fwritel ( &grp->nbwei, fdst );
+    size += g3dexportv3_fwritel ( &count, fdst );
 
-    while ( ltmpwei ) {
-        G3DWEIGHT *wei = ( G3DWEIGHT * ) ltmpwei->data;
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+        G3DWEIGHT *wei = g3dvertex_getWeight ( ver, grp );
 
-        size += g3dexportv3_fwritel ( &wei->ver->id, fdst );
-        size += g3dexportv3_fwritef ( &wei->weight, fdst );
+        if ( wei ) {
+            size += g3dexportv3_fwritel ( &ver->id    , fdst );
+            size += g3dexportv3_fwritef ( &wei->weight, fdst );
+        }
 
-        ltmpwei = ltmpwei->next;
+        ltmpver = ltmpver->next;
     }
 
     return size;
@@ -152,9 +157,9 @@ static uint32_t g3dexportv3mesh_weightgroupWeights ( G3DEXPORTV3DATA  *ged,
 
 /******************************************************************************/
 static uint32_t g3dexportv3mesh_weightgroupName ( G3DEXPORTV3DATA  *ged, 
-                                                G3DWEIGHTGROUP *grp, 
-                                                uint32_t        flags, 
-                                                FILE           *fdst ) {
+                                                  G3DWEIGHTGROUP *grp, 
+                                                  uint32_t        flags, 
+                                                  FILE           *fdst ) {
     uint32_t size = 0x00;
 
     size += g3dexportv3_fwrite ( grp->name, strlen ( grp->name ), 0x01, fdst );

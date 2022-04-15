@@ -958,11 +958,11 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
 
     /********************************/
 
-    common_g3dui_addMouseTool ( gui,
+    /*common_g3dui_addMouseTool ( gui,
                                 g3dmousetoolsculpt_new ( SCULPTFLATTEN ), 
                                 SCULPTMODETOOL | 
                                 MESHTOOL     |
-                                GLMENUTOOL );
+                                GLMENUTOOL );*/
 
     /********************************/
 
@@ -974,11 +974,11 @@ void common_g3dui_initDefaultMouseTools ( G3DUI *gui, G3DCAMERA *cam ) {
 
     /********************************/
 
-    common_g3dui_addMouseTool ( gui,
+    /*common_g3dui_addMouseTool ( gui,
                                 g3dmousetoolsculpt_new ( SCULPTSMOOTH ), 
                                 SCULPTMODETOOL | 
                                 MESHTOOL     |
-                                GLMENUTOOL );
+                                GLMENUTOOL );*/
 
     /********************************/
 

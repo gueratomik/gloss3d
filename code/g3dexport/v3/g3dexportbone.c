@@ -44,9 +44,9 @@ static uint32_t g3dexportv3bone_rigSkin ( G3DEXPORTV3DATA  *ged,
 
 /******************************************************************************/
 static uint32_t g3dexportv3bone_rigSkinMatrix ( G3DEXPORTV3DATA  *ged, 
-                                              G3DRIG         *rig, 
-                                              uint32_t        flags, 
-                                              FILE           *fdst ) {
+                                                G3DRIG           *rig, 
+                                                uint32_t          flags, 
+                                                FILE             *fdst ) {
     uint32_t size = 0x00;
     uint32_t i;
 
@@ -58,10 +58,10 @@ static uint32_t g3dexportv3bone_rigSkinMatrix ( G3DEXPORTV3DATA  *ged,
 }
 
 /******************************************************************************/
-static uint32_t g3dexportv3bone_rigWeightgroup ( G3DEXPORTV3DATA  *ged, 
-                                               G3DWEIGHTGROUP *grp, 
-                                               uint32_t        flags, 
-                                               FILE           *fdst ) {
+static uint32_t g3dexportv3bone_rigWeightgroup ( G3DEXPORTV3DATA *ged, 
+                                                 G3DWEIGHTGROUP  *grp, 
+                                                 uint32_t         flags, 
+                                                 FILE            *fdst ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) grp->mes;
     uint32_t size = 0x00;
 

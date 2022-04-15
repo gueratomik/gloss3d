@@ -398,6 +398,8 @@ void common_g3dui_mirrorHeightmapCbk ( G3DUI *gui, const char *option ) {
 
                 ltmpselfac = ltmpselfac->next;
             }
+
+            g3dsubdivider_fillBuffers  ( sdr, NULL, gui->engine_flags );
         }
     }
 
@@ -419,15 +421,15 @@ void common_g3dui_mirrorWeightGroupCbk ( G3DUI *gui, const char *option ) {
 
         if ( grp ) {
             if ( strcmp ( option, MENU_MIRRORXY ) == 0x00 ) {
-                newgrp = g3dweightgroup_mirror ( grp, ORIENTATIONXY );
+                newgrp = g3dmesh_mirrorWeightgroup ( mes, grp, ORIENTATIONXY );
             }
 
             if ( strcmp ( option, MENU_MIRRORYZ ) == 0x00 ) {
-                newgrp = g3dweightgroup_mirror ( grp, ORIENTATIONYZ );
+                newgrp = g3dmesh_mirrorWeightgroup ( mes, grp, ORIENTATIONYZ );
             }
 
             if ( strcmp ( option, MENU_MIRRORZX ) == 0x00 ) {
-                newgrp = g3dweightgroup_mirror ( grp, ORIENTATIONZX );
+                newgrp = g3dmesh_mirrorWeightgroup ( mes, grp, ORIENTATIONZX );
             }
 
             if ( newgrp ) {

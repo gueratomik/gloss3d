@@ -88,6 +88,22 @@ G3DVERTEX *g3dvertex_seekVertexByPosition ( LIST *lver, float x,
 }
 
 /******************************************************************************/
+G3DWEIGHT *g3dvertex_getWeight ( G3DVERTEX      *ver, 
+                                 G3DWEIGHTGROUP *grp ) {
+    LIST *ltmpwei = ver->lwei;
+
+    while ( ltmpwei ) {
+        G3DWEIGHT *wei = ( G3DWEIGHT * ) ltmpwei->data;
+
+        if ( wei->grp == grp ) return wei;
+
+        ltmpwei = ltmpwei->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 /*
 void vertex_elevate ( G3DVERTEX *ver ) {
     G3DVECTOR pos = { 0.0f, 0.0f, 0.0f, 1.0f };

@@ -362,21 +362,23 @@ static uint32_t actionPaintVertex ( uint64_t name, MESHPICKDATA *mpd ) {
     /*** a Weightgroup must be selected first ***/
     if ( curgrp == NULL ) return 0;
 
-    G3DWEIGHT *wei = g3dweightgroup_seekVertex ( curgrp, ver );
+    G3DWEIGHT *wei = g3dvertex_getWeight ( ver, curgrp );
 
     /*** Remove vertex from weightgroup ***/
     if ( weight == 0.0f ) {
         if ( wei ) {
-            g3dweightgroup_removeWeight ( curgrp, wei );
+            g3dvertex_removeWeight ( ver, wei );
         }
     /*** Add vertex to weighgroup ***/
     } else {
         if ( wei ) {
             /* Note: wei->ver->weight is just a storing */
             /* variable for faster display of the weight */
-            wei->ver->weight = wei->weight = weight;
+            ver->weight = wei->weight = weight;
         } else {
-            wei = g3dweightgroup_addVertex ( curgrp, ver, 1.0f );
+            G3DWEIGHT *wei = g3dweight_new ( weight, curgrp );
+
+            g3dvertex_addWeight ( ver, wei );
         }
 
         ver->flags |= VERTEXPAINTED;

@@ -61,7 +61,7 @@ void g3drig_fix ( G3DRIG *rig ) {
     while ( ltmpgrp ) {
         G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmpgrp->data;
 
-        g3dweightgroup_fix ( grp, rig );
+        g3dmesh_fixWeightgroup ( grp->mes, grp, rig );
 
         ltmpgrp = ltmpgrp->next;
     }
@@ -74,7 +74,7 @@ void g3drig_unfix ( G3DRIG *rig ) {
     while ( ltmpgrp ) {
         G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmpgrp->data;
 
-        g3dweightgroup_unfix ( grp );
+        g3dmesh_unfixWeightgroup ( grp->mes, grp );
 
         ltmpgrp = ltmpgrp->next;
     }

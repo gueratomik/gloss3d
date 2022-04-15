@@ -132,9 +132,9 @@ void g3dimportv3mesh ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                     g3dimportv3_freadl ( &verID , fsrc );
                     g3dimportv3_freadf ( &weight, fsrc );
 
-                    g3dweightgroup_addVertex ( gid->currentWeightgroup,
-                                               gid->currentVertexArray[verID],
-                                               weight );
+                    g3dvertex_addWeight ( gid->currentVertexArray[verID],
+                                          g3dweight_new ( weight,
+                                                          gid->currentWeightgroup ) );
                 }
             } break;
 

@@ -506,6 +506,189 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
 }
 
 /******************************************************************************/
+LIST *g3dmesh_getVerticesFromWeightgroup ( G3DMESH        *mes,
+                                           G3DWEIGHTGROUP *grp ) {
+    LIST *ltmpver = mes->lver;
+    LIST *lver = NULL;
+
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+        G3DWEIGHT *wei = g3dvertex_getWeight ( ver, grp );
+
+        if ( wei ) {
+            list_insert ( &lver, ver );
+        }
+
+        ltmpver = ltmpver->next;
+    }
+
+    return lver;
+}
+
+/******************************************************************************/
+void g3dmesh_paintWeightgroup ( G3DMESH        *mes,
+                                G3DWEIGHTGROUP *grp ) {
+    LIST *ltmpver = mes->lver;
+
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+        G3DWEIGHT *wei = g3dvertex_getWeight ( ver, grp );
+
+        if ( wei ) {
+            ver->flags |= VERTEXPAINTED;
+            ver->weight = wei->weight;
+        }
+
+        ltmpver = ltmpver->next;
+    }
+}
+
+
+/******************************************************************************/
+uint32_t g3dmesh_getWeightgroupCount ( G3DMESH        *mes,
+                                       G3DWEIGHTGROUP *grp ) {
+    LIST *ltmpver = mes->lver;
+    uint32_t count = 0x00;
+
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+        G3DWEIGHT *wei = g3dvertex_getWeight ( ver, grp );
+
+        if ( wei ) {
+            count++;
+        }
+
+        ltmpver = ltmpver->next;
+    }
+
+    return count;
+}
+
+/******************************************************************************/
+void g3dmesh_unpaintWeightgroup ( G3DMESH        *mes,
+                                  G3DWEIGHTGROUP *grp ) {
+    LIST *ltmpver = mes->lver;
+
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+        G3DWEIGHT *wei = g3dvertex_getWeight ( ver, grp );
+
+        if ( wei ) {
+            ver->flags &= (~VERTEXPAINTED);
+            ver->weight = 0.0f;
+        }
+
+        ltmpver = ltmpver->next;
+    }
+}
+
+/******************************************************************************/
+void g3dmesh_emptyWeightgroup ( G3DMESH        *mes,
+                                G3DWEIGHTGROUP *grp ) {
+    LIST *ltmpver = mes->lver;
+
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+        G3DWEIGHT *wei = g3dvertex_getWeight ( ver, grp );
+
+        if ( wei ) {
+            g3dvertex_removeWeight ( ver, wei );
+        }
+
+        ltmpver = ltmpver->next;
+    }
+}
+
+/******************************************************************************/
+G3DWEIGHTGROUP *g3dmesh_mirrorWeightgroup ( G3DMESH        *mes,
+                                            G3DWEIGHTGROUP *grp,
+                                            uint32_t        orientation ) {
+    G3DWEIGHTGROUP *mirgrp = g3dweightgroup_new ( mes, "Mirrored Group" );
+    LIST *ltmpver = mes->lver;
+
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+        G3DWEIGHT *wei = g3dvertex_getWeight ( ver, grp );
+
+        if ( wei ) {
+            G3DVERTEX *mirver = NULL;
+
+            switch ( orientation ) {
+                case ORIENTATIONZX :
+                    mirver = g3dmesh_seekVertexByPosition ( mes,  ver->pos.x,
+                                                                 -ver->pos.y,
+                                                                  ver->pos.z,
+                                                                  0.0001f );
+                break;
+
+                case ORIENTATIONXY :
+                    mirver = g3dmesh_seekVertexByPosition ( mes,  ver->pos.x,
+                                                                  ver->pos.y,
+                                                                 -ver->pos.z,
+                                                                  0.0001f );
+                break;
+
+                case ORIENTATIONYZ :
+                    mirver = g3dmesh_seekVertexByPosition ( mes, -ver->pos.x,
+                                                                  ver->pos.y,
+                                                                  ver->pos.z,
+                                                                  0.0001f );
+                break;
+
+                default :
+                break;
+            }
+
+            if ( mirver ) {
+                G3DWEIGHT *mirwei = g3dweight_new ( wei->weight, mirgrp );
+
+                g3dvertex_addWeight ( mirver, mirwei );
+            }
+        }
+
+        ltmpver = ltmpver->next;
+    }
+
+    return mirgrp;
+}
+
+
+/******************************************************************************/
+void g3dmesh_fixWeightgroup ( G3DMESH        *mes,
+                              G3DWEIGHTGROUP *grp,
+                              G3DRIG         *rig ) {
+    LIST *ltmpver = mes->lver;
+
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+        G3DWEIGHT *wei = g3dvertex_getWeight ( ver, grp );
+
+        if ( wei ) {
+            wei->rig = rig;
+        }
+
+        ltmpver = ltmpver->next;
+    }
+}
+
+/******************************************************************************/
+void g3dmesh_unfixWeightgroup ( G3DMESH        *mes,
+                                G3DWEIGHTGROUP *grp ) {
+    LIST *ltmpver = mes->lver;
+
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+        G3DWEIGHT *wei = g3dvertex_getWeight ( ver, grp );
+
+        if ( wei ) {
+            wei->rig = NULL;
+        }
+
+        ltmpver = ltmpver->next;
+    }
+}
+
+/******************************************************************************/
 void g3dmesh_updateModified ( G3DMESH     *mes,
                               G3DMODIFIER *mod,
                               uint64_t     engine_flags ) {
@@ -3683,6 +3866,8 @@ void g3dmesh_removeWeightGroup ( G3DMESH        *mes,
                                  G3DWEIGHTGROUP *grp ) {
     list_remove ( &mes->lweigrp, grp );
 
+    g3dmesh_emptyWeightgroup ( mes, grp );
+
     mes->nbweigrp--;
 }
 
@@ -3908,7 +4093,7 @@ void g3dmesh_unselectWeightGroup ( G3DMESH        *mes,
 
     mes->nbselweigrp--;
 
-    g3dweightgroup_unpainted ( grp );
+    g3dmesh_unpaintWeightgroup ( mes, grp );
 }
 
 /******************************************************************************/
@@ -3925,7 +4110,7 @@ void g3dmesh_selectWeightGroup ( G3DMESH        *mes,
 
     mes->nbselweigrp++;
 
-    g3dweightgroup_painted ( grp );
+    g3dmesh_paintWeightgroup ( mes, grp );
 }
 
 /******************************************************************************/

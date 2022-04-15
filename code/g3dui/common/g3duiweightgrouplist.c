@@ -67,8 +67,6 @@ void common_g3duiweightgrouplist_deleteWeightGroupCbk ( G3DUI *gui ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
         if ( mes->curgrp ) {
-            g3dweightgroup_empty ( mes->curgrp );
-
             g3dmesh_removeWeightGroup ( mes, mes->curgrp );
 
             g3dui_redrawAllWeightGroupList ( gui );
@@ -131,8 +129,6 @@ void common_g3duiweightgrouplist_deleteSelectedCbk ( G3DUI *gui ) {
             /*LIST *lsub = ( curgrp ) ? g3dvertex_getFacesFromList ( curgrp->lver ) : NULL;*/
 
 
-            g3dweightgroup_empty ( curgrp );
-
             g3dmesh_removeWeightGroup ( mes, curgrp );
 
             mes->obj.update_flags |= ( UPDATEVERTEXNORMAL |
@@ -167,7 +163,7 @@ void common_g3duiweightgrouplist_selectCbk ( G3DUI *gui, G3DWEIGHTGROUP *grp ) {
         if ( mes->curgrp ) {
             G3DWEIGHTGROUP *curgrp = mes->curgrp;
 
-            lver = g3dweightgroup_getVertices ( curgrp );
+            lver = g3dmesh_getVerticesFromWeightgroup ( mes, curgrp );
 
             g3dmesh_unselectWeightGroup ( mes, curgrp );
 
@@ -180,7 +176,7 @@ void common_g3duiweightgrouplist_selectCbk ( G3DUI *gui, G3DWEIGHTGROUP *grp ) {
             list_free ( &lver, NULL );
         }
 
-        lver = g3dweightgroup_getVertices ( grp );
+        lver = g3dmesh_getVerticesFromWeightgroup ( mes, grp );
 
         g3dmesh_selectWeightGroup ( mes, grp );
 

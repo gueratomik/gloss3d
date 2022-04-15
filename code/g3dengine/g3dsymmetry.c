@@ -56,20 +56,45 @@ void g3dsymmetry_convert_r ( G3DOBJECT *obj,
         switch ( child->type ) {
             case G3DMESHTYPE : {
                 G3DMESH *mes = ( G3DMESH * ) child;
+                G3DMESH *symmes;
 
                 symobj = ( G3DOBJECT * ) g3dmesh_symmetricMerge ( mes, 
                                                                   MVX,
                                                                   engine_flags );
+
+                g3dobject_importTransformations ( ( G3DOBJECT * ) symobj,
+                                                  ( G3DOBJECT * ) child );
+
+                symmes = symobj;
+                LIST *ltmpver = symmes->lver;
+
+                while ( ltmpver ) {
+                    G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+                    G3DVECTOR pos;
+
+                    g3dvector_matrix ( &ver->pos, symobj->wmatrix, &pos );
+                    g3dvector_matrix ( &pos,        ori->iwmatrix, &ver->pos );
+
+                    ltmpver = ltmpver->next;
+                }
+
+                g3dvector_init ( &symobj->pos, 0.0f, 0.0f, 0.0f, 1.0f );
+                g3dvector_init ( &symobj->rot, 0.0f, 0.0f, 0.0f, 1.0f );
+                g3dvector_init ( &symobj->sca, 1.0f, 1.0f, 1.0f, 1.0f );
+
+                g3dobject_initMatrices ( symobj );
+
+                g3dobject_updateMatrix_r ( symobj, engine_flags );
             } break;
    
             default:
                 symobj = child->copy ( child, child->id, 
                                               child->name, engine_flags );
+
+                g3dobject_importTransformations ( ( G3DOBJECT * ) symobj,
+                                                  ( G3DOBJECT * ) child );
             break;
         }
-
-        g3dobject_importTransformations ( ( G3DOBJECT * ) symobj,
-                                          ( G3DOBJECT * ) child );
 
         g3dobject_addChild ( obj, symobj, engine_flags );
 

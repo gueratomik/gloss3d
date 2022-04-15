@@ -1171,22 +1171,19 @@ typedef struct _G3DSUBINDEX {
 #include <g3dengine/g3dsysinfo.h>
 
 /******************************************************************************/
-typedef struct _G3DWEIGHT {
-    G3DVERTEX *ver;  /*** related vertex       - set when painted ***/
-    float      weight;    /*** weight               - set when painted ***/
-    G3DRIG    *rig;
-} G3DWEIGHT;
-
-/******************************************************************************/
 typedef struct _G3DWEIGHTGROUP {
     uint32_t id;    /*** should never be trusted ***/
-    uint32_t  flags;
-    G3DMESH *mes;
+    uint32_t flags;
     char    *name;
-    LIST    *lwei;
-    /*LIST *lver;*/ /*** for faster access ***/
-    uint32_t nbwei;
+    G3DMESH *mes ; /*** eases file writing ***/
 } G3DWEIGHTGROUP;
+
+/******************************************************************************/
+typedef struct _G3DWEIGHT {
+    float           weight;    /*** weight               - set when painted ***/
+    G3DRIG         *rig;
+    G3DWEIGHTGROUP *grp;
+} G3DWEIGHT;
 
 /******************************************************************************/
 typedef enum  {
@@ -1687,6 +1684,8 @@ void g3dquaternion_print ( G3DQUATERNION *qua );
 
 /******************************************************************************/
 G3DVERTEX *g3dvertex_new        ( float, float, float );
+G3DWEIGHT *g3dvertex_getWeight ( G3DVERTEX      *ver, 
+                                 G3DWEIGHTGROUP *grp );
 G3DVECTOR *g3dvertex_getModifiedPosition ( G3DVERTEX *ver,
                                            G3DVECTOR *stkpos );
 G3DVECTOR *g3dvertex_getModifiedNormal ( G3DVERTEX *ver,
@@ -2578,6 +2577,23 @@ void g3dmesh_init ( G3DMESH *mes,
                     char    *name,
                     uint64_t engine_flags );
 void       g3dmesh_free                 ( G3DOBJECT * );
+void g3dmesh_paintWeightgroup ( G3DMESH        *mes,
+                                G3DWEIGHTGROUP *grp );
+void g3dmesh_unpaintWeightgroup ( G3DMESH        *mes,
+                                  G3DWEIGHTGROUP *grp );
+void g3dmesh_emptyWeightgroup ( G3DMESH        *mes,
+                                G3DWEIGHTGROUP *grp );
+G3DWEIGHTGROUP *g3dmesh_mirrorWeightgroup ( G3DMESH        *mes,
+                                            G3DWEIGHTGROUP *grp,
+                                            uint32_t        orientation );
+void g3dmesh_fixWeightgroup ( G3DMESH        *mes,
+                              G3DWEIGHTGROUP *grp,
+                              G3DRIG         *rig );
+void g3dmesh_unfixWeightgroup ( G3DMESH        *mes,
+                                G3DWEIGHTGROUP *grp );
+uint32_t g3dmesh_getWeightgroupCount ( G3DMESH        *mes,
+                                       G3DWEIGHTGROUP *grp );
+
 /******************************** Mesh API ************************************/
 G3DUVMAP  *g3dmesh_getSelectedUVMap     ( G3DMESH *mes );
 void       g3dmesh_selectUVMap          ( G3DMESH *mes, G3DUVMAP *map );
@@ -2797,6 +2813,8 @@ void       g3dmesh_setSyncSubdivision            ( G3DMESH * );
 void       g3dmesh_unsetSyncSubdivision          ( G3DMESH * );
 void g3dmesh_invertFaceSelection ( G3DMESH *mes, 
                                    uint64_t engine_flags );
+LIST *g3dmesh_getVerticesFromWeightgroup ( G3DMESH        *mes,
+                                           G3DWEIGHTGROUP *grp );
 void       g3dmesh_invertEdgeeSelection( G3DMESH *mes, 
                                          uint64_t engine_flags );
 void       g3dmesh_invertVertexSelection ( G3DMESH *mes, 
@@ -3122,23 +3140,13 @@ LIST    *g3dbone_getAllWeightGroups     ( G3DBONE * );
 /******************************************************************************/
 void            g3dweightgroup_name          ( G3DWEIGHTGROUP *, char * );
 void            g3dweightgroup_free          ( G3DWEIGHTGROUP * );
-G3DWEIGHTGROUP *g3dweightgroup_new           ( G3DMESH *, char * );
-void            g3dweightgroup_painted       ( G3DWEIGHTGROUP * );
-void            g3dweightgroup_unpainted     ( G3DWEIGHTGROUP * );
-G3DWEIGHT      *g3dweightgroup_seekVertex    ( G3DWEIGHTGROUP *, G3DVERTEX * );
-G3DWEIGHT      *g3dweightgroup_addVertex     ( G3DWEIGHTGROUP *, G3DVERTEX *, float );
-G3DWEIGHT      *g3dweightgroup_removeVertex  ( G3DWEIGHTGROUP *, G3DVERTEX * );
-G3DWEIGHTGROUP *g3dweightgroup_mirror        ( G3DWEIGHTGROUP *, uint32_t );
+G3DWEIGHTGROUP *g3dweightgroup_new           ( G3DMESH *mes, char * );
 void            g3dweightgroup_removeWeight  ( G3DWEIGHTGROUP *, G3DWEIGHT * );
 G3DWEIGHTGROUP *g3dmesh_getWeightGroupByID   ( G3DMESH *, uint32_t );
-void            g3dweightgroup_empty         ( G3DWEIGHTGROUP * );
-LIST           *g3dweightgroup_getVertices   ( G3DWEIGHTGROUP *grp );
-void g3dweightgroup_fix ( G3DWEIGHTGROUP *grp, 
-                          G3DRIG         *rig );
-void g3dweightgroup_unfix ( G3DWEIGHTGROUP *grp );
 
 /******************************************************************************/
-G3DWEIGHT *g3dweight_new ( G3DVERTEX *, float );
+G3DWEIGHT *g3dweight_new ( float           weight,
+                           G3DWEIGHTGROUP *grp );
 void g3dweight_free      ( G3DWEIGHT * );
 void g3dweight_fix       ( G3DWEIGHT *, G3DRIG * );
 void g3dweight_reset     ( G3DWEIGHT *, G3DRIG * );
