@@ -66,8 +66,20 @@ char * strsep(char **sp, char *sep) {
 #endif
 
 /******************************************************************************/
+static void Configure ( GtkWindow *window, 
+                        GdkEvent  *event,
+                        gpointer   data ) {
+    GtkWidget *child = gtk_bin_get_child (window);
+
+    gtk_layout_set_size ( child, 
+                          event->configure.width,
+                          event->configure.height );
+}
+
+/******************************************************************************/
 #ifdef __linux__
 int main ( int argc, char *argv[] ) {
+    static G3DUI gui;
 #endif
 
 #ifdef __MINGW32__
@@ -150,18 +162,28 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     gtk_window_set_position ( GTK_WINDOW(window), GTK_WIN_POS_CENTER );
 
-    glossui = gtk_glossui_new ( loadFile );
+    glossui = gtk3_g3dui_createMain (  window, 
+                                      &gui,
+                                       "Main",
+                                       0, 0,
+                                       800, 600 /*loadFile*/ );
 
-    gtk_container_add ( GTK_CONTAINER(window), glossui );
+
+                                       /*gtk_glossui_new ( loadFile )*/;
+
+    /*gtk_container_add ( GTK_CONTAINER(window), glossui );*/
 
     gtk_widget_show ( glossui );
 
     gtk_window_set_title ( GTK_WINDOW ( window ), appname );
     gtk_window_resize    ( GTK_WINDOW ( window ), 1024, 576 );
 
-    g_signal_connect (window, "destroy"     , G_CALLBACK (gtk_main_quit), NULL);
-    g_signal_connect (window, "delete-event", G_CALLBACK (g3dui_exitEventCbk), &((GtkGlossUI*)glossui)->gui );
+    g_signal_connect (window, "destroy"        , G_CALLBACK (gtk_main_quit), NULL);
+    g_signal_connect (window, "configure-event", G_CALLBACK (Configure), NULL );
 
+/*
+    g_signal_connect (window, "delete-event", G_CALLBACK (g3dui_exitEventCbk), &((GtkGlossUI*)glossui)->gui );
+*/
     gtk_widget_show (window);
   
     gtk_main ();

@@ -1034,4 +1034,22 @@ void g3duirenderbuffer_clear ( G3DUIRENDERBUFFER *rbuf );
 void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
                               GtkWidget         *drawingArea );
 
+
+
+GtkWidget *gtk3_g3dui_createMain ( GtkWidget *parent,
+                                   G3DUI     *gui,
+                                   char      *name,
+                                   gint       x,
+                                   gint       y,
+                                   gint       width,
+                                   gint       height );
+
+GtkWidget *g3dui_createToolBar ( GtkWidget *parent, 
+                                 G3DUI     *gui,
+                                 char      *name,
+                                 gint       x,
+                                 gint       y,
+                                 gint       width,
+                                 gint       height );
+
 #endif

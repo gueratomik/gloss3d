@@ -50,236 +50,6 @@
 #include <xpm/zaxis.xpm>
 
 /******************************************************************************/
-static void xAxisCbk ( GtkWidget *widget, gpointer user_data ) {
-    int status = gtk_toggle_tool_button_get_active ( GTK_TOGGLE_TOOL_BUTTON(widget) );
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    if ( status ) gui->engine_flags |=   XAXIS;
-    else          gui->engine_flags &= (~XAXIS);
-}
-
-/******************************************************************************/
-static void yAxisCbk ( GtkWidget *widget, gpointer user_data ) {
-    int status = gtk_toggle_tool_button_get_active ( GTK_TOGGLE_TOOL_BUTTON(widget) );
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    if ( status ) gui->engine_flags |=   YAXIS;
-    else          gui->engine_flags &= (~YAXIS);
-}
-
-/******************************************************************************/
-static void zAxisCbk ( GtkWidget *widget, gpointer user_data ) {
-    int status = gtk_toggle_tool_button_get_active ( GTK_TOGGLE_TOOL_BUTTON(widget) );
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    if ( status ) gui->engine_flags |=   ZAXIS;
-    else          gui->engine_flags &= (~ZAXIS);
-}
-
-/******************************************************************************/
-void g3dui_saveascbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
-    GtkWidget *dialog;
-    gint       res;
-
-    dialog = gtk_file_chooser_dialog_new ( "Save file as ...",
-                                           GTK_WINDOW(ggt->top),
-                        /*** from ristretto-0.3.5/src/main_window.c ***/
-                                           GTK_FILE_CHOOSER_ACTION_SAVE,
-                                           "_Cancel", 
-                                           GTK_RESPONSE_CANCEL,
-                                           "_Open", 
-                                           GTK_RESPONSE_OK,
-                                           NULL );
-
-    gtk_file_chooser_set_do_overwrite_confirmation ( GTK_FILE_CHOOSER(dialog), TRUE );
-
-    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
-
-    if ( res == GTK_RESPONSE_OK ) {
-        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
-        char           *filename = gtk_file_chooser_get_filename ( chooser );
-        static char     filenameext[0x1000] = { 0x00 };
-        static char     windowname[0x1000] = { 0x00 };
-
-        if ( strstr ( filename, ".g3d" ) == NULL ) {
-            snprintf ( filenameext, 0x1000, "%s.g3d", filename );
-        } else {
-            snprintf ( filenameext, 0x1000, "%s", filename );
-        }
-
-        common_g3dui_setFileName ( gui, filenameext );
-
-        common_g3dui_saveG3DFile ( gui );
-
-        snprintf ( windowname, 
-                   0x1000, 
-                  "%s %s (%s)", 
-                   G3DUIAPPNAME,
-                   VERSION,
-                   basename ( filenameext ) );
-
-        gtk_window_set_title ( gtk_widget_get_parent ( ggt->top ), windowname );
-
-        g_free    ( ( gpointer ) filename );
-    }
-
-    gtk_widget_destroy ( dialog );
-}
-
-/******************************************************************************/
-void g3dui_savefilecbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
-    GtkWidget *dialog;
-    gint       res;
-
-    if ( gui->filename ) {
-        printf ( "saving as:%s\n", gui->filename );
-
-        common_g3dui_saveG3DFile ( gui );
-    } else {
-        g3dui_saveascbk ( widget, user_data );
-    }
-}
-
-/******************************************************************************/
-void g3dui_newscenecbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
-    GtkWidget *dialog;
-    gint       res;
-
-    dialog = gtk_message_dialog_new ( NULL,
-                                      GTK_DIALOG_MODAL,
-                                      GTK_MESSAGE_QUESTION,
-                                      GTK_BUTTONS_YES_NO,
-                                      "Close scene and create a new one ?" );
-
-
-    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
-
-    if ( res == GTK_RESPONSE_YES ) {
-        common_g3dui_closeScene ( gui );
-
-        g3dui_clearMaterials ( gui );
-
-        gui->sce = g3dscene_new ( 0x00, "SCENE" );
-    }
-
-    gtk_widget_destroy ( dialog );
-}
-
-/******************************************************************************/
-/*** WTF: https://developer.gnome.org/gtk3/stable/GtkFileChooserDialog.html ***/
-void g3dui_openfilecbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
-    GtkWidget *dialog;
-    gint       res;
-
-    dialog = gtk_file_chooser_dialog_new ( "Open File",
-                                           GTK_WINDOW(ggt->top),
-                        /*** from ristretto-0.3.5/src/main_window.c ***/
-                                           GTK_FILE_CHOOSER_ACTION_OPEN,
-                                           "_Cancel", 
-                                           GTK_RESPONSE_CANCEL,
-                                           "_Open", 
-                                           GTK_RESPONSE_OK,
-                                           NULL );
-
-    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
-
-    if ( res == GTK_RESPONSE_OK ) {
-        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
-        char           *filename = gtk_file_chooser_get_filename ( chooser );
-        static char     windowname[0x1000] = { 0x00 };
-
-        if ( filename ) {
-            common_g3dui_closeScene ( gui );
-
-            common_g3dui_openG3DFile ( gui, filename );
-
-            snprintf ( windowname, 
-                       0x1000, 
-                      "%s %s (%s)", 
-                       G3DUIAPPNAME,
-                       VERSION,
-                       basename ( filename ) );
-
-            gtk_window_set_title ( gtk_widget_get_parent ( ggt->top ), windowname );
-
-            g_free    ( filename );
-        }
-    }
-
-    gtk_widget_destroy ( dialog );
-}
-
-/******************************************************************************/
-void g3dui_mergeSceneCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
-    GtkWidget *dialog;
-    gint       res;
-
-    dialog = gtk_file_chooser_dialog_new ( "Merge File",
-                                           GTK_WINDOW(ggt->top),
-                        /*** from ristretto-0.3.5/src/main_window.c ***/
-                                           GTK_FILE_CHOOSER_ACTION_OPEN,
-                                           "_Cancel", 
-                                           GTK_RESPONSE_CANCEL,
-                                           "_Open", 
-                                           GTK_RESPONSE_OK,
-                                           NULL );
-
-    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
-
-    if ( res == GTK_RESPONSE_OK ) {
-        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
-        char           *filename = gtk_file_chooser_get_filename ( chooser );
-
-        if ( filename ) {
-            common_g3dui_mergeG3DFile ( gui, filename );
-
-            g_free    ( filename );
-        }
-    }
-
-    gtk_widget_destroy ( dialog );
-}
-
-/******************************************************************************/
-void g3dui_undoCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3dui_undoCbk ( gui );
-}
-
-/******************************************************************************/
-void g3dui_redoCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3dui_redoCbk ( gui );
-}
-
-
-/******************************************************************************/
-void g3dui_makeEditableCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3dui_makeEditableCbk ( gui );
-}
-
-/******************************************************************************/
-void g3dui_deleteSelectionCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3dui_deleteSelectionCbk ( gui );
-}
-
-/******************************************************************************/
 GtkWidget *addToolBarRadioButton ( GtkWidget   *bar,
                                    GtkWidget   *grp,
                                    G3DUI       *gui,
@@ -419,9 +189,9 @@ GtkWidget *addToolBarPushButton ( GtkWidget   *bar,
 static void addToolbarAxis ( GtkWidget *bar, G3DUI *gui ) {
     GtkWidget *xbtn, *ybtn, *zbtn;
 
-    xbtn = addToolBarToggleButton ( bar, gui, MENU_XAXIS, xaxis_xpm, xAxisCbk );
-    ybtn = addToolBarToggleButton ( bar, gui, MENU_YAXIS, yaxis_xpm, yAxisCbk );
-    zbtn = addToolBarToggleButton ( bar, gui, MENU_ZAXIS, zaxis_xpm, zAxisCbk );
+    xbtn = addToolBarToggleButton ( bar, gui, MENU_XAXIS, xaxis_xpm, /*xAxisCbk*/NULL );
+    ybtn = addToolBarToggleButton ( bar, gui, MENU_YAXIS, yaxis_xpm, /*yAxisCbk*/NULL );
+    zbtn = addToolBarToggleButton ( bar, gui, MENU_ZAXIS, zaxis_xpm, /*zAxisCbk*/NULL );
 
     gtk_toggle_tool_button_set_active ( GTK_TOGGLE_TOOL_BUTTON(xbtn), TRUE );
     gtk_toggle_tool_button_set_active ( GTK_TOGGLE_TOOL_BUTTON(ybtn), TRUE );
@@ -429,12 +199,13 @@ static void addToolbarAxis ( GtkWidget *bar, G3DUI *gui ) {
 }
 
 /******************************************************************************/
-GtkWidget *createToolBar ( GtkWidget *parent, G3DUI *gui,
-                                              char *name,
-                                              gint x,
-                                              gint y,
-                                              gint width,
-                                              gint height ) {
+GtkWidget *g3dui_createToolBar ( GtkWidget *parent, 
+                                 G3DUI     *gui,
+                                 char      *name,
+                                 gint       x,
+                                 gint       y,
+                                 gint       width,
+                                 gint       height ) {
     GdkRectangle gdkrec = { x, y, width, height };
     GtkWidget *bar = gtk_toolbar_new ( );
     GtkWidget *grp = NULL;
@@ -445,39 +216,39 @@ GtkWidget *createToolBar ( GtkWidget *parent, G3DUI *gui,
 
     gtk_toolbar_set_style(GTK_TOOLBAR(bar), GTK_TOOLBAR_ICONS);
 
-    addToolBarPushButton   ( bar, gui, MENU_NEWSCENE    , newfile_xpm  , g3dui_newscenecbk );
-    addToolBarPushButton   ( bar, gui, MENU_OPENFILE    , openfile_xpm , g3dui_openfilecbk );
-    addToolBarPushButton   ( bar, gui, MENU_SAVEFILEAS  , saveas_xpm   , g3dui_saveascbk   );
-    addToolBarPushButton   ( bar, gui, MENU_SAVEFILE    , save_xpm     , g3dui_savefilecbk );
-    addToolBarPushButton   ( bar, gui, MENU_UNDO        , undo_xpm     , g3dui_undoCbk     );
-    addToolBarPushButton   ( bar, gui, MENU_REDO        , redo_xpm     , g3dui_redoCbk     );
-    addToolBarPushButton   ( bar, gui, MENU_DELETE      , delete_xpm   , g3dui_deleteSelectionCbk );
+    addToolBarPushButton   ( bar, gui, MENU_NEWSCENE    , newfile_xpm  , /*g3dui_newscenecbk*/NULL );
+    addToolBarPushButton   ( bar, gui, MENU_OPENFILE    , openfile_xpm , /*g3dui_openfilecbk*/NULL );
+    addToolBarPushButton   ( bar, gui, MENU_SAVEFILEAS  , saveas_xpm   , /*g3dui_saveascbk*/NULL   );
+    addToolBarPushButton   ( bar, gui, MENU_SAVEFILE    , save_xpm     , /*g3dui_savefilecbk*/NULL );
+    addToolBarPushButton   ( bar, gui, MENU_UNDO        , undo_xpm     , /*g3dui_undoCbk*/NULL     );
+    addToolBarPushButton   ( bar, gui, MENU_REDO        , redo_xpm     , /*g3dui_redoCbk*/NULL     );
+    addToolBarPushButton   ( bar, gui, MENU_DELETE      , delete_xpm   , /*g3dui_deleteSelectionCbk*/NULL );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, gui, PICKTOOL         , pick_xpm  , g3dui_setMouseTool    );
+    addToolBarToggleButton ( bar, gui, PICKTOOL         , pick_xpm  , /*g3dui_setMouseTool*/NULL    );
  
     /********************************/
 
-    addToolBarToggleButton ( bar, gui, MOVETOOL         , move_xpm  , g3dui_setMouseTool    );
+    addToolBarToggleButton ( bar, gui, MOVETOOL         , move_xpm  , /*g3dui_setMouseTool*/NULL    );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, gui, SCALETOOL        , scale_xpm , g3dui_setMouseTool  );
+    addToolBarToggleButton ( bar, gui, SCALETOOL        , scale_xpm , /*g3dui_setMouseTool*/NULL  );
 
     /********************************/
 
-    addToolBarToggleButton ( bar, gui, ROTATETOOL       , rotate_xpm, g3dui_setMouseTool );
+    addToolBarToggleButton ( bar, gui, ROTATETOOL       , rotate_xpm, /*g3dui_setMouseTool*/NULL );
 
-    addToolBarPushButton   ( bar, gui, MENU_RENDERVIEW  , renderw_xpm   , g3dui_renderViewCbk   );
-    addToolBarPushButton   ( bar, gui, MENU_RENDERFINAL , render_xpm    , g3dui_runRenderCbk    );
-    addToolBarPushButton   ( bar, gui, MENU_MAKEEDITABLE, makeedit_xpm  , g3dui_makeEditableCbk );
+    addToolBarPushButton   ( bar, gui, MENU_RENDERVIEW  , renderw_xpm   , /*g3dui_renderViewCbk*/NULL   );
+    addToolBarPushButton   ( bar, gui, MENU_RENDERFINAL , render_xpm    , /*g3dui_runRenderCbk*/NULL    );
+    addToolBarPushButton   ( bar, gui, MENU_MAKEEDITABLE, makeedit_xpm  , /*g3dui_makeEditableCbk*/NULL );
 
     addToolbarAxis ( bar, gui );
 
     gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(bar), 0 );
 
-    gtk_fixed_put ( GTK_FIXED(parent), bar, x, y );
+    gtk_layout_put ( GTK_LAYOUT(parent), bar, x, y );
 
     gtk_widget_show ( bar );
 
