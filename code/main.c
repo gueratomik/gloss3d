@@ -24,10 +24,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/****************** mtrace and muntrace for debugging purpose *****************/
-#ifdef __linux__
-    #include <mcheck.h>
-#endif
 
 /******************************************************************************/
 #include <config.h>

@@ -42,7 +42,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/stat.h>
-#include <sys/sendfile.h>
 #include <fcntl.h>
 #include <signal.h>
 
