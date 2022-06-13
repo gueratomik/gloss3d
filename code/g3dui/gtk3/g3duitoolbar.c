@@ -199,13 +199,13 @@ static void addToolbarAxis ( GtkWidget *bar, G3DUI *gui ) {
 }
 
 /******************************************************************************/
-GtkWidget *g3dui_createToolBar ( GtkWidget *parent, 
-                                 G3DUI     *gui,
-                                 char      *name,
-                                 gint       x,
-                                 gint       y,
-                                 gint       width,
-                                 gint       height ) {
+GtkWidget *gtk3_g3dui_createToolBar ( GtkWidget *parent, 
+                                      G3DUI     *gui,
+                                      char      *name,
+                                      gint       x,
+                                      gint       y,
+                                      gint       width,
+                                      gint       height ) {
     GdkRectangle gdkrec = { x, y, width, height };
     GtkWidget *bar = gtk_toolbar_new ( );
     GtkWidget *grp = NULL;

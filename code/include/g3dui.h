@@ -725,7 +725,25 @@ typedef struct _G3DUI {
     uint32_t playLock;
     LIST *lexportExtensions; /* list of G3DEXPORTEXTENSION */
     Q3DFILTER *toframe;
+    void (*interpretMouseToolReturnFlags) ( struct G3DUI *gui,
+                                            uint32_t      msk );
+    void (*dispatchGLMenuButton)          ( struct G3DUI *gui,
+                                            G3DMOUSETOOL *mou,
+                                            uint32_t      tool_flags );
 } GuiPart, G3DUI;
+
+/******************************************************************************/
+typedef struct _G3DUIMAIN {
+    G3DUI          *gui;
+    G3DUIRECTANGLE  menurec;
+    G3DUIRECTANGLE  tbarrec;
+    G3DUIRECTANGLE  mbarrec;
+    G3DUIRECTANGLE  mbrdrec;
+    G3DUIRECTANGLE  proprec;
+    G3DUIRECTANGLE  quadrec;
+    G3DUIRECTANGLE  timerec;
+    G3DUIRECTANGLE  inforec;
+} G3DUIMAIN;
 
 /******************************************************************************/
 #define G3DUIWIDGET_TAB          0x02
@@ -1931,5 +1949,61 @@ void common_g3duiparticleemitteredit_gravityForceYCbk ( G3DUI              *gui,
 void common_g3duiparticleemitteredit_gravityForceZCbk ( G3DUI              *gui,
                                                         G3DPARTICLEEMITTER *pem,
                                                         float               g );
+
+/******************************************************************************/
+
+void g3dui_loadConfiguration ( G3DUI *gui, 
+                               char  *filename );
+void g3dui_resetDefaultCameras  ( G3DUI *gui );
+void g3dui_createDefaultCameras ( G3DUI *gui );
+void g3dui_dispatchGLMenuButton ( G3DUI        *gui, 
+                                  G3DMOUSETOOL *mou, 
+                                  uint32_t      tool_flags );
+void g3dui_addMouseTool ( G3DUI        *gui, 
+                          G3DMOUSETOOL *mou,
+                          uint32_t      tool_flags );
+void g3dui_setMouseTool ( G3DUI        *gui, 
+                          G3DCAMERA    *cam, 
+                          G3DMOUSETOOL *mou );
+void g3duimain_sizeAllocate ( G3DUIMAIN *grp, 
+                              uint32_t   width, 
+                              uint32_t   height );
+void g3dui_exitokcbk ( G3DUI *gui );
+uint32_t g3dui_cancelRenderByID ( G3DUI   *gui, 
+                                  uint64_t id );
+uint32_t g3dui_cancelRenderByScene ( G3DUI  *gui, 
+                                     Q3DJOB *qjob );
+G3DUIRENDERPROCESS *g3dui_getRenderProcessByJob ( G3DUI  *gui,
+                                                  Q3DJOB *qjob );
+G3DUIRENDERPROCESS *g3dui_getRenderProcessByID ( G3DUI   *gui,
+                                                 uint64_t id );
+void g3dui_addRenderSettings ( G3DUI       *gui,
+                               Q3DSETTINGS *rsg );
+void g3dui_useRenderSettings ( G3DUI       *gui,
+                               Q3DSETTINGS *rsg );
+
+void g3dui_setFileName ( G3DUI      *gui, 
+                         const char *filename );
+void g3dui_init ( G3DUI *gui );
+uint32_t g3dui_selectAllCbk ( G3DUI *gui );
+G3DUIRENDERPROCESS *g3dui_render_q3d ( G3DUI       *gui, 
+                                       Q3DSETTINGS *rsg,
+                                       Q3DFILTER   *towindow,
+                                       Q3DFILTER   *toframe,
+                                       Q3DFILTER   *tostatus,
+                                       Q3DFILTER   *makepreview,
+                                       G3DCAMERA   *cam,
+                                       float        resetFrame,
+                                       uint64_t     id,
+                                       uint32_t     sequence,
+                                       uint64_t     job_flags );
+void g3dui_processAnimatedImages ( G3DUI *gui );
+uint32_t g3dui_exportfileokcbk ( G3DUI      *gui,
+                                 const char *filedesc, 
+                                 const char *filename );
+G3DSCENE *g3dui_importfileokcbk ( G3DUI      *gui, 
+                                  const char *filedesc, 
+                                  const char *filename );
+void g3dui_saveG3DFile ( G3DUI *gui );
 
 #endif

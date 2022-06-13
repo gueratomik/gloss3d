@@ -277,10 +277,6 @@ void                 gtk3materialpreview_update ( GTK3MATERIALPREVIEW * );
 G3DUIGTK3 *g3duigtk3_new  ( GtkWidget * );
 void       g3duigtk3_free ( G3DUIGTK3 * );
 
-/******************************************************************************/
-void   g3dui_init  ( G3DUI *, G3DSCENE * );
-G3DUI *g3dui_new   ( G3DSCENE * );
-
 void gdkevent_to_g3devent ( GdkEvent *gdkev, G3DEvent *g3dev );
 
 /******************************************************************************/
@@ -705,7 +701,7 @@ void g3duimateriallist_size              ( GtkWidget *, GdkRectangle *,
                                                         gpointer );
 
 void gtk3_g3dui_setMode   ( GtkWidget *, gpointer );
-void g3dui_setMouseTool   ( GtkWidget *, gpointer );
+void gtk3_g3dui_setMouseTool   ( GtkWidget *, gpointer );
 void m3dui_setUVMouseTool ( GtkWidget *, gpointer );
 gboolean gtk3_showGL      ( GtkWidget *, cairo_t *, gpointer );
 void gtk3_initGL          ( GtkWidget *, gpointer );
@@ -1037,19 +1033,25 @@ void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
 
 
 GtkWidget *gtk3_g3dui_createMain ( GtkWidget *parent,
-                                   G3DUI     *gui,
                                    char      *name,
                                    gint       x,
                                    gint       y,
                                    gint       width,
                                    gint       height );
 
-GtkWidget *g3dui_createToolBar ( GtkWidget *parent, 
-                                 G3DUI     *gui,
-                                 char      *name,
-                                 gint       x,
-                                 gint       y,
-                                 gint       width,
-                                 gint       height );
+void gtk3_g3dui_interpretMouseToolReturnFlags ( G3DUI   *gui, 
+                                                uint32_t msk );
+void gtk3_g3dui_dispatchGLMenuButton ( G3DUI        *gui, 
+                                       G3DMOUSETOOL *mou, 
+                                       uint32_t      tool_flags );
+
+GtkWidget *gtk3_g3dui_createToolBar ( GtkWidget *parent, 
+                                      G3DUI     *gui,
+                                      char      *name,
+                                      gint       x,
+                                      gint       y,
+                                      gint       width,
+                                      gint       height );
+
 
 #endif

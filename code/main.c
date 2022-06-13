@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 /******************************************************************************/
 #include <config.h>
 
@@ -159,7 +158,6 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
     gtk_window_set_position ( GTK_WINDOW(window), GTK_WIN_POS_CENTER );
 
     glossui = gtk3_g3dui_createMain (  window, 
-                                      &gui,
                                        "Main",
                                        0, 0,
                                        800, 600 /*loadFile*/ );
