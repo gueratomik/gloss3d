@@ -9,9 +9,7 @@ Gloss3D is an open-source 3D modeler tool with some texturing, animation and ren
 
 Click to play the video on YouTube.
 
-[![Image](https://img.youtube.com/vi/IbLPYQnjYac/0.jpg)](https://www.youtube.com/watch?v=IbLPYQnjYac)
-
-[![Image](https://img.youtube.com/vi/NoZu3MPbUAE/0.jpg)](https://www.youtube.com/watch?v=NoZu3MPbUAE)
+[![Image](https://img.youtube.com/vi/IbLPYQnjYac/0.jpg)](https://www.youtube.com/watch?v=IbLPYQnjYac) [![Image](https://img.youtube.com/vi/NoZu3MPbUAE/0.jpg)](https://www.youtube.com/watch?v=NoZu3MPbUAE)
 
 ### History
 
