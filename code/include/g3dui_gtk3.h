@@ -121,6 +121,84 @@ typedef struct _G3DUIWIDGETGROUP {
 } G3DUIWIDGETGROUP;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUI {
+    G3DUI gui;
+    /* context menus for all objects */
+    LIST         *lObjectModeMenu;
+    /* context menus for meshes */
+    LIST         *lVertexModeMeshMenu;
+    LIST         *lEdgeModeMeshMenu;
+    LIST         *lFaceModeMeshMenu;
+    LIST         *lSculptModeMeshMenu;
+    /* context menu for splines */
+    LIST         *lVertexModeSplineMenu;
+    /* context menu for morphers */
+    LIST         *lVertexModeMorpherMenu;
+    /**********************/
+    LIST         *lmtools; /*** list of mousetools widget ***/
+    LIST         *lview;
+    LIST         *lglview;
+    LIST         *lobjlist;
+    LIST         *lmatlist;
+    LIST         *lmatedit;
+    LIST         *lcoordedit; /*** list of Coordinates widget ***/
+    LIST         *lcuredit; /*** current object edit widget ***/
+    LIST         *ltimeline; /*** List of timelines ***/
+    LIST         *lkeyedit;
+    LIST         *ltexedit;
+    LIST         *lligedit;
+    LIST         *lweightgroup;
+    LIST         *lmeshpose;
+    LIST         *luvmapeditor;
+    GdkWindow    *winAtPosition; /*** window at mouse position (for hourGlass)***/
+} GTK3G3DUI;
+
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIMAIN {
+    G3DUIMAIN  grp;
+    GtkWidget *layout;
+    GtkWidget *toolBar;
+    GtkWidget *quad;
+    GtkWidget *timeBoard;
+    GtkWidget *board;
+
+    GtkWidget *top;
+    GtkWidget *mainView; /*** Main OpenGL View ***/
+    GtkWidget *curogl; /*** current OpenGL Widget - the one we used last ***/
+    GtkWidget *curmou; /*** store the current pressed toggle button      ***/
+    GtkWidget *curmat; /*** current material ***/
+    GtkWidget *main;
+
+    GtkWidget *currentUVMouseToolButton;
+    GtkWidget *currentUVMapEditor;
+    /*G3DUIMENU *menuBar;*/
+} GTK3G3DUIMAIN;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUITOOLBAR {
+    G3DUITOOLBAR grp;
+    GtkWidget   *bar;
+    GtkWidget   *newScene;
+    GtkWidget   *openFile;
+    GtkWidget   *saveFile;
+    GtkWidget   *saveFileAs;
+    GtkWidget   *undo;
+    GtkWidget   *redo;
+    GtkWidget   *delete;
+    GtkWidget   *pickTool;
+    GtkWidget   *moveTool;
+    GtkWidget   *scaleTool;
+    GtkWidget   *rotateTool;
+    GtkWidget   *renderView;
+    GtkWidget   *renderFinal;
+    GtkWidget   *makeEditable;
+    GtkWidget   *xAxis;
+    GtkWidget   *yAxis;
+    GtkWidget   *zAxis;
+} GTK3G3DUITOOLBAR;
+
+/******************************************************************************/
 typedef struct _G3DUIRENDERWINDOW {
     G3DUIWIDGETGROUP    grp;
     GtkWidget          *menuBar;
@@ -1030,9 +1108,8 @@ void g3duirenderbuffer_clear ( G3DUIRENDERBUFFER *rbuf );
 void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
                               GtkWidget         *drawingArea );
 
-
-
-GtkWidget *gtk3_g3dui_createMain ( GtkWidget *parent,
+GtkWidget *gtk3_g3duimain_create ( GtkWidget *parent,
+                                   G3DUI     *gui,
                                    char      *name,
                                    gint       x,
                                    gint       y,
@@ -1053,5 +1130,17 @@ GtkWidget *gtk3_g3dui_createToolBar ( GtkWidget *parent,
                                       gint       width,
                                       gint       height );
 
+void gtk3_g3dui_redrawGLViews ( );
+void gtk3_g3dui_updateGLViewsMenu ( );
+void gtk3_g3dui_redrawUVMapEditors ( );
+void gtk3_g3dui_resizeUVMapEditors ( );
+void gtk3_g3dui_importMaterials ( );
+void gtk3_g3dui_clearMaterials ( );
+void gtk3_g3dui_updateSelectedMaterialPreview ( );
+void gtk3_g3dui_updateKeyEdit ( );
+void gtk3_g3dui_updateAllCurrentMouseTools ( );
+void gtk3_initDefaultMouseTools ( G3DCAMERA *cam );
+
+GTK3G3DUI *gtk3_getUI ( );
 
 #endif

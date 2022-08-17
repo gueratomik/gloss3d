@@ -157,7 +157,8 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     gtk_window_set_position ( GTK_WINDOW(window), GTK_WIN_POS_CENTER );
 
-    glossui = gtk3_g3dui_createMain (  window, 
+    glossui = gtk3_g3duimain_create (  window,
+                                       gtk3_getUI ( ),
                                        "Main",
                                        0, 0,
                                        800, 600 /*loadFile*/ );

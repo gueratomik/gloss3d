@@ -29,31 +29,231 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-/******************************************************************************/
-typedef struct _GTK3G3DUIMAIN {
-    G3DUIMAIN        grp;
-    GtkWidget       *layout;
-    GtkWidget       *toolBar;
-    GtkWidget       *quad;
-    GtkWidget       *timeBoard;
-    GtkWidget       *board;
-} GTK3G3DUIMAIN;
+
 
 /******************************************************************************/
-static GTK3G3DUIMAIN *gtk3g3duimain_new ( ) {
-    GTK3G3DUIMAIN *mui = calloc ( 0x01, sizeof ( GTK3G3DUIMAIN ) );
+GTK3G3DUI *gtk3_getUI ( ) {
+    static GTK3G3DUI gtk3gui;
 
-    if ( mui == NULL ) {
-        fprintf ( stderr, "%s: calloc failed\n", __func__ );
-    }
-
-    return mui; 
+    return &gtk3gui;
 }
 
 /******************************************************************************/
-static void dispatchGLMenuButton ( G3DUI        *gui, 
-                                   G3DMOUSETOOL *mou, 
-                                       uint32_t      tool_flags ) {
+void gtk3_setHourGlass ( ) {
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+
+    /*GtkWindow  *win  = gtk_widget_get_parent(ggt->top);
+    GtkWidget  *foc  = gtk_window_get_focus ( win );
+    GdkWindow  *pwin = gtk_widget_get_parent_window ( foc );
+    GdkDisplay *dis  = gdk_window_get_display ( pwin );*/
+
+    GdkDisplay       *dis = gdk_display_get_default();
+    GdkDeviceManager *mgr = gdk_display_get_device_manager ( dis );
+    GdkDevice        *dev = gdk_device_manager_get_client_pointer ( mgr );
+    GdkCursor        *cur = gdk_cursor_new_for_display ( dis, GDK_WATCH );
+    gint x, y;
+
+    gtk3gui->winAtPosition = gdk_device_get_window_at_position ( dev, &x, &y ); 
+    /* set watch cursor */
+
+#ifdef unused
+    gdk_device_grab ( dev,
+                      ggt->winAtPosition,
+                      GDK_OWNERSHIP_WINDOW,
+                      FALSE,
+                      0x00,
+                      cur,
+                      GDK_CURRENT_TIME );
+#endif
+    gdk_window_set_cursor ( gtk3gui->winAtPosition, cur );
+    gdk_display_sync ( dis );
+    gdk_cursor_unref ( cur );
+    /** must flush **/
+    gdk_flush ( );
+
+}
+
+/******************************************************************************/
+void gtk3_unsetHourGlass ( ) {
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+
+    /*GdkDisplay       *dis = gdk_display_get_default();
+    GdkDeviceManager *mgr = gdk_display_get_device_manager ( dis );
+    GdkDevice        *dev = gdk_device_manager_get_client_pointer ( mgr );
+    GdkCursor        *cur = gdk_cursor_new_for_display ( dis, GDK_WATCH );
+    gint x, y;
+
+    ggt->winAtPosition = gdk_device_get_window_at_position ( dev, &x, &y ); */
+    /* return to normal */
+    gdk_window_set_cursor ( gtk3gui->winAtPosition, NULL );
+
+#ifdef unused
+    gdk_device_ungrab ( dev, GDK_CURRENT_TIME );
+#endif
+}
+
+/******************************************************************************/
+static void gtk3_updateAllCurrentMouseTools ( ) {
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+    LIST *ltmpmtools = gtk3gui->lmtools;
+
+    while ( ltmpmtools ) {
+        GtkWidget *mtool = ( GtkWidget * ) ltmpmtools->data;
+
+        updateCurrentMouseTool ( mtool, gui );
+
+
+        ltmpmtools = ltmpmtools->next;
+    }
+}
+
+/******************************************************************************/
+static void gtk3_updateKeyEdit ( ) {
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+    LIST *ltmpkeyedit = gtk3gui->lkeyedit;
+
+    while ( ltmpkeyedit ) {
+        GtkWidget *keyedit = ( GtkWidget * ) ltmpkeyedit->data;
+
+        updateKeyEdit ( keyedit, gui );
+
+
+        ltmpkeyedit = ltmpkeyedit->next;
+    }
+}
+
+/******************************************************************************/
+static void gtk3_updateSelectedMaterialPreview ( ) {
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+    LIST *ltmpmatlist = gtk3gui->lmatlist;
+    G3DMATERIAL *mat = gui->selmat;
+
+    if ( mat ) {
+        while ( ltmpmatlist ) {
+            GtkWidget *matlst = ( GtkWidget * ) ltmpmatlist->data;
+
+            g3duimateriallist_updatePreview ( matlst, mat );
+
+
+            ltmpmatlist = ltmpmatlist->next;
+        }
+    }
+}
+
+/******************************************************************************/
+static void gtk3_clearMaterials ( ) {
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+    LIST *ltmpmatlist = gtk3gui->lmatlist;
+
+    while ( ltmpmatlist ) {
+        GtkWidget *matlst = ( GtkWidget * ) ltmpmatlist->data;
+
+        g3duimateriallist_removeAllPreviews ( matlst );
+
+
+        ltmpmatlist = ltmpmatlist->next;
+    }
+}
+
+/******************************************************************************/
+static void gtk3_importMaterials ( ) {
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+    LIST *ltmpmatlist = gtk3gui->lmatlist;
+
+    while ( ltmpmatlist ) {
+        GtkWidget *matlst = ( GtkWidget * ) ltmpmatlist->data;
+
+        g3duimateriallist_importFromScene ( matlst, gui->sce );
+
+
+        ltmpmatlist = ltmpmatlist->next;
+    }
+}
+
+/******************************************************************************/
+static void gtk3_resizeUVMapEditors ( ) {
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+    LIST *ltmp = gtk3gui->luvmapeditor;
+
+    while ( ltmp ) {
+        GtkUVMapEditor *guv = ( GtkUVMapEditor * ) ltmp->data;
+
+        /*** resize buffers ***/
+        common_m3dui_resizeBuffers ( &guv->mui );
+
+        ltmp = ltmp->next;
+    }
+}
+
+/******************************************************************************/
+static void gtk3_redrawUVMapEditors ( ) {
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+    LIST *ltmp = gtk3gui->luvmapeditor;
+
+    while ( ltmp ) {
+        GtkWidget *guv = ( GtkWidget * ) ltmp->data;
+        GtkWidget *area   = gtk_uvmapeditor_getGLArea ( guv );
+        GdkRectangle arec;
+
+        arec.x = arec.y = 0x00;
+        arec.width = arec.height = 0x01;
+
+        gdk_window_invalidate_rect ( gtk_widget_get_window ( area ), &arec, FALSE );
+
+        ltmp = ltmp->next;
+    }
+}
+
+/******************************************************************************/
+static void gtk3_updateGLViewsMenu ( ) {
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+    LIST *ltmp = gtk3gui->lglview;
+
+    while ( ltmp ) {
+        GtkWidget *glview = ( GtkWidget * ) ltmp->data;
+
+        gtk_view_updateMenu ( glview );
+
+        ltmp = ltmp->next;
+    }
+}
+
+/******************************************************************************/
+static void redrawGLViews ( ) {
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+    LIST *ltmp = gtk3gui->lglview;
+
+    while ( ltmp ) {
+        GtkWidget *glview = ( GtkWidget * ) ltmp->data;
+        GtkWidget *area   = gtk_view_getGLArea ( glview );
+        GdkRectangle arec;
+
+        arec.x = arec.y = 0x00;
+        arec.width = arec.height = 0x01;
+
+        gdk_window_invalidate_rect ( gtk_widget_get_window ( area ), &arec, FALSE );
+
+
+        ltmp = ltmp->next;
+    }
+}
+
+/******************************************************************************/
+static void dispatchGLMenuButton ( G3DMOUSETOOL *mou, 
+                                   uint32_t      tool_flags ) {
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
     uint32_t vertexModeSplineFlags  = ( VERTEXMODETOOL | SPLINETOOL  ),
              vertexModeMeshFlags    = ( VERTEXMODETOOL | MESHTOOL    ),
              edgeModeMeshFlags      = ( EDGEMODETOOL   | MESHTOOL    ),
@@ -62,84 +262,86 @@ static void dispatchGLMenuButton ( G3DUI        *gui,
              vertexModeMorpherFlags = ( VERTEXMODETOOL | MORPHERTOOL );
 
     if ( tool_flags & ( OBJECTMODETOOL ) ) {
-        gtk3_gui_addMenuListButton ( gui, 
-                                     gui->lObjectModeMenu,
+        gtk3_addMenuListButton ( gui, 
+                                     gtk3gui->lObjectModeMenu,
                                      mou );
     }
 
     if ( ( tool_flags & vertexModeMeshFlags ) == vertexModeMeshFlags ) {
-        gtk3_gui_addMenuListButton ( gui, 
-                                     gui->lVertexModeMeshMenu,
-                                     mou );
+        gtk3_addMenuListButton ( gui, 
+                                 gtk3gui->lVertexModeMeshMenu,
+                                 mou );
     }
 
     if ( ( tool_flags & edgeModeMeshFlags ) == edgeModeMeshFlags ) {
-        gtk3_gui_addMenuListButton ( gui,
-                                     gui->lEdgeModeMeshMenu,
-                                     mou );
+        gtk3_addMenuListButton ( gui,
+                                 gtk3gui->lEdgeModeMeshMenu,
+                                 mou );
     }
 
     if ( ( tool_flags & faceModeMeshFlags ) == faceModeMeshFlags ) {
-        gtk3_gui_addMenuListButton ( gui,
-                                     gui->lFaceModeMeshMenu,
-                                     mou );
+        gtk3_addMenuListButton ( gui,
+                                 gtk3gui->lFaceModeMeshMenu,
+                                 mou );
     }
 
     if ( ( tool_flags & sculptModeMeshFlags ) == sculptModeMeshFlags ) {
-        gtk3_gui_addMenuListButton ( gui,
-                                     gui->lSculptModeMeshMenu,
-                                     mou );
+        gtk3_addMenuListButton ( gui,
+                                 gtk3gui->lSculptModeMeshMenu,
+                                 mou );
     }
 
     if ( ( tool_flags & vertexModeSplineFlags ) == vertexModeSplineFlags ) {
-        gtk3_gui_addMenuListButton ( gui,
-                                     gui->lVertexModeSplineMenu,
-                                     mou );
+        gtk3_addMenuListButton ( gui,
+                                 gtk3gui->lVertexModeSplineMenu,
+                                 mou );
     }
 
     if ( ( tool_flags & vertexModeMorpherFlags ) == vertexModeMorpherFlags ) {
-        gtk3_gui_addMenuListButton ( gui,
-                                     gui->lVertexModeMorpherMenu,
-                                     mou );
+        gtk3_addMenuListButton ( gui,
+                                 gtk3gui->lVertexModeMorpherMenu,
+                                 mou );
     }
 }
 
 /******************************************************************************/
-static void interpretMouseToolReturnFlags ( G3DUI   *gui, 
-                                            uint32_t msk ) {
+void ui_interpretMouseToolReturnFlags ( uint32_t msk ) {
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+
     if ( msk & REDRAWVIEW ) {
-        gtk3_g3dui_redrawGLViews ( gui );
+        gtk3_redrawGLViews ( );
     }
 
     if ( msk & REDRAWMATERIALLIST ) {
-        gtk3_g3dui_redrawMaterialList ( gui );
+        gtk3_redrawMaterialList ( );
     }
 
     if ( msk & REBUILDMATERIALLIST ) {
-        gtk3_g3dui_clearMaterials     ( gui );
-        gtk3_g3dui_importMaterials    ( gui );
-        gtk3_g3dui_redrawMaterialList ( gui );
+        gtk3_clearMaterials     ( );
+        gtk3_importMaterials    ( );
+        gtk3_redrawMaterialList ( );
     }
 
     if ( msk & REDRAWUVMAPEDITOR ) {
-        gtk3_g3dui_redrawUVMapEditors ( gui );
+        gtk3_redrawUVMapEditors ( );
     }
 
     if ( msk & REDRAWLIST ) {
-        gtk3_g3dui_redrawObjectList ( gui );
-        gtk3_g3dui_updateMenuBar    ( gui );
+        gtk3_redrawObjectList ( );
+        gtk3_updateMenuBar    ( );
     }
 
     if ( msk & REDRAWCURRENTOBJECT ) {
-        gtk3_g3dui_updateAllCurrentEdit ( gui );
+        gtk3_updateAllCurrentEdit ( );
     }
 
     if ( msk & REDRAWTIMELINE ) {
-        gtk3_g3dui_redrawTimeline ( gui );
+        gtk3_redrawTimeline ( );
     }
 
     if ( msk & REDRAWCOORDS ) {
-        gtk3_g3dui_updateCoords ( gui );
+        gtk3_updateCoords ( );
     }
 
     if ( msk & NOBUFFEREDSUBDIVISION ) {
@@ -154,360 +356,249 @@ static void interpretMouseToolReturnFlags ( G3DUI   *gui,
 }
 
 /******************************************************************************/
-static void SizeAllocate ( GtkWidget     *widget,
-                           GtkAllocation *allocation,
-                           gpointer       user_data ) {
-    GTK3G3DUIMAIN *mui = ( GTK3G3DUIMAIN * ) user_data;
-    GdkRectangle gdkrec;
+void gtk3_initDefaultMouseTools ( G3DCAMERA *cam ) {
+    G3DMOUSETOOL *mou;
 
-    g3duimain_sizeAllocate ( &mui->grp, 
-                              allocation->width, 
-                              allocation->height );
+    /********************************/
 
-    gdkrec.x      = mui->grp.tbarrec.x;
-    gdkrec.y      = mui->grp.tbarrec.y;
-    gdkrec.width  = mui->grp.tbarrec.width;
-    gdkrec.height = mui->grp.tbarrec.height;
+    mou = ( G3DMOUSETOOL * ) g3dmousetoolpick_new ( );
 
-    gtk_layout_move ( widget, 
-                      mui->toolBar, 
-                      gdkrec.x,
-                      gdkrec.y );
+    g3dui_addMouseTool ( gui, mou );
 
-    gtk_widget_size_allocate ( mui->toolBar, &gdkrec );
+    /*** Pick is the default mouse tool ***/
+    interpretMouseToolReturnFlags ( gui, g3dui_setMouseTool ( gui, 
+                                                              cam, 
+                                                              mou ) );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatesphere_new ( ) );
+    dispatchGLMenuButton (      mou, OBJECTMODETOOL |
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatecube_new ( ) );
+    dispatchGLMenuButton (      mou, OBJECTMODETOOL | 
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreateplane_new ( ) );
+    dispatchGLMenuButton (      mou, OBJECTMODETOOL | 
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatecylinder_new ( ) );
+    dispatchGLMenuButton (      mou, OBJECTMODETOOL | 
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatetube_new ( ) );
+    dispatchGLMenuButton (      mou, OBJECTMODETOOL | 
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatetorus_new ( ) );
+    dispatchGLMenuButton (      mou, OBJECTMODETOOL | 
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatebone_new ( ) );
+    dispatchGLMenuButton (      mou, OBJECTMODETOOL | 
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolmakeeditable_new ( ) );
+    dispatchGLMenuButton (      mou, OBJECTMODETOOL |
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcutmesh_new ( ) );
+    dispatchGLMenuButton (      mou, VERTEXMODETOOL | 
+                                     FACEMODETOOL   | 
+                                     EDGEMODETOOL   |
+                                     MESHTOOL       |
+                                     SPLINETOOL     |
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatevertex_new ( ) );
+    dispatchGLMenuButton (      mou, VERTEXMODETOOL |
+                                     MESHTOOL       |
+                                     SPLINETOOL     |
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolrevertspline_new ( ) );
+    dispatchGLMenuButton (      mou, VERTEXMODETOOL |
+                                     SPLINETOOL     |
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolremovevertexpose_new ( ) );
+    dispatchGLMenuButton (      mou, VERTEXMODETOOL |
+                                     MORPHERTOOL     |
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolbridge_new ( ) ); 
+    dispatchGLMenuButton (      mou, VERTEXMODETOOL |
+                                     MESHTOOL       |
+                                     SPLINETOOL     |
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolextrudeface_new ( ) );
+    dispatchGLMenuButton (      mou, FACEMODETOOL | 
+                                     MESHTOOL     |
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolextrudeinner_new ( ) );
+    dispatchGLMenuButton (      mou, FACEMODETOOL | 
+                                     MESHTOOL     |
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetooluntriangulate_new ( ) );
+    dispatchGLMenuButton (      mou, FACEMODETOOL |
+                                     MESHTOOL     | 
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetooltriangulate_new ( ) );
+    dispatchGLMenuButton (      mou, FACEMODETOOL |
+                                     MESHTOOL     | 
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolroundsplinepoint_new ( ) );
+    dispatchGLMenuButton (      mou, VERTEXMODETOOL |
+                                     SPLINETOOL     | 
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolweldvertices_new ( ) );
+    dispatchGLMenuButton (      mou, VERTEXMODETOOL |
+                                     MESHTOOL     | 
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolweldneighbours_new ( ) );
+    dispatchGLMenuButton (      mou, VERTEXMODETOOL |
+                                     MESHTOOL     | 
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolinvertnormal_new ( ) );
+    dispatchGLMenuButton (      mou, FACEMODETOOL |
+                                     MESHTOOL     |
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatefacegroup_new ( ) ); 
+    dispatchGLMenuButton (      mou, FACEMODETOOL | 
+                                     MESHTOOL     |
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolsculpt_new ( SCULPTINFLATE ) ); 
+    dispatchGLMenuButton (      mou, SCULPTMODETOOL | 
+                                     MESHTOOL     |
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolsculpt_new ( SCULPTCREASE ) ); 
+    dispatchGLMenuButton (      mou, SCULPTMODETOOL | 
+                                     MESHTOOL     |
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    /*common_g3dui_addMouseTool ( gui,
+                                g3dmousetoolsculpt_new ( SCULPTFLATTEN ), 
+                                SCULPTMODETOOL | 
+                                MESHTOOL     |
+                                GLMENUTOOL );*/
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, mou = g3dmousetoolsculpt_new ( SCULPTUNSCULPT ) ); 
+    dispatchGLMenuButton (      mou, SCULPTMODETOOL | 
+                                     MESHTOOL     |
+                                     GLMENUTOOL );
+
+    /********************************/
+
+    /*common_g3dui_addMouseTool ( gui,
+                                g3dmousetoolsculpt_new ( SCULPTSMOOTH ), 
+                                SCULPTMODETOOL | 
+                                MESHTOOL     |
+                                GLMENUTOOL );*/
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, g3dmousetoolmove_new ( ) );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, g3dmousetoolscale_new ( ) );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, g3dmousetoolrotate_new ( ) );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, g3dmousetoolpickUV_new ( ) );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, g3dmousetoolmoveUV_new ( ) );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, g3dmousetoolscaleUV_new ( ) );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, g3dmousetoolrotateUV_new ( ) );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, m3dmousetoolpen_new ( ) );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, m3dmousetooleraser_new ( ) );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, m3dmousetoolselect_new ( ) );
+
+    /********************************/
+
+    g3dui_addMouseTool   ( gui, m3dmousetoolbucket_new ( ) );
 }
-
-/******************************************************************************/
-static void Destroy ( GtkWidget *widget, gpointer user_data ) {
-    GTK3G3DUIMAIN *mui = ( GTK3G3DUIMAIN * ) user_data;
-
-    free ( mui );
-}
-
-/******************************************************************************/
-static void Realize ( GtkWidget *widget, gpointer user_data ) {
-    GTK3G3DUIMAIN *mui = ( GTK3G3DUIMAIN * ) user_data;
-    GtkCssProvider *provider = gtk_css_provider_new ();
-    static const gchar *myCSS = { "* {                      \n"
-                                  "    background-color: rgba(192,192,192,1); \n"
-    #ifdef __linux__
-
-                                  "    font-family: Lucida Sans; \n"
-                                  "    font-size: 10px; \n"
-    #endif
-    #ifdef __MINGW32__
-                                  "    font-family: Calibri; \n"
-                                  "    font-size: 10px; \n"
-    #endif
-                                  "}                        \n"
-    #ifdef UBUNTU16
-                                  "GtkEntry {               \n"
-                                  "    border-width:   1px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     0px; \n"
-                                  "    margin-right:   0px; \n"
-                                  "    margin-left:    0px; \n"
-                                  "    margin-bottom:  0px; \n"
-                                  "    padding-top:    0px; \n"
-                                  "    padding-right:  0px; \n"
-                                  "    padding-left:   0px; \n"
-                                  "    padding-bottom: 0px; \n"
-                                  "}                        \n"
-                                  "GtkButton {              \n"
-                                  "    border-width:   1px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     0px; \n"
-                                  "    margin-right:   0px; \n"
-                                  "    margin-left:    0px; \n"
-                                  "    margin-bottom:  0px; \n"
-                                  "    padding-top:    0px; \n"
-                                  "    padding-right:  0px; \n"
-                                  "    padding-left:   0px; \n"
-                                  "    padding-bottom: 0px; \n"
-                                  "}                        \n"
-                                  "GtkSpinButton {          \n"
-                                  "    border-width:   1px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     1px; \n"
-                                  "    margin-right:   1px; \n"
-                                  "    margin-left:    1px; \n"
-                                  "    margin-bottom:  1px; \n"
-                                  "    padding-top:    1px; \n"
-                                  "    padding-right:  1px; \n"
-                                  "    padding-left:   1px; \n"
-                                  "    padding-bottom: 1px; \n"
-                                  "}                        \n"
-                                  "GtkQuad {                \n"
-                                  "    border-width:   1px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     0px; \n"
-                                  "    margin-right:   0px; \n"
-                                  "    margin-left:    0px; \n"
-                                  "    margin-bottom:  0px; \n"
-                                  "    padding-top:    0px; \n"
-                                  "    padding-right:  0px; \n"
-                                  "    padding-left:   0px; \n"
-                                  "    padding-bottom: 0px; \n"
-                                  "}                        \n"
-                                  "GtkMenuItem {\n"
-                                  "    border-width:   1px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     1px; \n"
-                                  "    margin-right:   1px; \n"
-                                  "    margin-left:    1px; \n"
-                                  "    margin-bottom:  1px; \n"
-                                  "    padding-top:    2px; \n"
-                                  "    padding-right:  0px; \n"
-                                  "    padding-left:   0px; \n"
-                                  "    padding-bottom: 2px; \n"
-                                  "    color: rgba(0,0,0,1); \n"
-                                  "    font-size:      6; \n"
-                                  "}                        \n"
-                                  "GtkMenuItem#Option_Menu {\n"
-                                  "    border-width:   1px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     1px; \n"
-                                  "    margin-right:   1px; \n"
-                                  "    margin-left:    1px; \n"
-                                  "    margin-bottom:  1px; \n"
-                                  "    padding-top:    0px; \n"
-                                  "    padding-right:  0px; \n"
-                                  "    padding-left:   0px; \n"
-                                  "    padding-bottom: 0px; \n"
-                                  "    font-size:      6; \n"
-                                  "}                        \n"
-                                  "GtkComboBoxText#Shading_Menu {   \n"
-                                  "    border-width:   0px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     0px; \n"
-                                  "    margin-right:   0px; \n"
-                                  "    margin-left:    0px; \n"
-                                  "    margin-bottom:  0px; \n"
-                                  "    padding-top:    0px; \n"
-                                  "    padding-right:  0px; \n"
-                                  "    padding-left:   0px; \n"
-                                  "    padding-bottom: 0px; \n"
-                                  "    font-size:      6; \n"
-                                  "}                        \n"
-                                  "GtkToolbar {             \n"
-                                  "    border-width:   1px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     0px; \n"
-                                  "    margin-right:   0px; \n"
-                                  "    margin-left:    0px; \n"
-                                  "    margin-bottom:  0px; \n"
-                                  "    padding-top:    0px; \n"
-                                  "    padding-right:  0px; \n"
-                                  "    padding-left:   0px; \n"
-                                  "    padding-bottom: 0px; \n"
-                                  "}                        \n"
-    #else
-                                  "entry {               \n"
-                                  "    min-height:     0px; \n"
-                                  "    border-width:   1px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     0px; \n"
-                                  "    margin-right:   0px; \n"
-                                  "    margin-left:    0px; \n"
-                                  "    margin-bottom:  0px; \n"
-                                  "    padding-top:    0px; \n"
-                                  "    padding-right:  0px; \n"
-                                  "    padding-left:   0px; \n"
-                                  "    padding-bottom: 0px; \n"
-                                  "}                        \n"
-                                  "scale {               \n"
-                                  "    min-height:     0px; \n"
-                                  "    border-width:   1px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     0px; \n"
-                                  "    margin-right:   0px; \n"
-                                  "    margin-left:    0px; \n"
-                                  "    margin-bottom:  0px; \n"
-                                  "    padding-top:    0px; \n"
-                                  "    padding-right:  0px; \n"
-                                  "    padding-left:   0px; \n"
-                                  "    padding-bottom: 0px; \n"
-                                  "}                        \n"
-                                  "tab {               \n"
-                                  "    min-height:     0px; \n"
-                                  "    border-width:   1px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     0px; \n"
-                                  "    margin-right:   0px; \n"
-                                  "    margin-left:    0px; \n"
-                                  "    margin-bottom:  0px; \n"
-                                  "    padding-top:    0px; \n"
-                                  "    padding-right:  8px; \n"
-                                  "    padding-left:   8px; \n"
-                                  "    padding-bottom: 0px; \n"
-                                  "}                        \n"
-                                  "button {              \n"
-                                  "    min-height:     0px; \n"
-                                  "    border-width:   1px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     0px; \n"
-                                  "    margin-right:   0px; \n"
-                                  "    margin-left:    0px; \n"
-                                  "    margin-bottom:  0px; \n"
-                                  "    padding-top:    0px; \n"
-                                  "    padding-right:  0px; \n"
-                                  "    padding-left:   0px; \n"
-                                  "    padding-bottom: 0px; \n"
-                                  "}                        \n"
-                                  "spinbutton {          \n"
-                                  "    min-height:     0px; \n"
-                                  "    border-width:   1px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     0px; \n"
-                                  "    margin-right:   0px; \n"
-                                  "    margin-left:    0px; \n"
-                                  "    margin-bottom:  0px; \n"
-                                  "    padding-top:    0px; \n"
-                                  "    padding-right:  0px; \n"
-                                  "    padding-left:   0px; \n"
-                                  "    padding-bottom: 0px; \n"
-                                  "}                        \n"
-                                  "quad {                \n"
-                                  "    border-width:   1px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     0px; \n"
-                                  "    margin-right:   0px; \n"
-                                  "    margin-left:    0px; \n"
-                                  "    margin-bottom:  0px; \n"
-                                  "    padding-top:    0px; \n"
-                                  "    padding-right:  0px; \n"
-                                  "    padding-left:   0px; \n"
-                                  "    padding-bottom: 0px; \n"
-                                  "}                        \n"
-                                  "menuitem {\n"
-                                  "    border-width:   1px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     1px; \n"
-                                  "    margin-right:   1px; \n"
-                                  "    margin-left:    1px; \n"
-                                  "    margin-bottom:  1px; \n"
-                                  "    padding-top:    2px; \n"
-                                  "    padding-right:  0px; \n"
-                                  "    padding-left:   0px; \n"
-                                  "    padding-bottom: 2px; \n"
-                                  "    font-size:      6px; \n"
-                                  "}                        \n"
-                                  "menuitem#Option_Menu {\n"
-                                  "    border-width:   1px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     1px; \n"
-                                  "    margin-right:   1px; \n"
-                                  "    margin-left:    1px; \n"
-                                  "    margin-bottom:  1px; \n"
-                                  "    padding-top:    0px; \n"
-                                  "    padding-right:  0px; \n"
-                                  "    padding-left:   0px; \n"
-                                  "    padding-bottom: 0px; \n"
-                                  "    font-size:      6px; \n"
-                                  "}                        \n"
-                                  "comboboxtext#Shading_Menu {   \n"
-                                  "    border-width:   0px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     0px; \n"
-                                  "    margin-right:   0px; \n"
-                                  "    margin-left:    0px; \n"
-                                  "    margin-bottom:  0px; \n"
-                                  "    padding-top:    0px; \n"
-                                  "    padding-right:  0px; \n"
-                                  "    padding-left:   0px; \n"
-                                  "    padding-bottom: 0px; \n"
-                                  "    font-size:      6px; \n"
-                                  "}                        \n"
-                                  "toolbar {             \n"
-                                  "    border-width:   1px; \n"
-                                  "    border-radius:  0px; \n"
-                                  "    margin-top:     0px; \n"
-                                  "    margin-right:   0px; \n"
-                                  "    margin-left:    0px; \n"
-                                  "    margin-bottom:  0px; \n"
-                                  "    padding-top:    0px; \n"
-                                  "    padding-right:  0px; \n"
-                                  "    padding-left:   0px; \n"
-                                  "    padding-bottom: 0px; \n"
-                                  "}                        \n"
-    #endif
-                                  };
-    GdkDisplay *display = gdk_display_get_default ( );
-    GdkScreen  *screen  = gdk_display_get_default_screen ( display );
-    #ifdef __linux__
-    char *home = getenv ( "HOME" );
-    #endif
-    #ifdef __MINGW32__
-    char *home = getenv ( "USERPROFILE" );
-    #endif
-    char configFileName[0x100];
-    GtkWidget *tab;
-    char *loadFile = NULL;
-    static G3DUI gui;
-
-    #ifdef __linux__
-    snprintf ( configFileName, 0x100, "%s/.gloss3d/gloss3d.conf", home );
-    #endif
-    #ifdef __MINGW32__
-    snprintf ( configFileName, 0x100, "%s\\.gloss3d\\gloss3d.conf", home );
-    #endif
-
-    gtk_style_context_add_provider_for_screen ( screen,
-                                 GTK_STYLE_PROVIDER (provider),
-                                 GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-
-    gtk_css_provider_load_from_data ( provider, myCSS, -1, NULL );
-
-    g_object_unref ( provider );
-
-    mui->grp.gui = &gui;
-
-    mui->grp.gui->interpretMouseToolReturnFlags = interpretMouseToolReturnFlags;
-    mui->grp.gui->dispatchGLMenuButton = dispatchGLMenuButton;
-
-    g3dui_init ( mui->grp.gui );
-
-    gtk3_g3dui_updateMenuBar ( mui->grp.gui );
-}
-
-/******************************************************************************/
-GtkWidget *gtk3_g3dui_createMain ( GtkWidget *parent,
-                                   char      *name,
-                                   gint       x,
-                                   gint       y,
-                                   gint       width,
-                                   gint       height ) {
-    GdkRectangle gdkrec = { 0x00, 0x00, width, height };
-    GtkWidget *layout = gtk_layout_new ( NULL, NULL );
-    GTK3G3DUIMAIN *mui = gtk3g3duimain_new ( );
-
-    g_object_set_data ( G_OBJECT(layout), "private", (gpointer) mui );
-
-    gtk_widget_set_name ( layout, name );
-
-    gtk_widget_size_allocate ( layout, &gdkrec );
-
-    gtk_container_add ( GTK_CONTAINER(parent), layout );
-
-    gtk_widget_add_events(GTK_WIDGET(layout), GDK_CONFIGURE);
-
-    g_signal_connect ( G_OBJECT (layout), "realize"      , G_CALLBACK (Realize)     , mui );
-    g_signal_connect ( G_OBJECT (layout), "destroy"      , G_CALLBACK (Destroy)     , mui );
-    g_signal_connect ( G_OBJECT (layout), "size-allocate", G_CALLBACK (SizeAllocate), mui );
-
-    mui->layout = layout;
-
-    mui->toolBar = gtk3_g3dui_createToolBar ( layout, 
-                                              NULL,
-                                              "toolbar",
-                                              0,
-                                              0,
-                                              width,
-                                              32 );
-
-
-    gtk_widget_show ( layout );
-
-    return layout;
-}
-

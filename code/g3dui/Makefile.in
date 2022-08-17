@@ -132,10 +132,13 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_g3dui_gtk3_la_LIBADD =
-am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c gtk3/g3dui.c \
-	gtk3/g3duitoolbar.c
+am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
+	common/g3duiconf.c common/g3duimain.c common/g3duitoolbar.c \
+	gtk3/g3dui.c gtk3/g3duimain.c gtk3/g3duitoolbar.c
 am__dirstamp = $(am__leading_dot)dirstamp
-@HAVE_GTK3_TRUE@am__objects_1 = common/g3dui.lo gtk3/g3dui.lo \
+@HAVE_GTK3_TRUE@am__objects_1 = common/g3dui.lo common/g3duiconf.lo \
+@HAVE_GTK3_TRUE@	common/g3duimain.lo common/g3duitoolbar.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3dui.lo gtk3/g3duimain.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duitoolbar.lo
 @HAVE_GTK3_TRUE@am_libgloss_g3dui_gtk3_la_OBJECTS = $(am__objects_1)
 libgloss_g3dui_gtk3_la_OBJECTS = $(am_libgloss_g3dui_gtk3_la_OBJECTS)
@@ -160,7 +163,9 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
-	gtk3/$(DEPDIR)/g3dui.Plo gtk3/$(DEPDIR)/g3duitoolbar.Plo
+	common/$(DEPDIR)/g3duiconf.Plo common/$(DEPDIR)/g3duimain.Plo \
+	common/$(DEPDIR)/g3duitoolbar.Plo gtk3/$(DEPDIR)/g3dui.Plo \
+	gtk3/$(DEPDIR)/g3duimain.Plo gtk3/$(DEPDIR)/g3duitoolbar.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -340,7 +345,11 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@lib_LTLIBRARIES = libgloss-g3dui-gtk3.la
 @HAVE_GTK3_TRUE@libgloss_g3dui_gtk3_la_SOURCES = $(LIBGLOSSG3DUI_C_FILES)
 @HAVE_GTK3_TRUE@LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
+@HAVE_GTK3_TRUE@                            common/g3duiconf.c \
+@HAVE_GTK3_TRUE@                            common/g3duimain.c \
+@HAVE_GTK3_TRUE@                            common/g3duitoolbar.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3dui.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duimain.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitoolbar.c
 
 all: all-am
@@ -419,6 +428,12 @@ common/$(DEPDIR)/$(am__dirstamp):
 	@: > common/$(DEPDIR)/$(am__dirstamp)
 common/g3dui.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
+common/g3duiconf.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/g3duimain.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/g3duitoolbar.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
 gtk3/$(am__dirstamp):
 	@$(MKDIR_P) gtk3
 	@: > gtk3/$(am__dirstamp)
@@ -426,6 +441,7 @@ gtk3/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) gtk3/$(DEPDIR)
 	@: > gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3dui.lo: gtk3/$(am__dirstamp) gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duimain.lo: gtk3/$(am__dirstamp) gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duitoolbar.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 
@@ -443,7 +459,11 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3dui.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiconf.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimain.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duitoolbar.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3dui.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimain.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitoolbar.Plo@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -617,7 +637,11 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 
 distclean: distclean-am
 		-rm -f common/$(DEPDIR)/g3dui.Plo
+	-rm -f common/$(DEPDIR)/g3duiconf.Plo
+	-rm -f common/$(DEPDIR)/g3duimain.Plo
+	-rm -f common/$(DEPDIR)/g3duitoolbar.Plo
 	-rm -f gtk3/$(DEPDIR)/g3dui.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duimain.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitoolbar.Plo
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -665,7 +689,11 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 		-rm -f common/$(DEPDIR)/g3dui.Plo
+	-rm -f common/$(DEPDIR)/g3duiconf.Plo
+	-rm -f common/$(DEPDIR)/g3duimain.Plo
+	-rm -f common/$(DEPDIR)/g3duitoolbar.Plo
 	-rm -f gtk3/$(DEPDIR)/g3dui.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duimain.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitoolbar.Plo
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic

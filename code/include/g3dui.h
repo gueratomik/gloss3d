@@ -660,33 +660,7 @@ typedef struct _G3DUI {
     G3DSCENE     *sce;
     G3DUICONF     conf;
     uint64_t      engine_flags;
-    /* context menus for all objects */
-    LIST         *lObjectModeMenu;
-    /* context menus for meshes */
-    LIST         *lVertexModeMeshMenu;
-    LIST         *lEdgeModeMeshMenu;
-    LIST         *lFaceModeMeshMenu;
-    LIST         *lSculptModeMeshMenu;
-    /* context menu for splines */
-    LIST         *lVertexModeSplineMenu;
-    /* context menu for morphers */
-    LIST         *lVertexModeMorpherMenu;
-    /**********************/
-    LIST         *lmtools; /*** list of mousetools widget ***/
-    LIST         *lview;
-    LIST         *lglview;
-    LIST         *lobjlist;
-    LIST         *lmatlist;
-    LIST         *lmatedit;
-    LIST         *lcoordedit; /*** list of Coordinates widget ***/
-    LIST         *lcuredit; /*** current object edit widget ***/
-    LIST         *ltimeline; /*** List of timelines ***/
-    LIST         *lkeyedit;
-    LIST         *ltexedit;
-    LIST         *lligedit;
-    LIST         *lweightgroup;
-    LIST         *lmeshpose;
-    LIST         *luvmapeditor;
+
     LIST         *limg; /*** List of images (among them are textures) ***/
     LIST         *lrps; /*** list of render process ***/
     LIST *lmou; /*** list of mousetools ***/
@@ -725,16 +699,11 @@ typedef struct _G3DUI {
     uint32_t playLock;
     LIST *lexportExtensions; /* list of G3DEXPORTEXTENSION */
     Q3DFILTER *toframe;
-    void (*interpretMouseToolReturnFlags) ( struct G3DUI *gui,
-                                            uint32_t      msk );
-    void (*dispatchGLMenuButton)          ( struct G3DUI *gui,
-                                            G3DMOUSETOOL *mou,
-                                            uint32_t      tool_flags );
-} GuiPart, G3DUI;
+} G3DUI;
 
 /******************************************************************************/
 typedef struct _G3DUIMAIN {
-    G3DUI          *gui;
+    G3DUI *gui;
     G3DUIRECTANGLE  menurec;
     G3DUIRECTANGLE  tbarrec;
     G3DUIRECTANGLE  mbarrec;
@@ -744,6 +713,11 @@ typedef struct _G3DUIMAIN {
     G3DUIRECTANGLE  timerec;
     G3DUIRECTANGLE  inforec;
 } G3DUIMAIN;
+
+/******************************************************************************/
+typedef struct _G3DUITOOLBAR {
+    G3DUI *gui;
+} G3DUITOOLBAR;
 
 /******************************************************************************/
 #define G3DUIWIDGET_TAB          0x02
@@ -1960,11 +1934,10 @@ void g3dui_dispatchGLMenuButton ( G3DUI        *gui,
                                   G3DMOUSETOOL *mou, 
                                   uint32_t      tool_flags );
 void g3dui_addMouseTool ( G3DUI        *gui, 
-                          G3DMOUSETOOL *mou,
-                          uint32_t      tool_flags );
-void g3dui_setMouseTool ( G3DUI        *gui, 
-                          G3DCAMERA    *cam, 
                           G3DMOUSETOOL *mou );
+uint32_t g3dui_setMouseTool ( G3DUI        *gui, 
+                              G3DCAMERA    *cam, 
+                              G3DMOUSETOOL *mou );
 void g3duimain_sizeAllocate ( G3DUIMAIN *grp, 
                               uint32_t   width, 
                               uint32_t   height );
@@ -2005,5 +1978,17 @@ G3DSCENE *g3dui_importfileokcbk ( G3DUI      *gui,
                                   const char *filedesc, 
                                   const char *filename );
 void g3dui_saveG3DFile ( G3DUI *gui );
+
+/******************************************************************************/
+G3DUIMAIN *g3duimain_new          ( G3DUI     *gui );
+void       g3duimain_sizeAllocate ( G3DUIMAIN *gmn, 
+                                    uint32_t   width, 
+                                    uint32_t   height );
+
+/******************************************************************************/
+G3DUITOOLBAR *g3duitoolbar_new ( G3DUI   *gui,
+                                 uint32_t tkDataSize );
+void *g3duitoolbar_getTKData   ( G3DUITOOLBAR *gtb );
+
 
 #endif

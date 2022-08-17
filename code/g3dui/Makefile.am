@@ -9,7 +9,11 @@ if HAVE_GTK3
     libgloss_g3dui_gtk3_la_SOURCES = $(LIBGLOSSG3DUI_C_FILES)
 
     LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
+                            common/g3duiconf.c \
+                            common/g3duimain.c \
+                            common/g3duitoolbar.c \
                             gtk3/g3dui.c \
+                            gtk3/g3duimain.c \
                             gtk3/g3duitoolbar.c
 endif
 

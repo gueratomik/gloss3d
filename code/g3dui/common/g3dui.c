@@ -482,22 +482,20 @@ void g3dui_setFileName ( G3DUI      *gui,
 }
 
 /******************************************************************************/
-void g3dui_setMouseTool ( G3DUI        *gui, 
-                          G3DCAMERA    *cam, 
-                          G3DMOUSETOOL *mou ) {
+uint32_t g3dui_setMouseTool ( G3DUI        *gui, 
+                              G3DCAMERA    *cam, 
+                              G3DMOUSETOOL *mou ) {
+    uint32_t msk = 0x00;
+
     /*** Call the mouse tool initialization function once. This ***/
     /*** can be used by this function to initialize some values ***/
     if ( mou ) {
         if ( mou->init ) {
-            uint32_t msk = mou->init ( mou, 
-                                       gui->sce, 
-                                       cam, 
-                                       gui->urm,
-                                       gui->engine_flags );
-
-            if ( gui->interpretMouseToolReturnFlags ) {
-                gui->interpretMouseToolReturnFlags ( gui, msk );
-            }
+            msk = mou->init ( mou, 
+                              gui->sce, 
+                              cam, 
+                              gui->urm,
+                              gui->engine_flags );
         }
 
         if ( ( mou->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
@@ -506,18 +504,13 @@ void g3dui_setMouseTool ( G3DUI        *gui,
     } else {
         gui->mou = NULL;
     }
+
+    return msk;
 }
 
 /******************************************************************************/
 void g3dui_addMouseTool ( G3DUI        *gui, 
-                          G3DMOUSETOOL *mou,
-                          uint32_t      tool_flags ) {
-    if ( tool_flags & GLMENUTOOL ) {
-        if ( gui->dispatchGLMenuButton ) {
-            gui->dispatchGLMenuButton ( gui, mou, tool_flags );
-        }
-    }
-
+                          G3DMOUSETOOL *mou ) {
     list_insert ( &gui->lmou, mou );
 }
 
