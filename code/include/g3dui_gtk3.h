@@ -153,28 +153,6 @@ typedef struct _GTK3G3DUI {
     GdkWindow    *winAtPosition; /*** window at mouse position (for hourGlass)***/
 } GTK3G3DUI;
 
-
-/******************************************************************************/
-typedef struct _GTK3G3DUIMAIN {
-    G3DUIMAIN  grp;
-    GtkWidget *layout;
-    GtkWidget *toolBar;
-    GtkWidget *quad;
-    GtkWidget *timeBoard;
-    GtkWidget *board;
-
-    GtkWidget *top;
-    GtkWidget *mainView; /*** Main OpenGL View ***/
-    GtkWidget *curogl; /*** current OpenGL Widget - the one we used last ***/
-    GtkWidget *curmou; /*** store the current pressed toggle button      ***/
-    GtkWidget *curmat; /*** current material ***/
-    GtkWidget *main;
-
-    GtkWidget *currentUVMouseToolButton;
-    GtkWidget *currentUVMapEditor;
-    /*G3DUIMENU *menuBar;*/
-} GTK3G3DUIMAIN;
-
 /******************************************************************************/
 typedef struct _GTK3G3DUITOOLBAR {
     G3DUITOOLBAR grp;
@@ -197,6 +175,39 @@ typedef struct _GTK3G3DUITOOLBAR {
     GtkWidget   *yAxis;
     GtkWidget   *zAxis;
 } GTK3G3DUITOOLBAR;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIVIEW {
+    G3DUIVIEW  grp;
+    GtkWidget *layout;
+    GtkWidget *btnarea;
+    GtkWidget *glarea;
+    GtkWidget *optmenu;
+    GtkWidget *shdmenu;
+    LIST      *lmenu;
+} GTK3G3DUIVIEW;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIMAIN {
+    G3DUIMAIN         grp;
+    GTK3G3DUITOOLBAR *toolBar;
+
+    GtkWidget        *layout;
+    GtkWidget        *quad;
+    GtkWidget        *timeBoard;
+    GtkWidget        *board;
+
+    GtkWidget        *top;
+    GtkWidget        *mainView; /*** Main OpenGL View ***/
+    GtkWidget        *curogl; /*** current OpenGL Widget - the one we used last ***/
+    GtkWidget        *curmou; /*** store the current pressed toggle button      ***/
+    GtkWidget        *curmat; /*** current material ***/
+    GtkWidget        *main;
+
+    GtkWidget        *currentUVMouseToolButton;
+    GtkWidget        *currentUVMapEditor;
+    /*G3DUIMENU *menuBar;*/
+} GTK3G3DUIMAIN;
 
 /******************************************************************************/
 typedef struct _G3DUIRENDERWINDOW {
@@ -1078,14 +1089,14 @@ Q3DFILTER *q3dfilter_gotoframe_new ( G3DUI* gui );
 G3DCAMERA *g3dui_getCurrentUVMapEditorCamera ( G3DUI *gui );
 
 GtkWidget *addToolBarPushButton ( GtkWidget   *bar,
-                                  G3DUI       *gui,
+                                  void        *data,
                                   char        *name,
                                   const char **xpm_data,
                                   void       (*cbk) ( GtkWidget *,
                                                       gpointer ) );
 
 GtkWidget *addToolBarToggleButton ( GtkWidget   *bar,
-                                    G3DUI       *gui,
+                                    void        *data,
                                     char        *name,
                                     const char **xpm_data,
                                     void       (*cbk) ( GtkWidget *, 
@@ -1109,7 +1120,6 @@ void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
                               GtkWidget         *drawingArea );
 
 GtkWidget *gtk3_g3duimain_create ( GtkWidget *parent,
-                                   G3DUI     *gui,
                                    char      *name,
                                    gint       x,
                                    gint       y,
@@ -1122,13 +1132,12 @@ void gtk3_g3dui_dispatchGLMenuButton ( G3DUI        *gui,
                                        G3DMOUSETOOL *mou, 
                                        uint32_t      tool_flags );
 
-GtkWidget *gtk3_g3dui_createToolBar ( GtkWidget *parent, 
-                                      G3DUI     *gui,
-                                      char      *name,
-                                      gint       x,
-                                      gint       y,
-                                      gint       width,
-                                      gint       height );
+GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent, 
+                                             char      *name,
+                                             gint       x,
+                                             gint       y,
+                                             gint       width,
+                                             gint       height );
 
 void gtk3_g3dui_redrawGLViews ( );
 void gtk3_g3dui_updateGLViewsMenu ( );
@@ -1142,5 +1151,8 @@ void gtk3_g3dui_updateAllCurrentMouseTools ( );
 void gtk3_initDefaultMouseTools ( G3DCAMERA *cam );
 
 GTK3G3DUI *gtk3_getUI ( );
+
+void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in, 
+                                     GdkRectangle   *out  );
 
 #endif

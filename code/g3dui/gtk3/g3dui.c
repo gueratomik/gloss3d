@@ -30,12 +30,20 @@
 #include <g3dui_gtk3.h>
 
 
-
 /******************************************************************************/
 GTK3G3DUI *gtk3_getUI ( ) {
     static GTK3G3DUI gtk3gui;
 
     return &gtk3gui;
+}
+
+/******************************************************************************/
+void g3duirectangle_toGdkRec ( G3DUIRECTANGLE *in, 
+                               GdkRectangle   *out  ) {
+    out->x      = in->x;
+    out->y      = in->y;
+    out->width  = in->width;
+    out->height = in->height;
 }
 
 /******************************************************************************/
@@ -263,8 +271,8 @@ static void dispatchGLMenuButton ( G3DMOUSETOOL *mou,
 
     if ( tool_flags & ( OBJECTMODETOOL ) ) {
         gtk3_addMenuListButton ( gui, 
-                                     gtk3gui->lObjectModeMenu,
-                                     mou );
+                                 gtk3gui->lObjectModeMenu,
+                                 mou );
     }
 
     if ( ( tool_flags & vertexModeMeshFlags ) == vertexModeMeshFlags ) {
@@ -357,6 +365,8 @@ void ui_interpretMouseToolReturnFlags ( uint32_t msk ) {
 
 /******************************************************************************/
 void gtk3_initDefaultMouseTools ( G3DCAMERA *cam ) {
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
     G3DMOUSETOOL *mou;
 
     /********************************/

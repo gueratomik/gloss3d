@@ -60,13 +60,16 @@ static GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_new ( ) {
         return NULL;
     }
 
+    gtk3gtb->grp.gui = ( G3DUI * ) gtk3_getUI ( );
+
+
     return gtk3gtb;
 }
 
 /******************************************************************************/
 GtkWidget *addToolBarRadioButton ( GtkWidget   *bar,
                                    GtkWidget   *grp,
-                                   G3DUI       *gui,
+                                   void        *data,
                                    char        *name,
                                    const char **xpm_data,
                                    void      ( *cbk ) ( GtkWidget *, 
@@ -97,7 +100,7 @@ GtkWidget *addToolBarRadioButton ( GtkWidget   *bar,
     }
 
     if ( cbk ) {
-        g_signal_connect ( btn, "toggled", G_CALLBACK (cbk), gui );
+        g_signal_connect ( btn, "toggled", G_CALLBACK (cbk), data );
     }
 
     gtk_toolbar_insert ( GTK_TOOLBAR(bar), GTK_TOOL_ITEM(btn), -1 );
@@ -110,7 +113,7 @@ GtkWidget *addToolBarRadioButton ( GtkWidget   *bar,
 
 /******************************************************************************/
 GtkWidget *addToolBarToggleButton ( GtkWidget   *bar,
-                                    G3DUI       *gui,
+                                    void        *data,
                                     char        *name,
                                     const char **xpm_data,
                                     void       (*cbk) ( GtkWidget *, 
@@ -143,7 +146,7 @@ GtkWidget *addToolBarToggleButton ( GtkWidget   *bar,
     }
 
     if ( cbk ) {
-        g_signal_connect ( btn, "toggled", G_CALLBACK (cbk), gui );
+        g_signal_connect ( btn, "toggled", G_CALLBACK (cbk), data );
     }
 
     gtk_toolbar_insert ( GTK_TOOLBAR(bar), GTK_TOOL_ITEM(btn), -1 );
@@ -156,7 +159,7 @@ GtkWidget *addToolBarToggleButton ( GtkWidget   *bar,
 
 /******************************************************************************/
 GtkWidget *addToolBarPushButton ( GtkWidget   *bar,
-                                  G3DUI       *gui,
+                                  void        *data,
                                   char        *name,
                                   const char **xpm_data,
                                   void       (*cbk) ( GtkWidget *,
@@ -188,7 +191,7 @@ GtkWidget *addToolBarPushButton ( GtkWidget   *bar,
     }
 
     if ( cbk ) {
-        g_signal_connect ( btn, "clicked", G_CALLBACK (cbk), gui );
+        g_signal_connect ( btn, "clicked", G_CALLBACK (cbk), data );
     }
 
     gtk_toolbar_insert ( GTK_TOOLBAR(bar), GTK_TOOL_ITEM(btn), -1 );
@@ -200,13 +203,12 @@ GtkWidget *addToolBarPushButton ( GtkWidget   *bar,
 }
 
 /******************************************************************************/
-GtkWidget *gtk3_g3duitoolbar_create ( GtkWidget *parent, 
-                                      G3DUI     *gui,
-                                      char      *name,
-                                      gint       x,
-                                      gint       y,
-                                      gint       width,
-                                      gint       height ) {
+GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent, 
+                                             char      *name,
+                                             gint       x,
+                                             gint       y,
+                                             gint       width,
+                                             gint       height ) {
     GTK3G3DUITOOLBAR *gtk3gtb = gtk3_g3duitoolbar_new ( );
     GdkRectangle  gdkrec  = { x, y, width, height };
     GtkWidget    *grp     = NULL;
@@ -342,5 +344,5 @@ GtkWidget *gtk3_g3duitoolbar_create ( GtkWidget *parent,
     gtk_widget_show ( gtk3gtb->bar );
 
 
-    return gtk3gtb->bar;
+    return gtk3gtb;
 }

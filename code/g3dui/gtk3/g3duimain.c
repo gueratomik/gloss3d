@@ -41,6 +41,9 @@ static GTK3G3DUIMAIN *g3tk_g3duimain_new ( ) {
         return NULL;
     }
 
+    gtk3gmn->grp.gui = ( G3DUI * ) gtk3_getUI ( );
+
+
     return gtk3gmn;
 }
 
@@ -63,25 +66,25 @@ static void SizeAllocate ( GtkWidget     *widget,
     gdkrec.height = gmn->grp.tbarrec.height;
 
     gtk_layout_move ( widget, 
-                      gmn->toolBar, 
+                      gmn->toolBar->bar,
                       gdkrec.x,
                       gdkrec.y );
 
-    gtk_widget_size_allocate ( gmn->toolBar, &gdkrec );
+    gtk_widget_size_allocate ( gmn->toolBar->bar, &gdkrec );
 }
 
 /******************************************************************************/
 static void Destroy ( GtkWidget *widget, gpointer user_data ) {
-    GTK3G3DUIMAIN *gmn = ( GTK3G3DUIMAIN * ) user_data;
+    GTK3G3DUIMAIN *gtk3gmn = ( GTK3G3DUIMAIN * ) user_data;
     GTK3G3DUI *gtk3gui = gtk3_getUI ( );
     G3DUI *gui = ( G3DUI * ) gtk3gui;
 
-    free ( gmn );
+    free ( gtk3gmn );
 }
 
 /******************************************************************************/
 static void Realize ( GtkWidget *widget, gpointer user_data ) {
-    GTK3G3DUIMAIN *gmn = ( GTK3G3DUIMAIN * ) user_data;
+    GTK3G3DUIMAIN *gtk3gmn = ( GTK3G3DUIMAIN * ) user_data;
     GTK3G3DUI *gtk3gui = gtk3_getUI ( );
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     GtkCssProvider *provider = gtk_css_provider_new ();
@@ -345,7 +348,7 @@ static void Realize ( GtkWidget *widget, gpointer user_data ) {
 
     gtk3_initDefaultMouseTools ( gtk3_getMainViewCamera ( ) );
 
-    gtk3_g3dui_updateMenuBar ( );
+    gtk3_updateMenuBar ( );
 }
 
 /******************************************************************************/
@@ -355,7 +358,7 @@ GtkWidget *gtk3_g3duimain_create ( GtkWidget *parent,
                                    gint       y,
                                    gint       width,
                                    gint       height ) {
-    GTK3GDUIMAIN *gtk3gmn = g3tk_g3duimain_new ( gui );
+    GTK3G3DUIMAIN *gtk3gmn = g3tk_g3duimain_new ( );
     GdkRectangle  gdkrec  = { 0x00,  0x00, width, height };
     GtkWidget    *layout  = gtk_layout_new ( NULL, NULL );
 
@@ -375,8 +378,7 @@ GtkWidget *gtk3_g3duimain_create ( GtkWidget *parent,
 
     gtk3gmn->layout = layout;
 
-    gtk3gmn->toolBar = gtk3_g3duitoolbar_create ( layout, 
-                                                  NULL,
+    gtk3gmn->toolBar = gtk3_g3duitoolbar_create ( layout,
                                                   "toolbar",
                                                   0,
                                                   0,

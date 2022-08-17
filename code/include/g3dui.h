@@ -877,6 +877,9 @@ typedef struct _G3DUIVIEW {
     G3DUI         *gui;
     G3DUIRECTANGLE rec[NBVIEWBUTTON];       /*** pixmaps position ***/
     G3DUIRECTANGLE glrec;
+    G3DUIRECTANGLE optrec;
+    G3DUIRECTANGLE shdrec;
+    G3DUIRECTANGLE btnrec;
     /*Pixmap         curpix[NBVIEWBUTTON];
     Pixmap         norpix[NBVIEWBUTTON];
     Pixmap         armpix[NBVIEWBUTTON];*/
@@ -887,7 +890,6 @@ typedef struct _G3DUIVIEW {
     G3DVECTOR      defcamrot; /*** Default camera rotation ***/
     G3DVECTOR      defcamsca; /*** Default camera scaling  ***/
     float          defcamfoc; /*** Default camera focal    ***/
-    LIST          *lmenu;
     /*Widget ogl;*/ /*** OpenGL Widget ***/
     uint32_t       mode;   /*** wireframe, flat, fill ***/
     uint64_t       engine_flags;
@@ -1978,17 +1980,6 @@ G3DSCENE *g3dui_importfileokcbk ( G3DUI      *gui,
                                   const char *filedesc, 
                                   const char *filename );
 void g3dui_saveG3DFile ( G3DUI *gui );
-
-/******************************************************************************/
-G3DUIMAIN *g3duimain_new          ( G3DUI     *gui );
-void       g3duimain_sizeAllocate ( G3DUIMAIN *gmn, 
-                                    uint32_t   width, 
-                                    uint32_t   height );
-
-/******************************************************************************/
-G3DUITOOLBAR *g3duitoolbar_new ( G3DUI   *gui,
-                                 uint32_t tkDataSize );
-void *g3duitoolbar_getTKData   ( G3DUITOOLBAR *gtb );
 
 
 #endif

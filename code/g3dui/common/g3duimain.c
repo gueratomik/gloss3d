@@ -30,22 +30,6 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-G3DUIMAIN *g3duimain_new ( G3DUI   *gui ) {
-    G3DUIMAIN *gmn = ( G3DUIMAIN * ) calloc ( 0x01, sizeof ( G3DUIMAIN ) );
-
-    if ( gmn == NULL ) {
-        fprint ( stderr, "%s: calloc failed\n", __func__ );
-
-        return NULL;
-    }
-
-    gmn->gui = gui;
-
-
-    return gmn;
-}
-
-/******************************************************************************/
 void g3duimain_sizeAllocate ( G3DUIMAIN *gmn, 
                               uint32_t   width, 
                               uint32_t   height ) {

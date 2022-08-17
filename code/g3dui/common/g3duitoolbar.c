@@ -28,19 +28,3 @@
 /******************************************************************************/
 #include <config.h>
 #include <g3dui.h>
-
-/******************************************************************************/
-G3DUITOOLBAR *g3duitoolbar_new ( G3DUI   *gui ) {
-    G3DUITOOLBAR *gtb = ( G3DUITOOLBAR * ) calloc ( 0x01, sizeof ( G3DUITOOLBAR ) );
-
-    if ( gtb == NULL ) {
-        fprint ( stderr, "%s: calloc failed\n", __func__ );
-
-        return NULL;
-    }
-
-    gtb->gui = gui;
-
-
-    return gtb;
-}
