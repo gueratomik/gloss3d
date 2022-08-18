@@ -53,7 +53,270 @@ static void PostMenu     ( GtkWidget *, GdkEvent *, gpointer );
 static void cancelRender ( GtkWidget *, G3DUI * );
 
 /******************************************************************************/
-void addGLMenuButton ( G3DUI *gui, GtkWidget *menu, G3DMOUSETOOL *mou ) {
+void gtk3_sizeGL ( GtkWidget *widget, GdkRectangle *allocation, 
+                                      gpointer user_data ) {
+    GTK3G3DUIVIEW *gtk3gvw =  ( GTK3G3DUIVIEW * ) user_data;
+    G3DUIVIEW     *view    = &gtk3gvw->grp;
+    G3DUI         *gui     = view->gui;
+    GdkDisplay    *gdkdpy  =  gtk_widget_get_display ( widget );
+    GdkWindow     *gdkwin  =  gtk_widget_get_window ( widget );
+
+#ifdef __linux__
+    Display       *dpy    = gdk_x11_display_get_xdisplay ( gdkdpy );
+    Window         win    = gdk_x11_window_get_xid ( gdkwin );
+
+    glXMakeCurrent ( dpy, win, view->glctx );
+#endif
+
+#ifdef __MINGW32__
+    HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
+    HDC dc = GetDC ( hWnd );
+
+    wglMakeCurrent ( dc, view->glctx );
+
+    ReleaseDC ( hWnd, dc );
+#endif
+
+    /*** cancel renderprocess if any ***/
+    g3dui_cancelRenderByID ( gui, ( uint64_t ) widget );
+
+    g3duiview_sizeGL ( view, allocation->width, allocation->height );
+
+    gtk_widget_queue_draw ( widget );
+}
+
+/******************************************************************************/
+void gtk3_initGL ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUIVIEW *gtk3gvw  =  ( GTK3G3DUIVIEW * ) user_data;
+    G3DUIVIEW     *view     = &gtk3gvw->grp;
+    G3DUI         *gui      = view->gui;
+    GdkWindow     *p_window = gtk_widget_get_parent_window ( widget );
+    GdkDisplay    *gdkdpy   = gtk_widget_get_display ( widget );
+    GdkWindow     *gdkwin   = gtk_widget_get_window ( widget );
+
+#ifdef __linux__
+    Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );
+    Window      root     = DefaultRootWindow ( dis );
+    GLint       glattr[] = { GLX_RGBA,
+                             GLX_RED_SIZE,    8,
+                             GLX_BLUE_SIZE,   8,
+                             GLX_GREEN_SIZE,  8,
+                             GLX_ALPHA_SIZE,  8,
+                             GLX_DEPTH_SIZE, 24,
+                             GLX_DOUBLEBUFFER,
+                             None };
+
+    GtkAllocation allocation;
+    GdkWindowAttr attr;
+    GdkScreen *gdkscr;
+    XVisualInfo *vi;
+    Window win;
+    
+    vi = glXChooseVisual ( dis, 0, glattr );
+
+    if ( vi == 0x00 ) {
+        fprintf ( stderr, "Could not create GL Visual\n" );
+
+        return;
+    }
+
+/**********************/
+    gdkscr   = gtk_widget_get_screen  ( widget );
+
+    attr.title       = "OpenGL Window";
+    attr.event_mask  = gtk_widget_get_events ( widget ) | GDK_EXPOSURE_MASK       |
+                                                          GDK_STRUCTURE_MASK      |
+                                                          GDK_BUTTON_PRESS_MASK   | 
+                                                          GDK_BUTTON_RELEASE_MASK | 
+                                                          GDK_POINTER_MOTION_MASK |
+                                                          GDK_POINTER_MOTION_HINT_MASK;
+
+    gtk_widget_get_allocation ( widget, &allocation );
+
+    attr.x           = allocation.x;
+    attr.y           = allocation.y;
+    attr.width       = allocation.width;
+    attr.height      = allocation.height;
+    attr.wclass      = GDK_INPUT_OUTPUT;
+    attr.window_type = GDK_WINDOW_CHILD;
+    attr.visual      = gdk_x11_screen_lookup_visual ( gdkscr, vi->visualid );
+
+    gdkwin = gdk_window_new ( p_window, &attr, GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL );
+
+    gtk_widget_set_window   ( widget, gdkwin );
+
+    gdk_window_set_user_data ( gdkwin, widget );
+/*************************/
+
+    win = gdk_x11_window_get_xid ( gdkwin );
+
+    /*** Create OpenGL Context ***/
+    view->glctx = glXCreateContext( dis, vi, gui->sharedCtx, True );
+
+    if ( gui->sharedCtx == NULL ) gui->sharedCtx = view->glctx;
+
+    /*** Set Context as the current context ***/
+    glXMakeCurrent ( dis, win, view->glctx );
+
+    g3duiview_initGL ( view );
+
+    /*** Free the memory assigned for GLwNvisualInfo ***/
+    free ( vi );
+#endif
+
+#ifdef __MINGW32__
+    PIXELFORMATDESCRIPTOR pfd;
+    HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
+    HDC dc = GetDC ( hWnd );
+    int pxf;
+    
+    /*** prevents erasing the background ***/
+    gtk_widget_set_double_buffered (GTK_WIDGET (widget), FALSE);
+    gtk_widget_set_app_paintable (GTK_WIDGET (widget), TRUE);
+
+    memset ( &pfd, 0x00, sizeof ( PIXELFORMATDESCRIPTOR ) );
+
+    pfd.nSize        = sizeof ( PIXELFORMATDESCRIPTOR );
+    pfd.nVersion     = 0x01;
+    pfd.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+    pfd.iPixelType   = PFD_TYPE_RGBA;
+    pfd.cDepthBits   = 0x18;
+    pfd.cColorBits   = 0x20;
+
+    if ( ( pxf = ChoosePixelFormat ( dc, &pfd ) ) == 0x00 ) {
+        fprintf ( stderr, "ChoosePixelFormat failed\n" );
+
+        return 0x00;
+    }
+
+    if ( SetPixelFormat ( dc, pxf, &pfd ) == 0x00 ) {
+        fprintf ( stderr, "SetPixelFormat failed\n" );
+
+        return 0x00;
+    }
+
+    view->glctx = wglCreateContext ( dc );
+
+    if ( gui->sharedCtx == NULL ) gui->sharedCtx = view->glctx;
+    else wglShareLists( gui->sharedCtx, view->glctx );
+
+    wglMakeCurrent ( dc,  view->glctx );
+
+    if ( ext_glActiveTextureARB == NULL ) 
+        ext_glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC) wglGetProcAddress("glActiveTextureARB");
+
+    if ( ext_glMultiTexCoord2fARB == NULL ) 
+        ext_glMultiTexCoord2fARB = (PFNGLMULTITEXCOORD2FARBPROC) wglGetProcAddress("glMultiTexCoord2fARB");
+
+    if ( ext_glClientActiveTextureARB == NULL ) 
+        ext_glClientActiveTextureARB = (PFNGLCLIENTACTIVETEXTUREARBPROC) wglGetProcAddress("glClientActiveTextureARB");
+
+    if ( ext_glGenerateMipmap == NULL ) 
+        ext_glGenerateMipmap = (void(*)(GLenum))wglGetProcAddress("glGenerateMipmap");
+
+    g3duiview_initGL ( view );
+
+    ReleaseDC ( hWnd, dc );
+#endif
+
+    /*** Matrix update func must be called after OpenGL initialization ***/
+    if ( view->cam ) {
+        /*** Realize is done after gtk_view_new(), that's why view->cam exists ***/
+        g3dobject_updateMatrix_r ( ( G3DOBJECT * ) view->cam, 0x00 );
+    }
+}
+
+/******************************************************************************/
+gboolean gtk3_showGL ( GtkWidget *widget, 
+                       cairo_t   *cr, 
+                       gpointer   user_data ) {
+    GTK3G3DUIVIEW *gtk3gvw =  ( GTK3G3DUIVIEW * ) user_data;
+    G3DUIVIEW     *view    = &gtk3gvw->grp;
+    G3DUI         *gui     = view->gui;
+    GdkDisplay    *gdkdpy  = gtk_widget_get_display ( widget );
+    GdkWindow     *gdkwin  = gtk_widget_get_window ( widget );
+    G3DCAMERA     *cam     = view->cam;
+    G3DUIGTK3     *ggt     = ( G3DUIGTK3 * ) gui->toolkit_data;;
+    G3DMOUSETOOL  *mou     = gui->mou;
+    G3DSCENE      *sce     = gui->sce;
+    uint32_t       current;
+
+#ifdef __linux__
+    Display       *dpy     = gdk_x11_display_get_xdisplay ( gdkdpy );
+    Window         win     = gdk_x11_window_get_xid ( gdkwin );
+#endif
+
+#ifdef __MINGW32__
+    HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
+    HDC dc = GetDC ( hWnd );
+#endif
+
+    if ( gui->playLock ) {
+         /*** Force disabling real time subdivision ***/
+        gui->engine_flags |= ONGOINGANIMATION;
+    }
+
+    /*** This helps the drawarea to determine if it should draw mouse tools ***/
+    /*** for example (we don't draw mousetool on all window widget. ***/
+    current = ( widget == ggt->curogl ) ? 0x01 : 0x00;
+
+#ifdef __linux__
+    /*** Set Context as the current context ***/
+    glXMakeCurrent ( dpy, win, view->glctx );
+
+    /*** GUI Toolkit Independent part ****/
+    /*************************************/
+    if ( sce ) {
+        g3duiview_showGL ( view,
+                           gui, 
+                           sce, 
+                           cam, 
+                           mou, 
+                           current,
+                           gui->engine_flags | view->engine_flags );
+    }
+    /*************************************/
+
+    glXSwapBuffers ( dpy, win );
+
+    XSync ( dpy, False );
+#endif
+
+#ifdef __MINGW32__
+    /*** Set Context as the current context ***/
+    wglMakeCurrent ( dc, view->glctx );
+
+    /*** GUI Toolkit Independent part ****/
+    /*************************************/
+    if ( sce ) {
+        g3duiview_showGL ( view,
+                           gui, 
+                           sce, 
+                           cam, 
+                           mou, 
+                           current,
+                           gui->engine_flags | view->engine_flags );
+    }
+    /*************************************/
+
+    SwapBuffers ( dc );
+
+    ReleaseDC ( hWnd, dc );
+#endif
+
+    if ( gui->playLock ) {
+        /*** Re-enable real time subdivision ***/
+        gui->engine_flags &= (~ONGOINGANIMATION);
+    }
+	
+
+    return 0x01;
+}
+
+/******************************************************************************/
+void gtk3_addMenuButton ( G3DUI        *gui, 
+                          GtkWidget    *menu, 
+                          G3DMOUSETOOL *mou ) {
     G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
     GtkWidget *btn;
 
@@ -61,7 +324,7 @@ void addGLMenuButton ( G3DUI *gui, GtkWidget *menu, G3DMOUSETOOL *mou ) {
 
     gtk_widget_set_name ( btn, mou->name );
 
-    g_signal_connect( btn, "activate", (GCallback) g3dui_setMouseTool, gui );
+    g_signal_connect( btn, "activate", (GCallback) gtk3_setMouseTool, gui );
 
     gtk_menu_shell_append ( GTK_MENU_SHELL ( menu ), btn );
 
@@ -69,13 +332,15 @@ void addGLMenuButton ( G3DUI *gui, GtkWidget *menu, G3DMOUSETOOL *mou ) {
 }
 
 /******************************************************************************/
-void addMenuListButton ( G3DUI *gui, LIST *lmenu, G3DMOUSETOOL *mou ) {
+void gtk3_addMenuListButton ( G3DUI        *gui, 
+                              LIST         *lmenu, 
+                              G3DMOUSETOOL *mou ) {
     LIST *ltmpmenu = lmenu;
 
     while ( ltmpmenu ) {
         GtkWidget *menu = ( GtkWidget * ) ltmpmenu->data;
 
-        addGLMenuButton ( gui, menu, mou );
+        gtk3_addMenuButton ( gui, menu, mou );
 
         ltmpmenu = ltmpmenu->next;
     }
@@ -182,6 +447,7 @@ GTK3G3DUIVIEW *gtk3_g3duiview_create ( GtkWidget *parent,
                                        gint       width,
                                        gint       height ) {
     GTK3G3DUIVIEW *gtk3gvw = g3tk_g3duiview_new ( );
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
     GdkRectangle  gdkrec  = { 0x00,  0x00, width, height };
     GtkWidget    *layout  = gtk_layout_new ( NULL, NULL );
 
@@ -201,12 +467,43 @@ GTK3G3DUIVIEW *gtk3_g3duiview_create ( GtkWidget *parent,
 
     gtk3gvw->layout = layout;
 
-    gtk3gvw->toolBar = gtk3_g3duiview_createToolbar ( layout,
+    gtk3gvw->menubar = gtk3_g3duiview_createToolbar ( layout,
                                                       "toolbar",
                                                       0,
                                                       0,
                                                       width,
                                                       32 );
+
+    /*** the OpenGL Window ***/
+    gtk3gvw->glarea = gtk_drawing_area_new ( );
+
+    gtk3gui->curogl = gtk3gvw->glarea;
+
+    gtk_widget_set_double_buffered ( gtk3gvw->glarea, FALSE );
+
+    /*** For keyboard inputs ***/
+    gtk_widget_set_can_focus ( gtk3gvw->glarea, TRUE );
+
+    /*** Drawing area does not receive mous events by defaults ***/
+    gtk_widget_set_events ( gtk3gvw->glarea, 
+                            gtk_widget_get_events ( gtk3gvw->glarea ) |
+                            GDK_KEY_PRESS_MASK                        |
+			                GDK_KEY_RELEASE_MASK                      |
+                            GDK_BUTTON_PRESS_MASK                     |
+                            GDK_BUTTON_RELEASE_MASK                   |
+                            GDK_POINTER_MOTION_MASK                   |
+                            GDK_POINTER_MOTION_HINT_MASK );
+
+    g_signal_connect ( G_OBJECT (gtk3gvw->glarea), "size-allocate"       , G_CALLBACK (gtk3_sizeGL ), gtk3gvw );
+    g_signal_connect ( G_OBJECT (gtk3gvw->glarea), "realize"             , G_CALLBACK (gtk3_initGL ), gtk3gvw );
+    g_signal_connect ( G_OBJECT (gtk3gvw->glarea), "draw"                , G_CALLBACK (gtk3_showGL ), gtk3gvw );
+
+    g_signal_connect ( G_OBJECT (gtk3gvw->glarea), "motion_notify_event" , G_CALLBACK (gtk3_inputGL), gtk3gvw );
+    g_signal_connect ( G_OBJECT (gtk3gvw->glarea), "key_press_event"     , G_CALLBACK (gtk3_inputGL), gtk3gvw );
+    g_signal_connect ( G_OBJECT (gtk3gvw->glarea), "key_release_event"   , G_CALLBACK (gtk3_inputGL), gtk3gvw );
+    g_signal_connect ( G_OBJECT (gtk3gvw->glarea), "button_press_event"  , G_CALLBACK (gtk3_inputGL), gtk3gvw );
+    g_signal_connect ( G_OBJECT (gtk3gvw->glarea), "button_release_event", G_CALLBACK (gtk3_inputGL), gtk3gvw );
+
 
     gtk_widget_show ( layout );
 
@@ -1384,7 +1681,7 @@ gboolean gtk3_inputGL ( GtkWidget *widget,
                                             gui->urm,
                                             gui->engine_flags, &g3dev );
 
-            common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
+            gtk3_interpretUIReturnFlags ( gui, msk );
 
             if ( gdkev->type == GDK_BUTTON_RELEASE ) {
                 g3dcursor_reset ( &gui->sce->csr );

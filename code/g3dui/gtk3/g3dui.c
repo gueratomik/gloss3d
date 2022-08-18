@@ -29,6 +29,7 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
+static void gtk3_updateAllCurrentMouseTools ( );
 
 /******************************************************************************/
 GTK3G3DUI *gtk3_getUI ( ) {
@@ -44,6 +45,212 @@ void g3duirectangle_toGdkRec ( G3DUIRECTANGLE *in,
     out->y      = in->y;
     out->width  = in->width;
     out->height = in->height;
+}
+
+/******************************************************************************/
+static void menuItemCallback ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    GTK3G3DUIMENU *gtk3node = ( GTK3G3DUIMENU * ) user_data;
+
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
+
+    if ( gtk3node->node->callback ) {
+        uint64_t ret = gtk3node->node->callback ( gtk3node->node, 
+                                                  gtk3node->data );
+
+        gtk3_interpretUIReturnFlags ( ret );
+    }
+}
+
+/******************************************************************************/
+GTK3G3DUIMENU *gtk3_parseMenu_r ( G3DUIMENU *node, 
+                                  void      *data ) {
+    uint32_t structSize = sizeof ( GTK3G3DUIMENU ); 
+    GTK3G3DUIMENU *gtk3node = ( GTK3G3DUIMENU * ) calloc ( 0x01, structSize );
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+
+    gtk3node->node      = node;
+    gtk3node->data      = data;
+    gtk3node->node->gui = gui;
+
+    switch ( node->type ) {
+        case G3DUIMENUTYPE_SEPARATOR :
+            gtk3node->item = gtk_separator_menu_item_new ( );
+        break;
+
+        case G3DUIMENUTYPE_TOGGLEBUTTON :
+            gtk3node->item = gtk_check_menu_item_new_with_mnemonic ( node->name );
+
+            if ( node->callback ) {
+                g_signal_connect ( G_OBJECT ( gtk3node->item ), 
+                                   "toggled", 
+                                   menuItemCallback, 
+                                   gtk3node );
+            }
+        break;
+
+        case G3DUIMENUTYPE_PUSHBUTTON :
+            node->item = gtk_menu_item_new_with_mnemonic ( node->name );
+
+            if ( node->callback ) {
+                g_signal_connect ( G_OBJECT ( gtk3node->item ), 
+                                   "activate", 
+                                   menuItemCallback, 
+                                   gtk3node );
+            }
+        break;
+
+        case G3DUIMENUTYPE_MENUBAR : {
+            uint32_t i = 0x00;
+
+            gtk3node->menu = gtk_menu_bar_new ( );
+
+            gtk_widget_set_name ( gtk3node->menu, node->name );
+
+            while ( node->nodes[i] != NULL ) {
+                GTK3G3DUIMENU *child = gtk3_parseMenu_r ( node->nodes[i] );
+
+                list_insert ( &gtk3node->lchildren, child );
+
+                i++;
+            }
+
+            gtk_widget_show ( gtk3node->menu );
+        } break;
+
+        case G3DUIMENUTYPE_SUBMENU : {
+            uint32_t i = 0x00;
+
+            gtk3node->menu = gtk_menu_new ( );
+
+            gtk_widget_set_name ( gtk3node->menu, gtk3node->name );
+
+            gtk3node->item = gtk_menu_item_new_with_mnemonic ( node->name );
+
+            gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( gtk3node->item ), gtk3node->menu );
+
+            while ( node->nodes[i] != NULL ) {
+                GTK3G3DUIMENU *child = gtk3_parseMenu_r ( node->nodes[i] );
+
+                gtk_menu_shell_append ( GTK_MENU_SHELL ( gtk3node->menu ), 
+                                        child->item );
+
+                list_insert ( &gtk3node->lchildren, child );
+
+                i++;
+            }
+
+            gtk_widget_show ( gtk3node->menu );
+
+            gtk_widget_set_size_request ( gtk3node->menu, 0x60, 24 );
+        } break;
+
+        default :
+        break;
+    }
+
+    if ( node->type == G3DUIMENUTYPE_SUBMENU  ) {
+        int height = gtk_widget_get_allocated_height ( gtk3node->item );
+        GdkRectangle gdkrec = { 0, 0, 0x60, height };
+
+        /*gtk_widget_set_halign ( node->item, GTK_ALIGN_CENTER );*/
+
+    /*gtk_widget_size_allocate ( node->item, &gdkrec );*/
+
+        gtk_widget_set_size_request ( gtk3node->item, 0x60, height );
+    }
+
+    /*gtk_widget_set_name ( gtk3node->item, node->name );*/
+    gtk_widget_show ( gtk3node->item );
+
+
+    return gtk3node;
+}
+
+/******************************************************************************/
+void gtk3_updateMenu_r ( GTK3G3DUIMENU *gtk3node,
+                         G3DUI         *gui ) {
+    G3DUIMENU *node = ( G3DUIMENU * ) gtk3node;
+
+    switch ( node->type ) {
+        case G3DUIMENUTYPE_SEPARATOR :
+        break;
+
+        case G3DUIMENUTYPE_TOGGLEBUTTON :
+
+        break;
+
+        case G3DUIMENUTYPE_PUSHBUTTON :
+        break;
+
+        case G3DUIMENUTYPE_MENUBAR :
+        case G3DUIMENUTYPE_SUBMENU : {
+            uint32_t i = 0x00;
+
+            while ( node->nodes[i] != NULL ) {
+                updateMenu_r ( ( GTK3G3DUIMENU * ) node->nodes[i], gui );
+
+                i++;
+            }
+        } break;
+
+        default :
+        break;
+    }
+
+    if ( node->item ) {
+        if ( node->condition ) {
+            if ( node->condition ( gui ) == 0x00 ) {
+                gtk_widget_set_sensitive ( gtk3node->item, FALSE );
+            } else {
+                gtk_widget_set_sensitive ( gtk3node->item, TRUE  );
+            }
+        } else {
+            gtk_widget_set_sensitive ( gtk3node->item, TRUE  );
+        }
+    }
+}
+
+/******************************************************************************/
+void gtk3_setMouseTool ( GtkWidget *widget, 
+                         gpointer   user_data ) {
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+    const char  *name = gtk_widget_get_name ( widget );
+    G3DMOUSETOOL *mou = g3dui_getMouseTool ( gui, name );
+    G3DCAMERA *cam = g3dui_getCurrentViewCamera ( gui );
+
+    if ( gui->lock ) return;
+
+    if ( mou ) {
+        g3dui_setMouseTool ( gui, cam, mou );
+
+        if ( ( mou->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
+            /*** Remember that widget ID, for example to be unset when a toggle button 
+            from another parent widget is called (because XmNradioBehavior won't talk
+            to other parent widget ***/
+            if ( gtk3gui->curmou && widget != gtk3gui->curmou ) {
+                gui->lock = 0x01;
+
+                if ( GTK_IS_TOGGLE_TOOL_BUTTON ( gtk3gui->curmou ) ) {
+                    GtkToggleToolButton *ttb = GTK_TOGGLE_TOOL_BUTTON(gtk3gui->curmou);
+
+                    gtk_toggle_tool_button_set_active ( ttb, FALSE );
+                }
+
+                gui->lock = 0x00;
+                /*XtVaSetValues ( ggt->curmou, XmNset, False, NULL );*/
+            }
+
+            gtk3gui->curmou = widget;
+
+           gtk3_updateAllCurrentMouseTools ( gui );
+        }
+    } else {
+        fprintf ( stderr, "No such mousetool %s\n", name );
+    }
 }
 
 /******************************************************************************/
@@ -313,12 +520,20 @@ static void dispatchGLMenuButton ( G3DMOUSETOOL *mou,
 }
 
 /******************************************************************************/
-void ui_interpretMouseToolReturnFlags ( uint32_t msk ) {
+void gtk3_interpretUIReturnFlags ( uint64_t msk ) {
     GTK3G3DUI *gtk3gui = gtk3_getUI ( );
     G3DUI *gui = ( G3DUI * ) gtk3gui;
 
     if ( msk & REDRAWVIEW ) {
         gtk3_redrawGLViews ( );
+    }
+
+    if ( msk & REDRAWVIEWMENU ) {
+        gtk3_updateGLViewsMenu ( );
+    }
+
+    if ( msk & REDRAWCURRENTMATERIAL ) {
+        gtk3_updateMaterialEdit ( );
     }
 
     if ( msk & REDRAWMATERIALLIST ) {
@@ -376,9 +591,9 @@ void gtk3_initDefaultMouseTools ( G3DCAMERA *cam ) {
     g3dui_addMouseTool ( gui, mou );
 
     /*** Pick is the default mouse tool ***/
-    interpretMouseToolReturnFlags ( gui, g3dui_setMouseTool ( gui, 
-                                                              cam, 
-                                                              mou ) );
+    gtk3_interpretUIReturnFlags ( g3dui_setMouseTool ( gui, 
+                                                       cam, 
+                                                       mou ) );
 
     /********************************/
 

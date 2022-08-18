@@ -112,14 +112,16 @@
 #define REDRAWCOORDS          ( 1 <<  3 )
 #define REDRAWPARAMS          ( 1 <<  4 )
 #define REDRAWCURRENTOBJECT   ( 1 <<  5 )
-#define REDRAWTIMELINE        ( 1 <<  6 )
-#define REDRAWMATERIALLIST    ( 1 <<  7 )
-#define REBUILDMATERIALLIST   ( 1 <<  8 )
-#define NOBUFFEREDSUBDIVISION ( 1 <<  9 )
-#define BUFFEREDSUBDIVISIONOK ( 1 << 10 )
+#define REDRAWCURRENTMATERIAL ( 1 <<  6 )
+#define REDRAWTIMELINE        ( 1 <<  7 )
+#define REDRAWMATERIALLIST    ( 1 <<  8 )
+#define REBUILDMATERIALLIST   ( 1 <<  9 )
+#define NOBUFFEREDSUBDIVISION ( 1 << 10 )
+#define BUFFEREDSUBDIVISIONOK ( 1 << 11 )
 #define REDRAWALL             ( REDRAWVIEW | REDRAWLIST | REDRAWCOORDS | \
                                 REDRAWUVMAPEDITOR |\
                                 REDRAWPARAMS | REDRAWCURRENTOBJECT | \
+                                REDRAWCURRENTMATERIAL | \
                                 REDRAWTIMELINE )
 
 #define PICKMINRADIUS 0x10

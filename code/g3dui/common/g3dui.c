@@ -509,6 +509,25 @@ uint32_t g3dui_setMouseTool ( G3DUI        *gui,
 }
 
 /******************************************************************************/
+G3DMOUSETOOL *g3dui_getMouseTool ( G3DUI      *gui, 
+                                   const char *name ) {
+    LIST *ltmp = gui->lmou;
+
+    while ( ltmp ) {
+        G3DMOUSETOOL *mou = ( G3DMOUSETOOL * ) ltmp->data;
+
+        if ( strcmp ( mou->name, name ) == 0x00 ) {
+
+            return mou;
+        }
+
+        ltmp = ltmp->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 void g3dui_addMouseTool ( G3DUI        *gui, 
                           G3DMOUSETOOL *mou ) {
     list_insert ( &gui->lmou, mou );
@@ -553,7 +572,7 @@ void g3dui_resetDefaultCameras ( G3DUI *gui ) {
 
 /******************************************************************************/
 /*** Create the 4 default cameras ***/
-void g3dui_createDefaultCameras ( G3DUI *gui ) {
+void g3dui_createDefau-l+-tCameras ( G3DUI *gui ) {
     uint32_t ptrSize = sizeof ( G3DCAMERA * );
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
@@ -594,6 +613,128 @@ void g3dui_createDefaultCameras ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+void g3dui_setFileName ( G3DUI      *gui,
+                         const char *filename ) {
+    int len;
+
+    if ( gui->filename ) {
+        free ( gui->filename );
+
+        gui->filename = NULL;
+    }
+
+    len = strlen ( filename );
+
+    /*** 0x04 is for the extension ***/
+    if ( strstr ( filename, ".g3d" ) ) {
+        gui->filename = ( char * ) calloc ( len + 0x01       , sizeof ( char ) );
+    } else {
+        gui->filename = ( char * ) calloc ( len + 0x01 + 0x04, sizeof ( char ) );
+
+        strncpy ( gui->filename + len, ".g3d", 0x04 );
+    }
+
+    if ( gui->filename == NULL ) {
+        fprintf ( stderr, "g3duiSaveG3DFile: calloc failed\n" );
+    } else {
+        memcpy ( gui->filename, filename, len );
+    }
+}
+
+/******************************************************************************/
+uint64_t g3dui_openG3DFile ( G3DUI      *gui, 
+                             const char *filename ) {
+    G3DIMPORTV3EXTENSION *r3dext,
+                         *g3duiext;
+    LIST *lext = NULL;
+    LIST *lrsg = NULL;
+
+    g3dui_setHourGlass ( gui );
+
+#ifdef __linux__
+    if ( access( filename, F_OK ) == 0x00 ) {
+#endif
+#ifdef __MINGW32__
+    if ( PathFileExists ( filename ) ) {
+#endif
+        printf ( "Opening %s ...\n", filename );
+
+        g3durmanager_clear ( gui->urm );
+
+        /*** free memory the previous scene ***/
+        if ( gui->sce ) {
+            g3dobject_free ( ( G3DOBJECT * ) gui->sce );
+        }
+
+        list_free ( &gui->lrsg, q3dsettings_free );
+
+        /* import render settings module */
+        r3dext = g3dimportv3extension_new ( SIG_RENDERSETTINGS_EXTENSION,
+                                          q3dsettings_read,
+                                         &lrsg );
+        /* import G3DUI settings module */
+        g3duiext = g3dimportv3extension_new ( SIG_G3DUI,
+                                              g3dui_read,
+                                              gui );
+
+        list_insert ( &lext, r3dext   );
+        list_insert ( &lext, g3duiext );
+
+        gui->sce = g3dscene_importv3 ( filename, NULL, lext, gui->engine_flags );
+    }
+
+    if ( lrsg ) {
+        G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+        LIST *ltmprsg = lrsg;
+
+        while ( ltmprsg ) {
+            Q3DSETTINGS *rsg = ( Q3DSETTINGS * ) ltmprsg->data;
+
+            /*if ( rsg->flags & RENDERDEFAULT ) {*/
+                gui->currsg = rsg;
+                g3dui_addRenderSettings ( gui, rsg );
+                g3dui_useRenderSettings ( gui, rsg );
+
+                /*** that's kind of a global variable, because ***/
+                /*** I did not want to change the engine to display ***/
+                /*** a background image. But this must be redesigned **/
+                sysinfo->backgroundImage = rsg->background.image;
+            /*}*/
+
+            ltmprsg = ltmprsg->next;
+        }
+    } else {
+        Q3DSETTINGS *defaultRsg = q3dsettings_new ( );
+
+        g3dui_addRenderSettings ( gui, defaultRsg );
+        g3dui_useRenderSettings ( gui, defaultRsg );
+    }
+
+    g3dimportv3extension_free ( g3duiext );
+    g3dimportv3extension_free ( r3dext   );
+
+    list_free ( &lext, NULL );
+    list_free ( &lrsg, NULL );
+
+    if ( gui->sce ) {
+        g3dui_setFileName ( gui, filename );
+
+        printf ( "...Done!\n" );
+    } else {
+        gui->sce = g3dscene_new ( 0x00, "Gloss3D scene" );
+    }
+
+    g3dui_unsetHourGlass ( gui );
+
+    return REDRAWVIEW          |
+           REBUILDMATERIALLIST |
+           REDRAWVIEWMENU      |
+           REDRAWLIST          |
+           REDRAWCOORDS        |
+           REDRAWCURRENTOBJECT;
+}
+
+/******************************************************************************/
 void g3dui_init ( G3DUI *gui ) {
     Q3DSETTINGS *rsg;
     #ifdef __linux__
@@ -631,14 +772,4 @@ void g3dui_init ( G3DUI *gui ) {
 
     g3dui_addRenderSettings ( gui, rsg );
     g3dui_useRenderSettings ( gui, rsg );
-
-    /*** Add mouse tools AFTER GLViews creation ***/
-    g3dui_initDefaultMouseTools ( gui, g3dui_getMainViewCamera ( gui ) );
-
-    /*** File loading must be done AFTER OpenGL init ***/
-    if ( gui->loadFile ) {
-        g3dui_openG3DFile ( gui, gui->loadFile );
-    } else {
-        gui->sce = g3dscene_new  ( 0x00, "Gloss3D scene" );
-    }
 }

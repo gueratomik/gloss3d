@@ -702,8 +702,25 @@ typedef struct _G3DUI {
 } G3DUI;
 
 /******************************************************************************/
+#define G3DUIMENUTYPE_PUSHBUTTON   0x00
+#define G3DUIMENUTYPE_TOGGLEBUTTON 0x01
+#define G3DUIMENUTYPE_SEPARATOR    0x02
+#define G3DUIMENUTYPE_SUBMENU      0x03
+#define G3DUIMENUTYPE_MENUBAR      0x04
+
+typedef struct _G3DUIMENU {
+    G3DUI             *gui;
+    unsigned char     *name;
+    uint32_t           type;
+    uint32_t         (*condition) ( G3DUI *gui );
+    uint64_t          (*callback) ( struct _G3DUIMENU *menu, void *data );
+    struct _G3DUIMENU *nodes[];
+} G3DUIMENU;
+
+/******************************************************************************/
 typedef struct _G3DUIMAIN {
-    G3DUI *gui;
+    G3DUI          *gui;
+    G3DUIMENU      *menu;
     G3DUIRECTANGLE  menurec;
     G3DUIRECTANGLE  tbarrec;
     G3DUIRECTANGLE  mbarrec;
@@ -1196,7 +1213,8 @@ void g3duiclipboard_copyFaceSculptExtension ( G3DUICLIPBOARD         *cli,
                                               G3DFACE                *fac );
 
 /******************************************************************************/
-void      common_g3dui_openG3DFile          ( G3DUI *, const char * );
+uint64_t g3dui_openG3DFile ( G3DUI      *gui, 
+                             const char *filename );
 void      common_g3dui_setMouseTool         ( G3DUI        *gui, 
                                               G3DCAMERA    *cam,
                                               G3DMOUSETOOL *mou );
@@ -1204,7 +1222,8 @@ void      common_m3dui_setUVMouseTool ( M3DUI *mui,
                                                    G3DCAMERA    *cam, 
                                                    G3DMOUSETOOL *mou );
 void      common_g3dui_saveG3DFile          ( G3DUI * );
-void      common_g3dui_setFileName          ( G3DUI *, const char * );
+void g3dui_setFileName ( G3DUI      *gui,
+                         const char *filename );
 void      common_g3dui_resizeWidget         ( G3DUI *, uint32_t, 
                                                        uint32_t );
 void      common_g3dui_setMode              ( G3DUI *, const char * );
@@ -1981,5 +2000,7 @@ G3DSCENE *g3dui_importfileokcbk ( G3DUI      *gui,
                                   const char *filename );
 void g3dui_saveG3DFile ( G3DUI *gui );
 
+G3DMOUSETOOL *g3dui_getMouseTool ( G3DUI      *gui, 
+                                   const char *name );
 
 #endif

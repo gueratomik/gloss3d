@@ -357,7 +357,8 @@ GtkWidget *gtk3_g3duimain_create ( GtkWidget *parent,
                                    gint       x,
                                    gint       y,
                                    gint       width,
-                                   gint       height ) {
+                                   gint       height,
+                                   char      *filename ) {
     GTK3G3DUIMAIN *gtk3gmn = g3tk_g3duimain_new ( );
     GdkRectangle  gdkrec  = { 0x00,  0x00, width, height };
     GtkWidget    *layout  = gtk_layout_new ( NULL, NULL );
@@ -385,7 +386,18 @@ GtkWidget *gtk3_g3duimain_create ( GtkWidget *parent,
                                                   width,
                                                   32 );
 
+    
+
     gtk_widget_show ( layout );
+
+
+    /*** File loading must be done AFTER OpenGL init ***/
+    if ( filename ) {
+        gtk3_interpretUIReturnFlags ( g3dui_openG3DFile ( gui, filename ) );
+    } else {
+        gui->sce = g3dscene_new  ( 0x00, "Gloss3D scene" );
+    }
+
 
     return layout;
 }

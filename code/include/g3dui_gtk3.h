@@ -105,15 +105,13 @@ GType      gtk_form_get_type    (void) G_GNUC_CONST;
 GtkWidget *gtk_form_new ( );
 
 /******************************************************************************/
-typedef struct _G3DUIMENU {
-    unsigned char     *name;
-    uint32_t           type;
-    uint32_t         (*condition) ( G3DUI *gui );
-    void              *callback;
-    GtkWidget         *item;
-    GtkWidget         *menu;
-    struct _G3DUIMENU *nodes[];
-} G3DUIMENU;
+typedef struct _GTK3G3DUIMENU {
+    G3DUIMENU *node;
+    GtkWidget *item;
+    GtkWidget *menu;
+    LIST      *lchildren;
+    void      *data; /*** passed to the callback ***/
+} GTK3G3DUIMENU;
 
 /******************************************************************************/
 typedef struct _G3DUIWIDGETGROUP {
@@ -179,6 +177,7 @@ typedef struct _GTK3G3DUITOOLBAR {
 /******************************************************************************/
 typedef struct _GTK3G3DUIVIEW {
     G3DUIVIEW  grp;
+    GtkWidget *menubar;
     GtkWidget *layout;
     GtkWidget *btnarea;
     GtkWidget *glarea;
@@ -1124,10 +1123,9 @@ GtkWidget *gtk3_g3duimain_create ( GtkWidget *parent,
                                    gint       x,
                                    gint       y,
                                    gint       width,
-                                   gint       height );
-
-void gtk3_g3dui_interpretMouseToolReturnFlags ( G3DUI   *gui, 
-                                                uint32_t msk );
+                                   gint       height,
+                                   char      *filename );
+void gtk3_interpretUIReturnFlags ( uint64_t msk );
 void gtk3_g3dui_dispatchGLMenuButton ( G3DUI        *gui, 
                                        G3DMOUSETOOL *mou, 
                                        uint32_t      tool_flags );
@@ -1154,5 +1152,14 @@ GTK3G3DUI *gtk3_getUI ( );
 
 void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in, 
                                      GdkRectangle   *out  );
+
+void gtk3_addMenuListButton ( G3DUI        *gui, 
+                              LIST         *lmenu, 
+                              G3DMOUSETOOL *mou );
+void gtk3_addMenuButton     ( G3DUI        *gui, 
+                              GtkWidget    *menu, 
+                              G3DMOUSETOOL *mou );
+void gtk3_setMouseTool ( GtkWidget *widget, 
+                         gpointer   user_data );
 
 #endif
