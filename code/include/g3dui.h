@@ -663,8 +663,9 @@ typedef struct _G3DUI {
 
     LIST         *limg; /*** List of images (among them are textures) ***/
     LIST         *lrps; /*** list of render process ***/
-    LIST *lmou; /*** list of mousetools ***/
-    G3DMATERIAL   *selmat;
+    LIST         *lmou; /*** list of mousetools ***/
+    LIST         *lselmat;
+    /*G3DMATERIAL   *selmat;*/
     G3DURMANAGER  *urm;
     /*R3DNETSERVER  *srv;
     R3DNETCLIENT  *clt;*/
@@ -735,6 +736,41 @@ typedef struct _G3DUIMAIN {
 typedef struct _G3DUITOOLBAR {
     G3DUI *gui;
 } G3DUITOOLBAR;
+
+/******************************************************************************/
+typedef struct _G3DUILIGHTEDIT {
+    G3DUI *gui;
+} G3DUILIGHTEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIFFDEDIT {
+    G3DUI *gui;
+} G3DUIFFDEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUICUBEEDIT {
+    G3DUI *gui;
+} G3DUICUBEEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIMESHEEDIT {
+    G3DUI *gui;
+} G3DUIMESHEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUICYLINDEREDIT {
+    G3DUI *gui;
+} G3DUICYLINDEREDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIINSTANCEEDIT {
+    G3DUI *gui;
+} G3DUIINSTANCEEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIKEYEDIT {
+    G3DUI *gui;
+} G3DUIKEYEDIT;
 
 /******************************************************************************/
 #define G3DUIWIDGET_TAB          0x02

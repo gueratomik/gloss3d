@@ -55,12 +55,16 @@ static void menuItemCallback ( GtkWidget *widget,
     /*** prevents a loop ***/
     if ( gui->lock ) return;
 
+    gtk3_setHourGlass ( );
+
     if ( gtk3node->node->callback ) {
         uint64_t ret = gtk3node->node->callback ( gtk3node->node, 
                                                   gtk3node->data );
 
         gtk3_interpretUIReturnFlags ( ret );
     }
+
+    gtk3_unsetHourGlass ( );
 }
 
 /******************************************************************************/
@@ -171,10 +175,11 @@ GTK3G3DUIMENU *gtk3_parseMenu_r ( G3DUIMENU *node,
 
 /******************************************************************************/
 void gtk3_updateMenu_r ( GTK3G3DUIMENU *gtk3node,
-                         G3DUI         *gui ) {
-    G3DUIMENU *node = ( G3DUIMENU * ) gtk3node;
+                         void          *data ) {
+    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
 
-    switch ( node->type ) {
+    switch ( gtk3node->node->type ) {
         case G3DUIMENUTYPE_SEPARATOR :
         break;
 
@@ -187,12 +192,14 @@ void gtk3_updateMenu_r ( GTK3G3DUIMENU *gtk3node,
 
         case G3DUIMENUTYPE_MENUBAR :
         case G3DUIMENUTYPE_SUBMENU : {
-            uint32_t i = 0x00;
+            LIST *ltmpchildren = gtk3node->lchildren;
 
-            while ( node->nodes[i] != NULL ) {
-                updateMenu_r ( ( GTK3G3DUIMENU * ) node->nodes[i], gui );
+            while ( GTK3G3DUIMENU ) {
+                GTK3G3DUIMENU *child = ( GTK3G3DUIMENU * ) ltmpchildren->data;
 
-                i++;
+                gtk3_updateMenu_r ( child, data );
+
+                ltmpchildren = ltmpchildren->next;
             }
         } break;
 
@@ -200,9 +207,9 @@ void gtk3_updateMenu_r ( GTK3G3DUIMENU *gtk3node,
         break;
     }
 
-    if ( node->item ) {
-        if ( node->condition ) {
-            if ( node->condition ( gui ) == 0x00 ) {
+    if ( gtk3node->item ) {
+        if ( gtk3node->node->condition ) {
+            if ( gtk3node->node->condition ( gui ) == 0x00 ) {
                 gtk_widget_set_sensitive ( gtk3node->item, FALSE );
             } else {
                 gtk_widget_set_sensitive ( gtk3node->item, TRUE  );
@@ -211,6 +218,11 @@ void gtk3_updateMenu_r ( GTK3G3DUIMENU *gtk3node,
             gtk_widget_set_sensitive ( gtk3node->item, TRUE  );
         }
     }
+}
+
+/******************************************************************************/
+void gtk3_updateMenuBar ( G3DUIGTK3 *gtk3gui ) {
+    updateMenu_r ( gtk3gui->menuBar, &gtk3gui->gui );
 }
 
 /******************************************************************************/
@@ -534,6 +546,7 @@ void gtk3_interpretUIReturnFlags ( uint64_t msk ) {
 
     if ( msk & REDRAWCURRENTMATERIAL ) {
         gtk3_updateMaterialEdit ( );
+        gtk3_updateSelectedMaterialPreview ( );
     }
 
     if ( msk & REDRAWMATERIALLIST ) {

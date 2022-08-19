@@ -120,7 +120,8 @@ typedef struct _G3DUIWIDGETGROUP {
 
 /******************************************************************************/
 typedef struct _GTK3G3DUI {
-    G3DUI gui;
+    G3DUI          gui;
+    GTK3G3DUIMENU *menuBar;
     /* context menus for all objects */
     LIST         *lObjectModeMenu;
     /* context menus for meshes */
@@ -1147,6 +1148,8 @@ void gtk3_g3dui_updateSelectedMaterialPreview ( );
 void gtk3_g3dui_updateKeyEdit ( );
 void gtk3_g3dui_updateAllCurrentMouseTools ( );
 void gtk3_initDefaultMouseTools ( G3DCAMERA *cam );
+
+void gtk3_updateMenuBar ( G3DUIGTK3 *gtk3gui );
 
 GTK3G3DUI *gtk3_getUI ( );
 
