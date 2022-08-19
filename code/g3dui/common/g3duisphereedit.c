@@ -31,93 +31,109 @@
 
 
 /******************************************************************************/
-void common_g3duisphereedit_togglePerfectCbk ( G3DUI *gui ) {
+uint64_t g3duisphereedit_togglePerfectCbk ( G3DUISPHEREEDIT *sphedit ) {
+    G3DUI *gui = sphedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DSPHERETYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        SPHEREDATASTRUCT *sds = ( SPHEREDATASTRUCT * ) pri->data;
+        if ( sel->type == G3DSPHERETYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            SPHEREDATASTRUCT *sds = ( SPHEREDATASTRUCT * ) pri->data;
 
-        g3dui_setHourGlass ( gui );
-
-        if ( obj->flags & SPHEREISPERFECT ) {
-            obj->flags &= (~SPHEREISPERFECT);
-        } else {
-            obj->flags |=   SPHEREISPERFECT;
+            if ( obj->flags & SPHEREISPERFECT ) {
+                obj->flags &= (~SPHEREISPERFECT);
+            } else {
+                obj->flags |=   SPHEREISPERFECT;
+            }
         }
 
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duisphereedit_radiusCbk ( G3DUI *gui, float radius ) {
+uint64_t g3duisphereedit_radiusCbk ( G3DUISPHEREEDIT *sphedit,
+                                     float            radius ) {
+    G3DUI *gui = sphedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DSPHERETYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        SPHEREDATASTRUCT *sds = ( SPHEREDATASTRUCT * ) pri->data;
+        if ( sel->type == G3DSPHERETYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            SPHEREDATASTRUCT *sds = ( SPHEREDATASTRUCT * ) pri->data;
 
-        g3dui_setHourGlass ( gui );
+            g3dsphere_build ( pri,
+                              sds->slice,
+                              sds->cap,
+                              radius );
+        }
 
-        g3dsphere_build ( pri, sds->slice, sds->cap, radius );
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duisphereedit_capCbk ( G3DUI *gui, int cap ) {
+uint64_t g3duisphereedit_capCbk ( G3DUISPHEREEDIT *sphedit,
+                                  uint32_t         cap ) {
+    G3DUI *gui = sphedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DSPHERETYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        SPHEREDATASTRUCT *sds = ( SPHEREDATASTRUCT * ) pri->data;
+        if ( sel->type == G3DSPHERETYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            SPHEREDATASTRUCT *sds = ( SPHEREDATASTRUCT * ) pri->data;
 
-        g3dui_setHourGlass ( gui );
+            g3dsphere_build ( pri,
+                              sds->slice,
+                              cap,
+                              sds->radius );
+        }
 
-        g3dsphere_build ( pri, sds->slice, cap, sds->radius );
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duisphereedit_sliceCbk ( G3DUI *gui, int slice ) {
+uint64_t g3duisphereedit_sliceCbk ( G3DUISPHEREEDIT *sphedit,
+                                    uint32_t         slice ) {
+    G3DUI *gui = sphedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DSPHERETYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        SPHEREDATASTRUCT *sds = ( SPHEREDATASTRUCT * ) pri->data;
+        if ( sel->type == G3DSPHERETYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            SPHEREDATASTRUCT *sds = ( SPHEREDATASTRUCT * ) pri->data;
 
-        g3dui_setHourGlass ( gui );
+            g3dsphere_build ( pri,
+                              slice,
+                              sds->cap,
+                              sds->radius );
+        }
 
-        g3dsphere_build ( pri, slice, sds->cap, sds->radius );
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }

@@ -110,7 +110,7 @@ uint64_t g3duilightedit_castShadowsCbk ( G3DUILIGHTEDIT *ligedit ) {
     LIST *ltmpselobj = sce->lsel;
 
     while ( ltmpselobj ) {
-        G3DOBJECT sel = ( G3DOBJECT * ) ltmpselobj->data;
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
         if ( sel->type == G3DLIGHTTYPE ) {
             G3DLIGHT *lig = ( G3DLIGHT * ) sel;
@@ -206,7 +206,7 @@ uint64_t g3duilightedit_shadowSampleCbk ( G3DUILIGHTEDIT *ligedit,
 }
 
 /******************************************************************************/
-uint64_t g3duilightedit_setDiffuseCbk ( G3DUILIGHTEDIT *ligedit
+uint64_t g3duilightedit_setDiffuseCbk ( G3DUILIGHTEDIT *ligedit,
                                         uint32_t        red,
                                         uint32_t        green,
                                         uint32_t        blue ) {

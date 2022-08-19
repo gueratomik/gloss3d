@@ -568,6 +568,10 @@ void gtk3_interpretUIReturnFlags ( uint64_t msk ) {
         gtk3_updateMenuBar    ( );
     }
 
+    if ( msk & REDRAWCURRENTMOUSETOOL ) {
+        gtk3_updateAllCurrentMouseTools ( );
+    }
+
     if ( msk & REDRAWCURRENTOBJECT ) {
         gtk3_updateAllCurrentEdit ( );
     }

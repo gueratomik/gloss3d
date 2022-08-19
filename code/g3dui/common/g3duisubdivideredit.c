@@ -30,125 +30,162 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duisubdivideredit_displacementHeightCbk ( G3DUI *gui ) {
+uint64_t g3duisubdivideredit_displacementHeightCbk ( G3DUISUBDIVIDEREDIT *subedit ) {
+    G3DUI *gui = subedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
-        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-        g3dsubdivider_setSculptMode ( sdr, SCULPTMODE_HEIGHT, gui->engine_flags );
-    }
-}
+        if ( sel->type == G3DSUBDIVIDERTYPE ) {
+            G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) sel;
 
-/******************************************************************************/
-void common_g3duisubdivideredit_displacementSculptCbk ( G3DUI *gui ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
-        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
-
-        g3dsubdivider_setSculptMode ( sdr, SCULPTMODE_SCULPT, gui->engine_flags );
-    }
-}
-
-/******************************************************************************/
-void common_g3duisubdivideredit_subdivSyncCbk ( G3DUI *gui ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
-
-    if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
-        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
-
-        if ( obj->flags & SYNCLEVELS ) {
-            g3dsubdivider_unsetSyncSubdivision ( sdr );
-        } else {
-            g3dsubdivider_setSyncSubdivision   ( sdr );
-        }
-    }
-}
-
-/******************************************************************************/
-void common_g3duisubdivideredit_useIsoLinesCbk ( G3DUI *gui ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
-
-    if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
-        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
-
-        g3dui_setHourGlass ( gui );
-
-        if ( obj->flags & MESHUSEISOLINES ) {
-            obj->flags &= (~MESHUSEISOLINES);
-        } else {
-            obj->flags |= MESHUSEISOLINES;
+            g3dsubdivider_setSculptMode ( sdr, 
+                                          SCULPTMODE_HEIGHT,
+                                          gui->engine_flags );
         }
 
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duisubdivideredit_subdivRenderCbk ( G3DUI *gui, int level ) {
+uint64_t g3duisubdivideredit_displacementSculptCbk ( G3DUISUBDIVIDEREDIT *subedit ) {
+    G3DUI *gui = subedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
-        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+        if ( sel->type == G3DSUBDIVIDERTYPE ) {
+            G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) sel;
 
-        g3dui_setHourGlass ( gui );
-
-        sdr->subdiv_render = level;
-
-        if ( obj->flags & SYNCLEVELS ) {
-            sdr->subdiv_preview = sdr->subdiv_render;
+            g3dsubdivider_setSculptMode ( sdr,
+                                          SCULPTMODE_SCULPT,
+                                          gui->engine_flags );
         }
 
-        g3dui_unsetHourGlass ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
 
-    g3dui_redrawGLViews ( gui );
+
+    return REDRAWVIEW;
 }
 
-
 /******************************************************************************/
-void common_g3duisubdivideredit_subdivPreviewCbk ( G3DUI *gui, int level ) {
+uint64_t g3duisubdivideredit_subdivSyncCbk ( G3DUISUBDIVIDEREDIT *subedit ) {
+    G3DUI *gui = subedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
-        G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
-        uint32_t preview = level,
-                 render  = ( obj->flags & SYNCLEVELS ) ? preview :
-                                                         sdr->subdiv_render; 
-        g3dui_setHourGlass ( gui );
+        if ( sel->type == G3DSUBDIVIDERTYPE ) {
+            G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) sel;
 
-        g3dsubdivider_setLevels ( sdr,
-                                  preview, 
-                                  render, 
-                                  gui->engine_flags );
+            if ( obj->flags & SYNCLEVELS ) {
+                g3dsubdivider_unsetSyncSubdivision ( sdr );
+            } else {
+                g3dsubdivider_setSyncSubdivision   ( sdr );
+            }
+        }
 
-        /*g3dmodifier_modify_r ( sdr, gui->engine_flags );*/
-
-        g3dui_unsetHourGlass ( gui );
-
-        /*g3dmesh_setSubdivisionLevel ( mes, level, gui->engine_flags );*/
+        ltmpselobj = ltmpselobj->next;
     }
 
-    g3dui_redrawGLViews ( gui );
+
+    return REDRAWVIEW | REDRAWCURRENTOBJECT;
+}
+
+/******************************************************************************/
+uint64_t g3duisubdivideredit_useIsoLinesCbk ( G3DUISUBDIVIDEREDIT *subedit ) {
+    G3DUI *gui = subedit->gui;
+    G3DSCENE *sce = gui->sce;
+    LIST *ltmpselobj = sce->lsel;
+
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+
+        if ( sel->type == G3DSUBDIVIDERTYPE ) {
+            G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) sel;
+
+            if ( obj->flags & MESHUSEISOLINES ) {
+                obj->flags &= (~MESHUSEISOLINES);
+            } else {
+                obj->flags |= MESHUSEISOLINES;
+            }
+        }
+
+        ltmpselobj = ltmpselobj->next;
+    }
+
+
+    return REDRAWVIEW;
+}
+
+/******************************************************************************/
+uint64_t g3duisubdivideredit_subdivRenderCbk ( G3DUISUBDIVIDEREDIT *subedit,
+                                               uint32_t             level ) {
+    G3DUI *gui = subedit->gui;
+    G3DSCENE *sce = gui->sce;
+    LIST *ltmpselobj = sce->lsel;
+
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+
+        if ( sel->type == G3DSUBDIVIDERTYPE ) {
+            G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) sel;
+
+            sdr->subdiv_render = level;
+
+            if ( obj->flags & SYNCLEVELS ) {
+                sdr->subdiv_preview = sdr->subdiv_render;
+            }
+        }
+
+        ltmpselobj = ltmpselobj->next;
+    }
+
+
+    return REDRAWCURRENTOBJECT;
+}
+
+/******************************************************************************/
+uint64_t g3duisubdivideredit_subdivPreviewCbk ( G3DUISUBDIVIDEREDIT *subedit,
+                                                uint32_t             level ) {
+    G3DUI *gui = subedit->gui;
+    G3DSCENE *sce = gui->sce;
+    LIST *ltmpselobj = sce->lsel;
+
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+
+        if ( sel->type == G3DSUBDIVIDERTYPE ) {
+            G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) sel;
+            uint32_t preview = level,
+                     render  = ( obj->flags & SYNCLEVELS ) ? preview :
+                                                             sdr->subdiv_render; 
+
+            g3dsubdivider_setLevels ( sdr,
+                                      preview, 
+                                      render, 
+                                      gui->engine_flags );
+
+            /*g3dmodifier_modify_r ( sdr, gui->engine_flags );*/
+
+
+            /*g3dmesh_setSubdivisionLevel ( mes, level, gui->engine_flags );*/
+        }
+
+        ltmpselobj = ltmpselobj->next;
+    }
+
+
+    return REDRAWCURRENTOBJECT;
 }

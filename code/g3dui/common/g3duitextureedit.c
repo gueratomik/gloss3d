@@ -30,11 +30,10 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duitextureedit_toggleRestrictCbk ( G3DUI *gui ) {
+uint64_t g3duitextureedit_toggleRestrictCbk ( G3DUITEXTUREDIT *texedit ) {
+    G3DUI *gui = texedit->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    if ( gui->lock ) return;
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
@@ -51,15 +50,15 @@ void common_g3duitextureedit_toggleRestrictCbk ( G3DUI *gui ) {
         }
     }
 
-    g3dui_redrawGLViews ( gui );
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duitextureedit_toggleRepeatCbk ( G3DUI *gui ) {
+uint64_t g3duitextureedit_toggleRepeatCbk ( G3DUITEXTUREDIT *texedit ) {
+    G3DUI *gui = texedit->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    if ( gui->lock ) return;
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
@@ -76,15 +75,16 @@ void common_g3duitextureedit_toggleRepeatCbk ( G3DUI *gui ) {
         }
     }
 
-    g3dui_redrawGLViews ( gui );
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duitextureedit_setUVMapCbk ( G3DUI *gui, uint32_t rank ) {
+uint64_t g3duitextureedit_setUVMapCbk ( G3DUITEXTUREDIT *texedit,
+                                        uint32_t         rank ) {
+    G3DUI *gui = texedit->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    if ( gui->lock ) return;
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
@@ -101,4 +101,7 @@ void common_g3duitextureedit_setUVMapCbk ( G3DUI *gui, uint32_t rank ) {
             }
         }
     }
+
+
+    return REDRAWVIEW;
 }

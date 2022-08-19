@@ -700,6 +700,9 @@ typedef struct _G3DUI {
     uint32_t playLock;
     LIST *lexportExtensions; /* list of G3DEXPORTEXTENSION */
     Q3DFILTER *toframe;
+
+
+    LIST *lview;
 } G3DUI;
 
 /******************************************************************************/
@@ -738,9 +741,29 @@ typedef struct _G3DUITOOLBAR {
 } G3DUITOOLBAR;
 
 /******************************************************************************/
+typedef struct _G3DUITIMEBOARD {
+    G3DUI *gui;
+} G3DUITIMEBOARD;
+
+/******************************************************************************/
+typedef struct _G3DUIMESHPOSELIST {
+    G3DUI *gui;
+} G3DUIMESHPOSELIST;
+
+/******************************************************************************/
 typedef struct _G3DUILIGHTEDIT {
     G3DUI *gui;
 } G3DUILIGHTEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIUVMAPEDIT {
+    G3DUI *gui;
+} G3DUIUVMAPEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIMATERIALEDIT {
+    G3DUI *gui;
+} G3DUIMATERIALEDIT;
 
 /******************************************************************************/
 typedef struct _G3DUIFFDEDIT {
@@ -748,14 +771,69 @@ typedef struct _G3DUIFFDEDIT {
 } G3DUIFFDEDIT;
 
 /******************************************************************************/
+typedef struct _G3DUICOORDINATESEDIT {
+    G3DUI *gui;
+} G3DUICOORDINATESEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUICAMERAEDIT {
+    G3DUI *gui;
+} G3DUICAMERAEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIWIREFRAMEEDIT {
+    G3DUI *gui;
+} G3DUIWIREFRAMEEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUITEXTEDIT {
+    G3DUI *gui;
+} G3DUITEXTEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUITEXTUREEDIT {
+    G3DUI *gui;
+} G3DUITEXTUREEDIT;
+
+/******************************************************************************/
 typedef struct _G3DUICUBEEDIT {
     G3DUI *gui;
 } G3DUICUBEEDIT;
 
 /******************************************************************************/
+typedef struct _G3DUITUBEEDIT {
+    G3DUI *gui;
+} G3DUITUBEEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUITORUSEDIT {
+    G3DUI *gui;
+} G3DUITORUSEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUITRACKERTAGEDIT {
+    G3DUI *gui;
+} G3DUITRACKERTAGEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUISPHEREEDIT {
+    G3DUI *gui;
+} G3DUISPHEREEDIT;
+
+/******************************************************************************/
 typedef struct _G3DUIMESHEEDIT {
     G3DUI *gui;
 } G3DUIMESHEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUISYMMETRYEDIT {
+    G3DUI *gui;
+} G3DUISYMMETRYEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUISPLINEREVOLVEREDIT {
+    G3DUI *gui;
+} G3DUISPLINEREVOLVEREDIT;
 
 /******************************************************************************/
 typedef struct _G3DUICYLINDEREDIT {
@@ -771,6 +849,31 @@ typedef struct _G3DUIINSTANCEEDIT {
 typedef struct _G3DUIKEYEDIT {
     G3DUI *gui;
 } G3DUIKEYEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIMODEBAR {
+    G3DUI *gui;
+} G3DUIMODEBAR;
+
+/******************************************************************************/
+typedef struct _G3DUIOBJECTEDIT {
+    G3DUI *gui;
+} G3DUIOBJECTEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIPLANEEDIT {
+    G3DUI *gui;
+} G3DUIPLANEEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIRENDEREDIT {
+    G3DUI *gui;
+} G3DUIRENDEREDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIPARTICLEEMITTEREDIT {
+    G3DUI *gui;
+} G3DUIPARTICLEEMITTEREDIT;
 
 /******************************************************************************/
 #define G3DUIWIDGET_TAB          0x02

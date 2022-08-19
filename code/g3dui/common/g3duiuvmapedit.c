@@ -30,11 +30,11 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duiuvmap_projectionCbk ( G3DUI *gui, const char *projection ) {
+uint64_t g3duiuvmapedit_projectionCbk ( G3DUIUVMAPEDIT *uvedit,
+                                        const char     *projection ) {
+    G3DUI *gui = uvedit->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    if ( gui->lock ) return;
 
     if ( obj && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
@@ -68,17 +68,17 @@ void common_g3duiuvmap_projectionCbk ( G3DUI *gui, const char *projection ) {
             /*** might need to recompute displacement ***/
             g3dmesh_update ( mes, gui->engine_flags );
         }
-
-        g3dui_redrawGLViews ( gui );
     }
+
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duiuvmap_lockUVMapCbk ( G3DUI *gui ) {
+uint64_t g3duiuvmapedit_lockUVMapCbk ( G3DUIUVMAPEDIT *uvedit ) {
+    G3DUI *gui = uvedit->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    if ( gui->lock ) return;
 
     if ( obj && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
@@ -90,4 +90,7 @@ void common_g3duiuvmap_lockUVMapCbk ( G3DUI *gui ) {
             g3duvmap_fix   ( uvmap );
         }
     }
+
+
+    return 0x00;
 }

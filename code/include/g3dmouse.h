@@ -106,23 +106,26 @@
 #define G3DButton2Mask   ( 1  << 3  )
 #define G3DButton3Mask   ( 1  << 4  )
 
-#define REDRAWVIEW            ( 1       )
-#define REDRAWUVMAPEDITOR     ( 1 <<  1 )
-#define REDRAWLIST            ( 1 <<  2 )
-#define REDRAWCOORDS          ( 1 <<  3 )
-#define REDRAWPARAMS          ( 1 <<  4 )
-#define REDRAWCURRENTOBJECT   ( 1 <<  5 )
-#define REDRAWCURRENTMATERIAL ( 1 <<  6 )
-#define REDRAWTIMELINE        ( 1 <<  7 )
-#define REDRAWMATERIALLIST    ( 1 <<  8 )
-#define REBUILDMATERIALLIST   ( 1 <<  9 )
-#define NOBUFFEREDSUBDIVISION ( 1 << 10 )
-#define BUFFEREDSUBDIVISIONOK ( 1 << 11 )
-#define REDRAWALL             ( REDRAWVIEW | REDRAWLIST | REDRAWCOORDS | \
-                                REDRAWUVMAPEDITOR |\
-                                REDRAWPARAMS | REDRAWCURRENTOBJECT | \
-                                REDRAWCURRENTMATERIAL | \
-                                REDRAWTIMELINE )
+#define REDRAWVIEW             ( 1       )
+#define REDRAWVIEWMENU         ( 1 <<  1 )
+#define REDRAWUVMAPEDITOR      ( 1 <<  2 )
+#define REDRAWLIST             ( 1 <<  3 )
+#define REDRAWCOORDS           ( 1 <<  4 )
+#define REDRAWPARAMS           ( 1 <<  5 )
+#define REDRAWCURRENTOBJECT    ( 1 <<  6 )
+#define REDRAWCURRENTMOUSETOOL ( 1 <<  7 )
+#define REDRAWCURRENTMATERIAL  ( 1 <<  8 )
+#define REDRAWTIMELINE         ( 1 <<  9 )
+#define REDRAWMESHPOSELIST     ( 1 << 10 )
+#define REDRAWMATERIALLIST     ( 1 << 11 )
+#define REBUILDMATERIALLIST    ( 1 << 12 )
+#define NOBUFFEREDSUBDIVISION  ( 1 << 13 )
+#define BUFFEREDSUBDIVISIONOK  ( 1 << 14 )
+#define REDRAWALL              ( REDRAWVIEW | REDRAWLIST | REDRAWCOORDS | \
+                                 REDRAWUVMAPEDITOR |\
+                                 REDRAWPARAMS | REDRAWCURRENTOBJECT | \
+                                 REDRAWCURRENTMATERIAL | \
+                                 REDRAWTIMELINE | REDRAWCURRENTMOUSETOOL )
 
 #define PICKMINRADIUS 0x10
 

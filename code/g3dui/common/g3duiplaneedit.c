@@ -30,100 +30,117 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duiplaneedit_divCbk  ( G3DUI *gui, G3DUIAXIS axis, int div ) {
+uint64_t g3duiplaneedit_divCbk  ( G3DUIPLANEEDIT *plnedit,
+                                  G3DUIAXIS       axis,
+                                  int             div ) {
+    G3DUI *gui = plnedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DPLANETYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        PLANEDATASTRUCT *pds = ( PLANEDATASTRUCT * ) pri->data;
+        if ( sel->type == G3DPLANETYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            PLANEDATASTRUCT *pds = ( PLANEDATASTRUCT * ) pri->data;
 
-        g3dui_setHourGlass ( gui );
+            if ( axis == G3DUIUAXIS ) g3dplane_build ( pri, 
+                                                       pds->orientation, 
+                                                       div, 
+                                                       pds->nbv, 
+                                                       pds->radu, 
+                                                       pds->radv );
 
-        if ( axis == G3DUIUAXIS ) g3dplane_build ( pri, pds->orientation, 
-                                                        div, 
-                                                        pds->nbv, 
-                                                        pds->radu, 
-                                                        pds->radv );
+            if ( axis == G3DUIVAXIS ) g3dplane_build ( pri,
+                                                       pds->orientation, 
+                                                       pds->nbu, 
+                                                       div, 
+                                                       pds->radu, 
+                                                       pds->radv );
+        }
 
-        if ( axis == G3DUIVAXIS ) g3dplane_build ( pri, pds->orientation, 
-                                                        pds->nbu, 
-                                                        div, 
-                                                        pds->radu, 
-                                                        pds->radv );
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duiplaneedit_radiusCbk ( G3DUI *gui, G3DUIAXIS axis, float radius ) {
+uint64_t g3duiplaneedit_radiusCbk ( G3DUIPLANEEDIT *plnedit,
+                                    G3DUIAXIS       axis,
+                                    float           radius ) {
+    G3DUI *gui = plnedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DPLANETYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        PLANEDATASTRUCT *pds = ( PLANEDATASTRUCT * ) pri->data;
+        if ( sel->type == G3DPLANETYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            PLANEDATASTRUCT *pds = ( PLANEDATASTRUCT * ) pri->data;
 
-        g3dui_setHourGlass ( gui );
+            if ( axis == G3DUIUAXIS ) g3dplane_build ( pri, 
+                                                       pds->orientation, 
+                                                       pds->nbu, 
+                                                       pds->nbv, 
+                                                       radius, 
+                                                       pds->radv );
 
-        if ( axis == G3DUIUAXIS ) g3dplane_build ( pri, pds->orientation, 
-                                                        pds->nbu, 
-                                                        pds->nbv, 
-                                                        radius, 
-                                                        pds->radv );
+            if ( axis == G3DUIVAXIS ) g3dplane_build ( pri, 
+                                                       pds->orientation, 
+                                                       pds->nbu, 
+                                                       pds->nbv, 
+                                                       pds->radu, 
+                                                       radius );
+        }
 
-        if ( axis == G3DUIVAXIS ) g3dplane_build ( pri, pds->orientation, 
-                                                        pds->nbu, 
-                                                        pds->nbv, 
-                                                        pds->radu, 
-                                                        radius );
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duiplaneedit_orientationcbk ( G3DUI *gui, const char *oristr ) {
+uint64_t g3duiplaneedit_orientationcbk ( G3DUIPLANEEDIT *plnedit,
+                                         const char     *oristr ) {
+    G3DUI *gui = plnedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DPLANETYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        PLANEDATASTRUCT *pds = ( PLANEDATASTRUCT * ) pri->data;
-        uint32_t orientation;
+        if ( sel->type == G3DPLANETYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            PLANEDATASTRUCT *pds = ( PLANEDATASTRUCT * ) pri->data;
+            uint32_t orientation;
 
-        if ( strcmp ( oristr, ZXSTR ) == 0x00 ) {
-            orientation = PLANEZX;
+            if ( strcmp ( oristr, ZXSTR ) == 0x00 ) {
+                orientation = PLANEZX;
+            }
+
+            if ( strcmp ( oristr, XYSTR ) == 0x00 ) {
+                orientation = PLANEXY;
+            }
+
+            if ( strcmp ( oristr, YZSTR ) == 0x00 ) {
+                orientation = PLANEYZ;
+            }
+
+            g3dplane_build ( pri,
+                             orientation,
+                             pds->nbu,
+                             pds->nbv,
+                             pds->radu,
+                             pds->radv );
         }
 
-        if ( strcmp ( oristr, XYSTR ) == 0x00 ) {
-            orientation = PLANEXY;
-        }
-
-        if ( strcmp ( oristr, YZSTR ) == 0x00 ) {
-            orientation = PLANEYZ;
-        }
-
-        g3dplane_build ( pri, orientation, 
-                              pds->nbu, 
-                              pds->nbv, 
-                              pds->radu, 
-                              pds->radv );
-        
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }

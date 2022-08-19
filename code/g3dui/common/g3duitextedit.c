@@ -30,92 +30,101 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duitextedit_setTextCbk ( G3DUI *gui, char *newText ) {
+uint64_t g3duitextedit_setTextCbk ( G3DUITEXTEDIT *txtedit,
+                                    char          *newText ) {
+    G3DUI *gui = txtedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DTEXTTYPE ) ) {
-        G3DTEXT *txt = ( G3DTEXT * ) obj;
+        if ( sel->type == G3DTEXTTYPE ) {
+            G3DTEXT *txt = ( G3DTEXT * ) sel;
 
-        if ( txt->text && newText ) {
-            char *firstOccurence = strstr ( newText, txt->text );
+            if ( txt->text && newText ) {
+                char *firstOccurence = strstr ( newText, txt->text );
 
-            g3dui_setHourGlass ( gui );
-
-            if ( firstOccurence == newText ) {
-                g3dtext_addText ( txt, newText + strlen ( txt->text ), gui->engine_flags );
-            } else {
-                g3dtext_setText ( txt, newText, gui->engine_flags );
+                if ( firstOccurence == newText ) {
+                    g3dtext_addText ( txt, newText + strlen ( txt->text ), gui->engine_flags );
+                } else {
+                    g3dtext_setText ( txt, newText, gui->engine_flags );
+                }
             }
-
-            g3dui_unsetHourGlass ( gui );
-
-            g3dui_redrawGLViews ( gui );
         }
+
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duitextedit_thicknessCbk ( G3DUI *gui, float thickness ) {
+uint64_t g3duitextedit_thicknessCbk ( G3DUITEXTEDIT *txtedit,
+                                      float          thickness ) {
+    G3DUI *gui = txtedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DTEXTTYPE ) ) {
-        G3DTEXT *txt = ( G3DTEXT * ) obj;
-        g3dui_setHourGlass ( gui );
+        if ( sel->type == G3DTEXTTYPE ) {
+            G3DTEXT *txt = ( G3DTEXT * ) sel;
 
-        g3dtext_setThickness ( txt, thickness, gui->engine_flags );
+            g3dtext_setThickness ( txt, thickness, gui->engine_flags );
+        }
 
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duitextedit_roundnessCbk ( G3DUI *gui, uint32_t roundness ) {
+uint64_t g3duitextedit_roundnessCbk ( G3DUITEXTEDIT *txtedit,
+                                      uint32_t       roundness ) {
+    G3DUI *gui = txtedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DTEXTTYPE ) ) {
-        G3DTEXT *txt = ( G3DTEXT * ) obj;
+        if ( sel->type == G3DTEXTTYPE ) {
+            G3DTEXT *txt = ( G3DTEXT * ) sel;
 
-        g3dui_setHourGlass ( gui );
+            g3dtext_setRoundness ( txt, roundness, gui->engine_flags );
+        }
 
-        g3dtext_setRoundness ( txt, roundness, gui->engine_flags );
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duitextedit_sizeCbk ( G3DUI *gui, uint32_t size ) {
+uint64_t g3duitextedit_sizeCbk ( G3DUITEXTEDIT *txtedit,
+                                 uint32_t       size ) {
+    G3DUI *gui = txtedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DTEXTTYPE ) ) {
-        G3DTEXT *txt = ( G3DTEXT * ) obj;
+        if ( sel->type == G3DTEXTTYPE ) {
+            G3DTEXT *txt = ( G3DTEXT * ) sel;
 
-        g3dui_setHourGlass ( gui );
+            g3dtext_setSize ( txt, size, gui->engine_flags );
+        }
 
-        g3dtext_setSize ( txt, size, gui->engine_flags );
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }

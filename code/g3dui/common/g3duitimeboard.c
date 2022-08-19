@@ -30,7 +30,9 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3dui_stopCbk ( G3DUI *gui ) {
+uint64_t g3duitimeboard_stopCbk ( G3DUITIMEBOARD *tbrd ) {
+    G3DUI *gui = tbrd->gui;
+
     /*** if scene is currently played ***/
     if ( /*gui->playthreadid*/gui->playLock ) {
         /* #ifdef __linux__
@@ -47,13 +49,15 @@ void common_g3dui_stopCbk ( G3DUI *gui ) {
         gui->engine_flags &= (~ONGOINGANIMATION);
 
         g3dscene_updateMeshes ( gui->sce, gui->engine_flags );
-
-        g3dui_redrawGLViews ( gui );
     }
+
+
+   return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3dui_gotoFrameCbk ( G3DUI *gui ) {
+uint64_t g3duitimeboard_gotoFrameCbk ( G3DUITIMEBOARD *tbrd ) {
+    G3DUI *gui = tbrd->gui;
     G3DSCENE *sce = gui->sce;
 
     /*** Force disabling real time subdivision ***/
@@ -67,13 +71,16 @@ void common_g3dui_gotoFrameCbk ( G3DUI *gui ) {
     /*** Update buffered subdivided meshes ***/
     g3dscene_updateMeshes ( gui->sce, gui->engine_flags );
 
-    common_g3dui_processAnimatedImages ( gui );
+    g3dui_processAnimatedImages ( gui );
 
-    g3dui_redrawGLViews ( gui );
+
+   return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3dui_recordFrameCbk ( G3DUI *gui, uint32_t key_flags ) {
+uint64_t g3duitimeboard_recordFrameCbk ( G3DUITIMEBOARD *tbrd,
+                                         uint32_t        key_flags ) {
+    G3DUI *gui = tbrd->gui;
     G3DSCENE *sce = gui->sce;
 
     g3durm_object_pose ( gui->urm,
@@ -89,7 +96,10 @@ void common_g3dui_recordFrameCbk ( G3DUI *gui, uint32_t key_flags ) {
     if ( gui->curframe > gui->endframe   ) gui->endframe   = gui->curframe;
     if ( gui->curframe < gui->startframe ) gui->startframe = gui->curframe;
 
-    g3dui_updateKeyEdit  ( gui );
+
+    return REDRAWVIEW | REDRAWTIMELINE;
+
+    /*g3dui_updateKeyEdit  ( gui );
     g3dui_redrawTimeline ( gui );
-    g3dui_redrawGLViews ( gui );
+    g3dui_redrawGLViews ( gui );*/
 }

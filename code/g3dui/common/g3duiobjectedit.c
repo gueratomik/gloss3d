@@ -30,16 +30,19 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duiobjectedit_nameCbk ( G3DUI *gui, const char *name ) {
+uint64_t g3duiobjectedit_nameCbk ( G3DUIOBJECTEDIT *goe,
+                                   const char      *name ) {
+    G3DUI *gui = goe->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj ) {
-        g3dobject_name ( obj, name );
+        g3dobject_name ( sel, name );
 
-        g3dui_redrawObjectList ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+    return REDRAWLIST;
 }

@@ -30,149 +30,160 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duitubeedit_lengthCbk ( G3DUI *gui, float length ) {
+uint64_t g3duitubeedit_lengthCbk ( G3DUITUBEEDIT *tubedit,
+                                   float          length ) {
+    G3DUI *gui = tubedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DTUBETYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        TUBEDATASTRUCT *cds = ( TUBEDATASTRUCT * ) pri->data;
+        if ( sel->type == G3DTUBETYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            TUBEDATASTRUCT *cds = ( TUBEDATASTRUCT * ) pri->data;
 
-        g3dui_setHourGlass ( gui );
+            g3dtube_build ( pri, 
+                            cds->slice, 
+                            cds->capx,
+                            cds->capy, 
+                            cds->radius, 
+                            cds->thickness,
+                            length );
+        }
 
-        g3dtube_build ( pri, 
-                        cds->slice, 
-                        cds->capx,
-                        cds->capy, 
-                        cds->radius, 
-                        cds->thickness,
-                        length );
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duitubeedit_radiusCbk ( G3DUI *gui, float radius ) {
+uint64_t g3duitubeedit_radiusCbk ( G3DUITUBEEDIT *tubedit,
+                                   float          radius ) {
+    G3DUI *gui = tubedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DTUBETYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        TUBEDATASTRUCT *cds = ( TUBEDATASTRUCT * ) pri->data;
+        if ( sel->type == G3DTUBETYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            TUBEDATASTRUCT *cds = ( TUBEDATASTRUCT * ) pri->data;
 
-        g3dui_setHourGlass ( gui );
+            g3dtube_build ( pri, 
+                            cds->slice, 
+                            cds->capx,
+                            cds->capy, 
+                            radius, 
+                            cds->thickness,
+                            cds->length );
+        }
 
-        g3dtube_build ( pri, 
-                        cds->slice, 
-                        cds->capx,
-                        cds->capy, 
-                        radius, 
-                        cds->thickness,
-                        cds->length );
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duitubeedit_thicknessCbk ( G3DUI *gui, float thickness ) {
+uint64_t g3duitubeedit_thicknessCbk ( G3DUITUBEEDIT *tubedit,
+                                      float          thickness ) {
+    G3DUI *gui = tubedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DTUBETYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        TUBEDATASTRUCT *cds = ( TUBEDATASTRUCT * ) pri->data;
+        if ( sel->type == G3DTUBETYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            TUBEDATASTRUCT *cds = ( TUBEDATASTRUCT * ) pri->data;
 
-        g3dui_setHourGlass ( gui );
+            g3dtube_build ( pri,
+                            cds->slice, 
+                            cds->capx,
+                            cds->capy, 
+                            cds->radius, 
+                            thickness, 
+                            cds->length );
+        }
 
-        g3dtube_build ( pri,
-                        cds->slice, 
-                        cds->capx,
-                        cds->capy, 
-                        cds->radius, 
-                        thickness, 
-                        cds->length );
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duitubeedit_capCbk ( G3DUI *gui, G3DUIAXIS axis, int cap ) {
+uint64_t g3duitubeedit_capCbk ( G3DUITUBEEDIT *tubedit,
+                                G3DUIAXIS      axis,
+                                uint32_t       cap ) {
+    G3DUI *gui = tubedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DTUBETYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        TUBEDATASTRUCT *cds = ( TUBEDATASTRUCT * ) pri->data;
+        if ( sel->type == G3DTUBETYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            TUBEDATASTRUCT *cds = ( TUBEDATASTRUCT * ) pri->data;
 
-        g3dui_setHourGlass ( gui );
+            if ( axis == G3DUIXAXIS ) g3dtube_build ( pri, 
+                                                      cds->slice, 
+                                                      cap,
+                                                      cds->capy,
+                                                      cds->radius,
+                                                      cds->thickness,
+                                                      cds->length );
 
-        if ( axis == G3DUIXAXIS ) g3dtube_build ( pri, 
-                                                  cds->slice, 
-                                                  cap,
-                                                  cds->capy,
-                                                  cds->radius,
-                                                  cds->thickness,
-                                                  cds->length );
+            if ( axis == G3DUIYAXIS ) g3dtube_build ( pri, 
+                                                      cds->slice, 
+                                                      cds->capy,
+                                                      cap,
+                                                      cds->radius,
+                                                      cds->thickness,
+                                                      cds->length );
+        }
 
-        if ( axis == G3DUIYAXIS ) g3dtube_build ( pri, 
-                                                  cds->slice, 
-                                                  cds->capy,
-                                                  cap,
-                                                  cds->radius,
-                                                  cds->thickness,
-                                                  cds->length );
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duitubeedit_sliceCbk ( G3DUI *gui, int slice ) {
+uint64_t g3duitubeedit_sliceCbk ( G3DUITUBEEDIT *tubedit,
+                                  uint32_t       slice ) {
+    G3DUI *gui = tubedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent useless primitive building when XmTextSetString is called ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DTUBETYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        TUBEDATASTRUCT *cds = ( TUBEDATASTRUCT * ) pri->data;
+        if ( sel->type == G3DTUBETYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            TUBEDATASTRUCT *cds = ( TUBEDATASTRUCT * ) pri->data;
 
-        g3dui_setHourGlass ( gui );
+            g3dtube_build ( pri, 
+                            slice, 
+                            cds->capx, 
+                            cds->capy, 
+                            cds->radius,
+                            cds->thickness,
+                            cds->length );
+        }
 
-        g3dtube_build ( pri, 
-                        slice, 
-                        cds->capx, 
-                        cds->capy, 
-                        cds->radius,
-                        cds->thickness,
-                        cds->length );
-
-        g3dui_unsetHourGlass ( gui );
-
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }

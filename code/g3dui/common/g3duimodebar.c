@@ -39,20 +39,23 @@
 #include <xpm/sculptmode.xpm>
 
 /******************************************************************************/
-void common_m3dui_setMode ( M3DUI *lui, 
-                                       const char       *modename ) {
+uint64_t m3duimodebar_setModeCbk ( M3DUIMODEBAR *mmb, 
+                                   const char   *modename ) {
+    M3DUI *mui = mmb->mui;
     uint64_t curflags = lui->engine_flags & (~UVMODEMASK);
     uint64_t newmode = 0x00;
 
     if ( strcmp ( modename, MODE_VIEWVERTEX ) == 0x00 ) newmode = VIEWVERTEXUV;
     if ( strcmp ( modename, MODE_VIEWFACE   ) == 0x00 ) newmode = VIEWFACEUV;
 
-    lui->engine_flags = ( curflags | newmode );
+    mui->engine_flags = ( curflags | newmode );
 }
 
 /******************************************************************************/
-void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
+uint64_t g3duimodebar_setModeCbk ( G3DUIMODEBAR *gmb,
+                                   const char   *modename ) {
     /*** Discard mode flags ***/
+    G3DUI *gui = gmb->gui;
     uint64_t oldmode  = gui->engine_flags & MODEMASK;
     uint64_t curflags = gui->engine_flags & (~MODEMASK);
     G3DSCENE *sce  = gui->sce;
@@ -124,5 +127,6 @@ void common_g3dui_setMode ( G3DUI *gui, const char *modename ) {
      */
     /* common_g3dui_setMouseTool ( gui, NULL, NULL ); */
 
-    g3dui_updateAllCurrentMouseTools ( gui );
+
+    return REDRAWCURRENTMOUSETOOL;
 }

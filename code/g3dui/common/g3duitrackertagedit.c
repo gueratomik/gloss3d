@@ -30,14 +30,13 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duitrackertagedit_orientationCbk ( G3DUI *gui, 
-                                                 char  *str ) {
+uint64_t g3duitrackertagedit_orientationCbk ( G3DUITRACKERTAGEDIT *ttedit, 
+                                              char                *str ) {
+    G3DUI *gui = ttedit->gui;
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *sel = g3dscene_getLastSelected ( sce );
     G3DTAG *tag = sel->seltag;
-
-    if ( gui->lock ) return;
 
     if ( sel ) {
         G3DTAG *tag = sel->seltag;
@@ -66,18 +65,18 @@ void common_g3duitrackertagedit_orientationCbk ( G3DUI *gui,
         g3dobject_updateMatrix_r ( sel, gui->engine_flags );
     }
 
-    g3dui_redrawGLViews ( gui );
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duitrackertagedit_setTargetCbk ( G3DUI   *gui, 
-                                               uint32_t rank ) {
+uint64_t g3duitrackertagedit_setTargetCbk ( G3DUITRACKERTAGEDIT *ttedit, 
+                                            uint32_t             rank ) {
+    G3DUI *gui = ttedit->gui;
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *sel = g3dscene_getLastSelected ( sce );
     G3DTAG *tag = sel->seltag;
-
-    if ( gui->lock ) return;
 
     if ( sel ) {
         G3DTAG *tag = sel->seltag;
@@ -113,5 +112,6 @@ void common_g3duitrackertagedit_setTargetCbk ( G3DUI   *gui,
         }
     }
 
-    g3dui_redrawGLViews ( gui );
+
+    return REDRAWVIEW;
 }

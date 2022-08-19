@@ -30,10 +30,11 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duiquad_divideSegments ( G3DUISEGMENT *seg, uint32_t xmid , 
-                                                          uint32_t ymid,
-                                                          uint32_t width, 
-                                                          uint32_t height ) {
+void g3duiquad_divideSegments ( G3DUISEGMENT *seg, 
+                                uint32_t      xmid , 
+                                uint32_t      ymid,
+                                uint32_t      width, 
+                                uint32_t      height ) {
     uint32_t x1 = 0x00, y1 = 0x00,
              x2 = ( width  ) ? ( ( x1 + width  ) - 0x01 ) : 0x00,
              y2 = ( height ) ? ( ( y1 + height ) - 0x01 ) : 0x00;
@@ -65,19 +66,21 @@ void common_g3duiquad_divideSegments ( G3DUISEGMENT *seg, uint32_t xmid ,
 }
 
 /******************************************************************************/
-void common_g3duiquad_resize ( G3DUIQUAD *quad, uint32_t width, 
-                                                uint32_t height ) {
+void g3duiquad_resize ( G3DUIQUAD *quad,
+                        uint32_t   width, 
+                        uint32_t   height ) {
     uint32_t rw = ( width  * quad->Xratio ) >> 0x08,
              rh = ( height * quad->Yratio ) >> 0x08;
 
-    common_g3duiquad_divideSegments ( quad->seg, rw, rh, width, height );
+    g3duiquad_divideSegments ( quad->seg, rw, rh, width, height );
 }
 
 /******************************************************************************/
-void common_g3duiquad_init ( G3DUIQUAD *quad, uint32_t width,
-                                              uint32_t height ) {
+void g3duiquad_init ( G3DUIQUAD *quad,
+                      uint32_t   width,
+                      uint32_t height ) {
     quad->Xratio = 0x80;
     quad->Yratio = 0x80;
 
-    common_g3duiquad_resize ( quad, width, height );
+    g3duiquad_resize ( quad, width, height );
 }

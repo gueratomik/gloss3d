@@ -30,62 +30,76 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duisymmetryedit_limitCbk ( G3DUI *gui, float limit ) {
+uint64_t g3duisymmetryedit_limitCbk ( G3DUISYMMETRYEDIT *symedit,
+                                      float              limit ) {
+    G3DUI *gui = symedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DSYMMETRYTYPE ) ) {
-        G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
-        LIST *ltmpobj = ((G3DOBJECT*)sym)->lchildren;
+        if ( sel->type == G3DSYMMETRYTYPE ) {
+            G3DSYMMETRY *sym = ( G3DSYMMETRY * ) sel;
+            LIST *ltmpobj = ((G3DOBJECT*)sym)->lchildren;
 
-        g3dsymmetry_setMergeLimit ( sym, limit );
+            g3dsymmetry_setMergeLimit ( sym, limit );
 
-        while ( ltmpobj ) {
-            G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+            while ( ltmpobj ) {
+                G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
 
-            if ( obj->type == G3DMESHTYPE ) {
-                G3DMESH *mes = ( G3DMESH * ) obj;
+                if ( obj->type == G3DMESHTYPE ) {
+                    G3DMESH *mes = ( G3DMESH * ) obj;
 
-                g3dsymmetry_meshChildChange ( sym, mes );
+                    g3dsymmetry_meshChildChange ( sym, mes );
 
-                mes->obj.update_flags |= ( UPDATEVERTEXNORMAL |
-                                           UPDATEFACENORMAL | 
-                                           RESETMODIFIERS );
+                    mes->obj.update_flags |= ( UPDATEVERTEXNORMAL |
+                                               UPDATEFACENORMAL | 
+                                               RESETMODIFIERS );
 
-                g3dmesh_update ( mes, gui->engine_flags );
+                    g3dmesh_update ( mes, gui->engine_flags );
+                }
+
+                ltmpobj = ltmpobj->next;
             }
-
-            ltmpobj = ltmpobj->next;
         }
 
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void common_g3duisymmetryedit_planeCbk ( G3DUI *gui, char *orientation ) {
+uint64_t g3duisymmetryedit_planeCbk ( G3DUISYMMETRYEDIT *symedit,
+                                      char              *orientation ) {
+    G3DUI *gui = symedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DSYMMETRYTYPE ) ) {
-        G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
+        if ( sel->type == G3DSYMMETRYTYPE ) {
+            G3DSYMMETRY *sym = ( G3DSYMMETRY * ) sel;
 
-        if ( strcmp ( orientation, ZXSTR ) == 0x00 ) {
-            g3dsymmetry_setPlane ( sym, SYMMETRYZX );
+            if ( strcmp ( orientation, ZXSTR ) == 0x00 ) {
+                g3dsymmetry_setPlane ( sym, SYMMETRYZX );
+            }
+
+            if ( strcmp ( orientation, XYSTR ) == 0x00 ) {
+                g3dsymmetry_setPlane ( sym, SYMMETRYXY );
+            }
+
+            if ( strcmp ( orientation, YZSTR ) == 0x00 ) {
+                g3dsymmetry_setPlane ( sym, SYMMETRYYZ );
+            }
         }
 
-        if ( strcmp ( orientation, XYSTR ) == 0x00 ) {
-            g3dsymmetry_setPlane ( sym, SYMMETRYXY );
-        }
-        
-        if ( strcmp ( orientation, YZSTR ) == 0x00 ) {
-            g3dsymmetry_setPlane ( sym, SYMMETRYYZ );
-        }
-
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
 }

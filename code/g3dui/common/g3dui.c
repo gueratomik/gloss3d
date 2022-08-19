@@ -572,7 +572,7 @@ void g3dui_resetDefaultCameras ( G3DUI *gui ) {
 
 /******************************************************************************/
 /*** Create the 4 default cameras ***/
-void g3dui_createDefau-l+-tCameras ( G3DUI *gui ) {
+void g3dui_createDefaultCameras ( G3DUI *gui ) {
     uint32_t ptrSize = sizeof ( G3DCAMERA * );
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
 
@@ -610,35 +610,6 @@ void g3dui_createDefau-l+-tCameras ( G3DUI *gui ) {
     g3dui_resetDefaultCameras ( gui );
 
     sysinfo->defaultCamera = gui->defaultCameras[0x00];
-}
-
-/******************************************************************************/
-void g3dui_setFileName ( G3DUI      *gui,
-                         const char *filename ) {
-    int len;
-
-    if ( gui->filename ) {
-        free ( gui->filename );
-
-        gui->filename = NULL;
-    }
-
-    len = strlen ( filename );
-
-    /*** 0x04 is for the extension ***/
-    if ( strstr ( filename, ".g3d" ) ) {
-        gui->filename = ( char * ) calloc ( len + 0x01       , sizeof ( char ) );
-    } else {
-        gui->filename = ( char * ) calloc ( len + 0x01 + 0x04, sizeof ( char ) );
-
-        strncpy ( gui->filename + len, ".g3d", 0x04 );
-    }
-
-    if ( gui->filename == NULL ) {
-        fprintf ( stderr, "g3duiSaveG3DFile: calloc failed\n" );
-    } else {
-        memcpy ( gui->filename, filename, len );
-    }
 }
 
 /******************************************************************************/

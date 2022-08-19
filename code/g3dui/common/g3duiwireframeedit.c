@@ -30,23 +30,26 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duiwireframeedit_thicknessCbk ( G3DUI *gui, float thickness ) {
+uint64_t g3duiwireframeedit_thicknessCbk ( G3DUIWIREFRAMEEDIT *wfmedit,
+                                           float               thickness ) {
+    G3DUI *gui = wfmedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DWIREFRAMETYPE ) ) {
-        G3DWIREFRAME *wir = ( G3DWIREFRAME * ) obj;
+        if ( sel->type == G3DWIREFRAMETYPE ) {
+            G3DWIREFRAME *wir = ( G3DWIREFRAME * ) obj;
 
-        g3dui_setHourGlass ( gui );
+            g3dwireframe_setThickness ( wir, thickness, gui->engine_flags );
 
-        g3dwireframe_setThickness ( wir, thickness, gui->engine_flags );
+            /*g3dmesh_setSubdivisionLevel ( mes, level, gui->engine_flags );*/
+        }
 
-        g3dui_unsetHourGlass ( gui );
-        /*g3dmesh_setSubdivisionLevel ( mes, level, gui->engine_flags );*/
+        ltmpselobj = ltmpselobj->next;
     }
 
-    g3dui_redrawGLViews ( gui );
+
+    return REDRAWVIEW;
 }

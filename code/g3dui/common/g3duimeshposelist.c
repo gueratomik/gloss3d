@@ -32,14 +32,11 @@
 
 #ifdef unused
 /******************************************************************************/
-G3DMORPHERMESHPOSE *common_g3duimeshposelist_getMeshPose ( G3DUI *gui,
-                                                    float  mouse_x,
-                                                    float  mouse_y ) {
+G3DMORPHERMESHPOSE *g3duimeshposelist_getMeshPose ( G3DUIMESHPOSELIST *gmp,
+                                                    float              mouse_x,
+                                                    float              mouse_y ) {
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
         G3DMORPHERMESHPOSEEXTENSION *ext = ( G3DMORPHERMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
@@ -70,12 +67,11 @@ G3DMORPHERMESHPOSE *common_g3duimeshposelist_getMeshPose ( G3DUI *gui,
 }
 
 /******************************************************************************/
-void common_g3duimeshposelist_deleteCurrentPoseCbk ( G3DUI *gui ) {
+uint64_t g3duimeshposelist_deleteCurrentPoseCbk ( G3DUIMESHPOSELIST *gmp ) {
+    G3DUI *gui = gmp->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
         G3DMORPHERMESHPOSEEXTENSION *ext = ( G3DMORPHERMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
@@ -84,19 +80,19 @@ void common_g3duimeshposelist_deleteCurrentPoseCbk ( G3DUI *gui ) {
             if ( ext->curmps ) {
                 g3dmeshposeextension_removePose ( ext, ext->curmps );
 
-                g3dui_redrawAllMeshPoseList ( gui );
+                /*g3dui_redrawAllMeshPoseList ( gui );*/
             }
         }
     }
+
+    return REDRAWCURRENTOBJECT;
 }
 
 /******************************************************************************/
-void common_g3duimeshposelist_createPoseCbk ( G3DUI *gui ) {
+uint64_t g3duimeshposelist_createPoseCbk ( G3DUIMESHPOSELIST *gmp ) {
+    G3DUI *gui = gmp->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
         G3DMORPHERMESHPOSEEXTENSION *ext = ( G3DMORPHERMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
@@ -108,19 +104,19 @@ void common_g3duimeshposelist_createPoseCbk ( G3DUI *gui ) {
 
             g3dmeshposeextension_createPose ( ext, buf );
 
-            g3dui_redrawAllMeshPoseList ( gui );
+            /*g3dui_redrawAllMeshPoseList ( gui );*/
         }
     }
+
+    return REDRAWCURRENTOBJECT;
 }
 
 /******************************************************************************/
-void common_g3duimeshposelist_renameCurrentPoseCbk ( G3DUI *gui, 
-                                                     char  *mpsname ) {
+uint64_t g3duimeshposelist_renameCurrentPoseCbk ( G3DUIMESHPOSELIST *gmp, 
+                                                  char              *mpsname ) {
+    G3DUI *gui = gmp->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
         G3DMORPHERMESHPOSEEXTENSION *ext = ( G3DMORPHERMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
@@ -129,19 +125,19 @@ void common_g3duimeshposelist_renameCurrentPoseCbk ( G3DUI *gui,
             if ( ext->curmps ) {
                 g3dmeshpose_name ( ext->curmps, ( char * ) mpsname );
 
-                g3dui_redrawAllMeshPoseList ( gui );
+                /*g3dui_redrawAllMeshPoseList ( gui );*/
             }
         }
     }
+
+    return REDRAWCURRENTOBJECT;
 }
 
 /******************************************************************************/
-void common_g3duimeshposelist_deleteSelectedPoseCbk ( G3DUI *gui ) {
+uint64_t g3duimeshposelist_deleteSelectedPoseCbk ( G3DUIMESHPOSELIST *gmp ) {
+    G3DUI *gui = gmp->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
         G3DMORPHERMESHPOSEEXTENSION *ext = ( G3DMORPHERMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
@@ -160,20 +156,21 @@ void common_g3duimeshposelist_deleteSelectedPoseCbk ( G3DUI *gui ) {
                                       UPDATEFACENORMAL |
                                       RESETMODIFIERS, gui->engine_flags );*/
 
-                g3dui_redrawGLViews ( gui );
-                g3dui_updateAllCurrentEdit ( gui );
+                /*g3dui_redrawGLViews ( gui );
+                g3dui_updateAllCurrentEdit ( gui );*/
             }
         }
     }
+
+    return REDRAWVIEW | REDRAWCURRENTOBJECT;
 }
 
 /******************************************************************************/
-void common_g3duimeshposelist_selectPoseCbk ( G3DUI *gui, G3DMORPHERMESHPOSE *mps ) {
+uint64_t g3duimeshposelist_selectPoseCbk ( G3DUIMESHPOSELIST  *gmp,
+                                           G3DMORPHERMESHPOSE *mps ) {
+    G3DUI *gui = gmp->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
         G3DMORPHERMESHPOSEEXTENSION *ext = ( G3DMORPHERMESHPOSEEXTENSION * ) g3dobject_getExtensionByID ( obj, MESHPOSEEXTENSION, 0x00 );
@@ -200,10 +197,9 @@ void common_g3duimeshposelist_selectPoseCbk ( G3DUI *gui, G3DMORPHERMESHPOSE *mp
                               NULL,
                               NULL,
                               RESETMODIFIERS, gui->engine_flags );*/
-
-        g3dui_redrawGLViews ( gui );
-        g3dui_updateAllCurrentEdit ( gui );
     }
+
+    return REDRAWVIEW | REDRAWCURRENTOBJECT;
 }
 
 #endif

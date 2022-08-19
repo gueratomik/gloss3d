@@ -30,51 +30,55 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duisplinerevolveredit_splineRevolverStepsCbk ( G3DUI *gui,
-                                                             int    level ) {
+uint64_t g3duisplinerevolveredit_splineRevolverStepsCbk ( G3DUISPLINEREVOLVEREDIT *srvedit,
+                                                          uint32_t                 level ) {
+    G3DUI *gui = srvedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DSPLINEREVOLVERTYPE ) ) {
-        G3DSPLINEREVOLVER *srv = ( G3DSPLINEREVOLVER * ) obj;
+        if ( sel->type == G3DSPLINEREVOLVERTYPE ) {
+            G3DSPLINEREVOLVER *srv = ( G3DSPLINEREVOLVER * ) sel;
 
-        g3dui_setHourGlass ( gui );
+            srv->nbsteps = level;
 
-        srv->nbsteps = level;
+            g3dsplinerevolver_reshape ( srv, gui->engine_flags );
 
-        g3dsplinerevolver_reshape ( srv, gui->engine_flags );
+        }
 
-        g3dui_unsetHourGlass ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
 
-    g3dui_redrawGLViews ( gui );
+
+    return REDRAWVIEW;
 }
 
 
 /******************************************************************************/
-void common_g3duisplinerevolveredit_splineRevolverDivisCbk ( G3DUI *gui,  
-                                                             int    level ) {
+uint64_t g3duisplinerevolveredit_splineRevolverDivisCbk ( G3DUISPLINEREVOLVEREDIT *srvedit,  
+                                                          uint32_t                 level ) {
+    G3DUI *gui = srvedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DSPLINEREVOLVERTYPE ) ) {
-        G3DSPLINEREVOLVER *srv = ( G3DSPLINEREVOLVER * ) obj;
+        if ( sel->type == G3DSPLINEREVOLVERTYPE ) {
+            G3DSPLINEREVOLVER *srv = ( G3DSPLINEREVOLVER * ) sel;
 
-        g3dui_setHourGlass ( gui );
+            srv->nbdivis = level;
 
-        srv->nbdivis = level;
+            g3dsplinerevolver_reshape ( srv, gui->engine_flags );
 
-        g3dsplinerevolver_reshape ( srv, gui->engine_flags );
+            /*g3dmesh_setSubdivisionLevel ( mes, level, gui->engine_flags );*/
+        }
 
-        g3dui_unsetHourGlass ( gui );
-        /*g3dmesh_setSubdivisionLevel ( mes, level, gui->engine_flags );*/
+        ltmpselobj = ltmpselobj->next;
     }
 
-    g3dui_redrawGLViews ( gui );
+
+    return REDRAWVIEW;
 }

@@ -29,510 +29,448 @@
 #include <config.h>
 #include <g3dui.h>
 
-/******************************************************************************/
-void common_g3duiparticleemitteredit_gravityForceXCbk ( G3DUI              *gui,
-                                                        G3DPARTICLEEMITTER *pem,
-                                                        float               g ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->gravity.x = g;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_gravityForceYCbk ( G3DUI              *gui,
-                                                        G3DPARTICLEEMITTER *pem,
-                                                        float               g ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->gravity.y = g;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_gravityForceZCbk ( G3DUI              *gui,
-                                                        G3DPARTICLEEMITTER *pem,
-                                                        float               g ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->gravity.z = g;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialVarTranspCbk ( G3DUI              *gui,
-                                                           G3DPARTICLEEMITTER *pem,
-                                                           float               initialVarTransp ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialVarTransparency = initialVarTransp;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialVarRotXCbk ( G3DUI              *gui,
-                                                         G3DPARTICLEEMITTER *pem,
-                                                         float               initialVarRotX ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialVarRotation.x = initialVarRotX;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialVarRotYCbk ( G3DUI              *gui,
-                                                         G3DPARTICLEEMITTER *pem,
-                                                         float               initialVarRotY ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialVarRotation.y = initialVarRotY;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialVarRotZCbk ( G3DUI              *gui,
-                                                         G3DPARTICLEEMITTER *pem,
-                                                         float               initialVarRotZ ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialVarRotation.z = initialVarRotZ;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialVarScaXCbk ( G3DUI              *gui,
-                                                         G3DPARTICLEEMITTER *pem,
-                                                         float               initialVarScaX ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialVarScaling.x = initialVarScaX;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialVarScaYCbk ( G3DUI              *gui,
-                                                         G3DPARTICLEEMITTER *pem,
-                                                         float               initialVarScaY ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialVarScaling.y = initialVarScaY;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialVarScaZCbk ( G3DUI              *gui,
-                                                         G3DPARTICLEEMITTER *pem,
-                                                         float               initialVarScaZ ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialVarScaling.z = initialVarScaZ;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialVarSpeedXCbk ( G3DUI              *gui,
-                                                           G3DPARTICLEEMITTER *pem,
-                                                           float               initialVarSpeedX ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialVarSpeed.x = initialVarSpeedX;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialVarSpeedYCbk ( G3DUI              *gui,
-                                                           G3DPARTICLEEMITTER *pem,
-                                                           float               initialVarSpeedY ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialVarSpeed.y = initialVarSpeedY;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialVarSpeedZCbk ( G3DUI              *gui,
-                                                           G3DPARTICLEEMITTER *pem,
-                                                           float               initialVarSpeedZ ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialVarSpeed.z = initialVarSpeedZ;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialVarAccelXCbk ( G3DUI              *gui,
-                                                           G3DPARTICLEEMITTER *pem,
-                                                           float               initialVarAccelX ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialVarAccel.x = initialVarAccelX;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialVarAccelYCbk ( G3DUI              *gui,
-                                                           G3DPARTICLEEMITTER *pem,
-                                                           float               initialVarAccelY ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialVarAccel.y = initialVarAccelY;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialVarAccelZCbk ( G3DUI              *gui,
-                                                           G3DPARTICLEEMITTER *pem,
-                                                           float               initialVarAccelZ ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialVarAccel.z = initialVarAccelZ;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_finalTranspCbk ( G3DUI              *gui,
-                                                      G3DPARTICLEEMITTER *pem,
-                                                      float               finalTransp ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->finalTransparency = finalTransp;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_finalRotXCbk ( G3DUI              *gui,
-                                                    G3DPARTICLEEMITTER *pem,
-                                                    float               finalRotX ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->finalRotation.x = finalRotX;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_finalRotYCbk ( G3DUI              *gui,
-                                                    G3DPARTICLEEMITTER *pem,
-                                                    float               finalRotY ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->finalRotation.y = finalRotY;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_finalRotZCbk ( G3DUI              *gui,
-                                                    G3DPARTICLEEMITTER *pem,
-                                                    float               finalRotZ ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->finalRotation.z = finalRotZ;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_finalScaXCbk ( G3DUI              *gui,
-                                                      G3DPARTICLEEMITTER *pem,
-                                                      float               finalScaX ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->finalScaling.x = finalScaX;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_finalScaYCbk ( G3DUI              *gui,
-                                                    G3DPARTICLEEMITTER *pem,
-                                                    float               finalScaY ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->finalScaling.y = finalScaY;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_finalScaZCbk ( G3DUI              *gui,
-                                                      G3DPARTICLEEMITTER *pem,
-                                                      float               finalScaZ ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->finalScaling.z = finalScaZ;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_finalSpeedXCbk ( G3DUI              *gui,
-                                                      G3DPARTICLEEMITTER *pem,
-                                                      float               finalSpeedX ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->finalSpeed.x = finalSpeedX;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_finalSpeedYCbk ( G3DUI              *gui,
-                                                      G3DPARTICLEEMITTER *pem,
-                                                      float               finalSpeedY ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->finalSpeed.y = finalSpeedY;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_finalSpeedZCbk ( G3DUI              *gui,
-                                                      G3DPARTICLEEMITTER *pem,
-                                                      float               finalSpeedZ ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->finalSpeed.z = finalSpeedZ;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_finalAccelXCbk ( G3DUI              *gui,
-                                                      G3DPARTICLEEMITTER *pem,
-                                                      float               finalAccelX ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->finalAccel.x = finalAccelX;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_finalAccelYCbk ( G3DUI              *gui,
-                                                        G3DPARTICLEEMITTER *pem,
-                                                        float               finalAccelY ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->finalAccel.y = finalAccelY;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_finalAccelZCbk ( G3DUI              *gui,
-                                                      G3DPARTICLEEMITTER *pem,
-                                                      float               finalAccelZ ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->finalAccel.z = finalAccelZ;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialTranspCbk ( G3DUI              *gui,
-                                                        G3DPARTICLEEMITTER *pem,
-                                                        float               initialTransp ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialTransparency = initialTransp;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialRotXCbk ( G3DUI              *gui,
-                                                      G3DPARTICLEEMITTER *pem,
-                                                      float               initialRotX ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialRotation.x = initialRotX;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialRotYCbk ( G3DUI              *gui,
-                                                      G3DPARTICLEEMITTER *pem,
-                                                      float               initialRotY ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialRotation.y = initialRotY;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialRotZCbk ( G3DUI              *gui,
-                                                      G3DPARTICLEEMITTER *pem,
-                                                      float               initialRotZ ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialRotation.z = initialRotZ;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialScaXCbk ( G3DUI              *gui,
-                                                      G3DPARTICLEEMITTER *pem,
-                                                      float               initialScaX ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialScaling.x = initialScaX;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialScaYCbk ( G3DUI              *gui,
-                                                      G3DPARTICLEEMITTER *pem,
-                                                      float               initialScaY ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialScaling.y = initialScaY;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialScaZCbk ( G3DUI              *gui,
-                                                      G3DPARTICLEEMITTER *pem,
-                                                      float               initialScaZ ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialScaling.z = initialScaZ;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialSpeedXCbk ( G3DUI              *gui,
-                                                        G3DPARTICLEEMITTER *pem,
-                                                        float               initialSpeedX ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialSpeed.x = initialSpeedX;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialSpeedYCbk ( G3DUI              *gui,
-                                                        G3DPARTICLEEMITTER *pem,
-                                                        float               initialSpeedY ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialSpeed.y = initialSpeedY;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialSpeedZCbk ( G3DUI              *gui,
-                                                        G3DPARTICLEEMITTER *pem,
-                                                        float               initialSpeedZ ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialSpeed.z = initialSpeedZ;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialAccelXCbk ( G3DUI              *gui,
-                                                        G3DPARTICLEEMITTER *pem,
-                                                        float               initialAccelX ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialAccel.x = initialAccelX;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialAccelYCbk ( G3DUI              *gui,
-                                                        G3DPARTICLEEMITTER *pem,
-                                                        float               initialAccelY ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialAccel.y = initialAccelY;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_initialAccelZCbk ( G3DUI              *gui,
-                                                        G3DPARTICLEEMITTER *pem,
-                                                        float               initialAccelZ ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->initialAccel.z = initialAccelZ;
-}
-
-
-
-
-
-
-
-
-
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_startAtFrameCbk ( G3DUI              *gui,
-                                                       G3DPARTICLEEMITTER *pem,
-                                                       uint32_t            startAtFrame ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->startAtFrame = startAtFrame;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_endAtFrameCbk ( G3DUI              *gui,
-                                                     G3DPARTICLEEMITTER *pem,
-                                                     uint32_t            endAtFrame ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->endAtFrame = endAtFrame;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_radiusCbk ( G3DUI              *gui,
-                                                 G3DPARTICLEEMITTER *pem,
-                                                 float               radius ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->radius = radius;
-
-    g3dparticleemitter_reset ( pem );
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_lifetimeCbk ( G3DUI              *gui,
-                                                   G3DPARTICLEEMITTER *pem,
-                                                   uint32_t            lifetime ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->particleLifetime = lifetime;
-
-    g3dparticleemitter_reset ( pem );
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_ppfCbk ( G3DUI              *gui,
-                                              G3DPARTICLEEMITTER *pem,
-                                              float               ppf ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->particlesPerFrame = ppf;
-
-    g3dparticleemitter_reset ( pem );
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_maxPreviewsCbk ( G3DUI              *gui,
-                                                      G3DPARTICLEEMITTER *pem,
-                                                      uint32_t            maxPreviews ) {
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;;
-
-    pem->maxPreviewsPerFrame = maxPreviews;
-}
-
-/******************************************************************************/
-void common_g3duiparticleemitteredit_displayPartCbk ( G3DUI              *gui, 
-                                                      G3DPARTICLEEMITTER *pem ) {
-    /*** prevent a loop when updating widget ***/
-    if ( gui->lock ) return;
-
-    if ( pem->obj.flags & DISPLAYPARTICLES ) {
-        pem->obj.flags &= (~DISPLAYPARTICLES);
-    } else {
-        pem->obj.flags |= DISPLAYPARTICLES;
+#define LISTLOOP(gpeedit, gpeedit,var,val) \
+    G3DUI *gui = gpeedit->gui;                                      \
+    G3DSCENE *sce = gui->sce;                                       \
+    LIST *ltmpselobj = sce->lsel;                                   \
+                                                                    \
+    while ( ltmpselobj ) {                                          \
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;          \
+                                                                    \
+        if ( sel->type == G3DPARTICLEEMITTERTYPE ) {                \
+            G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) sel; \
+                                                                    \
+            pem->var = val;                                         \
+        }                                                           \
+                                                                    \
+        ltmpselobj = ltmpselobj->next;                              \
     }
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_gravityForceXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                     float                     g ) {
+
+    LISTLOOP(gpeedit, gravity.x, g);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_gravityForceYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                     float                     g ) {
+    LISTLOOP(gpeedit, gravity.y, g);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_gravityForceZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                     float                     g ) {
+
+    LISTLOOP(gpeedit, gravity.z, g);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialVarTranspCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                        float                     initialVarTransp ) {
+    LISTLOOP(gpeedit, initialVarTransparency, initialVarTransp);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialVarRotXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                      float                     initialVarRotX ) {
+    LISTLOOP(gpeedit, initialVarRotation.x, initialVarRotX);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialVarRotYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                      float                     initialVarRotY ) {
+    LISTLOOP(gpeedit, initialVarRotation.y, initialVarRotY);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialVarRotZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                      float                     initialVarRotZ ) {
+    LISTLOOP(gpeedit, initialVarRotation.z, initialVarRotZ);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialVarScaXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                      float                     initialVarScaX ) {
+
+    LISTLOOP(gpeedit, initialVarScaling.x, initialVarScaX);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialVarScaYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                      float                     initialVarScaY ) {
+    LISTLOOP(gpeedit, initialVarScaling.y, initialVarScaY);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialVarScaZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                      float                     initialVarScaZ ) {
+    LISTLOOP(gpeedit, initialVarScaling.z, initialVarScaZ);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialVarSpeedXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                        float                     initialVarSpeedX ) {
+    LISTLOOP(gpeedit, initialVarSpeed.x, initialVarSpeedX);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialVarSpeedYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                        float                     initialVarSpeedY ) {
+    LISTLOOP(gpeedit, initialVarSpeed.y, initialVarSpeedY);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialVarSpeedZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                        float                     initialVarSpeedZ ) {
+    LISTLOOP(gpeedit, initialVarSpeed.z, initialVarSpeedZ);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialVarAccelXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                        float                     initialVarAccelX ) {
+    LISTLOOP(gpeedit, initialVarAccel.x, initialVarAccelX);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialVarAccelYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                        float                     initialVarAccelY ) {
+    LISTLOOP(gpeedit, initialVarAccel.y, initialVarAccelY);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialVarAccelZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                        float                     initialVarAccelZ ) {
+    LISTLOOP(gpeedit, initialVarAccel.z, initialVarAccelZ);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_finalTranspCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                   float                     finalTransp ) {
+    LISTLOOP(gpeedit, finalTransparency, finalTransp);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_finalRotXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                 float                     finalRotX ) {
+    LISTLOOP(gpeedit, finalRotation.x, finalRotX);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_finalRotYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                 float                     finalRotY ) {
+    LISTLOOP(gpeedit, finalRotation.y, finalRotY);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_finalRotZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                 float                     finalRotZ ) {
+    LISTLOOP(gpeedit, finalRotation.z, finalRotZ);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_finalScaXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                 float                     finalScaX ) {
+    LISTLOOP(gpeedit, finalScaling.x, finalScaX);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_finalScaYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                 float                     finalScaY ) {
+    LISTLOOP(gpeedit, finalScaling.y, finalScaY);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_finalScaZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                 float                     finalScaZ ) {
+    LISTLOOP(gpeedit, finalScaling.z, finalScaZ);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_finalSpeedXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                   float                     finalSpeedX ) {
+    LISTLOOP(gpeedit, finalSpeed.x, finalSpeedX);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_finalSpeedYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                   float                     finalSpeedY ) {
+    LISTLOOP(gpeedit, finalSpeed.y, finalSpeedY);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_finalSpeedZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                   float                     finalSpeedZ ) {
+    LISTLOOP(gpeedit, finalSpeed.z, finalSpeedZ);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_finalAccelXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                   float                     finalAccelX ) {
+    LISTLOOP(gpeedit, finalAccel.x, finalAccelX);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_finalAccelYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                   float                     finalAccelY ) {
+    LISTLOOP(gpeedit, finalAccel.y, finalAccelY);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_finalAccelZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                   float                     finalAccelZ ) {
+    LISTLOOP(gpeedit, finalAccel.z, finalAccelZ);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialTranspCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                     float                     initialTransp ) {
+    LISTLOOP(gpeedit, initialTransparency, initialTransp);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialRotXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                   float                     initialRotX ) {
+    LISTLOOP(gpeedit, initialRotation.x, initialRotX);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialRotYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                   float                     initialRotY ) {
+    LISTLOOP(gpeedit, initialRotation.y, initialRotY);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialRotZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                   float                     initialRotZ ) {
+    LISTLOOP(gpeedit, initialRotation.z, initialRotZ);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialScaXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                   float                     initialScaX ) {
+    LISTLOOP(gpeedit, initialScaling.x, initialScaX);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialScaYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                   float                     initialScaY ) {
+    LISTLOOP(gpeedit, initialScaling.y, initialScaY;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialScaZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                   float                     initialScaZ ) {
+    LISTLOOP(gpeedit, initialScaling.z, initialScaZ);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialSpeedXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                     float                     initialSpeedX ) {
+    LISTLOOP(gpeedit, initialSpeed.x, initialSpeedX);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialSpeedYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                     float                     initialSpeedY ) {
+    LISTLOOP(gpeedit, initialSpeed.y, initialSpeedY);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialSpeedZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                     float                     initialSpeedZ ) {
+    LISTLOOP(gpeedit, initialSpeed.z, initialSpeedZ);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialAccelXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                     float                     initialAccelX ) {
+    LISTLOOP(gpeedit, initialAccel.x, initialAccelX);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialAccelYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                     float                     initialAccelY ) {
+    LISTLOOP(gpeedit, initialAccel.y, initialAccelY);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_initialAccelZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                     float                     initialAccelZ ) {
+    LISTLOOP(gpeedit, initialAccel.z, initialAccelZ);
+
+    return 0x00;
+}
+
+
+
+
+
+
+
+
+
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_startAtFrameCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                    uint32_t                  startAtFrame ) {
+    LISTLOOP(gpeedit, startAtFrame, startAtFrame);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_endAtFrameCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                  uint32_t                  endAtFrame ) {
+    LISTLOOP(gpeedit, endAtFrame, endAtFrame);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_radiusCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                              float                     radius ) {
+    LISTLOOP(gpeedit, pem->radius, radius);
+
+    g3dparticleemitter_reset ( pem );
+
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_lifetimeCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                uint32_t                  lifetime ) {
+    LISTLOOP(gpeedit, particleLifetime, lifetime);
+
+    g3dparticleemitter_reset ( pem );
+
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_ppfCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                           float                     ppf ) {
+    LISTLOOP(gpeedit, particlesPerFrame, ppf);
+
+    g3dparticleemitter_reset ( pem );
+
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_maxPreviewsCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                   uint32_t                  maxPreviews ) {
+    LISTLOOP(gpeedit, maxPreviewsPerFrame, maxPreviews);
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t g3duiparticleemitteredit_displayPartCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit ) {
+    G3DUI *gui = gpeedit->gui;
+    G3DSCENE *sce = gui->sce;
+    LIST *ltmpselobj = sce->lsel;
+
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+
+        if ( sel->type == G3DPARTICLEEMITTERTYPE ) {
+            G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) sel;
+
+            if ( pem->obj.flags & DISPLAYPARTICLES ) {
+                pem->obj.flags &= (~DISPLAYPARTICLES);
+            } else {
+                pem->obj.flags |= DISPLAYPARTICLES;
+            }
+        }
+
+        ltmpselobj = ltmpselobj->next;
+    }
+
+
+    return REDRAWVIEW;
 }

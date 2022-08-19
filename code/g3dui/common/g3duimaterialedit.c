@@ -279,8 +279,6 @@ uint64_t g3duimaterialedit_channelChooseImageCbk ( G3DUIMATERIALEDIT *matedit,
             if ( bindGL ) g3dimage_bind ( colimg );
 
             if ( colimg ) {
-                LIST *ltmpmat = gui->lmatlist;
-
                 cha->image = colimg;
 
                 g3dchannel_enableImageColor ( cha );

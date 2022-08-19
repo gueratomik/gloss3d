@@ -105,25 +105,3 @@ uint64_t g3duimeshedit_toggleShadingCbk ( G3DUIMESHEDIT *mesedit ) {
 
     return REDRAWVIEW;
 }
-
-
-/******************************************************************************/
-void common_g3duimeshedit_subdivLevelCbk ( G3DUI *gui, int level ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = ( sce ) ? g3dscene_getSelectedObject ( sce ) : NULL;
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
-
-    g3dui_setHourGlass ( gui );
-
-    if ( obj && ( obj->type == G3DMESHTYPE ) ) {
-        G3DMESH *mes = ( G3DMESH * ) obj;
-
-        /*g3dmesh_setSubdivisionLevel ( mes, level, gui->engine_flags );*/
-    }
-
-    g3dui_unsetHourGlass ( gui );
-
-    g3dui_redrawGLViews ( gui );
-}

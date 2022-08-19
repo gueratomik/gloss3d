@@ -32,7 +32,7 @@
 /******************************************************************************/
 uint64_t g3duicameraedit_dofRadiusCbk ( G3DUICAMERAEDIT *camedit,
                                         uint32_t         radius ) {
-    G3DUI *gui = cubedit->gui;
+    G3DUI *gui = camedit->gui;
     G3DSCENE *sce = gui->sce;
     LIST *ltmpselobj = sce->lsel;
 
@@ -134,10 +134,10 @@ uint64_t g3duicameraedit_dofEnableCbk ( G3DUICAMERAEDIT *camedit ) {
         if ( sel->type == G3DCAMERATYPE ) {
             G3DCAMERA *cam = ( G3DCAMERA * ) sel;
 
-            if ( obj->flags & CAMERADOF ) {
-                obj->flags &= (~CAMERADOF);
+            if ( sel->flags & CAMERADOF ) {
+                sel->flags &= (~CAMERADOF);
             } else {
-                obj->flags |= CAMERADOF;
+                sel->flags |= CAMERADOF;
             }
         }
 

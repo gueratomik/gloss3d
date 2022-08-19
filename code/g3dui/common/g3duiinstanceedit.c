@@ -79,11 +79,12 @@ uint64_t g3duiinstanceedit_setReferenceCbk ( G3DUIINSTANCEEDIT *insedit,
 /******************************************************************************/
 uint64_t g3duiinstanceedit_mirroredToggleCbk ( G3DUIINSTANCEEDIT *insedit ) {
     G3DUI *gui = insedit->gui;
-    G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *sel = g3dscene_getLastSelected ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    if ( sel ) {
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+
         if ( sel->type == G3DINSTANCETYPE ) {
             G3DINSTANCE *ins = ( G3DINSTANCE * ) sel;
 
@@ -100,13 +101,15 @@ uint64_t g3duiinstanceedit_mirroredToggleCbk ( G3DUIINSTANCEEDIT *insedit ) {
 }
 
 /******************************************************************************/
-uint64_t g3duiinstanceedit_orientationCbk ( G3DUIINSTANCEEDIT *insedit
+uint64_t g3duiinstanceedit_orientationCbk ( G3DUIINSTANCEEDIT *insedit,
                                             char              *str ) {
-    G3DURMANAGER *urm = gui->urm;
+    G3DUI *gui = insedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *sel = g3dscene_getLastSelected ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    if ( sel ) {
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+
         if ( sel->type == G3DINSTANCETYPE ) {
             G3DINSTANCE *ins = ( G3DINSTANCE * ) sel;
 

@@ -32,6 +32,7 @@
 /******************************************************************************/
 uint64_t g3duikeyedit_setKeyTransformationsCbk ( G3DUIKEYEDIT *keyedit,
                                                  uint32_t      flag ) {
+    G3DUI *gui = keyedit->gui;
     G3DSCENE *sce = gui->sce;
     LIST *ltmpobj = sce->lsel;
 
@@ -65,6 +66,7 @@ uint64_t g3duikeyedit_setKeyTransformationsCbk ( G3DUIKEYEDIT *keyedit,
 /******************************************************************************/
 uint64_t g3duikeyedit_unsetKeyTransformationsCbk ( G3DUIKEYEDIT *keyedit,
                                                    uint32_t      flag ) {
+    G3DUI *gui = keyedit->gui;
     G3DSCENE *sce = gui->sce;
     LIST *ltmpobj = sce->lsel;
 
@@ -100,6 +102,7 @@ uint64_t g3duikeyedit_unsetKeyTransformationsCbk ( G3DUIKEYEDIT *keyedit,
 /******************************************************************************/
 uint64_t g3duikeyedit_loopFrameCbk ( G3DUIKEYEDIT *keyedit,
                                      float         frame ) {
+    G3DUI *gui = keyedit->gui;
     G3DSCENE *sce = gui->sce;
     LIST *ltmpobj = sce->lsel;
 
@@ -118,6 +121,7 @@ uint64_t g3duikeyedit_loopFrameCbk ( G3DUIKEYEDIT *keyedit,
 /******************************************************************************/
 uint64_t g3duikeyedit_loopCbk ( G3DUIKEYEDIT *keyedit,
                                 uint32_t      loop ) {
+    G3DUI *gui = keyedit->gui;
     G3DSCENE *sce = gui->sce;
     LIST *ltmpobj = sce->lsel;
 
@@ -141,6 +145,7 @@ uint64_t g3duikeyedit_loopCbk ( G3DUIKEYEDIT *keyedit,
 uint64_t g3duikeyedit_keyCbk ( G3DUIKEYEDIT *keyedit,
                                const char   *field,
                                float         val ) {
+    G3DUI *gui = keyedit->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 

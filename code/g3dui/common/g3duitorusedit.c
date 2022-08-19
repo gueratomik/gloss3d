@@ -30,140 +30,160 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duitorusedit_sliceCbk ( G3DUI *gui, int slice ) {
+uint64_t g3duitorusedit_sliceCbk ( G3DUITORUSEDIT *toredit,
+                                   uint32_t        slice ) {
+    G3DUI *gui = toredit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    LIST *ltmpselobj = sce->lsel;
 
-    /*** prevent loop ***/
-    if ( gui->lock ) return;
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-    if ( obj && ( obj->type == G3DTORUSTYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
+        if ( sel->type == G3DTORUSTYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
 
-        g3dui_setHourGlass ( gui );
-
-        g3dtorus_build ( pri, tds->orientation, 
-                              slice,
-                              tds->cap,
-                              tds->extrad, 
-                              tds->intrad );
-
-        g3dui_unsetHourGlass ( gui ); 
-        g3dui_redrawGLViews  ( gui );
-    }
-}
-
-/******************************************************************************/
-void common_g3duitorusedit_capCbk ( G3DUI *gui, int cap ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevent loop ***/
-    if ( gui->lock ) return;
-
-    if ( obj && ( obj->type == G3DTORUSTYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
-
-        g3dui_setHourGlass ( gui );
-
-        g3dtorus_build ( pri, tds->orientation, 
-                              tds->slice,
-                              cap,
-                              tds->extrad, 
-                              tds->intrad );
-
-        g3dui_unsetHourGlass ( gui );
-        g3dui_redrawGLViews ( gui );
-    }
-}
-
-/******************************************************************************/
-void common_g3duitorusedit_extRadiusCbk ( G3DUI *gui, float extrad ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevent a loop ***/
-    if ( gui->lock ) return;
-
-    if ( obj && ( obj->type == G3DTORUSTYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
-
-        g3dui_setHourGlass ( gui );
-
-        g3dtorus_build ( pri, tds->orientation, 
-                              tds->slice,
-                              tds->cap,
-                              extrad, 
-                              tds->intrad );
-
-        g3dui_unsetHourGlass ( gui );
-        g3dui_redrawGLViews ( gui );
-    }
-}
-
-/******************************************************************************/
-void common_g3duitorusedit_intRadiusCbk ( G3DUI *gui, float intrad ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevent a loop ***/
-    if ( gui->lock ) return;
-
-    if ( obj && ( obj->type == G3DTORUSTYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
-
-        g3dui_setHourGlass ( gui );
-
-        g3dtorus_build ( pri, tds->orientation, 
-                              tds->slice,
-                              tds->cap,
-                              tds->extrad, 
-                              intrad );
-
-        g3dui_unsetHourGlass ( gui );
-        g3dui_redrawGLViews ( gui );
-    }
-}
-
-/******************************************************************************/
-void common_g3duitorusedit_orientationCbk ( G3DUI *gui, const char *oristr ) {
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevent a loop ***/
-    if ( gui->lock ) return;
-
-    if ( obj && ( obj->type == G3DTORUSTYPE ) ) {
-        G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
-        TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
-        uint32_t orientation;
-
-        if ( strcmp ( oristr, ZXSTR ) == 0x00 ) {
-            orientation = TORUSZX;
+            g3dtorus_build ( pri, 
+                             tds->orientation, 
+                             slice,
+                             tds->cap,
+                             tds->extrad, 
+                             tds->intrad );
         }
 
-        if ( strcmp ( oristr, XYSTR ) == 0x00 ) {
-            orientation = TORUSXY;
-        }
-
-        if ( strcmp ( oristr, YZSTR ) == 0x00 ) {
-            orientation = TORUSYZ;
-        }
-
-        g3dui_setHourGlass ( gui );
-
-        g3dtorus_build ( pri, orientation,
-                              tds->slice,
-                              tds->cap,
-                              tds->extrad, 
-                              tds->intrad );
-
-        g3dui_unsetHourGlass ( gui );        
-        g3dui_redrawGLViews ( gui );
+        ltmpselobj = ltmpselobj->next;
     }
+
+
+    return REDRAWVIEW;
+}
+
+/******************************************************************************/
+uint64_t g3duitorusedit_capCbk ( G3DUITORUSEDIT *toredit,
+                                 uint32_t        cap ) {
+    G3DUI *gui = toredit->gui;
+    G3DSCENE *sce = gui->sce;
+    LIST *ltmpselobj = sce->lsel;
+
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+
+        if ( sel->type == G3DTORUSTYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
+
+            g3dtorus_build ( pri,
+                             tds->orientation, 
+                             tds->slice,
+                             cap,
+                             tds->extrad, 
+                             tds->intrad );
+        }
+
+        ltmpselobj = ltmpselobj->next;
+    }
+
+
+    return REDRAWVIEW;
+}
+
+/******************************************************************************/
+uint64_t g3duitorusedit_extRadiusCbk ( G3DUITORUSEDIT *toredit,
+                                       float           extrad ) {
+    G3DUI *gui = toredit->gui;
+    G3DSCENE *sce = gui->sce;
+    LIST *ltmpselobj = sce->lsel;
+
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+
+        if ( sel->type == G3DTORUSTYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
+
+            g3dtorus_build ( pri, 
+                             tds->orientation, 
+                             tds->slice,
+                             tds->cap,
+                             extrad, 
+                             tds->intrad );
+        }
+
+        ltmpselobj = ltmpselobj->next;
+    }
+
+
+    return REDRAWVIEW;
+}
+
+/******************************************************************************/
+uint64_t g3duitorusedit_intRadiusCbk ( G3DUITORUSEDIT *toredit,
+                                       float           intrad ) {
+    G3DUI *gui = toredit->gui;
+    G3DSCENE *sce = gui->sce;
+    LIST *ltmpselobj = sce->lsel;
+
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+
+        if ( sel->type == G3DTORUSTYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
+
+            g3dtorus_build ( pri,
+                             tds->orientation, 
+                             tds->slice,
+                             tds->cap,
+                             tds->extrad, 
+                             intrad );
+        }
+
+        ltmpselobj = ltmpselobj->next;
+    }
+
+
+    return REDRAWVIEW;
+}
+
+/******************************************************************************/
+uint64_t g3duitorusedit_orientationCbk ( G3DUITORUSEDIT *toredit,
+                                         const char     *oristr ) {
+    G3DUI *gui = toredit->gui;
+    G3DSCENE *sce = gui->sce;
+    LIST *ltmpselobj = sce->lsel;
+
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+
+        if ( sel->type == G3DTORUSTYPE ) {
+            G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
+            TORUSDATASTRUCT *tds = ( TORUSDATASTRUCT * ) pri->data;
+            uint32_t orientation;
+
+            if ( strcmp ( oristr, ZXSTR ) == 0x00 ) {
+                orientation = TORUSZX;
+            }
+
+            if ( strcmp ( oristr, XYSTR ) == 0x00 ) {
+                orientation = TORUSXY;
+            }
+
+            if ( strcmp ( oristr, YZSTR ) == 0x00 ) {
+                orientation = TORUSYZ;
+            }
+
+            g3dtorus_build ( pri, 
+                             orientation,
+                             tds->slice,
+                             tds->cap,
+                             tds->extrad,
+                             tds->intrad );
+        }
+
+        ltmpselobj = ltmpselobj->next;
+    }
+
+
+    return REDRAWVIEW;
 }
 

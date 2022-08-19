@@ -8,10 +8,56 @@ if HAVE_GTK3
     lib_LTLIBRARIES = libgloss-g3dui-gtk3.la
     libgloss_g3dui_gtk3_la_SOURCES = $(LIBGLOSSG3DUI_C_FILES)
 
-    LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
+    LIBGLOSSG3DUI_C_FILES = common/g3duiboneedit.c \
+                            common/g3duibonelinker.c \
+                            common/g3dui.c \
+                            common/g3duicameraedit.c \
+                            common/g3duiclipboard.c \
                             common/g3duiconf.c \
+                            common/g3duicoordinatesedit.c \
+                            common/g3duicubeedit.c \
+                            common/g3duicurrentedit.c \
+                            common/g3duicylinderedit.c \
+                            common/g3duiexport.c \
+                            common/g3duiffdedit.c \
+                            common/g3duiinstanceedit.c \
+                            common/g3duikeyedit.c \
+                            common/g3duilightedit.c \
+                            common/g3duilist.c \
                             common/g3duimain.c \
+                            common/g3duimaterialboard.c \
+                            common/g3duimaterialedit.c \
+                            common/g3duimateriallist.c \
+                            common/g3duimaterialnameedit.c \
+                            common/g3duimenubar.c \
+                            common/g3duimeshedit.c \
+                            common/g3duimeshposelist.c \
+                            common/g3duimodebar.c \
+                            common/g3duiobjectedit.c \
+                            common/g3duiparticleemitteredit.c \
+                            common/g3duipatternlist.c \
+                            common/g3duiplaneedit.c \
+                            common/g3duiquad.c \
+                            common/g3duirenderedit.c \
+                            common/g3duirenderprocess.c \
+                            common/g3duisphereedit.c \
+                            common/g3duisplinerevolveredit.c \
+                            common/g3duisubdivideredit.c \
+                            common/g3duisymmetryedit.c \
+                            common/g3duitextedit.c \
+                            common/g3duitextureedit.c \
+                            common/g3duitimeboard.c \
+                            common/g3duitimeline.c \
                             common/g3duitoolbar.c \
+                            common/g3duitorusedit.c \
+                            common/g3duitrackertagedit.c \
+                            common/g3duitubeedit.c \
+                            common/g3duiuvmapedit.c \
+                            common/g3duiview.c \
+                            common/g3duiviewexport.c \
+                            common/g3duiweightgrouplist.c \
+                            common/g3duiwireframeedit.c \
+                            common/m3dui.c \
                             gtk3/g3dui.c \
                             gtk3/g3duimain.c \
                             gtk3/g3duitoolbar.c
