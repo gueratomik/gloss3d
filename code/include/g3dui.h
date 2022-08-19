@@ -605,6 +605,10 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define CLIPBOARDCOPYKEY        0x02
 #define CLIPBOARDCOPYFACESCULPT 0x03
 
+/******************************************************************************/
+typedef struct _M3DUI M3DUI;
+
+/******************************************************************************/
 typedef enum _G3DUIAXIS {
     G3DUIXAXIS,
     G3DUIYAXIS,
@@ -751,6 +755,16 @@ typedef struct _G3DUIMESHPOSELIST {
 } G3DUIMESHPOSELIST;
 
 /******************************************************************************/
+typedef struct _G3DUITIMELINE {
+    G3DUI *gui;
+    int32_t midframe; /*** the frame in the middle of the widget     ***/
+    uint32_t nbpix;   /*** Number of pixels between frame indicators ***/
+    float (*funcKey)(G3DKEY *key, void *data );
+    void   *funcData;
+    uint32_t tool;
+} G3DUITIMELINE;
+
+/******************************************************************************/
 typedef struct _G3DUILIGHTEDIT {
     G3DUI *gui;
 } G3DUILIGHTEDIT;
@@ -789,6 +803,11 @@ typedef struct _G3DUIWIREFRAMEEDIT {
 typedef struct _G3DUITEXTEDIT {
     G3DUI *gui;
 } G3DUITEXTEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUISUBDIVIDEREDIT {
+    G3DUI *gui;
+} G3DUISUBDIVIDEREDIT;
 
 /******************************************************************************/
 typedef struct _G3DUITEXTUREEDIT {
@@ -854,6 +873,11 @@ typedef struct _G3DUIKEYEDIT {
 typedef struct _G3DUIMODEBAR {
     G3DUI *gui;
 } G3DUIMODEBAR;
+
+/******************************************************************************/
+typedef struct _M3DUIMODEBAR {
+    M3DUI *mui;
+} M3DUIMODEBAR;
 
 /******************************************************************************/
 typedef struct _G3DUIOBJECTEDIT {
@@ -1282,23 +1306,15 @@ PATTERNLISTDATA *common_patternlistdata_new ( uint32_t size );
 #define TIME_MOVE_TOOL  0x01
 #define TIME_SCALE_TOOL 0x02
 
-typedef struct _TIMELINEDATA {
-    int32_t midframe; /*** the frame in the middle of the widget     ***/
-    uint32_t nbpix;   /*** Number of pixels between frame indicators ***/
-    float (*funcKey)(G3DKEY *key, void *data );
-    void   *funcData;
-    uint32_t tool;
-} TIMELINEDATA;
-
 
 /******************************************************************************/
-TIMELINEDATA *common_timelinedata_new ( );
-uint32_t      common_timelinedata_onFrame     ( TIMELINEDATA *, float,
+/*TIMELINEDATA *common_timelinedata_new ( );*/
+uint32_t      common_timelinedata_onFrame     ( G3DUITIMELINE *, float,
                                                                 int,
                                                                 int,
                                                                 int );
-int32_t       common_timelinedata_getFrame    ( TIMELINEDATA *, int, int, int );
-int32_t       common_timelinedata_getFramePos ( TIMELINEDATA *, float, int );
+int32_t       common_timelinedata_getFrame    ( G3DUITIMELINE *, int, int, int );
+int32_t       common_timelinedata_getFramePos ( G3DUITIMELINE *, float, int );
 
 void          common_g3duitimeline_deleteSelectedKeys  ( G3DUI* );
 void          common_g3duitimeline_scaleSelectedKeys   ( G3DUI *gui, 
@@ -1306,17 +1322,17 @@ void          common_g3duitimeline_scaleSelectedKeys   ( G3DUI *gui,
                                                          float  reference );
 
 uint32_t      common_timelinedata_selectKey   ( G3DUI*, 
-                                                TIMELINEDATA *,
+                                                G3DUITIMELINE *,
                                                 int,
                                                 int,
                                                 int,
                                                 int );
 
 void common_timelinedata_selectAllKeys ( G3DUI        *gui, 
-                                         TIMELINEDATA *tdata );
+                                         G3DUITIMELINE *tdata );
 
 uint32_t common_timelinedata_isOnKey ( G3DUI        *gui, 
-                                       TIMELINEDATA *tdata,
+                                       G3DUITIMELINE *tdata,
                                        int           frame );
 
 /******************************************************************************/
@@ -2141,5 +2157,8 @@ void g3dui_saveG3DFile ( G3DUI *gui );
 
 G3DMOUSETOOL *g3dui_getMouseTool ( G3DUI      *gui, 
                                    const char *name );
+
+uint64_t m3dui_redoCbk ( M3DUI *mui );
+uint64_t m3dui_undoCbk ( M3DUI *mui );
 
 #endif

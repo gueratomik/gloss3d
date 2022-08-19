@@ -41,10 +41,10 @@ uint64_t g3duimeshedit_useIsoLinesCbk ( G3DUIMESHEDIT *mesedit ) {
         if ( sel->type == G3DMESHTYPE ) {
             G3DMESH *mes = ( G3DMESH * ) sel;
 
-            if ( obj->flags & MESHUSEISOLINES ) {
-                obj->flags &= (~MESHUSEISOLINES);
+            if ( sel->flags & MESHUSEISOLINES ) {
+                sel->flags &= (~MESHUSEISOLINES);
             } else {
-                obj->flags |= MESHUSEISOLINES;
+                sel->flags |= MESHUSEISOLINES;
             }
 
             /*** rebuild using adaptive subdivision (or not) ***/
@@ -92,10 +92,10 @@ uint64_t g3duimeshedit_toggleShadingCbk ( G3DUIMESHEDIT *mesedit ) {
         if ( sel->type == G3DMESHTYPE ) {
             G3DMESH *mes = ( G3DMESH * ) sel;
 
-            if ( obj->flags & OBJECTNOSHADING ) {
-                obj->flags &= (~OBJECTNOSHADING);
+            if ( sel->flags & OBJECTNOSHADING ) {
+                sel->flags &= (~OBJECTNOSHADING);
             } else {
-                obj->flags |= OBJECTNOSHADING;
+                sel->flags |= OBJECTNOSHADING;
             }
         }
 

@@ -42,7 +42,7 @@
 uint64_t m3duimodebar_setModeCbk ( M3DUIMODEBAR *mmb, 
                                    const char   *modename ) {
     M3DUI *mui = mmb->mui;
-    uint64_t curflags = lui->engine_flags & (~UVMODEMASK);
+    uint64_t curflags = mui->engine_flags & (~UVMODEMASK);
     uint64_t newmode = 0x00;
 
     if ( strcmp ( modename, MODE_VIEWVERTEX ) == 0x00 ) newmode = VIEWVERTEXUV;

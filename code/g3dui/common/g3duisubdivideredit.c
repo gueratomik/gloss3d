@@ -89,7 +89,7 @@ uint64_t g3duisubdivideredit_subdivSyncCbk ( G3DUISUBDIVIDEREDIT *subedit ) {
         if ( sel->type == G3DSUBDIVIDERTYPE ) {
             G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) sel;
 
-            if ( obj->flags & SYNCLEVELS ) {
+            if ( sel->flags & SYNCLEVELS ) {
                 g3dsubdivider_unsetSyncSubdivision ( sdr );
             } else {
                 g3dsubdivider_setSyncSubdivision   ( sdr );
@@ -115,10 +115,10 @@ uint64_t g3duisubdivideredit_useIsoLinesCbk ( G3DUISUBDIVIDEREDIT *subedit ) {
         if ( sel->type == G3DSUBDIVIDERTYPE ) {
             G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) sel;
 
-            if ( obj->flags & MESHUSEISOLINES ) {
-                obj->flags &= (~MESHUSEISOLINES);
+            if ( sel->flags & MESHUSEISOLINES ) {
+                sel->flags &= (~MESHUSEISOLINES);
             } else {
-                obj->flags |= MESHUSEISOLINES;
+                sel->flags |= MESHUSEISOLINES;
             }
         }
 
@@ -144,7 +144,7 @@ uint64_t g3duisubdivideredit_subdivRenderCbk ( G3DUISUBDIVIDEREDIT *subedit,
 
             sdr->subdiv_render = level;
 
-            if ( obj->flags & SYNCLEVELS ) {
+            if ( sel->flags & SYNCLEVELS ) {
                 sdr->subdiv_preview = sdr->subdiv_render;
             }
         }
@@ -169,7 +169,7 @@ uint64_t g3duisubdivideredit_subdivPreviewCbk ( G3DUISUBDIVIDEREDIT *subedit,
         if ( sel->type == G3DSUBDIVIDERTYPE ) {
             G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) sel;
             uint32_t preview = level,
-                     render  = ( obj->flags & SYNCLEVELS ) ? preview :
+                     render  = ( sel->flags & SYNCLEVELS ) ? preview :
                                                              sdr->subdiv_render; 
 
             g3dsubdivider_setLevels ( sdr,

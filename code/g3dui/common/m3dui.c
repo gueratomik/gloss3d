@@ -32,7 +32,7 @@
 #define CLEARCOLOR 100
 
 /******************************************************************************/
-G3DIMAGE *common_m3dui_getWorkingChannel ( M3DUI *mui ) {
+G3DIMAGE *m3dui_getWorkingChannel ( M3DUI *mui ) {
     G3DUI        *gui = mui->gui;
     G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
@@ -63,7 +63,7 @@ G3DIMAGE *common_m3dui_getWorkingChannel ( M3DUI *mui ) {
 }
 
 /******************************************************************************/
-G3DIMAGE *common_m3dui_getWorkingImage ( M3DUI *mui ) {
+G3DIMAGE *m3dui_getWorkingImage ( M3DUI *mui ) {
     G3DCHANNEL *chn = common_m3dui_getWorkingChannel ( mui );
 
     if ( chn ) {
@@ -78,21 +78,21 @@ G3DIMAGE *common_m3dui_getWorkingImage ( M3DUI *mui ) {
 }
 
 /******************************************************************************/
-void common_m3dui_setUVMouseTool ( M3DUI *mui, 
-                                              G3DCAMERA        *cam, 
-                                              G3DMOUSETOOL     *mou ) {
+uint64_t m3dui_setUVMouseTool ( M3DUI        *mui, 
+                                G3DCAMERA    *cam, 
+                                G3DMOUSETOOL *mou ) {
     G3DUI *gui = mui->gui;
+    uint32_t msk = 0x00;
 
     /*** Call the mouse tool initialization function once. This ***/
     /*** can be used by this function to initialize some values ***/
     if ( mou ) {
         if ( mou->init ) {
-            uint32_t msk = mou->init ( mou, gui->sce,
-                                           &mui->cam,
-                                            /*mui->uvurm*/
-                                            gui->urm, mui->engine_flags );
-
-            common_g3dui_interpretMouseToolReturnFlags ( gui, msk );
+            msk = mou->init ( mou, 
+                              gui->sce,
+                             &mui->cam,
+                              gui->urm, 
+                              mui->engine_flags );
         }
 
         if ( ( mou->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
@@ -101,11 +101,14 @@ void common_m3dui_setUVMouseTool ( M3DUI *mui,
     } else {
         gui->uvmou = NULL;
     }
+
+
+    return msk;
 }
 
 /******************************************************************************/
-void common_m3dui_fillWithColor ( M3DUI *mui, 
-                                             uint32_t          color ) {
+void m3dui_fillWithColor ( M3DUI   *mui, 
+                           uint32_t color ) {
     G3DIMAGE *img = common_m3dui_getWorkingImage ( mui );
 
     if ( img ) {
@@ -142,7 +145,7 @@ void common_m3dui_fillWithColor ( M3DUI *mui,
 }
 
 /******************************************************************************/
-void common_m3dui_resizeBuffers ( M3DUI *mui ) {
+void m3dui_resizeBuffers ( M3DUI *mui ) {
     G3DIMAGE *img = common_m3dui_getWorkingImage ( mui );
     M3DMOUSETOOL *seltool = common_g3dui_getMouseTool ( mui->gui,
                                                         SELECTTOOL );
@@ -162,7 +165,7 @@ void common_m3dui_resizeBuffers ( M3DUI *mui ) {
 }
 
 /******************************************************************************/
-void common_m3dui_uvset2facCbk ( M3DUI *mui ) {
+void m3dui_uvset2fac ( M3DUI *mui ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
@@ -214,7 +217,7 @@ void common_m3dui_uvset2facCbk ( M3DUI *mui ) {
 }
 
 /******************************************************************************/
-void common_m3dui_fac2uvsetCbk ( M3DUI *mui ) {
+void m3dui_fac2uvset ( M3DUI *mui ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
@@ -268,7 +271,7 @@ void common_m3dui_fac2uvsetCbk ( M3DUI *mui ) {
 }
 
 /******************************************************************************/
-void common_m3dui_uv2verCbk ( M3DUI *mui ) {
+void m3dui_uv2ver ( M3DUI *mui ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
@@ -325,7 +328,7 @@ void common_m3dui_uv2verCbk ( M3DUI *mui ) {
 }
 
 /******************************************************************************/
-void common_m3dui_ver2uvCbk ( M3DUI *mui ) {
+void m3dui_ver2uv ( M3DUI *mui ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
@@ -384,66 +387,34 @@ void common_m3dui_ver2uvCbk ( M3DUI *mui ) {
 }
 
 /******************************************************************************/
-void common_m3dui_undoCbk ( M3DUI *mui ) {
-    uint32_t return_value;
-
-    return_value = g3durmanager_undo ( /*mui->uvurm*/mui->gui->urm, mui->engine_flags );
-
-    common_g3dui_interpretMouseToolReturnFlags ( mui->gui, return_value );
-
-    /*if ( return_value & REDRAWVIEW ) {
-        g3dui_redrawGLViews ( gui );
-    }
-
-    if ( return_value & REDRAWLIST ) {
-        g3dui_redrawObjectList ( gui );
-    }
-
-    if ( return_value & REDRAWCURRENTOBJECT ) {
-        g3dui_updateAllCurrentEdit ( gui );
-    }*/
+uint64_t _m3dui_undoCbk ( M3DUI *mui ) {
+    return g3durmanager_undo ( mui->gui->urm, mui->engine_flags );
 }
 
 /******************************************************************************/
-void common_m3dui_redoCbk ( M3DUI *mui ) {
-    uint32_t return_value;
-
-    return_value = g3durmanager_redo ( /*mui->uvurm*/mui->gui->urm, mui->engine_flags );
-
-    common_g3dui_interpretMouseToolReturnFlags ( mui->gui, return_value );
-
-    /*if ( return_value & REDRAWVIEW ) {
-        g3dui_redrawGLViews ( gui );
-    }
-
-    if ( return_value & REDRAWLIST ) {
-        g3dui_redrawObjectList ( gui );
-    }
-
-    if ( return_value & REDRAWCURRENTOBJECT ) {
-        g3dui_updateAllCurrentEdit ( gui );
-    }*/
+uint64_t m3dui_redoCbk ( M3DUI *mui ) {
+    return g3durmanager_redo ( mui->gui->urm, mui->engine_flags );
 }
 
 /******************************************************************************/
-void common_m3dui_moveSideward ( M3DUI *mui, 
-                                            int32_t           x, 
-                                            int32_t           y, 
-                                            int32_t           xold, 
-                                            int32_t           yold ) {
+void m3dui_moveSideward ( M3DUI  *mui, 
+                          int32_t x, 
+                          int32_t y, 
+                          int32_t xold, 
+                          int32_t yold ) {
     mui->cam.obj.pos.x -= ( ( float ) ( x - xold ) * 0.005f );
     mui->cam.obj.pos.y += ( ( float ) ( y - yold ) * 0.005f );
 
     g3dobject_updateMatrix ( ( G3DOBJECT * ) &mui->cam, mui->gui->engine_flags );
 
-    common_m3dui_setCanevas ( mui );
+    m3dui_setCanevas ( mui );
 }
 
 
 /******************************************************************************/
-void common_m3dui_moveForward ( M3DUI *mui, 
-                                           int32_t           x, 
-                                           int32_t           xold ) {
+void m3dui_moveForward ( M3DUI  *mui, 
+                         int32_t x, 
+                         int32_t xold ) {
     mui->cam.ortho.z -= ( ( float ) ( x - xold ) * 0.000005f );
 
     if ( mui->cam.ortho.z < 0.00001f ) mui->cam.ortho.z = 0.00001f;
@@ -453,11 +424,11 @@ void common_m3dui_moveForward ( M3DUI *mui,
 
     g3dobject_updateMatrix ( ( G3DOBJECT * ) &mui->cam, mui->gui->engine_flags );
 
-    common_m3dui_setCanevas ( mui );
+    m3dui_setCanevas ( mui );
 }
 
 /******************************************************************************/
-void common_m3dui_setCanevas ( M3DUI *mui ) {
+void m3dui_setCanevas ( M3DUI *mui ) {
 
 }
 
@@ -469,9 +440,9 @@ void common_m3dui_setCanevas ( M3DUI *mui ) {
 /* we need to track the mouse after a click, something I think, will be easier*/
 /* to achieve that way. I might be wrong though :-/.                          */
 /******************************************************************************/
-int common_m3dui_getCurrentButton ( M3DUI *mui,
-                                               int x,
-                                               int y ) {
+int m3dui_getCurrentButton ( M3DUI *mui,
+                             int x,
+                             int y ) {
     int i;
 
     for ( i = 0x00; i < NBUVMAPBUTTON; i++ ) {
@@ -487,14 +458,14 @@ int common_m3dui_getCurrentButton ( M3DUI *mui,
 }
 
 /******************************************************************************/
-void common_m3dui_destroyGL ( M3DUI *mui ) {
+void m3duiview_destroyGL ( M3DUI *mui ) {
 
 }
 
 /******************************************************************************/
-void common_m3dui_init ( M3DUI *mui, 
-                                    uint32_t          width,
-                                    uint32_t          height ) {
+void m3duiview_init ( M3DUI   *mui, 
+                      uint32_t width,
+                      uint32_t height ) {
     mui->buttonID = -1;
 
     /*** as we use an identity projection matrix, the coorinates system will ***/
@@ -532,9 +503,9 @@ void common_m3dui_init ( M3DUI *mui,
 }
 
 /******************************************************************************/
-void common_m3dui_resize ( M3DUI *mui, 
-                                      uint32_t          width, 
-                                      uint32_t          height ) {
+void m3duiview_resize ( M3DUI   *mui, 
+                        uint32_t width, 
+                        uint32_t height ) {
     int i, xpos = ( width - BUTTONSIZE - M3DPATTERNBOARDWIDTH ), brd = 0x02;
 
     /*** set rectangle position for each button ***/
@@ -566,15 +537,14 @@ void common_m3dui_resize ( M3DUI *mui,
     mui->toolrec.width  = M3DPATTERNBOARDWIDTH;
     mui->toolrec.height = height - BUTTONSIZE - 0x20 - TOOLBARBUTTONSIZE - M3DPATTERNBOARDHEIGHT - 0x30;
 
-
-    common_m3dui_setCanevas ( mui );
+    m3dui_setCanevas ( mui );
 }
 
 /******************************************************************************/
-void common_m3dui_showGL ( M3DUI *mui,
-                                      G3DUI            *gui,
-                                      G3DMOUSETOOL     *mou,
-                                      uint64_t          engine_flags ) {
+void m3duiview_showGL ( M3DUI        *mui,
+                        G3DMOUSETOOL *mou,
+                        uint64_t      engine_flags ) {
+    G3DUI *gui = mui->gui;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
     M3DMOUSETOOL *seltool = common_g3dui_getMouseTool ( gui, SELECTTOOL );
 
@@ -682,9 +652,9 @@ void common_m3dui_showGL ( M3DUI *mui,
 }
 
 /******************************************************************************/
-void common_m3dui_sizeGL ( M3DUI *mui, 
-                                      uint32_t          width, 
-                                      uint32_t          height ) {
+void m3dui_sizeGL ( M3DUI   *mui, 
+                    uint32_t width, 
+                    uint32_t height ) {
     glViewport ( 0, 0, width, height );
 
     mui->arearec.width   = width;
@@ -692,7 +662,7 @@ void common_m3dui_sizeGL ( M3DUI *mui,
 }
 
 /******************************************************************************/
-void common_m3dui_initGL ( M3DUI *mui ) {
+void m3dui_initGL ( M3DUI *mui ) {
     float clearColorf = ( float ) CLEARCOLOR / 255.0f;
 
     /*** Set clear color for the OpenGL Window ***/

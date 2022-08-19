@@ -43,10 +43,10 @@ uint64_t g3duisphereedit_togglePerfectCbk ( G3DUISPHEREEDIT *sphedit ) {
             G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) sel;
             SPHEREDATASTRUCT *sds = ( SPHEREDATASTRUCT * ) pri->data;
 
-            if ( obj->flags & SPHEREISPERFECT ) {
-                obj->flags &= (~SPHEREISPERFECT);
+            if ( sel->flags & SPHEREISPERFECT ) {
+                sel->flags &= (~SPHEREISPERFECT);
             } else {
-                obj->flags |=   SPHEREISPERFECT;
+                sel->flags |=   SPHEREISPERFECT;
             }
         }
 

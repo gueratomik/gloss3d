@@ -30,9 +30,11 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duitimeline_scaleSelectedKeys ( G3DUI *gui, 
+uint64_t g3duitimeline_scaleSelectedKeysCbk ( G3DUITIMELINE *tim, 
                                               float  factor, 
                                               float  reference ) {
+    G3DUI *gui = tim->gui;
+
 /*    g3durm_objectList_removeSelectedKeys ( gui->urm, 
                                            gui->sce->lsel, 
                                            gui->engine_flags,
@@ -48,25 +50,26 @@ void common_g3duitimeline_scaleSelectedKeys ( G3DUI *gui,
                                           REDRAWTIMELINE | 
                                           REDRAWVIEW );
 
-    g3dui_redrawTimeline ( gui );
-    g3dui_redrawGLViews ( gui );
+
+    return REDRAWVIEW | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
-void common_g3duitimeline_deleteSelectedKeys ( G3DUI *gui ) {
+uint64_t g3duitimeline_deleteSelectedKeysCbk ( G3DUITIMELINE *tim ) {
+    G3DUI *gui = tim->gui;
+
     g3durm_objectList_removeSelectedKeys ( gui->urm, 
                                            gui->sce->lsel, 
                                            gui->engine_flags,
                                            REDRAWTIMELINE | REDRAWVIEW );
 
 
-    g3dui_redrawTimeline ( gui );
-    g3dui_redrawGLViews ( gui );
+    return REDRAWVIEW | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
-void common_timelinedata_selectAllKeys ( G3DUI        *gui, 
-                                              TIMELINEDATA *tdata ) {
+uint64_t g3duitimeline_selectAllKeysCbk ( G3DUITIMELINE *tim ) {
+    G3DUI *gui = tim->gui;
     uint32_t selected = 0x00; /*** No key selected yet ***/
     LIST *ltmpobj = gui->sce->lsel;
 
@@ -78,16 +81,16 @@ void common_timelinedata_selectAllKeys ( G3DUI        *gui,
         ltmpobj = ltmpobj->next;
     }
 
-    g3dui_redrawTimeline ( gui );
+    return REDRAWTIMELINE;
 }
 
 /******************************************************************************/
-uint32_t common_timelinedata_selectKey ( G3DUI        *gui, 
-                                         TIMELINEDATA *tdata,
-                                         int           frame,
-                                         int           keep,
-                                         int           range,
-                                         int           width ) {
+uint32_t g3duitimeline_selectKey ( G3DUITIMELINE *tim,
+                                   int           frame,
+                                   int           keep,
+                                   int           range,
+                                   int           width ) {
+    G3DUI *gui = tim->gui;
     uint32_t selected = 0x00; /*** No key selected yet ***/
     LIST *ltmpobj = gui->sce->lsel;
     static float firstFrame = FLT_MIN;
@@ -125,15 +128,15 @@ uint32_t common_timelinedata_selectKey ( G3DUI        *gui,
         ltmpobj = ltmpobj->next;
     }
 
-    g3dui_redrawTimeline ( gui );
+    /*g3dui_redrawTimeline ( gui );*/
 
     return selected;
 }
 
 /******************************************************************************/
-uint32_t common_timelinedata_isOnKey ( G3DUI        *gui, 
-                                       TIMELINEDATA *tdata,
-                                       int           frame ) {
+uint32_t g3duitimeline_isOnKey ( G3DUITIMELINE *tim, 
+                                 int            frame ) {
+    G3DUI *gui = tim->gui;
     LIST *ltmpobj = gui->sce->lsel;
 
     while ( ltmpobj ) {
@@ -153,25 +156,27 @@ uint32_t common_timelinedata_isOnKey ( G3DUI        *gui,
 }
 
 /******************************************************************************/
-int32_t common_timelinedata_getFramePos ( TIMELINEDATA *tdata, float frame, 
-                                                               int width ) {
+int32_t g3duitimeline_getFramePos ( G3DUITIMELINE *tim, 
+                                    float          frame, 
+                                    int            width ) {
     int32_t midx     = ( width >> 0x01 ),
-            difframe = ( tdata->midframe - frame ),
-            framepos = midx - ( difframe * tdata->nbpix );
+            difframe = ( tim->midframe - frame ),
+            framepos = midx - ( difframe * tim->nbpix );
 
     return framepos;
 }
 
 /******************************************************************************/
-int32_t common_timelinedata_getFrame ( TIMELINEDATA *tdata, int x, 
-                                                            int y, 
-                                                            int width ) {
+int32_t g3duitimeline_getFrame ( G3DUITIMELINE *tim,
+                                 int            x, 
+                                 int            y, 
+                                 int            width ) {
     int32_t midx  = ( width >> 0x01 ),
             difx  = ( x - midx ),
             /*** let's go to the nearest frame ***/
-            nbfrm = ( int32_t ) roundf ( ( float ) difx / tdata->nbpix );
+            nbfrm = ( int32_t ) roundf ( ( float ) difx / tim->nbpix );
 
-    return ( tdata->midframe + nbfrm );
+    return ( tim->midframe + nbfrm );
 }
 
 /******************************************************************************/
@@ -179,11 +184,12 @@ int32_t common_timelinedata_getFrame ( TIMELINEDATA *tdata, int x,
 /*** x, y = mouse coord                                                     ***/
 /*** width = width of the widget                                            ***/
 /******************************************************************************/
-uint32_t common_timelinedata_onFrame ( TIMELINEDATA *tdata, float curframe,
-                                                            int x, 
-                                                            int y, 
-                                                            int width ) {
-    int32_t onframe = common_timelinedata_getFrame ( tdata, x, y, width );
+uint32_t g3duitimeline_onFrame ( G3DUITIMELINE *tim,
+                                 float          curframe,
+                                 int            x, 
+                                 int            y, 
+                                 int            width ) {
+    int32_t onframe = g3duitimeline_getFrame ( tim, x, y, width );
 
     if ( curframe == onframe ) {
 
@@ -194,18 +200,6 @@ uint32_t common_timelinedata_onFrame ( TIMELINEDATA *tdata, float curframe,
 }
 
 /******************************************************************************/
-TIMELINEDATA *common_timelinedata_new ( ) {
-    uint32_t structsize = sizeof ( TIMELINEDATA );
-    TIMELINEDATA *tdata = ( TIMELINEDATA * ) calloc ( 0x01, structsize );
-
-    if ( tdata == NULL ) {
-        fprintf ( stderr, "g3duitimelinedata_new: memory allocation failed\n" );
-
-        return NULL;
-    }
-
-    tdata->nbpix = DEFAULTFRAMEGAP;
-
-
-    return tdata;
+void g3duitimeline_init ( G3DUITIMELINE *tim ) {
+    tim->nbpix = DEFAULTFRAMEGAP;
 }

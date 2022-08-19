@@ -29,7 +29,7 @@
 #include <config.h>
 #include <g3dui.h>
 
-#define LISTLOOP(gpeedit, gpeedit,var,val) \
+#define LISTLOOP(gpeedit,var,val)                                   \
     G3DUI *gui = gpeedit->gui;                                      \
     G3DSCENE *sce = gui->sce;                                       \
     LIST *ltmpselobj = sce->lsel;                                   \
@@ -324,7 +324,7 @@ uint64_t g3duiparticleemitteredit_initialScaXCbk ( G3DUIPARTICLEEMITTEREDIT *gpe
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialScaYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialScaY ) {
-    LISTLOOP(gpeedit, initialScaling.y, initialScaY;
+    LISTLOOP(gpeedit, initialScaling.y, initialScaY);
 }
 
 /******************************************************************************/
@@ -411,9 +411,21 @@ uint64_t g3duiparticleemitteredit_endAtFrameCbk ( G3DUIPARTICLEEMITTEREDIT *gpee
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_radiusCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                               float                     radius ) {
-    LISTLOOP(gpeedit, pem->radius, radius);
+    G3DUI *gui = gpeedit->gui;
+    G3DSCENE *sce = gui->sce;
+    LIST *ltmpselobj = sce->lsel;
 
-    g3dparticleemitter_reset ( pem );
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+
+        if ( sel->type == G3DPARTICLEEMITTERTYPE ) {
+            G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) sel;
+
+            pem->radius = radius;
+        }
+
+        ltmpselobj = ltmpselobj->next;
+    }
 
 
     return 0x00;
@@ -422,9 +434,23 @@ uint64_t g3duiparticleemitteredit_radiusCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_lifetimeCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                 uint32_t                  lifetime ) {
-    LISTLOOP(gpeedit, particleLifetime, lifetime);
+    G3DUI *gui = gpeedit->gui;
+    G3DSCENE *sce = gui->sce;
+    LIST *ltmpselobj = sce->lsel;
 
-    g3dparticleemitter_reset ( pem );
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+
+        if ( sel->type == G3DPARTICLEEMITTERTYPE ) {
+            G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) sel;
+
+            pem->particleLifetime = lifetime;
+
+            g3dparticleemitter_reset ( pem );
+        }
+
+        ltmpselobj = ltmpselobj->next;
+    }
 
 
     return 0x00;
@@ -433,9 +459,23 @@ uint64_t g3duiparticleemitteredit_lifetimeCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedi
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_ppfCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                            float                     ppf ) {
-    LISTLOOP(gpeedit, particlesPerFrame, ppf);
+    G3DUI *gui = gpeedit->gui;
+    G3DSCENE *sce = gui->sce;
+    LIST *ltmpselobj = sce->lsel;
 
-    g3dparticleemitter_reset ( pem );
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+
+        if ( sel->type == G3DPARTICLEEMITTERTYPE ) {
+            G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) sel;
+
+            pem->particlesPerFrame = ppf;
+
+            g3dparticleemitter_reset ( pem );
+        }
+
+        ltmpselobj = ltmpselobj->next;
+    }
 
 
     return 0x00;
@@ -445,6 +485,7 @@ uint64_t g3duiparticleemitteredit_ppfCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
 uint64_t g3duiparticleemitteredit_maxPreviewsCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    uint32_t                  maxPreviews ) {
     LISTLOOP(gpeedit, maxPreviewsPerFrame, maxPreviews);
+
 
     return 0x00;
 }

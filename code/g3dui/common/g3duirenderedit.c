@@ -381,6 +381,7 @@ uint64_t g3duirenderedit_outputCbk ( G3DUIRENDEREDIT *redit,
 
 /******************************************************************************/
 uint64_t g3duirenderedit_previewCbk ( G3DUIRENDEREDIT *redit ) {
+    G3DUI *gui = redit->gui;
     Q3DSETTINGS *rsg = gui->currsg;
 
     if ( rsg->flags & RENDERPREVIEW ) {

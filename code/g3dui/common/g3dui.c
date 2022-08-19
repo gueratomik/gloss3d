@@ -706,6 +706,20 @@ uint64_t g3dui_openG3DFile ( G3DUI      *gui,
 }
 
 /******************************************************************************/
+uint64_t g3dui_redo ( G3DUI *gui ) {
+    G3DURMANAGER *urm = gui->urm;
+
+    return g3durmanager_redo ( urm, gui->engine_flags );
+}
+
+/******************************************************************************/
+uint64_t g3dui_undo ( G3DUI *gui ) {
+    G3DURMANAGER *urm = gui->urm;
+
+    return g3durmanager_undo ( urm, gui->engine_flags );
+}
+
+/******************************************************************************/
 void g3dui_init ( G3DUI *gui ) {
     Q3DSETTINGS *rsg;
     #ifdef __linux__
