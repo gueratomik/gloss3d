@@ -245,7 +245,7 @@ void g3duiview_resize ( G3DUIVIEW *view,
 
     view->btnrec.x      = width - ( NBVIEWBUTTON * ( BUTTONSIZE + margin ) ) ;
     view->btnrec.y      = 0x00;
-    view->btnrec.width  = NBVIEWBUTTON * ( BUTTONSIZE + brd );
+    view->btnrec.width  = NBVIEWBUTTON * ( BUTTONSIZE + margin );
     view->btnrec.height = BUTTONSIZE;
 
     /*** set rectangle position for each button ***/
@@ -309,8 +309,9 @@ void g3duiview_useSelectedCamera ( G3DUIVIEW *view,
 }
 
 /******************************************************************************/
-void g3duiview_showRenderingArea ( G3DUI   *gui,
+void g3duiview_showRenderingArea ( G3DUIVIEW *view,
                                    uint64_t engine_flags ) {
+    G3DUI *gui = view->gui;
     Q3DSETTINGS *rsg = gui->currsg;
     float renderRatio = ( float ) rsg->output.width / rsg->output.height;
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
@@ -354,6 +355,7 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
                         G3DMOUSETOOL *mou,
                         uint32_t      current,
                         uint64_t      engine_flags ) {
+    G3DUI *gui = view->gui;
     int VPX[0x04];
     G3DVECTOR vec = { 0.0f, 0.0f, 0.0f, 1.0f };
     G3DOBJECT *selobj = g3dscene_getSelectedObject ( sce );

@@ -51,178 +51,21 @@ void g3duirectangle_toGdkRec ( G3DUIRECTANGLE *in,
 static void menuItemCallback ( GtkWidget *widget, 
                                gpointer   user_data ) {
     GTK3G3DUIMENU *gtk3node = ( GTK3G3DUIMENU * ) user_data;
+    G3DUI *gui = gtk3node->core.gui;
 
     /*** prevents a loop ***/
     if ( gui->lock ) return;
 
     gtk3_setHourGlass ( );
 
-    if ( gtk3node->node->callback ) {
-        uint64_t ret = gtk3node->node->callback ( gtk3node->node, 
+    if ( gtk3node->core.callback ) {
+        uint64_t ret = gtk3node->core.callback ( &gtk3node->core, 
                                                   gtk3node->data );
 
         gtk3_interpretUIReturnFlags ( ret );
     }
 
     gtk3_unsetHourGlass ( );
-}
-
-/******************************************************************************/
-GTK3G3DUIMENU *gtk3_parseMenu_r ( G3DUIMENU *node, 
-                                  void      *data ) {
-    uint32_t structSize = sizeof ( GTK3G3DUIMENU ); 
-    GTK3G3DUIMENU *gtk3node = ( GTK3G3DUIMENU * ) calloc ( 0x01, structSize );
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
-    G3DUI *gui = ( G3DUI * ) gtk3gui;
-
-    gtk3node->node      = node;
-    gtk3node->data      = data;
-    gtk3node->node->gui = gui;
-
-    switch ( node->type ) {
-        case G3DUIMENUTYPE_SEPARATOR :
-            gtk3node->item = gtk_separator_menu_item_new ( );
-        break;
-
-        case G3DUIMENUTYPE_TOGGLEBUTTON :
-            gtk3node->item = gtk_check_menu_item_new_with_mnemonic ( node->name );
-
-            if ( node->callback ) {
-                g_signal_connect ( G_OBJECT ( gtk3node->item ), 
-                                   "toggled", 
-                                   menuItemCallback, 
-                                   gtk3node );
-            }
-        break;
-
-        case G3DUIMENUTYPE_PUSHBUTTON :
-            node->item = gtk_menu_item_new_with_mnemonic ( node->name );
-
-            if ( node->callback ) {
-                g_signal_connect ( G_OBJECT ( gtk3node->item ), 
-                                   "activate", 
-                                   menuItemCallback, 
-                                   gtk3node );
-            }
-        break;
-
-        case G3DUIMENUTYPE_MENUBAR : {
-            uint32_t i = 0x00;
-
-            gtk3node->menu = gtk_menu_bar_new ( );
-
-            gtk_widget_set_name ( gtk3node->menu, node->name );
-
-            while ( node->nodes[i] != NULL ) {
-                GTK3G3DUIMENU *child = gtk3_parseMenu_r ( node->nodes[i] );
-
-                list_insert ( &gtk3node->lchildren, child );
-
-                i++;
-            }
-
-            gtk_widget_show ( gtk3node->menu );
-        } break;
-
-        case G3DUIMENUTYPE_SUBMENU : {
-            uint32_t i = 0x00;
-
-            gtk3node->menu = gtk_menu_new ( );
-
-            gtk_widget_set_name ( gtk3node->menu, gtk3node->name );
-
-            gtk3node->item = gtk_menu_item_new_with_mnemonic ( node->name );
-
-            gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( gtk3node->item ), gtk3node->menu );
-
-            while ( node->nodes[i] != NULL ) {
-                GTK3G3DUIMENU *child = gtk3_parseMenu_r ( node->nodes[i] );
-
-                gtk_menu_shell_append ( GTK_MENU_SHELL ( gtk3node->menu ), 
-                                        child->item );
-
-                list_insert ( &gtk3node->lchildren, child );
-
-                i++;
-            }
-
-            gtk_widget_show ( gtk3node->menu );
-
-            gtk_widget_set_size_request ( gtk3node->menu, 0x60, 24 );
-        } break;
-
-        default :
-        break;
-    }
-
-    if ( node->type == G3DUIMENUTYPE_SUBMENU  ) {
-        int height = gtk_widget_get_allocated_height ( gtk3node->item );
-        GdkRectangle gdkrec = { 0, 0, 0x60, height };
-
-        /*gtk_widget_set_halign ( node->item, GTK_ALIGN_CENTER );*/
-
-    /*gtk_widget_size_allocate ( node->item, &gdkrec );*/
-
-        gtk_widget_set_size_request ( gtk3node->item, 0x60, height );
-    }
-
-    /*gtk_widget_set_name ( gtk3node->item, node->name );*/
-    gtk_widget_show ( gtk3node->item );
-
-
-    return gtk3node;
-}
-
-/******************************************************************************/
-void gtk3_updateMenu_r ( GTK3G3DUIMENU *gtk3node,
-                         void          *data ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
-    G3DUI *gui = ( G3DUI * ) gtk3gui;
-
-    switch ( gtk3node->node->type ) {
-        case G3DUIMENUTYPE_SEPARATOR :
-        break;
-
-        case G3DUIMENUTYPE_TOGGLEBUTTON :
-
-        break;
-
-        case G3DUIMENUTYPE_PUSHBUTTON :
-        break;
-
-        case G3DUIMENUTYPE_MENUBAR :
-        case G3DUIMENUTYPE_SUBMENU : {
-            LIST *ltmpchildren = gtk3node->lchildren;
-
-            while ( GTK3G3DUIMENU ) {
-                GTK3G3DUIMENU *child = ( GTK3G3DUIMENU * ) ltmpchildren->data;
-
-                gtk3_updateMenu_r ( child, data );
-
-                ltmpchildren = ltmpchildren->next;
-            }
-        } break;
-
-        default :
-        break;
-    }
-
-    if ( gtk3node->item ) {
-        if ( gtk3node->node->condition ) {
-            if ( gtk3node->node->condition ( gui ) == 0x00 ) {
-                gtk_widget_set_sensitive ( gtk3node->item, FALSE );
-            } else {
-                gtk_widget_set_sensitive ( gtk3node->item, TRUE  );
-            }
-        } else {
-            gtk_widget_set_sensitive ( gtk3node->item, TRUE  );
-        }
-    }
-}
-
-/******************************************************************************/
-void gtk3_updateMenuBar ( G3DUIGTK3 *gtk3gui ) {
-    updateMenu_r ( gtk3gui->menuBar, &gtk3gui->gui );
 }
 
 /******************************************************************************/
@@ -266,8 +109,7 @@ void gtk3_setMouseTool ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-void gtk3_setHourGlass ( ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+void gtk3_setHourGlass ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
 
     /*GtkWindow  *win  = gtk_widget_get_parent(ggt->top);

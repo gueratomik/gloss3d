@@ -352,6 +352,38 @@ static void Realize ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+void gtk3_g3duimain_updateMenuBar ( GTK3G3DUIMAIN *gtk3main ) {
+    updateMenu_r ( gtk3main->core.menuBar, gtk3main->core.gui );
+}
+
+/******************************************************************************/
+void gtk3_g3duimain_createMenuBar ( GTK3G3DUIMAIN *gtk3main,
+                                    char          *name,
+                                    gint           x,
+                                    gint           y,
+                                    gint           width,
+                                    gint           height ) {
+
+    GdkRectangle gdkrec = { x, y, width, height };
+    /*GtkWidget *bar = gtk_menu_bar_new ( );*/
+
+    GTK3G3DUIMENU *gtk3menu;
+
+    gtk3menu = gtk3_g3duimenu_parse_r ( g3duimenu_getMainMenuNode ( ),
+                                        gtk3main );
+
+    gtk_widget_size_allocate ( mainMenuNode->menu, &gdkrec );
+
+    gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3menu->menu, x, y );
+
+    gtk_widget_show ( mainMenuNode->menu );
+
+
+    ggt->menuBar = &rootnode;
+}
+
+
+/******************************************************************************/
 GtkWidget *gtk3_g3duimain_create ( GtkWidget *parent,
                                    char      *name,
                                    gint       x,
@@ -359,11 +391,11 @@ GtkWidget *gtk3_g3duimain_create ( GtkWidget *parent,
                                    gint       width,
                                    gint       height,
                                    char      *filename ) {
-    GTK3G3DUIMAIN *gtk3gmn = g3tk_g3duimain_new ( );
+    GTK3G3DUIMAIN *gtk3main = g3tk_g3duimain_new ( );
     GdkRectangle  gdkrec  = { 0x00,  0x00, width, height };
     GtkWidget    *layout  = gtk_layout_new ( NULL, NULL );
 
-    g_object_set_data ( G_OBJECT(layout), "private", (gpointer) gtk3gmn );
+    g_object_set_data ( G_OBJECT(layout), "private", (gpointer) gtk3main );
 
     gtk_widget_set_name ( layout, name );
 
@@ -373,19 +405,27 @@ GtkWidget *gtk3_g3duimain_create ( GtkWidget *parent,
 
     gtk_widget_add_events(GTK_WIDGET(layout), GDK_CONFIGURE);
 
-    g_signal_connect ( G_OBJECT (layout), "realize"      , G_CALLBACK (Realize)     , gtk3gmn );
-    g_signal_connect ( G_OBJECT (layout), "destroy"      , G_CALLBACK (Destroy)     , gtk3gmn );
-    g_signal_connect ( G_OBJECT (layout), "size-allocate", G_CALLBACK (SizeAllocate), gtk3gmn );
+    g_signal_connect ( G_OBJECT (layout), "realize"      , G_CALLBACK (Realize)     , gtk3main );
+    g_signal_connect ( G_OBJECT (layout), "destroy"      , G_CALLBACK (Destroy)     , gtk3main );
+    g_signal_connect ( G_OBJECT (layout), "size-allocate", G_CALLBACK (SizeAllocate), gtk3main );
 
-    gtk3gmn->layout = layout;
+    gtk3main->layout = layout;
 
-    gtk3gmn->toolBar = gtk3_g3duitoolbar_create ( layout,
+    gtk3main->menuBar = gtk3_g3duimain_createMenuBar ( gtk3main,
+                                                       ,
+                                                       0x00,
+                                                       0x00,
+                                                       0x00,
+                                                       0x00 );
+
+/*
+    gtk3main->toolBar = gtk3_g3duitoolbar_create ( layout,
                                                   "toolbar",
                                                   0,
                                                   0,
                                                   width,
                                                   32 );
-
+*/
     
 
     gtk_widget_show ( layout );
@@ -399,6 +439,6 @@ GtkWidget *gtk3_g3duimain_create ( GtkWidget *parent,
     }
 
 
-    return layout;
+    return gtk3main;
 }
 

@@ -40,7 +40,7 @@ uint64_t g3duiwireframeedit_thicknessCbk ( G3DUIWIREFRAMEEDIT *wfmedit,
         G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
         if ( sel->type == G3DWIREFRAMETYPE ) {
-            G3DWIREFRAME *wir = ( G3DWIREFRAME * ) obj;
+            G3DWIREFRAME *wir = ( G3DWIREFRAME * ) sel;
 
             g3dwireframe_setThickness ( wir, thickness, gui->engine_flags );
 

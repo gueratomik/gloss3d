@@ -157,6 +157,12 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3duiboneedit.c \
 	common/g3duitubeedit.c common/g3duiuvmapedit.c \
 	common/g3duiview.c common/g3duiviewexport.c \
 	common/g3duiweightgrouplist.c common/g3duiwireframeedit.c \
+	common/menu/condition.c common/menu/g3duimainmenu.c \
+	common/menu/g3duimaterialboardmenu.c \
+	common/menu/g3duiobjectboardmenu.c \
+	common/menu/g3duirenderwindowmenu.c \
+	common/menu/g3duitimelinemenu.c \
+	common/menu/g3duiuveditormenu.c common/menu/g3duiviewmenu.c \
 	common/m3dui.c gtk3/g3dui.c gtk3/g3duimain.c \
 	gtk3/g3duitoolbar.c
 am__dirstamp = $(am__leading_dot)dirstamp
@@ -200,7 +206,15 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	common/g3duiuvmapedit.lo common/g3duiview.lo \
 @HAVE_GTK3_TRUE@	common/g3duiviewexport.lo \
 @HAVE_GTK3_TRUE@	common/g3duiweightgrouplist.lo \
-@HAVE_GTK3_TRUE@	common/g3duiwireframeedit.lo common/m3dui.lo \
+@HAVE_GTK3_TRUE@	common/g3duiwireframeedit.lo \
+@HAVE_GTK3_TRUE@	common/menu/condition.lo \
+@HAVE_GTK3_TRUE@	common/menu/g3duimainmenu.lo \
+@HAVE_GTK3_TRUE@	common/menu/g3duimaterialboardmenu.lo \
+@HAVE_GTK3_TRUE@	common/menu/g3duiobjectboardmenu.lo \
+@HAVE_GTK3_TRUE@	common/menu/g3duirenderwindowmenu.lo \
+@HAVE_GTK3_TRUE@	common/menu/g3duitimelinemenu.lo \
+@HAVE_GTK3_TRUE@	common/menu/g3duiuveditormenu.lo \
+@HAVE_GTK3_TRUE@	common/menu/g3duiviewmenu.lo common/m3dui.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3dui.lo gtk3/g3duimain.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duitoolbar.lo
 @HAVE_GTK3_TRUE@am_libgloss_g3dui_gtk3_la_OBJECTS = $(am__objects_1)
@@ -273,8 +287,16 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	common/$(DEPDIR)/g3duiviewexport.Plo \
 	common/$(DEPDIR)/g3duiweightgrouplist.Plo \
 	common/$(DEPDIR)/g3duiwireframeedit.Plo \
-	common/$(DEPDIR)/m3dui.Plo gtk3/$(DEPDIR)/g3dui.Plo \
-	gtk3/$(DEPDIR)/g3duimain.Plo gtk3/$(DEPDIR)/g3duitoolbar.Plo
+	common/$(DEPDIR)/m3dui.Plo common/menu/$(DEPDIR)/condition.Plo \
+	common/menu/$(DEPDIR)/g3duimainmenu.Plo \
+	common/menu/$(DEPDIR)/g3duimaterialboardmenu.Plo \
+	common/menu/$(DEPDIR)/g3duiobjectboardmenu.Plo \
+	common/menu/$(DEPDIR)/g3duirenderwindowmenu.Plo \
+	common/menu/$(DEPDIR)/g3duitimelinemenu.Plo \
+	common/menu/$(DEPDIR)/g3duiuveditormenu.Plo \
+	common/menu/$(DEPDIR)/g3duiviewmenu.Plo \
+	gtk3/$(DEPDIR)/g3dui.Plo gtk3/$(DEPDIR)/g3duimain.Plo \
+	gtk3/$(DEPDIR)/g3duitoolbar.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -502,6 +524,14 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            common/g3duiviewexport.c \
 @HAVE_GTK3_TRUE@                            common/g3duiweightgrouplist.c \
 @HAVE_GTK3_TRUE@                            common/g3duiwireframeedit.c \
+@HAVE_GTK3_TRUE@                            common/menu/condition.c \
+@HAVE_GTK3_TRUE@                            common/menu/g3duimainmenu.c \
+@HAVE_GTK3_TRUE@                            common/menu/g3duimaterialboardmenu.c \
+@HAVE_GTK3_TRUE@                            common/menu/g3duiobjectboardmenu.c \
+@HAVE_GTK3_TRUE@                            common/menu/g3duirenderwindowmenu.c \
+@HAVE_GTK3_TRUE@                            common/menu/g3duitimelinemenu.c \
+@HAVE_GTK3_TRUE@                            common/menu/g3duiuveditormenu.c \
+@HAVE_GTK3_TRUE@                            common/menu/g3duiviewmenu.c \
 @HAVE_GTK3_TRUE@                            common/m3dui.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3dui.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimain.c \
@@ -679,6 +709,28 @@ common/g3duiweightgrouplist.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiwireframeedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
+common/menu/$(am__dirstamp):
+	@$(MKDIR_P) common/menu
+	@: > common/menu/$(am__dirstamp)
+common/menu/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) common/menu/$(DEPDIR)
+	@: > common/menu/$(DEPDIR)/$(am__dirstamp)
+common/menu/condition.lo: common/menu/$(am__dirstamp) \
+	common/menu/$(DEPDIR)/$(am__dirstamp)
+common/menu/g3duimainmenu.lo: common/menu/$(am__dirstamp) \
+	common/menu/$(DEPDIR)/$(am__dirstamp)
+common/menu/g3duimaterialboardmenu.lo: common/menu/$(am__dirstamp) \
+	common/menu/$(DEPDIR)/$(am__dirstamp)
+common/menu/g3duiobjectboardmenu.lo: common/menu/$(am__dirstamp) \
+	common/menu/$(DEPDIR)/$(am__dirstamp)
+common/menu/g3duirenderwindowmenu.lo: common/menu/$(am__dirstamp) \
+	common/menu/$(DEPDIR)/$(am__dirstamp)
+common/menu/g3duitimelinemenu.lo: common/menu/$(am__dirstamp) \
+	common/menu/$(DEPDIR)/$(am__dirstamp)
+common/menu/g3duiuveditormenu.lo: common/menu/$(am__dirstamp) \
+	common/menu/$(DEPDIR)/$(am__dirstamp)
+common/menu/g3duiviewmenu.lo: common/menu/$(am__dirstamp) \
+	common/menu/$(DEPDIR)/$(am__dirstamp)
 common/m3dui.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 gtk3/$(am__dirstamp):
@@ -699,6 +751,8 @@ mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f common/*.$(OBJEXT)
 	-rm -f common/*.lo
+	-rm -f common/menu/*.$(OBJEXT)
+	-rm -f common/menu/*.lo
 	-rm -f gtk3/*.$(OBJEXT)
 	-rm -f gtk3/*.lo
 
@@ -755,6 +809,14 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiweightgrouplist.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiwireframeedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/m3dui.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/menu/$(DEPDIR)/condition.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/menu/$(DEPDIR)/g3duimainmenu.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/menu/$(DEPDIR)/g3duimaterialboardmenu.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/menu/$(DEPDIR)/g3duiobjectboardmenu.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/menu/$(DEPDIR)/g3duirenderwindowmenu.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/menu/$(DEPDIR)/g3duitimelinemenu.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/menu/$(DEPDIR)/g3duiuveditormenu.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/menu/$(DEPDIR)/g3duiviewmenu.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3dui.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimain.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitoolbar.Plo@am__quote@ # am--include-marker
@@ -795,6 +857,7 @@ mostlyclean-libtool:
 clean-libtool:
 	-rm -rf .libs _libs
 	-rm -rf common/.libs common/_libs
+	-rm -rf common/menu/.libs common/menu/_libs
 	-rm -rf gtk3/.libs gtk3/_libs
 
 ID: $(am__tagged_files)
@@ -917,6 +980,8 @@ distclean-generic:
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
 	-rm -f common/$(DEPDIR)/$(am__dirstamp)
 	-rm -f common/$(am__dirstamp)
+	-rm -f common/menu/$(DEPDIR)/$(am__dirstamp)
+	-rm -f common/menu/$(am__dirstamp)
 	-rm -f gtk3/$(DEPDIR)/$(am__dirstamp)
 	-rm -f gtk3/$(am__dirstamp)
 
@@ -979,6 +1044,14 @@ distclean: distclean-am
 	-rm -f common/$(DEPDIR)/g3duiweightgrouplist.Plo
 	-rm -f common/$(DEPDIR)/g3duiwireframeedit.Plo
 	-rm -f common/$(DEPDIR)/m3dui.Plo
+	-rm -f common/menu/$(DEPDIR)/condition.Plo
+	-rm -f common/menu/$(DEPDIR)/g3duimainmenu.Plo
+	-rm -f common/menu/$(DEPDIR)/g3duimaterialboardmenu.Plo
+	-rm -f common/menu/$(DEPDIR)/g3duiobjectboardmenu.Plo
+	-rm -f common/menu/$(DEPDIR)/g3duirenderwindowmenu.Plo
+	-rm -f common/menu/$(DEPDIR)/g3duitimelinemenu.Plo
+	-rm -f common/menu/$(DEPDIR)/g3duiuveditormenu.Plo
+	-rm -f common/menu/$(DEPDIR)/g3duiviewmenu.Plo
 	-rm -f gtk3/$(DEPDIR)/g3dui.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimain.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitoolbar.Plo
@@ -1077,6 +1150,14 @@ maintainer-clean: maintainer-clean-am
 	-rm -f common/$(DEPDIR)/g3duiweightgrouplist.Plo
 	-rm -f common/$(DEPDIR)/g3duiwireframeedit.Plo
 	-rm -f common/$(DEPDIR)/m3dui.Plo
+	-rm -f common/menu/$(DEPDIR)/condition.Plo
+	-rm -f common/menu/$(DEPDIR)/g3duimainmenu.Plo
+	-rm -f common/menu/$(DEPDIR)/g3duimaterialboardmenu.Plo
+	-rm -f common/menu/$(DEPDIR)/g3duiobjectboardmenu.Plo
+	-rm -f common/menu/$(DEPDIR)/g3duirenderwindowmenu.Plo
+	-rm -f common/menu/$(DEPDIR)/g3duitimelinemenu.Plo
+	-rm -f common/menu/$(DEPDIR)/g3duiuveditormenu.Plo
+	-rm -f common/menu/$(DEPDIR)/g3duiviewmenu.Plo
 	-rm -f gtk3/$(DEPDIR)/g3dui.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimain.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitoolbar.Plo

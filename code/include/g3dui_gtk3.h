@@ -106,7 +106,7 @@ GtkWidget *gtk_form_new ( );
 
 /******************************************************************************/
 typedef struct _GTK3G3DUIMENU {
-    G3DUIMENU *node;
+    G3DUIMENU  core;
     GtkWidget *item;
     GtkWidget *menu;
     LIST      *lchildren;
@@ -120,8 +120,7 @@ typedef struct _G3DUIWIDGETGROUP {
 
 /******************************************************************************/
 typedef struct _GTK3G3DUI {
-    G3DUI          gui;
-    GTK3G3DUIMENU *menuBar;
+    G3DUI          core;
     /* context menus for all objects */
     LIST         *lObjectModeMenu;
     /* context menus for meshes */
@@ -150,11 +149,20 @@ typedef struct _GTK3G3DUI {
     LIST         *lmeshpose;
     LIST         *luvmapeditor;
     GdkWindow    *winAtPosition; /*** window at mouse position (for hourGlass)***/
+
+    GtkWidget *top;
+    GtkWidget *mainView; /*** Main OpenGL View ***/
+    GtkWidget *curogl; /*** current OpenGL Widget - the one we used last ***/
+    GtkWidget *curmou; /*** store the current pressed toggle button      ***/
+    GtkWidget *curmat; /*** current material ***/
+    GtkWidget *main;
+    GtkWidget *currentUVMouseToolButton;
+    GtkWidget *currentUVMapEditor;
 } GTK3G3DUI;
 
 /******************************************************************************/
 typedef struct _GTK3G3DUITOOLBAR {
-    G3DUITOOLBAR grp;
+    G3DUITOOLBAR core;
     GtkWidget   *bar;
     GtkWidget   *newScene;
     GtkWidget   *openFile;
@@ -177,7 +185,7 @@ typedef struct _GTK3G3DUITOOLBAR {
 
 /******************************************************************************/
 typedef struct _GTK3G3DUIVIEW {
-    G3DUIVIEW  grp;
+    G3DUIVIEW  core;
     GtkWidget *menubar;
     GtkWidget *layout;
     GtkWidget *btnarea;
@@ -189,7 +197,7 @@ typedef struct _GTK3G3DUIVIEW {
 
 /******************************************************************************/
 typedef struct _GTK3G3DUIMAIN {
-    G3DUIMAIN         grp;
+    G3DUIMAIN         core;
     GTK3G3DUITOOLBAR *toolBar;
 
     GtkWidget        *layout;
@@ -210,40 +218,22 @@ typedef struct _GTK3G3DUIMAIN {
 } GTK3G3DUIMAIN;
 
 /******************************************************************************/
-typedef struct _G3DUIRENDERWINDOW {
-    G3DUIWIDGETGROUP    grp;
+typedef struct _GTK3G3DUIRENDERWINDOW {
+    G3DUIRENDERWINDOW   core;
     GtkWidget          *menuBar;
     GtkWidget          *fileMenu;
     GtkWidget          *drawingArea;
     GtkWidget          *scrolledWindow;
     GtkWidget          *statusBar;
     GtkWidget          *topLevel;
-    Q3DFILTER          *tostatus;
-    G3DUIRENDERPROCESS *rps;
-    G3DUIRENDERBUFFER   rbuf;
-} G3DUIRENDERWINDOW;
+} GTK3G3DUIRENDERWINDOW;
 
 /******************************************************************************/
-typedef struct _G3DUITIMELINE {
-    G3DUIWIDGETGROUP grp;
-    TIMELINEDATA    *tdata;
-    GtkWidget       *menu;
-} G3DUITIMELINE;
-
-/******************************************************************************/
-/****************************** Toolkit Data **********************************/
-typedef struct _G3DUIGTK3 {
-    GtkWidget *top;
-    GtkWidget *mainView; /*** Main OpenGL View ***/
-    GtkWidget *curogl; /*** current OpenGL Widget - the one we used last ***/
-    GtkWidget *curmou; /*** store the current pressed toggle button      ***/
-    GtkWidget *curmat; /*** current material ***/
-    GtkWidget *main;
-    GdkWindow *winAtPosition; /*** window at mouse position (for hourGlass)***/
-    GtkWidget *currentUVMouseToolButton;
-    GtkWidget *currentUVMapEditor;
-    G3DUIMENU *menuBar;
-} G3DUIGTK3;
+typedef struct _GTK3G3DUITIMELINE {
+    G3DUITIMELINE    core;
+    GTK3G3DUIMENU   *menu;
+    /*GtkWidget       *menu;*/
+} GTK3G3DUITIMELINE;
 
 /***************************** Main Window Widget *****************************/
 typedef struct _GtkGlossUI {
@@ -361,10 +351,6 @@ void                 gtk3materialpreview_free   ( GTK3MATERIALPREVIEW * );
 void                 gtk3materialpreview_update ( GTK3MATERIALPREVIEW * );
 
 
-
-/******************************************************************************/
-G3DUIGTK3 *g3duigtk3_new  ( GtkWidget * );
-void       g3duigtk3_free ( G3DUIGTK3 * );
 
 void gdkevent_to_g3devent ( GdkEvent *gdkev, G3DEvent *g3dev );
 
@@ -894,10 +880,6 @@ uint32_t filtertostatusbar_getStatus ( Q3DFILTER *fil );
 void updateSaveOutputForm ( GtkWidget *widget, G3DUI *gui );
 void updateMotionBlurForm ( GtkWidget *widget, G3DUI *gui );
 
-void m3dui_undoCbk ( GtkWidget *widget, gpointer user_data );
-void m3dui_redoCbk ( GtkWidget *widget, gpointer user_data );
-void m3dui_uv2verCbk ( GtkWidget *widget, gpointer user_data );
-void m3dui_ver2uvCbk ( GtkWidget *widget, gpointer user_data );
 
 GtkWidget *createRenderWindowMenuBar ( GtkWidget         *parent,
                                        G3DUIRENDERWINDOW *rwn,
@@ -1148,8 +1130,6 @@ void gtk3_g3dui_updateSelectedMaterialPreview ( );
 void gtk3_g3dui_updateKeyEdit ( );
 void gtk3_g3dui_updateAllCurrentMouseTools ( );
 void gtk3_initDefaultMouseTools ( G3DCAMERA *cam );
-
-void gtk3_updateMenuBar ( G3DUIGTK3 *gtk3gui );
 
 GTK3G3DUI *gtk3_getUI ( );
 

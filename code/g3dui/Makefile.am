@@ -57,6 +57,14 @@ if HAVE_GTK3
                             common/g3duiviewexport.c \
                             common/g3duiweightgrouplist.c \
                             common/g3duiwireframeedit.c \
+                            common/menu/condition.c \
+                            common/menu/g3duimainmenu.c \
+                            common/menu/g3duimaterialboardmenu.c \
+                            common/menu/g3duiobjectboardmenu.c \
+                            common/menu/g3duirenderwindowmenu.c \
+                            common/menu/g3duitimelinemenu.c \
+                            common/menu/g3duiuveditormenu.c \
+                            common/menu/g3duiviewmenu.c \
                             common/m3dui.c \
                             gtk3/g3dui.c \
                             gtk3/g3duimain.c \

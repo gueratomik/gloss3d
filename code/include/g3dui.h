@@ -607,6 +607,8 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 
 /******************************************************************************/
 typedef struct _M3DUI M3DUI;
+typedef struct _G3DUIRENDERPROCESS G3DUIRENDERPROCESS;
+typedef struct _G3DUIRENDERBUFFER G3DUIRENDERBUFFER;
 
 /******************************************************************************/
 typedef enum _G3DUIAXIS {
@@ -655,6 +657,8 @@ typedef G2DRECTANGLE G3DUIRECTANGLE;
 typedef struct _G3DUISEGMENT {
     short x1, x2, y1, y2;
 } G3DUISEGMENT; 
+
+typedef struct _G3DUIMENU G3DUIMENU;
 
 /********************************* G3DUI **************************************/
 typedef struct _G3DUI {
@@ -707,6 +711,9 @@ typedef struct _G3DUI {
 
 
     LIST *lview;
+
+    /*** also point to toolkit data ***/
+    G3DUIMENU *menuBar;
 } G3DUI;
 
 /******************************************************************************/
@@ -763,6 +770,28 @@ typedef struct _G3DUITIMELINE {
     void   *funcData;
     uint32_t tool;
 } G3DUITIMELINE;
+
+/******************************************************************************/
+typedef struct _G3DUIRENDERBUFFER {
+#ifdef __linux__
+    Display            *dis; 
+    Window              win;
+    GC                  gc;
+    XImage             *ximg;
+    XShmSegmentInfo     ssi;
+#endif
+#ifdef __MINGW32__
+    HWND    hWnd;
+    WImage *wimg;
+#endif
+} G3DUIRENDERBUFFER;
+
+/******************************************************************************/
+typedef struct _G3DUIRENDERWINDOW {
+    Q3DFILTER          *tostatus;
+    G3DUIRENDERPROCESS *rps;
+    G3DUIRENDERBUFFER   rbuf;
+} G3DUIRENDERWINDOW;
 
 /******************************************************************************/
 typedef struct _G3DUILIGHTEDIT {
@@ -1029,20 +1058,6 @@ void common_g3duiquad_divideSegments ( G3DUISEGMENT *, uint32_t, uint32_t,
 void common_g3duiquad_resize         ( G3DUIQUAD *, uint32_t, uint32_t );
 void common_g3duiquad_init           ( G3DUIQUAD *, uint32_t, uint32_t );
 
-/******************************************************************************/
-typedef struct _G3DUIRENDERBUFFER {
-#ifdef __linux__
-    Display            *dis; 
-    Window              win;
-    GC                  gc;
-    XImage             *ximg;
-    XShmSegmentInfo     ssi;
-#endif
-#ifdef __MINGW32__
-    HWND    hWnd;
-    WImage *wimg;
-#endif
-} G3DUIRENDERBUFFER;
 
 /************************** View Widget Structure *****************************/
 #define NBVIEWBUTTON    0x04
@@ -2161,4 +2176,17 @@ G3DMOUSETOOL *g3dui_getMouseTool ( G3DUI      *gui,
 uint64_t m3dui_redoCbk ( M3DUI *mui );
 uint64_t m3dui_undoCbk ( M3DUI *mui );
 
+/******************************************************************************/
+/****************************** Menu conditions *******************************/
+
+uint32_t objectModeOnly ( G3DUI *gui );
+uint32_t vertexModeOnly ( G3DUI *gui );
+uint32_t faceModeOnly ( G3DUI *gui );
+uint32_t sculptModeOnly ( G3DUI *gui );
+uint32_t edgeModeOnly ( G3DUI *gui );
+uint32_t skinModeOnly ( G3DUI *gui );
+uint32_t objectMode_skinSelected ( G3DUI *gui );
+uint32_t objectMode_objectSelected ( G3DUI *gui );
+uint32_t objectMode_boneSelected ( G3DUI *gui );
+uint32_t objectMode_boneOrSkinSelected ( G3DUI *gui );
 #endif
