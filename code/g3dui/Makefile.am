@@ -23,7 +23,7 @@ if HAVE_GTK3
                             common/g3duiinstanceedit.c \
                             common/g3duikeyedit.c \
                             common/g3duilightedit.c \
-                            common/g3duilist.c \
+                            common/g3duiobjectlist.c \
                             common/g3duimain.c \
                             common/g3duimaterialboard.c \
                             common/g3duimaterialedit.c \
