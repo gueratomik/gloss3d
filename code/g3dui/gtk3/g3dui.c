@@ -48,27 +48,6 @@ void g3duirectangle_toGdkRec ( G3DUIRECTANGLE *in,
 }
 
 /******************************************************************************/
-static void menuItemCallback ( GtkWidget *widget, 
-                               gpointer   user_data ) {
-    GTK3G3DUIMENU *gtk3node = ( GTK3G3DUIMENU * ) user_data;
-    G3DUI *gui = gtk3node->core.gui;
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
-
-    gtk3_setHourGlass ( );
-
-    if ( gtk3node->core.callback ) {
-        uint64_t ret = gtk3node->core.callback ( &gtk3node->core, 
-                                                  gtk3node->data );
-
-        gtk3_interpretUIReturnFlags ( ret );
-    }
-
-    gtk3_unsetHourGlass ( );
-}
-
-/******************************************************************************/
 void gtk3_setMouseTool ( GtkWidget *widget, 
                          gpointer   user_data ) {
     GTK3G3DUI *gtk3gui = gtk3_getUI ( );
@@ -200,9 +179,11 @@ static void gtk3_updateSelectedMaterialPreview ( ) {
     GTK3G3DUI *gtk3gui = gtk3_getUI ( );
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     LIST *ltmpmatlist = gtk3gui->lmatlist;
-    G3DMATERIAL *mat = gui->selmat;
+    LIST *ltmpselmat = gui->lselmat;
 
-    if ( mat ) {
+    while ( ltmpselmat ) {
+        G3DMATERIAL *mat = ( G3DMATERIAL * ) ltmpselmat->data;
+
         while ( ltmpmatlist ) {
             GtkWidget *matlst = ( GtkWidget * ) ltmpmatlist->data;
 
@@ -211,6 +192,8 @@ static void gtk3_updateSelectedMaterialPreview ( ) {
 
             ltmpmatlist = ltmpmatlist->next;
         }
+
+        ltmpselmat = ltmpselmat->next;
     }
 }
 

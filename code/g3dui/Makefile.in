@@ -143,7 +143,7 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3duiboneedit.c \
 	common/g3duilist.c common/g3duimain.c \
 	common/g3duimaterialboard.c common/g3duimaterialedit.c \
 	common/g3duimateriallist.c common/g3duimaterialnameedit.c \
-	common/g3duimenubar.c common/g3duimeshedit.c \
+	common/g3duimenu.c common/g3duimeshedit.c \
 	common/g3duimeshposelist.c common/g3duimodebar.c \
 	common/g3duiobjectedit.c common/g3duiparticleemitteredit.c \
 	common/g3duipatternlist.c common/g3duiplaneedit.c \
@@ -183,7 +183,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	common/g3duimaterialedit.lo \
 @HAVE_GTK3_TRUE@	common/g3duimateriallist.lo \
 @HAVE_GTK3_TRUE@	common/g3duimaterialnameedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duimenubar.lo common/g3duimeshedit.lo \
+@HAVE_GTK3_TRUE@	common/g3duimenu.lo common/g3duimeshedit.lo \
 @HAVE_GTK3_TRUE@	common/g3duimeshposelist.lo \
 @HAVE_GTK3_TRUE@	common/g3duimodebar.lo \
 @HAVE_GTK3_TRUE@	common/g3duiobjectedit.lo \
@@ -259,7 +259,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	common/$(DEPDIR)/g3duimaterialedit.Plo \
 	common/$(DEPDIR)/g3duimateriallist.Plo \
 	common/$(DEPDIR)/g3duimaterialnameedit.Plo \
-	common/$(DEPDIR)/g3duimenubar.Plo \
+	common/$(DEPDIR)/g3duimenu.Plo \
 	common/$(DEPDIR)/g3duimeshedit.Plo \
 	common/$(DEPDIR)/g3duimeshposelist.Plo \
 	common/$(DEPDIR)/g3duimodebar.Plo \
@@ -496,7 +496,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            common/g3duimaterialedit.c \
 @HAVE_GTK3_TRUE@                            common/g3duimateriallist.c \
 @HAVE_GTK3_TRUE@                            common/g3duimaterialnameedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duimenubar.c \
+@HAVE_GTK3_TRUE@                            common/g3duimenu.c \
 @HAVE_GTK3_TRUE@                            common/g3duimeshedit.c \
 @HAVE_GTK3_TRUE@                            common/g3duimeshposelist.c \
 @HAVE_GTK3_TRUE@                            common/g3duimodebar.c \
@@ -653,7 +653,7 @@ common/g3duimateriallist.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duimaterialnameedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
-common/g3duimenubar.lo: common/$(am__dirstamp) \
+common/g3duimenu.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duimeshedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
@@ -780,7 +780,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimaterialedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimateriallist.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimaterialnameedit.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimenubar.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimenu.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimeshedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimeshposelist.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimodebar.Plo@am__quote@ # am--include-marker
@@ -1015,7 +1015,7 @@ distclean: distclean-am
 	-rm -f common/$(DEPDIR)/g3duimaterialedit.Plo
 	-rm -f common/$(DEPDIR)/g3duimateriallist.Plo
 	-rm -f common/$(DEPDIR)/g3duimaterialnameedit.Plo
-	-rm -f common/$(DEPDIR)/g3duimenubar.Plo
+	-rm -f common/$(DEPDIR)/g3duimenu.Plo
 	-rm -f common/$(DEPDIR)/g3duimeshedit.Plo
 	-rm -f common/$(DEPDIR)/g3duimeshposelist.Plo
 	-rm -f common/$(DEPDIR)/g3duimodebar.Plo
@@ -1121,7 +1121,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f common/$(DEPDIR)/g3duimaterialedit.Plo
 	-rm -f common/$(DEPDIR)/g3duimateriallist.Plo
 	-rm -f common/$(DEPDIR)/g3duimaterialnameedit.Plo
-	-rm -f common/$(DEPDIR)/g3duimenubar.Plo
+	-rm -f common/$(DEPDIR)/g3duimenu.Plo
 	-rm -f common/$(DEPDIR)/g3duimeshedit.Plo
 	-rm -f common/$(DEPDIR)/g3duimeshposelist.Plo
 	-rm -f common/$(DEPDIR)/g3duimodebar.Plo

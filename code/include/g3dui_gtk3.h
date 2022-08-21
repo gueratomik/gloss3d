@@ -109,8 +109,6 @@ typedef struct _GTK3G3DUIMENU {
     G3DUIMENU  core;
     GtkWidget *item;
     GtkWidget *menu;
-    LIST      *lchildren;
-    void      *data; /*** passed to the callback ***/
 } GTK3G3DUIMENU;
 
 /******************************************************************************/
@@ -198,8 +196,6 @@ typedef struct _GTK3G3DUIVIEW {
 /******************************************************************************/
 typedef struct _GTK3G3DUIMAIN {
     G3DUIMAIN         core;
-    GTK3G3DUITOOLBAR *toolBar;
-
     GtkWidget        *layout;
     GtkWidget        *quad;
     GtkWidget        *timeBoard;
@@ -1101,19 +1097,22 @@ void g3duirenderbuffer_clear ( G3DUIRENDERBUFFER *rbuf );
 void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
                               GtkWidget         *drawingArea );
 
-GtkWidget *gtk3_g3duimain_create ( GtkWidget *parent,
-                                   char      *name,
-                                   gint       x,
-                                   gint       y,
-                                   gint       width,
-                                   gint       height,
-                                   char      *filename );
+GTK3G3DUIMAIN *gtk3_g3duimain_create ( GtkWidget *parent,
+                                       GTK3G3DUI *gtk3gui,
+                                       char      *name,
+                                       gint       x,
+                                       gint       y,
+                                       gint       width,
+                                       gint       height,
+                                       char      *filename );
+
 void gtk3_interpretUIReturnFlags ( uint64_t msk );
 void gtk3_g3dui_dispatchGLMenuButton ( G3DUI        *gui, 
                                        G3DMOUSETOOL *mou, 
                                        uint32_t      tool_flags );
 
-GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent, 
+GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
+                                             GTK3G3DUI *gtk3gui,
                                              char      *name,
                                              gint       x,
                                              gint       y,

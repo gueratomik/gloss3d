@@ -47,6 +47,9 @@
 #include <g3dengine/g3dengine.h>
 #include <g3dexportv3.h>
 
+#define IMPORTV3_CALLBACK(f) ((void(*)(G3DIMPORTV3DATA*,uint32_t,FILE *,void*))f)
+
+
 /*#define PRINT_CHUNK_INFO(sig,size,level)*/
 
 #define PRINT_CHUNK_INFO(sig,size,level) \

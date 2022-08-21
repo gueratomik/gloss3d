@@ -29,7 +29,7 @@ if HAVE_GTK3
                             common/g3duimaterialedit.c \
                             common/g3duimateriallist.c \
                             common/g3duimaterialnameedit.c \
-                            common/g3duimenubar.c \
+                            common/g3duimenu.c \
                             common/g3duimeshedit.c \
                             common/g3duimeshposelist.c \
                             common/g3duimodebar.c \

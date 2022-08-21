@@ -74,7 +74,8 @@ G3DUICOPIEDITEM *g3duicopieditem_new ( G3DOBJECT              *obj,
 }
 
 /******************************************************************************/
-void g3duicopieditem_clear ( G3DUICOPIEDITEM *item, uint32_t operation ) {
+void g3duicopieditem_clear ( G3DUICOPIEDITEM *item,
+                             uint32_t         operation ) {
     switch ( operation ) {
         case CLIPBOARDCOPYOBJECT :
             g3dobject_free ( item->obj );
@@ -287,10 +288,10 @@ void g3duiclipboard_copyKey ( G3DUICLIPBOARD *cli,
 }
 
 /******************************************************************************/
-void g3duiclipboard_copyFaceSculptExtension ( G3DUICLIPBOARD         *cli, 
-                                              G3DSCENE               *sce,
-                                              G3DSUBDIVIDER          *sdr,
-                                              G3DFACE                *fac ) {
+void g3duiclipboard_copyFaceSculptExtension ( G3DUICLIPBOARD *cli, 
+                                              G3DSCENE       *sce,
+                                              G3DSUBDIVIDER  *sdr,
+                                              G3DFACE        *fac ) {
     G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac, sdr );
 
     if ( fse ) {

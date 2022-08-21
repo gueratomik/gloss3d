@@ -255,7 +255,7 @@ G3DUIRENDERPROCESS *g3dui_getRenderProcessByJob ( G3DUI  *gui,
 /******************************************************************************/
 uint32_t g3dui_cancelRenderByScene ( G3DUI  *gui, 
                                      Q3DJOB *qjob ) {
-    G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByJob ( gui, qjob );
+    G3DUIRENDERPROCESS *rps = g3dui_getRenderProcessByJob ( gui, qjob );
 
     if ( rps ) {
         q3djob_end ( rps->qjob );
@@ -273,7 +273,7 @@ uint32_t g3dui_cancelRenderByScene ( G3DUI  *gui,
 /******************************************************************************/
 uint32_t g3dui_cancelRenderByID ( G3DUI   *gui, 
                                   uint64_t id ) {
-    G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, id );
+    G3DUIRENDERPROCESS *rps = g3dui_getRenderProcessByID ( gui, id );
 
     if ( rps ) {
         if ( rps->qjob ) q3djob_end ( rps->qjob );
@@ -391,12 +391,12 @@ G3DSCENE *g3dui_importfileokcbk ( G3DUI      *gui,
         }
 
         if ( gui->sce ) {
-            common_g3dui_setFileName ( gui, filename );
+            g3dui_setFileName ( gui, filename );
 
             printf ( "...Done!\n" );
 
-	        g3dui_clearMaterials ( gui );
-	        g3dui_importMaterials ( gui );
+	        /*g3dui_clearMaterials ( gui );
+	        g3dui_importMaterials ( gui );*/
 
             sce = gui->sce;
         } else {
@@ -428,11 +428,11 @@ void g3dui_saveG3DFile ( G3DUI *gui ) {
      * gui->lrsg is going to heck when we add a new set of render settings.
      */
     r3dext = g3dexportv3extension_new ( SIG_RENDERSETTINGS_EXTENSION,
-                                        q3dsettings_write,
+                      EXPORTV3_CALLBACK(q3dsettings_write),
                                         gui->lrsg );
 
     g3duiext = g3dexportv3extension_new ( SIG_G3DUI,
-                                          g3dui_write,
+                        EXPORTV3_CALLBACK(g3dui_write),
                                           gui );
 
     list_insert ( &lext, r3dext   );
@@ -620,8 +620,6 @@ uint64_t g3dui_openG3DFile ( G3DUI      *gui,
     LIST *lext = NULL;
     LIST *lrsg = NULL;
 
-    g3dui_setHourGlass ( gui );
-
 #ifdef __linux__
     if ( access( filename, F_OK ) == 0x00 ) {
 #endif
@@ -637,15 +635,15 @@ uint64_t g3dui_openG3DFile ( G3DUI      *gui,
             g3dobject_free ( ( G3DOBJECT * ) gui->sce );
         }
 
-        list_free ( &gui->lrsg, q3dsettings_free );
+        list_free ( &gui->lrsg, LIST_FUNCDATA(q3dsettings_free) );
 
         /* import render settings module */
         r3dext = g3dimportv3extension_new ( SIG_RENDERSETTINGS_EXTENSION,
-                                          q3dsettings_read,
-                                         &lrsg );
+                          IMPORTV3_CALLBACK(q3dsettings_read),
+                                           &lrsg );
         /* import G3DUI settings module */
         g3duiext = g3dimportv3extension_new ( SIG_G3DUI,
-                                              g3dui_read,
+                            IMPORTV3_CALLBACK(g3dui_read),
                                               gui );
 
         list_insert ( &lext, r3dext   );
@@ -694,8 +692,6 @@ uint64_t g3dui_openG3DFile ( G3DUI      *gui,
     } else {
         gui->sce = g3dscene_new ( 0x00, "Gloss3D scene" );
     }
-
-    g3dui_unsetHourGlass ( gui );
 
     return REDRAWVIEW          |
            REBUILDMATERIALLIST |

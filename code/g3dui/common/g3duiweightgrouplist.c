@@ -30,38 +30,44 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-G3DWEIGHTGROUP *common_g3duiweightgrouplist_getWeightGroup ( G3DMESH *mes, 
-                                                             float mouse_x,
-                                                             float mouse_y ) {
-    LIST *ltmpgrp = mes->lweigrp;
-    float y = 0;
+G3DWEIGHTGROUP *g3duiweightgrouplist_getWeightGroup ( G3DUIWEIGHTGROUPLIST *wgrplist,
+                                                      G3DMESH              *mes, 
+                                                      float                mouse_x,
+                                                      float                mouse_y ) {
+    G3DUI *gui = wgrplist->gui;
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
-    while ( ltmpgrp ) {
-        G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmpgrp->data;
-        float y1, y2;
+    if ( obj && ( obj->type == G3DMESHTYPE ) ) {
+        G3DMESH *mes = ( G3DMESH * ) obj;
+        LIST *ltmpgrp = mes->lweigrp;
+        float y = 0;
 
-        y1 = y;
-        y2 = y1 + LISTINDENT;
+        while ( ltmpgrp ) {
+            G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmpgrp->data;
+            float y1, y2;
 
-        if ( ( mouse_y > y1 ) && ( mouse_y < y2 ) ) {
-            return grp;
+            y1 = y;
+            y2 = y1 + LISTINDENT;
+
+            if ( ( mouse_y > y1 ) && ( mouse_y < y2 ) ) {
+                return grp;
+            }
+
+            y = y2;
+
+            ltmpgrp = ltmpgrp->next;
         }
-
-        y = y2;
-
-        ltmpgrp = ltmpgrp->next;
     }
 
     return NULL;
 }
 
 /******************************************************************************/
-void common_g3duiweightgrouplist_deleteWeightGroupCbk ( G3DUI *gui ) {
+uint64_t g3duiweightgrouplist_deleteWeightGroupCbk ( G3DUIWEIGHTGROUPLIST *wgrplist ) {
+    G3DUI *gui = wgrplist->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
@@ -72,15 +78,15 @@ void common_g3duiweightgrouplist_deleteWeightGroupCbk ( G3DUI *gui ) {
             g3dui_redrawAllWeightGroupList ( gui );
         }
     }
+
+    return REDRAWCURRENTOBJECT;
 }
 
 /******************************************************************************/
-void common_g3duiweightgrouplist_addWeightGroupCbk ( G3DUI *gui ) {
+uint64_t g3duiweightgrouplist_addWeightGroupCbk ( G3DUIWEIGHTGROUPLIST *wgrplist ) {
+    G3DUI *gui = wgrplist->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
@@ -89,36 +95,32 @@ void common_g3duiweightgrouplist_addWeightGroupCbk ( G3DUI *gui ) {
         snprintf ( buf, 0x20, "VertexWeightGroup%02i", mes->nbweigrp );
 
         g3dmesh_addWeightGroup ( mes, g3dweightgroup_new ( mes, buf ) );
-
-        g3dui_redrawAllWeightGroupList ( gui );
     }
+
+    return REDRAWCURRENTOBJECT;
 }
 
 /******************************************************************************/
-void common_g3duiweightgrouplist_nameCbk ( G3DUI *gui, const char *grpname ) {
+uint64_t g3duiweightgrouplist_nameCbk ( G3DUIWEIGHTGROUPLIST *wgrplist,
+                                        const char           *grpname ) {
+    G3DUI *gui = wgrplist->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
         g3dweightgroup_name ( mes->curgrp, ( char * ) grpname );
-
-        g3dui_redrawAllWeightGroupList ( gui );
     }
+
+    return REDRAWCURRENTOBJECT;
 }
 
 /******************************************************************************/
-void common_g3duiweightgrouplist_deleteSelectedCbk ( G3DUI *gui ) {
+uint64_t g3duiweightgrouplist_deleteSelectedCbk ( G3DUIWEIGHTGROUPLIST *wgrplist ) {
+    G3DUI *gui = wgrplist->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
-
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
@@ -144,15 +146,16 @@ void common_g3duiweightgrouplist_deleteSelectedCbk ( G3DUI *gui ) {
             g3dui_updateAllCurrentEdit ( gui );
         }
     }
+
+    return REDRAWCURRENTOBJECT;
 }
 
 /******************************************************************************/
-void common_g3duiweightgrouplist_selectCbk ( G3DUI *gui, G3DWEIGHTGROUP *grp ) {
+uint64_t g3duiweightgrouplist_selectCbk ( G3DUIWEIGHTGROUPLIST *wgrplist,
+                                          G3DWEIGHTGROUP       *grp ) {
+    G3DUI *gui = wgrplist->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
-    /*** prevents a loop ***/
-    if ( gui->lock ) return;
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
@@ -187,8 +190,7 @@ void common_g3duiweightgrouplist_selectCbk ( G3DUI *gui, G3DWEIGHTGROUP *grp ) {
         g3dmesh_update ( mes, gui->engine_flags );
 
         list_free ( &lver, NULL );
-
-        g3dui_redrawGLViews ( gui );
-        g3dui_updateAllCurrentEdit ( gui );
     }
+
+    return REDRAWCURRENTOBJECT | REDRAWVIEW;
 }

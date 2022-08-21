@@ -467,6 +467,26 @@ uint64_t g3dui_importfilecbk ( GtkWidget *widget, gpointer user_data ) {
     gtk_widget_destroy ( dialog );
 }
 
+/******************************************************************************/
+static void menuItemCallback ( GtkWidget *widget, 
+                               gpointer   user_data ) {
+    GTK3G3DUIMENU *gtk3node = ( GTK3G3DUIMENU * ) user_data;
+    G3DUI *gui = gtk3node->core.gui;
+
+    /*** prevents a loop ***/
+    if ( gui->lock ) return;
+
+    gtk3_setHourGlass ( );
+
+    if ( gtk3node->core.callback ) {
+        uint64_t ret = gtk3node->core.callback ( &gtk3node->core, 
+                                                  gtk3node->core.data );
+
+        gtk3_interpretUIReturnFlags ( ret );
+    }
+
+    gtk3_unsetHourGlass ( );
+}
 
 /******************************************************************************/
 GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node, 
@@ -478,8 +498,8 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
 
     memcpy ( &gtk3node->core, node, sizeof ( G3DUIMENU ) );
     
-    gtk3node->data     = data;
-    gtk3node->core.gui = gui;
+    gtk3node->core.data = data;
+    gtk3node->core.gui  = gui;
 
     switch ( node->type ) {
         case G3DUIMENUTYPE_SEPARATOR :
@@ -516,9 +536,10 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
             gtk_widget_set_name ( gtk3node->menu, node->name );
 
             while ( node->nodes[i] != NULL ) {
-                GTK3G3DUIMENU *child = gtk3_parseMenu_r ( node->nodes[i], data );
+                GTK3G3DUIMENU *child = gtk3_g3duimenu_parse_r ( node->nodes[i],
+                                                                data );
 
-                list_insert ( &gtk3node->lchildren, child );
+                list_insert ( &gtk3node->core.lchildren, child );
 
                 i++;
             }
@@ -538,12 +559,13 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
             gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( gtk3node->item ), gtk3node->menu );
 
             while ( node->nodes[i] != NULL ) {
-                GTK3G3DUIMENU *child = gtk3_parseMenu_r ( node->nodes[i], data );
+                GTK3G3DUIMENU *child = gtk3_g3duimenu_parse_r ( node->nodes[i],
+                                                                data );
 
                 gtk_menu_shell_append ( GTK_MENU_SHELL ( gtk3node->menu ), 
                                         child->item );
 
-                list_insert ( &gtk3node->lchildren, child );
+                list_insert ( &gtk3node->core.lchildren, child );
 
                 i++;
             }
@@ -576,8 +598,7 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
 }
 
 /******************************************************************************/
-void gtk3_updateMenu_r ( GTK3G3DUIMENU *gtk3node,
-                         void          *data ) {
+void gtk3_g3duimenu_update_r ( GTK3G3DUIMENU *gtk3node ) {
     GTK3G3DUI *gtk3gui = gtk3_getUI ( );
     G3DUI *gui = ( G3DUI * ) gtk3gui;
 
@@ -594,12 +615,12 @@ void gtk3_updateMenu_r ( GTK3G3DUIMENU *gtk3node,
 
         case G3DUIMENUTYPE_MENUBAR :
         case G3DUIMENUTYPE_SUBMENU : {
-            LIST *ltmpchildren = gtk3node->lchildren;
+            LIST *ltmpchildren = gtk3node->core.lchildren;
 
             while ( ltmpchildren ) {
                 GTK3G3DUIMENU *child = ( GTK3G3DUIMENU * ) ltmpchildren->data;
 
-                gtk3_updateMenu_r ( child, data );
+                gtk3_g3duimenu_update_r ( child );
 
                 ltmpchildren = ltmpchildren->next;
             }

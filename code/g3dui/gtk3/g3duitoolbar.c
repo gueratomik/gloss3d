@@ -50,20 +50,20 @@
 #include <xpm/zaxis.xpm>
 
 /******************************************************************************/
-static GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_new ( ) {
+static GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_new ( GTK3G3DUI *gtk3gui ) {
     uint32_t memSize =  sizeof ( GTK3G3DUITOOLBAR );
-    GTK3G3DUITOOLBAR *gtk3gtb = ( GTK3G3DUITOOLBAR * ) calloc ( 0x01, memSize );
+    GTK3G3DUITOOLBAR *gtk3tb = ( GTK3G3DUITOOLBAR * ) calloc ( 0x01, memSize );
 
-    if ( gtk3gtb == NULL ) {
+    if ( gtk3tb == NULL ) {
         fprint ( stderr, "%s: calloc failed\n", __func__ );
 
         return NULL;
     }
 
-    gtk3gtb->grp.gui = ( G3DUI * ) gtk3_getUI ( );
+    gtk3tb->core.gui = ( G3DUI * ) &gtk3gui->core;
 
 
-    return gtk3gtb;
+    return gtk3tb;
 }
 
 /******************************************************************************/
@@ -203,146 +203,147 @@ GtkWidget *addToolBarPushButton ( GtkWidget   *bar,
 }
 
 /******************************************************************************/
-GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent, 
+GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
+                                             GTK3G3DUI *gtk3gui,
                                              char      *name,
                                              gint       x,
                                              gint       y,
                                              gint       width,
                                              gint       height ) {
-    GTK3G3DUITOOLBAR *gtk3gtb = gtk3_g3duitoolbar_new ( );
-    GdkRectangle  gdkrec  = { x, y, width, height };
-    GtkWidget    *grp     = NULL;
+    GTK3G3DUITOOLBAR *gtk3tb = gtk3_g3duitoolbar_new ( gtk3gui );
+    GdkRectangle  gdkrec     = { x, y, width, height };
+    GtkWidget    *grp        = NULL;
 
-    gtk3gtb->bar = gtk_toolbar_new ( );
+    gtk3tb->bar = gtk_toolbar_new ( );
 
-    gtk_widget_set_name ( gtk3gtb->bar, name );
+    gtk_widget_set_name ( gtk3tb->bar, name );
 
-    gtk_widget_size_allocate ( gtk3gtb->bar, &gdkrec );
+    gtk_widget_size_allocate ( gtk3tb->bar, &gdkrec );
 
-    gtk_toolbar_set_style(GTK_TOOLBAR(gtk3gtb->bar), GTK_TOOLBAR_ICONS);
+    gtk_toolbar_set_style(GTK_TOOLBAR(gtk3tb->bar), GTK_TOOLBAR_ICONS);
 
-    gtk3gtb->newScene   = addToolBarPushButton ( gtk3gtb->bar, 
-                                                 gtk3gtb,
-                                                 MENU_NEWSCENE,
-                                                 newfile_xpm,
-                                                 /*g3dui_newscenecbk*/NULL );
+    gtk3tb->newScene   = addToolBarPushButton ( gtk3tb->bar, 
+                                                gtk3tb,
+                                                MENU_NEWSCENE,
+                                                newfile_xpm,
+                                                /*g3dui_newscenecbk*/NULL );
 
-    gtk3gtb->openFile   = addToolBarPushButton ( gtk3gtb->bar,
-                                                 gtk3gtb, MENU_OPENFILE,
-                                                 openfile_xpm,
-                                                 /*g3dui_openfilecbk*/NULL );
+    gtk3tb->openFile   = addToolBarPushButton ( gtk3tb->bar,
+                                                gtk3tb, MENU_OPENFILE,
+                                                openfile_xpm,
+                                                /*g3dui_openfilecbk*/NULL );
 
-    gtk3gtb->saveFileAs = addToolBarPushButton ( gtk3gtb->bar,
-                                                 gtk3gtb,
-                                                 MENU_SAVEFILEAS,
-                                                 saveas_xpm,
-                                                 /*g3dui_saveascbk*/NULL );
+    gtk3tb->saveFileAs = addToolBarPushButton ( gtk3tb->bar,
+                                                gtk3tb,
+                                                MENU_SAVEFILEAS,
+                                                saveas_xpm,
+                                                /*g3dui_saveascbk*/NULL );
 
-    gtk3gtb->saveFile   = addToolBarPushButton ( gtk3gtb->bar,
-                                                 gtk3gtb,
-                                                 MENU_SAVEFILE,
-                                                 save_xpm,
-                                                 /*g3dui_savefilecbk*/NULL );
+    gtk3tb->saveFile   = addToolBarPushButton ( gtk3tb->bar,
+                                                gtk3tb,
+                                                MENU_SAVEFILE,
+                                                save_xpm,
+                                                /*g3dui_savefilecbk*/NULL );
 
-    gtk3gtb->undo       = addToolBarPushButton ( gtk3gtb->bar,
-                                                 gtk3gtb,
-                                                 MENU_UNDO,
-                                                 undo_xpm,
-                                                 /*g3dui_undoCbk*/NULL );
+    gtk3tb->undo       = addToolBarPushButton ( gtk3tb->bar,
+                                                gtk3tb,
+                                                MENU_UNDO,
+                                                undo_xpm,
+                                                /*g3dui_undoCbk*/NULL );
 
-    gtk3gtb->redo       = addToolBarPushButton ( gtk3gtb->bar,
-                                                 gtk3gtb,
-                                                 MENU_REDO,
-                                                 redo_xpm,
-                                                 /*g3dui_redoCbk*/NULL );
+    gtk3tb->redo       = addToolBarPushButton ( gtk3tb->bar,
+                                                gtk3tb,
+                                                MENU_REDO,
+                                                redo_xpm,
+                                                /*g3dui_redoCbk*/NULL );
 
-    gtk3gtb->delete     = addToolBarPushButton ( gtk3gtb->bar,
-                                                 gtk3gtb,
-                                                 MENU_DELETE,
-                                                 delete_xpm,
-                                                 /*g3dui_deleteSelectionCbk*/NULL );
-
-    /********************************/
-
-    gtk3gtb->pickTool   = addToolBarToggleButton ( gtk3gtb->bar,
-                                                   gtk3gtb,
-                                                   PICKTOOL,
-                                                   pick_xpm,
-                                                   /*g3dui_setMouseTool*/NULL );
-
-    gtk3gtb->moveTool   = addToolBarToggleButton ( gtk3gtb->bar,
-                                                   gtk3gtb,
-                                                   MOVETOOL,
-                                                   move_xpm,
-                                                   /*g3dui_setMouseTool*/NULL    );
-
-    gtk3gtb->scaleTool  = addToolBarToggleButton ( gtk3gtb->bar,
-                                                   gtk3gtb,
-                                                   SCALETOOL,
-                                                   scale_xpm,
-                                                   /*g3dui_setMouseTool*/NULL  );
-
-
-
-    gtk3gtb->rotateTool = addToolBarToggleButton ( gtk3gtb->bar,
-                                                   gtk3gtb,
-                                                   ROTATETOOL,
-                                                   rotate_xpm,
-                                                   /*g3dui_setMouseTool*/NULL );
+    gtk3tb->delete     = addToolBarPushButton ( gtk3tb->bar,
+                                                gtk3tb,
+                                                MENU_DELETE,
+                                                delete_xpm,
+                                                /*g3dui_deleteSelectionCbk*/NULL );
 
     /********************************/
 
-    gtk3gtb->renderView   = addToolBarPushButton ( gtk3gtb->bar,
-                                                   gtk3gtb,
-                                                   MENU_RENDERVIEW,
-                                                   renderw_xpm,
-                                                   /*g3dui_renderViewCbk*/NULL );
+    gtk3tb->pickTool   = addToolBarToggleButton ( gtk3tb->bar,
+                                                  gtk3tb,
+                                                  PICKTOOL,
+                                                  pick_xpm,
+                                                  /*g3dui_setMouseTool*/NULL );
 
-    gtk3gtb->renderFinal  = addToolBarPushButton ( gtk3gtb->bar,
-                                                   gtk3gtb,
-                                                   MENU_RENDERFINAL,
-                                                   render_xpm,
-                                                   /*g3dui_runRenderCbk*/NULL );
+    gtk3tb->moveTool   = addToolBarToggleButton ( gtk3tb->bar,
+                                                  gtk3tb,
+                                                  MOVETOOL,
+                                                  move_xpm,
+                                                  /*g3dui_setMouseTool*/NULL    );
 
-    gtk3gtb->makeEditable = addToolBarPushButton ( gtk3gtb->bar,
-                                                   gtk3gtb,
-                                                   MENU_MAKEEDITABLE,
-                                                   makeedit_xpm,
-                                                   /*g3dui_makeEditableCbk*/NULL );
+    gtk3tb->scaleTool  = addToolBarToggleButton ( gtk3tb->bar,
+                                                  gtk3tb,
+                                                  SCALETOOL,
+                                                  scale_xpm,
+                                                  /*g3dui_setMouseTool*/NULL  );
 
-    /********************************/
 
-    gtk3gtb->xAxis = addToolBarToggleButton ( gtk3gtb->bar,
-                                              gtk3gtb,
-                                              MENU_XAXIS,
-                                              xaxis_xpm,
-                                              /*xAxisCbk*/NULL );
 
-    gtk3gtb->yAxis = addToolBarToggleButton ( gtk3gtb->bar,
-                                              gtk3gtb,
-                                              MENU_YAXIS,
-                                              yaxis_xpm,
-                                              /*yAxisCbk*/NULL );
-
-    gtk3gtb->zAxis = addToolBarToggleButton ( gtk3gtb->bar,
-                                              gtk3gtb,
-                                              MENU_ZAXIS,
-                                              zaxis_xpm,
-                                              /*zAxisCbk*/NULL );
+    gtk3tb->rotateTool = addToolBarToggleButton ( gtk3tb->bar,
+                                                  gtk3tb,
+                                                  ROTATETOOL,
+                                                  rotate_xpm,
+                                                  /*g3dui_setMouseTool*/NULL );
 
     /********************************/
 
-    gtk_toggle_tool_button_set_active ( GTK_TOGGLE_TOOL_BUTTON(gtk3gtb->xAxis), TRUE );
-    gtk_toggle_tool_button_set_active ( GTK_TOGGLE_TOOL_BUTTON(gtk3gtb->yAxis), TRUE );
-    gtk_toggle_tool_button_set_active ( GTK_TOGGLE_TOOL_BUTTON(gtk3gtb->zAxis), TRUE );
+    gtk3tb->renderView   = addToolBarPushButton ( gtk3tb->bar,
+                                                  gtk3tb,
+                                                  MENU_RENDERVIEW,
+                                                  renderw_xpm,
+                                                  /*g3dui_renderViewCbk*/NULL );
+
+    gtk3tb->renderFinal  = addToolBarPushButton ( gtk3tb->bar,
+                                                  gtk3tb,
+                                                  MENU_RENDERFINAL,
+                                                  render_xpm,
+                                                  /*g3dui_runRenderCbk*/NULL );
+
+    gtk3tb->makeEditable = addToolBarPushButton ( gtk3tb->bar,
+                                                  gtk3tb,
+                                                  MENU_MAKEEDITABLE,
+                                                  makeedit_xpm,
+                                                  /*g3dui_makeEditableCbk*/NULL );
+
+    /********************************/
+
+    gtk3tb->xAxis = addToolBarToggleButton ( gtk3tb->bar,
+                                             gtk3tb,
+                                             MENU_XAXIS,
+                                             xaxis_xpm,
+                                             /*xAxisCbk*/NULL );
+
+    gtk3tb->yAxis = addToolBarToggleButton ( gtk3tb->bar,
+                                             gtk3tb,
+                                             MENU_YAXIS,
+                                             yaxis_xpm,
+                                             /*yAxisCbk*/NULL );
+
+    gtk3tb->zAxis = addToolBarToggleButton ( gtk3tb->bar,
+                                             gtk3tb,
+                                             MENU_ZAXIS,
+                                             zaxis_xpm,
+                                             /*zAxisCbk*/NULL );
+
+    /********************************/
+
+    gtk_toggle_tool_button_set_active ( GTK_TOGGLE_TOOL_BUTTON(gtk3tb->xAxis), TRUE );
+    gtk_toggle_tool_button_set_active ( GTK_TOGGLE_TOOL_BUTTON(gtk3tb->yAxis), TRUE );
+    gtk_toggle_tool_button_set_active ( GTK_TOGGLE_TOOL_BUTTON(gtk3tb->zAxis), TRUE );
 
 
-    gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(gtk3gtb->bar), 0 );
+    gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(gtk3tb->bar), 0 );
 
-    gtk_layout_put ( GTK_LAYOUT(parent), gtk3gtb->bar, x, y );
+    gtk_layout_put ( GTK_LAYOUT(parent), gtk3tb->bar, x, y );
 
-    gtk_widget_show ( gtk3gtb->bar );
+    gtk_widget_show ( gtk3tb->bar );
 
 
-    return gtk3gtb;
+    return gtk3tb;
 }

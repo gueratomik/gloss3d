@@ -198,7 +198,9 @@ static void g3duiview_init3D ( G3DUIVIEW *view ) {
 /* we need to track the mouse after a click, something I think, will be easier*/
 /* to achieve that way. I might be wrong though :-/.                          */
 /******************************************************************************/
-int g3duiview_getCurrentButton ( G3DUIVIEW *view, int x, int y ) {
+int g3duiview_getCurrentButton ( G3DUIVIEW *view, 
+                                 int        x,
+                                 int        y ) {
     int i;
 
     for ( i = 0x00; i < NBVIEWBUTTON; i++ ) {

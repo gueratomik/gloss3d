@@ -30,7 +30,8 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void g3duirenderprocess_savejpg ( G3DUIRENDERPROCESS *rps, char *filename ) {
+void g3duirenderprocess_savejpg ( G3DUIRENDERPROCESS *rps, 
+                                  char               *filename ) {
     g3dcore_writeJpeg ( filename,
                         rps->qjob->qarea.width,
                         rps->qjob->qarea.height,
@@ -128,7 +129,8 @@ void *g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps ) {
 }
 
 /******************************************************************************/
-void g3duirenderprocess_filename ( G3DUIRENDERPROCESS *rps, char *filename ) {
+void g3duirenderprocess_filename ( G3DUIRENDERPROCESS *rps,
+                                   char               *filename ) {
     uint32_t len = strlen ( filename ) + 0x01;
 
     rps->filename = realloc ( rps->filename, len );
