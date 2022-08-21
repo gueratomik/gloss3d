@@ -32,7 +32,9 @@
 /******************************************************************************/
 static uint64_t deleteKeysCbk ( G3DUIMENU *menu, 
                                 void      *data ) {
-    g3duitimeline_deleteSelectedKeys ( menu->gui );
+    G3DUITIMELINE tim = { .gui = menu->gui };
+
+    g3duitimeline_deleteSelectedKeys ( &tim );
 
 
     return REDRAWTIMELINE;

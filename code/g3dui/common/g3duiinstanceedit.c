@@ -46,14 +46,14 @@ uint64_t g3duiinstanceedit_setReferenceCbk ( G3DUIINSTANCEEDIT *insedit,
             int selected = 0x00;
 
             /*** flatten the object tree ***/
-            g3dobject_treeToList_r ( sce, &lobj );
+            g3dobject_treeToList_r ( ( G3DOBJECT * ) sce, &lobj );
 
             ltmpobj = lobj;
 
             while ( ltmpobj ) {
                 G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
 
-                if ( obj != ins ) {
+                if ( obj != ( G3DOBJECT * ) ins ) {
                     if ( obj->type != G3DSCENETYPE ) {
                         if ( objRank == rank ) {
                             g3dinstance_setReference ( ins, obj );

@@ -91,7 +91,7 @@ void g3dface_removeExtension ( G3DFACE          *fac,
 
 /******************************************************************************/
 G3DFACEEXTENSION *g3dface_getExtension ( G3DFACE *fac,
-                                         uint32_t name ) {
+                                         uint64_t name ) {
     LIST *ltmpext = fac->lext;
 
     while ( ltmpext ) {

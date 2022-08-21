@@ -74,8 +74,6 @@ uint64_t g3duiweightgrouplist_deleteWeightGroupCbk ( G3DUIWEIGHTGROUPLIST *wgrpl
 
         if ( mes->curgrp ) {
             g3dmesh_removeWeightGroup ( mes, mes->curgrp );
-
-            g3dui_redrawAllWeightGroupList ( gui );
         }
     }
 
@@ -141,13 +139,10 @@ uint64_t g3duiweightgrouplist_deleteSelectedCbk ( G3DUIWEIGHTGROUPLIST *wgrplist
             g3dmesh_update ( mes, gui->engine_flags );
 
             /*list_free ( &lsub, NULL );*/
-
-            g3dui_redrawGLViews ( gui );
-            g3dui_updateAllCurrentEdit ( gui );
         }
     }
 
-    return REDRAWCURRENTOBJECT;
+    return REDRAWVIEW | REDRAWCURRENTOBJECT;
 }
 
 /******************************************************************************/

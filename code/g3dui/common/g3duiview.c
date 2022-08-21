@@ -31,8 +31,9 @@
 
 /******************************************************************************/
 static G3DCAMERA *getCamera ( G3DUIVIEW *view ) {
-    if ( g3dscene_isObjectReferred ( view->gui->sce, 
-                                     view->cam ) ) {
+    G3DSCENE *sce = view->gui->sce;
+
+    if ( g3dscene_isObjectReferred ( sce, ( G3DOBJECT * ) view->cam ) ) {
         return view->cam;
     }
 
@@ -283,7 +284,7 @@ void g3duiview_initGL ( G3DUIVIEW *view ) {
 
     /*** we need to update the camera's matrix here because we need and ***/
     /*** OpenGL context for matrix operations ***/
-    g3dobject_updateMatrix_r (  cam, 0x00 );
+    g3dobject_updateMatrix_r ( ( G3DOBJECT * ) cam, 0x00 );
 
     /*** Set clear color for the OpenGL Window ***/
     glClearColor ( clearColorf, clearColorf, clearColorf, 1.0f );
@@ -307,7 +308,7 @@ void g3duiview_useSelectedCamera ( G3DUIVIEW *view,
 
     view->cam = cam;
 
-    g3dscene_addReferredObject ( view->gui->sce, cam );
+    g3dscene_addReferredObject ( view->gui->sce, ( G3DOBJECT * ) cam );
 }
 
 /******************************************************************************/
@@ -394,7 +395,7 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
     glMatrixMode ( GL_MODELVIEW );
     glLoadIdentity ( );
 
-    g3duiview_showRenderingArea ( gui, engine_flags );
+    g3duiview_showRenderingArea ( view, engine_flags );
 
     glDepthMask ( GL_FALSE );
 

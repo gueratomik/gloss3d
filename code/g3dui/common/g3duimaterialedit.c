@@ -407,19 +407,19 @@ uint64_t g3duimaterialedit_chooseProceduralCbk ( G3DUIMATERIALEDIT *matedit,
 
             if ( procType ) {
                 if ( strcmp ( procType, PROCPERLINNOISE ) == 0x00 ) {
-                    proc = g3dproceduralnoise_new ( );
+                    proc = ( G3DPROCEDURAL * ) g3dproceduralnoise_new ( );
                 }
 
                 if ( strcmp ( procType, PROCCHESSBOARD ) == 0x00 ) {
-                    proc = g3dproceduralchess_new ( );
+                    proc = ( G3DPROCEDURAL * ) g3dproceduralchess_new ( );
                 }
 
                 if ( strcmp ( procType, PROCBRICK ) == 0x00 ) {
-                    proc = g3dproceduralbrick_new ( );
+                    proc = ( G3DPROCEDURAL * ) g3dproceduralbrick_new ( );
                 }
 
                 if ( strcmp ( procType, PROCGRADIENT ) == 0x00 ) {
-                    proc = g3dproceduralgradient_new ( );
+                    proc = ( G3DPROCEDURAL * ) g3dproceduralgradient_new ( );
                 }
             }
 

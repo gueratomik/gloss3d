@@ -43,7 +43,7 @@ uint64_t g3duitrackertagedit_orientationCbk ( G3DUITRACKERTAGEDIT *ttedit,
 
         if ( tag ) {
             if ( tag->type & G3DTAGTRACKERTYPE ) {
-                G3DTRACKERTAG *ttag = tag;
+                G3DTRACKERTAG *ttag = ( G3DTRACKERTAG * ) tag;
 
                 if ( strcmp ( str, XSTR ) == 0x00 ) {
                     g3dtrackertag_setOrientation ( ttag, 
@@ -83,12 +83,12 @@ uint64_t g3duitrackertagedit_setTargetCbk ( G3DUITRACKERTAGEDIT *ttedit,
 
         if ( tag ) {
             if ( tag->type & G3DTAGTRACKERTYPE ) {
-                G3DTRACKERTAG *ttag = tag;
+                G3DTRACKERTAG *ttag = ( G3DTRACKERTAG * ) tag;
                 LIST *ltmpobj, *lobj = NULL;
                 uint32_t objRank = 0x00;
 
                 /*** flatten the object tree ***/
-                g3dobject_treeToList_r ( sce, &lobj );
+                g3dobject_treeToList_r ( ( G3DOBJECT * ) sce, &lobj );
 
                 ltmpobj = lobj;
 

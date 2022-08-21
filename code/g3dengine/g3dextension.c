@@ -32,12 +32,12 @@
 
 /******************************************************************************/
 void g3dvertexextension_init ( G3DVERTEXEXTENSION *ext,
-                               uint32_t            name ) {
+                               uint64_t            name ) {
     ext->name = name;
 }
 
 /******************************************************************************/
 void g3dfaceextension_init ( G3DFACEEXTENSION *ext,
-                             uint32_t          name ) {
+                             uint64_t          name ) {
     ext->name = name;
 }

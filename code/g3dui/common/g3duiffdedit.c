@@ -43,7 +43,7 @@ uint64_t g3duiffdedit_radiusCbk ( G3DUIFFDEDIT *ffdedit,
         if ( sel->type == G3DFFDTYPE ) {
             G3DFFD *ffd = ( G3DFFD * ) sel;
 
-            g3dobject_deactivate ( ffd, gui->engine_flags );
+            g3dobject_deactivate ( ( G3DOBJECT * ) ffd, gui->engine_flags );
 
             if ( axis == G3DUIXAXIS ) g3dffd_shape ( ffd, ffd->nbx,
                                                           ffd->nby,
@@ -88,7 +88,7 @@ uint64_t g3duiffdedit_sliceCbk ( G3DUIFFDEDIT *ffdedit,
         if ( sel->type == G3DFFDTYPE ) {
             G3DFFD *ffd = ( G3DFFD * ) sel;
 
-            g3dobject_deactivate ( ffd, gui->engine_flags );
+            g3dobject_deactivate ( ( G3DOBJECT * ) ffd, gui->engine_flags );
 
             if ( axis == G3DUIXAXIS ) g3dffd_shape ( ffd, slice, 
                                                           ffd->nby,

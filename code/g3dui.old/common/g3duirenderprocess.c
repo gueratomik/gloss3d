@@ -78,7 +78,7 @@ void g3duirenderprocess_free ( G3DUIRENDERPROCESS *rps ) {
     /*** cf g3duicom.c ***/
     /*q3dfilter_free ( rps->toframe );*/ 
 
-    printf ( "freeing render process #%d\n", rps->id );
+    printf ( "freeing render process #%llu\n", rps->id );
 
     list_remove ( &rps->gui->lrps, rps );
 

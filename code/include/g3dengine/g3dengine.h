@@ -1283,15 +1283,15 @@ struct _G3DMESH {
 
 /******************************************************************************/
 typedef struct _G3DVERTEXEXTENSION {
-    uint32_t name;
+    uint64_t name;
 } G3DVERTEXEXTENSION;
 
 void g3dvertexextension_init ( G3DVERTEXEXTENSION *ext,
-                               uint32_t            name );
+                               uint64_t            name );
 
 /******************************************************************************/
 typedef struct _G3DFACEEXTENSION {
-    uint32_t name;
+    uint64_t name;
 } G3DFACEEXTENSION;
 
 typedef struct _G3DHEIGHT {
@@ -1309,18 +1309,18 @@ typedef struct _G3DFACESCULPTEXTENSION {
 } G3DFACESCULPTEXTENSION;
 
 void g3dfaceextension_init ( G3DFACEEXTENSION *ext,
-                             uint32_t          name );
+                             uint64_t          name );
 
 void g3dface_addExtension ( G3DFACE          *fac,
                             G3DFACEEXTENSION *ext );
 
 G3DFACEEXTENSION *g3dface_getExtension ( G3DFACE *fac,
-                                         uint32_t name );
+                                         uint64_t name );
 
 void g3dface_removeExtension ( G3DFACE          *fac, 
                                G3DFACEEXTENSION *ext );
 
-G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint32_t extensionName,
+G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint64_t extensionName,
                                                      G3DFACE *fac,
                                                      uint32_t level,
                                                      uint32_t sculptMode );

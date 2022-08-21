@@ -52,20 +52,23 @@ static uint64_t aboutCbk ( G3DUIMENU *menu,
 }
 
 /******************************************************************************/
-static G3DUIMENU menu_separator = { "SEPARATOR",
+static G3DUIMENU menu_separator = { NULL,
+                                    "SEPARATOR",
                                     G3DUIMENUTYPE_SEPARATOR,
                                     NULL,
                                     NULL };
 
 /******************************************************************************/
 /********************************* Help MENU **********************************/
-static G3DUIMENU help_menu_about = { MENU_ABOUT,
+static G3DUIMENU help_menu_about = { NULL,
+                                     MENU_ABOUT,
                                      G3DUIMENUTYPE_PUSHBUTTON,
                                      NULL,
                                      aboutCbk };
 
 /******************************************************************************/
-static G3DUIMENU help_menu = { "Help",
+static G3DUIMENU help_menu = { NULL,
+                               "Help",
                                G3DUIMENUTYPE_SUBMENU,
                                NULL,
                                NULL,
@@ -77,7 +80,7 @@ static G3DUIMENU help_menu = { "Help",
 
 static uint64_t addUVMapCbk ( G3DUIMENU *menu, 
                               void      *data ) {
-    g3duimenubar_addUVMapCbk ( menu->gui );
+    g3dui_addUVMapCbk ( menu->gui );
 
 
     return REDRAWLIST;
@@ -86,7 +89,7 @@ static uint64_t addUVMapCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t fitUVMapCbk ( G3DUIMENU *menu, 
                               void      *data ) {
-    g3duimenubar_fitUVMapCbk ( menu->gui );
+    g3dui_fitUVMapCbk ( menu->gui );
 
 
     return REDRAWVIEW;
@@ -95,7 +98,7 @@ static uint64_t fitUVMapCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t alignUVMapCbk ( G3DUIMENU *menu, 
                                 void      *data ) {
-    g3duimenubar_alignUVMapCbk ( menu->gui, menu->name );
+    g3dui_alignUVMapCbk ( menu->gui, menu->name );
 
 
     return REDRAWVIEW;
@@ -104,33 +107,39 @@ static uint64_t alignUVMapCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 /******************************* UVMapping MENU *******************************/
 
-static G3DUIMENU uvmapping_menu_align_xy = { MENU_ALIGNUVMAPXY,
+static G3DUIMENU uvmapping_menu_align_xy = { NULL,
+                                             MENU_ALIGNUVMAPXY,
                                              G3DUIMENUTYPE_PUSHBUTTON,
                                              NULL,
                                              alignUVMapCbk };
 
-static G3DUIMENU uvmapping_menu_align_yz = { MENU_ALIGNUVMAPYZ,
+static G3DUIMENU uvmapping_menu_align_yz = { NULL,
+                                             MENU_ALIGNUVMAPYZ,
                                              G3DUIMENUTYPE_PUSHBUTTON,
                                              NULL,
                                              alignUVMapCbk };
 
-static G3DUIMENU uvmapping_menu_align_zx = { MENU_ALIGNUVMAPZX,
+static G3DUIMENU uvmapping_menu_align_zx = { NULL,
+                                             MENU_ALIGNUVMAPZX,
                                              G3DUIMENUTYPE_PUSHBUTTON,
                                              NULL,
                                              alignUVMapCbk };
 
 /******************************************************************************/
-static G3DUIMENU uvmapping_menu_add   = { MENU_ADDUVMAP,
+static G3DUIMENU uvmapping_menu_add   = { NULL,
+                                          MENU_ADDUVMAP,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           addUVMapCbk };
 
-static G3DUIMENU uvmapping_menu_fit   = { MENU_FITUVMAP,
+static G3DUIMENU uvmapping_menu_fit   = { NULL,
+                                          MENU_FITUVMAP,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           fitUVMapCbk };
 
-static G3DUIMENU uvmapping_menu_align = { MENU_ALIGNUVMAP,
+static G3DUIMENU uvmapping_menu_align = { NULL,
+                                          MENU_ALIGNUVMAP,
                                           G3DUIMENUTYPE_SUBMENU,
                                           NULL,
                                           NULL,
@@ -140,7 +149,8 @@ static G3DUIMENU uvmapping_menu_align = { MENU_ALIGNUVMAP,
                                                      NULL } };
 
 /******************************************************************************/
-static G3DUIMENU uvmapping_menu = { "UV Mapping",
+static G3DUIMENU uvmapping_menu = { NULL,
+                                    "UV Mapping",
                                     G3DUIMENUTYPE_SUBMENU,
                                     NULL,
                                     NULL,
@@ -181,18 +191,21 @@ static uint64_t renderSettingsCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 /******************************* Render MENU **********************************/
 
-static G3DUIMENU render_menu_view     = { MENU_RENDERVIEW,
+static G3DUIMENU render_menu_view     = { NULL,
+                                          MENU_RENDERVIEW,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           renderViewCbk };
 
-static G3DUIMENU render_menu_settings = { MENU_RENDERSETTINGS,
+static G3DUIMENU render_menu_settings = { NULL,
+                                          MENU_RENDERSETTINGS,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           renderSettingsCbk };
 
 /******************************************************************************/
-static G3DUIMENU render_menu = { "Render",
+static G3DUIMENU render_menu = { NULL,
+                                 "Render",
                                  G3DUIMENUTYPE_SUBMENU,
                                  NULL,
                                  NULL,

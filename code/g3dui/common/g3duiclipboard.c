@@ -232,8 +232,8 @@ void g3duiclipboard_paste ( G3DUICLIPBOARD *cli,
 
                         while ( ltmpfac ) {
                             G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-                            G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
-                                                                                 sdr );
+                            G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION * ) g3dface_getExtension ( fac,
+                                                                          ( uint64_t ) sdr );
 
                             if ( fse == NULL ) {
                                 fse = g3dfacesculptextension_new ( ( uint64_t ) sdr,
@@ -241,7 +241,8 @@ void g3duiclipboard_paste ( G3DUICLIPBOARD *cli,
                                                                                 sdr->sculptResolution,
                                                                                 sdr->sculptMode );
 
-                                g3dface_addExtension ( fac, fse );
+                                g3dface_addExtension ( fac, 
+                                ( G3DFACEEXTENSION * ) fse );
                             }
 
                             if ( fse != item->fse ) {
@@ -292,10 +293,10 @@ void g3duiclipboard_copyFaceSculptExtension ( G3DUICLIPBOARD *cli,
                                               G3DSCENE       *sce,
                                               G3DSUBDIVIDER  *sdr,
                                               G3DFACE        *fac ) {
-    G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac, sdr );
+    G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION * ) g3dface_getExtension ( fac, ( uint64_t ) sdr );
 
     if ( fse ) {
-        G3DFACESCULPTEXTENSION *fsecpy = g3dfacesculptextension_new ( sdr,
+        G3DFACESCULPTEXTENSION *fsecpy = ( G3DFACESCULPTEXTENSION * ) g3dfacesculptextension_new ( ( uint64_t ) sdr,
                                                                       fac,
                                                                       sdr->sculptResolution,
                                                                       sdr->sculptMode );
