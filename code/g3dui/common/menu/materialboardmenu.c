@@ -113,14 +113,15 @@ static G3DUIMENU matfile_menu_set    = { NULL,
                                          setMaterialCbk };
 
 /******************************************************************************/
-static G3DUIMENU matfile_menu = { "File",
-                               G3DUIMENUTYPE_SUBMENU,
-                               NULL,
-                               NULL,
-                              .nodes = { &matfile_menu_add,
-                                         &matfile_menu_remove,
-                                         &matfile_menu_set,
-                                          NULL } };
+static G3DUIMENU matfile_menu = { NULL,
+                                  "File",
+                                  G3DUIMENUTYPE_SUBMENU,
+                                  NULL,
+                                  NULL,
+                                 .nodes = { &matfile_menu_add,
+                                            &matfile_menu_remove,
+                                            &matfile_menu_set,
+                                             NULL } };
 
 /******************************************************************************/
 /******************************************************************************/

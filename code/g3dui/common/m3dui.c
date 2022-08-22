@@ -32,7 +32,7 @@
 #define CLEARCOLOR 100
 
 /******************************************************************************/
-G3DIMAGE *m3dui_getWorkingChannel ( M3DUI *mui ) {
+G3DCHANNEL *m3dui_getWorkingChannel ( M3DUI *mui ) {
     G3DUI        *gui = mui->gui;
     G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
@@ -64,7 +64,7 @@ G3DIMAGE *m3dui_getWorkingChannel ( M3DUI *mui ) {
 
 /******************************************************************************/
 G3DIMAGE *m3dui_getWorkingImage ( M3DUI *mui ) {
-    G3DCHANNEL *chn = common_m3dui_getWorkingChannel ( mui );
+    G3DCHANNEL *chn = m3dui_getWorkingChannel ( mui );
 
     if ( chn ) {
         if ( chn->flags & USEIMAGECOLOR ) {
@@ -107,9 +107,9 @@ uint64_t m3dui_setUVMouseTool ( M3DUI        *mui,
 }
 
 /******************************************************************************/
-void m3dui_fillWithColor ( M3DUI   *mui, 
-                           uint32_t color ) {
-    G3DIMAGE *img = common_m3dui_getWorkingImage ( mui );
+uint64_t m3dui_fillWithColorCbk ( M3DUI   *mui, 
+                                  uint32_t color ) {
+    G3DIMAGE *img = m3dui_getWorkingImage ( mui );
 
     if ( img ) {
         unsigned char R = ( color & 0x00FF0000 ) >> 0x10,
@@ -124,7 +124,7 @@ void m3dui_fillWithColor ( M3DUI   *mui,
                 if ( mui->mask[offset] ) {
                     switch ( img->bytesPerPixel ) {
                         case 0x03 : {
-                            unsigned char (*buffer)[0x03] = img->data;
+                            unsigned char (*buffer)[0x03] = ( unsigned char (*)[0x03] ) img->data;
 
                             buffer[offset][0x00] = R;
                             buffer[offset][0x01] = G;
@@ -142,13 +142,15 @@ void m3dui_fillWithColor ( M3DUI   *mui,
 
         img->flags |= ALTEREDIMAGE;
     }
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
 void m3dui_resizeBuffers ( M3DUI *mui ) {
-    G3DIMAGE *img = common_m3dui_getWorkingImage ( mui );
-    M3DMOUSETOOL *seltool = common_g3dui_getMouseTool ( mui->gui,
-                                                        SELECTTOOL );
+    G3DIMAGE *img = m3dui_getWorkingImage ( mui );
+    M3DMOUSETOOL *seltool = g3dui_getMouseTool ( mui->gui,
+                                                 SELECTTOOL );
 
     seltool->obj->reset ( seltool->obj, mui->engine_flags );
 
@@ -165,7 +167,7 @@ void m3dui_resizeBuffers ( M3DUI *mui ) {
 }
 
 /******************************************************************************/
-void m3dui_uvset2fac ( M3DUI *mui ) {
+uint64_t m3dui_uvset2facCbk ( M3DUI *mui ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
@@ -214,10 +216,12 @@ void m3dui_uvset2fac ( M3DUI *mui ) {
             }
         }
     }
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void m3dui_fac2uvset ( M3DUI *mui ) {
+uint64_t m3dui_fac2uvsetCbk ( M3DUI *mui ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
@@ -268,10 +272,12 @@ void m3dui_fac2uvset ( M3DUI *mui ) {
             }
         }
     }
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void m3dui_uv2ver ( M3DUI *mui ) {
+uint64_t m3dui_uv2verCbk ( M3DUI *mui ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
@@ -325,10 +331,12 @@ void m3dui_uv2ver ( M3DUI *mui ) {
             }
         }
     }
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
-void m3dui_ver2uv ( M3DUI *mui ) {
+uint64_t m3dui_ver2uvCbk ( M3DUI *mui ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
@@ -384,6 +392,8 @@ void m3dui_ver2uv ( M3DUI *mui ) {
             }
         }
     }
+
+    return REDRAWVIEW;
 }
 
 /******************************************************************************/
@@ -542,11 +552,12 @@ void m3duiview_resize ( M3DUI   *mui,
 
 /******************************************************************************/
 void m3duiview_showGL ( M3DUI        *mui,
-                        G3DMOUSETOOL *mou,
+                        M3DMOUSETOOL *mou,
                         uint64_t      engine_flags ) {
     G3DUI *gui = mui->gui;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
-    M3DMOUSETOOL *seltool = common_g3dui_getMouseTool ( gui, SELECTTOOL );
+    M3DMOUSETOOL *seltool = ( M3DMOUSETOOL * ) g3dui_getMouseTool ( gui,
+                                                                    SELECTTOOL );
 
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -646,8 +657,8 @@ void m3duiview_showGL ( M3DUI        *mui,
         seltool->gtool.draw ( seltool, gui->sce, engine_flags );
     }
 
-    if ( mou && mou->draw ) {
-        mou->draw ( mou, gui->sce, engine_flags );
+    if ( mou && mou->gtool.draw ) {
+        mou->gtool.draw ( mou, gui->sce, engine_flags );
     }
 }
 

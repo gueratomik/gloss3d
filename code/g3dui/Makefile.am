@@ -35,7 +35,7 @@ if HAVE_GTK3
                             common/g3duimodebar.c \
                             common/g3duiobjectedit.c \
                             common/g3duiparticleemitteredit.c \
-                            common/g3duipatternlist.c \
+                            common/m3duipatternlist.c \
                             common/g3duiplaneedit.c \
                             common/g3duiquad.c \
                             common/g3duirenderedit.c \

@@ -659,6 +659,7 @@ typedef struct _G3DUISEGMENT {
 } G3DUISEGMENT; 
 
 typedef struct _G3DUIMENU G3DUIMENU;
+typedef struct _G3DUIVIEW G3DUIVIEW;
 
 /********************************* G3DUI **************************************/
 typedef struct _G3DUI {
@@ -714,6 +715,7 @@ typedef struct _G3DUI {
 
     /*** also point to toolkit data ***/
     G3DUIMENU *menuBar;
+    G3DUIVIEW *currentView;
 } G3DUI;
 
 /******************************************************************************/
@@ -1201,7 +1203,7 @@ typedef struct _MATERIALLISTDATA {
 
 /******************************************************************************/
 #define NBPATTERNS 0x0C
-typedef struct _PATTERNLISTDATA {
+typedef struct _M3DUIPATTERNLIST {
     /*** List of pattern previews (those are ToolKit related) ***/
     LIST    *lpreview;
     uint32_t image_width;
@@ -1210,12 +1212,7 @@ typedef struct _PATTERNLISTDATA {
     uint32_t preview_height;
     uint32_t preview_border;
     M3DPATTERN *patterns[NBPATTERNS];
-} PATTERNLISTDATA;
-
-/******************************************************************************/
-PATTERNLISTDATA *common_patternlistdata_new ( uint32_t size );
-
-
+} M3DUIPATTERNLIST;
 
 /******************************************************************************/
 /******************************************************************************/
@@ -1325,8 +1322,7 @@ uint64_t            g3dui_addEmptyMeshCbk ( G3DUI *gui );
 uint64_t            g3dui_addSplineCbk ( G3DUI *gui );
 uint64_t            g3dui_addSplineRevolverCbk ( G3DUI *gui );
 uint64_t            g3dui_addTextCbk ( G3DUI *gui );
-uint64_t            g3dui_addCameraCbk ( G3DUI     *gui,
-                              G3DCAMERA *currentCamera );
+uint64_t            g3dui_addCameraCbk ( G3DUI     *gui );
 uint64_t            g3dui_addLightCbk ( G3DUI *gui );
 uint64_t            g3dui_addCylinderCbk ( G3DUI *gui );
 uint64_t            g3dui_addTubeCbk ( G3DUI *gui );
@@ -1348,6 +1344,13 @@ uint64_t            g3dui_invertSelectionCbk ( G3DUI *gui );
 uint64_t            g3dui_getObjectStatsCbk ( G3DUI   *gui, 
                                               char    *buffer, 
                                               uint32_t bufferlen );
+uint64_t            g3dui_makeEditableCbk ( G3DUI *gui, 
+                                            void  *data );
+uint64_t            g3dui_addUVMapCbk ( G3DUI *gui );
+uint64_t            g3dui_fitUVMapCbk ( G3DUI *gui );
+uint64_t            g3dui_alignUVMapCbk ( G3DUI      *gui, 
+                                          const char *option );
+uint64_t g3dui_setMaterialCbk ( G3DUI *gui );
 
 /******************************* g3duiboneedit.c ******************************/
 
@@ -1917,19 +1920,20 @@ uint64_t g3duiuvmapedit_lockUVMapCbk ( G3DUIUVMAPEDIT *uvedit );
 
 /*********************************** g3duiview.c ******************************/
 
-void g3duiview_orbit ( G3DUIVIEW *view,
-                       G3DPIVOT  *piv,
-                       float      diffx, 
-                       float      diffy );
-void g3duiview_spin ( G3DUIVIEW *view, 
-                      float      diffx );
-void g3duiview_zoom ( G3DUIVIEW *view,
-                      float      diffx );
-void g3duiview_moveSideward ( G3DUIVIEW *view,
-                              float diffx, 
-                              float diffy );
-void g3duiview_moveForward ( G3DUIVIEW *view, 
-                             float      diffx );
+uint64_t g3duiview_orbit ( G3DUIVIEW *view,
+                           G3DPIVOT  *piv,
+                           float      diffx, 
+                           float      diffy );
+uint64_t g3duiview_spin ( G3DUIVIEW *view, 
+                          float      diffx );
+uint64_t g3duiview_zoom ( G3DUIVIEW *view,
+                          float      diffx );
+uint64_t g3duiview_moveSideward ( G3DUIVIEW *view,
+                                  float diffx, 
+                                  float diffy );
+uint64_t g3duiview_moveForward ( G3DUIVIEW *view, 
+                                 float      diffx );
+
 int g3duiview_getCurrentButton ( G3DUIVIEW *view, 
                                  int        x,
                                  int        y );
@@ -2033,5 +2037,17 @@ Q3DFILTER *q3dfilter_preview_new ( G3DUI *gui );
 /********************************* M3DUI **************************************/
 uint64_t m3dui_redoCbk ( M3DUI *mui );
 uint64_t m3dui_undoCbk ( M3DUI *mui );
+uint64_t m3dui_fillWithColorCbk ( M3DUI   *mui, 
+                               uint32_t color );
+uint64_t m3dui_fac2uvsetCbk ( M3DUI *mui );
+uint64_t m3dui_uv2verCbk ( M3DUI *mui );
+uint64_t m3dui_ver2uvCbk ( M3DUI *mui );
+uint64_t m3dui_uvset2facCbk ( M3DUI *mui );
+G3DCHANNEL *m3dui_getWorkingChannel ( M3DUI *mui );
+void m3dui_resizeBuffers ( M3DUI *mui );
+void m3dui_setCanevas ( M3DUI *mui );
+void m3duiview_showGL ( M3DUI        *mui,
+                        M3DMOUSETOOL *mou,
+                        uint64_t      engine_flags );
 
 #endif

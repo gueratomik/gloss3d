@@ -29,6 +29,37 @@
 #include <config.h>
 #include <g3dui.h>
 
+/******************************************************************************/
+uint64_t g3dui_setMaterialCbk ( G3DUI *gui ) {
+    G3DSCENE *sce = gui->sce;
+    LIST *ltmpselobj = sce->lsel;
+
+    while ( ltmpselobj ) {
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+        LIST *ltmpselmat = gui->lselmat;
+
+        while ( ltmpselmat ) {
+            G3DMATERIAL *mat = ( G3DMATERIAL * ) ltmpselmat->data;
+
+            if ( mat ) {
+                g3durm_selection_addTexture ( gui->urm,
+                                              sce->lsel, 
+                                              gui->lselmat,
+                                              gui->engine_flags,
+                                              REDRAWVIEW | REDRAWLIST );
+            }
+
+            g3dui_fitUVMapCbk ( gui );
+ 
+            ltmpselmat = ltmpselmat->next;
+        }
+
+        ltmpselobj = ltmpselobj->next;
+    }
+
+
+    return REDRAWVIEW;
+}
 
 /******************************************************************************/
 uint64_t g3dui_addVibratorTagCbk ( G3DUI *gui ) {
@@ -83,126 +114,6 @@ uint64_t g3dui_removeSelectedTagCbk ( G3DUI *gui ) {
                                          obj->seltag,
                                          gui->engine_flags,
                                          REDRAWVIEW | REDRAWLIST );
-        }
-    }
-
-    return REDRAWVIEW | REDRAWLIST;
-}
-
-/******************************************************************************/
-uint64_t g3duimenubar_addUVMapCbk ( G3DUI *gui ) {
-    G3DURMANAGER *urm = gui->urm;
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
-
-    if ( obj ){ 
-        if ( ( obj->type == G3DMESHTYPE ) ||
-           ( ( obj->type &  G3DSPLINETYPE ) == G3DSPLINETYPE ) ||
-           ( ( obj->type &  G3DPRIMITIVETYPE ) == G3DPRIMITIVETYPE ) ) {
-            G3DMESH *mes = ( G3DMESH * ) obj;
-            G3DUVMAP *map = g3duvmap_new ( "UVMap", UVMAPFLAT );
-
-            g3durm_mesh_addUVMap ( gui->urm,
-                                   mes,
-                                   map, 
-                                   gui->engine_flags,
-                                   REDRAWVIEW | REDRAWLIST );
-
-            g3dmesh_unselectAllUVMaps ( mes );
-            g3dmesh_selectUVMap ( mes, map );
-        }
-    }
-
-    return REDRAWVIEW | REDRAWLIST;
-}
-
-/******************************************************************************/
-uint64_t g3duimenubar_fitUVMapCbk ( G3DUI *gui ) {
-    G3DURMANAGER *urm = gui->urm;
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *objmes = g3dscene_getLastSelected ( sce );
-
-    if ( objmes && ( objmes->type & MESH ) ){ 
-        G3DMESH *mes = ( G3DMESH * ) objmes;
-        G3DUVMAP *map = ( G3DUVMAP * ) g3dmesh_getSelectedUVMap ( mes );
-
-        if ( map ) {
-            G3DOBJECT *obj = ( G3DOBJECT * ) map;
-            G3DOBJECT *parent = obj->parent;
-            G3DVECTOR vec, minpos, maxpos, locminpos, locmaxpos;
-            float parx = ( parent->bbox.xmax + parent->bbox.xmin ) / 2.0f,
-                  pary = ( parent->bbox.ymax + parent->bbox.ymin ) / 2.0f,
-                  parz = ( parent->bbox.zmax + parent->bbox.zmin ) / 2.0f;
-
-            obj->pos.x = parx;
-            obj->pos.y = pary;
-            obj->pos.z = parz;
-
-            g3dobject_updateMatrix_r ( obj, gui->engine_flags );
-
-            vec.x = parent->bbox.xmin;
-            vec.y = parent->bbox.ymin;
-            vec.z = parent->bbox.zmin;
-            vec.w = 1.0f;
-
-            g3dvector_matrix ( &vec, parent->wmatrix, &minpos );
-
-            vec.x = parent->bbox.xmax;
-            vec.y = parent->bbox.ymax;
-            vec.z = parent->bbox.zmax;
-            vec.w = 1.0f;
-
-            g3dvector_matrix ( &vec, parent->wmatrix, &maxpos );
-
-            g3dvector_matrix ( &minpos, obj->iwmatrix, &locminpos );
-            g3dvector_matrix ( &maxpos, obj->iwmatrix, &locmaxpos );
-
-            map->pln.xradius = fabs ( locminpos.x - locmaxpos.x ) * 0.5f;
-            map->pln.yradius = fabs ( locminpos.y - locmaxpos.y ) * 0.5f;
-
-            /*** calling this twice means ther will be 2 mappings ***/
-            /*** TODO: do only one mapping ***/
-            g3dobject_updateMatrix_r ( obj, gui->engine_flags );
-        }
-    }
-
-    return REDRAWVIEW | REDRAWLIST;
-}
-
-/******************************************************************************/
-uint64_t g3duimenubar_alignUVMapCbk ( G3DUI      *gui,
-                                      const char *option ) {
-    G3DURMANAGER *urm = gui->urm;
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *objmes = g3dscene_getLastSelected ( sce );
-
-    if ( objmes && ( objmes->type & MESH ) ){
-        G3DMESH *mes = ( G3DMESH * ) objmes; 
-        G3DUVMAP *map = ( G3DUVMAP * ) g3dmesh_getSelectedUVMap ( mes );
-
-        if ( map ) {
-            G3DOBJECT *obj = ( G3DOBJECT * ) map;
-            G3DOBJECT *parent = obj->parent;
-
-            if ( strcmp ( option, MENU_ALIGNUVMAPXY ) == 0x00 ) {
-                obj->rot.x =  0.0f;
-                obj->rot.y =  0.0f;
-                obj->rot.z =  0.0f;
-            }
-
-            if ( strcmp ( option, MENU_ALIGNUVMAPYZ ) == 0x00 ) {
-                obj->rot.x =  0.0f;
-                obj->rot.y = 90.0f;
-                obj->rot.z =  0.0f;
-            }
-
-            if ( strcmp ( option, MENU_ALIGNUVMAPZX ) == 0x00 ) {
-                obj->rot.x = 90.0f;
-                obj->rot.y =  0.0f;
-                obj->rot.z =  0.0f;
-            }
-
-            g3dobject_updateMatrix_r ( obj, gui->engine_flags );
         }
     }
 
@@ -423,6 +334,174 @@ uint64_t g3dui_mirrorWeightGroupCbk ( G3DUI      *gui,
     }
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
+}
+
+/******************************************************************************/
+uint64_t g3dui_addUVMapCbk ( G3DUI *gui ) {
+    G3DURMANAGER *urm = gui->urm;
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+    if ( obj ){ 
+        if ( ( obj->type == G3DMESHTYPE ) ||
+           ( ( obj->type &  G3DSPLINETYPE ) == G3DSPLINETYPE ) ||
+           ( ( obj->type &  G3DPRIMITIVETYPE ) == G3DPRIMITIVETYPE ) ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DUVMAP *map = g3duvmap_new ( "UVMap", UVMAPFLAT );
+
+            g3durm_mesh_addUVMap ( gui->urm,
+                                   mes,
+                                   map, 
+                                   gui->engine_flags,
+                                   REDRAWVIEW | REDRAWLIST );
+
+            g3dmesh_unselectAllUVMaps ( mes );
+            g3dmesh_selectUVMap ( mes, map );
+        }
+    }
+
+    return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
+}
+
+/******************************************************************************/
+uint64_t g3dui_fitUVMapCbk ( G3DUI *gui ) {
+    G3DURMANAGER *urm = gui->urm;
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *objmes = g3dscene_getLastSelected ( sce );
+
+    if ( objmes && ( objmes->type & MESH ) ){ 
+        G3DMESH *mes = ( G3DMESH * ) objmes;
+        G3DUVMAP *map = ( G3DUVMAP * ) g3dmesh_getSelectedUVMap ( mes );
+
+        if ( map ) {
+            G3DOBJECT *obj = ( G3DOBJECT * ) map;
+            G3DOBJECT *parent = obj->parent;
+            G3DVECTOR vec, minpos, maxpos, locminpos, locmaxpos;
+            float parx = ( parent->bbox.xmax + parent->bbox.xmin ) / 2.0f,
+                  pary = ( parent->bbox.ymax + parent->bbox.ymin ) / 2.0f,
+                  parz = ( parent->bbox.zmax + parent->bbox.zmin ) / 2.0f;
+
+            obj->pos.x = parx;
+            obj->pos.y = pary;
+            obj->pos.z = parz;
+
+            g3dobject_updateMatrix_r ( obj, gui->engine_flags );
+
+            vec.x = parent->bbox.xmin;
+            vec.y = parent->bbox.ymin;
+            vec.z = parent->bbox.zmin;
+            vec.w = 1.0f;
+
+            g3dvector_matrix ( &vec, parent->wmatrix, &minpos );
+
+            vec.x = parent->bbox.xmax;
+            vec.y = parent->bbox.ymax;
+            vec.z = parent->bbox.zmax;
+            vec.w = 1.0f;
+
+            g3dvector_matrix ( &vec, parent->wmatrix, &maxpos );
+
+            g3dvector_matrix ( &minpos, obj->iwmatrix, &locminpos );
+            g3dvector_matrix ( &maxpos, obj->iwmatrix, &locmaxpos );
+
+            map->pln.xradius = fabs ( locminpos.x - locmaxpos.x ) * 0.5f;
+            map->pln.yradius = fabs ( locminpos.y - locmaxpos.y ) * 0.5f;
+
+            /*** calling this twice means ther will be 2 mappings ***/
+            /*** TODO: do only one mapping ***/
+            g3dobject_updateMatrix_r ( obj, gui->engine_flags );
+        }
+    }
+
+    return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
+}
+
+/******************************************************************************/
+uint64_t g3dui_alignUVMapCbk ( G3DUI      *gui, 
+                               const char *option ) {
+    G3DURMANAGER *urm = gui->urm;
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *objmes = g3dscene_getLastSelected ( sce );
+
+    if ( objmes && ( objmes->type & MESH ) ){ 
+        G3DMESH *mes = ( G3DMESH * ) objmes;
+        G3DUVMAP *map = ( G3DUVMAP * ) g3dmesh_getSelectedUVMap ( mes );
+
+        if ( map ) {
+            G3DOBJECT *obj = ( G3DOBJECT * ) map;
+            G3DOBJECT *parent = obj->parent;
+
+            if ( strcmp ( option, MENU_ALIGNUVMAPXY ) == 0x00 ) {
+                obj->rot.x =  0.0f;
+                obj->rot.y =  0.0f;
+                obj->rot.z =  0.0f;
+            }
+
+            if ( strcmp ( option, MENU_ALIGNUVMAPYZ ) == 0x00 ) {
+                obj->rot.x =  0.0f;
+                obj->rot.y = 90.0f;
+                obj->rot.z =  0.0f;
+            }
+
+            if ( strcmp ( option, MENU_ALIGNUVMAPZX ) == 0x00 ) {
+                obj->rot.x = 90.0f;
+                obj->rot.y =  0.0f;
+                obj->rot.z =  0.0f;
+            }
+
+            g3dobject_updateMatrix_r ( obj, gui->engine_flags );
+        }
+    }
+
+    return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
+}
+
+/******************************************************************************/
+uint64_t g3dui_makeEditableCbk ( G3DUI *gui, 
+                                 void  *data ) {
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    uint32_t oid = g3dscene_getNextObjectID ( sce );
+
+    if ( obj && ( obj->type & PRIMITIVE ) ) {
+        g3durm_primitive_convert ( gui->urm, 
+                                   gui->sce,
+                                   gui->engine_flags, ( G3DPRIMITIVE * ) obj,
+                                               ( G3DOBJECT    * ) obj->parent,
+                                               ( REDRAWCURRENTOBJECT | 
+                                                 REDRAWVIEW          | 
+                                                 REDRAWCOORDS        |
+                                                 REDRAWLIST ) );
+    }
+
+    if ( obj && ( ( obj->type & MODIFIER         ) ||
+                  ( obj->type & TEXT             ) ||
+                  ( obj->type == G3DSYMMETRYTYPE ) ) ) {
+        G3DOBJECT *commitedObj = g3dobject_commit ( obj, 
+                                                    oid, 
+                                                    obj->name, 
+                                                    gui->engine_flags );
+
+        if ( commitedObj ) {
+            g3durm_object_addChild ( gui->urm, 
+                                     gui->sce, 
+                                     gui->engine_flags, 
+                                     ( REDRAWVIEW   |
+                                       REDRAWLIST   |
+                                       REDRAWCOORDS |
+                                       REDRAWCURRENTOBJECT ),
+                                     ( G3DOBJECT * ) NULL,
+                                     ( G3DOBJECT * ) sce,
+                                     ( G3DOBJECT * ) commitedObj );
+
+            g3dscene_unselectAllObjects ( sce, gui->engine_flags );
+            g3dscene_selectObject ( sce,
+                    ( G3DOBJECT * ) commitedObj, 
+                                    gui->engine_flags );
+        }
+    }
+
+    return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT | REDRAWCOORDS;
 }
 
 /******************************************************************************/
@@ -873,11 +952,11 @@ uint64_t g3dui_addTextCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addCameraCbk ( G3DUI     *gui,
-                              G3DCAMERA *currentCamera ) {
+uint64_t g3dui_addCameraCbk ( G3DUI     *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t oid = g3dscene_getNextObjectID ( sce );
+    G3DCAMERA *currentCamera = gui->currentView->cam;
     G3DCAMERA *cam = g3dcamera_new ( oid, "Camera", currentCamera->focal,
                                                     currentCamera->ratio,
                                                     currentCamera->znear,
@@ -1282,9 +1361,9 @@ uint64_t g3dui_getObjectStatsCbk ( G3DUI   *gui,
             G3DMESH *mes = ( G3DMESH * ) obj;
 
             snprintf ( buffer, bufferlen, "Object name\t: %s\n"
-                                          "Vertex count\t: %lu\n"
-                                          "Edge count\t: %lu\n"
-                                          "Face count\t: %lu\n",
+                                          "Vertex count\t: %"PRIu32"\n"
+                                          "Edge count\t: %"PRIu32"\n"
+                                          "Face count\t: %"PRIu32"\n",
                                           obj->name,
                                           mes->nbver,
                                           mes->nbedg,

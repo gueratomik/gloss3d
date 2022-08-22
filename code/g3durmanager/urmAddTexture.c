@@ -173,7 +173,7 @@ void addTexture_redo ( G3DURMANAGER *urm, void *data, uint64_t flags ) {
 /******************************************************************************/
 void g3durm_selection_addTexture ( G3DURMANAGER *urm,
                                    LIST         *lobj,
-                                   G3DMATERIAL  *mat,
+                                   LIST         *lmat,
                                    uint64_t      engine_flags,
                                    uint32_t      return_flags ) {
     LIST *ltmpobj = lobj;
@@ -192,6 +192,7 @@ void g3durm_selection_addTexture ( G3DURMANAGER *urm,
             G3DMESH  *mes = ( G3DMESH * ) obj;
             G3DUVMAP *map = g3dmesh_getLastUVMap ( mes );
             G3DTEXTURE *tex;
+            LIST *ltmpmat = lmat;
 
             /*** A textured mesh should ALWAYS have a UVMAP.     ***/
             /*** Likely design issue - to FIX when I have time ***/
@@ -208,9 +209,15 @@ void g3durm_selection_addTexture ( G3DURMANAGER *urm,
                 mapcreated = 0x01;
             }
 
-            tex = g3dtexture_new ( ( G3DOBJECT * ) mes, mat, map );
+            while ( ltmpmat ) {
+                G3DMATERIAL *mat = ( G3DMATERIAL * ) ltmpmat->data;
 
-            g3dmesh_addTexture ( mes, tex );
+                tex = g3dtexture_new ( ( G3DOBJECT * ) mes, mat, map );
+
+                g3dmesh_addTexture ( mes, tex );
+
+                ltmpmat = ltmpmat->next;
+            }
 
             mes->obj.update_flags |= RESETMODIFIERS;
 

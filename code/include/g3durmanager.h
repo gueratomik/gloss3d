@@ -889,7 +889,7 @@ void g3durm_objectList_driftSelectedKeys ( G3DURMANAGER *urm,
 /******************************************************************************/
 void g3durm_selection_addTexture ( G3DURMANAGER *urm,
                                    LIST         *lobj,
-                                   G3DMATERIAL  *mat,
+                                   LIST         *lmat,
                                    uint64_t      engine_flags,
                                    uint32_t      return_flags );
 

@@ -41,20 +41,22 @@ static G3DCAMERA *getCamera ( G3DUIVIEW *view ) {
 }
 
 /******************************************************************************/
-void g3duiview_orbit ( G3DUIVIEW *view,
-                       G3DPIVOT  *piv,
-                       float      diffx, 
-                       float      diffy ) {
+uint64_t g3duiview_orbit ( G3DUIVIEW *view,
+                           G3DPIVOT  *piv,
+                           float      diffx, 
+                           float      diffy ) {
     G3DCAMERA *cam = getCamera ( view );
 
     g3dpivot_orbit ( piv, diffx, diffy );
 
-    if ( view->defcam != cam ) g3dui_updateCoords ( view->gui );
+    if ( view->defcam != cam ) return REDRAWCOORDS;
+
+    return 0x00;
 }
 
 /******************************************************************************/
-void g3duiview_spin ( G3DUIVIEW *view, 
-                      float      diffx ) {
+uint64_t g3duiview_spin ( G3DUIVIEW *view, 
+                          float      diffx ) {
     G3DCAMERA *cam = getCamera ( view );
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
     G3DVECTOR xvec = { 1.0f, 0.0f, 0.0f, 1.0f },
@@ -65,12 +67,14 @@ void g3duiview_spin ( G3DUIVIEW *view,
 
     g3dcamera_spin ( cam, diffx );
 
-    if ( view->defcam != cam ) g3dui_updateCoords ( view->gui );
+    if ( view->defcam != cam ) return REDRAWCOORDS;
+
+    return 0x00;
 }
 
 /******************************************************************************/
-void g3duiview_zoom ( G3DUIVIEW *view,
-                      float      diffx ) {
+uint64_t g3duiview_zoom ( G3DUIVIEW *view,
+                          float      diffx ) {
     G3DCAMERA *cam = getCamera ( view );
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
 
@@ -78,13 +82,15 @@ void g3duiview_zoom ( G3DUIVIEW *view,
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
 
-    if ( view->defcam != cam ) g3dui_updateCoords ( view->gui );
+    if ( view->defcam != cam ) return REDRAWCOORDS;
+
+    return 0x00;
 }
 
 /******************************************************************************/
-void g3duiview_moveSideward ( G3DUIVIEW *view,
-                              float diffx, 
-                              float diffy ) {
+uint64_t g3duiview_moveSideward ( G3DUIVIEW *view,
+                                  float diffx, 
+                                  float diffy ) {
     G3DCAMERA *cam = getCamera ( view );
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
     G3DVECTOR xvec = { 1.0f, 0.0f, 0.0f, 1.0f },
@@ -110,13 +116,15 @@ void g3duiview_moveSideward ( G3DUIVIEW *view,
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
 
-    if ( view->defcam != cam ) g3dui_updateCoords ( view->gui );
+    if ( view->defcam != cam ) return REDRAWCOORDS;
+
+    return 0x00;
 }
 
 
 /******************************************************************************/
-void g3duiview_moveForward ( G3DUIVIEW *view, 
-                             float      diffx ) {
+uint64_t g3duiview_moveForward ( G3DUIVIEW *view, 
+                                 float      diffx ) {
     G3DCAMERA *cam = getCamera ( view );
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
     G3DVECTOR xvec = { 1.0f, 0.0f, 0.0f, 1.0f },
@@ -145,7 +153,9 @@ void g3duiview_moveForward ( G3DUIVIEW *view,
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
 
-    if ( view->defcam != cam ) g3dui_updateCoords ( view->gui );
+    if ( view->defcam != cam ) return REDRAWCOORDS;
+
+    return 0x00;
 }
 
 /******************************************************************************/

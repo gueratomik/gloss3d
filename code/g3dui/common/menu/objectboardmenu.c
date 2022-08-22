@@ -84,7 +84,8 @@ static G3DUIMENU tags_menu = { NULL,
 
 /******************************************************************************/
 /******************************************************************************/
-static G3DUIMENU objrootnode = { "Bar",
+static G3DUIMENU objrootnode = { NULL,
+                                 "Bar",
                                  G3DUIMENUTYPE_MENUBAR,
                                  NULL,
                                  NULL,

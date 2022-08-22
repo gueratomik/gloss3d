@@ -80,28 +80,19 @@ static G3DUIMENU help_menu = { NULL,
 
 static uint64_t addUVMapCbk ( G3DUIMENU *menu, 
                               void      *data ) {
-    g3dui_addUVMapCbk ( menu->gui );
-
-
-    return REDRAWLIST;
+    return g3dui_addUVMapCbk ( menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t fitUVMapCbk ( G3DUIMENU *menu, 
                               void      *data ) {
-    g3dui_fitUVMapCbk ( menu->gui );
-
-
-    return REDRAWVIEW;
+    return g3dui_fitUVMapCbk ( menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t alignUVMapCbk ( G3DUIMENU *menu, 
                                 void      *data ) {
-    g3dui_alignUVMapCbk ( menu->gui, menu->name );
-
-
-    return REDRAWVIEW;
+    return g3dui_alignUVMapCbk ( menu->gui, menu->name );
 }
 
 /******************************************************************************/
@@ -218,122 +209,55 @@ static G3DUIMENU render_menu = { NULL,
 
 static uint64_t mergeMeshCbk ( G3DUIMENU *menu, 
                                void      *data ) {
-    g3dui_mergeMeshCbk ( menu->gui );
-
-
-    return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
+    return g3dui_mergeMeshCbk ( menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t splitMeshCbk ( G3DUIMENU *menu, 
                                void      *data ) {
-    g3dui_splitMeshCbk ( menu->gui, menu->name );
-
-
-    return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
+    return g3dui_splitMeshCbk ( menu->gui, menu->name );
 }
 
 /******************************************************************************/
 static uint64_t mirrorHeightmapCbk ( G3DUIMENU *menu, 
                                      void      *data ) {
-    g3dui_mirrorHeightmapCbk ( menu->gui, menu->name );
-
-
-    return REDRAWVIEW;
+    return g3dui_mirrorHeightmapCbk ( menu->gui, menu->name );
 }
 
 /******************************************************************************/
 static uint64_t mirrorWeightGroupCbk ( G3DUIMENU *menu, 
                                        void      *data ) {
-    g3dui_mirrorWeightGroupCbk ( menu->gui, menu->name );
-
-
-    return REDRAWVIEW | REDRAWLIST;
+    return g3dui_mirrorWeightGroupCbk ( menu->gui, menu->name );
 }
 
 /******************************************************************************/
 static uint64_t resetBoneTreeCbk ( G3DUIMENU *menu, 
                                    void      *data ) {
-    g3dui_resetBoneTreeCbk ( menu->gui );
-
-
-    return REDRAWVIEW | REDRAWLIST;
+    return g3dui_resetBoneTreeCbk ( menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t resetBoneCbk ( G3DUIMENU *menu, 
                                void      *data ) {
-    g3dui_resetBoneCbk ( menu->gui );
-
-
-    return REDRAWVIEW | REDRAWLIST;
+    return g3dui_resetBoneCbk ( menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t fixBoneTreeCbk ( G3DUIMENU *menu, 
                                  void      *data ) {
-    g3dui_fixBoneTreeCbk ( menu->gui );
-
-
-    return REDRAWVIEW | REDRAWLIST;
+    return g3dui_fixBoneTreeCbk ( menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t fixBoneCbk ( G3DUIMENU *menu, 
                              void      *data ) {
-    g3dui_fixBoneCbk ( menu->gui );
-
-
-    return REDRAWVIEW | REDRAWLIST;
+    return g3dui_fixBoneCbk ( menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t makeEditableCbk ( G3DUIMENU *menu, 
                                   void      *data ) {
-    G3DUI *gui = menu->gui;
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-    uint32_t oid = g3dscene_getNextObjectID ( sce );
-
-    if ( obj && ( obj->type & PRIMITIVE ) ) {
-        g3durm_primitive_convert ( gui->urm, 
-                                   gui->sce,
-                                   gui->engine_flags, ( G3DPRIMITIVE * ) obj,
-                                               ( G3DOBJECT    * ) obj->parent,
-                                               ( REDRAWCURRENTOBJECT | 
-                                                 REDRAWVIEW          | 
-                                                 REDRAWCOORDS        |
-                                                 REDRAWLIST ) );
-    }
-
-    if ( obj && ( ( obj->type & MODIFIER         ) ||
-                  ( obj->type & TEXT             ) ||
-                  ( obj->type == G3DSYMMETRYTYPE ) ) ) {
-        G3DOBJECT *commitedObj = g3dobject_commit ( obj, 
-                                                    oid, 
-                                                    obj->name, 
-                                                    gui->engine_flags );
-
-        if ( commitedObj ) {
-            g3durm_object_addChild ( gui->urm, 
-                                     gui->sce, 
-                                     gui->engine_flags, 
-                                     ( REDRAWVIEW   |
-                                       REDRAWLIST   |
-                                       REDRAWCOORDS |
-                                       REDRAWCURRENTOBJECT ),
-                                     ( G3DOBJECT * ) NULL,
-                                     ( G3DOBJECT * ) sce,
-                                     ( G3DOBJECT * ) commitedObj );
-
-            g3dscene_unselectAllObjects ( sce, gui->engine_flags );
-            g3dscene_selectObject ( sce,
-                    ( G3DOBJECT * ) commitedObj, 
-                                    gui->engine_flags );
-        }
-    }
-
-    return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT | REDRAWCOORDS;
+    return g3dui_makeEditableCbk ( menu->gui, data );
 }
 
 /******************************************************************************/
@@ -745,7 +669,7 @@ static uint64_t addLightCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addCameraCbk ( G3DUIMENU *menu, 
                                void      *data ) {
-    g3dui_addCameraCbk ( menu->gui, g3dui_getCurrentViewCamera ( menu->gui ) );
+    g3dui_addCameraCbk ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;

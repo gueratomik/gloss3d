@@ -34,7 +34,7 @@ static uint64_t deleteKeysCbk ( G3DUIMENU *menu,
                                 void      *data ) {
     G3DUITIMELINE tim = { .gui = menu->gui };
 
-    g3duitimeline_deleteSelectedKeys ( &tim );
+    g3duitimeline_deleteSelectedKeysCbk ( &tim );
 
 
     return REDRAWTIMELINE;
@@ -83,23 +83,27 @@ static uint64_t selectKeysCbk ( G3DUIMENU *menu,
 }
 
 /******************************************************************************/
-static G3DUIMENU time_menu_delete = { TIMEMENU_DELETE,
+static G3DUIMENU time_menu_delete = { NULL,
+                                      TIMEMENU_DELETE,
                                       G3DUIMENUTYPE_PUSHBUTTON,
                                       NULL,
                                       deleteKeysCbk };
 
-static G3DUIMENU time_menu_scale = { TIMEMENU_SCALE,
+static G3DUIMENU time_menu_scale = { NULL,
+                                     TIMEMENU_SCALE,
                                      G3DUIMENUTYPE_PUSHBUTTON,
                                      NULL,
                                      scaleKeysDialogCbk };
 
-static G3DUIMENU time_menu_select = { TIMEMENU_SELECT,
+static G3DUIMENU time_menu_select = { NULL,
+                                      TIMEMENU_SELECT,
                                       G3DUIMENUTYPE_PUSHBUTTON,
                                       NULL,
                                       selectKeysCbk };
 
 /******************************************************************************/
-static G3DUIMENU time_menu = { "_Options",
+static G3DUIMENU time_menu = { NULL,
+                               "_Options",
                                G3DUIMENUTYPE_SUBMENU,
                                NULL,
                                NULL,

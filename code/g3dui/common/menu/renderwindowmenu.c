@@ -46,23 +46,27 @@ static uint64_t renderwindowSaveJPGCbk ( G3DUIMENU *menu, void *data ) {
 }
 
 /******************************************************************************/
-static G3DUIMENU rw_menu_close   = { RWMENU_CLOSE,
+static G3DUIMENU rw_menu_close   = { NULL,
+                                     RWMENU_CLOSE,
                                      G3DUIMENUTYPE_PUSHBUTTON,
                                      NULL,
                                      renderwindowExitCbk };
 
-/*static G3DUIMENU rw_menu_savepng = { RWMENU_SAVEPNG,
+/*static G3DUIMENU rw_menu_savepng = { NULL,
+                                     RWMENU_SAVEPNG,
                                      G3DUIMENUTYPE_PUSHBUTTON,
                                      NULL,
                                      g3duirenderwindow_savePNGCbk };*/
 
-static G3DUIMENU rw_menu_savejpg = { RWMENU_SAVEJPG,
+static G3DUIMENU rw_menu_savejpg = { NULL,
+                                     RWMENU_SAVEJPG,
                                      G3DUIMENUTYPE_PUSHBUTTON,
                                      NULL,
                                      renderwindowSaveJPGCbk };
 
 /******************************************************************************/
-static G3DUIMENU rw_file_menu = { "_File",
+static G3DUIMENU rw_file_menu = { NULL,
+                                  "_File",
                                   G3DUIMENUTYPE_SUBMENU,
                                   NULL,
                                   NULL,
@@ -73,7 +77,8 @@ static G3DUIMENU rw_file_menu = { "_File",
 
 /******************************************************************************/
 /******************************************************************************/
-static G3DUIMENU renderwindowrootnode = { "Bar",
+static G3DUIMENU renderwindowrootnode = { NULL,
+                                          "Bar",
                                           G3DUIMENUTYPE_MENUBAR,
                                           NULL,
                                           NULL,
