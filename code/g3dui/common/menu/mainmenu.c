@@ -1342,7 +1342,7 @@ static G3DUIMENU file_menu = { NULL,
 /******************************************************************************/
 /******************************************************************************/
 static G3DUIMENU rootnode = { NULL,
-                              "Bar",
+                              "MainMenuBar",
                               G3DUIMENUTYPE_MENUBAR,
                               NULL,
                               NULL,

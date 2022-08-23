@@ -65,10 +65,17 @@ if HAVE_GTK3
                             common/menu/timelinemenu.c \
                             common/menu/uveditormenu.c \
                             common/menu/viewmenu.c \
+                            common/mousetool/m3duibuckettooledit.c \
+                            common/mousetool/g3duicutmeshtooledit.c \
+                            common/mousetool/m3duipentooledit.c \
+                            common/mousetool/g3duipicktooledit.c \
+                            common/mousetool/g3duisculpttooledit.c \
                             common/m3dui.c \
                             gtk3/g3dui.c \
                             gtk3/g3duimain.c \
-                            gtk3/g3duitoolbar.c
+                            gtk3/g3duimenubar.c \
+                            gtk3/g3duitoolbar.c \
+                            gtk3/css/default.c
 endif
 
 #if HAVE_MOTIF

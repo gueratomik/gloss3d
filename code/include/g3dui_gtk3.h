@@ -132,8 +132,6 @@ typedef struct _GTK3G3DUI {
     LIST         *lVertexModeMorpherMenu;
     /**********************/
     LIST         *lmtools; /*** list of mousetools widget ***/
-    LIST         *lview;
-    LIST         *lglview;
     LIST         *lobjlist;
     LIST         *lmatlist;
     LIST         *lmatedit;
@@ -149,11 +147,8 @@ typedef struct _GTK3G3DUI {
     GdkWindow    *winAtPosition; /*** window at mouse position (for hourGlass)***/
 
     GtkWidget *top;
-    GtkWidget *mainView; /*** Main OpenGL View ***/
-    GtkWidget *curogl; /*** current OpenGL Widget - the one we used last ***/
     GtkWidget *curmou; /*** store the current pressed toggle button      ***/
     GtkWidget *curmat; /*** current material ***/
-    GtkWidget *main;
     GtkWidget *currentUVMouseToolButton;
     GtkWidget *currentUVMapEditor;
 } GTK3G3DUI;
@@ -266,5 +261,47 @@ typedef struct _FILTERTOSTATUSBAR {
     uint32_t done;
 } FILTERTOSTATUSBAR;
 
+/******************************** css/default.c *******************************/
+gchar *gtk3_getDefaultCSS ( );
+
+/********************************* g3dui.c ************************************/
+
+void g3duirectangle_toGdkRec ( G3DUIRECTANGLE *in, 
+                               GdkRectangle   *out  );
+void gtk3_setMouseTool ( GtkWidget *widget, 
+                         gpointer   user_data );
+void gtk3_setHourGlass ( GTK3G3DUI *gtk3gui );
+void gtk3_unsetHourGlass ( GTK3G3DUI *gtk3gui );
+static void gtk3_updateAllCurrentMouseTools ( GTK3G3DUI *gtk3gui );
+static void gtk3_updateKeyEdit ( GTK3G3DUI *gtk3gui );
+void gtk3_initDefaultMouseTools ( GTK3G3DUI *gtk3gui );
+void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
+                                   uint64_t   msk );
+
+/******************************* g3duimenu.c **********************************/
+GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
+                                        G3DUI     *gui,
+                                        void      *data );
+void gtk3_g3duimenu_update_r ( GTK3G3DUIMENU *gtk3node );
+
+/******************************* g3duimain.c **********************************/
+GTK3G3DUIMAIN *gtk3_g3duimain_create ( GtkWidget *parent,
+                                       GTK3G3DUI *gtk3gui,
+                                       char      *name,
+                                       gint       x,
+                                       gint       y,
+                                       gint       width,
+                                       gint       height,
+                                       char      *filename );
+void gtk3_g3duimain_updateMenuBar ( GTK3G3DUIMAIN *gtk3main );
+
+/***************************** g3duitoolbar.c *********************************/
+GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
+                                             GTK3G3DUI *gtk3gui,
+                                             char      *name,
+                                             gint       x,
+                                             gint       y,
+                                             gint       width,
+                                             gint       height );
 
 #endif

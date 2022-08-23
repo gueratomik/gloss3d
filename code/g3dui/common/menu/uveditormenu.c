@@ -241,6 +241,7 @@ static G3DUIMENU uvedit_menu = { NULL,
 /******************************************************************************/
 static uint64_t loadImageByChannelIDCbk ( G3DUIMENU *menu, 
                                           void      *data ) {
+#ifdef TODO
     M3DUI *mui = ( M3DUI * ) data;
     G3DUI *gui = ( G3DUI * ) mui->gui;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
@@ -266,7 +267,7 @@ static uint64_t loadImageByChannelIDCbk ( G3DUIMENU *menu,
             }
         }
     }
-
+#endif
 
     return REDRAWUVMAPEDITOR;
 }

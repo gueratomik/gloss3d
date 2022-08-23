@@ -145,6 +145,7 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #ifdef WITH_GTK3
     GtkWidget *window, *glossui;
     GtkWidget *button;
+    GTK3G3DUI gtk3gui;
 
     #ifdef __linux__
     /*** Support multi-threads. Must be called before any Xlib function ***/
@@ -158,16 +159,17 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
     gtk_window_set_position ( GTK_WINDOW(window), GTK_WIN_POS_CENTER );
 
     glossui = gtk3_g3duimain_create (  window,
+                                      &gtk3gui,
                                        "Main",
                                        0, 0,
-                                       800, 600 /*loadFile*/ );
+                                       800, 600, loadFile );
 
 
                                        /*gtk_glossui_new ( loadFile )*/;
 
     /*gtk_container_add ( GTK_CONTAINER(window), glossui );*/
 
-    gtk_widget_show ( glossui );
+    /*gtk_widget_show ( glossui );*/
 
     gtk_window_set_title ( GTK_WINDOW ( window ), appname );
     gtk_window_resize    ( GTK_WINDOW ( window ), 1024, 576 );

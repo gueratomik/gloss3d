@@ -710,12 +710,10 @@ typedef struct _G3DUI {
     LIST *lexportExtensions; /* list of G3DEXPORTEXTENSION */
     Q3DFILTER *toframe;
 
-
-    LIST *lview;
-
-    /*** also point to toolkit data ***/
-    G3DUIMENU *menuBar;
+    /*** GUI toolkit extends the following data ***/
+    G3DUIMENU *mainMenuBar;
     G3DUIVIEW *currentView;
+    LIST *lview;
 } G3DUI;
 
 /******************************************************************************/
@@ -785,6 +783,7 @@ typedef struct _G3DUIRENDERBUFFER {
 
 /******************************************************************************/
 typedef struct _G3DUIRENDERWINDOW {
+    G3DUI              *gui;
     Q3DFILTER          *tostatus;
     G3DUIRENDERPROCESS *rps;
     G3DUIRENDERBUFFER   rbuf;
@@ -908,6 +907,26 @@ typedef struct _G3DUIMODEBAR {
 typedef struct _M3DUIMODEBAR {
     M3DUI *mui;
 } M3DUIMODEBAR;
+
+/******************************************************************************/
+typedef struct _M3DUIBUCKETTOOLEDIT {
+    M3DUI *mui;
+} M3DUIBUCKETTOOLEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUICUTMESHTOOLEDIT {
+    G3DUI *gui;
+} G3DUICUTMESHTOOLEDIT;
+
+/******************************************************************************/
+typedef struct _M3DUIPENTOOLEDIT {
+    M3DUI *mui;
+} M3DUIPENTOOLEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIPICKTOOLEDIT {
+    G3DUI *gui;
+} G3DUIPICKTOOLEDIT;
 
 /******************************************************************************/
 typedef struct _G3DUIOBJECTEDIT {

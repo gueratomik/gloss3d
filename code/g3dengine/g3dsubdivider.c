@@ -184,7 +184,7 @@ void g3dfacesculptextension_clearFlags ( G3DFACESCULPTEXTENSION *fse ) {
 }
 
 /******************************************************************************/
-G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint32_t extensionName,
+G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint64_t extensionName,
                                                      G3DFACE *fac,
                                                      uint32_t level,
                                                      uint32_t sculptMode ) {

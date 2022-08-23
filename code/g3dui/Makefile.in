@@ -161,8 +161,13 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3duiboneedit.c \
 	common/menu/materialboardmenu.c common/menu/objectboardmenu.c \
 	common/menu/renderwindowmenu.c common/menu/timelinemenu.c \
 	common/menu/uveditormenu.c common/menu/viewmenu.c \
-	common/m3dui.c gtk3/g3dui.c gtk3/g3duimain.c \
-	gtk3/g3duitoolbar.c
+	common/mousetool/m3duibuckettooledit.c \
+	common/mousetool/g3duicutmeshtooledit.c \
+	common/mousetool/m3duipentooledit.c \
+	common/mousetool/g3duipicktooledit.c \
+	common/mousetool/g3duisculpttooledit.c common/m3dui.c \
+	gtk3/g3dui.c gtk3/g3duimain.c gtk3/g3duimenubar.c \
+	gtk3/g3duitoolbar.c gtk3/css/default.c
 am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@am__objects_1 = common/g3duiboneedit.lo \
 @HAVE_GTK3_TRUE@	common/g3duibonelinker.lo common/g3dui.lo \
@@ -212,9 +217,15 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	common/menu/renderwindowmenu.lo \
 @HAVE_GTK3_TRUE@	common/menu/timelinemenu.lo \
 @HAVE_GTK3_TRUE@	common/menu/uveditormenu.lo \
-@HAVE_GTK3_TRUE@	common/menu/viewmenu.lo common/m3dui.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3dui.lo gtk3/g3duimain.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duitoolbar.lo
+@HAVE_GTK3_TRUE@	common/menu/viewmenu.lo \
+@HAVE_GTK3_TRUE@	common/mousetool/m3duibuckettooledit.lo \
+@HAVE_GTK3_TRUE@	common/mousetool/g3duicutmeshtooledit.lo \
+@HAVE_GTK3_TRUE@	common/mousetool/m3duipentooledit.lo \
+@HAVE_GTK3_TRUE@	common/mousetool/g3duipicktooledit.lo \
+@HAVE_GTK3_TRUE@	common/mousetool/g3duisculpttooledit.lo \
+@HAVE_GTK3_TRUE@	common/m3dui.lo gtk3/g3dui.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duimain.lo gtk3/g3duimenubar.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duitoolbar.lo gtk3/css/default.lo
 @HAVE_GTK3_TRUE@am_libgloss_g3dui_gtk3_la_OBJECTS = $(am__objects_1)
 libgloss_g3dui_gtk3_la_OBJECTS = $(am_libgloss_g3dui_gtk3_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -294,8 +305,15 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	common/menu/$(DEPDIR)/renderwindowmenu.Plo \
 	common/menu/$(DEPDIR)/timelinemenu.Plo \
 	common/menu/$(DEPDIR)/uveditormenu.Plo \
-	common/menu/$(DEPDIR)/viewmenu.Plo gtk3/$(DEPDIR)/g3dui.Plo \
-	gtk3/$(DEPDIR)/g3duimain.Plo gtk3/$(DEPDIR)/g3duitoolbar.Plo
+	common/menu/$(DEPDIR)/viewmenu.Plo \
+	common/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo \
+	common/mousetool/$(DEPDIR)/g3duipicktooledit.Plo \
+	common/mousetool/$(DEPDIR)/g3duisculpttooledit.Plo \
+	common/mousetool/$(DEPDIR)/m3duibuckettooledit.Plo \
+	common/mousetool/$(DEPDIR)/m3duipentooledit.Plo \
+	gtk3/$(DEPDIR)/g3dui.Plo gtk3/$(DEPDIR)/g3duimain.Plo \
+	gtk3/$(DEPDIR)/g3duimenubar.Plo \
+	gtk3/$(DEPDIR)/g3duitoolbar.Plo gtk3/css/$(DEPDIR)/default.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -531,10 +549,17 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            common/menu/timelinemenu.c \
 @HAVE_GTK3_TRUE@                            common/menu/uveditormenu.c \
 @HAVE_GTK3_TRUE@                            common/menu/viewmenu.c \
+@HAVE_GTK3_TRUE@                            common/mousetool/m3duibuckettooledit.c \
+@HAVE_GTK3_TRUE@                            common/mousetool/g3duicutmeshtooledit.c \
+@HAVE_GTK3_TRUE@                            common/mousetool/m3duipentooledit.c \
+@HAVE_GTK3_TRUE@                            common/mousetool/g3duipicktooledit.c \
+@HAVE_GTK3_TRUE@                            common/mousetool/g3duisculpttooledit.c \
 @HAVE_GTK3_TRUE@                            common/m3dui.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3dui.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimain.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duitoolbar.c
+@HAVE_GTK3_TRUE@                            gtk3/g3duimenubar.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duitoolbar.c \
+@HAVE_GTK3_TRUE@                            gtk3/css/default.c
 
 all: all-am
 
@@ -730,6 +755,27 @@ common/menu/uveditormenu.lo: common/menu/$(am__dirstamp) \
 	common/menu/$(DEPDIR)/$(am__dirstamp)
 common/menu/viewmenu.lo: common/menu/$(am__dirstamp) \
 	common/menu/$(DEPDIR)/$(am__dirstamp)
+common/mousetool/$(am__dirstamp):
+	@$(MKDIR_P) common/mousetool
+	@: > common/mousetool/$(am__dirstamp)
+common/mousetool/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) common/mousetool/$(DEPDIR)
+	@: > common/mousetool/$(DEPDIR)/$(am__dirstamp)
+common/mousetool/m3duibuckettooledit.lo:  \
+	common/mousetool/$(am__dirstamp) \
+	common/mousetool/$(DEPDIR)/$(am__dirstamp)
+common/mousetool/g3duicutmeshtooledit.lo:  \
+	common/mousetool/$(am__dirstamp) \
+	common/mousetool/$(DEPDIR)/$(am__dirstamp)
+common/mousetool/m3duipentooledit.lo:  \
+	common/mousetool/$(am__dirstamp) \
+	common/mousetool/$(DEPDIR)/$(am__dirstamp)
+common/mousetool/g3duipicktooledit.lo:  \
+	common/mousetool/$(am__dirstamp) \
+	common/mousetool/$(DEPDIR)/$(am__dirstamp)
+common/mousetool/g3duisculpttooledit.lo:  \
+	common/mousetool/$(am__dirstamp) \
+	common/mousetool/$(DEPDIR)/$(am__dirstamp)
 common/m3dui.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 gtk3/$(am__dirstamp):
@@ -740,8 +786,18 @@ gtk3/$(DEPDIR)/$(am__dirstamp):
 	@: > gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3dui.lo: gtk3/$(am__dirstamp) gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duimain.lo: gtk3/$(am__dirstamp) gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duimenubar.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duitoolbar.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/css/$(am__dirstamp):
+	@$(MKDIR_P) gtk3/css
+	@: > gtk3/css/$(am__dirstamp)
+gtk3/css/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) gtk3/css/$(DEPDIR)
+	@: > gtk3/css/$(DEPDIR)/$(am__dirstamp)
+gtk3/css/default.lo: gtk3/css/$(am__dirstamp) \
+	gtk3/css/$(DEPDIR)/$(am__dirstamp)
 
 libgloss-g3dui-gtk3.la: $(libgloss_g3dui_gtk3_la_OBJECTS) $(libgloss_g3dui_gtk3_la_DEPENDENCIES) $(EXTRA_libgloss_g3dui_gtk3_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) $(am_libgloss_g3dui_gtk3_la_rpath) $(libgloss_g3dui_gtk3_la_OBJECTS) $(libgloss_g3dui_gtk3_la_LIBADD) $(LIBS)
@@ -752,8 +808,12 @@ mostlyclean-compile:
 	-rm -f common/*.lo
 	-rm -f common/menu/*.$(OBJEXT)
 	-rm -f common/menu/*.lo
+	-rm -f common/mousetool/*.$(OBJEXT)
+	-rm -f common/mousetool/*.lo
 	-rm -f gtk3/*.$(OBJEXT)
 	-rm -f gtk3/*.lo
+	-rm -f gtk3/css/*.$(OBJEXT)
+	-rm -f gtk3/css/*.lo
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -816,9 +876,16 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@common/menu/$(DEPDIR)/timelinemenu.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/menu/$(DEPDIR)/uveditormenu.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/menu/$(DEPDIR)/viewmenu.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/mousetool/$(DEPDIR)/g3duipicktooledit.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/mousetool/$(DEPDIR)/g3duisculpttooledit.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/mousetool/$(DEPDIR)/m3duibuckettooledit.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/mousetool/$(DEPDIR)/m3duipentooledit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3dui.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimain.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimenubar.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitoolbar.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/css/$(DEPDIR)/default.Plo@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -857,7 +924,9 @@ clean-libtool:
 	-rm -rf .libs _libs
 	-rm -rf common/.libs common/_libs
 	-rm -rf common/menu/.libs common/menu/_libs
+	-rm -rf common/mousetool/.libs common/mousetool/_libs
 	-rm -rf gtk3/.libs gtk3/_libs
+	-rm -rf gtk3/css/.libs gtk3/css/_libs
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -981,8 +1050,12 @@ distclean-generic:
 	-rm -f common/$(am__dirstamp)
 	-rm -f common/menu/$(DEPDIR)/$(am__dirstamp)
 	-rm -f common/menu/$(am__dirstamp)
+	-rm -f common/mousetool/$(DEPDIR)/$(am__dirstamp)
+	-rm -f common/mousetool/$(am__dirstamp)
 	-rm -f gtk3/$(DEPDIR)/$(am__dirstamp)
 	-rm -f gtk3/$(am__dirstamp)
+	-rm -f gtk3/css/$(DEPDIR)/$(am__dirstamp)
+	-rm -f gtk3/css/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -1051,9 +1124,16 @@ distclean: distclean-am
 	-rm -f common/menu/$(DEPDIR)/timelinemenu.Plo
 	-rm -f common/menu/$(DEPDIR)/uveditormenu.Plo
 	-rm -f common/menu/$(DEPDIR)/viewmenu.Plo
+	-rm -f common/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo
+	-rm -f common/mousetool/$(DEPDIR)/g3duipicktooledit.Plo
+	-rm -f common/mousetool/$(DEPDIR)/g3duisculpttooledit.Plo
+	-rm -f common/mousetool/$(DEPDIR)/m3duibuckettooledit.Plo
+	-rm -f common/mousetool/$(DEPDIR)/m3duipentooledit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3dui.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimain.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duimenubar.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitoolbar.Plo
+	-rm -f gtk3/css/$(DEPDIR)/default.Plo
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -1157,9 +1237,16 @@ maintainer-clean: maintainer-clean-am
 	-rm -f common/menu/$(DEPDIR)/timelinemenu.Plo
 	-rm -f common/menu/$(DEPDIR)/uveditormenu.Plo
 	-rm -f common/menu/$(DEPDIR)/viewmenu.Plo
+	-rm -f common/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo
+	-rm -f common/mousetool/$(DEPDIR)/g3duipicktooledit.Plo
+	-rm -f common/mousetool/$(DEPDIR)/g3duisculpttooledit.Plo
+	-rm -f common/mousetool/$(DEPDIR)/m3duibuckettooledit.Plo
+	-rm -f common/mousetool/$(DEPDIR)/m3duipentooledit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3dui.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimain.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duimenubar.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitoolbar.Plo
+	-rm -f gtk3/css/$(DEPDIR)/default.Plo
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

@@ -397,7 +397,7 @@ uint64_t m3dui_ver2uvCbk ( M3DUI *mui ) {
 }
 
 /******************************************************************************/
-uint64_t _m3dui_undoCbk ( M3DUI *mui ) {
+uint64_t m3dui_undoCbk ( M3DUI *mui ) {
     return g3durmanager_undo ( mui->gui->urm, mui->engine_flags );
 }
 

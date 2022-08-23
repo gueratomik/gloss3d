@@ -55,7 +55,7 @@ static GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_new ( GTK3G3DUI *gtk3gui ) {
     GTK3G3DUITOOLBAR *gtk3tb = ( GTK3G3DUITOOLBAR * ) calloc ( 0x01, memSize );
 
     if ( gtk3tb == NULL ) {
-        fprint ( stderr, "%s: calloc failed\n", __func__ );
+        fprintf ( stderr, "%s: calloc failed\n", __func__ );
 
         return NULL;
     }
@@ -167,7 +167,7 @@ GtkWidget *addToolBarPushButton ( GtkWidget   *bar,
     /*GtkIconTheme *icon_theme = gtk_icon_theme_get_default ( );*/
     GtkWidget *btn = (GtkWidget*) gtk_tool_button_new ( NULL, NULL );
 
-    gtk_widget_set_name ( btn, name );
+    gtk_widget_set_name ( btn, /*name*/"TB" );
 
     gtk_widget_set_tooltip_text ( btn, name );
 

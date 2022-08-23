@@ -54,7 +54,7 @@ void gtk3_setMouseTool ( GtkWidget *widget,
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     const char  *name = gtk_widget_get_name ( widget );
     G3DMOUSETOOL *mou = g3dui_getMouseTool ( gui, name );
-    G3DCAMERA *cam = g3dui_getCurrentViewCamera ( gui );
+    G3DCAMERA *cam = gui->currentView->cam;
 
     if ( gui->lock ) return;
 
@@ -123,8 +123,7 @@ void gtk3_setHourGlass ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
-void gtk3_unsetHourGlass ( ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+void gtk3_unsetHourGlass ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
 
     /*GdkDisplay       *dis = gdk_display_get_default();
@@ -143,15 +142,16 @@ void gtk3_unsetHourGlass ( ) {
 }
 
 /******************************************************************************/
-static void gtk3_updateAllCurrentMouseTools ( ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+static void gtk3_updateAllCurrentMouseTools ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     LIST *ltmpmtools = gtk3gui->lmtools;
 
     while ( ltmpmtools ) {
         GtkWidget *mtool = ( GtkWidget * ) ltmpmtools->data;
 
+#ifdef TODO
         updateCurrentMouseTool ( mtool, gui );
+#endif
 
 
         ltmpmtools = ltmpmtools->next;
@@ -159,24 +159,23 @@ static void gtk3_updateAllCurrentMouseTools ( ) {
 }
 
 /******************************************************************************/
-static void gtk3_updateKeyEdit ( ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+static void gtk3_updateKeyEdit ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     LIST *ltmpkeyedit = gtk3gui->lkeyedit;
 
     while ( ltmpkeyedit ) {
         GtkWidget *keyedit = ( GtkWidget * ) ltmpkeyedit->data;
 
+#ifdef TODO
         updateKeyEdit ( keyedit, gui );
-
+#endif
 
         ltmpkeyedit = ltmpkeyedit->next;
     }
 }
 
 /******************************************************************************/
-static void gtk3_updateSelectedMaterialPreview ( ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+static void gtk3_updateSelectedMaterialPreview ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     LIST *ltmpmatlist = gtk3gui->lmatlist;
     LIST *ltmpselmat = gui->lselmat;
@@ -198,8 +197,7 @@ static void gtk3_updateSelectedMaterialPreview ( ) {
 }
 
 /******************************************************************************/
-static void gtk3_clearMaterials ( ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+static void gtk3_clearMaterials ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     LIST *ltmpmatlist = gtk3gui->lmatlist;
 
@@ -214,8 +212,7 @@ static void gtk3_clearMaterials ( ) {
 }
 
 /******************************************************************************/
-static void gtk3_importMaterials ( ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+static void gtk3_importMaterials ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     LIST *ltmpmatlist = gtk3gui->lmatlist;
 
@@ -230,8 +227,8 @@ static void gtk3_importMaterials ( ) {
 }
 
 /******************************************************************************/
-static void gtk3_resizeUVMapEditors ( ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+static void gtk3_resizeUVMapEditors ( GTK3G3DUI *gtk3gui ) {
+#ifdef TODO
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     LIST *ltmp = gtk3gui->luvmapeditor;
 
@@ -239,15 +236,16 @@ static void gtk3_resizeUVMapEditors ( ) {
         GtkUVMapEditor *guv = ( GtkUVMapEditor * ) ltmp->data;
 
         /*** resize buffers ***/
-        common_m3dui_resizeBuffers ( &guv->mui );
+        m3dui_resizeBuffers ( &guv->mui );
 
         ltmp = ltmp->next;
     }
+#endif
 }
 
 /******************************************************************************/
-static void gtk3_redrawUVMapEditors ( ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+static void gtk3_redrawUVMapEditors ( GTK3G3DUI *gtk3gui ) {
+#ifdef TODO
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     LIST *ltmp = gtk3gui->luvmapeditor;
 
@@ -263,11 +261,12 @@ static void gtk3_redrawUVMapEditors ( ) {
 
         ltmp = ltmp->next;
     }
+#endif
 }
 
 /******************************************************************************/
-static void gtk3_updateGLViewsMenu ( ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+static void gtk3_updateGLViewsMenu ( GTK3G3DUI *gtk3gui ) {
+#ifdef TODO
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     LIST *ltmp = gtk3gui->lglview;
 
@@ -278,11 +277,12 @@ static void gtk3_updateGLViewsMenu ( ) {
 
         ltmp = ltmp->next;
     }
+#endif
 }
 
 /******************************************************************************/
-static void redrawGLViews ( ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+static void gtk3_redrawGLViews ( GTK3G3DUI *gtk3gui ) {
+#ifdef TODO
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     LIST *ltmp = gtk3gui->lglview;
 
@@ -299,12 +299,13 @@ static void redrawGLViews ( ) {
 
         ltmp = ltmp->next;
     }
+#endif
 }
 
 /******************************************************************************/
-static void dispatchGLMenuButton ( G3DMOUSETOOL *mou, 
-                                   uint32_t      tool_flags ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+static void gtk3_dispatchGLMenuButton ( GTK3G3DUI    *gtk3gui,
+                                        G3DMOUSETOOL *mou, 
+                                        uint32_t      tool_flags ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     uint32_t vertexModeSplineFlags  = ( VERTEXMODETOOL | SPLINETOOL  ),
              vertexModeMeshFlags    = ( VERTEXMODETOOL | MESHTOOL    ),
@@ -312,7 +313,7 @@ static void dispatchGLMenuButton ( G3DMOUSETOOL *mou,
              faceModeMeshFlags      = ( FACEMODETOOL   | MESHTOOL    ),
              sculptModeMeshFlags    = ( SCULPTMODETOOL | MESHTOOL    ),
              vertexModeMorpherFlags = ( VERTEXMODETOOL | MORPHERTOOL );
-
+#ifdef TODO
     if ( tool_flags & ( OBJECTMODETOOL ) ) {
         gtk3_addMenuListButton ( gui, 
                                  gtk3gui->lObjectModeMenu,
@@ -354,13 +355,14 @@ static void dispatchGLMenuButton ( G3DMOUSETOOL *mou,
                                  gtk3gui->lVertexModeMorpherMenu,
                                  mou );
     }
+#endif
 }
 
 /******************************************************************************/
-void gtk3_interpretUIReturnFlags ( uint64_t msk ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
+                                   uint64_t   msk ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
-
+#ifdef TODO
     if ( msk & REDRAWVIEW ) {
         gtk3_redrawGLViews ( );
     }
@@ -418,11 +420,11 @@ void gtk3_interpretUIReturnFlags ( uint64_t msk ) {
         /*** this should be replace by some MEANINGFUL mask ***/
         gui->engine_flags &= (~ONGOINGANIMATION);
     }
+#endif
 }
 
 /******************************************************************************/
-void gtk3_initDefaultMouseTools ( G3DCAMERA *cam ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+void gtk3_initDefaultMouseTools ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     G3DMOUSETOOL *mou;
 
@@ -433,62 +435,62 @@ void gtk3_initDefaultMouseTools ( G3DCAMERA *cam ) {
     g3dui_addMouseTool ( gui, mou );
 
     /*** Pick is the default mouse tool ***/
-    gtk3_interpretUIReturnFlags ( g3dui_setMouseTool ( gui, 
-                                                       cam, 
-                                                       mou ) );
+    gtk3_interpretUIReturnFlags ( gtk3gui, g3dui_setMouseTool ( gui,
+                                                                NULL,
+                                                                mou ) );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatesphere_new ( ) );
-    dispatchGLMenuButton (      mou, OBJECTMODETOOL |
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, OBJECTMODETOOL |
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatecube_new ( ) );
-    dispatchGLMenuButton (      mou, OBJECTMODETOOL | 
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, OBJECTMODETOOL | 
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreateplane_new ( ) );
-    dispatchGLMenuButton (      mou, OBJECTMODETOOL | 
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, OBJECTMODETOOL | 
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatecylinder_new ( ) );
-    dispatchGLMenuButton (      mou, OBJECTMODETOOL | 
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, OBJECTMODETOOL | 
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatetube_new ( ) );
-    dispatchGLMenuButton (      mou, OBJECTMODETOOL | 
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, OBJECTMODETOOL | 
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatetorus_new ( ) );
-    dispatchGLMenuButton (      mou, OBJECTMODETOOL | 
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, OBJECTMODETOOL | 
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatebone_new ( ) );
-    dispatchGLMenuButton (      mou, OBJECTMODETOOL | 
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, OBJECTMODETOOL | 
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolmakeeditable_new ( ) );
-    dispatchGLMenuButton (      mou, OBJECTMODETOOL |
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, OBJECTMODETOOL |
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolcutmesh_new ( ) );
-    dispatchGLMenuButton (      mou, VERTEXMODETOOL | 
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, VERTEXMODETOOL | 
                                      FACEMODETOOL   | 
                                      EDGEMODETOOL   |
                                      MESHTOOL       |
@@ -498,7 +500,7 @@ void gtk3_initDefaultMouseTools ( G3DCAMERA *cam ) {
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatevertex_new ( ) );
-    dispatchGLMenuButton (      mou, VERTEXMODETOOL |
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, VERTEXMODETOOL |
                                      MESHTOOL       |
                                      SPLINETOOL     |
                                      GLMENUTOOL );
@@ -506,21 +508,21 @@ void gtk3_initDefaultMouseTools ( G3DCAMERA *cam ) {
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolrevertspline_new ( ) );
-    dispatchGLMenuButton (      mou, VERTEXMODETOOL |
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, VERTEXMODETOOL |
                                      SPLINETOOL     |
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolremovevertexpose_new ( ) );
-    dispatchGLMenuButton (      mou, VERTEXMODETOOL |
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, VERTEXMODETOOL |
                                      MORPHERTOOL     |
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolbridge_new ( ) ); 
-    dispatchGLMenuButton (      mou, VERTEXMODETOOL |
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, VERTEXMODETOOL |
                                      MESHTOOL       |
                                      SPLINETOOL     |
                                      GLMENUTOOL );
@@ -528,77 +530,77 @@ void gtk3_initDefaultMouseTools ( G3DCAMERA *cam ) {
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolextrudeface_new ( ) );
-    dispatchGLMenuButton (      mou, FACEMODETOOL | 
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, FACEMODETOOL | 
                                      MESHTOOL     |
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolextrudeinner_new ( ) );
-    dispatchGLMenuButton (      mou, FACEMODETOOL | 
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, FACEMODETOOL | 
                                      MESHTOOL     |
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetooluntriangulate_new ( ) );
-    dispatchGLMenuButton (      mou, FACEMODETOOL |
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, FACEMODETOOL |
                                      MESHTOOL     | 
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetooltriangulate_new ( ) );
-    dispatchGLMenuButton (      mou, FACEMODETOOL |
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, FACEMODETOOL |
                                      MESHTOOL     | 
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolroundsplinepoint_new ( ) );
-    dispatchGLMenuButton (      mou, VERTEXMODETOOL |
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, VERTEXMODETOOL |
                                      SPLINETOOL     | 
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolweldvertices_new ( ) );
-    dispatchGLMenuButton (      mou, VERTEXMODETOOL |
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, VERTEXMODETOOL |
                                      MESHTOOL     | 
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolweldneighbours_new ( ) );
-    dispatchGLMenuButton (      mou, VERTEXMODETOOL |
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, VERTEXMODETOOL |
                                      MESHTOOL     | 
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolinvertnormal_new ( ) );
-    dispatchGLMenuButton (      mou, FACEMODETOOL |
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, FACEMODETOOL |
                                      MESHTOOL     |
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatefacegroup_new ( ) ); 
-    dispatchGLMenuButton (      mou, FACEMODETOOL | 
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, FACEMODETOOL | 
                                      MESHTOOL     |
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolsculpt_new ( SCULPTINFLATE ) ); 
-    dispatchGLMenuButton (      mou, SCULPTMODETOOL | 
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, SCULPTMODETOOL | 
                                      MESHTOOL     |
                                      GLMENUTOOL );
 
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolsculpt_new ( SCULPTCREASE ) ); 
-    dispatchGLMenuButton (      mou, SCULPTMODETOOL | 
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, SCULPTMODETOOL | 
                                      MESHTOOL     |
                                      GLMENUTOOL );
 
@@ -613,7 +615,7 @@ void gtk3_initDefaultMouseTools ( G3DCAMERA *cam ) {
     /********************************/
 
     g3dui_addMouseTool   ( gui, mou = g3dmousetoolsculpt_new ( SCULPTUNSCULPT ) ); 
-    dispatchGLMenuButton (      mou, SCULPTMODETOOL | 
+    gtk3_dispatchGLMenuButton ( gtk3gui, mou, SCULPTMODETOOL | 
                                      MESHTOOL     |
                                      GLMENUTOOL );
 

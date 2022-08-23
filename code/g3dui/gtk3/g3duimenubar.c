@@ -27,18 +27,18 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dui.h>
+#include <g3dui_gtk3.h>
 
 /******************************************************************************/
-static uint64_t g3duirenderwindow_saveJPGCbk ( GtkWidget *widget, 
-                                           gpointer   user_data ) {
+static void g3duirenderwindow_saveJPGCbk ( GtkWidget *widget, 
+                                               gpointer   user_data ) {
     G3DUIRENDERWINDOW *grw = ( G3DUIRENDERWINDOW * ) user_data;
-    G3DUIGTK3 *ggt = grw->grp.gui->toolkit_data;
+    GTK3G3DUI *gtk3g3dui = ( GTK3G3DUI * ) grw->gui;
     GtkWidget *dialog;
     gint       res;
 
     dialog = gtk_file_chooser_dialog_new ( "Save image ...",
-                                           GTK_WINDOW(ggt->top),
+                                           GTK_WINDOW(gtk3g3dui->top),
                         /*** from ristretto-0.3.5/src/main_window.c ***/
                                            GTK_FILE_CHOOSER_ACTION_SAVE,
                                            "_Cancel", 
@@ -68,13 +68,12 @@ static uint64_t g3duirenderwindow_saveJPGCbk ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-static uint64_t exitRenderWindowCbk ( G3DUIMENU *menu, void *data ) {
+static void exitRenderWindowCbk ( G3DUIMENU *menu, void *data ) {
 /***
     G3DUIRENDERWINDOW *grw = ( G3DUIRENDERWINDOW * ) user_data;
 
     gtk_widget_destroy ( grw->topLevel );
 */
-    return 0x00;
 }
 
 
@@ -87,6 +86,7 @@ GtkWidget *createRenderWindowMenuBar ( GtkWidget         *parent,
                                        gint               y,
                                        gint               width,
                                        gint               height ) {
+#ifdef TODO
     GdkRectangle gdkrec = { x, y, width, height };
 
     parseMenu_r ( &renderwindowrootnode, NULL, rwn );
@@ -98,6 +98,7 @@ GtkWidget *createRenderWindowMenuBar ( GtkWidget         *parent,
 
 
     return renderwindowrootnode.menu;
+#endif
 }
 
 
@@ -108,6 +109,7 @@ GtkWidget *createTimeContextMenu ( GtkWidget     *parent,
                                    char          *name,
                                    gint           width,
                                    gint           height ) {
+#ifdef TODO
     GdkRectangle gdkrec = { 0, 0, width, height };
 
     gtk3_parseMenu_r ( &time_menu, tim );
@@ -118,6 +120,7 @@ GtkWidget *createTimeContextMenu ( GtkWidget     *parent,
 
 
     return time_menu.menu;
+#endif
 }
 
 /******************************************************************************/
@@ -129,6 +132,7 @@ GtkWidget *createOptionMenu ( GtkWidget *parent,
                               gint       y,
                               gint       width,
                               gint       height ) {
+#ifdef TODO
     GdkRectangle gdkrec = { x, y, width, height };
 
     parseMenu_r ( &viewrootnode, NULL, gvw );
@@ -140,6 +144,7 @@ GtkWidget *createOptionMenu ( GtkWidget *parent,
 
 
     return viewrootnode.menu;
+#endif
 }
 
 /******************************************************************************/
@@ -150,6 +155,7 @@ GtkWidget *createMaterialMenuBar ( GtkWidget *parent,
                                    gint       y,
                                    gint       width,
                                    gint       height ) {
+#ifdef TODO
     GdkRectangle gdkrec = { x, y, width, height };
     GtkWidget *bar = gtk_menu_bar_new ( );
 
@@ -167,6 +173,7 @@ GtkWidget *createMaterialMenuBar ( GtkWidget *parent,
 
 
     return bar;
+#endif
 }
 
 /******************************************************************************/
@@ -177,6 +184,7 @@ GtkWidget *createObjectsMenuBar ( GtkWidget *parent,
                                   gint       y,
                                   gint       width,
                                   gint       height ) {
+#ifdef TODO
     GdkRectangle gdkrec = { x, y, width, height };
     GtkWidget *bar = gtk_menu_bar_new ( );
 
@@ -194,12 +202,13 @@ GtkWidget *createObjectsMenuBar ( GtkWidget *parent,
 
 
     return bar;
+#endif
 }
 
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
-uint64_t g3dui_aboutCbk ( GtkWidget *widget, gpointer user_data ) {
+void g3dui_aboutCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     gchar *authors[] = { "Gary GABRIEL", NULL };
 
@@ -218,7 +227,7 @@ uint64_t g3dui_aboutCbk ( GtkWidget *widget, gpointer user_data ) {
 
 /******************************************************************************/
 /******************************************************************************/
-static uint64_t resizeChannelImageCbk ( G3DUIMENU *menu, 
+static void resizeChannelImageCbk ( G3DUIMENU *menu, 
                                         void      *data ) {
 #ifdef TODO
     M3DUI *mui = ( M3DUI * ) user_data;
@@ -241,7 +250,7 @@ static uint64_t resizeChannelImageCbk ( G3DUIMENU *menu,
 }
 
 /******************************************************************************/
-static uint64_t createChannelImageCbk ( G3DUIMENU *menu, 
+static void createChannelImageCbk ( G3DUIMENU *menu, 
                                         void      *data ) {
 #ifdef TODO
     M3DUI *mui = ( M3DUI * ) user_data;
@@ -259,8 +268,6 @@ static uint64_t createChannelImageCbk ( G3DUIMENU *menu,
         gtk_widget_show ( dial );
     }
 #endif
-
-    return 0x00;
 }
 
 
@@ -272,6 +279,7 @@ GtkWidget *createUVMenuBar ( GtkWidget *parent,
                              gint       y,
                              gint       width,
                              gint       height ) {
+#ifdef TODO
     GdkRectangle gdkrec = { x, y, width, height };
     GtkWidget *bar = gtk_menu_bar_new ( );
 
@@ -289,13 +297,11 @@ GtkWidget *createUVMenuBar ( GtkWidget *parent,
     /*createUVHelpMenu ( bar, gui, "HelpMenu" , 90 );*/
 
     gtk_widget_show ( bar );
-
-
-    return bar;
+#endif
 }
 
 /******************************************************************************/
-static uint64_t renderSettingsCbk ( G3DUIMENU *menu, 
+static void renderSettingsCbk ( G3DUIMENU *menu, 
                                     void      *data ) {
 #ifdef TODO
     G3DUI *gui = ( G3DUI * ) user_data;
@@ -312,12 +318,11 @@ static uint64_t renderSettingsCbk ( G3DUIMENU *menu,
 
     gui->lock = 0x00;
 #endif
-    return 0x00;
 }
 
 
 /******************************************************************************/
-static uint64_t getObjectStatsCbk ( G3DUIMENU *menu, 
+static void getObjectStatsCbk ( G3DUIMENU *menu, 
                                     void      *data ) {
 #ifdef TODO
     G3DUI *gui = ( G3DUI * ) user_data;
@@ -338,8 +343,6 @@ static uint64_t getObjectStatsCbk ( G3DUIMENU *menu,
         gtk_widget_destroy ( dialog );
     }
 #endif
-
-    return 0x00;
 }
 
 
@@ -347,8 +350,9 @@ static uint64_t getObjectStatsCbk ( G3DUIMENU *menu,
 gboolean g3dui_exitEventCbk ( GtkWidget *widget, 
                               GdkEvent  *event, 
                               gpointer   user_data ) {
+#ifdef TODO
     G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
     GtkWidget *dialog;
     gint       res;
 
@@ -366,20 +370,21 @@ gboolean g3dui_exitEventCbk ( GtkWidget *widget,
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
     if ( res == GTK_RESPONSE_YES ) {
-        common_g3dui_exitokcbk ( gui );
+        g3dui_exitokcbk ( gui );
 
         return FALSE;
     }
 
     gtk_widget_destroy ( dialog );
-
+#endif
     return TRUE;
 }
 
 /******************************************************************************/
-uint64_t g3dui_exitcbk ( GtkWidget *widget, gpointer user_data ) {
+void g3dui_exitcbk ( GtkWidget *widget, 
+                         gpointer   user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
     GtkWidget *dialog;
     gint       res;
 
@@ -393,22 +398,22 @@ uint64_t g3dui_exitcbk ( GtkWidget *widget, gpointer user_data ) {
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
     if ( res == GTK_RESPONSE_YES ) {
-        common_g3dui_exitokcbk ( gui );
+        g3dui_exitokcbk ( gui );
     }
 
     gtk_widget_destroy ( dialog );
 }
 
 /******************************************************************************/
-uint64_t g3dui_exportfilecbk ( GtkWidget *widget, gpointer user_data ) {
+void g3dui_exportfilecbk ( GtkWidget *widget, gpointer user_data ) {
     const gchar *filedesc = gtk_widget_get_name  ( widget );
     G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
     GtkWidget *dialog;
     gint       res;
 
     dialog = gtk_file_chooser_dialog_new ( "Export file ...",
-                                           GTK_WINDOW(ggt->top),
+                                           GTK_WINDOW(gtk3gui->top),
                         /*** from ristretto-0.3.5/src/main_window.c ***/
                                            GTK_FILE_CHOOSER_ACTION_SAVE,
                                            "_Cancel", 
@@ -426,7 +431,7 @@ uint64_t g3dui_exportfilecbk ( GtkWidget *widget, gpointer user_data ) {
         GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
         const char *filename = gtk_file_chooser_get_filename ( chooser );
 
-        common_g3dui_exportfileokcbk ( gui, filedesc, filename );
+        g3dui_exportfileokcbk ( gui, filedesc, filename );
 
         g_free    ( ( gpointer ) filename );
     }
@@ -435,15 +440,15 @@ uint64_t g3dui_exportfilecbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_importfilecbk ( GtkWidget *widget, gpointer user_data ) {
+void g3dui_importfilecbk ( GtkWidget *widget, gpointer user_data ) {
     const gchar *filedesc = gtk_widget_get_name  ( widget );
     G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
     GtkWidget *dialog;
     gint       res;
 
     dialog = gtk_file_chooser_dialog_new ( "Import file ...",
-                                           GTK_WINDOW(ggt->top),
+                                           GTK_WINDOW(gtk3gui->top),
                         /*** from ristretto-0.3.5/src/main_window.c ***/
                                            GTK_FILE_CHOOSER_ACTION_OPEN,
                                            "_Cancel", 
@@ -459,7 +464,7 @@ uint64_t g3dui_importfilecbk ( GtkWidget *widget, gpointer user_data ) {
         GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
         const char *filename = gtk_file_chooser_get_filename ( chooser );
 
-        common_g3dui_importfileokcbk ( gui, filedesc, filename );
+        g3dui_importfileokcbk ( gui, filedesc, filename );
 
         g_free    ( ( gpointer ) filename );
     }
@@ -472,29 +477,30 @@ static void menuItemCallback ( GtkWidget *widget,
                                gpointer   user_data ) {
     GTK3G3DUIMENU *gtk3node = ( GTK3G3DUIMENU * ) user_data;
     G3DUI *gui = gtk3node->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
 
     /*** prevents a loop ***/
     if ( gui->lock ) return;
 
-    gtk3_setHourGlass ( );
+    gtk3_setHourGlass ( gtk3gui );
 
     if ( gtk3node->core.callback ) {
         uint64_t ret = gtk3node->core.callback ( &gtk3node->core, 
                                                   gtk3node->core.data );
 
-        gtk3_interpretUIReturnFlags ( ret );
+        gtk3_interpretUIReturnFlags ( gtk3gui, ret );
     }
 
-    gtk3_unsetHourGlass ( );
+    gtk3_unsetHourGlass ( gtk3gui );
 }
 
 /******************************************************************************/
-GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node, 
+GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
+                                        G3DUI     *gui,
                                         void      *data ) {
     uint32_t structSize = sizeof ( GTK3G3DUIMENU ); 
     GTK3G3DUIMENU *gtk3node = ( GTK3G3DUIMENU * ) calloc ( 0x01, structSize );
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
-    G3DUI *gui = ( G3DUI * ) gtk3gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
 
     memcpy ( &gtk3node->core, node, sizeof ( G3DUIMENU ) );
     
@@ -504,6 +510,8 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
     switch ( node->type ) {
         case G3DUIMENUTYPE_SEPARATOR :
             gtk3node->item = gtk_separator_menu_item_new ( );
+
+            gtk_widget_show ( gtk3node->item );
         break;
 
         case G3DUIMENUTYPE_TOGGLEBUTTON :
@@ -515,6 +523,8 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
                                    menuItemCallback, 
                                    gtk3node );
             }
+
+            gtk_widget_show ( gtk3node->item );
         break;
 
         case G3DUIMENUTYPE_PUSHBUTTON :
@@ -526,6 +536,8 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
                                    menuItemCallback, 
                                    gtk3node );
             }
+
+            gtk_widget_show ( gtk3node->item );
         break;
 
         case G3DUIMENUTYPE_MENUBAR : {
@@ -537,7 +549,11 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
 
             while ( node->nodes[i] != NULL ) {
                 GTK3G3DUIMENU *child = gtk3_g3duimenu_parse_r ( node->nodes[i],
+                                                                gui,
                                                                 data );
+
+                gtk_menu_shell_append ( GTK_MENU_SHELL ( gtk3node->menu ), 
+                                        child->item );
 
                 list_insert ( &gtk3node->core.lchildren, child );
 
@@ -560,6 +576,7 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
 
             while ( node->nodes[i] != NULL ) {
                 GTK3G3DUIMENU *child = gtk3_g3duimenu_parse_r ( node->nodes[i],
+                                                                gui,
                                                                 data );
 
                 gtk_menu_shell_append ( GTK_MENU_SHELL ( gtk3node->menu ), 
@@ -571,6 +588,7 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
             }
 
             gtk_widget_show ( gtk3node->menu );
+            gtk_widget_show ( gtk3node->item );
 
             gtk_widget_set_size_request ( gtk3node->menu, 0x60, 24 );
         } break;
@@ -585,13 +603,13 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
 
         /*gtk_widget_set_halign ( node->item, GTK_ALIGN_CENTER );*/
 
-    /*gtk_widget_size_allocate ( node->item, &gdkrec );*/
+    /*gtk_widget_size_allocate ( gtk3node->item, &gdkrec );*/
 
         gtk_widget_set_size_request ( gtk3node->item, 0x60, height );
     }
 
     /*gtk_widget_set_name ( gtk3node->item, node->name );*/
-    gtk_widget_show ( gtk3node->item );
+    /*gtk_widget_show ( gtk3node->item );*/
 
 
     return gtk3node;
@@ -599,8 +617,8 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
 
 /******************************************************************************/
 void gtk3_g3duimenu_update_r ( GTK3G3DUIMENU *gtk3node ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
-    G3DUI *gui = ( G3DUI * ) gtk3gui;
+    G3DUI *gui = ( G3DUI * ) gtk3node->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
 
     switch ( gtk3node->core.type ) {
         case G3DUIMENUTYPE_SEPARATOR :

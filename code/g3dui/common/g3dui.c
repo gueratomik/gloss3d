@@ -2096,9 +2096,9 @@ void g3dui_init ( G3DUI *gui ) {
     gui->engine_flags = ( VIEWOBJECT | XAXIS | YAXIS | ZAXIS );
 
     rsg = q3dsettings_new ( ); /*** default render settings ***/
-
+#ifdef TODO
     gui->toframe = q3dfilter_gotoframe_new ( gui );
-
+#endif
     g3dui_addRenderSettings ( gui, rsg );
     g3dui_useRenderSettings ( gui, rsg );
 }
