@@ -390,9 +390,12 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
         gtk3_redrawUVMapEditors ( );
     }
 
+    if ( msk & REDRAWMENU ) {
+        gtk3_updateMenuBar    ( );
+    }
+
     if ( msk & REDRAWLIST ) {
         gtk3_redrawObjectList ( );
-        gtk3_updateMenuBar    ( );
     }
 
     if ( msk & REDRAWCURRENTMOUSETOOL ) {

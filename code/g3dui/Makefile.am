@@ -74,6 +74,8 @@ if HAVE_GTK3
                             gtk3/g3dui.c \
                             gtk3/g3duimain.c \
                             gtk3/g3duimenubar.c \
+                            gtk3/g3duimodebar.c \
+                            gtk3/g3duiquad.c \
                             gtk3/g3duitoolbar.c \
                             gtk3/css/default.c
 endif

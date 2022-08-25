@@ -54,13 +54,16 @@ static void SizeAllocate ( GtkWidget     *widget,
     GTK3G3DUIMAIN    *gtk3main    = ( GTK3G3DUIMAIN *    ) user_data;
     GTK3G3DUITOOLBAR *gtk3toolBar = ( GTK3G3DUITOOLBAR * ) gtk3main->core.toolBar;
     GTK3G3DUIMENU    *gtk3menuBar = ( GTK3G3DUIMENU    * ) gtk3main->core.menuBar;
+    GTK3G3DUIMODEBAR *gtk3modeBar = ( GTK3G3DUIMODEBAR * ) gtk3main->core.modeBar;
+    GTK3G3DUIQUAD    *gtk3quad    = ( GTK3G3DUIQUAD    * ) gtk3main->core.quad;
+
     GdkRectangle gdkrec;
 
     g3duimain_sizeAllocate ( &gtk3main->core, 
                               allocation->width, 
                               allocation->height );
 
-    if ( gtk3toolBar->bar ) {
+    if ( gtk3toolBar ) {
         gdkrec.x      = gtk3main->core.tbarrec.x;
         gdkrec.y      = gtk3main->core.tbarrec.y;
         gdkrec.width  = gtk3main->core.tbarrec.width;
@@ -74,7 +77,7 @@ static void SizeAllocate ( GtkWidget     *widget,
         gtk_widget_size_allocate ( gtk3toolBar->bar, &gdkrec );
     }
 
-    if ( gtk3menuBar->menu ) {
+    if ( gtk3menuBar ) {
         gdkrec.x      = gtk3main->core.menurec.x;
         gdkrec.y      = gtk3main->core.menurec.y;
         gdkrec.width  = gtk3main->core.menurec.width;
@@ -86,6 +89,34 @@ static void SizeAllocate ( GtkWidget     *widget,
                           gdkrec.y );
 
         gtk_widget_size_allocate ( gtk3menuBar->menu, &gdkrec );
+    }
+
+    if ( gtk3modeBar ) {
+        gdkrec.x      = gtk3main->core.mbarrec.x;
+        gdkrec.y      = gtk3main->core.mbarrec.y;
+        gdkrec.width  = gtk3main->core.mbarrec.width;
+        gdkrec.height = gtk3main->core.mbarrec.height;
+
+        gtk_layout_move ( widget, 
+                          gtk3modeBar->bar,
+                          gdkrec.x,
+                          gdkrec.y );
+
+        gtk_widget_size_allocate ( gtk3modeBar->bar, &gdkrec );
+    }
+
+    if ( gtk3quad ) {
+        gdkrec.x      = gtk3main->core.quadrec.x;
+        gdkrec.y      = gtk3main->core.quadrec.y;
+        gdkrec.width  = gtk3main->core.quadrec.width;
+        gdkrec.height = gtk3main->core.quadrec.height;
+
+        gtk_layout_move ( widget, 
+                          gtk3quad->layout,
+                          gdkrec.x,
+                          gdkrec.y );
+
+        gtk_widget_size_allocate ( gtk3quad->layout, &gdkrec );
     }
 }
 
@@ -127,28 +158,18 @@ static void Realize ( GtkWidget *widget,
 
 /******************************************************************************/
 void gtk3_g3duimain_updateMenuBar ( GTK3G3DUIMAIN *gtk3main ) {
-    gtk3_g3duimenu_update_r ( gtk3main->core.gui->mainMenuBar );
+    gtk3_g3duimenu_update_r ( gtk3main->core.menuBar );
 }
 
 /******************************************************************************/
-void gtk3_g3duimain_createMenuBar ( GTK3G3DUIMAIN *gtk3main,
-                                    gint           x,
-                                    gint           y,
-                                    gint           width,
-                                    gint           height ) {
-
-    GdkRectangle gdkrec = { x, y, width, height };
-    /*GtkWidget *bar = gtk_menu_bar_new ( );*/
-
+static void gtk3_g3duimain_createMenuBar ( GTK3G3DUIMAIN *gtk3main ) {
     GTK3G3DUIMENU *gtk3menu;
 
     gtk3menu = gtk3_g3duimenu_parse_r ( g3duimenu_getMainMenuNode ( ),
                                         gtk3main->core.gui,
                                         gtk3main );
 
-    gtk_widget_size_allocate ( gtk3menu->menu, &gdkrec );
-
-    gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3menu->menu, x, y );
+    gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3menu->menu, 0, 0 );
 
     gtk_widget_show ( gtk3menu->menu );
 
@@ -157,31 +178,50 @@ void gtk3_g3duimain_createMenuBar ( GTK3G3DUIMAIN *gtk3main,
 }
 
 /******************************************************************************/
-void gtk3_g3duimain_createToolBar ( GTK3G3DUIMAIN *gtk3main,
-                                    gint           x,
-                                    gint           y,
-                                    gint           width,
-                                    gint           height ) {
+static void gtk3_g3duimain_createToolBar ( GTK3G3DUIMAIN *gtk3main ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3main->core.gui;
-    GdkRectangle gdkrec = { x, y, width, height };
-    /*GtkWidget *bar = gtk_menu_bar_new ( );*/
 
     GTK3G3DUITOOLBAR *gtk3tb = gtk3_g3duitoolbar_create ( gtk3main->layout,
                                                           gtk3gui,
-                                                          "toolbar",
-                                                          0,
-                                                          0,
-                                                          width,
-                                                          32 );
+                                                          "toolbar" );
 
-    gtk_widget_size_allocate ( gtk3tb->bar, &gdkrec );
-
-    gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3tb->bar, x, y );
+    gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3tb->bar, 0, 0 );
 
     gtk_widget_show ( gtk3tb->bar );
 
 
     gtk3main->core.toolBar = ( G3DUITOOLBAR * ) gtk3tb;
+}
+
+/******************************************************************************/
+static void gtk3_g3duimain_createModeBar ( GTK3G3DUIMAIN *gtk3main ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3main->core.gui;
+
+    GTK3G3DUIMODEBAR *gtk3mb = gtk3_g3duimodebar_create ( gtk3main->layout,
+                                                          gtk3gui,
+                                                          "modebar" );
+
+    gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3mb->bar, 0, 0 );
+
+    gtk_widget_show ( gtk3mb->bar );
+
+
+    gtk3main->core.modeBar = ( G3DUIMODEBAR * ) gtk3mb;
+}
+
+/******************************************************************************/
+static void gtk3_g3duimain_createQuad ( GTK3G3DUIMAIN *gtk3main ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3main->core.gui;
+    GTK3G3DUIQUAD *gtk3quad = gtk3_g3duiquad_create ( gtk3main->layout,
+                                                      gtk3gui,
+                                                      "quad" );
+
+    gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3quad->layout, 0, 0 );
+
+    gtk_widget_show ( gtk3quad->layout );
+
+
+    gtk3main->core.quad = ( G3DUIQUAD * ) gtk3quad;
 }
 
 
@@ -207,7 +247,7 @@ GTK3G3DUIMAIN *gtk3_g3duimain_create ( GtkWidget *parent,
 
     gtk_container_add ( GTK_CONTAINER(parent), layout );
 
-    gtk_widget_add_events(GTK_WIDGET(layout), GDK_CONFIGURE);
+    /*gtk_widget_add_events(GTK_WIDGET(layout), GDK_CONFIGURE);*/
 
     g_signal_connect ( G_OBJECT (layout), "realize"      , G_CALLBACK (Realize)     , gtk3main );
     g_signal_connect ( G_OBJECT (layout), "destroy"      , G_CALLBACK (Destroy)     , gtk3main );
@@ -215,19 +255,11 @@ GTK3G3DUIMAIN *gtk3_g3duimain_create ( GtkWidget *parent,
 
     gtk3main->layout = layout;
 
-    gtk3_g3duimain_createMenuBar ( gtk3main,
-                                   0x00,
-                                   0x00,
-                                   width,
-                                   32 );
+    gtk3_g3duimain_createMenuBar ( gtk3main );
+    gtk3_g3duimain_createToolBar ( gtk3main );
+    gtk3_g3duimain_createModeBar ( gtk3main );
+    gtk3_g3duimain_createQuad    ( gtk3main );
 
-    gtk3_g3duimain_createToolBar ( gtk3main,
-                                   0,
-                                   0,
-                                   width,
-                                   32 );
-
-    
 
     gtk_widget_show ( layout );
 

@@ -177,16 +177,37 @@ typedef struct _GTK3G3DUITOOLBAR {
 } GTK3G3DUITOOLBAR;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUIMODEBAR {
+    G3DUIRENDERWINDOW   core;
+    GtkWidget          *bar;
+    GtkWidget          *objectMode;
+    GtkWidget          *vertexMode;
+    GtkWidget          *edgeMode;
+    GtkWidget          *faceMode;
+    GtkWidget          *sculptMode;
+    GtkWidget          *skinMode;
+    GtkWidget          *uvmapMode;
+    GtkWidget          *axisMode;
+    GtkWidget          *pathMode;
+} GTK3G3DUIMODEBAR;
+
+/******************************************************************************/
 typedef struct _GTK3G3DUIVIEW {
     G3DUIVIEW  core;
-    GtkWidget *menubar;
     GtkWidget *layout;
+    GtkWidget *menubar;
     GtkWidget *btnarea;
     GtkWidget *glarea;
     GtkWidget *optmenu;
     GtkWidget *shdmenu;
     LIST      *lmenu;
 } GTK3G3DUIVIEW;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIQUAD {
+    G3DUIQUAD  core;
+    GtkWidget *layout;
+} GTK3G3DUIQUAD;
 
 /******************************************************************************/
 typedef struct _GTK3G3DUIMAIN {
@@ -298,10 +319,16 @@ void gtk3_g3duimain_updateMenuBar ( GTK3G3DUIMAIN *gtk3main );
 /***************************** g3duitoolbar.c *********************************/
 GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
                                              GTK3G3DUI *gtk3gui,
-                                             char      *name,
-                                             gint       x,
-                                             gint       y,
-                                             gint       width,
-                                             gint       height );
+                                             char      *name );
+
+/***************************** g3duimodebar.c *********************************/
+GTK3G3DUIMODEBAR *gtk3_g3duimodebar_create ( GtkWidget *parent,
+                                             GTK3G3DUI *gtk3gui,
+                                             char      *name );
+
+/****************************** g3duiquad.c ***********************************/
+GTK3G3DUIQUAD *gtk3_g3duiquad_create ( GtkWidget *parent,
+                                       GTK3G3DUI *gtk3gui,
+                                       char      *name );
 
 #endif

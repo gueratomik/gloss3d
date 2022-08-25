@@ -205,20 +205,12 @@ GtkWidget *addToolBarPushButton ( GtkWidget   *bar,
 /******************************************************************************/
 GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
                                              GTK3G3DUI *gtk3gui,
-                                             char      *name,
-                                             gint       x,
-                                             gint       y,
-                                             gint       width,
-                                             gint       height ) {
+                                             char      *name ) {
     GTK3G3DUITOOLBAR *gtk3tb = gtk3_g3duitoolbar_new ( gtk3gui );
-    GdkRectangle  gdkrec     = { x, y, width, height };
-    GtkWidget    *grp        = NULL;
 
     gtk3tb->bar = gtk_toolbar_new ( );
 
     gtk_widget_set_name ( gtk3tb->bar, name );
-
-    gtk_widget_size_allocate ( gtk3tb->bar, &gdkrec );
 
     gtk_toolbar_set_style(GTK_TOOLBAR(gtk3tb->bar), GTK_TOOLBAR_ICONS);
 
@@ -339,10 +331,6 @@ GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
 
 
     gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(gtk3tb->bar), 0 );
-
-    gtk_layout_put ( GTK_LAYOUT(parent), gtk3tb->bar, x, y );
-
-    gtk_widget_show ( gtk3tb->bar );
 
 
     return gtk3tb;

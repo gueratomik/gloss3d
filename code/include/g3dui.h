@@ -658,8 +658,10 @@ typedef struct _G3DUISEGMENT {
     short x1, x2, y1, y2;
 } G3DUISEGMENT; 
 
-typedef struct _G3DUIMENU G3DUIMENU;
-typedef struct _G3DUIVIEW G3DUIVIEW;
+typedef struct _G3DUIMENU    G3DUIMENU;
+typedef struct _G3DUIVIEW    G3DUIVIEW;
+typedef struct _G3DUIMODEBAR G3DUIMODEBAR;
+typedef struct _G3DUIQUAD    G3DUIQUAD;
 
 /********************************* G3DUI **************************************/
 typedef struct _G3DUI {
@@ -711,8 +713,7 @@ typedef struct _G3DUI {
     Q3DFILTER *toframe;
 
     /*** GUI toolkit extends the following data ***/
-    G3DUIMENU *mainMenuBar;
-    G3DUIVIEW *currentView;
+    G3DUIVIEW    *currentView;
     LIST *lview;
 } G3DUI;
 
@@ -952,7 +953,9 @@ typedef struct _G3DUIPARTICLEEMITTEREDIT {
 typedef struct _G3DUIMAIN {
     G3DUI          *gui;
     G3DUIMENU      *menuBar;
+    G3DUIMODEBAR   *modeBar;
     G3DUITOOLBAR   *toolBar;
+    G3DUIQUAD      *quad;
 
     G3DUIRECTANGLE  menurec;
     G3DUIRECTANGLE  tbarrec;
@@ -1045,14 +1048,20 @@ typedef struct _G3DUIRENDERPROCESS {
 
 /*************************** Quad Widget Structure ****************************/
 typedef struct _G3DUIQUAD {
-    uint32_t      Xpos;   /*** Glider X position                            ***/
-    uint32_t      Ypos;   /*** Glider Y position                            ***/
+    G3DUI         *gui;
+    uint32_t       mx;   /*** Glider X position                            ***/
+    uint32_t       my;   /*** Glider Y position                            ***/
+    uint32_t       width;
+    uint32_t       height;
     /*** The variables below will allow us to keep a coorect Glider         ***/
     /*** position while resizing the entire QUAD                            ***/
-    uint32_t      Xratio; /*** Glider Relative X position (Fixed-Point Math)***/
-    uint32_t      Yratio; /*** Glider Relative Y position (Fixed-Point Math)***/
-    G3DUISEGMENT  seg[5]; /*** there are 4 3D windows in our modeler        ***/
+    float          xratio;
+    float          yratio;
+    G3DUIRECTANGLE rect[0x04]; /*** there are 4 3D windows in our modeler        ***/
                           /*** The fith one is the maximized one            ***/
+    G3DUIVIEW     *view[0x04];
+    G3DUIVIEW     *magnified;
+    uint32_t       margin;
 } G3DUIQUAD;
 
 
@@ -1710,17 +1719,10 @@ uint64_t g3duiplaneedit_orientationcbk ( G3DUIPLANEEDIT *plnedit,
 
 /*********************************** g3duiquad.c ******************************/
 
-void g3duiquad_divideSegments ( G3DUISEGMENT *seg, 
-                                uint32_t      xmid , 
-                                uint32_t      ymid,
-                                uint32_t      width, 
-                                uint32_t      height );
 void g3duiquad_resize ( G3DUIQUAD *quad,
                         uint32_t   width, 
                         uint32_t   height );
-void g3duiquad_init ( G3DUIQUAD *quad,
-                      uint32_t   width,
-                      uint32_t height );
+void g3duiquad_init ( G3DUIQUAD *quad );
 
 /******************************** g3duirenderedit.c ***************************/
 

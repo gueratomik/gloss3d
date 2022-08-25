@@ -30,57 +30,49 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void g3duiquad_divideSegments ( G3DUISEGMENT *seg, 
-                                uint32_t      xmid , 
-                                uint32_t      ymid,
-                                uint32_t      width, 
-                                uint32_t      height ) {
-    uint32_t x1 = 0x00, y1 = 0x00,
-             x2 = ( width  ) ? ( ( x1 + width  ) - 0x01 ) : 0x00,
-             y2 = ( height ) ? ( ( y1 + height ) - 0x01 ) : 0x00;
-
-    seg[0x00].x1 = 0x00 + MARGIN;
-    seg[0x00].y1 = 0x00 + MARGIN;
-    seg[0x00].x2 = xmid - MARGIN;
-    seg[0x00].y2 = ymid - MARGIN;
-
-    seg[0x01].x1 = xmid + MARGIN + 0x01;
-    seg[0x01].y1 = 0x00 + MARGIN;
-    seg[0x01].x2 = x2   - MARGIN;
-    seg[0x01].y2 = ymid - MARGIN;
-
-    seg[0x02].x1 = 0x00 + MARGIN;
-    seg[0x02].y1 = ymid + MARGIN + 0x01;
-    seg[0x02].x2 = xmid - MARGIN;
-    seg[0x02].y2 = y2   - MARGIN;
-
-    seg[0x03].x1 = xmid + MARGIN + 0x01;
-    seg[0x03].y1 = ymid + MARGIN + 0x01;
-    seg[0x03].x2 = x2   - MARGIN;
-    seg[0x03].y2 = y2   - MARGIN;
-
-    seg[0x04].x1 = seg[0x00].x1;
-    seg[0x04].y1 = seg[0x00].y1;
-    seg[0x04].x2 = seg[0x03].x2;
-    seg[0x04].y2 = seg[0x03].y2;
-}
-
-/******************************************************************************/
 void g3duiquad_resize ( G3DUIQUAD *quad,
                         uint32_t   width, 
                         uint32_t   height ) {
-    uint32_t rw = ( width  * quad->Xratio ) >> 0x08,
-             rh = ( height * quad->Yratio ) >> 0x08;
+    uint32_t x1 = 0x00, x2 = width  - 0x01,
+             y1 = 0x00, y2 = height - 0x01;
+    uint32_t mx = ( width  * quad->xratio ),
+             my = ( height * quad->yratio );
+    uint32_t i;
 
-    g3duiquad_divideSegments ( quad->seg, rw, rh, width, height );
+    quad->mx     = mx;
+    quad->my     = my;
+    quad->width  = width;
+    quad->height = height;
+
+    if ( ( mx > MARGIN ) && 
+         ( my > MARGIN ) ) {
+        quad->rect[0x00].x      = 0x00 + quad->margin;
+        quad->rect[0x00].y      = 0x00 + quad->margin;
+        quad->rect[0x00].width  = ( mx - quad->margin ) - quad->rect[0x00].x;
+        quad->rect[0x00].height = ( my - quad->margin ) - quad->rect[0x00].y;
+
+        quad->rect[0x01].x      = mx   + quad->margin;
+        quad->rect[0x01].y      = 0x00 + quad->margin;
+        quad->rect[0x01].width  = ( x2 - quad->margin ) - quad->rect[0x01].x;
+        quad->rect[0x01].height = ( my - quad->margin ) - quad->rect[0x01].y;
+
+        quad->rect[0x02].x      = mx   + quad->margin;
+        quad->rect[0x02].y      = my   + quad->margin;
+        quad->rect[0x02].width  = ( x2 - quad->margin ) - quad->rect[0x02].x;
+        quad->rect[0x02].height = ( y2 - quad->margin ) - quad->rect[0x02].y;
+
+        quad->rect[0x03].x      = 0x00 + quad->margin;
+        quad->rect[0x03].y      = my   + quad->margin;
+        quad->rect[0x03].width  = ( mx - quad->margin ) - quad->rect[0x03].x;
+        quad->rect[0x03].height = ( y2 - quad->margin ) - quad->rect[0x03].y;
+    }
 }
 
 /******************************************************************************/
-void g3duiquad_init ( G3DUIQUAD *quad,
-                      uint32_t   width,
-                      uint32_t height ) {
-    quad->Xratio = 0x80;
-    quad->Yratio = 0x80;
+void g3duiquad_init ( G3DUIQUAD *quad ) {
+    quad->xratio = 0.5f;
+    quad->yratio = 0.5f;
+    quad->margin = 0x02;
 
-    g3duiquad_resize ( quad, width, height );
+    g3duiquad_resize ( quad, 0x00, 0x00 );
 }

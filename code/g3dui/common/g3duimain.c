@@ -61,6 +61,7 @@ void g3duimain_sizeAllocate ( G3DUIMAIN *gmn,
     gmn->quadrec.x      = 0x30;
     gmn->quadrec.y      = gmn->tbarrec.y + gmn->tbarrec.height;
     gmn->quadrec.width  = width  - gmn->mbarrec.width  - gmn->mbrdrec.width;
+
     gmn->quadrec.height = gmn->mbarrec.height - 0x2A;
 
     /*** Timeboard Panel ***/
