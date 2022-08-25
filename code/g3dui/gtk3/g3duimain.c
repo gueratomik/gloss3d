@@ -171,8 +171,6 @@ static void gtk3_g3duimain_createMenuBar ( GTK3G3DUIMAIN *gtk3main ) {
 
     gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3menu->menu, 0, 0 );
 
-    gtk_widget_show ( gtk3menu->menu );
-
 
     gtk3main->core.menuBar = ( G3DUIMENU * ) gtk3menu;
 }
@@ -186,8 +184,6 @@ static void gtk3_g3duimain_createToolBar ( GTK3G3DUIMAIN *gtk3main ) {
                                                           "toolbar" );
 
     gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3tb->bar, 0, 0 );
-
-    gtk_widget_show ( gtk3tb->bar );
 
 
     gtk3main->core.toolBar = ( G3DUITOOLBAR * ) gtk3tb;
@@ -203,8 +199,6 @@ static void gtk3_g3duimain_createModeBar ( GTK3G3DUIMAIN *gtk3main ) {
 
     gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3mb->bar, 0, 0 );
 
-    gtk_widget_show ( gtk3mb->bar );
-
 
     gtk3main->core.modeBar = ( G3DUIMODEBAR * ) gtk3mb;
 }
@@ -217,8 +211,6 @@ static void gtk3_g3duimain_createQuad ( GTK3G3DUIMAIN *gtk3main ) {
                                                       "quad" );
 
     gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3quad->layout, 0, 0 );
-
-    gtk_widget_show ( gtk3quad->layout );
 
 
     gtk3main->core.quad = ( G3DUIQUAD * ) gtk3quad;

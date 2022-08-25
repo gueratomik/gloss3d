@@ -39,8 +39,8 @@ GTK3G3DUI *gtk3_getUI ( ) {
 }
 
 /******************************************************************************/
-void g3duirectangle_toGdkRec ( G3DUIRECTANGLE *in, 
-                               GdkRectangle   *out  ) {
+void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in, 
+                                     GdkRectangle   *out  ) {
     out->x      = in->x;
     out->y      = in->y;
     out->width  = in->width;

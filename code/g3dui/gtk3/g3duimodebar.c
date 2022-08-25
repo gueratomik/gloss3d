@@ -172,6 +172,8 @@ GTK3G3DUIMODEBAR *gtk3_g3duimodebar_create ( GtkWidget *parent,
 
     gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(gtk3mb->bar), 0 );
 
+    gtk_widget_show ( gtk3mb->bar );
+
 
     return gtk3mb;
 }

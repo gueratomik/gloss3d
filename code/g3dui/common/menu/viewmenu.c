@@ -30,6 +30,51 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+static uint64_t setShadingCbk ( G3DUIMENU *menu, 
+                                void      *data ) {
+    G3DUIVIEW *view = ( G3DUIVIEW * ) data;
+
+    return g3duiview_setShadingCbk ( view, menu->name );
+}
+
+/******************************************************************************/
+static G3DUIMENU shading_menu_gouraud   = { NULL,
+                                            SHADINGMENU_GOURAUD,
+                                            G3DUIMENUTYPE_TOGGLEBUTTON,
+                                            NULL,
+                                            setShadingCbk };
+
+static G3DUIMENU shading_menu_flat      = { NULL,
+                                            SHADINGMENU_FLAT,
+                                            G3DUIMENUTYPE_TOGGLEBUTTON,
+                                            NULL,
+                                            setShadingCbk };
+ 
+static G3DUIMENU shading_menu_wireframe = { NULL,
+                                            SHADINGMENU_WIREFRAME,
+                                            G3DUIMENUTYPE_TOGGLEBUTTON,
+                                            NULL,
+                                            setShadingCbk };
+
+/*static G3DUIMENU shading_menu_phong     = { NULL,
+                                            SHADINGMENU_PHONG,
+                                            G3DUIMENUTYPE_PUSHBUTTON,
+                                            NULL,
+                                            setShadingCbk };*/
+
+/******************************************************************************/
+static G3DUIMENU shading_menu = { NULL,
+                                  "_Shading",
+                                  G3DUIMENUTYPE_SUBMENU,
+                                  NULL,
+                                  NULL,
+                                 .nodes = { &shading_menu_gouraud,
+                                            &shading_menu_flat,
+                                            &shading_menu_wireframe,
+                                            /*&shading_menu_phong,*/
+                                             NULL } };
+
+/******************************************************************************/
 static uint64_t useDefaultCameraCbk ( G3DUIMENU *menu, 
                                       void      *data ) {
     G3DUIVIEW *view = ( G3DUIVIEW * ) data;
@@ -270,6 +315,7 @@ static G3DUIMENU viewrootnode = { NULL,
                                   NULL,
                                   NULL,
                                  .nodes = { &view_menu,
+                                            &shading_menu,
                                              NULL } };
 
 /******************************************************************************/

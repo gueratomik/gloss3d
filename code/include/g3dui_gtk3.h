@@ -195,11 +195,8 @@ typedef struct _GTK3G3DUIMODEBAR {
 typedef struct _GTK3G3DUIVIEW {
     G3DUIVIEW  core;
     GtkWidget *layout;
-    GtkWidget *menubar;
     GtkWidget *btnarea;
     GtkWidget *glarea;
-    GtkWidget *optmenu;
-    GtkWidget *shdmenu;
     LIST      *lmenu;
 } GTK3G3DUIVIEW;
 
@@ -287,8 +284,8 @@ gchar *gtk3_getDefaultCSS ( );
 
 /********************************* g3dui.c ************************************/
 
-void g3duirectangle_toGdkRec ( G3DUIRECTANGLE *in, 
-                               GdkRectangle   *out  );
+void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in, 
+                                     GdkRectangle   *out  );
 void gtk3_setMouseTool ( GtkWidget *widget, 
                          gpointer   user_data );
 void gtk3_setHourGlass ( GTK3G3DUI *gtk3gui );
@@ -328,6 +325,11 @@ GTK3G3DUIMODEBAR *gtk3_g3duimodebar_create ( GtkWidget *parent,
 
 /****************************** g3duiquad.c ***********************************/
 GTK3G3DUIQUAD *gtk3_g3duiquad_create ( GtkWidget *parent,
+                                       GTK3G3DUI *gtk3gui,
+                                       char      *name );
+
+/****************************** g3duiview.c ***********************************/
+GTK3G3DUIVIEW *gtk3_g3duiview_create ( GtkWidget *parent, 
                                        GTK3G3DUI *gtk3gui,
                                        char      *name );
 

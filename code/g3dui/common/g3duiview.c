@@ -30,6 +30,56 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+uint64_t g3duiview_setShadingCbk ( G3DUIVIEW *view,
+                                   char      *shading ) {
+    G3DUI *gui = view->gui;
+#ifdef __linux__
+    glXMakeCurrent ( view->dpy, view->win, view->glctx );
+#endif
+#ifdef __MINGW32__
+    HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
+    HDC dc = GetDC ( hWnd );
+
+    wglMakeCurrent ( dc, view->glctx );
+
+    ReleaseDC ( hWnd, dc );
+#endif
+
+    if ( strcmp ( shading, SHADINGMENU_GOURAUD ) == 0x00 ) {
+        glEnable      ( GL_LIGHTING );
+        glShadeModel  ( GL_SMOOTH );
+        glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL );
+
+        /*** The no texture flags is VIEW dependent, not GUI dependent ***/
+        view->engine_flags &= (~NOTEXTURE);
+        view->mode          = GLVIEWGOURAUD;
+    }
+
+    if ( strcmp ( shading, SHADINGMENU_FLAT ) == 0x00 ) {
+        glEnable      ( GL_LIGHTING );
+        glShadeModel  ( GL_FLAT );
+        glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL );
+
+        /*** The no texture flags is VIEW dependent, not GUI dependent ***/
+        view->engine_flags &= (~NOTEXTURE);
+        view->mode          = GLVIEWFLAT;
+    }
+
+    if ( strcmp ( shading, SHADINGMENU_WIREFRAME ) == 0x00 ) {
+        glDisable     ( GL_LIGHTING );
+        glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
+
+        /*g3dui_disableTextureImages ( gui );*/
+
+        /*** The no texture flags is VIEW dependent, not GUI dependent ***/
+        view->engine_flags |= NOTEXTURE;
+        view->mode          = GLVIEWWIREFRAME;
+    }
+
+    return REDRAWVIEW;
+}
+
+/******************************************************************************/
 static G3DCAMERA *getCamera ( G3DUIVIEW *view ) {
     G3DSCENE *sce = view->gui->sce;
 
@@ -239,32 +289,26 @@ void g3duiview_init ( G3DUIVIEW *view,
 void g3duiview_resize ( G3DUIVIEW *view, 
                         uint32_t   width, 
                         uint32_t   height ) {
-    int i, xpos, margin = 0x02;
+    int i, margin = 0x02, xpos;
+
+    view->menurec.x      = 0x00;
+    view->menurec.y      = 0x00;
+    view->menurec.width  = width;
+    view->menurec.height = BUTTONSIZE;
 
     view->glrec.x      = 0x00;
     view->glrec.y      = BUTTONSIZE;
     view->glrec.width  = width;
     view->glrec.height = height - BUTTONSIZE;
 
-    view->optrec.x      = 0;
-    view->optrec.y      = 0;
-    view->optrec.width  = 96;
-    view->optrec.height = BUTTONSIZE;
-
-    view->shdrec.x      = 96;
-    view->shdrec.y      = 0;
-    view->shdrec.width  = 112;
-    view->shdrec.height = BUTTONSIZE;
-
-    view->btnrec.x      = width - ( NBVIEWBUTTON * ( BUTTONSIZE + margin ) ) ;
+    view->btnrec.x      = width - ( margin - ( NBVIEWBUTTON * ( BUTTONSIZE + margin ) ) ) ;
     view->btnrec.y      = 0x00;
     view->btnrec.width  = NBVIEWBUTTON * ( BUTTONSIZE + margin );
     view->btnrec.height = BUTTONSIZE;
 
-    /*** set rectangle position for each button ***/
-    xpos = ( view->btnrec.width - BUTTONSIZE ), margin = 0x02;
+    view->menurec.width -= view->btnrec.width;
 
-    for ( i = 0x00; i < NBVIEWBUTTON; i++, xpos = ( xpos - BUTTONSIZE - margin ) ) {
+    for ( i = 0x00, xpos = margin; i < NBVIEWBUTTON; i++, xpos += ( BUTTONSIZE + margin ) ) {
         view->rec[i].x      = xpos;
         view->rec[i].y      = 0x00;
         view->rec[i].width  = BUTTONSIZE;

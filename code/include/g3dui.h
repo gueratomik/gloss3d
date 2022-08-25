@@ -1081,6 +1081,7 @@ typedef struct _G3DUIVIEW {
     G3DUIRECTANGLE optrec;
     G3DUIRECTANGLE shdrec;
     G3DUIRECTANGLE btnrec;
+    G3DUIRECTANGLE menurec;
     /*Pixmap         curpix[NBVIEWBUTTON];
     Pixmap         norpix[NBVIEWBUTTON];
     Pixmap         armpix[NBVIEWBUTTON];*/
@@ -1096,6 +1097,8 @@ typedef struct _G3DUIVIEW {
     uint64_t       engine_flags;
     void         (*grid)( uint32_t );
 #ifdef __linux__
+    Display       *dpy;
+    Window         win;
     GLXContext     glctx;
     pthread_t      render_tid; /*** current rendering thread - Used for canceling***/
 #endif
@@ -1104,6 +1107,7 @@ typedef struct _G3DUIVIEW {
     HANDLE         render_tid;
 #endif
     G3DUIRENDERBUFFER rbuf;
+    G3DUIMENU        *menuBar;
 } G3DUIVIEW;
 
 /******************************************************************************/
@@ -1978,6 +1982,9 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
                         G3DMOUSETOOL *mou,
                         uint32_t      current,
                         uint64_t      engine_flags );
+
+uint64_t g3duiview_setShadingCbk ( G3DUIVIEW *view,
+                                   char      *shading );
 
 /*************************** g3duiweightgrouplist.c ***************************/
 

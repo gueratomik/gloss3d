@@ -62,38 +62,38 @@ static void SizeAllocate ( GtkWidget     *widget,
         uint32_t i;
 
         for ( i = 0x00; i < 0x04; i++ ) {
-            GTK3G3DUIVIEW *view = ( GTK3G3DUIVIEW * ) gtk3quad->core.view[i];
+            GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) gtk3quad->core.view[i];
 
-            if ( view ) {
+            if ( gtk3view ) {
                 GdkRectangle gdkrec = { gtk3quad->core.rect[i].x,
                                         gtk3quad->core.rect[i].y,
                                         gtk3quad->core.rect[i].width,
                                         gtk3quad->core.rect[i].height };
 
                 gtk_layout_move ( GTK_LAYOUT(widget),
-                                  view->layout,
+                                  gtk3view->layout,
                                   gdkrec.x,
                                   gdkrec.y );
 
-                gtk_widget_size_allocate ( view->layout,
+                gtk_widget_size_allocate ( gtk3view->layout,
                                           &gdkrec );
             }
         }
     } else {
-        GTK3G3DUIVIEW *view = ( GTK3G3DUIVIEW * ) gtk3quad->core.magnified;
+        GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) gtk3quad->core.magnified;
 
-        if ( view ) {
+        if ( gtk3view ) {
             GdkRectangle gdkrec = { 0x00,
                                     0x00,
                                     gtk3quad->core.width,
                                     gtk3quad->core.height };
 
             gtk_layout_move ( GTK_LAYOUT(widget),
-                              view->layout,
+                              gtk3view->layout,
                               gdkrec.x,
                               gdkrec.y );
 
-            gtk_widget_size_allocate ( view->layout, &gdkrec );
+            gtk_widget_size_allocate ( gtk3view->layout, &gdkrec );
         }
     }
 }
@@ -122,14 +122,14 @@ static gboolean Draw ( GtkWidget *widget,
                        gpointer   user_data ) {
     GTK3G3DUIQUAD *gtk3quad = ( GTK3G3DUIQUAD * ) user_data;
     GtkStyleContext *context = gtk_widget_get_style_context ( widget );
-
+    GdkRGBA color;
+#ifdef unused
 
 /*cairo_region_t * cairoRegion = cairo_region_create();
 GdkWindow *window = gtk_layout_get_bin_window (widget);
 
 GdkDrawingContext * drawingContext;
 drawingContext = gdk_window_begin_draw_frame (window,cairoRegion);*/
-
 
     if ( gtk3quad->core.magnified == NULL ) {
         uint32_t i;
@@ -177,8 +177,25 @@ cairo_move_to(cr, 30, 30);
 /*gdk_window_end_draw_frame(window,drawingContext);
 
 cairo_region_destroy(cairoRegion);*/
+#endif
 
     return FALSE;
+}
+
+/******************************************************************************/
+static void gtk3_g3duiquad_createViews ( GTK3G3DUIQUAD *gtk3quad ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3quad->core.gui;
+    int i;
+
+    for ( i = 0x00; i < 0x04; i++ ) {
+        GTK3G3DUIVIEW *gtk3view = gtk3_g3duiview_create ( gtk3quad->layout,
+                                                          gtk3gui,
+                                                          "view" );
+
+        gtk3quad->core.view[i] = ( G3DUIVIEW * ) gtk3view;
+
+        gtk_layout_put ( GTK_LAYOUT(gtk3quad->layout), gtk3view->layout, 0, 0 );
+    }
 }
 
 /******************************************************************************/
@@ -189,8 +206,6 @@ GTK3G3DUIQUAD *gtk3_g3duiquad_create ( GtkWidget *parent,
     GTK3G3DUIQUAD *gtk3quad = g3tk_g3duiquad_new ( gtk3gui );
     GtkWidget    *layout  = gtk_layout_new ( NULL, NULL );
 
-    g_object_set_data ( G_OBJECT(layout), "private", (gpointer) gtk3quad );
-
     gtk_widget_set_name ( layout, name );
 
     g_signal_connect ( G_OBJECT (layout), "realize"      , G_CALLBACK (Realize)     , gtk3quad );
@@ -199,6 +214,8 @@ GTK3G3DUIQUAD *gtk3_g3duiquad_create ( GtkWidget *parent,
     g_signal_connect ( G_OBJECT (layout), "draw"         , G_CALLBACK (Draw)      , gtk3quad );
 
     gtk3quad->layout = layout;
+
+    gtk3_g3duiquad_createViews ( gtk3quad ) ;
 
     gtk_widget_show ( gtk3quad->layout );
 
