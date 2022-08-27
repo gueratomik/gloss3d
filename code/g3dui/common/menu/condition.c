@@ -30,67 +30,93 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint32_t objectModeOnly ( G3DUI *gui ) {
+uint32_t objectModeOnly ( G3DUIMENU *menu,
+                          void      *data ) {
+    G3DUI *gui = menu->gui;
+
     return ( gui->engine_flags & VIEWOBJECT ) ? 0x01 : 0x00;
 }
 
 /******************************************************************************/
-uint32_t vertexModeOnly ( G3DUI *gui ) {
-    return ( gui->engine_flags & VIEWVERTEX ) ? 0x01 : 0x00;
+uint32_t vertexModeOnly ( G3DUIMENU *menu,
+                          void      *data ) {
+    G3DUI *gui = menu->gui;
+
+    return ( gui->engine_flags & VIEWVERTEX ) ? MENU_CONDITION_SENSITIVE : 0x00;
 }
 
 /******************************************************************************/
-uint32_t faceModeOnly ( G3DUI *gui ) {
-    return ( gui->engine_flags & VIEWFACE ) ? 0x01 : 0x00;
+uint32_t faceModeOnly ( G3DUIMENU *menu,
+                        void      *data ) {
+    G3DUI *gui = menu->gui;
+
+    return ( gui->engine_flags & VIEWFACE   ) ? MENU_CONDITION_SENSITIVE : 0x00;
 }
 
 /******************************************************************************/
-uint32_t sculptModeOnly ( G3DUI *gui ) {
-    return ( gui->engine_flags & VIEWSCULPT ) ? 0x01 : 0x00;
+uint32_t sculptModeOnly ( G3DUIMENU *menu,
+                          void      *data ) {
+    G3DUI *gui = menu->gui;
+
+    return ( gui->engine_flags & VIEWSCULPT ) ? MENU_CONDITION_SENSITIVE : 0x00;
 }
 
 /******************************************************************************/
-uint32_t edgeModeOnly ( G3DUI *gui ) {
-    return ( gui->engine_flags & VIEWEDGE ) ? 0x01 : 0x00;
+uint32_t edgeModeOnly ( G3DUIMENU *menu,
+                        void      *data ) {
+    G3DUI *gui = menu->gui;
+
+    return ( gui->engine_flags & VIEWEDGE   ) ? MENU_CONDITION_SENSITIVE : 0x00;
 }
 
 /******************************************************************************/
-uint32_t skinModeOnly ( G3DUI *gui ) {
-    return ( gui->engine_flags & VIEWSKIN ) ? 0x01 : 0x00;
+uint32_t skinModeOnly ( G3DUIMENU *menu,
+                        void      *data ) {
+    G3DUI *gui = menu->gui;
+
+    return ( gui->engine_flags & VIEWSKIN   ) ? MENU_CONDITION_SENSITIVE : 0x00;
 }
 
 /******************************************************************************/
-uint32_t objectMode_skinSelected ( G3DUI *gui ) {
+uint32_t objectMode_skinSelected ( G3DUIMENU *menu,
+                                   void      *data ) {
+    G3DUI *gui = menu->gui;
     G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
 
     return  ( ( obj                            ) && 
               ( obj->type & SKIN               ) &&
-              ( gui->engine_flags & VIEWOBJECT ) ) ? 0x01 : 0x00;
+              ( gui->engine_flags & VIEWOBJECT ) ) ? MENU_CONDITION_SENSITIVE : 0x00;
 }
 
 /******************************************************************************/
-uint32_t objectMode_objectSelected ( G3DUI *gui ) {
+uint32_t objectMode_objectSelected ( G3DUIMENU *menu,
+                                     void      *data ) {
+    G3DUI *gui = menu->gui;
     G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
 
     return  ( ( obj                            ) && 
-              ( gui->engine_flags & VIEWOBJECT ) ) ? 0x01 : 0x00;
+              ( gui->engine_flags & VIEWOBJECT ) ) ? MENU_CONDITION_SENSITIVE : 0x00;
 }
 
 /******************************************************************************/
-uint32_t objectMode_boneSelected ( G3DUI *gui ) {
+uint32_t objectMode_boneSelected ( G3DUIMENU *menu,
+                                   void      *data ) {
+    G3DUI *gui = menu->gui;
     G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
 
     return  ( ( obj                            ) && 
               ( obj->type & BONE               ) &&
-              ( gui->engine_flags & VIEWOBJECT ) ) ? 0x01 : 0x00;
+              ( gui->engine_flags & VIEWOBJECT ) ) ? MENU_CONDITION_SENSITIVE : 0x00;
 }
 
 /******************************************************************************/
-uint32_t objectMode_boneOrSkinSelected ( G3DUI *gui ) {
+uint32_t objectMode_boneOrSkinSelected ( G3DUIMENU *menu,
+                                         void      *data ) {
+    G3DUI *gui = menu->gui;
     G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
 
     return  ( ( obj                            ) && 
             ( ( obj->type & BONE               ) ||
               ( obj->type & SKIN               ) ) &&
-              ( gui->engine_flags & VIEWOBJECT ) ) ? 0x01 : 0x00;
+              ( gui->engine_flags & VIEWOBJECT ) ) ? MENU_CONDITION_SENSITIVE : 0x00;
 }

@@ -48,115 +48,6 @@ static GTK3G3DUIMAIN *g3tk_g3duimain_new ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
-static void SizeAllocate ( GtkWidget     *widget,
-                           GtkAllocation *allocation,
-                           gpointer       user_data ) {
-    GTK3G3DUIMAIN    *gtk3main    = ( GTK3G3DUIMAIN *    ) user_data;
-    GTK3G3DUITOOLBAR *gtk3toolBar = ( GTK3G3DUITOOLBAR * ) gtk3main->core.toolBar;
-    GTK3G3DUIMENU    *gtk3menuBar = ( GTK3G3DUIMENU    * ) gtk3main->core.menuBar;
-    GTK3G3DUIMODEBAR *gtk3modeBar = ( GTK3G3DUIMODEBAR * ) gtk3main->core.modeBar;
-    GTK3G3DUIQUAD    *gtk3quad    = ( GTK3G3DUIQUAD    * ) gtk3main->core.quad;
-
-    GdkRectangle gdkrec;
-
-    g3duimain_sizeAllocate ( &gtk3main->core, 
-                              allocation->width, 
-                              allocation->height );
-
-    if ( gtk3toolBar ) {
-        gdkrec.x      = gtk3main->core.tbarrec.x;
-        gdkrec.y      = gtk3main->core.tbarrec.y;
-        gdkrec.width  = gtk3main->core.tbarrec.width;
-        gdkrec.height = gtk3main->core.tbarrec.height;
-
-        gtk_layout_move ( widget, 
-                          gtk3toolBar->bar,
-                          gdkrec.x,
-                          gdkrec.y );
-
-        gtk_widget_size_allocate ( gtk3toolBar->bar, &gdkrec );
-    }
-
-    if ( gtk3menuBar ) {
-        gdkrec.x      = gtk3main->core.menurec.x;
-        gdkrec.y      = gtk3main->core.menurec.y;
-        gdkrec.width  = gtk3main->core.menurec.width;
-        gdkrec.height = gtk3main->core.menurec.height;
-
-        gtk_layout_move ( widget, 
-                          gtk3menuBar->menu,
-                          gdkrec.x,
-                          gdkrec.y );
-
-        gtk_widget_size_allocate ( gtk3menuBar->menu, &gdkrec );
-    }
-
-    if ( gtk3modeBar ) {
-        gdkrec.x      = gtk3main->core.mbarrec.x;
-        gdkrec.y      = gtk3main->core.mbarrec.y;
-        gdkrec.width  = gtk3main->core.mbarrec.width;
-        gdkrec.height = gtk3main->core.mbarrec.height;
-
-        gtk_layout_move ( widget, 
-                          gtk3modeBar->bar,
-                          gdkrec.x,
-                          gdkrec.y );
-
-        gtk_widget_size_allocate ( gtk3modeBar->bar, &gdkrec );
-    }
-
-    if ( gtk3quad ) {
-        gdkrec.x      = gtk3main->core.quadrec.x;
-        gdkrec.y      = gtk3main->core.quadrec.y;
-        gdkrec.width  = gtk3main->core.quadrec.width;
-        gdkrec.height = gtk3main->core.quadrec.height;
-
-        gtk_layout_move ( widget, 
-                          gtk3quad->layout,
-                          gdkrec.x,
-                          gdkrec.y );
-
-        gtk_widget_size_allocate ( gtk3quad->layout, &gdkrec );
-    }
-}
-
-/******************************************************************************/
-static void Destroy ( GtkWidget *widget, 
-                      gpointer   user_data ) {
-    GTK3G3DUIMAIN *gtk3main = ( GTK3G3DUIMAIN * ) user_data;
-
-    free ( gtk3main );
-}
-
-/******************************************************************************/
-static void Realize ( GtkWidget *widget, 
-                      gpointer   user_data ) {
-    GTK3G3DUIMAIN *gtk3main = ( GTK3G3DUIMAIN * ) user_data;
-    G3DUI *gui = gtk3main->core.gui;
-    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
-    GtkCssProvider *provider = gtk_css_provider_new ();
-    gchar *myCSS = gtk3_getDefaultCSS ( );
-    GdkDisplay *display = gdk_display_get_default ( );
-    GdkScreen  *screen  = gdk_display_get_default_screen ( display );
-    GtkWidget *tab;
-
-    gtk_style_context_add_provider_for_screen ( screen,
-                                 GTK_STYLE_PROVIDER (provider),
-                                 GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-
-    gtk_css_provider_load_from_data ( provider, myCSS, -1, NULL );
-
-    g_object_unref ( provider );
-/*
-    g3dui_init ( gui );
-
-    gtk3_initDefaultMouseTools ( gtk3gui );
-
-    gtk3_g3duimain_updateMenuBar ( gtk3main );
-*/
-}
-
-/******************************************************************************/
 void gtk3_g3duimain_updateMenuBar ( GTK3G3DUIMAIN *gtk3main ) {
     gtk3_g3duimenu_update_r ( gtk3main->core.menuBar );
 }
@@ -212,10 +103,128 @@ static void gtk3_g3duimain_createQuad ( GTK3G3DUIMAIN *gtk3main ) {
 
     gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3quad->layout, 0, 0 );
 
-
     gtk3main->core.quad = ( G3DUIQUAD * ) gtk3quad;
 }
 
+/******************************************************************************/
+static void SizeAllocate ( GtkWidget     *widget,
+                           GtkAllocation *allocation,
+                           gpointer       user_data ) {
+    GTK3G3DUIMAIN    *gtk3main    = ( GTK3G3DUIMAIN *    ) user_data;
+    GTK3G3DUITOOLBAR *gtk3toolBar = ( GTK3G3DUITOOLBAR * ) gtk3main->core.toolBar;
+    GTK3G3DUIMENU    *gtk3menuBar = ( GTK3G3DUIMENU    * ) gtk3main->core.menuBar;
+    GTK3G3DUIMODEBAR *gtk3modeBar = ( GTK3G3DUIMODEBAR * ) gtk3main->core.modeBar;
+    GTK3G3DUIQUAD    *gtk3quad    = ( GTK3G3DUIQUAD    * ) gtk3main->core.quad;
+
+    GdkRectangle gdkrec;
+
+    g3duimain_sizeAllocate ( &gtk3main->core, 
+                              allocation->width, 
+                              allocation->height );
+
+    if ( gtk3toolBar ) {
+        gdkrec.x      = gtk3main->core.tbarrec.x;
+        gdkrec.y      = gtk3main->core.tbarrec.y;
+        gdkrec.width  = gtk3main->core.tbarrec.width;
+        gdkrec.height = gtk3main->core.tbarrec.height;
+
+        /*gtk_layout_move ( widget, 
+                          gtk3toolBar->bar,
+                          gdkrec.x,
+                          gdkrec.y );*/
+
+        gtk_widget_size_allocate ( gtk3toolBar->bar, &gdkrec );
+    }
+
+    if ( gtk3menuBar ) {
+        gdkrec.x      = gtk3main->core.menurec.x;
+        gdkrec.y      = gtk3main->core.menurec.y;
+        gdkrec.width  = gtk3main->core.menurec.width;
+        gdkrec.height = gtk3main->core.menurec.height;
+
+        /*gtk_layout_move ( widget, 
+                          gtk3menuBar->menu,
+                          gdkrec.x,
+                          gdkrec.y );*/
+
+        gtk_widget_size_allocate ( gtk3menuBar->menu, &gdkrec );
+    }
+
+    if ( gtk3modeBar ) {
+        gdkrec.x      = gtk3main->core.mbarrec.x;
+        gdkrec.y      = gtk3main->core.mbarrec.y;
+        gdkrec.width  = gtk3main->core.mbarrec.width;
+        gdkrec.height = gtk3main->core.mbarrec.height;
+
+        /*gtk_layout_move ( widget, 
+                          gtk3modeBar->bar,
+                          gdkrec.x,
+                          gdkrec.y );*/
+
+        gtk_widget_size_allocate ( gtk3modeBar->bar, &gdkrec );
+    }
+
+    if ( gtk3quad ) {
+        gdkrec.x      = gtk3main->core.quadrec.x;
+        gdkrec.y      = gtk3main->core.quadrec.y;
+        gdkrec.width  = gtk3main->core.quadrec.width;
+        gdkrec.height = gtk3main->core.quadrec.height;
+
+        /*gtk_layout_move ( widget, 
+                          gtk3quad->layout,
+                          gdkrec.x,
+                          gdkrec.y );*/
+
+        gtk_widget_size_allocate ( gtk3quad->layout, &gdkrec );
+    }
+}
+
+/******************************************************************************/
+static void Destroy ( GtkWidget *widget, 
+                      gpointer   user_data ) {
+    GTK3G3DUIMAIN *gtk3main = ( GTK3G3DUIMAIN * ) user_data;
+
+    free ( gtk3main );
+}
+
+/******************************************************************************/
+static void Realize ( GtkWidget *widget, 
+                      gpointer   user_data ) {
+    GTK3G3DUIMAIN *gtk3main = ( GTK3G3DUIMAIN * ) user_data;
+    G3DUI *gui = gtk3main->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    GtkCssProvider *provider = gtk_css_provider_new ();
+    gchar *myCSS = gtk3_getDefaultCSS ( );
+    GdkDisplay *display = gdk_display_get_default ( );
+    GdkScreen  *screen  = gdk_display_get_default_screen ( display );
+    GtkWidget *tab;
+
+    gtk_style_context_add_provider_for_screen ( screen,
+                                 GTK_STYLE_PROVIDER (provider),
+                                 GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+    gtk_css_provider_load_from_data ( provider, myCSS, -1, NULL );
+
+    g_object_unref ( provider );
+}
+
+/******************************************************************************/
+static void Map ( GtkWidget *widget, 
+                  gpointer   user_data ) {
+    GTK3G3DUIMAIN *gtk3main = ( GTK3G3DUIMAIN * ) user_data;
+    G3DUI *gui = gtk3main->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+
+    /*** things that must be called after OpenGL initializing, this is why ***/
+    /*** we use the Map signa. It comes after all widgets were realized ***/
+    if ( gui->inited == 0x00 ) {
+        g3dui_init ( gui, ( G3DUIMAIN * ) gtk3main );
+
+        gtk3_initDefaultMouseTools ( gtk3gui );
+
+        gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWALL );
+    }
+}
 
 /******************************************************************************/
 GTK3G3DUIMAIN *gtk3_g3duimain_create ( GtkWidget *parent,
@@ -244,6 +253,7 @@ GTK3G3DUIMAIN *gtk3_g3duimain_create ( GtkWidget *parent,
     g_signal_connect ( G_OBJECT (layout), "realize"      , G_CALLBACK (Realize)     , gtk3main );
     g_signal_connect ( G_OBJECT (layout), "destroy"      , G_CALLBACK (Destroy)     , gtk3main );
     g_signal_connect ( G_OBJECT (layout), "size-allocate", G_CALLBACK (SizeAllocate), gtk3main );
+    g_signal_connect ( G_OBJECT (layout), "map"          , G_CALLBACK (Map         ), gtk3main );
 
     gtk3main->layout = layout;
 
@@ -252,18 +262,9 @@ GTK3G3DUIMAIN *gtk3_g3duimain_create ( GtkWidget *parent,
     gtk3_g3duimain_createModeBar ( gtk3main );
     gtk3_g3duimain_createQuad    ( gtk3main );
 
-
     gtk_widget_show ( layout );
 
-
-    /*** File loading must be done AFTER OpenGL init ***/
-/*
-    if ( filename ) {
-        gtk3_interpretUIReturnFlags ( g3dui_openG3DFile ( gui, filename ) );
-    } else {
-        gui->sce = g3dscene_new  ( 0x00, "Gloss3D scene" );
-    }
-*/
+    /*gui->filename = filename;*/
 
     return gtk3main;
 }

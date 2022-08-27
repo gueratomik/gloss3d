@@ -332,5 +332,6 @@ GTK3G3DUIQUAD *gtk3_g3duiquad_create ( GtkWidget *parent,
 GTK3G3DUIVIEW *gtk3_g3duiview_create ( GtkWidget *parent, 
                                        GTK3G3DUI *gtk3gui,
                                        char      *name );
+void gtk3_g3duiview_updateMenuBar ( GTK3G3DUIVIEW *gtk3view );
 
 #endif

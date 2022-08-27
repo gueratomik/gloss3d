@@ -662,6 +662,7 @@ typedef struct _G3DUIMENU    G3DUIMENU;
 typedef struct _G3DUIVIEW    G3DUIVIEW;
 typedef struct _G3DUIMODEBAR G3DUIMODEBAR;
 typedef struct _G3DUIQUAD    G3DUIQUAD;
+typedef struct _G3DUIMAIN    G3DUIMAIN;
 
 /********************************* G3DUI **************************************/
 typedef struct _G3DUI {
@@ -711,10 +712,12 @@ typedef struct _G3DUI {
     uint32_t playLock;
     LIST *lexportExtensions; /* list of G3DEXPORTEXTENSION */
     Q3DFILTER *toframe;
+    uint32_t   inited;
 
     /*** GUI toolkit extends the following data ***/
     G3DUIVIEW    *currentView;
-    LIST *lview;
+    G3DUIMAIN    *main;
+    LIST         *lview;
 } G3DUI;
 
 /******************************************************************************/
@@ -724,11 +727,14 @@ typedef struct _G3DUI {
 #define G3DUIMENUTYPE_SUBMENU      0x03
 #define G3DUIMENUTYPE_MENUBAR      0x04
 
+#define MENU_CONDITION_SENSITIVE   1
+#define MENU_CONDITION_ACTIVE    ( 1 << 1 )
+
 typedef struct _G3DUIMENU {
     G3DUI             *gui;
     unsigned char     *name;
     uint32_t           type;
-    uint32_t         (*condition) ( G3DUI *gui );
+    uint32_t         (*condition) ( struct _G3DUIMENU *menu, void *data );
     uint64_t          (*callback) ( struct _G3DUIMENU *menu, void *data );
     LIST               *lchildren;
     void               *data;
@@ -1275,7 +1281,8 @@ typedef struct _M3DUIPATTERNLIST {
 
 uint64_t            g3dui_undo ( G3DUI *gui );
 uint64_t            g3dui_redo ( G3DUI *gui );
-void                g3dui_init ( G3DUI *gui );
+void                g3dui_init ( G3DUI     *gui,
+                                 G3DUIMAIN *main );
 uint64_t            g3dui_openG3DFile ( G3DUI      *gui, 
                                         const char *filename );
 void                g3dui_createDefaultCameras ( G3DUI *gui );
@@ -1977,10 +1984,6 @@ void g3duiview_useSelectedCamera ( G3DUIVIEW *view,
 void g3duiview_showRenderingArea ( G3DUIVIEW *view,
                                    uint64_t engine_flags );
 void g3duiview_showGL ( G3DUIVIEW    *view,
-                        G3DSCENE     *sce,
-                        G3DCAMERA    *cam,
-                        G3DMOUSETOOL *mou,
-                        uint32_t      current,
                         uint64_t      engine_flags );
 
 uint64_t g3duiview_setShadingCbk ( G3DUIVIEW *view,
@@ -2007,16 +2010,16 @@ uint64_t g3duiwireframeedit_thicknessCbk ( G3DUIWIREFRAMEEDIT *wfmedit,
 
 /****************************** menu/condition.c ******************************/
 
-uint32_t objectModeOnly ( G3DUI *gui );
-uint32_t vertexModeOnly ( G3DUI *gui );
-uint32_t faceModeOnly ( G3DUI *gui );
-uint32_t sculptModeOnly ( G3DUI *gui );
-uint32_t edgeModeOnly ( G3DUI *gui );
-uint32_t skinModeOnly ( G3DUI *gui );
-uint32_t objectMode_skinSelected ( G3DUI *gui );
-uint32_t objectMode_objectSelected ( G3DUI *gui );
-uint32_t objectMode_boneSelected ( G3DUI *gui );
-uint32_t objectMode_boneOrSkinSelected ( G3DUI *gui );
+uint32_t objectModeOnly ( G3DUIMENU *menu, void *data );
+uint32_t vertexModeOnly ( G3DUIMENU *menu, void *data );
+uint32_t faceModeOnly ( G3DUIMENU *menu, void *data );
+uint32_t sculptModeOnly ( G3DUIMENU *menu, void *data );
+uint32_t edgeModeOnly ( G3DUIMENU *menu, void *data );
+uint32_t skinModeOnly ( G3DUIMENU *menu, void *data );
+uint32_t objectMode_skinSelected ( G3DUIMENU *menu, void *data );
+uint32_t objectMode_objectSelected ( G3DUIMENU *menu, void *data );
+uint32_t objectMode_boneSelected ( G3DUIMENU *menu, void *data );
+uint32_t objectMode_boneOrSkinSelected ( G3DUIMENU *menu, void *data );
 
 /**************************** menu/g3duimainmenu.c ****************************/
 G3DUIMENU *g3duimenu_getMainMenuNode ( );

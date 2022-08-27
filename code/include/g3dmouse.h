@@ -123,7 +123,7 @@
 #define NOBUFFEREDSUBDIVISION  ( 1 << 14 )
 #define BUFFEREDSUBDIVISIONOK  ( 1 << 15 )
 #define REDRAWALL              ( REDRAWVIEW | REDRAWLIST | REDRAWCOORDS | \
-                                 REDRAWUVMAPEDITOR |\
+                                 REDRAWUVMAPEDITOR | REDRAWVIEWMENU | \
                                  REDRAWPARAMS | REDRAWCURRENTOBJECT | \
                                  REDRAWCURRENTMATERIAL | \
                                  REDRAWTIMELINE | REDRAWCURRENTMOUSETOOL )

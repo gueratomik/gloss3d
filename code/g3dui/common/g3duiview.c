@@ -76,15 +76,18 @@ uint64_t g3duiview_setShadingCbk ( G3DUIVIEW *view,
         view->mode          = GLVIEWWIREFRAME;
     }
 
-    return REDRAWVIEW;
+    return REDRAWVIEW | REDRAWVIEWMENU;
 }
 
 /******************************************************************************/
 static G3DCAMERA *getCamera ( G3DUIVIEW *view ) {
     G3DSCENE *sce = view->gui->sce;
 
-    if ( g3dscene_isObjectReferred ( sce, ( G3DOBJECT * ) view->cam ) ) {
-        return view->cam;
+    /*** Note : scene does not exist at first when the widget is realized ***/
+    if ( sce ) {
+        if ( g3dscene_isObjectReferred ( sce, ( G3DOBJECT * ) view->cam ) ) {
+            return view->cam;
+        }
     }
 
     return view->defcam;
@@ -320,38 +323,41 @@ void g3duiview_resize ( G3DUIVIEW *view,
 void g3duiview_sizeGL ( G3DUIVIEW *view, 
                         uint32_t   width, 
                         uint32_t   height ) {
-    G3DCAMERA *cam = view->cam;
+    G3DCAMERA *cam = getCamera ( view );
 
-    glViewport ( 0, 0, width, height );
+    if ( cam ) {
+        glViewport ( 0, 0, width, height );
 
-    /*** retrieve the viewport matrix, we'll use it for rendering ***/
-    glGetIntegerv ( GL_VIEWPORT, cam->vmatrix );
+        /*** retrieve the viewport matrix, we'll use it for rendering ***/
+        glGetIntegerv ( GL_VIEWPORT, cam->vmatrix );
 
-    /*** Really, you don't want a divide by zero ***/
-    cam->ratio = ( height ) ? ( double ) width / height : 1.0f;
+        /*** Really, you don't want a divide by zero ***/
+        cam->ratio = ( height ) ? ( double ) width / height : 1.0f;
+    }
 }
 
 /******************************************************************************/
 void g3duiview_initGL ( G3DUIVIEW *view ) {
     G3DCAMERA *cam = getCamera ( view );
-    float      clearColorf = ( float ) CLEARCOLOR / 255.0f;
 
-    /*** we need to update the camera's matrix here because we need and ***/
-    /*** OpenGL context for matrix operations ***/
-    g3dobject_updateMatrix_r ( ( G3DOBJECT * ) cam, 0x00 );
+    if ( cam ) {
+        float      clearColorf = ( float ) CLEARCOLOR / 255.0f;
 
-    /*** Set clear color for the OpenGL Window ***/
-    glClearColor ( clearColorf, clearColorf, clearColorf, 1.0f );
+        g3dobject_updateMatrix_r (  cam, 0x00 );
 
-    /*if ( vi->depth < 0x20 ) {
-        glEnable ( GL_DITHER );
-    }*/
+        /*** Set clear color for the OpenGL Window ***/
+        glClearColor ( clearColorf, clearColorf, clearColorf, 1.0f );
 
-    /*** Temp, this must be done by the camera in the future ***/
-    if ( cam && ((G3DOBJECT*)cam)->id == 0x00 ) {
-        g3duiview_init3D ( view );
-    } else {
-        g3duiview_init2D ( view );
+        /*if ( vi->depth < 0x20 ) {
+            glEnable ( GL_DITHER );
+        }*/
+
+        /*** Temp, this must be done by the camera in the future ***/
+        if ( cam && ((G3DOBJECT*)cam)->id == 0x00 ) {
+            g3duiview_init3D ( view );
+        } else {
+            g3duiview_init2D ( view );
+        }
     }
 }
 
@@ -407,132 +413,149 @@ void g3duiview_showRenderingArea ( G3DUIVIEW *view,
 
 /******************************************************************************/
 void g3duiview_showGL ( G3DUIVIEW    *view,
-                        G3DSCENE     *sce,
-                        G3DCAMERA    *cam,
-                        G3DMOUSETOOL *mou,
-                        uint32_t      current,
                         uint64_t      engine_flags ) {
     G3DUI *gui = view->gui;
-    int VPX[0x04];
-    G3DVECTOR vec = { 0.0f, 0.0f, 0.0f, 1.0f };
-    G3DOBJECT *selobj = g3dscene_getSelectedObject ( sce );
-    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-    Q3DSETTINGS *rsg = gui->currsg;
-    G3DRGBA backgroundRGBA;
-    uint32_t ret;
+    G3DSCENE *sce = gui->sce;
+    G3DCAMERA *cam = view->cam;
+    G3DMOUSETOOL  *mou = gui->mou;
 
-    sysinfo->sce = sce; /* for debugging purpose */
+    engine_flags |= gui->engine_flags;
 
-    if ( ( engine_flags & NOBACKGROUNDIMAGE  ) == 0x00 ) {
-        g3drgba_fromLong ( &backgroundRGBA, rsg->background.color );
-    } else {
-        /*** Note: CLEARCOLOR is defined in r3d.h" */
-        backgroundRGBA.r = backgroundRGBA.g = backgroundRGBA.b = CLEARCOLOR;
-    }
+    if ( sce ) {
+        int VPX[0x04];
+        G3DVECTOR vec = { 0.0f, 0.0f, 0.0f, 1.0f };
+        G3DOBJECT *selobj = g3dscene_getSelectedObject ( sce );
+        G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+        Q3DSETTINGS *rsg = gui->currsg;
+        G3DRGBA backgroundRGBA;
+        uint32_t ret;
+        /*** This helps the drawarea to determine if it should draw mouse tools ***/
+        /*** for example (we don't draw mousetool on all window widget. ***/
+        uint32_t current = ( view == gui->currentView ) ? 0x01 : 0x00;
 
-    /*** Set clear color for the OpenGL Window ***/
-    glClearColor ( ( float ) backgroundRGBA.r / 255.0f, 
-                   ( float ) backgroundRGBA.g / 255.0f,
-                   ( float ) backgroundRGBA.b / 255.0f, 1.0f );
+        sysinfo->sce = sce; /* for debugging purpose */
 
-    glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        if ( gui->playLock ) {
+             /*** Force disabling real time subdivision ***/
+            gui->engine_flags |= ONGOINGANIMATION;
+        }
 
-    glLightModeli ( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
+        if ( ( engine_flags & NOBACKGROUNDIMAGE  ) == 0x00 ) {
+            g3drgba_fromLong ( &backgroundRGBA, rsg->background.color );
+        } else {
+            /*** Note: CLEARCOLOR is defined in r3d.h" */
+            backgroundRGBA.r = backgroundRGBA.g = backgroundRGBA.b = CLEARCOLOR;
+        }
 
-    glGetIntegerv ( GL_VIEWPORT, VPX );
+        /*** Set clear color for the OpenGL Window ***/
+        glClearColor ( ( float ) backgroundRGBA.r / 255.0f, 
+                       ( float ) backgroundRGBA.g / 255.0f,
+                       ( float ) backgroundRGBA.b / 255.0f, 1.0f );
 
-    glMatrixMode ( GL_PROJECTION );
-    glLoadIdentity ( );
+        glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    glOrtho ( VPX[0], VPX[2], VPX[3], VPX[1], 0.0f, 1.0f );
+        glLightModeli ( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
 
-    glMatrixMode ( GL_MODELVIEW );
-    glLoadIdentity ( );
+        glGetIntegerv ( GL_VIEWPORT, VPX );
 
-    g3duiview_showRenderingArea ( view, engine_flags );
+        glMatrixMode ( GL_PROJECTION );
+        glLoadIdentity ( );
 
-    glDepthMask ( GL_FALSE );
+        glOrtho ( VPX[0], VPX[2], VPX[3], VPX[1], 0.0f, 1.0f );
 
-    if ( ( engine_flags & NOBACKGROUNDIMAGE  ) == 0x00 ) {
-        glPushAttrib ( GL_ALL_ATTRIB_BITS );
-        glDisable ( GL_LIGHTING );
-        glEnable ( GL_COLOR_MATERIAL );
-        glColor3ub ( 0xFF, 0xFF, 0xFF );
+        glMatrixMode ( GL_MODELVIEW );
+        glLoadIdentity ( );
 
-        if ( rsg ) {
-            if ( rsg->background.mode & BACKGROUND_IMAGE ) {
-                if ( rsg->background.image ) {
-                    float renderRatio  = ( float ) rsg->output.width / 
-                                                   rsg->output.height;
-                    float color[] = { 0.25f, 0.25f, 0.25f, 1.0f };
-                    G3DVECTOR uv[0x04] = { { .x =     0, .y =     0, .z = 0.0f },
-                                           { .x =  1.0f, .y =     0, .z = 0.0f },
-                                           { .x =  1.0f, .y =  1.0f, .z = 0.0f },
-                                           { .x =     0, .y =  1.0f, .z = 0.0f } }; 
-                    double MVX[0x10], PJX[0x10];
-                    int VPX[0x04], i;
+        g3duiview_showRenderingArea ( view, engine_flags );
 
-                    glGetIntegerv ( GL_VIEWPORT, VPX );
+        glDepthMask ( GL_FALSE );
 
-                    glEnable      ( GL_TEXTURE_2D );
-                    glBindTexture ( GL_TEXTURE_2D, rsg->background.image->id );
+        if ( ( engine_flags & NOBACKGROUNDIMAGE  ) == 0x00 ) {
+            glPushAttrib ( GL_ALL_ATTRIB_BITS );
+            glDisable ( GL_LIGHTING );
+            glEnable ( GL_COLOR_MATERIAL );
+            glColor3ub ( 0xFF, 0xFF, 0xFF );
+
+            if ( rsg ) {
+                if ( rsg->background.mode & BACKGROUND_IMAGE ) {
+                    if ( rsg->background.image ) {
+                        float renderRatio  = ( float ) rsg->output.width / 
+                                                       rsg->output.height;
+                        float color[] = { 0.25f, 0.25f, 0.25f, 1.0f };
+                        G3DVECTOR uv[0x04] = { { .x =     0, .y =     0, .z = 0.0f },
+                                               { .x =  1.0f, .y =     0, .z = 0.0f },
+                                               { .x =  1.0f, .y =  1.0f, .z = 0.0f },
+                                               { .x =     0, .y =  1.0f, .z = 0.0f } }; 
+                        double MVX[0x10], PJX[0x10];
+                        int VPX[0x04], i;
+
+                        glGetIntegerv ( GL_VIEWPORT, VPX );
+
+                        glEnable      ( GL_TEXTURE_2D );
+                        glBindTexture ( GL_TEXTURE_2D, rsg->background.image->id );
 
 
-                    glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
-                    glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
-                    glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color );
+                        glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
+                        glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
+                        glTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color );
 
-                    glBegin ( GL_QUADS );
-                    for ( i = 0x00; i < 0x04; i++ ) {
-                        glTexCoord2f ( uv[i].x,  uv[i].y );
-                        glVertex3f  ( sysinfo->renderRectangle[i].x, 
-                                      sysinfo->renderRectangle[i].y, 0.0f );
+                        glBegin ( GL_QUADS );
+                        for ( i = 0x00; i < 0x04; i++ ) {
+                            glTexCoord2f ( uv[i].x,  uv[i].y );
+                            glVertex3f  ( sysinfo->renderRectangle[i].x, 
+                                          sysinfo->renderRectangle[i].y, 0.0f );
+                        }
+                        glEnd ( );
+                        glDisable ( GL_TEXTURE_2D );
                     }
-                    glEnd ( );
-                    glDisable ( GL_TEXTURE_2D );
+                }
+            }
+
+            glPopAttrib ( );
+        }
+
+        glDepthMask ( GL_TRUE );
+
+        glMatrixMode ( GL_PROJECTION );
+        glLoadIdentity ( );
+
+        if ( cam ) g3dcamera_project ( cam, engine_flags );
+
+        glMatrixMode ( GL_MODELVIEW );
+        glLoadIdentity ( );
+
+        if ( cam ) {
+            g3dcamera_view ( cam, engine_flags );
+
+            if ( ( engine_flags & HIDEGRID ) == 0x00 ) {
+                if ( view->cam != view->defcam ) {
+                    g3dcore_grid3D ( engine_flags );
+                } else {
+                    if ( view->grid ) view->grid ( engine_flags );
                 }
             }
         }
 
-        glPopAttrib ( );
-    }
+        ret = g3dobject_draw_r ( ( G3DOBJECT * ) sce, cam, engine_flags /*| VIEWNORMALS*/ );
 
-    glDepthMask ( GL_TRUE );
+        if ( ret & DRAW_LIGHTON ) {
+            glDisable ( GL_LIGHT0 );
+        } else {
+            glEnable ( GL_LIGHT0 );
+        }
 
-    glMatrixMode ( GL_PROJECTION );
-    glLoadIdentity ( );
+        g3dscene_draw ( ( G3DOBJECT * ) sce, cam, engine_flags );
 
-    if ( cam ) g3dcamera_project ( cam, engine_flags );
-
-    glMatrixMode ( GL_MODELVIEW );
-    glLoadIdentity ( );
-
-    if ( cam ) {
-        g3dcamera_view ( cam, engine_flags );
-
-        if ( ( engine_flags & HIDEGRID ) == 0x00 ) {
-            if ( view->cam != view->defcam ) {
-                g3dcore_grid3D ( engine_flags );
-            } else {
-                if ( view->grid ) view->grid ( engine_flags );
+        /*** draw the mouse tool only in the current workspace window ***/
+        if ( current ) {
+            if ( mou && mou->draw ) {
+                mou->draw ( mou, sce, engine_flags );
             }
         }
-    }
 
-    ret = g3dobject_draw_r ( ( G3DOBJECT * ) sce, cam, engine_flags /*| VIEWNORMALS*/ );
-
-    if ( ret & DRAW_LIGHTON ) {
-        glDisable ( GL_LIGHT0 );
-    } else {
-        glEnable ( GL_LIGHT0 );
-    }
-
-    g3dscene_draw ( ( G3DOBJECT * ) sce, cam, engine_flags );
-
-    /*** draw the mouse tool only in the current workspace window ***/
-    if ( current ) {
-        if ( mou && mou->draw ) {
-            mou->draw ( mou, sce, engine_flags );
+        if ( gui->playLock ) {
+            /*** Re-enable real time subdivision ***/
+            gui->engine_flags &= (~ONGOINGANIMATION);
         }
     }
 }

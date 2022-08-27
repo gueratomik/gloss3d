@@ -30,6 +30,36 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+static uint32_t gouraudActiveCond ( G3DUIMENU *menu,
+                                    void      *data ) {
+    G3DUIVIEW *view = ( G3DUIVIEW * ) data;
+
+    return ( view->mode == GLVIEWGOURAUD ) ? MENU_CONDITION_SENSITIVE |
+                                             MENU_CONDITION_ACTIVE :
+                                             MENU_CONDITION_SENSITIVE;
+}
+
+/******************************************************************************/
+static uint32_t flatActiveCond ( G3DUIMENU *menu,
+                                 void      *data ) {
+    G3DUIVIEW *view = ( G3DUIVIEW * ) data;
+
+    return ( view->mode == GLVIEWFLAT ) ? MENU_CONDITION_SENSITIVE |
+                                          MENU_CONDITION_ACTIVE : 
+                                          MENU_CONDITION_SENSITIVE;
+}
+
+/******************************************************************************/
+static uint32_t wireframeActiveCond ( G3DUIMENU *menu,
+                                      void      *data ) {
+    G3DUIVIEW *view = ( G3DUIVIEW * ) data;
+
+    return ( view->mode == GLVIEWWIREFRAME ) ? MENU_CONDITION_SENSITIVE |
+                                               MENU_CONDITION_ACTIVE :
+                                               MENU_CONDITION_SENSITIVE;
+}
+
+/******************************************************************************/
 static uint64_t setShadingCbk ( G3DUIMENU *menu, 
                                 void      *data ) {
     G3DUIVIEW *view = ( G3DUIVIEW * ) data;
@@ -41,19 +71,19 @@ static uint64_t setShadingCbk ( G3DUIMENU *menu,
 static G3DUIMENU shading_menu_gouraud   = { NULL,
                                             SHADINGMENU_GOURAUD,
                                             G3DUIMENUTYPE_TOGGLEBUTTON,
-                                            NULL,
+                                            gouraudActiveCond,
                                             setShadingCbk };
 
 static G3DUIMENU shading_menu_flat      = { NULL,
                                             SHADINGMENU_FLAT,
                                             G3DUIMENUTYPE_TOGGLEBUTTON,
-                                            NULL,
+                                            flatActiveCond,
                                             setShadingCbk };
  
 static G3DUIMENU shading_menu_wireframe = { NULL,
                                             SHADINGMENU_WIREFRAME,
                                             G3DUIMENUTYPE_TOGGLEBUTTON,
-                                            NULL,
+                                            wireframeActiveCond,
                                             setShadingCbk };
 
 /*static G3DUIMENU shading_menu_phong     = { NULL,
@@ -73,6 +103,16 @@ static G3DUIMENU shading_menu = { NULL,
                                             &shading_menu_wireframe,
                                             /*&shading_menu_phong,*/
                                              NULL } };
+
+/******************************************************************************/
+static uint32_t useDefaultCameraCond ( G3DUIMENU *menu,
+                                       void      *data ) {
+    G3DUIVIEW *view = ( G3DUIVIEW * ) data;
+
+    return ( view->cam == view->defcam ) ? MENU_CONDITION_SENSITIVE |
+                                           MENU_CONDITION_ACTIVE :
+                                           MENU_CONDITION_SENSITIVE;
+}
 
 /******************************************************************************/
 static uint64_t useDefaultCameraCbk ( G3DUIMENU *menu, 
@@ -104,6 +144,16 @@ static uint64_t useSelectedCameraCbk ( G3DUIMENU *menu,
 }
 
 /******************************************************************************/
+static uint32_t toggleNormalsCond ( G3DUIMENU *menu,
+                                    void      *data ) {
+    G3DUIVIEW *view = ( G3DUIVIEW * ) data;
+
+    return ( view->engine_flags & VIEWNORMALS ) ? MENU_CONDITION_SENSITIVE |
+                                                  MENU_CONDITION_ACTIVE :
+                                                  MENU_CONDITION_SENSITIVE;
+}
+
+/******************************************************************************/
 static uint64_t toggleNormalsCbk ( G3DUIMENU *menu, 
                                    void      *data ) {
     G3DUIVIEW *view = ( G3DUIVIEW * ) data;
@@ -120,6 +170,16 @@ static uint64_t toggleNormalsCbk ( G3DUIMENU *menu,
 }
 
 /******************************************************************************/
+static uint32_t toggleBonesCond ( G3DUIMENU *menu,
+                                  void      *data ) {
+    G3DUIVIEW *view = ( G3DUIVIEW * ) data;
+
+    return ( view->engine_flags & HIDEBONES ) ? MENU_CONDITION_SENSITIVE :
+                                                MENU_CONDITION_SENSITIVE |
+                                                MENU_CONDITION_ACTIVE;
+}
+
+/******************************************************************************/
 static uint64_t toggleBonesCbk ( G3DUIMENU *menu, 
                                  void      *data ) {
     G3DUIVIEW *view = ( G3DUIVIEW * ) data;
@@ -133,6 +193,16 @@ static uint64_t toggleBonesCbk ( G3DUIMENU *menu,
 
 
     return REDRAWVIEWMENU | REDRAWVIEW;
+}
+
+/******************************************************************************/
+static uint32_t toggleLightingCond ( G3DUIMENU *menu,
+                                     void      *data ) {
+    G3DUIVIEW *view = ( G3DUIVIEW * ) data;
+
+    return ( view->engine_flags & NOLIGHTING ) ? MENU_CONDITION_SENSITIVE :
+                                                 MENU_CONDITION_SENSITIVE | 
+                                                 MENU_CONDITION_ACTIVE;
 }
 
 /******************************************************************************/
@@ -168,6 +238,16 @@ static uint64_t toggleLightingCbk ( G3DUIMENU *menu,
 }
 
 /******************************************************************************/
+static uint32_t toggleGridCond ( G3DUIMENU *menu,
+                                 void      *data ) {
+    G3DUIVIEW *view = ( G3DUIVIEW * ) data;
+
+    return ( view->engine_flags & HIDEGRID ) ? MENU_CONDITION_SENSITIVE :
+                                               MENU_CONDITION_SENSITIVE |
+                                               MENU_CONDITION_ACTIVE;
+}
+
+/******************************************************************************/
 static uint64_t toggleGridCbk ( G3DUIMENU *menu, 
                                 void      *data ) {
     G3DUIVIEW *view = ( G3DUIVIEW * ) data;
@@ -184,6 +264,16 @@ static uint64_t toggleGridCbk ( G3DUIMENU *menu,
 }
 
 /******************************************************************************/
+static uint32_t toggleTexturesCond ( G3DUIMENU *menu,
+                                     void      *data ) {
+    G3DUIVIEW *view = ( G3DUIVIEW * ) data;
+
+    return ( view->engine_flags & NOTEXTURE ) ? MENU_CONDITION_SENSITIVE :
+                                                MENU_CONDITION_ACTIVE |
+                                                MENU_CONDITION_SENSITIVE;
+}
+
+/******************************************************************************/
 static uint64_t toggleTexturesCbk ( G3DUIMENU *menu, 
                                     void      *data ) {
     G3DUIVIEW *view = ( G3DUIVIEW * ) data;
@@ -197,6 +287,16 @@ static uint64_t toggleTexturesCbk ( G3DUIMENU *menu,
 
 
     return REDRAWVIEWMENU | REDRAWVIEW;
+}
+
+/******************************************************************************/
+static uint32_t toggleBackgroundImageCond ( G3DUIMENU *menu,
+                                            void      *data ) {
+    G3DUIVIEW *view = ( G3DUIVIEW * ) data;
+
+    return ( view->engine_flags & NOBACKGROUNDIMAGE ) ? MENU_CONDITION_SENSITIVE :
+                                                        MENU_CONDITION_ACTIVE |
+                                                        MENU_CONDITION_SENSITIVE;
 }
 
 /******************************************************************************/
@@ -239,7 +339,7 @@ static uint64_t resetCameraCbk ( G3DUIMENU *menu,
 static G3DUIMENU view_menu_defcam   = { NULL,
                                         VIEWMENU_DEFAULTCAMERA,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
-                                        NULL,
+                                        useDefaultCameraCond,
                                         useDefaultCameraCbk };
 
 static G3DUIMENU view_menu_selcam   = { NULL,
@@ -251,37 +351,37 @@ static G3DUIMENU view_menu_selcam   = { NULL,
 static G3DUIMENU view_menu_normals  = { NULL,
                                         VIEWMENU_NORMALS,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
-                                        NULL,
+                                        toggleNormalsCond,
                                         toggleNormalsCbk };
 
 static G3DUIMENU view_menu_bones    = { NULL,
                                         VIEWMENU_BONES,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
-                                        NULL,
+                                        toggleBonesCond,
                                         toggleBonesCbk };
 
 static G3DUIMENU view_menu_grid     = { NULL,
                                         VIEWMENU_GRID,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
-                                        NULL,
+                                        toggleGridCond,
                                         toggleGridCbk };
 
 static G3DUIMENU view_menu_textures = { NULL,
                                         VIEWMENU_TEXTURES,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
-                                        NULL,
+                                        toggleTexturesCond,
                                         toggleTexturesCbk };
 
 static G3DUIMENU view_menu_bg       = { NULL,
                                         VIEWMENU_BACKGROUND,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
-                                        NULL,
+                                        toggleBackgroundImageCond,
                                         toggleBackgroundImageCbk };
 
 static G3DUIMENU view_menu_lighting = { NULL,
                                         VIEWMENU_LIGHTING,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
-                                        NULL,
+                                        toggleLightingCond,
                                         toggleLightingCbk };
 
 static G3DUIMENU view_menu_reset    = { NULL,

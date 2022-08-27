@@ -145,7 +145,8 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #ifdef WITH_GTK3
     GtkWidget *window, *glossui;
     GtkWidget *button;
-    GTK3G3DUI gtk3gui;
+    /*** we set it static, that's way it is zeroed by convention ***/
+    static GTK3G3DUI gtk3gui;
 
     #ifdef __linux__
     /*** Support multi-threads. Must be called before any Xlib function ***/
@@ -181,7 +182,7 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
     g_signal_connect (window, "delete-event", G_CALLBACK (g3dui_exitEventCbk), &((GtkGlossUI*)glossui)->gui );
 */
     gtk_widget_show (window);
-  
+
     gtk_main ();
 #endif
 

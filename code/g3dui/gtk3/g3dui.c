@@ -266,40 +266,36 @@ static void gtk3_redrawUVMapEditors ( GTK3G3DUI *gtk3gui ) {
 
 /******************************************************************************/
 static void gtk3_updateGLViewsMenu ( GTK3G3DUI *gtk3gui ) {
-#ifdef TODO
-    G3DUI *gui = ( G3DUI * ) gtk3gui;
-    LIST *ltmp = gtk3gui->lglview;
+    G3DUI *gui = ( G3DUI * ) &gtk3gui->core;
+    LIST *ltmpview = gtk3gui->core.lview;
 
-    while ( ltmp ) {
-        GtkWidget *glview = ( GtkWidget * ) ltmp->data;
+    while ( ltmpview ) {
+        GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) ltmpview->data;
 
-        gtk_view_updateMenu ( glview );
+        gtk3_g3duiview_updateMenuBar ( gtk3view );
 
-        ltmp = ltmp->next;
+        ltmpview = ltmpview->next;
     }
-#endif
 }
 
 /******************************************************************************/
 static void gtk3_redrawGLViews ( GTK3G3DUI *gtk3gui ) {
-#ifdef TODO
-    G3DUI *gui = ( G3DUI * ) gtk3gui;
-    LIST *ltmp = gtk3gui->lglview;
+    G3DUI *gui = ( G3DUI * ) &gtk3gui->core;
+    LIST *ltmpview = gtk3gui->core.lview;
 
-    while ( ltmp ) {
-        GtkWidget *glview = ( GtkWidget * ) ltmp->data;
-        GtkWidget *area   = gtk_view_getGLArea ( glview );
+    while ( ltmpview ) {
+        GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) ltmpview->data;
+        GdkWindow *window = gtk_widget_get_window ( gtk3view->glarea );
         GdkRectangle arec;
 
         arec.x = arec.y = 0x00;
-        arec.width = arec.height = 0x01;
+        arec.width = arec.height = 1;
 
-        gdk_window_invalidate_rect ( gtk_widget_get_window ( area ), &arec, FALSE );
+        gdk_window_invalidate_rect ( window, &arec, FALSE );
 
 
-        ltmp = ltmp->next;
+        ltmpview = ltmpview->next;
     }
-#endif
 }
 
 /******************************************************************************/
@@ -362,15 +358,16 @@ static void gtk3_dispatchGLMenuButton ( GTK3G3DUI    *gtk3gui,
 void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
                                    uint64_t   msk ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
-#ifdef TODO
+
     if ( msk & REDRAWVIEW ) {
-        gtk3_redrawGLViews ( );
+        gtk3_redrawGLViews ( gtk3gui );
     }
 
     if ( msk & REDRAWVIEWMENU ) {
-        gtk3_updateGLViewsMenu ( );
-    }
 
+        gtk3_updateGLViewsMenu ( gtk3gui );
+    }
+#ifdef TODO
     if ( msk & REDRAWCURRENTMATERIAL ) {
         gtk3_updateMaterialEdit ( );
         gtk3_updateSelectedMaterialPreview ( );

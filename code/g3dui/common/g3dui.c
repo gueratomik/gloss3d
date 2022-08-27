@@ -1923,6 +1923,8 @@ void g3dui_resetDefaultCameras ( G3DUI *gui ) {
 void g3dui_createDefaultCameras ( G3DUI *gui ) {
     uint32_t ptrSize = sizeof ( G3DCAMERA * );
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+    G3DUIVIEW *currentView = NULL;
+    int i;
 
     gui->defaultCameras = ( G3DCAMERA ** ) calloc ( 0x04, ptrSize );
 
@@ -1956,6 +1958,25 @@ void g3dui_createDefaultCameras ( G3DUI *gui ) {
                                                 1000.0f );
 
     g3dui_resetDefaultCameras ( gui );
+
+    for ( i = 0x00; i < 0x04; i++ ) {
+        if ( gui->main->quad ) {
+            if ( gui->main->quad->view[i] ) {
+                G3DCAMERA *cam = gui->defaultCameras[i];
+
+                gui->main->quad->view[i]->cam   = cam;
+                gui->main->quad->view[i]->defcam = cam;
+
+                g3dobject_updateMatrix_r ( ( G3DOBJECT * ) cam, 0x00 );
+
+                /*** this is used to discriminate whether or not ***/
+                /*** this is the main camera. See g3duiview.c ***/
+                cam->obj.id = i;
+
+                g3duiview_initGL ( gui->main->quad->view[i] );
+            }
+        }
+    }
 
     sysinfo->defaultCamera = gui->defaultCameras[0x00];
 }
@@ -2064,7 +2085,8 @@ uint64_t g3dui_undo ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-void g3dui_init ( G3DUI *gui ) {
+void g3dui_init ( G3DUI     *gui,
+                  G3DUIMAIN *main ) {
     Q3DSETTINGS *rsg;
     #ifdef __linux__
     char *home = getenv ( "HOME" );
@@ -2074,6 +2096,7 @@ void g3dui_init ( G3DUI *gui ) {
     #endif
     static char configFileName[0x1000];
     char *loadFile = NULL;
+    uint64_t ret = 0x00;
 
     #ifdef __linux__
     snprintf ( configFileName, 0x1000, "%s/.gloss3d/gloss3d.conf", home );
@@ -2082,7 +2105,10 @@ void g3dui_init ( G3DUI *gui ) {
     snprintf ( configFileName, 0x1000, "%s\\.gloss3d\\gloss3d.conf", home );
     #endif
 
+    gui->main = main;
+
     g3dui_loadConfiguration    ( gui, configFileName );
+
     g3dui_createDefaultCameras ( gui );
 
     /*** undo redo manager ***/
@@ -2101,4 +2127,12 @@ void g3dui_init ( G3DUI *gui ) {
 #endif
     g3dui_addRenderSettings ( gui, rsg );
     g3dui_useRenderSettings ( gui, rsg );
+
+    if ( gui->filename ) {
+        ret = g3dui_openG3DFile ( gui, gui->filename );
+    } else {
+        gui->sce = g3dscene_new  ( 0x00, "Gloss3D scene" );
+    }
+
+    gui->inited = 0x01;
 }

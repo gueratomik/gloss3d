@@ -70,10 +70,10 @@ static void SizeAllocate ( GtkWidget     *widget,
                                         gtk3quad->core.rect[i].width,
                                         gtk3quad->core.rect[i].height };
 
-                gtk_layout_move ( GTK_LAYOUT(widget),
+                /*gtk_layout_move ( GTK_LAYOUT(widget),
                                   gtk3view->layout,
                                   gdkrec.x,
-                                  gdkrec.y );
+                                  gdkrec.y );*/
 
                 gtk_widget_size_allocate ( gtk3view->layout,
                                           &gdkrec );
@@ -88,10 +88,10 @@ static void SizeAllocate ( GtkWidget     *widget,
                                     gtk3quad->core.width,
                                     gtk3quad->core.height };
 
-            gtk_layout_move ( GTK_LAYOUT(widget),
+            /*gtk_layout_move ( GTK_LAYOUT(widget),
                               gtk3view->layout,
                               gdkrec.x,
-                              gdkrec.y );
+                              gdkrec.y );*/
 
             gtk_widget_size_allocate ( gtk3view->layout, &gdkrec );
         }
@@ -185,6 +185,10 @@ cairo_region_destroy(cairoRegion);*/
 /******************************************************************************/
 static void gtk3_g3duiquad_createViews ( GTK3G3DUIQUAD *gtk3quad ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3quad->core.gui;
+    void (*grid[0x04])(uint32_t) = { g3dcore_grid3D,
+                                     g3dcore_gridXY,
+                                     g3dcore_gridYZ,
+                                     g3dcore_gridZX };
     int i;
 
     for ( i = 0x00; i < 0x04; i++ ) {
@@ -192,7 +196,11 @@ static void gtk3_g3duiquad_createViews ( GTK3G3DUIQUAD *gtk3quad ) {
                                                           gtk3gui,
                                                           "view" );
 
+        list_insert ( &gtk3gui->core.lview, gtk3view );
+
         gtk3quad->core.view[i] = ( G3DUIVIEW * ) gtk3view;
+
+        gtk3view->core.grid = grid[i];
 
         gtk_layout_put ( GTK_LAYOUT(gtk3quad->layout), gtk3view->layout, 0, 0 );
     }

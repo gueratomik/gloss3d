@@ -619,13 +619,36 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
 void gtk3_g3duimenu_update_r ( GTK3G3DUIMENU *gtk3node ) {
     G3DUI *gui = ( G3DUI * ) gtk3node->core.gui;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    uint32_t condret = 0x00;
+
+    gui->lock = 0x01;
+
+    if ( gtk3node->item ) {
+        /*** reset to default state ***/
+        gtk_widget_set_sensitive ( gtk3node->item, TRUE  );
+
+        if ( gtk3node->core.condition ) {
+            condret = gtk3node->core.condition ( gtk3node, 
+                                                 gtk3node->core.data );
+
+            if ( condret & MENU_CONDITION_SENSITIVE ) {
+                gtk_widget_set_sensitive ( gtk3node->item, TRUE  );
+            } else {
+                gtk_widget_set_sensitive ( gtk3node->item, FALSE );
+            }
+        }
+    }
 
     switch ( gtk3node->core.type ) {
         case G3DUIMENUTYPE_SEPARATOR :
         break;
 
         case G3DUIMENUTYPE_TOGGLEBUTTON :
-
+            if ( condret & MENU_CONDITION_ACTIVE ) {
+                gtk_check_menu_item_set_active ( gtk3node->item, TRUE  );
+            } else {
+                gtk_check_menu_item_set_active ( gtk3node->item, FALSE );
+            }
         break;
 
         case G3DUIMENUTYPE_PUSHBUTTON :
@@ -648,15 +671,5 @@ void gtk3_g3duimenu_update_r ( GTK3G3DUIMENU *gtk3node ) {
         break;
     }
 
-    if ( gtk3node->item ) {
-        if ( gtk3node->core.condition ) {
-            if ( gtk3node->core.condition ( gui ) == 0x00 ) {
-                gtk_widget_set_sensitive ( gtk3node->item, FALSE );
-            } else {
-                gtk_widget_set_sensitive ( gtk3node->item, TRUE  );
-            }
-        } else {
-            gtk_widget_set_sensitive ( gtk3node->item, TRUE  );
-        }
-    }
+    gui->lock = 0x00;
 }
