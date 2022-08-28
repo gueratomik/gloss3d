@@ -1075,23 +1075,23 @@ typedef struct _G3DUIQUAD {
 #define NBVIEWBUTTON    0x04
 #define BUTTONSIZE      0x10 /*** 16x16 ***/
 
-#define MAXIMIZEBUTTON  0x00
-#define ROTATEBUTTON    0x01
-#define TRANSLATEBUTTON 0x02
-#define ZOOMBUTTON      0x03
+#define MAXIMIZEBUTTON  0x03
+#define ROTATEBUTTON    0x02
+#define TRANSLATEBUTTON 0x01
+#define ZOOMBUTTON      0x00
 
 typedef struct _G3DUIVIEW {
     G3DUI         *gui;
-    G3DUIRECTANGLE rec[NBVIEWBUTTON];       /*** pixmaps position ***/
+    G3DUIRECTANGLE pixrec[NBVIEWBUTTON];       /*** pixmaps position ***/
     G3DUIRECTANGLE glrec;
     G3DUIRECTANGLE optrec;
     G3DUIRECTANGLE shdrec;
-    G3DUIRECTANGLE btnrec;
+    G3DUIRECTANGLE navrec;
     G3DUIRECTANGLE menurec;
     /*Pixmap         curpix[NBVIEWBUTTON];
     Pixmap         norpix[NBVIEWBUTTON];
     Pixmap         armpix[NBVIEWBUTTON];*/
-    int32_t        buttonID; /**** Currently clicked button = -1 if none ***/
+    int32_t        pressedButtonID; /**** Currently clicked button = -1 if none ***/
     G3DCAMERA     *cam;
     G3DCAMERA     *defcam;
     G3DVECTOR      defcampos; /*** Default camera position ***/
@@ -1966,9 +1966,10 @@ uint64_t g3duiview_moveSideward ( G3DUIVIEW *view,
 uint64_t g3duiview_moveForward ( G3DUIVIEW *view, 
                                  float      diffx );
 
-int g3duiview_getCurrentButton ( G3DUIVIEW *view, 
-                                 int        x,
-                                 int        y );
+void g3duiview_pressButton ( G3DUIVIEW *view, 
+                             int        x,
+                             int        y );
+void g3duiview_releaseButton ( G3DUIVIEW *view );
 void g3duiview_init ( G3DUIVIEW *view,
                       uint32_t   width,
                       uint32_t   height );

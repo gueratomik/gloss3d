@@ -146,7 +146,7 @@ typedef struct _GTK3G3DUI {
     LIST         *luvmapeditor;
     GdkWindow    *winAtPosition; /*** window at mouse position (for hourGlass)***/
 
-    GtkWidget *top;
+    GtkWidget *topWin;
     GtkWidget *curmou; /*** store the current pressed toggle button      ***/
     GtkWidget *curmat; /*** current material ***/
     GtkWidget *currentUVMouseToolButton;
@@ -195,9 +195,10 @@ typedef struct _GTK3G3DUIMODEBAR {
 typedef struct _GTK3G3DUIVIEW {
     G3DUIVIEW  core;
     GtkWidget *layout;
-    GtkWidget *btnarea;
+    GtkWidget *navbar;
     GtkWidget *glarea;
     LIST      *lmenu;
+    GdkPixbuf *pix[0x04];
 } GTK3G3DUIVIEW;
 
 /******************************************************************************/
@@ -327,6 +328,8 @@ GTK3G3DUIMODEBAR *gtk3_g3duimodebar_create ( GtkWidget *parent,
 GTK3G3DUIQUAD *gtk3_g3duiquad_create ( GtkWidget *parent,
                                        GTK3G3DUI *gtk3gui,
                                        char      *name );
+void gtk3_g3duiquad_rearrange ( GTK3G3DUIQUAD *gtk3quad,
+                                GTK3G3DUIVIEW *gtk3view );
 
 /****************************** g3duiview.c ***********************************/
 GTK3G3DUIVIEW *gtk3_g3duiview_create ( GtkWidget *parent, 

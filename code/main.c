@@ -145,8 +145,9 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #ifdef WITH_GTK3
     GtkWidget *window, *glossui;
     GtkWidget *button;
-    /*** we set it static, that's way it is zeroed by convention ***/
-    static GTK3G3DUI gtk3gui;
+    GTK3G3DUI gtk3gui;
+
+    memset ( &gtk3gui, 0x00, sizeof ( GTK3G3DUI ) );
 
     #ifdef __linux__
     /*** Support multi-threads. Must be called before any Xlib function ***/
@@ -156,6 +157,8 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
     gtk_init ( &argc, &argv );
 
     window  = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+    gtk3gui.topWin = window;
 
     gtk_window_set_position ( GTK_WINDOW(window), GTK_WIN_POS_CENTER );
 

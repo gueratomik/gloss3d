@@ -1962,10 +1962,12 @@ void g3dui_createDefaultCameras ( G3DUI *gui ) {
     for ( i = 0x00; i < 0x04; i++ ) {
         if ( gui->main->quad ) {
             if ( gui->main->quad->view[i] ) {
+                G3DUIVIEW *view = gui->main->quad->view[i];
                 G3DCAMERA *cam = gui->defaultCameras[i];
+                G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
 
-                gui->main->quad->view[i]->cam   = cam;
-                gui->main->quad->view[i]->defcam = cam;
+                view->cam    = cam;
+                view->defcam = cam;
 
                 g3dobject_updateMatrix_r ( ( G3DOBJECT * ) cam, 0x00 );
 
@@ -1973,7 +1975,14 @@ void g3dui_createDefaultCameras ( G3DUI *gui ) {
                 /*** this is the main camera. See g3duiview.c ***/
                 cam->obj.id = i;
 
-                g3duiview_initGL ( gui->main->quad->view[i] );
+                /*** save initial position in order to be able to reset ***/
+                memcpy ( &view->defcampos, &objcam->pos, sizeof ( G3DVECTOR ) );
+                memcpy ( &view->defcamrot, &objcam->rot, sizeof ( G3DVECTOR ) );
+                memcpy ( &view->defcamsca, &objcam->sca, sizeof ( G3DVECTOR ) );
+
+                view->defcamfoc = cam->focal;
+
+                g3duiview_initGL ( view );
             }
         }
     }

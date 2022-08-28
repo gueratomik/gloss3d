@@ -262,21 +262,25 @@ static void g3duiview_init3D ( G3DUIVIEW *view ) {
 /* we need to track the mouse after a click, something I think, will be easier*/
 /* to achieve that way. I might be wrong though :-/.                          */
 /******************************************************************************/
-int g3duiview_getCurrentButton ( G3DUIVIEW *view, 
-                                 int        x,
-                                 int        y ) {
+void g3duiview_pressButton ( G3DUIVIEW *view, 
+                             int        x,
+                             int        y ) {
     int i;
 
     for ( i = 0x00; i < NBVIEWBUTTON; i++ ) {
-        G3DUIRECTANGLE *rec = &view->rec[i];
+        G3DUIRECTANGLE *pixrec = &view->pixrec[i];
 
-        if ( ( ( x >= rec->x ) && ( x <= ( rec->x + rec->width  ) ) ) &&
-             ( ( y >= rec->y ) && ( y <= ( rec->y + rec->height ) ) ) ) {
-            return i;
+        if ( ( ( x >= pixrec->x ) && ( x <= ( pixrec->x + pixrec->width  ) ) ) &&
+             ( ( y >= pixrec->y ) && ( y <= ( pixrec->y + pixrec->height ) ) ) ) {
+
+            view->pressedButtonID = i;
         }
     }
+}
 
-    return -1;
+/******************************************************************************/
+void g3duiview_releaseButton ( G3DUIVIEW *view ) {
+    view->pressedButtonID = -1;
 }
 
 /******************************************************************************/
@@ -285,7 +289,7 @@ void g3duiview_init ( G3DUIVIEW *view,
                       uint32_t   height ) {
     g3duiview_resize ( view, width, height );
 
-    view->buttonID = -1;
+    view->pressedButtonID = -1;
 }
 
 /******************************************************************************/
@@ -304,18 +308,18 @@ void g3duiview_resize ( G3DUIVIEW *view,
     view->glrec.width  = width;
     view->glrec.height = height - BUTTONSIZE;
 
-    view->btnrec.x      = width - ( margin - ( NBVIEWBUTTON * ( BUTTONSIZE + margin ) ) ) ;
-    view->btnrec.y      = 0x00;
-    view->btnrec.width  = NBVIEWBUTTON * ( BUTTONSIZE + margin );
-    view->btnrec.height = BUTTONSIZE;
+    view->navrec.x      = width - ( margin + ( NBVIEWBUTTON * ( BUTTONSIZE + margin ) ) );
+    view->navrec.y      = 0x00;
+    view->navrec.width  = NBVIEWBUTTON * ( BUTTONSIZE + margin ) + margin;
+    view->navrec.height = BUTTONSIZE;
 
-    view->menurec.width -= view->btnrec.width;
+    view->menurec.width -= view->navrec.width;
 
     for ( i = 0x00, xpos = margin; i < NBVIEWBUTTON; i++, xpos += ( BUTTONSIZE + margin ) ) {
-        view->rec[i].x      = xpos;
-        view->rec[i].y      = 0x00;
-        view->rec[i].width  = BUTTONSIZE;
-        view->rec[i].height = BUTTONSIZE;
+        view->pixrec[i].x      = xpos;
+        view->pixrec[i].y      = 0x00;
+        view->pixrec[i].width  = BUTTONSIZE;
+        view->pixrec[i].height = BUTTONSIZE;
     }
 }
 

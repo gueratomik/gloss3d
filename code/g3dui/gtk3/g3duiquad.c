@@ -183,6 +183,39 @@ cairo_region_destroy(cairoRegion);*/
 }
 
 /******************************************************************************/
+void gtk3_g3duiquad_rearrange ( GTK3G3DUIQUAD *gtk3quad,
+                                GTK3G3DUIVIEW *magnified ) {
+    G3DUIQUAD *quad = ( GTK3G3DUIQUAD * ) gtk3quad;
+    GtkAllocation qalloc = { 0x00,
+                             0x00,
+                             gtk3quad->core.width,
+                             gtk3quad->core.height };
+    int i;
+
+    gtk_widget_get_allocation ( gtk3quad->layout, &qalloc );
+
+    if ( quad->magnified == magnified ) {
+        for ( i = 0x00; i < 0x04; i++ ) {
+            GTK3G3DUIVIEW *gtk3view = gtk3quad->core.view[i];
+
+            if ( gtk3view != magnified ) gtk_widget_show ( gtk3view->layout );
+        }
+
+        quad->magnified = NULL;
+    } else {
+        for ( i = 0x00; i < 0x04; i++ ) {
+            GTK3G3DUIVIEW *gtk3view = gtk3quad->core.view[i];
+
+            if ( gtk3view != magnified ) gtk_widget_hide ( gtk3view->layout );
+        }
+
+        quad->magnified = magnified;
+    }
+
+    gtk_widget_size_allocate ( magnified->layout, &qalloc );
+}
+
+/******************************************************************************/
 static void gtk3_g3duiquad_createViews ( GTK3G3DUIQUAD *gtk3quad ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3quad->core.gui;
     void (*grid[0x04])(uint32_t) = { g3dcore_grid3D,

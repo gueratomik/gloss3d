@@ -38,7 +38,7 @@ static void g3duirenderwindow_saveJPGCbk ( GtkWidget *widget,
     gint       res;
 
     dialog = gtk_file_chooser_dialog_new ( "Save image ...",
-                                           GTK_WINDOW(gtk3g3dui->top),
+                                           GTK_WINDOW(gtk3g3dui->topWin),
                         /*** from ristretto-0.3.5/src/main_window.c ***/
                                            GTK_FILE_CHOOSER_ACTION_SAVE,
                                            "_Cancel", 
@@ -413,7 +413,7 @@ void g3dui_exportfilecbk ( GtkWidget *widget, gpointer user_data ) {
     gint       res;
 
     dialog = gtk_file_chooser_dialog_new ( "Export file ...",
-                                           GTK_WINDOW(gtk3gui->top),
+                                           GTK_WINDOW(gtk3gui->topWin),
                         /*** from ristretto-0.3.5/src/main_window.c ***/
                                            GTK_FILE_CHOOSER_ACTION_SAVE,
                                            "_Cancel", 
@@ -448,7 +448,7 @@ void g3dui_importfilecbk ( GtkWidget *widget, gpointer user_data ) {
     gint       res;
 
     dialog = gtk_file_chooser_dialog_new ( "Import file ...",
-                                           GTK_WINDOW(gtk3gui->top),
+                                           GTK_WINDOW(gtk3gui->topWin),
                         /*** from ristretto-0.3.5/src/main_window.c ***/
                                            GTK_FILE_CHOOSER_ACTION_OPEN,
                                            "_Cancel", 
