@@ -234,20 +234,26 @@ static void SizeAllocate ( GtkWidget     *widget,
 
     g3duirectangle_toGdkRectangle ( &gtk3view->core.menurec, &gdkrec );
 
-    gtk_widget_size_allocate ( gtk3menu->menu, &gdkrec );
+gtk_layout_move ( gtk3view->layout, gtk3menu->menu, gdkrec.x, gdkrec.y );
+gtk_widget_set_size_request ( gtk3menu->menu, gdkrec.width, gdkrec.height  );
+    /*gtk_widget_size_allocate ( gtk3menu->menu, &gdkrec );*/
 
 
     /*** GL Area ***/
 
     g3duirectangle_toGdkRectangle ( &gtk3view->core.glrec, &gdkrec );
 
-    gtk_widget_size_allocate ( gtk3view->glarea, &gdkrec );
+/*gtk_layout_move ( gtk3view->layout, gtk3view->glarea, gdkrec.x, gdkrec.y );
+gtk_widget_set_size_request ( gtk3view->glarea, gdkrec.width, gdkrec.height  );*/
+    /*gtk_widget_size_allocate ( gtk3view->glarea, &gdkrec );*/
 
     /*** Navigation Bar ***/
 
     g3duirectangle_toGdkRectangle ( &gtk3view->core.navrec, &gdkrec );
 
-    gtk_widget_size_allocate ( gtk3view->navbar, &gdkrec );
+gtk_layout_move ( gtk3view->layout, gtk3view->navbar, gdkrec.x, gdkrec.y );
+gtk_widget_set_size_request ( gtk3view->navbar, gdkrec.width, gdkrec.height  );
+    /*gtk_widget_size_allocate ( gtk3view->navbar, &gdkrec );*/
 }
 
 /******************************************************************************/
@@ -416,8 +422,8 @@ static void redrawNavigationBar ( GtkWidget *widget ) {
 static void motionNotify ( GTK3G3DUIVIEW  *gtk3view,
                            GdkModifierType state,
                            G3DPIVOT       *piv,
-                           int             difx,
-                           int             dify ) {
+                           float           difx,
+                           float           dify ) {
     G3DUIVIEW *view = ( G3DUIVIEW * ) gtk3view;
 
     if ( ( state & GDK_CONTROL_MASK ) &&
@@ -531,8 +537,8 @@ static gboolean navInput ( GtkWidget *widget,
             GdkEventMotion *mev = ( GdkEventMotion * ) event;
 
             if ( grabbing ) {
-                int difx = ( xori - mev->x ) * 0.5f,
-                    dify = ( yori - mev->y ) * 0.5f;
+                float difx = ( xori - mev->x ) * 0.5f,
+                      dify = ( yori - mev->y ) * 0.5f;
 
                 motionNotify ( gtk3view,
                                mev->state,

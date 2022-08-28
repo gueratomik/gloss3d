@@ -196,7 +196,7 @@ void gtk3_g3duiquad_rearrange ( GTK3G3DUIQUAD *gtk3quad,
 
     if ( quad->magnified == magnified ) {
         for ( i = 0x00; i < 0x04; i++ ) {
-            GTK3G3DUIVIEW *gtk3view = gtk3quad->core.view[i];
+            GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) gtk3quad->core.view[i];
 
             if ( gtk3view != magnified ) gtk_widget_show ( gtk3view->layout );
         }
@@ -204,7 +204,7 @@ void gtk3_g3duiquad_rearrange ( GTK3G3DUIQUAD *gtk3quad,
         quad->magnified = NULL;
     } else {
         for ( i = 0x00; i < 0x04; i++ ) {
-            GTK3G3DUIVIEW *gtk3view = gtk3quad->core.view[i];
+            GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) gtk3quad->core.view[i];
 
             if ( gtk3view != magnified ) gtk_widget_hide ( gtk3view->layout );
         }
@@ -218,7 +218,7 @@ void gtk3_g3duiquad_rearrange ( GTK3G3DUIQUAD *gtk3quad,
 /******************************************************************************/
 static void gtk3_g3duiquad_createViews ( GTK3G3DUIQUAD *gtk3quad ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3quad->core.gui;
-    void (*grid[0x04])(uint32_t) = { g3dcore_grid3D,
+    void (*grid[0x04])(uint64_t) = { g3dcore_grid3D,
                                      g3dcore_gridXY,
                                      g3dcore_gridYZ,
                                      g3dcore_gridZX };

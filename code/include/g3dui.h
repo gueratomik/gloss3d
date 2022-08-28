@@ -663,6 +663,7 @@ typedef struct _G3DUIVIEW    G3DUIVIEW;
 typedef struct _G3DUIMODEBAR G3DUIMODEBAR;
 typedef struct _G3DUIQUAD    G3DUIQUAD;
 typedef struct _G3DUIMAIN    G3DUIMAIN;
+typedef struct _G3DUIBOARD   G3DUIBOARD;
 
 /********************************* G3DUI **************************************/
 typedef struct _G3DUI {
@@ -798,7 +799,8 @@ typedef struct _G3DUIRENDERWINDOW {
 
 /******************************************************************************/
 typedef struct _G3DUILIGHTEDIT {
-    G3DUI *gui;
+    G3DUI   *gui;
+    uint32_t multi;
 } G3DUILIGHTEDIT;
 
 /******************************************************************************/
@@ -829,6 +831,54 @@ typedef struct _G3DUICOORDINATESEDIT {
 typedef struct _G3DUICAMERAEDIT {
     G3DUI *gui;
 } G3DUICAMERAEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIOBJECTEDIT {
+    G3DUI          *gui;
+
+    G3DUIRECTANGLE  labrec;
+    G3DUIRECTANGLE  namerec;
+    G3DUIRECTANGLE  editrec;
+
+    G3DUILIGHTEDIT *ligedit;
+} G3DUIOBJECTEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIMATERIALBOARD {
+    G3DUI              *gui;
+    G3DUIRECTANGLE      menurec;
+    G3DUIRECTANGLE      listrec;
+    G3DUIRECTANGLE      editrec;
+    G3DUIMENU          *menuBar;
+    G3DUIOBJECTLIST    *matlist;
+    G3DUIMATERIALEDIT  *matedit;
+} G3DUIMATERIALBOARD;
+
+/******************************************************************************/
+typedef struct _G3DUIOBJECTBOARD {
+    G3DUI            *gui;
+    G3DUIRECTANGLE    menurec;
+    G3DUIRECTANGLE    listrec;
+    G3DUIRECTANGLE    editrec;
+    G3DUIMENU        *menuBar;
+    G3DUIOBJECTLIST  *objlist;
+    G3DUIOBJECTEDIT  *objedit;
+} G3DUIOBJECTBOARD;
+
+/******************************************************************************/
+typedef struct _G3DUIMOUSETOOLEDIT {
+    G3DUI            *gui;
+} G3DUIMOUSETOOLEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIBOARD {
+    G3DUI              *gui;
+    G3DUIRECTANGLE      boardrec;
+    G3DUIRECTANGLE      toolrec;
+    G3DUIMATERIALBOARD *matboard;
+    G3DUIOBJECTBOARD   *objboard;
+    G3DUIMOUSETOOLEDIT *tooledit;
+} G3DUIBOARD;
 
 /******************************************************************************/
 typedef struct _G3DUIWIREFRAMEEDIT {
@@ -936,11 +986,6 @@ typedef struct _G3DUIPICKTOOLEDIT {
 } G3DUIPICKTOOLEDIT;
 
 /******************************************************************************/
-typedef struct _G3DUIOBJECTEDIT {
-    G3DUI *gui;
-} G3DUIOBJECTEDIT;
-
-/******************************************************************************/
 typedef struct _G3DUIPLANEEDIT {
     G3DUI *gui;
 } G3DUIPLANEEDIT;
@@ -962,6 +1007,7 @@ typedef struct _G3DUIMAIN {
     G3DUIMODEBAR   *modeBar;
     G3DUITOOLBAR   *toolBar;
     G3DUIQUAD      *quad;
+    G3DUIBOARD     *board;
 
     G3DUIRECTANGLE  menurec;
     G3DUIRECTANGLE  tbarrec;
@@ -1101,7 +1147,7 @@ typedef struct _G3DUIVIEW {
     /*Widget ogl;*/ /*** OpenGL Widget ***/
     uint32_t       mode;   /*** wireframe, flat, fill ***/
     uint64_t       engine_flags;
-    void         (*grid)( uint32_t );
+    void         (*grid)( uint64_t );
 #ifdef __linux__
     Display       *dpy;
     Window         win;
@@ -1391,6 +1437,11 @@ uint64_t            g3dui_alignUVMapCbk ( G3DUI      *gui,
                                           const char *option );
 uint64_t g3dui_setMaterialCbk ( G3DUI *gui );
 
+/******************************* g3duiboard.c ******************************/
+void g3duiboard_resize ( G3DUIBOARD *board, 
+                         uint32_t    width,
+                         uint32_t    height );
+
 /******************************* g3duiboneedit.c ******************************/
 
 
@@ -1550,9 +1601,9 @@ uint64_t g3duilightedit_setDiffuseCbk ( G3DUILIGHTEDIT *ligedit,
 
 /********************************* g3duimain.c ********************************/
 
-void g3duimain_sizeAllocate ( G3DUIMAIN *gmn, 
-                              uint32_t   width, 
-                              uint32_t   height );
+void g3duimain_resize ( G3DUIMAIN *gmn, 
+                        uint32_t   width, 
+                        uint32_t   height );
 
 /***************************** g3duimaterialboard.c ***************************/
 
@@ -1629,6 +1680,11 @@ uint64_t m3duimodebar_setModeCbk ( M3DUIMODEBAR *mmb,
 
 uint64_t g3duiobjectedit_nameCbk ( G3DUIOBJECTEDIT *goe,
                                    const char      *name );
+
+/******************************** g3duiobjectboard.c **************************/
+void g3duiobjectboard_resize ( G3DUIOBJECTBOARD *objbrd, 
+                               uint32_t          width,
+                               uint32_t          height );
 
 /*************************** g3duiparticleemitteredit.c ***********************/
 

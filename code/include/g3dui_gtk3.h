@@ -90,6 +90,10 @@
 /******************************************************************************/
 #define GTK3WIDGETDATA "GTK3WIDGETDATA"
 
+#define GDKRGBA_MULTI (GdkRGBA){.red   = 1.0f, \
+                                .green = 1.0f, \
+                                .blue  = 1.0f }
+
 /******************************************************************************/
 /****************************** GTK Form Widget *******************************/
 typedef struct _GtkForm {
@@ -224,12 +228,12 @@ typedef struct _GTK3G3DUIMAIN {
 
     GtkWidget        *currentUVMouseToolButton;
     GtkWidget        *currentUVMapEditor;
-    /*G3DUIMENU *menuBar;*/
 } GTK3G3DUIMAIN;
 
 /******************************************************************************/
 typedef struct _GTK3G3DUIRENDERWINDOW {
     G3DUIRENDERWINDOW   core;
+
     GtkWidget          *menuBar;
     GtkWidget          *fileMenu;
     GtkWidget          *drawingArea;
@@ -241,9 +245,66 @@ typedef struct _GTK3G3DUIRENDERWINDOW {
 /******************************************************************************/
 typedef struct _GTK3G3DUITIMELINE {
     G3DUITIMELINE    core;
-    GTK3G3DUIMENU   *menu;
     /*GtkWidget       *menu;*/
 } GTK3G3DUITIMELINE;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIMATERIALBOARD {
+    G3DUIMATERIALBOARD core;
+    GtkWidget        *layout;
+} GTK3G3DUIMATERIALBOARD;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIOBJECTLIST {
+    G3DUIOBJECTLIST core;
+    GtkWidget      *drawingArea;
+} GTK3G3DUIOBJECTLIST;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIOBJECTEDIT {
+    G3DUIOBJECTEDIT core;
+    GtkWidget      *fixed;
+    GtkWidget      *scrolled;
+} GTK3G3DUIOBJECTEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIOBJECTBOARD {
+    G3DUIOBJECTBOARD core;
+    GtkWidget       *layout;
+} GTK3G3DUIOBJECTBOARD;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIMOUSETOOLEDIT {
+    G3DUIMOUSETOOLEDIT core;
+    GtkWidget         *layout;
+} GTK3G3DUIMOUSETOOLEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIBOARD {
+    G3DUIBOARD core;
+    GtkWidget *layout;
+    GtkWidget *tab;
+} GTK3G3DUIBOARD;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUILIGHTEDIT {
+    G3DUILIGHTEDIT core;
+
+    GtkWidget     *tab;
+    GtkWidget     *diffuseColorButton;
+    GtkWidget     *specularColorButton;
+    GtkWidget     *intensityEntry;
+    GtkWidget     *castShadowsToggle;
+    GtkWidget     *spotToggle;
+    GtkWidget     *spotLengthEntry;
+    GtkWidget     *spotAngleEntry;
+    GtkWidget     *spotFadeAngleEntry;
+    GtkWidget     *softShadowsToggle;
+    GtkWidget     *shadowRadiusEntry;
+    GtkWidget     *shadowSampleEntry;
+
+    G3DLIGHT      *editedLight;
+} GTK3G3DUILIGHTEDIT;
 
 /******************************************************************************/
 /************************** GTK PatternList Widget ***************************/
@@ -297,6 +358,35 @@ void gtk3_initDefaultMouseTools ( GTK3G3DUI *gtk3gui );
 void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
                                    uint64_t   msk );
 
+GtkWidget *ui_createColorButton ( GtkWidget *parent,
+                                  void      *data,
+                                  char      *name,
+                                  gint       x, 
+                                  gint       y,
+                                  gint       width,
+                                  gint       height,
+                                  void     (*cbk)( GtkWidget *, 
+                                                   gpointer ) );
+
+GtkWidget *ui_createSimpleLabel ( GtkWidget *parent, 
+                                  void      *data,
+                                  char      *name,
+                                  gint       x, 
+                                  gint       y,
+                                  gint       width,
+                                  gint       height );
+
+/******************************* g3duiboard.c *********************************/
+GTK3G3DUIBOARD *gtk3_g3duiboard_create ( GtkWidget *parent,
+                                         GTK3G3DUI *gtk3gui,
+                                         char      *name );
+
+/***************************** g3duilightedit.c *******************************/
+void gtk3_g3duilightedit_update ( GTK3G3DUILIGHTEDIT *gtk3led );
+GTK3G3DUILIGHTEDIT *gtk3_g3duilightedit_create ( GtkWidget *parent,
+                                                 GTK3G3DUI *gtk3gui,
+                                                 char      *name );
+
 /******************************* g3duimenu.c **********************************/
 GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
                                         G3DUI     *gui,
@@ -323,6 +413,18 @@ GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
 GTK3G3DUIMODEBAR *gtk3_g3duimodebar_create ( GtkWidget *parent,
                                              GTK3G3DUI *gtk3gui,
                                              char      *name );
+
+/************************** g3duiobjectboard.c ********************************/
+void gtk3_g3duiobjectboard_updateMenuBar ( GTK3G3DUIOBJECTBOARD *gtk3objbrd );
+GTK3G3DUIOBJECTBOARD *gtk3_g3duiobjectboard_create ( GtkWidget *parent,
+                                                     GTK3G3DUI *gtk3gui,
+                                                     char      *name );
+
+/************************** g3duiobjectedit.c ********************************/
+void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit );
+GTK3G3DUIOBJECTEDIT *gtk3_g3duiobjectedit_create ( GtkWidget *parent, 
+                                                   GTK3G3DUI *gtk3gui,
+                                                   char      *name );
 
 /****************************** g3duiquad.c ***********************************/
 GTK3G3DUIQUAD *gtk3_g3duiquad_create ( GtkWidget *parent,

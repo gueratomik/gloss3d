@@ -48,6 +48,50 @@ void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in,
 }
 
 /******************************************************************************/
+GtkWidget *ui_createSimpleLabel ( GtkWidget *parent, 
+                                  void      *data,
+                                  char      *name,
+                                  gint       x, 
+                                  gint       y,
+                                  gint       width,
+                                  gint       height ) {
+    GtkWidget   *lab  = gtk_label_new ( name );
+
+    gtk_widget_set_name ( lab, name );
+    gtk_widget_set_size_request ( lab, width, height );
+    gtk_fixed_put ( GTK_FIXED(parent), lab, x, y );
+    gtk_widget_show ( lab );
+
+    return lab;
+}
+
+/******************************************************************************/
+GtkWidget *ui_createColorButton ( GtkWidget *parent,
+                                  void      *data,
+                                  char      *name,
+                                  gint       x, 
+                                  gint       y,
+                                  gint       width,
+                                  gint       height,
+                                  void     (*cbk)( GtkWidget *, 
+                                                   gpointer ) ) {
+    GtkWidget *btn = gtk_color_button_new ( );
+
+    gtk_widget_set_name ( btn, name );
+    gtk_widget_set_size_request ( btn, width, height );
+
+    if ( cbk ) {
+        g_signal_connect ( btn, "color-set", G_CALLBACK ( cbk ), data );
+    }
+
+    gtk_fixed_put ( GTK_FIXED(parent), btn, x, y );
+    gtk_widget_show ( btn );
+
+
+    return btn;
+}
+
+/******************************************************************************/
 void gtk3_setMouseTool ( GtkWidget *widget, 
                          gpointer   user_data ) {
     GTK3G3DUI *gtk3gui = gtk3_getUI ( );
@@ -265,6 +309,13 @@ static void gtk3_redrawUVMapEditors ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
+static void gtk3_updateObjectEdit ( GTK3G3DUI *gtk3gui ) {
+    GTK3G3DUIOBJECTEDIT *gtk3objedit = ( GTK3G3DUIOBJECTEDIT * ) gtk3gui->core.main->board->objboard->objedit;
+
+    gtk3_g3duiobjectedit_update ( gtk3objedit );
+}
+
+/******************************************************************************/
 static void gtk3_updateGLViewsMenu ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) &gtk3gui->core;
     LIST *ltmpview = gtk3gui->core.lview;
@@ -367,6 +418,11 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
 
         gtk3_updateGLViewsMenu ( gtk3gui );
     }
+
+    if ( msk & REDRAWCURRENTOBJECT ) {
+        gtk3_updateObjectEdit ( gtk3gui );
+    }
+
 #ifdef TODO
     if ( msk & REDRAWCURRENTMATERIAL ) {
         gtk3_updateMaterialEdit ( );
@@ -397,10 +453,6 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
 
     if ( msk & REDRAWCURRENTMOUSETOOL ) {
         gtk3_updateAllCurrentMouseTools ( );
-    }
-
-    if ( msk & REDRAWCURRENTOBJECT ) {
-        gtk3_updateAllCurrentEdit ( );
     }
 
     if ( msk & REDRAWTIMELINE ) {

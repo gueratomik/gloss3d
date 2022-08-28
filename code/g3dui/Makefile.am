@@ -8,9 +8,10 @@ if HAVE_GTK3
     lib_LTLIBRARIES = libgloss-g3dui-gtk3.la
     libgloss_g3dui_gtk3_la_SOURCES = $(LIBGLOSSG3DUI_C_FILES)
 
-    LIBGLOSSG3DUI_C_FILES = common/g3duiboneedit.c \
+    LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
+                            common/g3duiboard.c \
+                            common/g3duiboneedit.c \
                             common/g3duibonelinker.c \
-                            common/g3dui.c \
                             common/g3duicameraedit.c \
                             common/g3duiclipboard.c \
                             common/g3duiconf.c \
@@ -23,7 +24,6 @@ if HAVE_GTK3
                             common/g3duiinstanceedit.c \
                             common/g3duikeyedit.c \
                             common/g3duilightedit.c \
-                            common/g3duiobjectlist.c \
                             common/g3duimain.c \
                             common/g3duimaterialboard.c \
                             common/g3duimaterialedit.c \
@@ -33,6 +33,8 @@ if HAVE_GTK3
                             common/g3duimeshedit.c \
                             common/g3duimeshposelist.c \
                             common/g3duimodebar.c \
+                            common/g3duiobjectboard.c \
+                            common/g3duiobjectlist.c \
                             common/g3duiobjectedit.c \
                             common/g3duiparticleemitteredit.c \
                             common/m3duipatternlist.c \
@@ -72,9 +74,13 @@ if HAVE_GTK3
                             common/mousetool/g3duisculpttooledit.c \
                             common/m3dui.c \
                             gtk3/g3dui.c \
+                            gtk3/g3duiboard.c \
+                            gtk3/g3duilightedit.c \
                             gtk3/g3duimain.c \
                             gtk3/g3duimenubar.c \
                             gtk3/g3duimodebar.c \
+                            gtk3/g3duiobjectboard.c \
+                            gtk3/g3duiobjectedit.c \
                             gtk3/g3duiquad.c \
                             gtk3/g3duitoolbar.c \
                             gtk3/g3duiview.c \

@@ -2299,6 +2299,9 @@ void g3dobject_stitchTransformations ( G3DOBJECT *obj,
                                        LIST     **laddedRotSegments,
                                        LIST     **laddedScaSegments );
 
+uint32_t g3dobjectlist_checkType ( LIST    *lobj,
+                                   uint32_t type );
+
 /******************************************************************************/
 void g3dbbox_draw ( G3DBBOX *bbox, 
                     uint64_t engine_flags );

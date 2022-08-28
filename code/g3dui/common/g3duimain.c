@@ -30,9 +30,9 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void g3duimain_sizeAllocate ( G3DUIMAIN *gmn, 
-                              uint32_t   width, 
-                              uint32_t   height ) {
+void g3duimain_resize ( G3DUIMAIN *gmn, 
+                        uint32_t   width, 
+                        uint32_t   height ) {
     /*** Menu ***/
     gmn->menurec.x      = 0x00;
     gmn->menurec.y      = 0x00;

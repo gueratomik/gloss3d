@@ -1777,6 +1777,22 @@ uint32_t g3dobject_pick ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
+uint32_t g3dobjectlist_checkType ( LIST    *lobj,
+                                   uint32_t type ) {
+    LIST *ltmpobj = lobj;
+
+    while ( ltmpobj ) {
+        G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
+
+        if ( obj->type != type ) return 0x00;
+
+        ltmpobj = ltmpobj->next;
+    }
+
+    return 0x01;
+}
+
+/******************************************************************************/
 uint32_t g3dobject_pick_r ( G3DOBJECT *obj, 
                             G3DCAMERA *curcam, 
                             uint64_t   engine_flags ) {

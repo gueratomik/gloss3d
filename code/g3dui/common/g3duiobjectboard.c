@@ -30,19 +30,23 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duiobjectedit_nameCbk ( G3DUIOBJECTEDIT *objedit,
-                                   const char      *name ) {
-    G3DUI *gui = objedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
+void g3duiobjectboard_resize ( G3DUIOBJECTBOARD *objboard, 
+                               uint32_t          width,
+                               uint32_t          height ) {
+    /*** Menu ***/
+    objboard->menurec.x      = 0x00;
+    objboard->menurec.y      = 0x00;
+    objboard->menurec.width  = width;
+    objboard->menurec.height = 0x20;
 
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+    objboard->listrec.x      = 0x00;
+    objboard->listrec.y      = objboard->menurec.height;
+    objboard->listrec.width  = width;
+    objboard->listrec.height = ( height - objboard->menurec.height ) * 0.65f;
 
-        g3dobject_name ( sel, name );
-
-        ltmpselobj = ltmpselobj->next;
-    }
-
-    return REDRAWLIST;
+    objboard->editrec.x      = 0x00;
+    objboard->editrec.y      = objboard->listrec.height +
+                               objboard->menurec.height;
+    objboard->editrec.width  = width;
+    objboard->editrec.height = ( height - objboard->menurec.height ) * 0.35f;
 }
