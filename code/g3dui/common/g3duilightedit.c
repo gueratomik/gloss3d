@@ -29,132 +29,112 @@
 #include <config.h>
 #include <g3dui.h>
 
+#define FOR_EACH_SELECTED_LIGHT                            \
+    G3DUI *gui = ligedit->gui;                             \
+    G3DSCENE *sce = gui->sce;                              \
+    LIST *ltmpselobj = sce->lsel;                          \
+                                                           \
+    while ( ltmpselobj ) {                                 \
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data; \
+                                                           \
+        if ( sel->type == G3DLIGHTTYPE ) {                 \
+            G3DLIGHT *lig = ( G3DLIGHT * ) sel;            \
+
+
+#define END_FOR                                            \
+        }                                                  \
+                                                           \
+        ltmpselobj = ltmpselobj->next;                     \
+    }
+
 /******************************************************************************/
 uint64_t g3duilightedit_setSpecularityCbk ( G3DUILIGHTEDIT *ligedit,
                                             uint32_t        red,
                                             uint32_t        green,
                                             uint32_t        blue ) {
-    G3DUI *gui = ligedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
-
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
-
-        if ( sel->type == G3DLIGHTTYPE ) {
-            G3DLIGHT *lig = ( G3DLIGHT * ) sel;
-
-            lig->specularColor.r = red;
-            lig->specularColor.g = green;
-            lig->specularColor.b = blue;
-        }
-
-        ltmpselobj = ltmpselobj->next;
-    }
-
+FOR_EACH_SELECTED_LIGHT
+    lig->specularColor.r = red;
+    lig->specularColor.g = green;
+    lig->specularColor.b = blue;
+END_FOR
 
     return REDRAWVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duilightedit_unsetSpotCbk ( G3DUILIGHTEDIT *ligedit ) {
-    G3DUI *gui = ligedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
-
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
-
-        if ( sel->type == G3DLIGHTTYPE ) {
-            G3DLIGHT *lig = ( G3DLIGHT * ) sel;
-
-            g3dlight_unsetSpot ( lig );
-        }
-
-        ltmpselobj = ltmpselobj->next;
-    }
-
+FOR_EACH_SELECTED_LIGHT
+    g3dlight_unsetSpot ( lig );
+END_FOR
 
     return REDRAWVIEW;
 }
 
 /******************************************************************************/
-uint64_t g3duilightedit_setSpotCbk ( G3DUILIGHTEDIT *ligedit,
-                                     float           spotLength,
-                                     float           spotAngle,
-                                     float           spotFadeAngle ) {
-    G3DUI *gui = ligedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
+uint64_t g3duilightedit_setSpotCbk ( G3DUILIGHTEDIT *ligedit ) {
+FOR_EACH_SELECTED_LIGHT
+    g3dlight_setSpot ( lig );
+END_FOR
 
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+    return REDRAWVIEW;
+}
 
-        if ( sel->type == G3DLIGHTTYPE ) {
-            G3DLIGHT *lig = ( G3DLIGHT * ) sel;
+/******************************************************************************/
+uint64_t g3duilightedit_setSpotAngleCbk ( G3DUILIGHTEDIT *ligedit,
+                                          float           spotAngle ) {
+FOR_EACH_SELECTED_LIGHT
+    g3dlight_setSpotAngle ( lig, spotAngle );
+END_FOR
 
-            g3dlight_setSpot ( lig, spotLength, spotAngle, spotFadeAngle );
-        }
+    return REDRAWVIEW;
+}
 
-        ltmpselobj = ltmpselobj->next;
-    }
+/******************************************************************************/
+uint64_t g3duilightedit_setSpotFadeAngleCbk ( G3DUILIGHTEDIT *ligedit,
+                                              float           spotFadeAngle ) {
+FOR_EACH_SELECTED_LIGHT
+    g3dlight_setSpotFadeAngle ( lig, spotFadeAngle );
+END_FOR
 
+    return REDRAWVIEW;
+}
+
+/******************************************************************************/
+uint64_t g3duilightedit_setSpotLengthCbk ( G3DUILIGHTEDIT *ligedit,
+                                           float           spotLength ) {
+FOR_EACH_SELECTED_LIGHT
+    g3dlight_setSpotLength ( lig, spotLength );
+END_FOR
 
     return REDRAWVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duilightedit_castShadowsCbk ( G3DUILIGHTEDIT *ligedit ) {
-    G3DUI *gui = ligedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
-
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
-
-        if ( sel->type == G3DLIGHTTYPE ) {
-            G3DLIGHT *lig = ( G3DLIGHT * ) sel;
-
-            if ( lig->obj.flags & LIGHTCASTSHADOWS ) {
-                lig->obj.flags &= (~LIGHTCASTSHADOWS);
-            } else {
-                lig->obj.flags |= LIGHTCASTSHADOWS;
-            }
-        }
-
-        ltmpselobj = ltmpselobj->next;
+FOR_EACH_SELECTED_LIGHT
+    if ( lig->obj.flags & LIGHTCASTSHADOWS ) {
+        lig->obj.flags &= (~LIGHTCASTSHADOWS);
+    } else {
+        lig->obj.flags |= LIGHTCASTSHADOWS;
     }
-
+END_FOR
 
     return REDRAWVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duilightedit_setSoftShadowsCbk ( G3DUILIGHTEDIT *ligedit ) {
-    G3DUI *gui = ligedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
+FOR_EACH_SELECTED_LIGHT
+    if ( lig->obj.flags & LIGHTHARDSHADOWS ) {
+        lig->obj.flags &= (~LIGHTHARDSHADOWS);
 
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+        lig->obj.flags |= LIGHTSOFTSHADOWS;
+    } else {
+        lig->obj.flags &= (~LIGHTSOFTSHADOWS);
 
-        if ( sel->type == G3DLIGHTTYPE ) {
-            G3DLIGHT *lig = ( G3DLIGHT * ) sel;
-
-            if ( lig->obj.flags & LIGHTHARDSHADOWS ) {
-                lig->obj.flags &= (~LIGHTHARDSHADOWS);
-
-                lig->obj.flags |= LIGHTSOFTSHADOWS;
-            } else {
-                lig->obj.flags &= (~LIGHTSOFTSHADOWS);
-
-                lig->obj.flags |= LIGHTHARDSHADOWS;
-            }
-        }
-
-        ltmpselobj = ltmpselobj->next;
+        lig->obj.flags |= LIGHTHARDSHADOWS;
     }
-
+END_FOR
 
     return REDRAWVIEW;
 }
@@ -162,22 +142,9 @@ uint64_t g3duilightedit_setSoftShadowsCbk ( G3DUILIGHTEDIT *ligedit ) {
 /******************************************************************************/
 uint64_t g3duilightedit_shadowRadiusCbk ( G3DUILIGHTEDIT *ligedit,
                                           float           shadowRadius ) {
-    G3DUI *gui = ligedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
-
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
-
-        if ( sel->type == G3DLIGHTTYPE ) {
-            G3DLIGHT *lig = ( G3DLIGHT * ) sel;
-
-            lig->shadowRadius = shadowRadius;
-        }
-
-        ltmpselobj = ltmpselobj->next;
-    }
-
+FOR_EACH_SELECTED_LIGHT
+    lig->shadowRadius = shadowRadius;
+END_FOR
 
     return REDRAWVIEW;
 }
@@ -185,22 +152,9 @@ uint64_t g3duilightedit_shadowRadiusCbk ( G3DUILIGHTEDIT *ligedit,
 /******************************************************************************/
 uint64_t g3duilightedit_shadowSampleCbk ( G3DUILIGHTEDIT *ligedit,
                                           uint32_t        shadowSample ) {
-    G3DUI *gui = ligedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
-
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
-
-        if ( sel->type == G3DLIGHTTYPE ) {
-            G3DLIGHT *lig = ( G3DLIGHT * ) sel;
-
-            lig->shadowSample = shadowSample;
-        }
-
-        ltmpselobj = ltmpselobj->next;
-    }
-
+FOR_EACH_SELECTED_LIGHT
+    lig->shadowSample = shadowSample;
+END_FOR
 
     return REDRAWVIEW;
 }
@@ -210,24 +164,11 @@ uint64_t g3duilightedit_setDiffuseCbk ( G3DUILIGHTEDIT *ligedit,
                                         uint32_t        red,
                                         uint32_t        green,
                                         uint32_t        blue ) {
-    G3DUI *gui = ligedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
-
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
-
-        if ( sel->type == G3DLIGHTTYPE ) {
-            G3DLIGHT *lig = ( G3DLIGHT * ) sel;
-
-            lig->diffuseColor.r = red;
-            lig->diffuseColor.g = green;
-            lig->diffuseColor.b = blue;
-        }
-
-        ltmpselobj = ltmpselobj->next;
-    }
-
+FOR_EACH_SELECTED_LIGHT
+    lig->diffuseColor.r = red;
+    lig->diffuseColor.g = green;
+    lig->diffuseColor.b = blue;
+END_FOR
 
     return REDRAWVIEW;
 }

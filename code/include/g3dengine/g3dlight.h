@@ -119,11 +119,15 @@ void g3dlight_init ( G3DLIGHT *lig,
                      uint32_t  id, 
                      char     *name );
 
-void g3dlight_setSpot ( G3DLIGHT *lig, 
-                        float     spotLength,
-                        float     spotAngle, 
-                        float     spotFadeAngle );
+void g3dlight_setSpot ( G3DLIGHT *lig );
 void g3dlight_unsetSpot ( G3DLIGHT *lig );
+
+void g3dlight_setSpotFadeAngle ( G3DLIGHT *lig,
+                                 float     spotFadeAngle );
+void g3dlight_setSpotLength ( G3DLIGHT *lig,
+                              float     spotLength );
+void g3dlight_setSpotAngle ( G3DLIGHT *lig,
+                             float     spotAngle );
 
 #ifdef __cplusplus
 }

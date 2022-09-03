@@ -804,8 +804,9 @@ typedef struct _G3DUIRENDERWINDOW {
 
 /******************************************************************************/
 typedef struct _G3DUILIGHTEDIT {
-    G3DUI   *gui;
-    uint32_t multi;
+    G3DUI    *gui;
+    uint32_t  multi;
+    G3DLIGHT *editedLight;
 } G3DUILIGHTEDIT;
 
 /******************************************************************************/
@@ -1585,10 +1586,10 @@ uint64_t g3duilightedit_setSpecularityCbk ( G3DUILIGHTEDIT *ligedit,
                                             uint32_t        green,
                                             uint32_t        blue );
 uint64_t g3duilightedit_unsetSpotCbk ( G3DUILIGHTEDIT *ligedit );
-uint64_t g3duilightedit_setSpotCbk ( G3DUILIGHTEDIT *ligedit,
-                                     float           spotLength,
-                                     float           spotAngle,
-                                     float           spotFadeAngle );
+uint64_t g3duilightedit_setSpotCbk ( G3DUILIGHTEDIT *ligedit );
+uint64_t g3duilightedit_setSpotAngleCbk ( G3DUILIGHTEDIT *ligedit, float spotAngle );
+uint64_t g3duilightedit_setSpotFadeAngleCbk ( G3DUILIGHTEDIT *ligedit, float spotFadeAngle );
+uint64_t g3duilightedit_setSpotLengthCbk ( G3DUILIGHTEDIT *ligedit, float spotLength );
 uint64_t g3duilightedit_castShadowsCbk ( G3DUILIGHTEDIT *ligedit );
 uint64_t g3duilightedit_setSoftShadowsCbk ( G3DUILIGHTEDIT *ligedit );
 uint64_t g3duilightedit_shadowRadiusCbk ( G3DUILIGHTEDIT *ligedit,

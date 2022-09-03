@@ -302,8 +302,6 @@ typedef struct _GTK3G3DUILIGHTEDIT {
     GtkWidget     *softShadowsToggle;
     GtkWidget     *shadowRadiusEntry;
     GtkWidget     *shadowSampleEntry;
-
-    G3DLIGHT      *editedLight;
 } GTK3G3DUILIGHTEDIT;
 
 /******************************************************************************/
@@ -376,7 +374,62 @@ GtkWidget *ui_createSimpleLabel ( GtkWidget *parent,
                                   gint       width,
                                   gint       height );
 
-GtkWidget *ui_gtk_fixed_new ( const char *class );
+GtkWidget *ui_createPanel ( GtkWidget *parent, 
+                            void      *data,
+                            char      *name,
+                            char      *class,
+                            gint      x,
+                            gint      y,
+                            gint      width,
+                            gint      height );
+
+GtkWidget *ui_createToggleLabel ( GtkWidget *parent, 
+                                  void      *data,
+                                  char      *name,
+                                  gint       x, 
+                                  gint       y,
+                                  gint       width,
+                                  gint       height,
+                                  void     (*cbk)( GtkWidget *, 
+                                                   gpointer ) );
+
+GtkWidget *ui_createNumericText ( GtkWidget     *parent, 
+                                  void          *data,
+                                  GtkAdjustment *adj,
+                                  char          *name,
+                                  gint          x, 
+                                  gint          y,
+                                  gint          labwidth,
+                                  gint          txtwidth,
+                                  void (*cbk)( GtkWidget *, 
+                                               gpointer ) );
+
+GtkWidget *ui_createIntegerText ( GtkWidget *parent, 
+                                  void      *data, 
+                                  char      *name,
+                                  gdouble    min, 
+                                  gdouble    max,
+                                  gint       x, 
+                                  gint       y,
+                                  gint       labwidth,
+                                  gint       txtwidth,
+                                  void       (*cbk)( GtkWidget *, 
+                                                     gpointer ) );
+GtkWidget *ui_createFloatText ( GtkWidget *parent, 
+                                void      *data, 
+                                char      *name,
+                                gdouble    min, 
+                                gdouble    max,
+                                gint       x, 
+                                gint       y,
+                                gint       labwidth,
+                                gint       txtwidth,
+                                void       (*cbk)( GtkWidget *, 
+                                                   gpointer ) );
+
+GtkWidget *ui_gtk_fixed_new ( char *class );
+GtkWidget *ui_gtk_label_new ( char *class,
+                              char *name );
 
 /******************************* g3duiboard.c *********************************/
 GTK3G3DUIBOARD *gtk3_g3duiboard_create ( GtkWidget *parent,

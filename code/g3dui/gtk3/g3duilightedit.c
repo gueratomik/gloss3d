@@ -35,9 +35,9 @@
 #define EDITLIGHTCOLOR             "Light RGB Color"
 #define EDITLIGHTSPECULARITY       "Light RGB Specularity"
 #define EDITLIGHTSPOTENABLED       "Spot Light"
-#define EDITLIGHTSPOTLENGTH        "Spot length"
-#define EDITLIGHTSPOTANGLE         "Spot angle"
-#define EDITLIGHTSPOTFADEANGLE     "Spot fade angle"
+#define EDITLIGHTSPOTLENGTH        "Length"
+#define EDITLIGHTSPOTANGLE         "Angle"
+#define EDITLIGHTSPOTFADEANGLE     "Fade angle"
 #define EDITLIGHTSHADOWS           "Shadows"
 #define EDITLIGHTHARDSHADOWS       "Hard Shadows"
 #define EDITLIGHTSOFTSHADOWS       "Area Shadows"
@@ -60,47 +60,35 @@ static GTK3G3DUILIGHTEDIT *gtk3_g3duilightedit_new ( GTK3G3DUI *gtk3gui ) {
     return gtk3led; 
 }
 
-#ifdef unused
 /******************************************************************************/
 static void updateShadowsPanel ( GTK3G3DUILIGHTEDIT *gtk3led ) {
     gtk3led->core.gui->lock = 0x01;
 
-    if ( gtk3led->editedLight ) {
-        if ( ((G3DOBJECT*)gtk3led->editedLight)->flags & LIGHTCASTSHADOWS ) {
-            gtk_widget_set_sensitive ( gtk3led->softShadowsToggle, TRUE );
+    if ( ((G3DOBJECT*)gtk3led->core.editedLight)->flags & LIGHTCASTSHADOWS ) {
+        gtk_widget_set_sensitive ( gtk3led->softShadowsToggle, TRUE );
 
-            if ( ((G3DOBJECT*)gtk3led->editedLight)->flags & LIGHTSOFTSHADOWS ) {
-                gtk_widget_set_sensitive     ( gtk3led->shadowRadiusEntry, TRUE );
-                gtk_widget_set_sensitive     ( gtk3led->shadowSampleEntry, TRUE );
+        if ( ((G3DOBJECT*)gtk3led->core.editedLight)->flags & LIGHTSOFTSHADOWS ) {
+            gtk_widget_set_sensitive     ( gtk3led->shadowRadiusEntry, TRUE );
+            gtk_widget_set_sensitive     ( gtk3led->shadowSampleEntry, TRUE );
 
-                gtk_toggle_button_set_active ( gtk3led->softShadowsToggle, TRUE  );
-            } else {
-                gtk_widget_set_sensitive ( gtk3led->shadowRadiusEntry, FALSE );
-                gtk_widget_set_sensitive ( gtk3led->shadowSampleEntry, FALSE );
-
-                gtk_toggle_button_set_active ( gtk3led->softShadowsToggle, FALSE  );
-            }
+            gtk_toggle_button_set_active ( gtk3led->softShadowsToggle, TRUE  );
         } else {
-            gtk_widget_set_sensitive ( gtk3led->softShadowsToggle, FALSE );
             gtk_widget_set_sensitive ( gtk3led->shadowRadiusEntry, FALSE );
             gtk_widget_set_sensitive ( gtk3led->shadowSampleEntry, FALSE );
+
+            gtk_toggle_button_set_active ( gtk3led->softShadowsToggle, FALSE  );
         }
-
-        gtk_spin_button_set_value  ( gtk3led->shadowRadiusEntry, 
-                                     gtk3led->editedLight->shadowRadius );
-
-        gtk_spin_button_set_value  ( gtk3led->shadowSampleEntry, 
-                                     gtk3led->editedLight->shadowSample );
     } else {
-        gtk_toggle_button_set_active ( gtk3led->softShadowsToggle, FALSE  );
-
         gtk_widget_set_sensitive ( gtk3led->softShadowsToggle, FALSE );
         gtk_widget_set_sensitive ( gtk3led->shadowRadiusEntry, FALSE );
         gtk_widget_set_sensitive ( gtk3led->shadowSampleEntry, FALSE );
     }
 
+    gtk_spin_button_set_value  ( gtk3led->shadowRadiusEntry, 
+                                 gtk3led->core.editedLight->shadowRadius );
 
-    gtk3led->core.gui->lock = 0x00;
+    gtk_spin_button_set_value  ( gtk3led->shadowSampleEntry, 
+                                 gtk3led->core.editedLight->shadowSample );
 }
 
 /******************************************************************************/
@@ -114,9 +102,8 @@ static void setShadowTypeCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3led->core.gui->lock ) return;
 
-    if ( gtk3led->editedLight ) {
-        common_g3duilightedit_setSoftShadowsCbk ( gtk3led->core.gui,
-                                                  gtk3led->editedLight );
+    if ( gtk3led->core.editedLight ) {
+        g3duilightedit_setSoftShadowsCbk ( &gtk3led->core );
     }
 
     updateShadowsPanel ( gtk3led );
@@ -133,10 +120,8 @@ static void shadowRadiusCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3led->core.gui->lock ) return;
 
-    if ( gtk3led->editedLight ) {
-        common_g3duilightedit_shadowRadiusCbk ( gtk3led->core.gui,
-                                                gtk3led->editedLight,
-                                                shadowRadius );
+    if ( gtk3led->core.editedLight ) {
+        g3duilightedit_shadowRadiusCbk ( &gtk3led->core, shadowRadius );
     }
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -153,48 +138,55 @@ static void shadowSampleCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3led->core.gui->lock ) return;
 
-    if ( gtk3led->editedLight ) {
-        common_g3duilightedit_shadowSampleCbk ( gtk3led->core.gui,
-                                                gtk3led->editedLight,
-                                                shadowSample );
+    if ( gtk3led->core.editedLight ) {
+        g3duilightedit_shadowSampleCbk ( &gtk3led->core, shadowSample );
     }
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
 
 /******************************************************************************/
-static GtkWidget *createShadowsPanel ( GtkWidget      *parent, 
-                                       GTK3G3DUILIGHTEDIT *gtk3led,
-                                       char           *name,
-                                       gint            x,
-                                       gint            y,
-                                       gint            width,
-                                       gint            height ) {
-    GtkWidget *pan = createPanel ( parent, gtk3led, name, x, y, width, height );
+static void createShadowsPanel ( GTK3G3DUILIGHTEDIT *gtk3led,
+                                 uint32_t            x,
+                                 uint32_t            y,
+                                 uint32_t            width,
+                                 uint32_t            height ) {
 
-    gtk3led->softShadowsToggle = createToggleLabel ( pan,
-                                                 gtk3led,
-                                                 EDITLIGHTSOFTSHADOWS,
-                                                 0, 0, 20, 20,
-                                                 setShadowTypeCbk );
+    GtkWidget *pan = ui_createPanel ( gtk3led->tab,
+                                      gtk3led,
+                                      EDITLIGHTSHADOWS,
+                                      CLASS_MAIN,
+                                      x,
+                                      y,
+                                      width,
+                                      height );
 
-    gtk3led->shadowRadiusEntry = createFloatText ( pan,
-                                               gtk3led,
-                                               EDITLIGHTSOFTSHADOWSRADIUS,
-                                               0.0f, FLT_MAX,
-                                               0, 24, 96, 96,
-                                               shadowRadiusCbk );
+    gtk3led->core.gui->lock = 0x01;
 
-    gtk3led->shadowSampleEntry = createIntegerText ( pan,
-                                                gtk3led,
-                                                EDITLIGHTSOFTSHADOWSSAMPLE,
-                                                1.0f, 32.0f,
-                                                0, 48, 96, 96,
-                                                shadowSampleCbk );
+    gtk3led->softShadowsToggle = ui_createToggleLabel ( pan,
+                                                        gtk3led,
+                                                        EDITLIGHTSOFTSHADOWS,
+                                                        0, 0, 20, 20,
+                                                        setShadowTypeCbk );
+
+    gtk3led->shadowRadiusEntry = ui_createFloatText ( pan,
+                                                      gtk3led,
+                                                      EDITLIGHTSOFTSHADOWSRADIUS,
+                                                      0.0f, FLT_MAX,
+                                                      0, 24, 96, 96,
+                                                      shadowRadiusCbk );
+
+    gtk3led->shadowSampleEntry = ui_createIntegerText ( pan,
+                                                        gtk3led,
+                                                        EDITLIGHTSOFTSHADOWSSAMPLE,
+                                                        1.0f, 32.0f,
+                                                        0, 48, 96, 96,
+                                                        shadowSampleCbk );
+    gtk3led->core.gui->lock = 0x00;
 
     return pan;
 }
-#endif
+
 
 /******************************************************************************/
 static void specularityChangeCbk ( GtkWidget *widget,
@@ -210,7 +202,7 @@ static void specularityChangeCbk ( GtkWidget *widget,
 
     gtk_color_chooser_get_rgba ( ccr, &color );
 
-    if ( gtk3led->editedLight ) {
+    if ( gtk3led->core.editedLight ) {
         g3duilightedit_setSpecularityCbk ( &gtk3led->core, 
                                             color.red   * 255,
                                             color.green * 255,
@@ -230,10 +222,10 @@ static void updateSpecularityPanel ( GTK3G3DUILIGHTEDIT *gtk3led ) {
 
         gtk_color_chooser_set_rgba ( gtk3led->specularColorButton, &GDKRGBA_MULTI );
     } else {
-        GdkRGBA rgba = { .red   = ( gdouble ) gtk3led->editedLight->specularColor.r / 255.0f,
-                         .green = ( gdouble ) gtk3led->editedLight->specularColor.g / 255.0f,
-                         .blue  = ( gdouble ) gtk3led->editedLight->specularColor.b / 255.0f,
-                         .alpha = ( gdouble ) gtk3led->editedLight->specularColor.a / 255.0f };
+        GdkRGBA rgba = { .red   = ( gdouble ) gtk3led->core.editedLight->specularColor.r / 255.0f,
+                         .green = ( gdouble ) gtk3led->core.editedLight->specularColor.g / 255.0f,
+                         .blue  = ( gdouble ) gtk3led->core.editedLight->specularColor.b / 255.0f,
+                         .alpha = ( gdouble ) gtk3led->core.editedLight->specularColor.a / 255.0f };
 
         gtk_widget_set_sensitive ( gtk3led->specularColorButton, TRUE );
 
@@ -245,31 +237,38 @@ static void updateSpecularityPanel ( GTK3G3DUILIGHTEDIT *gtk3led ) {
 }
 
 /******************************************************************************/
-static void createSpecularityPanel ( GTK3G3DUILIGHTEDIT *gtk3led ) {
-    GtkWidget *fixed = ui_gtk_fixed_new ( CLASS_MAIN );
-    GtkWidget *label = gtk_label_new ( EDITSPECULAR );
+static void createSpecularityPanel ( GTK3G3DUILIGHTEDIT *gtk3led,
+                                     uint32_t            x,
+                                     uint32_t            y,
+                                     uint32_t            width,
+                                     uint32_t            height ) {
 
-    gtk_widget_set_name ( fixed, EDITSPECULAR );
+    GtkWidget *pan = ui_createPanel ( gtk3led->tab,
+                                      gtk3led,
+                                      EDITSPECULAR,
+                                      CLASS_MAIN,
+                                      x,
+                                      y,
+                                      width,
+                                      height );
 
-    gtk_notebook_append_page ( GTK_NOTEBOOK(gtk3led->tab), fixed, label );
+    gtk3led->core.gui->lock = 0x01;
 
-    gtk_widget_set_size_request ( fixed, 300, 300 );
-
-    ui_createSimpleLabel ( fixed, 
+    ui_createSimpleLabel ( pan, 
                            gtk3led,
                            EDITSPECULARCOLOR,
                            0,  0, 96, 18 );
 
-    gtk3led->specularColorButton = ui_createColorButton ( fixed, 
+    gtk3led->specularColorButton = ui_createColorButton ( pan, 
                                                           gtk3led,
                                                           EDITSPECULARCOLOR,
                                                           104,  0, 96, 18,
                                                           specularityChangeCbk );
+    gtk3led->core.gui->lock = 0x00;
 
-    gtk_widget_show ( fixed );
+    gtk_widget_show ( pan );
 }
 
-#ifdef unused
 /******************************************************************************/
 static void diffuseChangeCbk ( GtkWidget *widget,
                                gpointer   user_data ) {
@@ -284,12 +283,11 @@ static void diffuseChangeCbk ( GtkWidget *widget,
 
     gtk_color_chooser_get_rgba ( ccr, &color );
 
-    if ( gtk3led->editedLight ) {
-        common_g3dui_lightDiffuseChangeCbk ( gui,
-                                             gtk3led->editedLight,
-                                             color.red   * 255,
-                                             color.green * 255,
-                                             color.blue  * 255 );
+    if ( gtk3led->core.editedLight ) {
+        g3duilightedit_setDiffuseCbk ( &gtk3led->core,
+                                        color.red   * 255,
+                                        color.green * 255,
+                                        color.blue  * 255 );
     }
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -306,107 +304,66 @@ static void diffuseIntensityCbk ( GtkWidget *widget,
     /*** prevent useless primitive building when XmTextSetString is calgtk3led ***/
     if ( gtk3led->core.gui->lock ) return;
 
-    if ( gtk3led->editedLight ) {
-        gtk3led->editedLight->intensity = intensity;
+    if ( gtk3led->core.editedLight ) {
+        gtk3led->core.editedLight->intensity = intensity;
     }
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
 
 /******************************************************************************/
-static void updateLightGeneralPanel ( GTK3G3DUILIGHTEDIT *gtk3led ) {
-    gtk3led->core.gui->lock = 0x01;
-
-    if ( gtk3led->editedLight ) {
-        gtk_widget_set_sensitive ( gtk3led->spotLengthEntry   , TRUE );
-        gtk_widget_set_sensitive ( gtk3led->spotAngleEntry    , TRUE );
-        gtk_widget_set_sensitive ( gtk3led->spotFadeAngleEntry, TRUE );
-        gtk_widget_set_sensitive ( gtk3led->spotToggle        , TRUE );
-        gtk_widget_set_sensitive ( gtk3led->castShadowsToggle , TRUE );
-
-        if ( ((G3DOBJECT*)gtk3led->editedLight)->flags & LIGHTCASTSHADOWS ) {
-            gtk_toggle_button_set_active ( gtk3led->castShadowsToggle, TRUE  );
-        } else {
-            gtk_toggle_button_set_active ( gtk3led->castShadowsToggle, FALSE );
-        }
-
-        if ( ((G3DOBJECT*)gtk3led->editedLight)->flags & SPOTLIGHT ) {
-            gtk_toggle_button_set_active ( gtk3led->spotToggle, TRUE  );
-        } else {
-            gtk_toggle_button_set_active ( gtk3led->spotToggle, FALSE );
-        }
-
-        gtk_spin_button_set_value ( gtk3led->spotLengthEntry   , 
-                                    gtk3led->editedLight->spotLength );
-
-        gtk_spin_button_set_value ( gtk3led->spotAngleEntry    , 
-                                    gtk3led->editedLight->spotAngle );
-
-        gtk_spin_button_set_value ( gtk3led->spotFadeAngleEntry,
-                                    gtk3led->editedLight->spotFadeAngle );
-    } else {
-        gtk_widget_set_sensitive ( gtk3led->spotLengthEntry   , FALSE );
-        gtk_widget_set_sensitive ( gtk3led->spotAngleEntry    , FALSE );
-        gtk_widget_set_sensitive ( gtk3led->spotFadeAngleEntry, FALSE );
-        gtk_widget_set_sensitive ( gtk3led->spotToggle        , FALSE );
-        gtk_widget_set_sensitive ( gtk3led->castShadowsToggle , FALSE );
-    }
-
-    gtk3led->core.gui->lock = 0x00;
-}
-
-/******************************************************************************/
 static void updateDiffuseColorPanel ( GTK3G3DUILIGHTEDIT *gtk3led ) {
+    GdkRGBA rgba = { .red   = ( float ) gtk3led->core.editedLight->diffuseColor.r / 255.0f,
+                     .green = ( float ) gtk3led->core.editedLight->diffuseColor.g / 255.0f,
+                     .blue  = ( float ) gtk3led->core.editedLight->diffuseColor.b / 255.0f,
+                     .alpha = ( float ) gtk3led->core.editedLight->diffuseColor.a / 255.0f };
+
     gtk3led->core.gui->lock = 0x01;
 
-    if ( gtk3led->editedLight ) {
-        GdkRGBA rgba = { .red   = ( float ) gtk3led->editedLight->diffuseColor.r / 255.0f,
-                         .green = ( float ) gtk3led->editedLight->diffuseColor.g / 255.0f,
-                         .blue  = ( float ) gtk3led->editedLight->diffuseColor.b / 255.0f,
-                         .alpha = ( float ) gtk3led->editedLight->diffuseColor.a / 255.0f };
+    gtk_widget_set_sensitive ( gtk3led->intensityEntry    , TRUE );
+    gtk_widget_set_sensitive ( gtk3led->diffuseColorButton, TRUE );
 
-        gtk_widget_set_sensitive ( gtk3led->intensityEntry    , TRUE );
-        gtk_widget_set_sensitive ( gtk3led->diffuseColorButton, TRUE );
+    gtk_spin_button_set_value  ( gtk3led->intensityEntry    , 
+                                 gtk3led->core.editedLight->intensity );
 
-        gtk_spin_button_set_value  ( gtk3led->intensityEntry    , 
-                                     gtk3led->editedLight->intensity );
+    gtk_color_chooser_set_rgba ( gtk3led->diffuseColorButton, &rgba );
 
-        gtk_color_chooser_set_rgba ( gtk3led->diffuseColorButton, &rgba );
-    } else {
-        gtk_widget_set_sensitive ( gtk3led->intensityEntry    , FALSE );
-        gtk_widget_set_sensitive ( gtk3led->diffuseColorButton, FALSE );
-    }
 
     gtk3led->core.gui->lock = 0x00;
 }
 
 /******************************************************************************/
-static GtkWidget *createDiffuseColorPanel ( GtkWidget      *parent, 
-                                            GTK3G3DUILIGHTEDIT *gtk3led,
-                                            char           *name,
-                                            gint            x,
-                                            gint            y,
-                                            gint            width,
-                                            gint            height ) {
-    GtkWidget *pan = createPanel ( parent, gtk3led, name, x, y, width, height );
+static GtkWidget *createDiffuseColorPanel( GTK3G3DUILIGHTEDIT *gtk3led,
+                                           uint32_t            x,
+                                           uint32_t            y,
+                                           uint32_t            width,
+                                           uint32_t            height ) {
+    GtkWidget *pan = ui_createPanel ( gtk3led->tab,
+                                      gtk3led,
+                                      EDITDIFFUSE,
+                                      CLASS_MAIN,
+                                      x,
+                                      y,
+                                      width,
+                                      height );
 
-    createSimpleLabel ( pan,
-                        gtk3led,
-                        EDITDIFFUSECOLOR,
-                        0,  0, 96, 18 );
+    ui_createSimpleLabel ( pan,
+                           gtk3led,
+                           EDITDIFFUSECOLOR,
+                           0,  0, 96, 18 );
 
-    gtk3led->diffuseColorButton = createColorButton ( pan, 
-                                                  gtk3led,
-                                                  EDITDIFFUSECOLOR,
-                                                  104,  0, 96, 18,
-                                                  diffuseChangeCbk );
+    gtk3led->diffuseColorButton = ui_createColorButton ( pan, 
+                                                         gtk3led,
+                                                         EDITDIFFUSECOLOR,
+                                                         104,  0, 96, 18,
+                                                         diffuseChangeCbk );
 
-    gtk3led->intensityEntry = createFloatText ( pan,
-                                            gtk3led,
-                                            EDITLIGHTINTENSITY,
-                                            0.0f, FLT_MAX,
-                                            0, 48, 96, 96,
-                                            diffuseIntensityCbk );
+    gtk3led->intensityEntry = ui_createFloatText ( pan,
+                                                   gtk3led,
+                                                   EDITLIGHTINTENSITY,
+                                                   0.0f, FLT_MAX,
+                                                   0, 48, 96, 96,
+                                                   diffuseIntensityCbk );
 
     return pan;
 }
@@ -421,9 +378,8 @@ static void castShadowsCbk  ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3led->core.gui->lock ) return;
 
-    if ( gtk3led->editedLight ) {
-        common_g3duilightedit_castShadowsCbk ( gtk3led->core.gui, 
-                                               gtk3led->editedLight );
+    if ( gtk3led->core.editedLight ) {
+        g3duilightedit_castShadowsCbk ( &gtk3led->core );
     }
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -442,12 +398,8 @@ static void spotLengthCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3led->core.gui->lock ) return;
 
-    if ( gtk3led->editedLight ) {
-        common_g3duilightedit_setSpotCbk ( gtk3led->core.gui,
-                                           gtk3led->editedLight,
-                                           spotLength, 
-                                           gtk3led->editedLight->spotAngle, 
-                                           gtk3led->editedLight->spotFadeAngle );
+    if ( gtk3led->core.editedLight ) {
+        g3duilightedit_setSpotLengthCbk ( &gtk3led->core, spotLength );
     }
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -464,12 +416,8 @@ static void spotFadeAngleCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3led->core.gui->lock ) return;
 
-    if ( gtk3led->editedLight ) {
-        common_g3duilightedit_setSpotCbk ( gtk3led->core.gui,
-                                           gtk3led->editedLight,
-                                           gtk3led->editedLight->spotLength, 
-                                           gtk3led->editedLight->spotAngle, 
-                                           spotFadeAngle );
+    if ( gtk3led->core.editedLight ) {
+        g3duilightedit_setSpotFadeAngleCbk ( &gtk3led->core, spotFadeAngle );
     }
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -486,12 +434,8 @@ static void spotAngleCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3led->core.gui->lock ) return;
 
-    if ( gtk3led->editedLight ) {
-        common_g3duilightedit_setSpotCbk ( gtk3led->core.gui,
-                                           gtk3led->editedLight,
-                                           gtk3led->editedLight->spotLength, 
-                                           spotAngle, 
-                                           gtk3led->editedLight->spotFadeAngle );
+    if ( gtk3led->core.editedLight ) {
+        g3duilightedit_setSpotAngleCbk ( &gtk3led->core, spotAngle );
     }
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -507,16 +451,11 @@ static void spotToggleCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3led->core.gui->lock ) return;
 
-    if ( gtk3led->editedLight ) {
-        if ( gtk3led->editedLight->obj.flags & SPOTLIGHT ) {
-            common_g3duilightedit_unsetSpotCbk ( gtk3led->core.gui,
-                                                 gtk3led->editedLight );
+    if ( gtk3led->core.editedLight ) {
+        if ( gtk_toggle_button_get_active (widget  ) ) {
+            g3duilightedit_unsetSpotCbk ( &gtk3led->core );
         } else {
-            common_g3duilightedit_setSpotCbk ( gtk3led->core.gui,
-                                               gtk3led->editedLight,
-                                               gtk3led->editedLight->spotLength, 
-                                               gtk3led->editedLight->spotAngle, 
-                                               gtk3led->editedLight->spotFadeAngle );
+            g3duilightedit_setSpotCbk ( &gtk3led->core );
         }
     }
 
@@ -524,53 +463,94 @@ static void spotToggleCbk ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-static GtkWidget *createLightGeneralPanel ( GtkWidget          *parent, 
-                                            GTK3G3DUILIGHTEDIT *gtk3led,
-                                            char               *name,
+static void updateLightGeneralPanel ( GTK3G3DUILIGHTEDIT *gtk3led ) {
+    gtk3led->core.gui->lock = 0x01;
+
+    gtk_widget_set_sensitive ( gtk3led->spotLengthEntry   , TRUE );
+    gtk_widget_set_sensitive ( gtk3led->spotAngleEntry    , TRUE );
+    gtk_widget_set_sensitive ( gtk3led->spotFadeAngleEntry, TRUE );
+    gtk_widget_set_sensitive ( gtk3led->spotToggle        , TRUE );
+    gtk_widget_set_sensitive ( gtk3led->castShadowsToggle , TRUE );
+
+    if ( ((G3DOBJECT*)gtk3led->core.editedLight)->flags & LIGHTCASTSHADOWS ) {
+        gtk_toggle_button_set_active ( gtk3led->castShadowsToggle, TRUE  );
+    } else {
+        gtk_toggle_button_set_active ( gtk3led->castShadowsToggle, FALSE );
+    }
+
+    if ( ((G3DOBJECT*)gtk3led->core.editedLight)->flags & SPOTLIGHT ) {
+        gtk_toggle_button_set_active ( gtk3led->spotToggle, TRUE  );
+    } else {
+        gtk_toggle_button_set_active ( gtk3led->spotToggle, FALSE );
+    }
+
+    gtk_spin_button_set_value ( gtk3led->spotLengthEntry   , 
+                                gtk3led->core.editedLight->spotLength );
+
+    gtk_spin_button_set_value ( gtk3led->spotAngleEntry    , 
+                                gtk3led->core.editedLight->spotAngle );
+
+    gtk_spin_button_set_value ( gtk3led->spotFadeAngleEntry,
+                                gtk3led->core.editedLight->spotFadeAngle );
+
+
+    gtk3led->core.gui->lock = 0x00;
+}
+
+
+/******************************************************************************/
+static GtkWidget *createLightGeneralPanel ( GTK3G3DUILIGHTEDIT *gtk3led,
                                             gint                x,
                                             gint                y,
                                             gint                width,
                                             gint                height ) {
-    GtkWidget *pan = createPanel ( parent, gtk3led, name, x, y, width, height );
+    GtkWidget *pan = ui_createPanel ( gtk3led->tab,
+                                      gtk3led,
+                                      EDITLIGHTGENERAL,
+                                      CLASS_MAIN,
+                                      x,
+                                      y,
+                                      width,
+                                      height );
 
-    gtk3led->castShadowsToggle = createToggleLabel ( pan,
-                                                 gtk3led,
-                                                 EDITLIGHTCASTSHADOWS,
-                                                 0, 0, 20, 20,
-                                                 castShadowsCbk );
+    gtk3led->castShadowsToggle  = ui_createToggleLabel ( pan,
+                                                         gtk3led,
+                                                         EDITLIGHTCASTSHADOWS,
+                                                         0, 0, 20, 20,
+                                                         castShadowsCbk );
 
-    gtk3led->spotToggle = createToggleLabel ( pan,
-                                          gtk3led,
-                                          EDITLIGHTSPOTENABLED,
-                                          0,  24, 192, 18,
-                                          spotToggleCbk );
+    gtk3led->spotToggle         = ui_createToggleLabel ( pan,
+                                                         gtk3led,
+                                                         EDITLIGHTSPOTENABLED,
+                                                         0,  24, 192, 18,
+                                                         spotToggleCbk );
 
-    gtk3led->spotLengthEntry = createFloatText ( pan,
-                                             gtk3led,
-                                             EDITLIGHTSPOTLENGTH,
-                                             0.0f, FLT_MAX,
-                                             0, 48, 96, 96,
-                                             spotLengthCbk );
+    gtk3led->spotLengthEntry    = ui_createFloatText  ( pan,
+                                                        gtk3led,
+                                                        EDITLIGHTSPOTLENGTH,
+                                                        0.0f, FLT_MAX,
+                                                        0, 48, 96, 96,
+                                                        spotLengthCbk );
 
-    gtk3led->spotAngleEntry = createFloatText ( pan,
-                                            gtk3led,
-                                            EDITLIGHTSPOTANGLE,
-                                            0.0f, FLT_MAX,
-                                            0, 72, 96, 96,
-                                            spotAngleCbk );
+    gtk3led->spotAngleEntry     = ui_createFloatText  ( pan,
+                                                        gtk3led,
+                                                        EDITLIGHTSPOTANGLE,
+                                                        0.0f, FLT_MAX,
+                                                        0, 72, 96, 96,
+                                                        spotAngleCbk );
 
-    gtk3led->spotFadeAngleEntry = createFloatText ( pan,
-                                                gtk3led,
-                                                EDITLIGHTSPOTFADEANGLE,
-                                                0.0f, FLT_MAX,
-                                                0, 96, 96, 96,
-                                                spotFadeAngleCbk );
+    gtk3led->spotFadeAngleEntry = ui_createFloatText  ( pan,
+                                                        gtk3led,
+                                                        EDITLIGHTSPOTFADEANGLE,
+                                                        0.0f, FLT_MAX,
+                                                        0, 96, 96, 96,
+                                                        spotFadeAngleCbk );
 
 
 
     return pan;
 }
-#endif
+
 /******************************************************************************/
 void gtk3_g3duilightedit_update ( GTK3G3DUILIGHTEDIT *gtk3led ) {
     G3DUI *gui = gtk3led->core.gui;
@@ -585,14 +565,14 @@ void gtk3_g3duilightedit_update ( GTK3G3DUILIGHTEDIT *gtk3led ) {
             gtk_widget_set_sensitive ( gtk3led->tab, TRUE );
 
             if ( g3dobjectlist_checkType ( sce->lsel, G3DLIGHTTYPE ) ) {
-                gtk3led->editedLight = g3dscene_getLastSelected ( sce );
-
                 gtk3led->core.multi = ( nbsel > 0x01 ) ? 0x01 : 0x00;
 
+                gtk3led->core.editedLight = g3dscene_getLastSelected ( sce );
+
                 updateSpecularityPanel  ( gtk3led );
-                /*updateDiffuseColorPanel ( gtk3led );
+                updateDiffuseColorPanel ( gtk3led );
                 updateLightGeneralPanel ( gtk3led );
-                updateShadowsPanel      ( gtk3led );*/
+                updateShadowsPanel      ( gtk3led );
             }
         } else {
             gtk_widget_set_sensitive ( gtk3led->tab, FALSE );
@@ -636,12 +616,11 @@ GTK3G3DUILIGHTEDIT *gtk3_g3duilightedit_create ( GtkWidget *parent,
     g_signal_connect ( G_OBJECT (tab), "realize", G_CALLBACK (Realize), gtk3led );
     g_signal_connect ( G_OBJECT (tab), "destroy", G_CALLBACK (Destroy), gtk3led );
 
-/*    createLightGeneralPanel ( tab, gtk3led, EDITLIGHTGENERAL, 0, 0, width, height );
-    createDiffuseColorPanel ( tab, gtk3led, EDITDIFFUSE     , 0, 0, width, height );*/
+    createLightGeneralPanel ( gtk3led, 0, 0, 310, 150 );
+    createDiffuseColorPanel ( gtk3led, 0, 0, 310, 150 );
+    createSpecularityPanel  ( gtk3led, 0, 0, 310, 150 );
+    createShadowsPanel      ( gtk3led, 0, 0, 310, 150 );
 
-    createSpecularityPanel  ( gtk3led );
-
-/*    createShadowsPanel      ( tab, gtk3led, EDITLIGHTSHADOWS, 0, 0, width, height );*/
 
     gtk_widget_show ( tab );
 

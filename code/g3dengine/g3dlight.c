@@ -365,17 +365,34 @@ void g3dlight_unsetSpot ( G3DLIGHT *lig ) {
 }
 
 /******************************************************************************/
-void g3dlight_setSpot ( G3DLIGHT *lig, 
-                        float     spotLength,
-                        float     spotAngle, 
-                        float     spotFadeAngle ) {
+void g3dlight_setSpot ( G3DLIGHT *lig ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
 
     obj->flags |= SPOTLIGHT;
+}
 
-    lig->spotLength     = spotLength;
-    lig->spotAngle      = spotAngle;
-    lig->spotFadeAngle  = spotFadeAngle;
+/******************************************************************************/
+void g3dlight_setSpotAngle ( G3DLIGHT *lig,
+                             float     spotAngle ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) lig;
+
+    lig->spotAngle = spotAngle;
+}
+
+/******************************************************************************/
+void g3dlight_setSpotFadeAngle ( G3DLIGHT *lig,
+                                 float     spotFadeAngle ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) lig;
+
+    lig->spotFadeAngle = spotFadeAngle;
+}
+
+/******************************************************************************/
+void g3dlight_setSpotLength ( G3DLIGHT *lig,
+                              float     spotLength ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) lig;
+
+    lig->spotLength = spotLength;
 }
 
 /******************************************************************************/

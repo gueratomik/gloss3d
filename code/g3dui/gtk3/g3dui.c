@@ -48,17 +48,85 @@ void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in,
 }
 
 /******************************************************************************/
-GtkWidget *ui_gtk_fixed_new ( const char *class ) {
+GtkWidget *ui_gtk_fixed_new ( char *class ) {
     GtkWidget *fixed = gtk_fixed_new ( );
-    GtkStyleContext *context = gtk_widget_get_style_context ( fixed );
+    /*GtkStyleContext *context = gtk_widget_get_style_context ( fixed );
 
-    gtk_style_context_add_class ( context, class );
+    gtk_style_context_add_class ( context, class );*/
 
     return fixed;
 }
 
 /******************************************************************************/
-GtkWidget *ui_createSimpleLabel ( GtkWidget *parent, 
+GtkWidget *ui_gtk_label_new ( char *class,
+                              char *name ) {
+    GtkWidget *lab = gtk_label_new ( name );
+    /*GtkStyleContext *context = gtk_widget_get_style_context ( lab );
+
+    gtk_style_context_add_class ( context, class );*/
+
+    return lab;
+}
+
+/******************************************************************************/
+GtkWidget *ui_createPanel ( GtkWidget *parent, 
+                            void      *data,
+                            char      *name,
+                            char      *class,
+                            gint      x,
+                            gint      y,
+                            gint      width,
+                            gint      height ) {
+    GdkRectangle prec = { 0x00, 0x00, width, height };
+    GtkWidget *lab = ui_gtk_label_new ( class, name );
+    GtkWidget *pan = ui_gtk_fixed_new ( class );
+
+    gtk_widget_set_name ( pan, name );
+
+    gtk_widget_set_size_request ( pan, width, height );
+
+    /*gtk_fixed_put ( parent, pan, x, y );*/
+    gtk_notebook_append_page ( GTK_NOTEBOOK(parent), pan, lab );
+
+    gtk_widget_show ( lab );
+    gtk_widget_show ( pan );
+
+
+    return pan;
+}
+
+/******************************************************************************/
+GtkWidget *ui_createToggleLabel ( GtkWidget *parent, 
+                                  void      *data,
+                                  char      *name,
+                                  gint       x, 
+                                  gint       y,
+                                  gint       width,
+                                  gint       height,
+                                  void     (*cbk)( GtkWidget *, 
+                                                   gpointer ) ) {
+    GtkWidget *btn = gtk_check_button_new_with_label ( name );
+
+    gtk_widget_set_name ( btn, name );
+
+    gtk_widget_set_size_request ( btn, width, height );
+
+    gtk_toggle_button_set_mode ( GTK_TOGGLE_BUTTON(btn), TRUE );
+
+    if ( cbk ) {
+        g_signal_connect ( btn, "toggled", G_CALLBACK ( cbk ), data );
+    }
+
+    gtk_fixed_put ( GTK_FIXED(parent), btn, x, y );
+
+    gtk_widget_show ( btn );
+
+
+    return btn;
+}
+
+/******************************************************************************/
+GtkWidget *ui_createSimpleLabel ( GtkWidget *parent,
                                   void      *data,
                                   char      *name,
                                   gint       x, 
@@ -69,7 +137,9 @@ GtkWidget *ui_createSimpleLabel ( GtkWidget *parent,
 
     gtk_widget_set_name ( lab, name );
     gtk_widget_set_size_request ( lab, width, height );
+
     gtk_fixed_put ( GTK_FIXED(parent), lab, x, y );
+
     gtk_widget_show ( lab );
 
     return lab;
@@ -97,6 +167,151 @@ GtkWidget *ui_createColorButton ( GtkWidget *parent,
     gtk_fixed_put ( GTK_FIXED(parent), btn, x, y );
     gtk_widget_show ( btn );
 
+
+    return btn;
+}
+
+/******************************************************************************/
+static gboolean grabCbk ( GtkWidget *widget, GdkEvent  *event, 
+                                             gpointer user_data ) {
+    /*** Take keyboard input when clicked-in ***/
+    gtk_widget_grab_focus ( widget );
+
+    /*** keep processing ***/
+    return FALSE;
+}
+
+/******************************************************************************/
+/********* https://developer.gnome.org/gtk3/stable/GtkSpinButton.html *********/
+GtkWidget *ui_createNumericText ( GtkWidget     *parent, 
+                                  void          *data,
+                                  GtkAdjustment *adj,
+                                  char          *name,
+                                  gint          x, 
+                                  gint          y,
+                                  gint          labwidth,
+                                  gint          txtwidth,
+                                  void (*cbk)( GtkWidget *, 
+                                               gpointer ) ) {
+    GtkWidget *btn  = gtk_spin_button_new ( adj, 1.0, 0 );
+    GtkStyleContext *context = gtk_widget_get_style_context ( btn );
+    GdkRectangle   brec = { 0x00, 0x00, txtwidth, 0x12 };
+    PangoFontDescription *fdesc;
+    uint32_t charwidth;
+
+    gtk_style_context_get ( context, GTK_STATE_FLAG_NORMAL, "font", &fdesc, NULL );
+
+    charwidth = pango_font_description_get_size ( fdesc ) / PANGO_SCALE;
+
+    /*printf ( "%s\n", pango_font_description_get_family ( fdesc ) );*/
+
+    /*gtk_spin_button_set_numeric ( btn, TRUE );*/
+
+    gtk_widget_set_name ( btn, name );
+
+    gtk_widget_set_size_request ( btn, brec.width, brec.height );
+
+    gtk_widget_set_hexpand ( btn, FALSE );
+
+    if ( txtwidth ) {
+        gtk_entry_set_width_chars ( GTK_ENTRY(btn), txtwidth / charwidth );
+    }
+
+    gtk_fixed_put ( GTK_FIXED(parent), btn, x + labwidth, y );
+
+    if ( labwidth ) {
+        GdkRectangle lrec = { 0x00, 0x00, labwidth, 0x12 };
+        GtkWidget   *lab  = gtk_label_new ( name );
+
+        gtk_widget_set_name ( lab, name );
+
+        gtk_widget_set_size_request ( lab, lrec.width, lrec.height );
+
+        gtk_fixed_put ( GTK_FIXED(parent), lab, x, y );
+
+        gtk_widget_show ( lab );
+    }
+
+    gtk_widget_show ( btn );
+
+    return btn;
+}
+
+/******************************************************************************/
+/********* https://developer.gnome.org/gtk3/stable/GtkSpinButton.html *********/
+GtkWidget *ui_createIntegerText ( GtkWidget *parent, 
+                                  void      *data, 
+                                  char      *name,
+                                  gdouble    min, 
+                                  gdouble    max,
+                                  gint       x, 
+                                  gint       y,
+                                  gint       labwidth,
+                                  gint       txtwidth,
+                                  void       (*cbk)( GtkWidget *, 
+                                                     gpointer ) ) {
+    GtkAdjustment *adj = gtk_adjustment_new ( 0.0, 
+                                              min, 
+                                              max,
+                                              1.0,
+                                              1.0,
+                                              0.0 );
+
+    GtkWidget *btn = ui_createNumericText ( parent, 
+                                            data,
+                                            adj, 
+                                            name,
+                                            x, 
+                                            y, 
+                                            labwidth, 
+                                            txtwidth, 
+                                            cbk );
+
+    if ( cbk ) {
+        g_signal_connect ( btn, "value-changed"     , G_CALLBACK(cbk)    , data);
+        g_signal_connect ( btn, "button-press-event", G_CALLBACK(grabCbk), data);
+    }
+
+    return btn;
+}
+
+/******************************************************************************/
+/********* https://developer.gnome.org/gtk3/stable/GtkSpinButton.html *********/
+GtkWidget *ui_createFloatText ( GtkWidget *parent, 
+                                void      *data, 
+                                char      *name,
+                                gdouble    min, 
+                                gdouble    max,
+                                gint       x, 
+                                gint       y,
+                                gint       labwidth,
+                                gint       txtwidth,
+                                void       (*cbk)( GtkWidget *, 
+                                                   gpointer ) ) {
+    GtkAdjustment *adj = gtk_adjustment_new ( 0.0, 
+                                              min,
+                                              max,
+                                              0.1,
+                                              1.0,
+                                              0.0 );
+
+    GtkWidget *btn = ui_createNumericText ( parent,
+                                            data,
+                                            adj, 
+                                            name,
+                                            x, 
+                                            y, 
+                                            labwidth, 
+                                            txtwidth, 
+                                            cbk );
+
+    /*** careful. This triggers the callback ***/
+    gtk_spin_button_set_digits ( GTK_SPIN_BUTTON(btn), 3 );
+
+    if ( cbk ) {
+        g_signal_connect ( btn, "value-changed"     , G_CALLBACK(cbk)    , data);
+        g_signal_connect ( btn, "button-press-event", G_CALLBACK(grabCbk), data);
+    }
 
     return btn;
 }

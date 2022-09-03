@@ -60,7 +60,10 @@ void g3dimportv3light ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 g3dimportv3_freadf ( &spotAngle    , fsrc );
                 g3dimportv3_freadf ( &spotFadeAngle, fsrc );
 
-                g3dlight_setSpot ( lig, spotLength, spotAngle, spotFadeAngle );
+                g3dlight_setSpot          ( lig );
+                g3dlight_setSpotLength    ( lig, spotLength    );
+                g3dlight_setSpotAngle     ( lig, spotAngle     );
+                g3dlight_setSpotFadeAngle ( lig, spotFadeAngle );
             } break;
 
             case SIG_OBJECT_LIGHT_SHADOW_CASTING : {
