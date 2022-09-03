@@ -54,32 +54,6 @@ static GTK3G3DUIBOARD *gtk3_g3duiboard_new ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
-static void SizeAllocate ( GtkWidget     *widget,
-                           GtkAllocation *allocation,
-                           gpointer       user_data ) {
-    GTK3G3DUIBOARD *gtk3board = ( GTK3G3DUIBOARD * ) user_data;
-    GTK3G3DUIMOUSETOOLEDIT *tooledit = ( GTK3G3DUIMOUSETOOLEDIT * ) gtk3board->core.tooledit;
-    GdkRectangle gdkrec;
-
-    g3duiboard_resize ( &gtk3board->core,
-                         allocation->width,
-                         allocation->height );
-
-    /*** Boards ***/
-
-    g3duirectangle_toGdkRectangle ( &gtk3board->core.boardrec, &gdkrec );
-
-    gtk_widget_size_allocate ( gtk3board->tab, &gdkrec );
-
-
-    /*** Current mouse tool ***/
-
-    /*g3duirectangle_toGdkRectangle ( &gtk3board->core.toolrec, &gdkrec );
-
-    gtk_widget_size_allocate ( tooledit->layout, &gdkrec );*/
-}
-
-/******************************************************************************/
 static void Destroy ( GtkWidget *widget, 
                       gpointer   user_data ) {
     GTK3G3DUIBOARD *gtk3board = ( GTK3G3DUIBOARD * ) user_data;
@@ -132,6 +106,45 @@ static void gtk3_g3duiboard_createBoards ( GTK3G3DUIBOARD *gtk3board ) {
 }
 
 /******************************************************************************/
+void gtk3_g3duiboard_resize ( GTK3G3DUIBOARD *gtk3board,
+                              uint32_t        width,
+                              uint32_t        height ) {
+    GTK3G3DUIMOUSETOOLEDIT *tooledit = ( GTK3G3DUIMOUSETOOLEDIT * ) gtk3board->core.tooledit;
+    GdkRectangle gdkrec;
+
+    g3duiboard_resize ( &gtk3board->core,
+                         width,
+                         height );
+
+    /*** Boards ***/
+
+    g3duirectangle_toGdkRectangle ( &gtk3board->core.boardrec, &gdkrec );
+
+    gtk_layout_move ( gtk3board->layout,
+                      gtk3board->tab,
+                      gdkrec.x,
+                      gdkrec.y );
+
+    gtk_widget_set_size_request ( gtk3board->tab,
+                                  gdkrec.width,
+                                  gdkrec.height );
+
+    gtk3_g3duiobjectboard_resize ( gtk3board->core.objboard,
+                                   gdkrec.width,
+                                   gdkrec.height );
+
+    /*gtk_widget_size_allocate ( gtk3board->tab, &gdkrec );*/
+
+
+    /*** Current mouse tool ***/
+
+    /*g3duirectangle_toGdkRectangle ( &gtk3board->core.toolrec, &gdkrec );
+
+    gtk_widget_size_allocate ( tooledit->layout, &gdkrec );*/
+}
+
+
+/******************************************************************************/
 GTK3G3DUIBOARD *gtk3_g3duiboard_create ( GtkWidget *parent,
                                          GTK3G3DUI *gtk3gui,
                                          char      *name ) {
@@ -144,7 +157,6 @@ GTK3G3DUIBOARD *gtk3_g3duiboard_create ( GtkWidget *parent,
 
     g_signal_connect ( G_OBJECT (layout), "realize"      , G_CALLBACK (Realize)     , gtk3board );
     g_signal_connect ( G_OBJECT (layout), "destroy"      , G_CALLBACK (Destroy)     , gtk3board );
-    g_signal_connect ( G_OBJECT (layout), "size-allocate", G_CALLBACK (SizeAllocate), gtk3board );
 
     gtk_widget_show ( layout );
 

@@ -286,8 +286,9 @@ void g3duiview_releaseButton ( G3DUIVIEW *view ) {
 /******************************************************************************/
 void g3duiview_init ( G3DUIVIEW *view,
                       uint32_t   width,
-                      uint32_t   height ) {
-    g3duiview_resize ( view, width, height );
+                      uint32_t   height,
+                      uint32_t   menuHeight ) {
+    g3duiview_resize ( view, width, height, menuHeight );
 
     view->pressedButtonID = -1;
 }
@@ -295,23 +296,24 @@ void g3duiview_init ( G3DUIVIEW *view,
 /******************************************************************************/
 void g3duiview_resize ( G3DUIVIEW *view, 
                         uint32_t   width, 
-                        uint32_t   height ) {
+                        uint32_t   height,
+                        uint32_t   menuHeight ) {
     int i, margin = 0x02, xpos;
 
     view->menurec.x      = 0x00;
     view->menurec.y      = 0x00;
     view->menurec.width  = width;
-    view->menurec.height = BUTTONSIZE;
+    view->menurec.height = menuHeight;
 
     view->glrec.x      = 0x00;
-    view->glrec.y      = BUTTONSIZE;
+    view->glrec.y      = menuHeight;
     view->glrec.width  = width;
-    view->glrec.height = height - BUTTONSIZE;
+    view->glrec.height = height - menuHeight;
 
     view->navrec.x      = width - ( margin + ( NBVIEWBUTTON * ( BUTTONSIZE + margin ) ) );
     view->navrec.y      = 0x00;
     view->navrec.width  = NBVIEWBUTTON * ( BUTTONSIZE + margin ) + margin;
-    view->navrec.height = BUTTONSIZE;
+    view->navrec.height = menuHeight;
 
     view->menurec.width -= view->navrec.width;
 

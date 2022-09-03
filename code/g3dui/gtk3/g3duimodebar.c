@@ -170,7 +170,7 @@ GTK3G3DUIMODEBAR *gtk3_g3duimodebar_create ( GtkWidget *parent,
     gtk3mb->axisMode   = addModeBarButton ( gtk3mb->bar, gtk3mb->objectMode, gtk3mb, MODE_VIEWAXIS  , axismode_test_xpm  , setMode );
     gtk3mb->pathMode   = addModeBarButton ( gtk3mb->bar, gtk3mb->objectMode, gtk3mb, MODE_VIEWPATH  , pathmode_xpm       , setMode );
 
-    gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(gtk3mb->bar), 0 );
+    gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(gtk3mb->bar), TRUE );
 
     gtk_widget_show ( gtk3mb->bar );
 

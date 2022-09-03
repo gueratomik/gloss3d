@@ -70,39 +70,46 @@ static uint64_t setShadingCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static G3DUIMENU shading_menu_gouraud   = { NULL,
                                             SHADINGMENU_GOURAUD,
+                                            MENU_CLASS_VIEW,
                                             G3DUIMENUTYPE_TOGGLEBUTTON,
                                             gouraudActiveCond,
                                             setShadingCbk };
 
 static G3DUIMENU shading_menu_flat      = { NULL,
                                             SHADINGMENU_FLAT,
+                                            MENU_CLASS_VIEW,
                                             G3DUIMENUTYPE_TOGGLEBUTTON,
                                             flatActiveCond,
                                             setShadingCbk };
  
 static G3DUIMENU shading_menu_wireframe = { NULL,
                                             SHADINGMENU_WIREFRAME,
+                                            MENU_CLASS_VIEW,
                                             G3DUIMENUTYPE_TOGGLEBUTTON,
                                             wireframeActiveCond,
                                             setShadingCbk };
 
 /*static G3DUIMENU shading_menu_phong     = { NULL,
                                             SHADINGMENU_PHONG,
+                                            MENU_CLASS_VIEW,
                                             G3DUIMENUTYPE_PUSHBUTTON,
                                             NULL,
                                             setShadingCbk };*/
 
 /******************************************************************************/
+static G3DUIMENU *shadingchildren[] = { &shading_menu_gouraud,
+                                     &shading_menu_flat,
+                                     &shading_menu_wireframe,
+                                     /*&shading_menu_phong,*/
+                                      NULL };
+
 static G3DUIMENU shading_menu = { NULL,
                                   "_Shading",
+                                  MENU_CLASS_VIEW,
                                   G3DUIMENUTYPE_SUBMENU,
                                   NULL,
                                   NULL,
-                                 .nodes = { &shading_menu_gouraud,
-                                            &shading_menu_flat,
-                                            &shading_menu_wireframe,
-                                            /*&shading_menu_phong,*/
-                                             NULL } };
+                                 .nodes = shadingchildren };
 
 /******************************************************************************/
 static uint32_t useDefaultCameraCond ( G3DUIMENU *menu,
@@ -338,85 +345,100 @@ static uint64_t resetCameraCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static G3DUIMENU view_menu_defcam   = { NULL,
                                         VIEWMENU_DEFAULTCAMERA,
+                                        MENU_CLASS_VIEW,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
                                         useDefaultCameraCond,
                                         useDefaultCameraCbk };
 
 static G3DUIMENU view_menu_selcam   = { NULL,
                                         VIEWMENU_SELECTEDCAMERA,
+                                        MENU_CLASS_VIEW,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
                                         NULL,
                                         useSelectedCameraCbk };
 
 static G3DUIMENU view_menu_normals  = { NULL,
                                         VIEWMENU_NORMALS,
+                                        MENU_CLASS_VIEW,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
                                         toggleNormalsCond,
                                         toggleNormalsCbk };
 
 static G3DUIMENU view_menu_bones    = { NULL,
                                         VIEWMENU_BONES,
+                                        MENU_CLASS_VIEW,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
                                         toggleBonesCond,
                                         toggleBonesCbk };
 
 static G3DUIMENU view_menu_grid     = { NULL,
                                         VIEWMENU_GRID,
+                                        MENU_CLASS_VIEW,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
                                         toggleGridCond,
                                         toggleGridCbk };
 
 static G3DUIMENU view_menu_textures = { NULL,
                                         VIEWMENU_TEXTURES,
+                                        MENU_CLASS_VIEW,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
                                         toggleTexturesCond,
                                         toggleTexturesCbk };
 
 static G3DUIMENU view_menu_bg       = { NULL,
                                         VIEWMENU_BACKGROUND,
+                                        MENU_CLASS_VIEW,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
                                         toggleBackgroundImageCond,
                                         toggleBackgroundImageCbk };
 
 static G3DUIMENU view_menu_lighting = { NULL,
                                         VIEWMENU_LIGHTING,
+                                        MENU_CLASS_VIEW,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
                                         toggleLightingCond,
                                         toggleLightingCbk };
 
 static G3DUIMENU view_menu_reset    = { NULL,
                                         VIEWMENU_RESET,
+                                        MENU_CLASS_VIEW,
                                         G3DUIMENUTYPE_PUSHBUTTON,
                                         NULL,
                                         resetCameraCbk };
 
 /******************************************************************************/
+static G3DUIMENU *viewchildren[] = { &view_menu_defcam,
+                                     &view_menu_selcam,
+                                     &view_menu_normals,
+                                     &view_menu_bones,
+                                     &view_menu_grid,
+                                     &view_menu_textures,
+                                     &view_menu_bg,
+                                     &view_menu_lighting,
+                                     &view_menu_reset,
+                                      NULL };
+
 static G3DUIMENU view_menu = { NULL,
                                "_Options",
+                               MENU_CLASS_VIEW,
                                G3DUIMENUTYPE_SUBMENU,
                                NULL,
                                NULL,
-                              .nodes = { &view_menu_defcam,
-                                         &view_menu_selcam,
-                                         &view_menu_normals,
-                                         &view_menu_bones,
-                                         &view_menu_grid,
-                                         &view_menu_textures,
-                                         &view_menu_bg,
-                                         &view_menu_lighting,
-                                         &view_menu_reset,
-                                          NULL } };
+                              .nodes = viewchildren };
 
 /******************************************************************************/
 /******************************************************************************/
+static G3DUIMENU *viewrootchildren[] = { &view_menu,
+                                         &shading_menu,
+                                          NULL };
+
 static G3DUIMENU viewrootnode = { NULL,
                                   OPTIONMENUNAME,
+                                  NULL,
                                   G3DUIMENUTYPE_MENUBAR,
                                   NULL,
                                   NULL,
-                                 .nodes = { &view_menu,
-                                            &shading_menu,
-                                             NULL } };
+                                 .nodes = viewrootchildren };
 
 /******************************************************************************/
 G3DUIMENU *g3duimenu_getViewMenuNode ( ) {

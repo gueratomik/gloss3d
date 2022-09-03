@@ -590,11 +590,20 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
             gtk_widget_show ( gtk3node->menu );
             gtk_widget_show ( gtk3node->item );
 
-            gtk_widget_set_size_request ( gtk3node->menu, 0x60, 24 );
+            /*gtk_widget_set_size_request ( gtk3node->item, 
+                                          0x60,
+                                          0x00 );*/
         } break;
 
         default :
         break;
+    }
+
+    if ( gtk3node->item ) {
+        /**** https://stackoverflow.com/questions/37609381 ***/
+        GtkStyleContext *context = gtk_widget_get_style_context(gtk3node->item);
+
+        gtk_style_context_add_class ( context, node->class );
     }
 
     if ( node->type == G3DUIMENUTYPE_SUBMENU  ) {
@@ -605,7 +614,7 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
 
     /*gtk_widget_size_allocate ( gtk3node->item, &gdkrec );*/
 
-        gtk_widget_set_size_request ( gtk3node->item, 0x60, height );
+        gtk_widget_set_size_request ( gtk3node->item, 0x60, 0x00 );
     }
 
     /*gtk_widget_set_name ( gtk3node->item, node->name );*/

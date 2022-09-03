@@ -48,15 +48,20 @@ static GTK3G3DUIQUAD *g3tk_g3duiquad_new ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
-static void SizeAllocate ( GtkWidget     *widget,
+/*static void SizeAllocate ( GtkWidget     *widget,
                            GtkAllocation *allocation,
-                           gpointer       user_data ) {
+                           gpointer       user_data ) {*/
+static gboolean SizeAllocate ( GtkWidget        *self,
+                               GdkEventConfigure event,
+                               gpointer          user_data ) {
     GTK3G3DUIQUAD *gtk3quad = ( GTK3G3DUIQUAD *    ) user_data;
 
-
+#ifdef unused
     g3duiquad_resize ( &gtk3quad->core, 
-                        allocation->width, 
-                        allocation->height );
+                        event.width, 
+                        event.height );
+
+printf("quad %d %d\n", event.width, event.height );
 
     if ( gtk3quad->core.magnified == NULL ) {
         uint32_t i;
@@ -70,13 +75,7 @@ static void SizeAllocate ( GtkWidget     *widget,
                                         gtk3quad->core.rect[i].width,
                                         gtk3quad->core.rect[i].height };
 
-                /*gtk_layout_move ( GTK_LAYOUT(widget),
-                                  gtk3view->layout,
-                                  gdkrec.x,
-                                  gdkrec.y );*/
-
-                gtk_widget_size_allocate ( gtk3view->layout,
-                                          &gdkrec );
+                gtk_widget_size_allocate ( gtk3view->layout, &gdkrec );
             }
         }
     } else {
@@ -88,14 +87,11 @@ static void SizeAllocate ( GtkWidget     *widget,
                                     gtk3quad->core.width,
                                     gtk3quad->core.height };
 
-            /*gtk_layout_move ( GTK_LAYOUT(widget),
-                              gtk3view->layout,
-                              gdkrec.x,
-                              gdkrec.y );*/
-
             gtk_widget_size_allocate ( gtk3view->layout, &gdkrec );
         }
     }
+#endif
+    return FALSE;
 }
 
 /******************************************************************************/
@@ -123,7 +119,7 @@ static gboolean Draw ( GtkWidget *widget,
     GTK3G3DUIQUAD *gtk3quad = ( GTK3G3DUIQUAD * ) user_data;
     GtkStyleContext *context = gtk_widget_get_style_context ( widget );
     GdkRGBA color;
-#ifdef unused
+
 
 /*cairo_region_t * cairoRegion = cairo_region_create();
 GdkWindow *window = gtk_layout_get_bin_window (widget);
@@ -139,13 +135,18 @@ drawingContext = gdk_window_begin_draw_frame (window,cairoRegion);*/
                                     gtk3quad->core.rect[i].y,
                                     gtk3quad->core.rect[i].width,
                                     gtk3quad->core.rect[i].height };
+            G3DUI *gui = gtk3quad->core.gui;
 
-cairo_rectangle (cr,
-                 gdkrec.x,
-                                        gdkrec.y,
-                                        gdkrec.width, 
-                                        gdkrec.height );
-cairo_stroke(cr);
+            /*if ( gui->currentView == gtk3quad->core.view[i] ) {*/
+                cairo_set_source_rgb ( cr, 0.0f, 0.0f, 1.0f );
+
+                cairo_rectangle ( cr,
+                                  gdkrec.x,
+                                  gdkrec.y,
+                                  gdkrec.width, 
+                                  gdkrec.height );
+                cairo_stroke(cr);
+            /*}*/
 
 /*
 cairo_move_to(cr, 30, 30);
@@ -177,7 +178,7 @@ cairo_move_to(cr, 30, 30);
 /*gdk_window_end_draw_frame(window,drawingContext);
 
 cairo_region_destroy(cairoRegion);*/
-#endif
+
 
     return FALSE;
 }
@@ -201,6 +202,7 @@ void gtk3_g3duiquad_rearrange ( GTK3G3DUIQUAD *gtk3quad,
             if ( gtk3view != magnified ) gtk_widget_show ( gtk3view->layout );
         }
 
+
         quad->magnified = NULL;
     } else {
         for ( i = 0x00; i < 0x04; i++ ) {
@@ -212,7 +214,9 @@ void gtk3_g3duiquad_rearrange ( GTK3G3DUIQUAD *gtk3quad,
         quad->magnified = magnified;
     }
 
-    gtk_widget_size_allocate ( magnified->layout, &qalloc );
+    gtk3_g3duiquad_resize ( gtk3quad,
+                            gtk3quad->core.width,
+                            gtk3quad->core.height );
 }
 
 /******************************************************************************/
@@ -240,6 +244,66 @@ static void gtk3_g3duiquad_createViews ( GTK3G3DUIQUAD *gtk3quad ) {
 }
 
 /******************************************************************************/
+void gtk3_g3duiquad_resize ( GTK3G3DUIQUAD *gtk3quad,
+                             uint32_t       width,
+                             uint32_t       height ) {
+
+    g3duiquad_resize ( &gtk3quad->core, 
+                        width, 
+                        height );
+
+/*printf("quad %d %d\n", width, height );*/
+
+    if ( gtk3quad->core.magnified == NULL ) {
+        uint32_t i;
+
+        for ( i = 0x00; i < 0x04; i++ ) {
+            GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) gtk3quad->core.view[i];
+
+            if ( gtk3view ) {
+                GdkRectangle gdkrec = { gtk3quad->core.rect[i].x,
+                                        gtk3quad->core.rect[i].y,
+                                        gtk3quad->core.rect[i].width,
+                                        gtk3quad->core.rect[i].height };
+
+                gtk3_g3duiview_resize ( gtk3view, gdkrec.width, gdkrec.height );
+
+                gtk_layout_move ( gtk3quad->layout,
+                                 gtk3view->layout, 
+                                 gdkrec.x,
+                                 gdkrec.y );
+
+                gtk_widget_set_size_request ( gtk3view->layout,
+                                              gdkrec.width,
+                                              gdkrec.height );
+            }
+        }
+    } else {
+        GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) gtk3quad->core.magnified;
+
+        if ( gtk3view ) {
+            GdkRectangle gdkrec = { 0x00 + gtk3quad->core.margin,
+                                    0x00 + gtk3quad->core.margin,
+                                    gtk3quad->core.width  - gtk3quad->core.margin - gtk3quad->core.margin,
+                                    gtk3quad->core.height - gtk3quad->core.margin - gtk3quad->core.margin };
+
+            gtk3_g3duiview_resize ( gtk3view, gdkrec.width, gdkrec.height );
+
+            gtk_layout_move ( gtk3quad->layout,
+                             gtk3view->layout, 
+                             gdkrec.x,
+                             gdkrec.y );
+
+            gtk_widget_set_size_request ( gtk3view->layout,
+                                          gdkrec.width,
+                                          gdkrec.height );
+        }
+    }
+
+    return FALSE;
+}
+
+/******************************************************************************/
 GTK3G3DUIQUAD *gtk3_g3duiquad_create ( GtkWidget *parent,
                                        GTK3G3DUI *gtk3gui,
                                        char      *name ) {
@@ -247,14 +311,15 @@ GTK3G3DUIQUAD *gtk3_g3duiquad_create ( GtkWidget *parent,
     GTK3G3DUIQUAD *gtk3quad = g3tk_g3duiquad_new ( gtk3gui );
     GtkWidget    *layout  = gtk_layout_new ( NULL, NULL );
 
+    gtk3quad->layout = layout;
+
     gtk_widget_set_name ( layout, name );
+
+    gtk_widget_add_events(GTK_WIDGET(layout), GDK_CONFIGURE);
 
     g_signal_connect ( G_OBJECT (layout), "realize"      , G_CALLBACK (Realize)     , gtk3quad );
     g_signal_connect ( G_OBJECT (layout), "destroy"      , G_CALLBACK (Destroy)     , gtk3quad );
-    g_signal_connect ( G_OBJECT (layout), "size-allocate", G_CALLBACK (SizeAllocate), gtk3quad );
-    g_signal_connect ( G_OBJECT (layout), "draw"         , G_CALLBACK (Draw)      , gtk3quad );
-
-    gtk3quad->layout = layout;
+    g_signal_connect ( G_OBJECT (layout), "draw"         , G_CALLBACK (Draw)        , gtk3quad );
 
     gtk3_g3duiquad_createViews ( gtk3quad ) ;
 

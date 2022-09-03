@@ -54,6 +54,7 @@ static uint64_t aboutCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static G3DUIMENU menu_separator = { NULL,
                                     "SEPARATOR",
+                                    MENU_CLASS_MAIN,
                                     G3DUIMENUTYPE_SEPARATOR,
                                     NULL,
                                     NULL };
@@ -62,18 +63,22 @@ static G3DUIMENU menu_separator = { NULL,
 /********************************* Help MENU **********************************/
 static G3DUIMENU help_menu_about = { NULL,
                                      MENU_ABOUT,
+                                     MENU_CLASS_MAIN,
                                      G3DUIMENUTYPE_PUSHBUTTON,
                                      NULL,
                                      aboutCbk };
 
 /******************************************************************************/
+static G3DUIMENU *helpchildren[] = { &help_menu_about,
+                                      NULL };
+
 static G3DUIMENU help_menu = { NULL,
                                "Help",
+                               MENU_CLASS_MAIN,
                                G3DUIMENUTYPE_SUBMENU,
                                NULL,
                                NULL,
-                              .nodes = { &help_menu_about,
-                                          NULL } };
+                              .nodes = helpchildren };
 
 /******************************************************************************/
 /************************** UVMapping MENU Callbacks **************************/
@@ -100,55 +105,67 @@ static uint64_t alignUVMapCbk ( G3DUIMENU *menu,
 
 static G3DUIMENU uvmapping_menu_align_xy = { NULL,
                                              MENU_ALIGNUVMAPXY,
+                                             MENU_CLASS_MAIN,
                                              G3DUIMENUTYPE_PUSHBUTTON,
                                              NULL,
                                              alignUVMapCbk };
 
 static G3DUIMENU uvmapping_menu_align_yz = { NULL,
                                              MENU_ALIGNUVMAPYZ,
+                                             MENU_CLASS_MAIN,
                                              G3DUIMENUTYPE_PUSHBUTTON,
                                              NULL,
                                              alignUVMapCbk };
 
 static G3DUIMENU uvmapping_menu_align_zx = { NULL,
                                              MENU_ALIGNUVMAPZX,
+                                             MENU_CLASS_MAIN,
                                              G3DUIMENUTYPE_PUSHBUTTON,
                                              NULL,
                                              alignUVMapCbk };
 
 /******************************************************************************/
+static G3DUIMENU *uvmappingalignchildren[] = { &uvmapping_menu_align_xy,
+                                               &uvmapping_menu_align_yz,
+                                               &uvmapping_menu_align_zx,
+                                                NULL };
+
+static G3DUIMENU uvmapping_menu_align = { NULL,
+                                          MENU_ALIGNUVMAP,
+                                          MENU_CLASS_MAIN,
+                                          G3DUIMENUTYPE_SUBMENU,
+                                          NULL,
+                                          NULL,
+                                         .nodes = uvmappingalignchildren };
+
+/******************************************************************************/
 static G3DUIMENU uvmapping_menu_add   = { NULL,
                                           MENU_ADDUVMAP,
+                                          MENU_CLASS_MAIN,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           addUVMapCbk };
 
 static G3DUIMENU uvmapping_menu_fit   = { NULL,
                                           MENU_FITUVMAP,
+                                          MENU_CLASS_MAIN,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           fitUVMapCbk };
 
-static G3DUIMENU uvmapping_menu_align = { NULL,
-                                          MENU_ALIGNUVMAP,
-                                          G3DUIMENUTYPE_SUBMENU,
-                                          NULL,
-                                          NULL,
-                                         .nodes = { &uvmapping_menu_align_xy,
-                                                    &uvmapping_menu_align_yz,
-                                                    &uvmapping_menu_align_zx,
-                                                     NULL } };
-
 /******************************************************************************/
+static G3DUIMENU *uvmappingchildren[] = { &uvmapping_menu_add,
+                                          &uvmapping_menu_fit,
+                                          &uvmapping_menu_align,
+                                           NULL };
+
 static G3DUIMENU uvmapping_menu = { NULL,
                                     "UV Mapping",
+                                    MENU_CLASS_MAIN,
                                     G3DUIMENUTYPE_SUBMENU,
                                     NULL,
                                     NULL,
-                                   .nodes = { &uvmapping_menu_add,
-                                              &uvmapping_menu_fit,
-                                              &uvmapping_menu_align,
-                                               NULL } };
+                                   .nodes = uvmappingchildren };
 
 /******************************************************************************/
 /**************************** Render MENU Callbacks ***************************/
@@ -184,25 +201,30 @@ static uint64_t renderSettingsCbk ( G3DUIMENU *menu,
 
 static G3DUIMENU render_menu_view     = { NULL,
                                           MENU_RENDERVIEW,
+                                          MENU_CLASS_MAIN,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           renderViewCbk };
 
 static G3DUIMENU render_menu_settings = { NULL,
                                           MENU_RENDERSETTINGS,
+                                          MENU_CLASS_MAIN,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           renderSettingsCbk };
 
 /******************************************************************************/
+static G3DUIMENU *renderchildren[] = { &render_menu_view,
+                                       &render_menu_settings,
+                                        NULL };
+
 static G3DUIMENU render_menu = { NULL,
                                  "Render",
+                                 MENU_CLASS_MAIN,
                                  G3DUIMENUTYPE_SUBMENU,
                                  NULL,
                                  NULL,
-                                .nodes = { &render_menu_view,
-                                           &render_menu_settings,
-                                            NULL } };
+                                .nodes = renderchildren };
 
 /******************************************************************************/
 /************************* Functions MENU Callbacks ***************************/
@@ -265,108 +287,133 @@ static uint64_t makeEditableCbk ( G3DUIMENU *menu,
 
 static G3DUIMENU functions_menu_mirrorHeightmap_xy = { NULL,
                                                        MENU_MIRRORXY,
+                                                       MENU_CLASS_MAIN,
                                                        G3DUIMENUTYPE_PUSHBUTTON,
                                                        sculptModeOnly,
                                                        mirrorHeightmapCbk };
 
 static G3DUIMENU functions_menu_mirrorHeightmap_yz = { NULL,
                                                        MENU_MIRRORYZ,
+                                                       MENU_CLASS_MAIN,
                                                        G3DUIMENUTYPE_PUSHBUTTON,
                                                        sculptModeOnly,
                                                        mirrorHeightmapCbk };
 
 static G3DUIMENU functions_menu_mirrorHeightmap_zx = { NULL,
                                                        MENU_MIRRORZX,
+                                                       MENU_CLASS_MAIN,
                                                        G3DUIMENUTYPE_PUSHBUTTON,
                                                        sculptModeOnly,
                                                        mirrorHeightmapCbk };
 
 /******************************************************************************/
+static G3DUIMENU *functionsmirrorhmchildren[] = { &functions_menu_mirrorHeightmap_xy,
+                                                  &functions_menu_mirrorHeightmap_yz,
+                                                  &functions_menu_mirrorHeightmap_zx,
+                                                   NULL };
+
+static G3DUIMENU functions_menu_mirrorHM     = { NULL,
+                                                 MENU_MIRRORHEIGHTMAP,
+                                                 MENU_CLASS_MAIN,
+                                                 G3DUIMENUTYPE_SUBMENU,
+                                                 sculptModeOnly,
+                                                 NULL,
+                                                .nodes = functionsmirrorhmchildren };
+
+/******************************************************************************/
 static G3DUIMENU functions_menu_mirrorWeightgroup_xy = { NULL,
                                                          MENU_MIRRORXY,
+                                                         MENU_CLASS_MAIN,
                                                          G3DUIMENUTYPE_PUSHBUTTON,
                                                          skinModeOnly,
                                                          mirrorWeightGroupCbk };
 
 static G3DUIMENU functions_menu_mirrorWeightgroup_yz = { NULL,
                                                          MENU_MIRRORYZ,
+                                                         MENU_CLASS_MAIN,
                                                          G3DUIMENUTYPE_PUSHBUTTON,
                                                          skinModeOnly,
                                                          mirrorWeightGroupCbk };
 
 static G3DUIMENU functions_menu_mirrorWeightgroup_zx = { NULL,
                                                          MENU_MIRRORZX,
+                                                         MENU_CLASS_MAIN,
                                                          G3DUIMENUTYPE_PUSHBUTTON,
                                                          skinModeOnly,
                                                          mirrorWeightGroupCbk };
 
 /******************************************************************************/
+static G3DUIMENU *functionsmirrorwgchildren[] = { &functions_menu_mirrorWeightgroup_xy,
+                                                  &functions_menu_mirrorWeightgroup_yz,
+                                                  &functions_menu_mirrorWeightgroup_zx,
+                                                   NULL };
+
+static G3DUIMENU functions_menu_mirrorWG     = { NULL,
+                                                 MENU_MIRRORWEIGHTGROUP,
+                                                 MENU_CLASS_MAIN,
+                                                 G3DUIMENUTYPE_SUBMENU,
+                                                 skinModeOnly,
+                                                 NULL,
+                                                .nodes = functionsmirrorwgchildren };
+
+/******************************************************************************/
 static G3DUIMENU functions_menu_splitMesh_keep   = { NULL,
                                                      MENU_SPLITANDKEEP,
+                                                     MENU_CLASS_MAIN,
                                                      G3DUIMENUTYPE_PUSHBUTTON,
                                                      faceModeOnly,
                                                      splitMeshCbk };
 
 static G3DUIMENU functions_menu_splitMesh_remove = { NULL,
                                                      MENU_SPLITANDREMOVE,
+                                                     MENU_CLASS_MAIN,
                                                      G3DUIMENUTYPE_PUSHBUTTON,
                                                      faceModeOnly,
                                                      splitMeshCbk };
 
 /******************************************************************************/
-static G3DUIMENU functions_menu_mirrorHM     = { NULL,
-                                                 MENU_MIRRORHEIGHTMAP,
-                                                 G3DUIMENUTYPE_SUBMENU,
-                                                 sculptModeOnly,
-                                                 NULL,
-                                                .nodes = { &functions_menu_mirrorHeightmap_xy,
-                                                           &functions_menu_mirrorHeightmap_yz,
-                                                           &functions_menu_mirrorHeightmap_zx,
-                                                            NULL } };
-
-static G3DUIMENU functions_menu_mirrorWG     = { NULL,
-                                                 MENU_MIRRORWEIGHTGROUP,
-                                                 G3DUIMENUTYPE_SUBMENU,
-                                                 skinModeOnly,
-                                                 NULL,
-                                                .nodes = { &functions_menu_mirrorWeightgroup_xy,
-                                                           &functions_menu_mirrorWeightgroup_yz,
-                                                           &functions_menu_mirrorWeightgroup_zx,
-                                                            NULL } };
+static G3DUIMENU *functionssplitmeshchildren[] = { &functions_menu_splitMesh_keep,
+                                                   &functions_menu_splitMesh_remove,
+                                                    NULL };
 
 static G3DUIMENU functions_menu_splitMesh    = { NULL,
                                                  MENU_SPLITMESH,
+                                                 MENU_CLASS_MAIN,
                                                  G3DUIMENUTYPE_SUBMENU,
                                                  faceModeOnly,
                                                  NULL,
-                                                .nodes = { &functions_menu_splitMesh_keep,
-                                                           &functions_menu_splitMesh_remove,
-                                                            NULL } };
+                                                .nodes = functionssplitmeshchildren };
 
+/******************************************************************************/
 static G3DUIMENU functions_menu_mergeMesh    = { NULL,
                                                  MENU_MERGEMESH,
+                                                 MENU_CLASS_MAIN,
                                                  G3DUIMENUTYPE_PUSHBUTTON,
                                                  objectModeOnly,
                                                  mergeMeshCbk };
 
 static G3DUIMENU functions_menu_makeEditable = { NULL,
                                                  MENU_MAKEEDITABLE,
+                                                 MENU_CLASS_MAIN,
                                                  G3DUIMENUTYPE_PUSHBUTTON,
                                                  objectModeOnly,
                                                  makeEditableCbk };
 
 /******************************************************************************/
+static G3DUIMENU *functionschildren[] = { &functions_menu_mirrorWG,
+                                          &functions_menu_mirrorHM,
+                                          &functions_menu_splitMesh,
+                                          &functions_menu_mergeMesh,
+                                          &functions_menu_makeEditable,
+                                           NULL };
+
 static G3DUIMENU functions_menu = { NULL,
                                     "Functions",
+                                    MENU_CLASS_MAIN,
                                     G3DUIMENUTYPE_SUBMENU,
                                     NULL,
                                     NULL,
-                                   .nodes = { &functions_menu_mirrorWG,
-                                              &functions_menu_mirrorHM,
-                                              &functions_menu_splitMesh,
-                                              &functions_menu_mergeMesh,
-                                              &functions_menu_makeEditable,
-                                               NULL } };
+                                   .nodes = functionschildren };
 
 /******************************************************************************/
 /************************ Multipliers MENU Callbacks **************************/
@@ -400,34 +447,40 @@ static uint64_t addEmitterCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 /***************************** Multipliers MENU *******************************/
 
-static G3DUIMENU multipliers_menu_addEmitter = { NULL,
-                                                 MENU_ADDEMITTER,
-                                                 G3DUIMENUTYPE_PUSHBUTTON,
-                                                 objectModeOnly,
-                                                 addEmitterCbk };
+static G3DUIMENU multipliers_menu_addEmitter  = { NULL,
+                                                  MENU_ADDEMITTER,
+                                                  MENU_CLASS_MAIN,
+                                                  G3DUIMENUTYPE_PUSHBUTTON,
+                                                  objectModeOnly,
+                                                  addEmitterCbk };
 
 static G3DUIMENU multipliers_menu_addInstance = { NULL,
                                                   MENU_ADDINSTANCE,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   objectModeOnly,
                                                   addInstanceCbk };
 
 static G3DUIMENU multipliers_menu_addSymmetry = { NULL,
                                                   MENU_ADDSYMMETRY,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   objectModeOnly,
                                                   addSymmetryCbk };
 
 /******************************************************************************/
+static G3DUIMENU *multiplierschildren[] = { &multipliers_menu_addInstance,
+                                            &multipliers_menu_addSymmetry,
+                                            &multipliers_menu_addEmitter,
+                                             NULL };
+
 static G3DUIMENU multipliers_menu = { NULL,
                                       "Multipliers",
+                                      MENU_CLASS_MAIN,
                                       G3DUIMENUTYPE_SUBMENU,
                                       NULL,
                                       NULL,
-                                     .nodes = { &multipliers_menu_addInstance,
-                                                &multipliers_menu_addSymmetry,
-                                                &multipliers_menu_addEmitter,
-                                                 NULL } };
+                                     .nodes = multiplierschildren };
 
 /******************************************************************************/
 /************************** Modifiers MENU Callbacks **************************/
@@ -500,106 +553,129 @@ static uint64_t addBoneCbk ( G3DUIMENU *menu,
 
 static G3DUIMENU modifiers_menu_resetBone_tree = { NULL,
                                                    MENU_RESETBONETREE,
+                                                   MENU_CLASS_MAIN,
                                                    G3DUIMENUTYPE_PUSHBUTTON,
                                                    objectMode_boneSelected,
                                                    resetBoneTreeCbk };
 
 static G3DUIMENU modifiers_menu_resetBone_only = { NULL,
                                                    MENU_RESETBONEONLY,
+                                                   MENU_CLASS_MAIN,
                                                    G3DUIMENUTYPE_PUSHBUTTON,
                                                    objectMode_boneSelected,
                                                    resetBoneCbk };
+
+/******************************************************************************/
+static G3DUIMENU *modifiersresetbonechildren[] = { &modifiers_menu_resetBone_tree,
+                                                   &modifiers_menu_resetBone_only,
+                                                    NULL };
+
+static G3DUIMENU modifiers_menu_resetBone     = { NULL,
+                                                  MENU_RESETBONE,
+                                                  MENU_CLASS_MAIN,
+                                                  G3DUIMENUTYPE_SUBMENU,
+                                                  objectMode_boneSelected,
+                                                  NULL,
+                                                 .nodes = modifiersresetbonechildren };
+
 /******************************************************************************/
 static G3DUIMENU modifiers_menu_fixBone_tree = { NULL,
                                                  MENU_FIXBONETREE,
+                                                 MENU_CLASS_MAIN,
                                                  G3DUIMENUTYPE_PUSHBUTTON,
                                                  objectMode_boneSelected,
                                                  fixBoneTreeCbk };
 
 static G3DUIMENU modifiers_menu_fixBone_only = { NULL,
                                                  MENU_FIXBONEONLY,
+                                                 MENU_CLASS_MAIN,
                                                  G3DUIMENUTYPE_PUSHBUTTON,
                                                  objectMode_boneSelected,
                                                  fixBoneCbk };
 
 /******************************************************************************/
+static G3DUIMENU *modifiersfixbonechildren[] = { &modifiers_menu_fixBone_tree,
+                                                 &modifiers_menu_fixBone_only,
+                                                  NULL };
+
+static G3DUIMENU modifiers_menu_fixBone       = { NULL,
+                                                  MENU_FIXBONE,
+                                                  MENU_CLASS_MAIN,
+                                                  G3DUIMENUTYPE_SUBMENU,
+                                                  objectMode_boneSelected,
+                                                  NULL,
+                                                 .nodes = modifiersfixbonechildren };
+
+/******************************************************************************/
 static G3DUIMENU modifiers_menu_addWireframe  = { NULL,
                                                   MENU_ADDWIREFRAME,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   objectModeOnly,
                                                   addWireframeCbk };
 
 static G3DUIMENU modifiers_menu_addSubdivider = { NULL,
                                                   MENU_ADDSUBDIVIDER,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   objectModeOnly,
                                                   addSubdividerCbk };
 
 static G3DUIMENU modifiers_menu_addFFDBox     = { NULL,
                                                   MENU_ADDFFDBOX,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   objectModeOnly,
                                                   addFFDBoxCbk };
 
 static G3DUIMENU modifiers_menu_addMorpher    = { NULL,
                                                   MENU_ADDMORPHER,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   objectModeOnly,
                                                   addMorpherCbk };
 
 static G3DUIMENU modifiers_menu_addSkin       = { NULL,
                                                   MENU_ADDSKIN,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   objectModeOnly,
                                                   addSkinCbk };
 
 static G3DUIMENU modifiers_menu_addBone       = { NULL,
                                                   MENU_ADDBONE,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   objectMode_boneOrSkinSelected,
                                                   addBoneCbk };
 
-static G3DUIMENU modifiers_menu_fixBone       = { NULL,
-                                                  MENU_FIXBONE,
-                                                  G3DUIMENUTYPE_SUBMENU,
-                                                  objectMode_boneSelected,
-                                                  NULL,
-                                                 .nodes = { &modifiers_menu_fixBone_tree,
-                                                            &modifiers_menu_fixBone_only,
-                                                             NULL } };
-
-static G3DUIMENU modifiers_menu_resetBone     = { NULL,
-                                                  MENU_RESETBONE,
-                                                  G3DUIMENUTYPE_SUBMENU,
-                                                  objectMode_boneSelected,
-                                                  NULL,
-                                                 .nodes = { &modifiers_menu_resetBone_tree,
-                                                            &modifiers_menu_resetBone_only,
-                                                             NULL } };
-
 static G3DUIMENU modifiers_menu_addSRevolver  = { NULL,
                                                   MENU_ADDSPLINEREVOLVER,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   objectModeOnly,
                                                   addSplineRevolverCbk };
 
 /******************************************************************************/
+static G3DUIMENU *modifierschildren[] = { &modifiers_menu_addWireframe,
+                                          &modifiers_menu_addSubdivider,
+                                          &modifiers_menu_addFFDBox,
+                                          &modifiers_menu_addMorpher,
+                                          &modifiers_menu_addSkin,
+                                          &modifiers_menu_addSRevolver,
+                                          &menu_separator,
+                                          &modifiers_menu_addBone,
+                                          &modifiers_menu_fixBone,
+                                          &modifiers_menu_resetBone,
+                                           NULL };
+
 static G3DUIMENU modifiers_menu = {  NULL,
                                      "Modifiers",
+                                     MENU_CLASS_MAIN,
                                      G3DUIMENUTYPE_SUBMENU,
                                      NULL,
                                      NULL,
-                                    .nodes = { &modifiers_menu_addWireframe,
-                                               &modifiers_menu_addSubdivider,
-                                               &modifiers_menu_addFFDBox,
-                                               &modifiers_menu_addMorpher,
-                                               &modifiers_menu_addSkin,
-                                               &modifiers_menu_addSRevolver,
-                                               &menu_separator,
-                                               &modifiers_menu_addBone,
-                                               &modifiers_menu_fixBone,
-                                               &modifiers_menu_resetBone,
-                                                NULL } };
+                                    .nodes = modifierschildren };
 
 /******************************************************************************/
 /**************************** Objects MENU Callbacks **************************/
@@ -716,99 +792,114 @@ static uint64_t addNullCbk ( G3DUIMENU *menu,
 
 static G3DUIMENU objects_menu_addPlane     = { NULL,
                                                MENU_ADDPLANE,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectModeOnly,
                                                addPlaneCbk };
 
 static G3DUIMENU objects_menu_addCube      = { NULL,
                                                MENU_ADDCUBE,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectModeOnly,
                                                addCubeCbk };
 
 static G3DUIMENU objects_menu_addSphere    = { NULL,
                                                MENU_ADDSPHERE,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectModeOnly,
                                                addSphereCbk };
 
 static G3DUIMENU objects_menu_addTorus     = { NULL,
                                                MENU_ADDTORUS,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectModeOnly,
                                                addTorusCbk };
 
 static G3DUIMENU objects_menu_addCylinder  = { NULL,
                                                MENU_ADDCYLINDER,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectModeOnly,
                                                addCylinderCbk };
 
 static G3DUIMENU objects_menu_addTube      = { NULL,
                                                MENU_ADDTUBE,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectModeOnly,
                                                addTubeCbk };
 
 static G3DUIMENU objects_menu_addText      = { NULL,
                                                MENU_ADDTEXT,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectModeOnly,
                                                addTextCbk };
 
 static G3DUIMENU objects_menu_addNull      = { NULL,
                                                MENU_ADDNULL,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectModeOnly,
                                                addNullCbk };
 
 static G3DUIMENU objects_menu_addLight     = { NULL,
                                                MENU_ADDLIGHT,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectModeOnly,
                                                addLightCbk };
 
 static G3DUIMENU objects_menu_addCamera    = { NULL,
                                                MENU_ADDCAMERA,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectModeOnly,
                                                addCameraCbk };
 
 static G3DUIMENU objects_menu_addEmptyMesh = { NULL,
                                                MENU_ADDEMPTYMESH,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectModeOnly,
                                                addEmptyMeshCbk };
 
 static G3DUIMENU objects_menu_addSpline    = { NULL,
                                                MENU_ADDSPLINE,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectModeOnly,
                                                addSplineCbk };
 
 /******************************************************************************/
+static G3DUIMENU *objectschildren[] = { &objects_menu_addPlane,
+                                        &objects_menu_addCube,
+                                        &objects_menu_addSphere,
+                                        &objects_menu_addTorus,
+                                        &objects_menu_addCylinder,
+                                        &objects_menu_addTube,
+                                        &objects_menu_addText,
+                                        &objects_menu_addNull,
+                                        &menu_separator,
+                                        &objects_menu_addLight,
+                                        &menu_separator,
+                                        &objects_menu_addCamera,
+                                        &menu_separator,
+                                        &objects_menu_addEmptyMesh,
+                                        &menu_separator,
+                                        &objects_menu_addSpline,
+                                         NULL };
+
 static G3DUIMENU objects_menu = { NULL,
                                   "Objects",
+                                  MENU_CLASS_MAIN,
                                   G3DUIMENUTYPE_SUBMENU,
                                   NULL,
                                   NULL,
-                                 .nodes = { &objects_menu_addPlane,
-                                            &objects_menu_addCube,
-                                            &objects_menu_addSphere,
-                                            &objects_menu_addTorus,
-                                            &objects_menu_addCylinder,
-                                            &objects_menu_addTube,
-                                            &objects_menu_addText,
-                                            &objects_menu_addNull,
-                                            &menu_separator,
-                                            &objects_menu_addLight,
-                                            &menu_separator,
-                                            &objects_menu_addCamera,
-                                            &menu_separator,
-                                            &objects_menu_addEmptyMesh,
-                                            &menu_separator,
-                                            &objects_menu_addSpline,
-                                             NULL } };
+                                 .nodes = objectschildren };
 
 /******************************************************************************/
 /****************************** Edit MENU Callbacks ***************************/
@@ -936,127 +1027,153 @@ static uint64_t undoCbk ( G3DUIMENU *menu,
 
 static G3DUIMENU edit_menu_selectTree_all  = { NULL,
                                                MENU_OPTION_ALLTYPES,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                NULL,
                                                selectTreeCbk };
 
 static G3DUIMENU edit_menu_selectTree_same = { NULL,
                                                MENU_OPTION_SAMETYPE,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                NULL,
                                                selectTreeCbk };
 
 /******************************************************************************/
+static G3DUIMENU *editselecttreechildren[] = { &edit_menu_selectTree_all,
+                                               &edit_menu_selectTree_same,
+                                                NULL };
+
+static G3DUIMENU edit_menu_selectTree         = { NULL,
+                                                  MENU_SELECTTREE,
+                                                  MENU_CLASS_MAIN,
+                                                  G3DUIMENUTYPE_SUBMENU,
+                                                  objectModeOnly,
+                                                  NULL,
+                                                  .nodes = editselecttreechildren };
+
+/******************************************************************************/
 static G3DUIMENU edit_menu_triangulate_cw  = { NULL,
                                                MENU_OPTION_CLOCKWISE,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                NULL,
                                                triangulateCbk };
 
 static G3DUIMENU edit_menu_triangulate_ccw = { NULL,
                                                MENU_OPTION_ANTICLOCKWISE,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                NULL,
                                                triangulateCbk };
 
 /******************************************************************************/
+static G3DUIMENU *edittriangulatechildren[] = { &edit_menu_triangulate_cw,
+                                                &edit_menu_triangulate_ccw,
+                                                 NULL };
+
+static G3DUIMENU edit_menu_triangulate        = { NULL,
+                                                  MENU_TRIANGULATE,
+                                                  MENU_CLASS_MAIN,
+                                                  G3DUIMENUTYPE_SUBMENU,
+                                                  faceModeOnly,
+                                                  NULL,
+                                                 .nodes = edittriangulatechildren };
+
+
+/******************************************************************************/
 static G3DUIMENU edit_menu_undo               = { NULL,
                                                   MENU_UNDO,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   NULL,
                                                   undoCbk };
 
 static G3DUIMENU edit_menu_redo               = { NULL,
                                                   MENU_REDO,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   NULL,
                                                   redoCbk };
 
 static G3DUIMENU edit_menu_invertNormals      = { NULL,
                                                   MENU_INVERTNORMALS,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   faceModeOnly,
                                                   invertNormalCbk };
 
 static G3DUIMENU edit_menu_alignNormals       = { NULL,
                                                   MENU_ALIGNNORMALS,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   faceModeOnly,
                                                   alignNormalsCbk };
 
-static G3DUIMENU edit_menu_triangulate        = { NULL,
-                                                  MENU_TRIANGULATE,
-                                                  G3DUIMENUTYPE_SUBMENU,
-                                                  faceModeOnly,
-                                                  NULL,
-                                                 .nodes = { &edit_menu_triangulate_cw,
-                                                            &edit_menu_triangulate_ccw,
-                                                             NULL } };
-
 static G3DUIMENU edit_menu_untriangulate      = { NULL,
                                                   MENU_UNTRIANGULATE,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   faceModeOnly,
                                                   untriangulateCbk };
 
 static G3DUIMENU edit_menu_weldVertices       = { NULL,
                                                   MENU_WELDVERTICES,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   vertexModeOnly,
                                                   weldVerticesCbk };
 
 static G3DUIMENU edit_menu_deleteLoneVertices = { NULL,
                                                   MENU_DELETELONEVERTICES,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   vertexModeOnly,
                                                   deleteLoneVerticesCbk };
 
 static G3DUIMENU edit_menu_selectAll          = { NULL,
                                                   MENU_SELECTALL,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   NULL,
                                                   selectAllCbk };
 
-static G3DUIMENU edit_menu_selectTree         = { NULL,
-                                                  MENU_SELECTTREE,
-                                                  G3DUIMENUTYPE_SUBMENU,
-                                                  objectModeOnly,
-                                                  NULL,
-                                                  .nodes = { &edit_menu_selectTree_all,
-                                                             &edit_menu_selectTree_same,
-                                                              NULL } };
-
 static G3DUIMENU edit_menu_invertSelection    = { NULL,
                                                   MENU_INVERTSELECTION,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   NULL,
                                                   invertSelectionCbk };
 
 static G3DUIMENU edit_menu_getObjectStats     = { NULL,
                                                   MENU_GETOBJECTSTATS,
+                                                  MENU_CLASS_MAIN,
                                                   G3DUIMENUTYPE_PUSHBUTTON,
                                                   objectMode_objectSelected,
                                                   getObjectStatsCbk };
 
 /******************************************************************************/
+static G3DUIMENU *editchildren[] = { &edit_menu_undo,
+                                     &edit_menu_redo,
+                                     &edit_menu_invertNormals,
+                                     &edit_menu_alignNormals,
+                                     &edit_menu_triangulate,
+                                     &edit_menu_untriangulate,
+                                     &edit_menu_weldVertices,
+                                     &edit_menu_deleteLoneVertices,
+                                     &edit_menu_selectAll,
+                                     &edit_menu_selectTree,
+                                     &edit_menu_invertSelection,
+                                     &edit_menu_getObjectStats,
+                                      NULL };
+
 static G3DUIMENU edit_menu = { NULL,
                                "Edit",
+                               MENU_CLASS_MAIN,
                                G3DUIMENUTYPE_SUBMENU,
                                NULL,
                                NULL,
-                              .nodes = { &edit_menu_undo,
-                                         &edit_menu_redo,
-                                         &edit_menu_invertNormals,
-                                         &edit_menu_alignNormals,
-                                         &edit_menu_triangulate,
-                                         &edit_menu_untriangulate,
-                                         &edit_menu_weldVertices,
-                                         &edit_menu_deleteLoneVertices,
-                                         &edit_menu_selectAll,
-                                         &edit_menu_selectTree,
-                                         &edit_menu_invertSelection,
-                                         &edit_menu_getObjectStats,
-                                          NULL } };
+                              .nodes = editchildren };
 
 
 /******************************************************************************/
@@ -1208,37 +1325,57 @@ static uint64_t exitCbk ( G3DUIMENU *menu,
 
 static G3DUIMENU file_menu_export_obj = { NULL,
                                           FILEDESC_OBJ,
+                                          MENU_CLASS_MAIN,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           exportFileCbk };
 
 static G3DUIMENU file_menu_export_pov = { NULL,
                                           FILEDESC_POV,
+                                          MENU_CLASS_MAIN,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           exportFileCbk };
 
 static G3DUIMENU file_menu_export_sta = { NULL,
                                           FILEDESC_STA,
+                                          MENU_CLASS_MAIN,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           exportFileCbk };
 
 /******************************************************************************/
+static G3DUIMENU *fileexportchildren[] = { &file_menu_export_obj,
+                                           &file_menu_export_pov,
+                                           &file_menu_export_sta,
+                                            NULL                 };
+
+static G3DUIMENU file_menu_export = { NULL,
+                                      MENU_EXPORTSCENE,
+                                      MENU_CLASS_MAIN,
+                                      G3DUIMENUTYPE_SUBMENU,
+                                      NULL,
+                                      exportFileCbk,
+                                     .nodes = fileexportchildren };
+
+/******************************************************************************/
 static G3DUIMENU file_menu_import_3ds = { NULL,
                                           FILEDESC_3DS,
+                                          MENU_CLASS_MAIN,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           importFileCbk };
 
 static G3DUIMENU file_menu_import_obj = { NULL,
                                           FILEDESC_OBJ,
+                                          MENU_CLASS_MAIN,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           importFileCbk };
 
 static G3DUIMENU file_menu_import_v2  = { NULL,
                                           FILEDESC_V2,
+                                          MENU_CLASS_MAIN,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           importFileCbk };
@@ -1246,6 +1383,7 @@ static G3DUIMENU file_menu_import_v2  = { NULL,
 #ifdef HAVE_EXPAT_H
 static G3DUIMENU file_menu_import_dae = { NULL,
                                           FILEDESC_DAE,
+                                          MENU_CLASS_MAIN,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           importFileCbk };
@@ -1253,109 +1391,116 @@ static G3DUIMENU file_menu_import_dae = { NULL,
 #ifdef HAVE_C4D_H
 static G3DUIMENU file_menu_import_c4d = { NULL,
                                           FILEDESC_C4D,
+                                          MENU_CLASS_MAIN,
                                           G3DUIMENUTYPE_PUSHBUTTON,
                                           NULL,
                                           importFileCbk };
 #endif
 
 /******************************************************************************/
+static G3DUIMENU *fileimportchildren[] = { &file_menu_import_3ds,
+                                           &file_menu_import_obj,
+                                           &file_menu_import_v2,
+#ifdef HAVE_EXPAT_H
+                                           &file_menu_import_dae,
+#endif
+#ifdef HAVE_C4D_H
+                                           &file_menu_import_c4d,
+#endif
+                                            NULL };
+
+static G3DUIMENU file_menu_import = { NULL,
+                                      MENU_IMPORTFILE,
+                                      MENU_CLASS_MAIN,
+                                      G3DUIMENUTYPE_SUBMENU,
+                                      NULL,
+                                      NULL,
+                                      .nodes = fileimportchildren };
+
+/******************************************************************************/
 static G3DUIMENU file_menu_new    = { NULL,
                                       MENU_NEWSCENE,
+                                      MENU_CLASS_MAIN,
                                       G3DUIMENUTYPE_PUSHBUTTON,
                                       NULL,
                                       newSceneCbk };
 
 static G3DUIMENU file_menu_open   = { NULL,
                                       MENU_OPENFILE,
+                                      MENU_CLASS_MAIN,
                                       G3DUIMENUTYPE_PUSHBUTTON,
                                       NULL,
                                       openFileCbk };
 
 static G3DUIMENU file_menu_merge  = { NULL,
                                       MENU_MERGESCENE,
+                                      MENU_CLASS_MAIN,
                                       G3DUIMENUTYPE_PUSHBUTTON,
                                       NULL,
                                       mergeSceneCbk };
 
-static G3DUIMENU file_menu_import = { NULL,
-                                      MENU_IMPORTFILE,
-                                      G3DUIMENUTYPE_SUBMENU,
-                                      NULL,
-                                      NULL,
-                                      .nodes = { &file_menu_import_3ds,
-                                                 &file_menu_import_obj,
-                                                 &file_menu_import_v2,
-#ifdef HAVE_EXPAT_H
-                                                 &file_menu_import_dae,
-#endif
-#ifdef HAVE_C4D_H
-                                                 &file_menu_import_c4d,
-#endif
-                                                 NULL                 } };
-
 static G3DUIMENU file_menu_save   = { NULL,
                                       MENU_SAVEFILE,
+                                      MENU_CLASS_MAIN,
                                       G3DUIMENUTYPE_PUSHBUTTON,
                                       NULL,
                                       saveFileCbk };
 
 static G3DUIMENU file_menu_saveas = { NULL,
                                       MENU_SAVEFILEAS,
+                                      MENU_CLASS_MAIN,
                                       G3DUIMENUTYPE_PUSHBUTTON,
                                       NULL,
                                       saveAsCbk };
 
-static G3DUIMENU file_menu_export = { NULL,
-                                      MENU_EXPORTSCENE,
-                                      G3DUIMENUTYPE_SUBMENU,
-                                      NULL,
-                                      exportFileCbk,
-                                     .nodes = { &file_menu_export_obj,
-                                                &file_menu_export_pov,
-                                                &file_menu_export_sta,
-                                                 NULL                 } };
-
 static G3DUIMENU file_menu_exit   = { NULL,
                                       MENU_EXIT,
+                                      MENU_CLASS_MAIN,
                                       G3DUIMENUTYPE_PUSHBUTTON,
                                       NULL,
                                       exitCbk };
 
 /******************************************************************************/
+static G3DUIMENU *filechildren[] = { &file_menu_new,
+                                     &file_menu_open,
+                                     &file_menu_merge,
+                                     &file_menu_import,
+                                     &menu_separator,
+                                     &file_menu_save,
+                                     &file_menu_saveas,
+                                     &file_menu_export,
+                                     &menu_separator,
+                                     &file_menu_exit,
+                                      NULL };
+
 static G3DUIMENU file_menu = { NULL,
                                "File",
+                               MENU_CLASS_MAIN,
                                G3DUIMENUTYPE_SUBMENU,
                                NULL,
                                NULL,
-                              .nodes = { &file_menu_new,
-                                         &file_menu_open,
-                                         &file_menu_merge,
-                                         &file_menu_import,
-                                         &menu_separator,
-                                         &file_menu_save,
-                                         &file_menu_saveas,
-                                         &file_menu_export,
-                                         &menu_separator,
-                                         &file_menu_exit,
-                                          NULL } };
+                              .nodes = filechildren };
 
 /******************************************************************************/
 /******************************************************************************/
+static G3DUIMENU *rootchildren[] = { &file_menu,
+                                     &edit_menu,
+                                     &objects_menu,
+                                     &modifiers_menu,
+                                     &multipliers_menu,
+                                     &functions_menu,
+                                     &uvmapping_menu,
+                                     &render_menu,
+                                     &help_menu,
+                                      NULL };
+
 static G3DUIMENU rootnode = { NULL,
                               "MainMenuBar",
+                              NULL,
                               G3DUIMENUTYPE_MENUBAR,
                               NULL,
                               NULL,
-                             .nodes = { &file_menu,
-                                        &edit_menu,
-                                        &objects_menu,
-                                        &modifiers_menu,
-                                        &multipliers_menu,
-                                        &functions_menu,
-                                        &uvmapping_menu,
-                                        &render_menu,
-                                        &help_menu,
-                                         NULL } };
+                             .nodes = rootchildren };
 
 /******************************************************************************/
 G3DUIMENU *g3duimenu_getMainMenuNode ( ) {

@@ -54,18 +54,17 @@ static GTK3G3DUIOBJECTBOARD *gtk3_g3duiobjectboard_new ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
-static void SizeAllocate ( GtkWidget     *widget,
-                           GtkAllocation *allocation,
-                           gpointer       user_data ) {
-    GTK3G3DUIOBJECTBOARD *gtk3objboard = ( GTK3G3DUIOBJECTBOARD * ) user_data;
+void gtk3_g3duiobjectboard_resize ( GTK3G3DUIOBJECTBOARD *gtk3objboard,
+                                    uint32_t              width,
+                                    uint32_t              height ) {
     GTK3G3DUIMENU *gtk3menu = ( GTK3G3DUIMENU * ) gtk3objboard->core.menuBar;
     GdkRectangle gdkrec;
     GTK3G3DUIOBJECTLIST *objlist = ( GTK3G3DUIOBJECTLIST * ) gtk3objboard->core.objlist;
     GTK3G3DUIOBJECTEDIT *objedit = ( GTK3G3DUIOBJECTEDIT * ) gtk3objboard->core.objedit;
 
     g3duiobjectboard_resize ( &gtk3objboard->core,
-                               allocation->width,
-                               allocation->height );
+                               width,
+                               height );
 
     /*** Menu ***/
 
@@ -73,6 +72,7 @@ static void SizeAllocate ( GtkWidget     *widget,
 
 gtk_layout_move ( gtk3objboard->layout, gtk3menu->menu, gdkrec.x, gdkrec.y );
 gtk_widget_set_size_request ( gtk3menu->menu, gdkrec.width, gdkrec.height  );
+
     /*gtk_widget_size_allocate ( gtk3menu->menu, &gdkrec );*/
 
 
@@ -84,7 +84,7 @@ gtk_widget_set_size_request ( gtk3menu->menu, gdkrec.width, gdkrec.height  );
 
     /*** Object Edit ***/
 
-    g3duirectangle_toGdkRectangle ( &gtk3objboard->core.editrec, &gdkrec );
+    /*g3duirectangle_toGdkRectangle ( &gtk3objboard->core.editrec, &gdkrec );*/
 
 /*gtk_layout_move ( gtk3objboard->layout, objedit->scrolled, gdkrec.x, gdkrec.y );
 gtk_widget_set_size_request ( objedit->scrolled, gdkrec.width, gdkrec.height  );*/
@@ -155,7 +155,6 @@ GTK3G3DUIOBJECTBOARD *gtk3_g3duiobjectboard_create ( GtkWidget *parent,
 
     g_signal_connect ( G_OBJECT (layout), "realize"      , G_CALLBACK (Realize)     , gtk3objboard );
     g_signal_connect ( G_OBJECT (layout), "destroy"      , G_CALLBACK (Destroy)     , gtk3objboard );
-    g_signal_connect ( G_OBJECT (layout), "size-allocate", G_CALLBACK (SizeAllocate), gtk3objboard );
 
     gtk_widget_show ( layout );
 
@@ -163,7 +162,7 @@ GTK3G3DUIOBJECTBOARD *gtk3_g3duiobjectboard_create ( GtkWidget *parent,
 
     /*gtk3_g3duiobjectboard_createObjectList  ( gtk3objbrd );*/
     createMenuBar    ( gtk3objboard );
-    createObjectEdit ( gtk3objboard );
+    /*createObjectEdit ( gtk3objboard );*/
 
 
     return gtk3objboard;

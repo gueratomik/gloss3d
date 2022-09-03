@@ -63,6 +63,8 @@ static void sizeGL ( GtkWidget     *widget,
     GdkDisplay    *gdkdpy  =  gtk_widget_get_display ( widget );
     GdkWindow     *gdkwin  =  gtk_widget_get_window ( widget );
 
+/*printf("glarea %d %d\n", allocation->width, allocation->height );*/
+
     if ( gdkwin ) {
 #ifdef __linux__
         Display       *dpy     = gdk_x11_display_get_xdisplay ( gdkdpy );
@@ -82,7 +84,7 @@ static void sizeGL ( GtkWidget     *widget,
 
 #ifdef TODO : find why I get allocation.{width,height} = 1
 #endif
-            if ( (allocation->width != 1 ) && (allocation->height != 1) ) {
+            if ( (allocation->width > 1 ) && (allocation->height > 1) ) {
                 /*** cancel renderprocess if any ***/
                 g3dui_cancelRenderByID ( gui, ( uint64_t ) widget );
 
@@ -219,41 +221,45 @@ static GTK3G3DUIVIEW *gtk3_g3duiview_new ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
-static void SizeAllocate ( GtkWidget     *widget,
+/*static void SizeAllocate ( GtkWidget     *widget,
                            GtkAllocation *allocation,
-                           gpointer       user_data ) {
+                           gpointer       user_data ) {*/
+
+static gboolean SizeAllocate ( GtkWidget        *self,
+                               GdkEventConfigure event,
+                               gpointer          user_data ) {
     GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
     GTK3G3DUIMENU *gtk3menu = ( GTK3G3DUIMENU * ) gtk3view->core.menuBar;
     GdkRectangle gdkrec;
 
-    g3duiview_resize ( &gtk3view->core,
-                        allocation->width,
-                        allocation->height );
+    /*g3duiview_resize ( &gtk3view->core,
+                        event.width,
+                        event.height );*/
 
+printf("view %d %d\n", event.width, event.height );
+#ifdef unused
     /*** Menu ***/
+    if ( gtk3menu->menu ) {
+        g3duirectangle_toGdkRectangle ( &gtk3view->core.menurec, &gdkrec );
 
-    g3duirectangle_toGdkRectangle ( &gtk3view->core.menurec, &gdkrec );
-
-gtk_layout_move ( gtk3view->layout, gtk3menu->menu, gdkrec.x, gdkrec.y );
-gtk_widget_set_size_request ( gtk3menu->menu, gdkrec.width, gdkrec.height  );
-    /*gtk_widget_size_allocate ( gtk3menu->menu, &gdkrec );*/
-
+        gtk_widget_size_allocate ( gtk3menu->menu, &gdkrec );
+    }
 
     /*** GL Area ***/
+    if ( gtk3view->glarea ) {
+        g3duirectangle_toGdkRectangle ( &gtk3view->core.glrec, &gdkrec );
 
-    g3duirectangle_toGdkRectangle ( &gtk3view->core.glrec, &gdkrec );
-
-/*gtk_layout_move ( gtk3view->layout, gtk3view->glarea, gdkrec.x, gdkrec.y );
-gtk_widget_set_size_request ( gtk3view->glarea, gdkrec.width, gdkrec.height  );*/
-    /*gtk_widget_size_allocate ( gtk3view->glarea, &gdkrec );*/
+        gtk_widget_size_allocate ( gtk3view->glarea, &gdkrec );
+    }
 
     /*** Navigation Bar ***/
+    if ( gtk3view->navbar ) {
+        g3duirectangle_toGdkRectangle ( &gtk3view->core.navrec, &gdkrec );
 
-    g3duirectangle_toGdkRectangle ( &gtk3view->core.navrec, &gdkrec );
-
-gtk_layout_move ( gtk3view->layout, gtk3view->navbar, gdkrec.x, gdkrec.y );
-gtk_widget_set_size_request ( gtk3view->navbar, gdkrec.width, gdkrec.height  );
-    /*gtk_widget_size_allocate ( gtk3view->navbar, &gdkrec );*/
+        gtk_widget_size_allocate ( gtk3view->navbar, &gdkrec );
+    }
+#endif
+    return FALSE;
 }
 
 /******************************************************************************/
@@ -340,13 +346,13 @@ gtk_widget_set_visual(glarea, visual);
     g_signal_connect ( G_OBJECT (glarea), "size-allocate"     , G_CALLBACK (sizeGL ), gtk3view );
     g_signal_connect ( G_OBJECT (glarea), "realize"           , G_CALLBACK (initGL ), gtk3view );
     g_signal_connect ( G_OBJECT (glarea), "draw"              , G_CALLBACK (showGL ), gtk3view );
-/*
+
     g_signal_connect ( G_OBJECT (glarea), "motion_notify_event" , G_CALLBACK (inputGL), gtk3view );
     g_signal_connect ( G_OBJECT (glarea), "key_press_event"     , G_CALLBACK (inputGL), gtk3view );
     g_signal_connect ( G_OBJECT (glarea), "key_release_event"   , G_CALLBACK (inputGL), gtk3view );
     g_signal_connect ( G_OBJECT (glarea), "button_press_event"  , G_CALLBACK (inputGL), gtk3view );
     g_signal_connect ( G_OBJECT (glarea), "button_release_event", G_CALLBACK (inputGL), gtk3view );
-*/
+
 
     gtk_layout_put ( GTK_LAYOUT(gtk3view->layout), glarea, 0, 0 );
 
@@ -627,6 +633,8 @@ static gboolean navDraw ( GtkWidget *widget,
 static void gtk3_g3duiview_createNavigationBar ( GTK3G3DUIVIEW *gtk3view ) {
     GtkWidget *navbar = gtk_drawing_area_new ( );
 
+    gtk3view->navbar = navbar;
+
     /*** Drawing area does not receive mous events by defaults ***/
     gtk_widget_set_events ( navbar, 
                             gtk_widget_get_events ( navbar )  |
@@ -654,8 +662,65 @@ static void gtk3_g3duiview_createNavigationBar ( GTK3G3DUIVIEW *gtk3view ) {
     gtk_layout_put ( GTK_LAYOUT(gtk3view->layout), navbar, 0, 0 );
 
     gtk_widget_show ( navbar );
+}
 
-    gtk3view->navbar = navbar;
+/******************************************************************************/
+void gtk3_g3duiview_resize ( GTK3G3DUIVIEW *gtk3view,
+                             uint32_t       width,
+                             uint32_t       height ) {
+    GTK3G3DUIMENU *menuBar = ( GTK3G3DUIMENU * ) gtk3view->core.menuBar;
+    GdkRectangle gdkrec;
+
+/*printf("%d\n", gtk_widget_get_allocated_height ( menuBar->menu ) );*/
+
+    g3duiview_resize ( &gtk3view->core,
+                        width,
+                        height,
+                        BUTTONSIZE + 0x02 );
+
+    /*** Menu ***/
+    if ( gtk3view->core.menuBar ) {
+        GTK3G3DUIMENU *gtk3menu = menuBar;
+
+        g3duirectangle_toGdkRectangle ( &gtk3view->core.menurec, &gdkrec );
+
+        gtk_layout_move ( gtk3view->layout,
+                         gtk3menu->menu, 
+                         gdkrec.x,
+                         gdkrec.y );
+
+        gtk_widget_set_size_request ( gtk3menu->menu,
+                                      gdkrec.width,
+                                      gdkrec.height );
+    }
+
+    /*** GL Area ***/
+    if ( gtk3view->glarea ) {
+        g3duirectangle_toGdkRectangle ( &gtk3view->core.glrec, &gdkrec );
+
+        gtk_layout_move ( gtk3view->layout,
+                         gtk3view->glarea, 
+                         gdkrec.x,
+                         gdkrec.y );
+
+        gtk_widget_set_size_request ( gtk3view->glarea,
+                                      gdkrec.width,
+                                      gdkrec.height );
+    }
+
+    /*** Navigation Bar ***/
+    if ( gtk3view->navbar ) {
+        g3duirectangle_toGdkRectangle ( &gtk3view->core.navrec, &gdkrec );
+
+        gtk_layout_move ( gtk3view->layout,
+                          gtk3view->navbar, 
+                          gdkrec.x,
+                          gdkrec.y );
+
+        gtk_widget_set_size_request ( gtk3view->navbar,
+                                      gdkrec.width,
+                                      gdkrec.height );
+    }
 }
 
 /******************************************************************************/
@@ -665,17 +730,16 @@ GTK3G3DUIVIEW *gtk3_g3duiview_create ( GtkWidget *parent,
     GTK3G3DUIVIEW *gtk3view = gtk3_g3duiview_new ( gtk3gui );
     GtkWidget    *layout = gtk_layout_new ( NULL, NULL );
 
+    gtk3view->layout = layout;
+
     gtk_widget_set_name ( layout, name );
 
     /*gtk_widget_add_events(GTK_WIDGET(layout), GDK_CONFIGURE);*/
 
-    g_signal_connect ( G_OBJECT (layout), "realize"      , G_CALLBACK (Realize)     , gtk3view );
-    g_signal_connect ( G_OBJECT (layout), "destroy"      , G_CALLBACK (Destroy)     , gtk3view );
-    g_signal_connect ( G_OBJECT (layout), "size-allocate", G_CALLBACK (SizeAllocate), gtk3view );
+    g_signal_connect ( G_OBJECT (layout), "realize", G_CALLBACK (Realize), gtk3view );
+    g_signal_connect ( G_OBJECT (layout), "destroy", G_CALLBACK (Destroy), gtk3view );
 
     gtk_widget_show ( layout );
-
-    gtk3view->layout = layout;
 
     gtk3_g3duiview_createGLArea ( gtk3view );
     gtk3_g3duiview_createMenuBar ( gtk3view );
@@ -920,7 +984,7 @@ GtkWidget *createView ( GtkWidget *parent, G3DUI *gui,
     gdk_window_add_filter ( gtk_widget_get_window ( area ), gdkevent_to_g3devent, view->xevent );
 */
 
-    gtk_fixed_put ( GTK_FIXED(gvw), area, 0x00, BUTTONSIZE );
+    gtk_layout_put ( GTK_FIXED(gvw), area, 0x00, BUTTONSIZE );
 
     g_signal_connect ( G_OBJECT (gvw), "motion_notify_event" , G_CALLBACK (gtk_view_event), gui );
     g_signal_connect ( G_OBJECT (gvw), "button_press_event"  , G_CALLBACK (gtk_view_event), gui );

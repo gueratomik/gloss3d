@@ -380,6 +380,9 @@ GtkWidget *ui_createSimpleLabel ( GtkWidget *parent,
 GTK3G3DUIBOARD *gtk3_g3duiboard_create ( GtkWidget *parent,
                                          GTK3G3DUI *gtk3gui,
                                          char      *name );
+void gtk3_g3duiboard_resize ( GTK3G3DUIBOARD *gtk3board,
+                              uint32_t        width,
+                              uint32_t        height );
 
 /***************************** g3duilightedit.c *******************************/
 void gtk3_g3duilightedit_update ( GTK3G3DUILIGHTEDIT *gtk3led );
@@ -403,6 +406,9 @@ GTK3G3DUIMAIN *gtk3_g3duimain_create ( GtkWidget *parent,
                                        gint       height,
                                        char      *filename );
 void gtk3_g3duimain_updateMenuBar ( GTK3G3DUIMAIN *gtk3main );
+void gtk3_g3duimain_resize ( GTK3G3DUIMAIN *gtk3main,
+                             uint32_t       width,
+                             uint32_t       height );
 
 /***************************** g3duitoolbar.c *********************************/
 GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
@@ -419,6 +425,9 @@ void gtk3_g3duiobjectboard_updateMenuBar ( GTK3G3DUIOBJECTBOARD *gtk3objbrd );
 GTK3G3DUIOBJECTBOARD *gtk3_g3duiobjectboard_create ( GtkWidget *parent,
                                                      GTK3G3DUI *gtk3gui,
                                                      char      *name );
+void gtk3_g3duiobjectboard_resize ( GTK3G3DUIOBJECTBOARD *gtk3objboard,
+                                    uint32_t              width,
+                                    uint32_t              height );
 
 /************************** g3duiobjectedit.c ********************************/
 void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit );
@@ -432,11 +441,17 @@ GTK3G3DUIQUAD *gtk3_g3duiquad_create ( GtkWidget *parent,
                                        char      *name );
 void gtk3_g3duiquad_rearrange ( GTK3G3DUIQUAD *gtk3quad,
                                 GTK3G3DUIVIEW *gtk3view );
+void gtk3_g3duiquad_resize ( GTK3G3DUIQUAD *gtk3quad,
+                             uint32_t       width,
+                             uint32_t       height );
 
 /****************************** g3duiview.c ***********************************/
 GTK3G3DUIVIEW *gtk3_g3duiview_create ( GtkWidget *parent, 
                                        GTK3G3DUI *gtk3gui,
                                        char      *name );
 void gtk3_g3duiview_updateMenuBar ( GTK3G3DUIVIEW *gtk3view );
+void gtk3_g3duiview_resize ( GTK3G3DUIVIEW *gtk3view,
+                             uint32_t       width,
+                             uint32_t       height );
 
 #endif

@@ -61,14 +61,26 @@ char * strsep(char **sp, char *sep) {
 #endif
 
 /******************************************************************************/
-static void Configure ( GtkWindow *window, 
+static gboolean Configure ( GtkWindow *window, 
                         GdkEvent  *event,
                         gpointer   data ) {
-    GtkWidget *child = gtk_bin_get_child (window);
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) data;
+    GTK3G3DUIMAIN *gtk3main = gtk3gui->core.main;
 
-    gtk_layout_set_size ( child, 
+/*printf("%d\n", event->configure.width, event->configure.height);*/
+
+    if ( gtk_widget_get_realized ( GTK_WIDGET ( window ) ) ) {
+        gtk3_g3duimain_resize ( &gtk3main->core, 
+                                 event->configure.width, 
+                                event->configure.height );
+    }
+
+
+    /*gtk_layout_set_size ( child, 
                           event->configure.width,
-                          event->configure.height );
+                          event->configure.height );*/
+
+    return TRUE;
 }
 
 /******************************************************************************/
@@ -146,6 +158,7 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
     GtkWidget *window, *glossui;
     GtkWidget *button;
     GTK3G3DUI gtk3gui;
+    GTK3G3DUIMAIN *gtk3main;
 
     memset ( &gtk3gui, 0x00, sizeof ( GTK3G3DUI ) );
 
@@ -158,28 +171,32 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     window  = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 
+    /*** Drawing area does not receive mous events by defaults ***/
+    /*gtk_widget_set_events ( window, 
+                            gtk_widget_get_events ( window ) |
+                            GDK_STRUCTURE_MASK );*/
+
     gtk3gui.topWin = window;
 
     gtk_window_set_position ( GTK_WINDOW(window), GTK_WIN_POS_CENTER );
 
-    glossui = gtk3_g3duimain_create (  window,
-                                      &gtk3gui,
-                                       "Main",
-                                       0, 0,
-                                       800, 600, loadFile );
+    gtk3main = gtk3_g3duimain_create (  window,
+                                       &gtk3gui,
+                                        "Main",
+                                        0, 0,
+                                        800, 600, loadFile );
 
 
-                                       /*gtk_glossui_new ( loadFile )*/;
-
-    /*gtk_container_add ( GTK_CONTAINER(window), glossui );*/
+    gtk_container_add ( GTK_CONTAINER(window), gtk3main->layout );
 
     /*gtk_widget_show ( glossui );*/
 
     gtk_window_set_title ( GTK_WINDOW ( window ), appname );
     gtk_window_resize    ( GTK_WINDOW ( window ), 1024, 576 );
 
-    g_signal_connect (window, "destroy"        , G_CALLBACK (gtk_main_quit), NULL);
-    g_signal_connect (window, "configure-event", G_CALLBACK (Configure), NULL );
+    g_signal_connect (window, "destroy"        , G_CALLBACK (gtk_main_quit), &gtk3gui);
+
+    g_signal_connect (window, "configure-event", G_CALLBACK (Configure), &gtk3gui );
 
 /*
     g_signal_connect (window, "delete-event", G_CALLBACK (g3dui_exitEventCbk), &((GtkGlossUI*)glossui)->gui );

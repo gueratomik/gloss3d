@@ -85,32 +85,38 @@ static uint64_t selectKeysCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static G3DUIMENU time_menu_delete = { NULL,
                                       TIMEMENU_DELETE,
+                                      MENU_CLASS_VIEW,
                                       G3DUIMENUTYPE_PUSHBUTTON,
                                       NULL,
                                       deleteKeysCbk };
 
 static G3DUIMENU time_menu_scale = { NULL,
                                      TIMEMENU_SCALE,
+                                     MENU_CLASS_VIEW,
                                      G3DUIMENUTYPE_PUSHBUTTON,
                                      NULL,
                                      scaleKeysDialogCbk };
 
 static G3DUIMENU time_menu_select = { NULL,
                                       TIMEMENU_SELECT,
+                                      MENU_CLASS_VIEW,
                                       G3DUIMENUTYPE_PUSHBUTTON,
                                       NULL,
                                       selectKeysCbk };
 
 /******************************************************************************/
+static G3DUIMENU *timechildren[] = { /*&time_menu_select,*/
+                                         &time_menu_scale,
+                                         &time_menu_delete,
+                                          NULL };
+
 static G3DUIMENU time_menu = { NULL,
                                "_Options",
+                               MENU_CLASS_VIEW,
                                G3DUIMENUTYPE_SUBMENU,
                                NULL,
                                NULL,
-                              .nodes = { /*&time_menu_select,*/
-                                         &time_menu_scale,
-                                         &time_menu_delete,
-                                          NULL } };
+                              .nodes = timechildren };
 
 /******************************************************************************/
 G3DUIMENU *g3duimenu_getTimelineMenuNode ( ) {

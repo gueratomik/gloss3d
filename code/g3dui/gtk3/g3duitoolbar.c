@@ -330,7 +330,7 @@ GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
     gtk_toggle_tool_button_set_active ( GTK_TOGGLE_TOOL_BUTTON(gtk3tb->zAxis), TRUE );
 
 
-    gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(gtk3tb->bar), 0 );
+    gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(gtk3tb->bar), TRUE );
 
     gtk_widget_show ( gtk3tb->bar );
 

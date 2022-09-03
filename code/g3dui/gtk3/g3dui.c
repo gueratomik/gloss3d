@@ -310,9 +310,23 @@ static void gtk3_redrawUVMapEditors ( GTK3G3DUI *gtk3gui ) {
 
 /******************************************************************************/
 static void gtk3_updateObjectEdit ( GTK3G3DUI *gtk3gui ) {
-    GTK3G3DUIOBJECTEDIT *gtk3objedit = ( GTK3G3DUIOBJECTEDIT * ) gtk3gui->core.main->board->objboard->objedit;
+    if (  gtk3gui->core.main ) {
+        G3DUIMAIN *main = ( G3DUIMAIN * ) gtk3gui->core.main;
 
-    gtk3_g3duiobjectedit_update ( gtk3objedit );
+        if (  main ) {
+            G3DUIBOARD *board = main->board;
+
+            if ( board ) {
+                G3DUIOBJECTBOARD *objboard = board->objboard;
+
+                if ( objboard ) {
+                    G3DUIOBJECTEDIT *objedit = objboard->objedit;
+
+                    gtk3_g3duiobjectedit_update ( ( GTK3G3DUIOBJECTEDIT * ) objedit );
+                }
+            }
+        }
+    }
 }
 
 /******************************************************************************/

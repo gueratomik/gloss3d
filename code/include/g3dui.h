@@ -731,15 +731,19 @@ typedef struct _G3DUI {
 #define MENU_CONDITION_SENSITIVE   1
 #define MENU_CONDITION_ACTIVE    ( 1 << 1 )
 
+#define MENU_CLASS_VIEW "view"
+#define MENU_CLASS_MAIN "main"
+
 typedef struct _G3DUIMENU {
     G3DUI             *gui;
     unsigned char     *name;
+    unsigned char     *class;
     uint32_t           type;
     uint32_t         (*condition) ( struct _G3DUIMENU *menu, void *data );
     uint64_t          (*callback) ( struct _G3DUIMENU *menu, void *data );
     LIST               *lchildren;
     void               *data;
-    struct _G3DUIMENU *nodes[];
+    struct _G3DUIMENU **nodes;
 } G3DUIMENU;
 
 /******************************************************************************/
@@ -2028,10 +2032,12 @@ void g3duiview_pressButton ( G3DUIVIEW *view,
 void g3duiview_releaseButton ( G3DUIVIEW *view );
 void g3duiview_init ( G3DUIVIEW *view,
                       uint32_t   width,
-                      uint32_t   height );
+                      uint32_t   height,
+                      uint32_t   menuHeight );
 void g3duiview_resize ( G3DUIVIEW *view, 
                         uint32_t   width, 
-                        uint32_t   height );
+                        uint32_t   height,
+                        uint32_t   menuHeight );
 void g3duiview_sizeGL ( G3DUIVIEW *view, 
                         uint32_t   width, 
                         uint32_t   height );
