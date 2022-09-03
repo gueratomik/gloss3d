@@ -137,8 +137,8 @@ drawingContext = gdk_window_begin_draw_frame (window,cairoRegion);*/
                                     gtk3quad->core.rect[i].height };
             G3DUI *gui = gtk3quad->core.gui;
 
-            /*if ( gui->currentView == gtk3quad->core.view[i] ) {*/
-                cairo_set_source_rgb ( cr, 0.0f, 0.0f, 1.0f );
+            if ( gui->currentView == gtk3quad->core.view[i] ) {
+                cairo_set_source_rgb ( cr, 0.2f, 0.2f, 0.2f );
 
                 cairo_rectangle ( cr,
                                   gdkrec.x,
@@ -146,7 +146,7 @@ drawingContext = gdk_window_begin_draw_frame (window,cairoRegion);*/
                                   gdkrec.width, 
                                   gdkrec.height );
                 cairo_stroke(cr);
-            /*}*/
+            }
 
 /*
 cairo_move_to(cr, 30, 30);
@@ -261,10 +261,10 @@ void gtk3_g3duiquad_resize ( GTK3G3DUIQUAD *gtk3quad,
             GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) gtk3quad->core.view[i];
 
             if ( gtk3view ) {
-                GdkRectangle gdkrec = { gtk3quad->core.rect[i].x,
-                                        gtk3quad->core.rect[i].y,
-                                        gtk3quad->core.rect[i].width,
-                                        gtk3quad->core.rect[i].height };
+                GdkRectangle gdkrec = { gtk3quad->core.rect[i].x + 0x02,
+                                        gtk3quad->core.rect[i].y + 0x02,
+                                        gtk3quad->core.rect[i].width  - 0x04,
+                                        gtk3quad->core.rect[i].height - 0x04 };
 
                 gtk3_g3duiview_resize ( gtk3view, gdkrec.width, gdkrec.height );
 

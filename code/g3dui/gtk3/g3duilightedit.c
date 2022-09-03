@@ -222,6 +222,7 @@ static void specularityChangeCbk ( GtkWidget *widget,
 
 /******************************************************************************/
 static void updateSpecularityPanel ( GTK3G3DUILIGHTEDIT *gtk3led ) {
+
     gtk3led->core.gui->lock = 0x01;
 
     if ( gtk3led->core.multi ) {
@@ -229,10 +230,10 @@ static void updateSpecularityPanel ( GTK3G3DUILIGHTEDIT *gtk3led ) {
 
         gtk_color_chooser_set_rgba ( gtk3led->specularColorButton, &GDKRGBA_MULTI );
     } else {
-        GdkRGBA rgba = { .red   = ( float ) gtk3led->editedLight->specularColor.r / 255.0f,
-                         .green = ( float ) gtk3led->editedLight->specularColor.g / 255.0f,
-                         .blue  = ( float ) gtk3led->editedLight->specularColor.b / 255.0f,
-                         .alpha = ( float ) gtk3led->editedLight->specularColor.a / 255.0f };
+        GdkRGBA rgba = { .red   = ( gdouble ) gtk3led->editedLight->specularColor.r / 255.0f,
+                         .green = ( gdouble ) gtk3led->editedLight->specularColor.g / 255.0f,
+                         .blue  = ( gdouble ) gtk3led->editedLight->specularColor.b / 255.0f,
+                         .alpha = ( gdouble ) gtk3led->editedLight->specularColor.a / 255.0f };
 
         gtk_widget_set_sensitive ( gtk3led->specularColorButton, TRUE );
 
@@ -245,14 +246,14 @@ static void updateSpecularityPanel ( GTK3G3DUILIGHTEDIT *gtk3led ) {
 
 /******************************************************************************/
 static void createSpecularityPanel ( GTK3G3DUILIGHTEDIT *gtk3led ) {
-    GtkWidget *fixed = gtk_fixed_new ( );
+    GtkWidget *fixed = ui_gtk_fixed_new ( CLASS_MAIN );
     GtkWidget *label = gtk_label_new ( EDITSPECULAR );
 
     gtk_widget_set_name ( fixed, EDITSPECULAR );
 
     gtk_notebook_append_page ( GTK_NOTEBOOK(gtk3led->tab), fixed, label );
 
-    /*gtk_widget_set_size_request ( fixed, 300, 300 );*/
+    gtk_widget_set_size_request ( fixed, 300, 300 );
 
     ui_createSimpleLabel ( fixed, 
                            gtk3led,

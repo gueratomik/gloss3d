@@ -44,11 +44,13 @@ static gboolean inputGL ( GtkWidget *widget,
                                GdkEvent *gdkev, 
                                gpointer user_data ) {
     GTK3G3DUIVIEW *gtk3view =  ( GTK3G3DUIVIEW * ) user_data;
-    G3DUIVIEW     *view    = &gtk3view->core;
-    G3DUI         *gui     = view->gui;
+    G3DUIVIEW     *view     = &gtk3view->core;
+    G3DUI         *gui      = view->gui;
+    GTK3G3DUIQUAD *gtk3quad = ( GTK3G3DUIQUAD * ) gui->main->quad;
 
     gui->currentView = ( G3DUIVIEW * ) gtk3view;
 
+    if ( gtk3quad ) gtk_widget_queue_draw ( gtk3quad->layout );
 
     return TRUE;
 }
@@ -632,6 +634,9 @@ static gboolean navDraw ( GtkWidget *widget,
 /******************************************************************************/
 static void gtk3_g3duiview_createNavigationBar ( GTK3G3DUIVIEW *gtk3view ) {
     GtkWidget *navbar = gtk_drawing_area_new ( );
+    GtkStyleContext *context = gtk_widget_get_style_context ( navbar );
+
+    gtk_style_context_add_class ( context, CLASS_MAIN );
 
     gtk3view->navbar = navbar;
 
@@ -676,7 +681,7 @@ void gtk3_g3duiview_resize ( GTK3G3DUIVIEW *gtk3view,
     g3duiview_resize ( &gtk3view->core,
                         width,
                         height,
-                        BUTTONSIZE + 0x02 );
+                        BUTTONSIZE );
 
     /*** Menu ***/
     if ( gtk3view->core.menuBar ) {

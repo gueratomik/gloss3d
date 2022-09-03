@@ -84,11 +84,20 @@ gtk_widget_set_size_request ( gtk3menu->menu, gdkrec.width, gdkrec.height  );
 
     /*** Object Edit ***/
 
-    /*g3duirectangle_toGdkRectangle ( &gtk3objboard->core.editrec, &gdkrec );*/
+    if ( objedit ) {
+        g3duirectangle_toGdkRectangle ( &gtk3objboard->core.editrec, &gdkrec );
 
-/*gtk_layout_move ( gtk3objboard->layout, objedit->scrolled, gdkrec.x, gdkrec.y );
-gtk_widget_set_size_request ( objedit->scrolled, gdkrec.width, gdkrec.height  );*/
-    /*gtk_widget_size_allocate ( objedit->scrolled, &gdkrec );*/
+        gtk_layout_move ( gtk3objboard->layout,
+                          objedit->scrolled,
+                          gdkrec.x,
+                          gdkrec.y );
+
+        gtk_widget_set_size_request ( objedit->scrolled,
+                                      gdkrec.width,
+                                      gdkrec.height );
+
+        /*gtk_widget_size_allocate ( objedit->scrolled, &gdkrec );*/
+    }
 }
 
 /******************************************************************************/
@@ -162,7 +171,7 @@ GTK3G3DUIOBJECTBOARD *gtk3_g3duiobjectboard_create ( GtkWidget *parent,
 
     /*gtk3_g3duiobjectboard_createObjectList  ( gtk3objbrd );*/
     createMenuBar    ( gtk3objboard );
-    /*createObjectEdit ( gtk3objboard );*/
+    createObjectEdit ( gtk3objboard );
 
 
     return gtk3objboard;

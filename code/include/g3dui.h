@@ -731,8 +731,9 @@ typedef struct _G3DUI {
 #define MENU_CONDITION_SENSITIVE   1
 #define MENU_CONDITION_ACTIVE    ( 1 << 1 )
 
+#define CLASS_MAIN      "main"
 #define MENU_CLASS_VIEW "view"
-#define MENU_CLASS_MAIN "main"
+#define MENU_CLASS_MAIN CLASS_MAIN
 
 typedef struct _G3DUIMENU {
     G3DUI             *gui;

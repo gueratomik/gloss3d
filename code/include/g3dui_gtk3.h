@@ -376,6 +376,8 @@ GtkWidget *ui_createSimpleLabel ( GtkWidget *parent,
                                   gint       width,
                                   gint       height );
 
+GtkWidget *ui_gtk_fixed_new ( const char *class );
+
 /******************************* g3duiboard.c *********************************/
 GTK3G3DUIBOARD *gtk3_g3duiboard_create ( GtkWidget *parent,
                                          GTK3G3DUI *gtk3gui,

@@ -70,28 +70,28 @@ static uint64_t setShadingCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static G3DUIMENU shading_menu_gouraud   = { NULL,
                                             SHADINGMENU_GOURAUD,
-                                            MENU_CLASS_VIEW,
+                                            MENU_CLASS_MAIN,
                                             G3DUIMENUTYPE_TOGGLEBUTTON,
                                             gouraudActiveCond,
                                             setShadingCbk };
 
 static G3DUIMENU shading_menu_flat      = { NULL,
                                             SHADINGMENU_FLAT,
-                                            MENU_CLASS_VIEW,
+                                            MENU_CLASS_MAIN,
                                             G3DUIMENUTYPE_TOGGLEBUTTON,
                                             flatActiveCond,
                                             setShadingCbk };
  
 static G3DUIMENU shading_menu_wireframe = { NULL,
                                             SHADINGMENU_WIREFRAME,
-                                            MENU_CLASS_VIEW,
+                                            MENU_CLASS_MAIN,
                                             G3DUIMENUTYPE_TOGGLEBUTTON,
                                             wireframeActiveCond,
                                             setShadingCbk };
 
 /*static G3DUIMENU shading_menu_phong     = { NULL,
                                             SHADINGMENU_PHONG,
-                                            MENU_CLASS_VIEW,
+                                            MENU_CLASS_MAIN,
                                             G3DUIMENUTYPE_PUSHBUTTON,
                                             NULL,
                                             setShadingCbk };*/
@@ -345,63 +345,63 @@ static uint64_t resetCameraCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static G3DUIMENU view_menu_defcam   = { NULL,
                                         VIEWMENU_DEFAULTCAMERA,
-                                        MENU_CLASS_VIEW,
+                                        MENU_CLASS_MAIN,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
                                         useDefaultCameraCond,
                                         useDefaultCameraCbk };
 
 static G3DUIMENU view_menu_selcam   = { NULL,
                                         VIEWMENU_SELECTEDCAMERA,
-                                        MENU_CLASS_VIEW,
+                                        MENU_CLASS_MAIN,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
                                         NULL,
                                         useSelectedCameraCbk };
 
 static G3DUIMENU view_menu_normals  = { NULL,
                                         VIEWMENU_NORMALS,
-                                        MENU_CLASS_VIEW,
+                                        MENU_CLASS_MAIN,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
                                         toggleNormalsCond,
                                         toggleNormalsCbk };
 
 static G3DUIMENU view_menu_bones    = { NULL,
                                         VIEWMENU_BONES,
-                                        MENU_CLASS_VIEW,
+                                        MENU_CLASS_MAIN,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
                                         toggleBonesCond,
                                         toggleBonesCbk };
 
 static G3DUIMENU view_menu_grid     = { NULL,
                                         VIEWMENU_GRID,
-                                        MENU_CLASS_VIEW,
+                                        MENU_CLASS_MAIN,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
                                         toggleGridCond,
                                         toggleGridCbk };
 
 static G3DUIMENU view_menu_textures = { NULL,
                                         VIEWMENU_TEXTURES,
-                                        MENU_CLASS_VIEW,
+                                        MENU_CLASS_MAIN,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
                                         toggleTexturesCond,
                                         toggleTexturesCbk };
 
 static G3DUIMENU view_menu_bg       = { NULL,
                                         VIEWMENU_BACKGROUND,
-                                        MENU_CLASS_VIEW,
+                                        MENU_CLASS_MAIN,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
                                         toggleBackgroundImageCond,
                                         toggleBackgroundImageCbk };
 
 static G3DUIMENU view_menu_lighting = { NULL,
                                         VIEWMENU_LIGHTING,
-                                        MENU_CLASS_VIEW,
+                                        MENU_CLASS_MAIN,
                                         G3DUIMENUTYPE_TOGGLEBUTTON,
                                         toggleLightingCond,
                                         toggleLightingCbk };
 
 static G3DUIMENU view_menu_reset    = { NULL,
                                         VIEWMENU_RESET,
-                                        MENU_CLASS_VIEW,
+                                        MENU_CLASS_MAIN,
                                         G3DUIMENUTYPE_PUSHBUTTON,
                                         NULL,
                                         resetCameraCbk };

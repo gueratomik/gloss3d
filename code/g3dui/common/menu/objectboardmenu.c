@@ -55,21 +55,21 @@ static uint64_t removeSelectedTagCbk ( G3DUIMENU *menu,
 
 static G3DUIMENU tags_menu_addVibrator     = { NULL,
                                                MENU_ADDVIBRATORTAG,
-                                               MENU_CLASS_VIEW,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectMode_objectSelected,
                                                addVibratorTagCbk };
 
 static G3DUIMENU tags_menu_addTrackerTag   = { NULL,
                                                MENU_ADDTRACKERTAG,
-                                               MENU_CLASS_VIEW,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectMode_objectSelected,
                                                addTrackerTagCbk };
 
 static G3DUIMENU tags_menu_removeSelTag    = { NULL,
                                                MENU_REMOVESELTAG,
-                                               MENU_CLASS_VIEW,
+                                               MENU_CLASS_MAIN,
                                                G3DUIMENUTYPE_PUSHBUTTON,
                                                objectMode_objectSelected,
                                                removeSelectedTagCbk };
@@ -82,7 +82,7 @@ static G3DUIMENU *tagschildren[] = { /*&tags_menu_addVibrator,*/
 
 static G3DUIMENU tags_menu = { NULL,
                                "Tags",
-                               MENU_CLASS_VIEW,
+                               MENU_CLASS_MAIN,
                                G3DUIMENUTYPE_SUBMENU,
                                NULL,
                                NULL,

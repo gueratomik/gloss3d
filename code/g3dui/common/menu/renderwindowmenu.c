@@ -48,21 +48,21 @@ static uint64_t renderwindowSaveJPGCbk ( G3DUIMENU *menu, void *data ) {
 /******************************************************************************/
 static G3DUIMENU rw_menu_close   = { NULL,
                                      RWMENU_CLOSE,
-                                     MENU_CLASS_VIEW,
+                                     MENU_CLASS_MAIN,
                                      G3DUIMENUTYPE_PUSHBUTTON,
                                      NULL,
                                      renderwindowExitCbk };
 
 /*static G3DUIMENU rw_menu_savepng = { NULL,
                                      RWMENU_SAVEPNG,
-                                     MENU_CLASS_VIEW,
+                                     MENU_CLASS_MAIN,
                                      G3DUIMENUTYPE_PUSHBUTTON,
                                      NULL,
                                      g3duirenderwindow_savePNGCbk };*/
 
 static G3DUIMENU rw_menu_savejpg = { NULL,
                                      RWMENU_SAVEJPG,
-                                     MENU_CLASS_VIEW,
+                                     MENU_CLASS_MAIN,
                                      G3DUIMENUTYPE_PUSHBUTTON,
                                      NULL,
                                      renderwindowSaveJPGCbk };
@@ -75,7 +75,7 @@ static G3DUIMENU *rwfilechildren[] = { /*&rw_menu_savepng,*/
 
 static G3DUIMENU rw_file_menu = { NULL,
                                   "_File",
-                                  MENU_CLASS_VIEW,
+                                  MENU_CLASS_MAIN,
                                   G3DUIMENUTYPE_SUBMENU,
                                   NULL,
                                   NULL,

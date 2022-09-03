@@ -94,21 +94,21 @@ static uint64_t bgfillCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static G3DUIMENU uvimage_menu_resize = { NULL,
                                          MENU_RESIZEIMAGE,
-                                         MENU_CLASS_VIEW,
+                                         MENU_CLASS_MAIN,
                                          G3DUIMENUTYPE_PUSHBUTTON,
                                          NULL,
                                          resizeChannelImageCbk };
 
 static G3DUIMENU uvimage_menu_fgfill = { NULL,
                                          MENU_FGFILL,
-                                         MENU_CLASS_VIEW,
+                                         MENU_CLASS_MAIN,
                                          G3DUIMENUTYPE_PUSHBUTTON,
                                          NULL,
                                          fgfillCbk };
 
 static G3DUIMENU uvimage_menu_bgfill = { NULL,
                                          MENU_BGFILL,
-                                         MENU_CLASS_VIEW,
+                                         MENU_CLASS_MAIN,
                                          G3DUIMENUTYPE_PUSHBUTTON,
                                          NULL,
                                          bgfillCbk };
@@ -197,41 +197,41 @@ static uint64_t uvRedoCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static G3DUIMENU uvedit_menu_undo      = { NULL,
                                            MENU_UNDO,
-                                           MENU_CLASS_VIEW,
+                                           MENU_CLASS_MAIN,
                                            G3DUIMENUTYPE_PUSHBUTTON,
                                            NULL,
                                            uvUndoCbk };
 static G3DUIMENU uvedit_menu_redo      = { NULL,
                                            MENU_REDO,
-                                           MENU_CLASS_VIEW,
+                                           MENU_CLASS_MAIN,
                                            G3DUIMENUTYPE_PUSHBUTTON,
                                            NULL,
                                            uvRedoCbk };
 
 static G3DUIMENU uvedit_menu_uv2ver    = { NULL,
                                            MENU_VERTEXFROMUV,
-                                           MENU_CLASS_VIEW,
+                                           MENU_CLASS_MAIN,
                                            G3DUIMENUTYPE_PUSHBUTTON,
                                            NULL,
                                            uv2verCbk };
 
 static G3DUIMENU uvedit_menu_ver2uv    = { NULL,
                                            MENU_UVFROMVERTEX,
-                                           MENU_CLASS_VIEW,
+                                           MENU_CLASS_MAIN,
                                            G3DUIMENUTYPE_PUSHBUTTON,
                                            NULL,
                                            ver2uvCbk };
 
 static G3DUIMENU uvedit_menu_uvset2fac = { NULL,
                                            MENU_FACEFROMUVSET,
-                                           MENU_CLASS_VIEW,
+                                           MENU_CLASS_MAIN,
                                            G3DUIMENUTYPE_PUSHBUTTON,
                                            NULL,
                                            uvset2facCbk };
 
 static G3DUIMENU uvedit_menu_fac2uvset = { NULL,
                                            MENU_UVSETFROMFACE,
-                                           MENU_CLASS_VIEW,
+                                           MENU_CLASS_MAIN,
                                            G3DUIMENUTYPE_PUSHBUTTON,
                                            NULL,
                                            fac2uvsetCbk };
@@ -313,14 +313,14 @@ static uint64_t createChannelImageCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static G3DUIMENU uvfile_menu_createChannelImage = { NULL,
                                                     MENU_CREATECHANNELIMAGE,
-                                                    MENU_CLASS_VIEW,
+                                                    MENU_CLASS_MAIN,
                                                     G3DUIMENUTYPE_PUSHBUTTON,
                                                     NULL,
                                                     createChannelImageCbk };
 
 static G3DUIMENU uvfile_menu_openChannelImage   = { NULL,
                                                     MENU_OPENCHANNELIMAGE,
-                                                    MENU_CLASS_VIEW,
+                                                    MENU_CLASS_MAIN,
                                                     G3DUIMENUTYPE_PUSHBUTTON,
                                                     NULL,
                                                     loadImageByChannelIDCbk };
@@ -332,7 +332,7 @@ static G3DUIMENU *uvfilechildren[] = { &uvfile_menu_createChannelImage,
 
 static G3DUIMENU uvfile_menu = { NULL,
                                  "File",
-                                 MENU_CLASS_VIEW,
+                                 MENU_CLASS_MAIN,
                                  G3DUIMENUTYPE_SUBMENU,
                                  NULL,
                                  NULL,

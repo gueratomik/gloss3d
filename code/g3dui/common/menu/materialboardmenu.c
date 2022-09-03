@@ -96,21 +96,21 @@ static uint64_t addMaterialCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static G3DUIMENU matfile_menu_add    = { NULL,
                                          "Add Material",
-                                         MENU_CLASS_VIEW,
+                                         MENU_CLASS_MAIN,
                                          G3DUIMENUTYPE_PUSHBUTTON,
                                          NULL,
                                          addMaterialCbk };
 
 static G3DUIMENU matfile_menu_remove = { NULL,
                                          "Remove Material",
-                                         MENU_CLASS_VIEW,
+                                         MENU_CLASS_MAIN,
                                          G3DUIMENUTYPE_PUSHBUTTON,
                                          NULL,
                                          removeMaterialCbk };
 
 static G3DUIMENU matfile_menu_set    = { NULL,
                                          "Set Material",
-                                         MENU_CLASS_VIEW,
+                                         MENU_CLASS_MAIN,
                                          G3DUIMENUTYPE_PUSHBUTTON,
                                          NULL,
                                          setMaterialCbk };
@@ -123,7 +123,7 @@ static G3DUIMENU *matfilechildren[] = { &matfile_menu_add,
 
 static G3DUIMENU matfile_menu = { NULL,
                                   "File",
-                                  MENU_CLASS_VIEW,
+                                  MENU_CLASS_MAIN,
                                   G3DUIMENUTYPE_SUBMENU,
                                   NULL,
                                   NULL,

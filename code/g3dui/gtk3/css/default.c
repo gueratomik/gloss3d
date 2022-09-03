@@ -29,13 +29,22 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-static const gchar *myCSS = { "*{                      \n"
+static const gchar *myCSS = { ".main,     \n"
+                              " menu,     \n"
+                              " menubar,  \n"
+                              " menuitem, \n"
+                              " layout,   \n"
+                              " button,   \n"
+                              " window,   \n"
+                              " toolbar,  \n"
+                              " menubar,  \n"
+                              " colorchooser,    \n"
+                              " notebook, \n"
+                              " tab, \n"
+                              " label {   \n"
 #ifdef __linux__
-                              /*color: rgba(240, 240, 240, 1);"
-                              "background:  rgba(96, 96, 96, 1);"*/
-
-                              "color: rgba(0, 0, 0, 1);"
-                              "background:  rgba(191, 191, 191, 1);"
+                              /*"color: rgba(0, 0, 0, 1);"
+                              "background:  rgba(191, 191, 191, 1);"*/
 
                               "    font-family: Lucida Sans; \n"
                               /*"    font-size: 8px; \n"*/
@@ -160,20 +169,6 @@ static const gchar *myCSS = { "*{                      \n"
                               "    padding-bottom: 0px; \n"
                               "    font-size:     12px; \n"
                               "}                        \n"
-
-                              "comboboxtext#Shading_Menu {   \n"
-                              "    border-width:   0px; \n"
-                              "    border-radius:  0px; \n"
-                              "    margin-top:     0px; \n"
-                              "    margin-right:   0px; \n"
-                              "    margin-left:    0px; \n"
-                              "    margin-bottom:  0px; \n"
-                              "    padding-top:    0px; \n"
-                              "    padding-right:  0px; \n"
-                              "    padding-left:   0px; \n"
-                              "    padding-bottom: 0px; \n"
-                              "    font-size:      6px; \n"
-                              "}                        \n"
                               "toolbar {             \n"
                               "    border-width:   1px; \n"
                               "    border-radius:  0px; \n"
@@ -185,7 +180,8 @@ static const gchar *myCSS = { "*{                      \n"
                               "    padding-right:  0px; \n"
                               "    padding-left:   0px; \n"
                               "    padding-bottom: 0px; \n"
-                              "}                        \n" };
+                              "}                        \n"
+                               };
 
 /******************************************************************************/
 gchar *gtk3_getDefaultCSS ( ) {

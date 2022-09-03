@@ -48,6 +48,16 @@ void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in,
 }
 
 /******************************************************************************/
+GtkWidget *ui_gtk_fixed_new ( const char *class ) {
+    GtkWidget *fixed = gtk_fixed_new ( );
+    GtkStyleContext *context = gtk_widget_get_style_context ( fixed );
+
+    gtk_style_context_add_class ( context, class );
+
+    return fixed;
+}
+
+/******************************************************************************/
 GtkWidget *ui_createSimpleLabel ( GtkWidget *parent, 
                                   void      *data,
                                   char      *name,
@@ -322,7 +332,9 @@ static void gtk3_updateObjectEdit ( GTK3G3DUI *gtk3gui ) {
                 if ( objboard ) {
                     G3DUIOBJECTEDIT *objedit = objboard->objedit;
 
-                    gtk3_g3duiobjectedit_update ( ( GTK3G3DUIOBJECTEDIT * ) objedit );
+                    if ( objedit ) {
+                        gtk3_g3duiobjectedit_update ( ( GTK3G3DUIOBJECTEDIT * ) objedit );
+                    }
                 }
             }
         }
