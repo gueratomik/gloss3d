@@ -50,9 +50,9 @@ void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in,
 /******************************************************************************/
 GtkWidget *ui_gtk_fixed_new ( char *class ) {
     GtkWidget *fixed = gtk_fixed_new ( );
-    /*GtkStyleContext *context = gtk_widget_get_style_context ( fixed );
+    GtkStyleContext *context = gtk_widget_get_style_context ( fixed );
 
-    gtk_style_context_add_class ( context, class );*/
+    gtk_style_context_add_class ( context, class );
 
     return fixed;
 }
@@ -61,9 +61,9 @@ GtkWidget *ui_gtk_fixed_new ( char *class ) {
 GtkWidget *ui_gtk_label_new ( char *class,
                               char *name ) {
     GtkWidget *lab = gtk_label_new ( name );
-    /*GtkStyleContext *context = gtk_widget_get_style_context ( lab );
+    GtkStyleContext *context = gtk_widget_get_style_context ( lab );
 
-    gtk_style_context_add_class ( context, class );*/
+    gtk_style_context_add_class ( context, class );
 
     return lab;
 }
@@ -99,17 +99,24 @@ GtkWidget *ui_createPanel ( GtkWidget *parent,
 GtkWidget *ui_createToggleLabel ( GtkWidget *parent, 
                                   void      *data,
                                   char      *name,
+                                  char      *class,
                                   gint       x, 
                                   gint       y,
-                                  gint       width,
+                                  gint       labwidth,
+                                  gint       btnwidth,
                                   gint       height,
                                   void     (*cbk)( GtkWidget *, 
                                                    gpointer ) ) {
-    GtkWidget *btn = gtk_check_button_new_with_label ( name );
+    GtkWidget *btn = gtk_check_button_new ( );
+    GtkWidget *lab = ui_gtk_label_new ( class, name );
 
+    gtk_widget_set_halign ( lab, GTK_ALIGN_END );
+
+    gtk_widget_set_name ( lab, name );
     gtk_widget_set_name ( btn, name );
 
-    gtk_widget_set_size_request ( btn, width, height );
+    gtk_widget_set_size_request ( lab, labwidth, height );
+    gtk_widget_set_size_request ( btn, btnwidth, height );
 
     gtk_toggle_button_set_mode ( GTK_TOGGLE_BUTTON(btn), TRUE );
 
@@ -117,8 +124,10 @@ GtkWidget *ui_createToggleLabel ( GtkWidget *parent,
         g_signal_connect ( btn, "toggled", G_CALLBACK ( cbk ), data );
     }
 
-    gtk_fixed_put ( GTK_FIXED(parent), btn, x, y );
+    gtk_fixed_put ( GTK_FIXED(parent), lab, x, y );
+    gtk_fixed_put ( GTK_FIXED(parent), btn, x + labwidth, y );
 
+    gtk_widget_show ( lab );
     gtk_widget_show ( btn );
 
 

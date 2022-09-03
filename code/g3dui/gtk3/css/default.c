@@ -47,7 +47,7 @@ static const gchar *myCSS = { ".main,     \n"
                               "background:  rgba(191, 191, 191, 1);"*/
 
                               "    font-family: Lucida Sans; \n"
-                              /*"    font-size: 8px; \n"*/
+                              "    font-size: 12px; \n"
 #endif
 #ifdef __MINGW32__
                               "    font-family: Calibri; \n"

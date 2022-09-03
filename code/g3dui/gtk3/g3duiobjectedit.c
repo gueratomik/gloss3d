@@ -52,6 +52,8 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
     G3DUI *gui = gtk3objedit->core.gui;
     G3DSCENE *sce = gui->sce;
 
+    gtk_widget_hide ( ligedit->tab );
+
     if ( sce ) {
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
@@ -63,8 +65,6 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
                     gtk3_g3duilightedit_update ( ligedit );
 
                     gtk_widget_show ( ligedit->tab );
-                } else {
-                    gtk_widget_hide ( ligedit->tab );
                 }
 
             #ifdef unused
