@@ -29,7 +29,7 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-#define EDITLIGHTGENERAL           "General"
+#define EDITLIGHTGENERAL           "Light"
 #define EDITLIGHTINTENSITY         "Intensity"
 #define EDITLIGHTCASTSHADOWS       "Cast shadows"
 #define EDITLIGHTCOLOR             "Light RGB Color"
@@ -43,7 +43,6 @@
 #define EDITLIGHTSOFTSHADOWS       "Area Shadows"
 #define EDITLIGHTSOFTSHADOWSRADIUS "Area radius"
 #define EDITLIGHTSOFTSHADOWSSAMPLE "Sample count"
-
 
 /******************************************************************************/
 static GTK3G3DUILIGHTEDIT *gtk3_g3duilightedit_new ( GTK3G3DUI *gtk3gui ) {
@@ -92,6 +91,8 @@ static void updateShadowsPanel ( GTK3G3DUILIGHTEDIT *gtk3led ) {
         gtk_spin_button_set_value  ( gtk3led->shadowSampleEntry, 
                                      gtk3led->core.editedLight->shadowSample );
     }
+
+    gtk3led->core.gui->lock = 0x00;
 }
 
 /******************************************************************************/

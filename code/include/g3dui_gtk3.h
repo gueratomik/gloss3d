@@ -305,6 +305,17 @@ typedef struct _GTK3G3DUILIGHTEDIT {
 } GTK3G3DUILIGHTEDIT;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUICUBEEDIT {
+    G3DUICUBEEDIT core;
+
+    GtkNotebook   *notebook;
+    GtkSpinButton *xSlicesEntry;
+    GtkSpinButton *ySlicesEntry;
+    GtkSpinButton *zSlicesEntry;
+    GtkSpinButton *radiusEntry;
+} GTK3G3DUICUBEEDIT;
+
+/******************************************************************************/
 /************************** GTK PatternList Widget ***************************/
 typedef struct _GTK3PATTERNPREVIEW {
     GdkPixbuf     *img;
@@ -450,6 +461,12 @@ GTK3G3DUIBOARD *gtk3_g3duiboard_create ( GtkWidget *parent,
 void gtk3_g3duiboard_resize ( GTK3G3DUIBOARD *gtk3board,
                               uint32_t        width,
                               uint32_t        height );
+
+/******************************* g3duicubeedit.c ******************************/
+void gtk3_g3duicubeedit_update ( GTK3G3DUICUBEEDIT *gtk3ced );
+GTK3G3DUICUBEEDIT *gtk3_g3duicubeedit_create ( GtkWidget *parent,
+                                               GTK3G3DUI *gtk3gui,
+                                               char      *name );
 
 /***************************** g3duilightedit.c *******************************/
 void gtk3_g3duilightedit_update ( GTK3G3DUILIGHTEDIT *gtk3led );

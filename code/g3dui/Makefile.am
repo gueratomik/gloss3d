@@ -75,6 +75,7 @@ if HAVE_GTK3
                             common/m3dui.c \
                             gtk3/g3dui.c \
                             gtk3/g3duiboard.c \
+                            gtk3/g3duicubeedit.c \
                             gtk3/g3duilightedit.c \
                             gtk3/g3duimain.c \
                             gtk3/g3duimenubar.c \

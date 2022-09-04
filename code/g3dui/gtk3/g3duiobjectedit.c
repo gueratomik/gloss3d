@@ -49,10 +49,13 @@ static GTK3G3DUIOBJECTEDIT *gtk3_g3duiobjectedit_new ( GTK3G3DUI *gtk3gui ) {
 /******************************************************************************/
 void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
     GTK3G3DUILIGHTEDIT *ligedit = ( GTK3G3DUILIGHTEDIT * ) gtk3objedit->core.ligedit;
+    GTK3G3DUICUBEEDIT  *cubedit = ( GTK3G3DUICUBEEDIT  * ) gtk3objedit->core.cubedit;
+
     G3DUI *gui = gtk3objedit->core.gui;
     G3DSCENE *sce = gui->sce;
 
     gtk_widget_hide ( ligedit->notebook );
+    gtk_widget_hide ( cubedit->notebook );
 
     if ( sce ) {
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -65,6 +68,12 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
                     gtk3_g3duilightedit_update ( ligedit );
 
                     gtk_widget_show ( ligedit->notebook );
+                }
+
+                if ( obj->type == G3DCUBETYPE ) {
+                    gtk3_g3duicubeedit_update ( cubedit );
+
+                    gtk_widget_show ( cubedit->notebook );
                 }
 
             #ifdef unused
@@ -171,11 +180,25 @@ static void createLightEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
 
     gtk3ligedit = gtk3_g3duilightedit_create ( gtk3objedit->fixed,
                                                gtk3gui,
-                                               EDITLIGHT );
+                                               "Edit Light" );
 
     gtk_fixed_put ( GTK_FIXED(gtk3objedit->fixed), gtk3ligedit->notebook, 0, 0 );
 
     gtk3objedit->core.ligedit = ( G3DUILIGHTEDIT * ) gtk3ligedit;
+}
+
+/******************************************************************************/
+static void createCubeEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3objedit->core.gui;
+    GTK3G3DUICUBEEDIT *gtk3cubedit;
+
+    gtk3cubedit = gtk3_g3duicubeedit_create ( gtk3objedit->fixed,
+                                              gtk3gui,
+                                              "Edit cube" );
+
+    gtk_fixed_put ( GTK_FIXED(gtk3objedit->fixed), gtk3cubedit->notebook, 0, 0 );
+
+    gtk3objedit->core.cubedit = ( G3DUICUBEEDIT * ) gtk3cubedit;
 }
 
 /******************************************************************************/
@@ -221,6 +244,7 @@ GTK3G3DUIOBJECTEDIT *gtk3_g3duiobjectedit_create ( GtkWidget *parent,
     createSplineRevolverEdit  ( frm, gui, EDITSPLINEREVOLVER , 0, 32, 296, 320 );
 */
     createLightEdit ( gtk3objedit );
+    createCubeEdit  ( gtk3objedit );
 /*
     createUVMapEdit           ( frm, gui, EDITUVMAP          , 0, 32, 296,  96 );
     createWireframeEdit       ( frm, gui, EDITWIREFRAME      , 0, 32, 296,  96 );

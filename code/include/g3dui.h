@@ -258,12 +258,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITSPHERERADIUS  "Radius"
 #define EDITSPHEREPERFECT "Render Perfect"
 
-/**** Widget names for CubeEdit TextField widget ***/
-#define EDITCUBE        "Edit Cube"
-#define EDITCUBEXSLICES "X Slices"
-#define EDITCUBEYSLICES "Y Slices"
-#define EDITCUBEZSLICES "Z Slices"
-#define EDITCUBERADIUS  "Radius"
+
 
 #define EDITTORUS            "Edit Torus"
 #define EDITTORUSSLICE       "Slices"
@@ -839,54 +834,6 @@ typedef struct _G3DUICAMERAEDIT {
 } G3DUICAMERAEDIT;
 
 /******************************************************************************/
-typedef struct _G3DUIOBJECTEDIT {
-    G3DUI          *gui;
-
-    G3DUIRECTANGLE  labrec;
-    G3DUIRECTANGLE  namerec;
-    G3DUIRECTANGLE  editrec;
-
-    G3DUILIGHTEDIT *ligedit;
-} G3DUIOBJECTEDIT;
-
-/******************************************************************************/
-typedef struct _G3DUIMATERIALBOARD {
-    G3DUI              *gui;
-    G3DUIRECTANGLE      menurec;
-    G3DUIRECTANGLE      listrec;
-    G3DUIRECTANGLE      editrec;
-    G3DUIMENU          *menuBar;
-    G3DUIOBJECTLIST    *matlist;
-    G3DUIMATERIALEDIT  *matedit;
-} G3DUIMATERIALBOARD;
-
-/******************************************************************************/
-typedef struct _G3DUIOBJECTBOARD {
-    G3DUI            *gui;
-    G3DUIRECTANGLE    menurec;
-    G3DUIRECTANGLE    listrec;
-    G3DUIRECTANGLE    editrec;
-    G3DUIMENU        *menuBar;
-    G3DUIOBJECTLIST  *objlist;
-    G3DUIOBJECTEDIT  *objedit;
-} G3DUIOBJECTBOARD;
-
-/******************************************************************************/
-typedef struct _G3DUIMOUSETOOLEDIT {
-    G3DUI            *gui;
-} G3DUIMOUSETOOLEDIT;
-
-/******************************************************************************/
-typedef struct _G3DUIBOARD {
-    G3DUI              *gui;
-    G3DUIRECTANGLE      boardrec;
-    G3DUIRECTANGLE      toolrec;
-    G3DUIMATERIALBOARD *matboard;
-    G3DUIOBJECTBOARD   *objboard;
-    G3DUIMOUSETOOLEDIT *tooledit;
-} G3DUIBOARD;
-
-/******************************************************************************/
 typedef struct _G3DUIWIREFRAMEEDIT {
     G3DUI *gui;
 } G3DUIWIREFRAMEEDIT;
@@ -909,6 +856,8 @@ typedef struct _G3DUITEXTUREEDIT {
 /******************************************************************************/
 typedef struct _G3DUICUBEEDIT {
     G3DUI *gui;
+    uint32_t  multi;
+    G3DPRIMITIVE *editedCube;
 } G3DUICUBEEDIT;
 
 /******************************************************************************/
@@ -960,6 +909,55 @@ typedef struct _G3DUIINSTANCEEDIT {
 typedef struct _G3DUIKEYEDIT {
     G3DUI *gui;
 } G3DUIKEYEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIOBJECTEDIT {
+    G3DUI          *gui;
+
+    G3DUIRECTANGLE  labrec;
+    G3DUIRECTANGLE  namerec;
+    G3DUIRECTANGLE  editrec;
+
+    G3DUILIGHTEDIT *ligedit;
+    G3DUICUBEEDIT  *cubedit;
+} G3DUIOBJECTEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIMATERIALBOARD {
+    G3DUI              *gui;
+    G3DUIRECTANGLE      menurec;
+    G3DUIRECTANGLE      listrec;
+    G3DUIRECTANGLE      editrec;
+    G3DUIMENU          *menuBar;
+    G3DUIOBJECTLIST    *matlist;
+    G3DUIMATERIALEDIT  *matedit;
+} G3DUIMATERIALBOARD;
+
+/******************************************************************************/
+typedef struct _G3DUIOBJECTBOARD {
+    G3DUI            *gui;
+    G3DUIRECTANGLE    menurec;
+    G3DUIRECTANGLE    listrec;
+    G3DUIRECTANGLE    editrec;
+    G3DUIMENU        *menuBar;
+    G3DUIOBJECTLIST  *objlist;
+    G3DUIOBJECTEDIT  *objedit;
+} G3DUIOBJECTBOARD;
+
+/******************************************************************************/
+typedef struct _G3DUIMOUSETOOLEDIT {
+    G3DUI            *gui;
+} G3DUIMOUSETOOLEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIBOARD {
+    G3DUI              *gui;
+    G3DUIRECTANGLE      boardrec;
+    G3DUIRECTANGLE      toolrec;
+    G3DUIMATERIALBOARD *matboard;
+    G3DUIOBJECTBOARD   *objboard;
+    G3DUIMOUSETOOLEDIT *tooledit;
+} G3DUIBOARD;
 
 /******************************************************************************/
 typedef struct _G3DUIMODEBAR {
