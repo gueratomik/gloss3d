@@ -251,19 +251,8 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITTEXTURERESTRICT  "Restrict to selection"
 #define EDITTEXTUREREPEAT    "Repeat texture"
  
-/**** Widget names for SphereEdit TextField widgets ***/
-#define EDITSPHERE        "Edit Sphere"
-#define EDITSPHERECAPS    "Caps"
-#define EDITSPHERESLICES  "Slices"
-#define EDITSPHERERADIUS  "Radius"
-#define EDITSPHEREPERFECT "Render Perfect"
 
-#define EDITTORUS            "Edit Torus"
-#define EDITTORUSSLICE       "Slices"
-#define EDITTORUSCAP         "Caps"
-#define EDITTORUSEXTRAD      "Outer Radius"
-#define EDITTORUSINTRAD      "Inner Radius"
-#define EDITTORUSORIENTATION "Orientation"
+
 
 #define EDITPLANE     "Edit Plane"
 #define EDITPLANEDIVU "U Divisions"
@@ -285,14 +274,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 
 
 
-/**** Widget names for TubeEdit TextField widget ***/
-#define EDITTUBE       "Edit Tube"
-#define EDITTUBEXCAPS  "X Caps"
-#define EDITTUBEYCAPS  "Y Caps" 
-#define EDITTUBESLICES "Slices"
-#define EDITTUBELENGTH "Length"
-#define EDITTUBERADIUS "Radius"
-#define EDITTUBETHICKNESS "Thickness"
+
 
 /**** Widget names for Pick Tool widget ***/
 #define EDITPICKTOOLVISIBLE        "Only visible"
@@ -938,26 +920,34 @@ typedef struct _G3DUIKEYEDIT {
 } G3DUIKEYEDIT;
 
 /******************************************************************************/
+typedef struct _G3DUIPARTICLEEMITTEREDIT {
+    G3DUI              *gui;
+    uint32_t            multi;
+    G3DPARTICLEEMITTER *editedPEmitter;
+} G3DUIPARTICLEEMITTEREDIT;
+
+/******************************************************************************/
 typedef struct _G3DUIOBJECTEDIT {
-    G3DUI                  *gui;
+    G3DUI                   *gui;
 
-    G3DUIRECTANGLE          labrec;
-    G3DUIRECTANGLE          namerec;
-    G3DUIRECTANGLE          editrec;
+    G3DUIRECTANGLE           labrec;
+    G3DUIRECTANGLE           namerec;
+    G3DUIRECTANGLE           editrec;
 
-    G3DUILIGHTEDIT          *ligedit;
-    G3DUICUBEEDIT           *cubedit;
-    G3DUICYLINDEREDIT       *cyledit;
-    G3DUIFFDEDIT            *ffdedit;
-    G3DUISPHEREEDIT         *sphedit;
-    G3DUITUBEEDIT           *tubedit;
-    G3DUITORUSEDIT          *toredit;
-    G3DUIPLANEEDIT          *plnedit;
-    G3DUITEXTEDIT           *txtedit;
-    G3DUIINSTANCEEDIT       *insedit;
-    G3DUISPLINEREVOLVEREDIT *spredit;
-    G3DUISUBDIVIDEREDIT     *sdredit;
-    G3DUISYMMETRYEDIT       *symedit;
+    G3DUILIGHTEDIT           *ligedit;
+    G3DUICUBEEDIT            *cubedit;
+    G3DUICYLINDEREDIT        *cyledit;
+    G3DUIFFDEDIT             *ffdedit;
+    G3DUISPHEREEDIT          *sphedit;
+    G3DUITUBEEDIT            *tubedit;
+    G3DUITORUSEDIT           *toredit;
+    G3DUIPLANEEDIT           *plnedit;
+    G3DUITEXTEDIT            *txtedit;
+    G3DUIINSTANCEEDIT        *insedit;
+    G3DUISPLINEREVOLVEREDIT  *spredit;
+    G3DUISUBDIVIDEREDIT      *sdredit;
+    G3DUISYMMETRYEDIT        *symedit;
+    G3DUIPARTICLEEMITTEREDIT *pemedit;
 } G3DUIOBJECTEDIT;
 
 /******************************************************************************/
@@ -1031,11 +1021,6 @@ typedef struct _G3DUIPICKTOOLEDIT {
 typedef struct _G3DUIRENDEREDIT {
     G3DUI *gui;
 } G3DUIRENDEREDIT;
-
-/******************************************************************************/
-typedef struct _G3DUIPARTICLEEMITTEREDIT {
-    G3DUI *gui;
-} G3DUIPARTICLEEMITTEREDIT;
 
 /******************************************************************************/
 typedef struct _G3DUIMAIN {

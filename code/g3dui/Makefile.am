@@ -85,8 +85,11 @@ if HAVE_GTK3
                             gtk3/g3duimodebar.c \
                             gtk3/g3duiobjectboard.c \
                             gtk3/g3duiobjectedit.c \
+                            gtk3/g3duiparticleemitteredit.c \
                             gtk3/g3duiquad.c \
                             gtk3/g3duitoolbar.c \
+                            gtk3/g3duitorusedit.c \
+                            gtk3/g3duitubeedit.c \
                             gtk3/g3duiview.c \
                             gtk3/css/default.c
 endif

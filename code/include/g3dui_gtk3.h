@@ -316,6 +316,40 @@ typedef struct _GTK3G3DUICUBEEDIT {
 } GTK3G3DUICUBEEDIT;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUITUBEEDIT {
+    G3DUITUBEEDIT core;
+
+    GtkNotebook   *notebook;
+    GtkSpinButton *capsEntry;
+    GtkSpinButton *slicesEntry;
+    GtkSpinButton *lengthEntry;
+    GtkSpinButton *radiusEntry;
+    GtkSpinButton *thicknessEntry;
+} GTK3G3DUITUBEEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUITORUSEDIT {
+    G3DUITORUSEDIT core;
+
+    GtkNotebook   *notebook;
+    GtkSpinButton *capsEntry;
+    GtkSpinButton *slicesEntry;
+    GtkSpinButton *extradEntry;
+    GtkSpinButton *intradEntry;
+} GTK3G3DUITORUSEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUISPHEREEDIT {
+    G3DUISPHEREEDIT  core;
+
+    GtkNotebook     *notebook;
+    GtkSpinButton   *capsEntry;
+    GtkSpinButton   *slicesEntry;
+    GtkSpinButton   *radiusEntry;
+    GtkToggleButton *perfectToggle;
+} GTK3G3DUISPHEREEDIT;
+
+/******************************************************************************/
 typedef struct _GTK3G3DUICYLINDEREDIT {
     G3DUICYLINDEREDIT core;
 
@@ -348,6 +382,71 @@ typedef struct _GTK3G3DUIINSTANCEEDIT {
     GtkToggleButton *mirroredToggle;
     GtkComboBoxText *mirroredPlanSelector;
 } GTK3G3DUIINSTANCEEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIPARTICLEEMITTEREDIT {
+    G3DUIPARTICLEEMITTEREDIT core;
+
+    GtkNotebook             *notebook;                   
+
+    GtkSpinButton           *startAtFrameEntry;          
+    GtkSpinButton           *endAtFrameEntry;            
+    GtkSpinButton           *radiusEntry;                
+    GtkComboBoxText         *shapeCombo;                 
+    GtkSpinButton           *lifetimeEntry;              
+    GtkSpinButton           *ppfEntry;                   
+    GtkSpinButton           *maxPreviewsEntry;           
+    GtkToggleButton         *displayPartToggle;          
+
+    GtkSpinButton           *initialAccelXEntry;         
+    GtkSpinButton           *initialAccelYEntry;         
+    GtkSpinButton           *initialAccelZEntry;         
+    GtkSpinButton           *initialSpeedXEntry;         
+    GtkSpinButton           *initialSpeedYEntry;         
+    GtkSpinButton           *initialSpeedZEntry;         
+    GtkSpinButton           *initialScaXEntry;           
+    GtkSpinButton           *initialScaYEntry;           
+    GtkSpinButton           *initialScaZEntry;           
+    GtkSpinButton           *initialRotXEntry;           
+    GtkSpinButton           *initialRotYEntry;           
+    GtkSpinButton           *initialRotZEntry;           
+    GtkSpinButton           *initialTranspEntry;         
+
+    GtkSpinButton           *initialVarAngleEntry;       
+    GtkSpinButton           *initialVarLifetimeEntry;    
+
+    GtkSpinButton           *initialVarAccelXEntry;      
+    GtkSpinButton           *initialVarAccelYEntry;      
+    GtkSpinButton           *initialVarAccelZEntry;      
+    GtkSpinButton           *initialVarSpeedXEntry;      
+    GtkSpinButton           *initialVarSpeedYEntry;      
+    GtkSpinButton           *initialVarSpeedZEntry;      
+    GtkSpinButton           *initialVarScaXEntry;        
+    GtkSpinButton           *initialVarScaYEntry;        
+    GtkSpinButton           *initialVarScaZEntry;        
+    GtkSpinButton           *initialVarRotXEntry;        
+    GtkSpinButton           *initialVarRotYEntry;        
+    GtkSpinButton           *initialVarRotZEntry;        
+    GtkSpinButton           *initialVarTranspEntry;      
+
+    GtkSpinButton           *finalAccelXEntry;           
+    GtkSpinButton           *finalAccelYEntry;           
+    GtkSpinButton           *finalAccelZEntry;           
+    GtkSpinButton           *finalSpeedXEntry;           
+    GtkSpinButton           *finalSpeedYEntry;           
+    GtkSpinButton           *finalSpeedZEntry;           
+    GtkSpinButton           *finalScaXEntry;             
+    GtkSpinButton           *finalScaYEntry;             
+    GtkSpinButton           *finalScaZEntry;             
+    GtkSpinButton           *finalRotXEntry;             
+    GtkSpinButton           *finalRotYEntry;             
+    GtkSpinButton           *finalRotZEntry;             
+    GtkSpinButton           *finalTranspEntry;           
+
+    GtkSpinButton           *gravityForceXEntry;         
+    GtkSpinButton           *gravityForceYEntry;         
+    GtkSpinButton           *gravityForceZEntry;         
+} GTK3G3DUIPARTICLEEMITTEREDIT;
 
 /******************************************************************************/
 /************************** GTK PatternList Widget ***************************/
@@ -478,7 +577,7 @@ GtkSpinButton *ui_createFloatText ( GtkFixed *parent,
                                     gint       txtheight,
                                     void       (*cbk)( GtkWidget *, 
                                                        gpointer ) );
-GtkComboBoxText *ui_createSelector ( GtkWidget *parent, 
+GtkComboBoxText *ui_createSelector ( GtkFixed *parent, 
                                      void      *data,
                                      char      *name,
                                      char      *class,
@@ -569,10 +668,28 @@ void gtk3_g3duimain_resize ( GTK3G3DUIMAIN *gtk3main,
                              uint32_t       width,
                              uint32_t       height );
 
+/************************ g3duiparticleemitter.c ******************************/
+void gtk3_g3duiparticleemitteredit_update ( GTK3G3DUIPARTICLEEMITTEREDIT *gtk3ped );
+GTK3G3DUIPARTICLEEMITTEREDIT *gtk3_g3duiparticleemitteredit_create ( GtkWidget *parent,
+                                                                     GTK3G3DUI *gtk3gui,
+                                                                     char      *name );
+
 /***************************** g3duitoolbar.c *********************************/
 GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
                                              GTK3G3DUI *gtk3gui,
                                              char      *name );
+
+/***************************** g3duitorusedit.c *******************************/
+void gtk3_g3duitorusedit_update ( GTK3G3DUITORUSEDIT *gtk3ted );
+GTK3G3DUITORUSEDIT *gtk3_g3duitorusedit_create ( GtkWidget *parent,
+                                                 GTK3G3DUI *gtk3gui,
+                                                 char      *name );
+
+/***************************** g3duitubeedit.c ********************************/
+void gtk3_g3duitubeedit_update ( GTK3G3DUITUBEEDIT *gtk3ted );
+GTK3G3DUITUBEEDIT *gtk3_g3duitubeedit_create ( GtkWidget *parent,
+                                               GTK3G3DUI *gtk3gui,
+                                               char      *name );
 
 /***************************** g3duimodebar.c *********************************/
 GTK3G3DUIMODEBAR *gtk3_g3duimodebar_create ( GtkWidget *parent,

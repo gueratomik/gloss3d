@@ -387,7 +387,7 @@ GtkSpinButton *ui_createFloatText ( GtkFixed *parent,
 }
 
 /******************************************************************************/
-GtkComboBoxText *ui_createSelector ( GtkWidget *parent, 
+GtkComboBoxText *ui_createSelector ( GtkFixed  *parent, 
                                      void      *data,
                                      char      *name,
                                      char      *class,

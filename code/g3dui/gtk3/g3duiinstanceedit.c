@@ -48,6 +48,7 @@ static GTK3G3DUIINSTANCEEDIT *gtk3_g3duiinstanceedit_new ( GTK3G3DUI *gtk3gui ) 
     gtk3ied->core.gui = ( G3DUI * ) gtk3gui;
 
 
+
     return gtk3ied; 
 }
 
@@ -69,14 +70,14 @@ static void populateObjectSelector ( GTK3G3DUIINSTANCEEDIT *gtk3ied ) {
                 int selected = 0x00;
 
                 /*** flatten the object tree ***/
-                g3dobject_treeToList_r ( sce, &lobj );
+                g3dobject_treeToList_r ( ( G3DOBJECT * ) sce, &lobj );
 
                 ltmpobj = lobj;
 
                 while ( ltmpobj ) {
                     G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
 
-                    if ( obj != ins ) {
+                    if ( obj != ( G3DOBJECT * ) ins ) {
                         if ( obj->type != G3DSCENETYPE ) {
                             gtk_combo_box_text_append ( cmb, NULL, obj->name );
 
@@ -110,16 +111,14 @@ static void updateGeneralPanel ( GTK3G3DUIINSTANCEEDIT *gtk3ied ) {
     gtk3ied->core.gui->lock = 0x01;
 
     if ( gtk3ied->core.editedInstance ) {
-        G3DFFD *ffd = gtk3ied->core.editedInstance;
-
         if ( gtk3ied->core.editedInstance->obj.flags & INSTANCEMIRRORED ) {
             gtk_toggle_button_set_active ( gtk3ied->mirroredToggle, TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3ied->mirroredPlanSelector, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3ied->mirroredPlanSelector), TRUE );
         } else {
             gtk_toggle_button_set_active ( gtk3ied->mirroredToggle, FALSE );
 
-            gtk_widget_set_sensitive ( gtk3ied->mirroredPlanSelector, FALSE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3ied->mirroredPlanSelector), FALSE );
         }
 
         gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3ied->mirroredPlanSelector), 
@@ -141,7 +140,7 @@ static void mirroredToggleCbk  ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ied->core.gui->lock ) return;
 
-    g3duiinstanceedit_mirroredToggleCbk ( gtk3ied );
+    g3duiinstanceedit_mirroredToggleCbk ( &gtk3ied->core );
 
     gtk3_g3duiinstanceedit_update ( gtk3ied );
 }
@@ -157,7 +156,7 @@ static void objectSelectorCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ied->core.gui->lock ) return;
 
-    g3duiinstanceedit_setReferenceCbk ( gtk3ied, rank );
+    g3duiinstanceedit_setReferenceCbk ( &gtk3ied->core, rank );
 }
 
 /******************************************************************************/
@@ -166,12 +165,12 @@ static void orientationCbk ( GtkWidget *widget,
     GTK3G3DUIINSTANCEEDIT *gtk3ied = ( GTK3G3DUIINSTANCEEDIT * ) user_data;
     G3DUI *gui = gtk3ied->core.gui;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
-    const char *str = gtk_combo_box_text_get_active_text ( GTK_COMBO_BOX_TEXT(widget) );
+    char *str = gtk_combo_box_text_get_active_text ( GTK_COMBO_BOX_TEXT(widget) );
 
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ied->core.gui->lock ) return;
 
-    g3duiinstanceedit_orientationCbk ( gtk3ied, str );
+    g3duiinstanceedit_orientationCbk ( &gtk3ied->core, str );
 }
 
 /******************************************************************************/
@@ -190,7 +189,7 @@ void gtk3_g3duiinstanceedit_update ( GTK3G3DUIINSTANCEEDIT *gtk3ied ) {
             if ( g3dobjectlist_checkType ( sce->lsel, G3DINSTANCETYPE ) ) {
                 gtk3ied->core.multi = ( nbsel > 0x01 ) ? 0x01 : 0x00;
 
-                gtk3ied->core.editedInstance = ( G3DFFD * ) g3dscene_getLastSelected ( sce );
+                gtk3ied->core.editedInstance = ( G3DINSTANCE * ) g3dscene_getLastSelected ( sce );
 
                 if ( gtk3ied->core.editedInstance ) {
                     updateGeneralPanel  ( gtk3ied );
