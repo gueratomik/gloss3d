@@ -254,12 +254,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 
 
 
-#define EDITPLANE     "Edit Plane"
-#define EDITPLANEDIVU "U Divisions"
-#define EDITPLANEDIVV "V Divisions"
-#define EDITPLANERADU "U Radius"
-#define EDITPLANERADV "V Radius"
-#define EDITPLANEORIENTATION "Orientation"
+
 
 #define EDITFFD         "Edit FFD"
 #define EDITFFDXSLICES  "X Slices"
@@ -907,9 +902,9 @@ typedef struct _G3DUIINSTANCEEDIT {
 
 /******************************************************************************/
 typedef struct _G3DUIPLANEEDIT {
-    G3DUI    *gui;
-    uint32_t  multi;
-    G3DPLANE *editedPlane;
+    G3DUI        *gui;
+    uint32_t      multi;
+    G3DPRIMITIVE *editedPlane;
 } G3DUIPLANEEDIT;
 
 /******************************************************************************/
@@ -1803,7 +1798,7 @@ uint64_t g3duiplaneedit_divCbk  ( G3DUIPLANEEDIT *plnedit,
 uint64_t g3duiplaneedit_radiusCbk ( G3DUIPLANEEDIT *plnedit,
                                     G3DUIAXIS       axis,
                                     float           radius );
-uint64_t g3duiplaneedit_orientationcbk ( G3DUIPLANEEDIT *plnedit,
+uint64_t g3duiplaneedit_orientationCbk ( G3DUIPLANEEDIT *plnedit,
                                          const char     *oristr );
 
 /*********************************** g3duiquad.c ******************************/

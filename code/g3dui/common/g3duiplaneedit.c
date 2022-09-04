@@ -104,7 +104,7 @@ uint64_t g3duiplaneedit_radiusCbk ( G3DUIPLANEEDIT *plnedit,
 }
 
 /******************************************************************************/
-uint64_t g3duiplaneedit_orientationcbk ( G3DUIPLANEEDIT *plnedit,
+uint64_t g3duiplaneedit_orientationCbk ( G3DUIPLANEEDIT *plnedit,
                                          const char     *oristr ) {
     G3DUI *gui = plnedit->gui;
     G3DSCENE *sce = gui->sce;

@@ -432,6 +432,36 @@ GtkComboBoxText *ui_createSelector ( GtkFixed  *parent,
 }
 
 /******************************************************************************/
+GtkComboBoxText *ui_createAxisSelector ( GtkFixed *parent,
+                                          void     *data, 
+                                          char     *name,
+                                          char     *class,
+                                          gint     x,
+                                          gint     y,
+                                          gint     labwidth,
+                                          gint     txtwidth,
+                                          gint     txtheight,
+                                          void   (*cbk)( GtkWidget *, 
+                                                         gpointer ) ) {
+    GtkComboBoxText *cmb = ui_createSelector ( parent,
+                                               data,
+                                               name,
+                                               class,
+                                               x,
+                                               y,
+                                               labwidth,
+                                               txtwidth,
+                                               txtheight,
+                                               cbk );
+
+    gtk_combo_box_text_append ( cmb, NULL, XSTR );
+    gtk_combo_box_text_append ( cmb, NULL, YSTR );
+    gtk_combo_box_text_append ( cmb, NULL, ZSTR );
+
+    return cmb;
+}
+
+/******************************************************************************/
 GtkComboBoxText *ui_createPlaneSelector ( GtkFixed *parent,
                                           void     *data, 
                                           char     *name,

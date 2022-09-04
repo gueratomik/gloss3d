@@ -316,6 +316,18 @@ typedef struct _GTK3G3DUICUBEEDIT {
 } GTK3G3DUICUBEEDIT;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUIPLANEEDIT {
+    G3DUIPLANEEDIT   core;
+
+    GtkNotebook     *notebook;
+    GtkSpinButton   *divUEntry;
+    GtkSpinButton   *divVEntry;
+    GtkSpinButton   *radiusUEntry;
+    GtkSpinButton   *radiusVEntry;
+    GtkComboBoxText *axisSelector;
+} GTK3G3DUIPLANEEDIT;
+
+/******************************************************************************/
 typedef struct _GTK3G3DUITUBEEDIT {
     G3DUITUBEEDIT core;
 
@@ -329,13 +341,14 @@ typedef struct _GTK3G3DUITUBEEDIT {
 
 /******************************************************************************/
 typedef struct _GTK3G3DUITORUSEDIT {
-    G3DUITORUSEDIT core;
+    G3DUITORUSEDIT   core;
 
-    GtkNotebook   *notebook;
-    GtkSpinButton *capsEntry;
-    GtkSpinButton *slicesEntry;
-    GtkSpinButton *extradEntry;
-    GtkSpinButton *intradEntry;
+    GtkNotebook     *notebook;
+    GtkSpinButton   *capsEntry;
+    GtkSpinButton   *slicesEntry;
+    GtkSpinButton   *extradEntry;
+    GtkSpinButton   *intradEntry;
+    GtkComboBoxText *axisSelector;
 } GTK3G3DUITORUSEDIT;
 
 /******************************************************************************/
@@ -599,7 +612,17 @@ GtkComboBoxText *ui_createPlaneSelector ( GtkFixed *parent,
                                           gint     txtheight,
                                           void   (*cbk)( GtkWidget *, 
                                                          gpointer ) );
-
+GtkComboBoxText *ui_createAxisSelector ( GtkFixed *parent,
+                                          void     *data, 
+                                          char     *name,
+                                          char     *class,
+                                          gint     x,
+                                          gint     y,
+                                          gint     labwidth,
+                                          gint     txtwidth,
+                                          gint     txtheight,
+                                          void   (*cbk)( GtkWidget *, 
+                                                         gpointer ) );
 GtkFixed *ui_gtk_fixed_new ( char *class );
 GtkLabel *ui_gtk_label_new ( char *class,
                               char *name );
@@ -673,6 +696,11 @@ void gtk3_g3duiparticleemitteredit_update ( GTK3G3DUIPARTICLEEMITTEREDIT *gtk3pe
 GTK3G3DUIPARTICLEEMITTEREDIT *gtk3_g3duiparticleemitteredit_create ( GtkWidget *parent,
                                                                      GTK3G3DUI *gtk3gui,
                                                                      char      *name );
+/**************************** g3duiplaneedit.c ********************************/
+void gtk3_g3duiplaneedit_update ( GTK3G3DUIPLANEEDIT *gtk3ped );
+GTK3G3DUIPLANEEDIT *gtk3_g3duiplaneedit_create ( GtkWidget *parent,
+                                               GTK3G3DUI *gtk3gui,
+                                               char      *name );
 
 /***************************** g3duitoolbar.c *********************************/
 GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
@@ -690,6 +718,12 @@ void gtk3_g3duitubeedit_update ( GTK3G3DUITUBEEDIT *gtk3ted );
 GTK3G3DUITUBEEDIT *gtk3_g3duitubeedit_create ( GtkWidget *parent,
                                                GTK3G3DUI *gtk3gui,
                                                char      *name );
+
+/************************** g3duisphereeedit.c ********************************/
+void gtk3_g3duisphereedit_update ( GTK3G3DUISPHEREEDIT *gtk3sed );
+GTK3G3DUISPHEREEDIT *gtk3_g3duisphereedit_create ( GtkWidget *parent,
+                                                   GTK3G3DUI *gtk3gui,
+                                                   char      *name );
 
 /***************************** g3duimodebar.c *********************************/
 GTK3G3DUIMODEBAR *gtk3_g3duimodebar_create ( GtkWidget *parent,
