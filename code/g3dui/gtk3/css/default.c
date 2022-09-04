@@ -43,8 +43,8 @@ static const gchar *myCSS = { ".main,     \n"
                               " tab, \n"
                               " label {   \n"
 #ifdef __linux__
-                              /*"color: rgba(0, 0, 0, 1);"
-                              "background:  rgba(191, 191, 191, 1);"*/
+                              /*"color: rgba(255, 255, 255, 1);"
+                              "background:  rgba(96, 96, 96, 1);"*/
 
                               "    font-family: Lucida Sans; \n"
                               "    font-size: 12px; \n"

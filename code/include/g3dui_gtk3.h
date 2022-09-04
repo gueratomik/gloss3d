@@ -290,18 +290,18 @@ typedef struct _GTK3G3DUIBOARD {
 typedef struct _GTK3G3DUILIGHTEDIT {
     G3DUILIGHTEDIT core;
 
-    GtkWidget     *tab;
-    GtkWidget     *diffuseColorButton;
-    GtkWidget     *specularColorButton;
-    GtkWidget     *intensityEntry;
-    GtkWidget     *castShadowsToggle;
-    GtkWidget     *spotToggle;
-    GtkWidget     *spotLengthEntry;
-    GtkWidget     *spotAngleEntry;
-    GtkWidget     *spotFadeAngleEntry;
-    GtkWidget     *softShadowsToggle;
-    GtkWidget     *shadowRadiusEntry;
-    GtkWidget     *shadowSampleEntry;
+    GtkNotebook     *notebook;
+    GtkColorButton  *diffuseColorButton;
+    GtkColorButton  *specularColorButton;
+    GtkSpinButton   *intensityEntry;
+    GtkToggleButton *castShadowsToggle;
+    GtkToggleButton *spotToggle;
+    GtkSpinButton   *spotLengthEntry;
+    GtkSpinButton   *spotAngleEntry;
+    GtkSpinButton   *spotFadeAngleEntry; 
+    GtkToggleButton *softShadowsToggle;
+    GtkSpinButton   *shadowRadiusEntry;
+    GtkSpinButton   *shadowSampleEntry;
 } GTK3G3DUILIGHTEDIT;
 
 /******************************************************************************/
@@ -356,82 +356,92 @@ void gtk3_initDefaultMouseTools ( GTK3G3DUI *gtk3gui );
 void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
                                    uint64_t   msk );
 
-GtkWidget *ui_createColorButton ( GtkWidget *parent,
-                                  void      *data,
-                                  char      *name,
-                                  gint       x, 
-                                  gint       y,
-                                  gint       width,
-                                  gint       height,
-                                  void     (*cbk)( GtkWidget *, 
+
+GtkFixed *ui_createTab ( GtkNotebook *parent, 
+                         void        *data,
+                         char        *name,
+                         char        *class,
+                         gint         x,
+                         gint         y,
+                         gint         width,
+                         gint         height );
+GtkToggleButton *ui_createToggleLabel ( GtkFixed *parent, 
+                                        void     *data,
+                                        char     *name,
+                                        char     *class,
+                                        gint      x, 
+                                        gint      y,
+                                        gint      labwidth,
+                                        gint      btnwidth,
+                                        gint      height,
+                                        void    (*cbk)( GtkWidget *, 
+                                                        gpointer ) );
+GtkLabel *ui_createSimpleLabel ( GtkFixed *parent,
+                                 void     *data,
+                                 char     *name,
+                                 char     *class,
+                                 gint      x, 
+                                 gint      y,
+                                 gint      width,
+                                 gint      height );
+GtkColorButton *ui_createColorButton ( GtkFixed *fixed,
+                                       void     *data,
+                                       char     *name,
+                                       char     *class,
+                                       gint      x, 
+                                       gint      y,
+                                       gint      labwidth,
+                                       gint      btnwidth,
+                                       gint      btnheight,
+                                       void    (*cbk)( GtkWidget *, 
+                                                       gpointer ) );
+GtkSpinButton *ui_createNumericText ( GtkFixed      *parent, 
+                                      void          *data,
+                                      GtkAdjustment *adj,
+                                      char          *name,
+                                      char          *class,
+                                      gint           x, 
+                                      gint           y,
+                                      gint           labwidth,
+                                      gint           txtwidth,
+                                      gint           txtheight,
+                                      void (*cbk)( GtkWidget *, 
                                                    gpointer ) );
+GtkSpinButton *ui_createIntegerText ( GtkFixed *parent, 
+                                      void     *data, 
+                                      char     *name,
+                                      char     *class,
+                                      gdouble   min, 
+                                      gdouble   max,
+                                      gint      x, 
+                                      gint      y,
+                                      gint      labwidth,
+                                      gint      txtwidth,
+                                      gint      txtheight,
+                                      void    (*cbk)( GtkWidget *, 
+                                                      gpointer ) );
+GtkSpinButton *ui_createFloatText ( GtkFixed *parent, 
+                                    void      *data, 
+                                    char      *name,
+                                    char      *class,
+                                    gdouble    min, 
+                                    gdouble    max,
+                                    gint       x, 
+                                    gint       y,
+                                    gint       labwidth,
+                                    gint       txtwidth,
+                                    gint       txtheight,
+                                    void       (*cbk)( GtkWidget *, 
+                                                       gpointer ) );
 
-GtkWidget *ui_createSimpleLabel ( GtkWidget *parent, 
-                                  void      *data,
-                                  char      *name,
-                                  gint       x, 
-                                  gint       y,
-                                  gint       width,
-                                  gint       height );
-
-GtkWidget *ui_createPanel ( GtkWidget *parent, 
-                            void      *data,
-                            char      *name,
-                            char      *class,
-                            gint      x,
-                            gint      y,
-                            gint      width,
-                            gint      height );
-
-GtkWidget *ui_createToggleLabel ( GtkWidget *parent, 
-                                  void      *data,
-                                  char      *name,
-                                  char      *class,
-                                  gint       x, 
-                                  gint       y,
-                                  gint       labwidth,
-                                  gint       btnwidth,
-                                  gint       height,
-                                  void     (*cbk)( GtkWidget *, 
-                                                   gpointer ) );
-
-GtkWidget *ui_createNumericText ( GtkWidget     *parent, 
-                                  void          *data,
-                                  GtkAdjustment *adj,
-                                  char          *name,
-                                  gint          x, 
-                                  gint          y,
-                                  gint          labwidth,
-                                  gint          txtwidth,
-                                  void (*cbk)( GtkWidget *, 
-                                               gpointer ) );
-
-GtkWidget *ui_createIntegerText ( GtkWidget *parent, 
-                                  void      *data, 
-                                  char      *name,
-                                  gdouble    min, 
-                                  gdouble    max,
-                                  gint       x, 
-                                  gint       y,
-                                  gint       labwidth,
-                                  gint       txtwidth,
-                                  void       (*cbk)( GtkWidget *, 
-                                                     gpointer ) );
-GtkWidget *ui_createFloatText ( GtkWidget *parent, 
-                                void      *data, 
-                                char      *name,
-                                gdouble    min, 
-                                gdouble    max,
-                                gint       x, 
-                                gint       y,
-                                gint       labwidth,
-                                gint       txtwidth,
-                                void       (*cbk)( GtkWidget *, 
-                                                   gpointer ) );
-
-GtkWidget *ui_gtk_fixed_new ( char *class );
-GtkWidget *ui_gtk_label_new ( char *class,
+GtkFixed *ui_gtk_fixed_new ( char *class );
+GtkLabel *ui_gtk_label_new ( char *class,
                               char *name );
+GtkSpinButton *ui_gtk_spin_button_new ( char          *class,
+                                    GtkAdjustment *adjustment,
+                                    gdouble        climb_rate,
+                                    guint          digits );
+GtkCheckButton *ui_gtk_check_button_new ( char *class );
 
 /******************************* g3duiboard.c *********************************/
 GTK3G3DUIBOARD *gtk3_g3duiboard_create ( GtkWidget *parent,

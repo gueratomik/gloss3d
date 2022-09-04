@@ -52,7 +52,7 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
     G3DUI *gui = gtk3objedit->core.gui;
     G3DSCENE *sce = gui->sce;
 
-    gtk_widget_hide ( ligedit->tab );
+    gtk_widget_hide ( ligedit->notebook );
 
     if ( sce ) {
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -64,7 +64,7 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
                 if ( obj->type == G3DLIGHTTYPE ) {
                     gtk3_g3duilightedit_update ( ligedit );
 
-                    gtk_widget_show ( ligedit->tab );
+                    gtk_widget_show ( ligedit->notebook );
                 }
 
             #ifdef unused
@@ -173,7 +173,7 @@ static void createLightEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
                                                gtk3gui,
                                                EDITLIGHT );
 
-    gtk_fixed_put ( GTK_FIXED(gtk3objedit->fixed), gtk3ligedit->tab, 0, 0 );
+    gtk_fixed_put ( GTK_FIXED(gtk3objedit->fixed), gtk3ligedit->notebook, 0, 0 );
 
     gtk3objedit->core.ligedit = ( G3DUILIGHTEDIT * ) gtk3ligedit;
 }

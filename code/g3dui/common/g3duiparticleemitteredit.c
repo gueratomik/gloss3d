@@ -29,6 +29,7 @@
 #include <config.h>
 #include <g3dui.h>
 
+/******************************************************************************/
 #define LISTLOOP(gpeedit,var,val)                                   \
     G3DUI *gui = gpeedit->gui;                                      \
     G3DSCENE *sce = gui->sce;                                       \

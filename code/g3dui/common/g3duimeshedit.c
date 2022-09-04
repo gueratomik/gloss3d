@@ -30,29 +30,37 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duimeshedit_useIsoLinesCbk ( G3DUIMESHEDIT *mesedit ) {
-    G3DUI *gui = mesedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
+#define FOR_EACH_SELECTED_MESH                             \
+    G3DUI *gui = mesedit->gui;                             \
+    G3DSCENE *sce = gui->sce;                              \
+    LIST *ltmpselobj = sce->lsel;                          \
+                                                           \
+    while ( ltmpselobj ) {                                 \
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data; \
+                                                           \
+        if ( sel->type == G3DMESHTYPE ) {                  \
+            G3DMESH *mes = ( G3DMESH * ) sel;              \
 
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
-        if ( sel->type == G3DMESHTYPE ) {
-            G3DMESH *mes = ( G3DMESH * ) sel;
-
-            if ( sel->flags & MESHUSEISOLINES ) {
-                sel->flags &= (~MESHUSEISOLINES);
-            } else {
-                sel->flags |= MESHUSEISOLINES;
-            }
-
-            /*** rebuild using adaptive subdivision (or not) ***/
-            g3dmesh_update ( mes, gui->engine_flags );
-        }
-
-        ltmpselobj = ltmpselobj->next;
+#define END_FOR                                            \
+        }                                                  \
+                                                           \
+        ltmpselobj = ltmpselobj->next;                     \
     }
+
+
+/******************************************************************************/
+uint64_t g3duimeshedit_useIsoLinesCbk ( G3DUIMESHEDIT *mesedit ) {
+FOR_EACH_SELECTED_MESH
+    if ( mes->obj.flags & MESHUSEISOLINES ) {
+        mes->obj.flags &= (~MESHUSEISOLINES);
+    } else {
+        mes->obj.flags |= MESHUSEISOLINES;
+    }
+
+    /*** rebuild using adaptive subdivision (or not) ***/
+    g3dmesh_update ( mes, mesedit->gui->engine_flags );
+END_FOR
 
     return REDRAWVIEW;
 }
@@ -60,48 +68,22 @@ uint64_t g3duimeshedit_useIsoLinesCbk ( G3DUIMESHEDIT *mesedit ) {
 /******************************************************************************/
 uint64_t g3duimeshedit_gouraudCbk ( G3DUIMESHEDIT *mesedit,
                                     float          scalarLimit ) {
-    G3DUI *gui = mesedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
-
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
-
-        if ( sel->type == G3DMESHTYPE ) {
-            G3DMESH *mes = ( G3DMESH * ) sel;
-
-            mes->gouraudScalarLimit = cos ( scalarLimit );
-        }
-
-        ltmpselobj = ltmpselobj->next;
-    }
-
+FOR_EACH_SELECTED_MESH
+    mes->gouraudScalarLimit = cos ( scalarLimit );
+END_FOR
 
     return REDRAWVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duimeshedit_toggleShadingCbk ( G3DUIMESHEDIT *mesedit ) {
-    G3DUI *gui = mesedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
-
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
-
-        if ( sel->type == G3DMESHTYPE ) {
-            G3DMESH *mes = ( G3DMESH * ) sel;
-
-            if ( sel->flags & OBJECTNOSHADING ) {
-                sel->flags &= (~OBJECTNOSHADING);
-            } else {
-                sel->flags |= OBJECTNOSHADING;
-            }
-        }
-
-        ltmpselobj = ltmpselobj->next;
+FOR_EACH_SELECTED_MESH
+    if ( mes->obj.flags & OBJECTNOSHADING ) {
+        mes->obj.flags &= (~OBJECTNOSHADING);
+    } else {
+        mes->obj.flags |= OBJECTNOSHADING;
     }
-
+END_FOR
 
     return REDRAWVIEW;
 }

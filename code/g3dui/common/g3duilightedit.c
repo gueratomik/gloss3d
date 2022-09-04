@@ -29,6 +29,7 @@
 #include <config.h>
 #include <g3dui.h>
 
+/******************************************************************************/
 #define FOR_EACH_SELECTED_LIGHT                            \
     G3DUI *gui = ligedit->gui;                             \
     G3DSCENE *sce = gui->sce;                              \
