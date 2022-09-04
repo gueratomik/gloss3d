@@ -48,6 +48,16 @@ void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in,
 }
 
 /******************************************************************************/
+GtkComboBoxText *ui_gtk_combo_box_text_new ( char *class ) {
+    GtkWidget *cmb = gtk_combo_box_text_new ( );
+    GtkStyleContext *context = gtk_widget_get_style_context ( cmb );
+
+    gtk_style_context_add_class ( context, class );
+
+    return GTK_COMBO_BOX_TEXT(cmb);
+}
+
+/******************************************************************************/
 GtkCheckButton *ui_gtk_check_button_new ( char *class ) {
     GtkWidget *btn = gtk_check_button_new ( );
     GtkStyleContext *context = gtk_widget_get_style_context ( btn );
@@ -374,6 +384,81 @@ GtkSpinButton *ui_createFloatText ( GtkFixed *parent,
     }
 
     return btn;
+}
+
+/******************************************************************************/
+GtkComboBoxText *ui_createSelector ( GtkWidget *parent, 
+                                     void      *data,
+                                     char      *name,
+                                     char      *class,
+                                     gint       x, 
+                                     gint       y,
+                                     gint       labwidth,
+                                     gint       txtwidth,
+                                     gint       txtheight,
+                                     void       (*cbk)( GtkWidget *, 
+                                                        gpointer ) ) {
+
+    GtkComboBoxText *cmb  = ui_gtk_combo_box_text_new ( class );
+    GdkRectangle   crec = { 0x00, 0x00, txtwidth, txtheight };
+
+    gtk_widget_set_name ( GTK_WIDGET(cmb), name );
+
+    gtk_widget_set_size_request ( GTK_WIDGET(cmb), crec.width, crec.height );
+
+    gtk_fixed_put ( GTK_FIXED(parent), GTK_WIDGET(cmb), x + labwidth, y );
+
+    if ( labwidth ) {
+        GdkRectangle lrec = { 0x00, 0x00, labwidth, 0x12 };
+        GtkLabel    *lab  = ui_gtk_label_new ( class, name );
+
+        gtk_widget_set_name ( GTK_WIDGET(lab), name );
+
+        gtk_widget_set_size_request ( GTK_WIDGET(lab), lrec.width, lrec.height );
+
+        gtk_fixed_put ( GTK_FIXED(parent), GTK_WIDGET(lab), x, y );
+
+        gtk_widget_show ( GTK_WIDGET(lab) );
+    }
+
+    if ( cbk ) { 
+        g_signal_connect ( cmb, "changed", G_CALLBACK(cbk), data );
+    }
+
+    gtk_widget_show ( cmb );
+
+
+    return cmb;
+}
+
+/******************************************************************************/
+GtkComboBoxText *ui_createPlaneSelector ( GtkFixed *parent,
+                                          void     *data, 
+                                          char     *name,
+                                          char     *class,
+                                          gint     x,
+                                          gint     y,
+                                          gint     labwidth,
+                                          gint     txtwidth,
+                                          gint     txtheight,
+                                          void   (*cbk)( GtkWidget *, 
+                                                         gpointer ) ) {
+    GtkComboBoxText *cmb = ui_createSelector ( parent,
+                                               data,
+                                               name,
+                                               class,
+                                               x,
+                                               y,
+                                               labwidth,
+                                               txtwidth,
+                                               txtheight,
+                                               cbk );
+
+    gtk_combo_box_text_append ( cmb, NULL, ZXSTR );
+    gtk_combo_box_text_append ( cmb, NULL, XYSTR );
+    gtk_combo_box_text_append ( cmb, NULL, YZSTR );
+
+    return cmb;
 }
 
 /******************************************************************************/

@@ -94,6 +94,8 @@ uint64_t g3duiinstanceedit_mirroredToggleCbk ( G3DUIINSTANCEEDIT *insedit ) {
                 g3dinstance_setMirrored ( ins );
             }
         }
+
+        ltmpselobj = ltmpselobj->next;
     }
 
 
@@ -125,6 +127,8 @@ uint64_t g3duiinstanceedit_orientationCbk ( G3DUIINSTANCEEDIT *insedit,
                 g3dinstance_setOrientation ( ins, INSTANCEYZ );
             }
         }
+
+        ltmpselobj = ltmpselobj->next;
     }
 
 

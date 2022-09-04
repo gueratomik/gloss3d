@@ -48,14 +48,20 @@ static GTK3G3DUIOBJECTEDIT *gtk3_g3duiobjectedit_new ( GTK3G3DUI *gtk3gui ) {
 
 /******************************************************************************/
 void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
-    GTK3G3DUILIGHTEDIT *ligedit = ( GTK3G3DUILIGHTEDIT * ) gtk3objedit->core.ligedit;
-    GTK3G3DUICUBEEDIT  *cubedit = ( GTK3G3DUICUBEEDIT  * ) gtk3objedit->core.cubedit;
+    GTK3G3DUILIGHTEDIT    *ligedit = ( GTK3G3DUILIGHTEDIT    * ) gtk3objedit->core.ligedit;
+    GTK3G3DUICUBEEDIT     *cubedit = ( GTK3G3DUICUBEEDIT     * ) gtk3objedit->core.cubedit;
+    GTK3G3DUICYLINDEREDIT *cyledit = ( GTK3G3DUICYLINDEREDIT * ) gtk3objedit->core.cyledit;
+    GTK3G3DUIFFDEDIT      *ffdedit = ( GTK3G3DUIFFDEDIT      * ) gtk3objedit->core.ffdedit;
+    GTK3G3DUIINSTANCEEDIT *insedit = ( GTK3G3DUIINSTANCEEDIT * ) gtk3objedit->core.insedit;
 
     G3DUI *gui = gtk3objedit->core.gui;
     G3DSCENE *sce = gui->sce;
 
     gtk_widget_hide ( ligedit->notebook );
     gtk_widget_hide ( cubedit->notebook );
+    gtk_widget_hide ( cyledit->notebook );
+    gtk_widget_hide ( ffdedit->notebook );
+    gtk_widget_hide ( insedit->notebook );
 
     if ( sce ) {
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -74,6 +80,24 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
                     gtk3_g3duicubeedit_update ( cubedit );
 
                     gtk_widget_show ( cubedit->notebook );
+                }
+
+                if ( obj->type == G3DCYLINDERTYPE ) {
+                    gtk3_g3duicylinderedit_update ( cyledit );
+
+                    gtk_widget_show ( cyledit->notebook );
+                }
+
+                if ( obj->type == G3DFFDTYPE ) {
+                    gtk3_g3duiffdedit_update ( ffdedit );
+
+                    gtk_widget_show ( ffdedit->notebook );
+                }
+
+                if ( obj->type == G3DINSTANCETYPE ) {
+                    gtk3_g3duiinstanceedit_update ( insedit );
+
+                    gtk_widget_show ( insedit->notebook );
                 }
 
             #ifdef unused
@@ -202,6 +226,48 @@ static void createCubeEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
 }
 
 /******************************************************************************/
+static void createCylinderEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3objedit->core.gui;
+    GTK3G3DUICYLINDEREDIT *gtk3cyledit;
+
+    gtk3cyledit = gtk3_g3duicylinderedit_create ( gtk3objedit->fixed,
+                                                  gtk3gui,
+                                                  "Edit cylinder" );
+
+    gtk_fixed_put ( GTK_FIXED(gtk3objedit->fixed), gtk3cyledit->notebook, 0, 0 );
+
+    gtk3objedit->core.cyledit = ( G3DUICYLINDEREDIT * ) gtk3cyledit;
+}
+
+/******************************************************************************/
+static void createFFDEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3objedit->core.gui;
+    GTK3G3DUIFFDEDIT *gtk3ffdedit;
+
+    gtk3ffdedit = gtk3_g3duiffdedit_create ( gtk3objedit->fixed,
+                                             gtk3gui,
+                                             "Edit FFD" );
+
+    gtk_fixed_put ( GTK_FIXED(gtk3objedit->fixed), gtk3ffdedit->notebook, 0, 0 );
+
+    gtk3objedit->core.ffdedit = ( GTK3G3DUIFFDEDIT * ) gtk3ffdedit;
+}
+
+/******************************************************************************/
+static void createInstanceEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3objedit->core.gui;
+    GTK3G3DUIINSTANCEEDIT *gtk3insedit;
+
+    gtk3insedit = gtk3_g3duiinstanceedit_create ( gtk3objedit->fixed,
+                                                  gtk3gui,
+                                                  "Edit Instance" );
+
+    gtk_fixed_put ( GTK_FIXED(gtk3objedit->fixed), gtk3insedit->notebook, 0, 0 );
+
+    gtk3objedit->core.insedit = ( GTK3G3DUIINSTANCEEDIT * ) gtk3insedit;
+}
+
+/******************************************************************************/
 GTK3G3DUIOBJECTEDIT *gtk3_g3duiobjectedit_create ( GtkWidget *parent, 
                                                    GTK3G3DUI *gtk3gui,
                                                    char      *name ) {
@@ -243,8 +309,11 @@ GTK3G3DUIOBJECTEDIT *gtk3_g3duiobjectedit_create ( GtkWidget *parent,
     createSubdividerEdit      ( frm, gui, EDITSUBDIVIDER     , 0, 32, 296, 320 );
     createSplineRevolverEdit  ( frm, gui, EDITSPLINEREVOLVER , 0, 32, 296, 320 );
 */
-    createLightEdit ( gtk3objedit );
-    createCubeEdit  ( gtk3objedit );
+    createLightEdit    ( gtk3objedit );
+    createCubeEdit     ( gtk3objedit );
+    createCylinderEdit ( gtk3objedit );
+    createFFDEdit      ( gtk3objedit );
+    createInstanceEdit ( gtk3objedit );
 /*
     createUVMapEdit           ( frm, gui, EDITUVMAP          , 0, 32, 296,  96 );
     createWireframeEdit       ( frm, gui, EDITWIREFRAME      , 0, 32, 296,  96 );

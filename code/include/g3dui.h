@@ -258,8 +258,6 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITSPHERERADIUS  "Radius"
 #define EDITSPHEREPERFECT "Render Perfect"
 
-
-
 #define EDITTORUS            "Edit Torus"
 #define EDITTORUSSLICE       "Slices"
 #define EDITTORUSCAP         "Caps"
@@ -285,13 +283,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 /**** Widget names for LightEdit TextField widget ***/
 #define EDITLIGHT                  "Light"
 
-/**** Widget names for CylinderEdit TextField widget ***/
-#define EDITCYLINDER       "Edit Cylinder"
-#define EDITCYLINDERXCAPS  "X Caps"
-#define EDITCYLINDERYCAPS  "Y Caps" 
-#define EDITCYLINDERSLICES "Slices"
-#define EDITCYLINDERLENGTH "Length"
-#define EDITCYLINDERRADIUS "Radius"
+
 
 /**** Widget names for TubeEdit TextField widget ***/
 #define EDITTUBE       "Edit Tube"
@@ -820,7 +812,9 @@ typedef struct _G3DUIWEIGHTGROUPLIST {
 
 /******************************************************************************/
 typedef struct _G3DUIFFDEDIT {
-    G3DUI *gui;
+    G3DUI        *gui;
+    uint32_t      multi;
+    G3DFFD       *editedFFD;
 } G3DUIFFDEDIT;
 
 /******************************************************************************/
@@ -830,22 +824,30 @@ typedef struct _G3DUICOORDINATESEDIT {
 
 /******************************************************************************/
 typedef struct _G3DUICAMERAEDIT {
-    G3DUI *gui;
+    G3DUI        *gui;
+    uint32_t      multi;
+    G3DCAMERA    *editedCamera;
 } G3DUICAMERAEDIT;
 
 /******************************************************************************/
 typedef struct _G3DUIWIREFRAMEEDIT {
-    G3DUI *gui;
+    G3DUI        *gui;
+    uint32_t      multi;
+    G3DWIREFRAME *editedWireframe;
 } G3DUIWIREFRAMEEDIT;
 
 /******************************************************************************/
 typedef struct _G3DUITEXTEDIT {
-    G3DUI *gui;
+    G3DUI   *gui;
+    uint32_t multi;
+    G3DTEXT *editedText;
 } G3DUITEXTEDIT;
 
 /******************************************************************************/
 typedef struct _G3DUISUBDIVIDEREDIT {
-    G3DUI *gui;
+    G3DUI         *gui;
+    uint32_t       multi;
+    G3DSUBDIVIDER *editedSubdivider;
 } G3DUISUBDIVIDEREDIT;
 
 /******************************************************************************/
@@ -855,19 +857,23 @@ typedef struct _G3DUITEXTUREEDIT {
 
 /******************************************************************************/
 typedef struct _G3DUICUBEEDIT {
-    G3DUI *gui;
-    uint32_t  multi;
+    G3DUI        *gui;
+    uint32_t      multi;
     G3DPRIMITIVE *editedCube;
 } G3DUICUBEEDIT;
 
 /******************************************************************************/
 typedef struct _G3DUITUBEEDIT {
     G3DUI *gui;
+    uint32_t      multi;
+    G3DPRIMITIVE *editedTube;
 } G3DUITUBEEDIT;
 
 /******************************************************************************/
 typedef struct _G3DUITORUSEDIT {
     G3DUI *gui;
+    uint32_t      multi;
+    G3DPRIMITIVE *editedTorus;
 } G3DUITORUSEDIT;
 
 /******************************************************************************/
@@ -877,49 +883,81 @@ typedef struct _G3DUITRACKERTAGEDIT {
 
 /******************************************************************************/
 typedef struct _G3DUISPHEREEDIT {
-    G3DUI *gui;
+    G3DUI        *gui;
+    uint32_t      multi;
+    G3DPRIMITIVE *editedSphere;
 } G3DUISPHEREEDIT;
 
 /******************************************************************************/
 typedef struct _G3DUIMESHEEDIT {
-    G3DUI *gui;
+    G3DUI    *gui;
+    uint32_t  multi;
+    G3DMESH *editedMesh;
 } G3DUIMESHEDIT;
 
 /******************************************************************************/
 typedef struct _G3DUISYMMETRYEDIT {
-    G3DUI *gui;
+    G3DUI        *gui;
+    uint32_t      multi;
+    G3DSYMMETRY *editedSymmetry;
 } G3DUISYMMETRYEDIT;
 
 /******************************************************************************/
 typedef struct _G3DUISPLINEREVOLVEREDIT {
-    G3DUI *gui;
+    G3DUI             *gui;
+    uint32_t           multi;
+    G3DSPLINEREVOLVER *editedSplineRevolver;
 } G3DUISPLINEREVOLVEREDIT;
 
 /******************************************************************************/
 typedef struct _G3DUICYLINDEREDIT {
-    G3DUI *gui;
+    G3DUI        *gui;
+    uint32_t      multi;
+    G3DPRIMITIVE *editedCylinder;
 } G3DUICYLINDEREDIT;
 
 /******************************************************************************/
 typedef struct _G3DUIINSTANCEEDIT {
-    G3DUI *gui;
+    G3DUI        *gui;
+    uint32_t      multi;
+    G3DINSTANCE *editedInstance;
 } G3DUIINSTANCEEDIT;
 
 /******************************************************************************/
+typedef struct _G3DUIPLANEEDIT {
+    G3DUI    *gui;
+    uint32_t  multi;
+    G3DPLANE *editedPlane;
+} G3DUIPLANEEDIT;
+
+/******************************************************************************/
 typedef struct _G3DUIKEYEDIT {
-    G3DUI *gui;
+    G3DUI   *gui;
+    uint32_t multi;
+    G3DKEY  *editedKey;
 } G3DUIKEYEDIT;
 
 /******************************************************************************/
 typedef struct _G3DUIOBJECTEDIT {
-    G3DUI          *gui;
+    G3DUI                  *gui;
 
-    G3DUIRECTANGLE  labrec;
-    G3DUIRECTANGLE  namerec;
-    G3DUIRECTANGLE  editrec;
+    G3DUIRECTANGLE          labrec;
+    G3DUIRECTANGLE          namerec;
+    G3DUIRECTANGLE          editrec;
 
-    G3DUILIGHTEDIT *ligedit;
-    G3DUICUBEEDIT  *cubedit;
+    G3DUILIGHTEDIT          *ligedit;
+    G3DUICUBEEDIT           *cubedit;
+    G3DUICYLINDEREDIT       *cyledit;
+    G3DUIFFDEDIT            *ffdedit;
+    G3DUISPHEREEDIT         *sphedit;
+    G3DUITUBEEDIT           *tubedit;
+    G3DUITORUSEDIT          *toredit;
+    G3DUIPLANEEDIT          *plnedit;
+    G3DUITEXTEDIT           *txtedit;
+    G3DUIINSTANCEEDIT       *insedit;
+    G3DUISPLINEREVOLVEREDIT *spredit;
+    G3DUISUBDIVIDEREDIT     *sdredit;
+    G3DUISYMMETRYEDIT       *symedit;
 } G3DUIOBJECTEDIT;
 
 /******************************************************************************/
@@ -988,11 +1026,6 @@ typedef struct _M3DUIPENTOOLEDIT {
 typedef struct _G3DUIPICKTOOLEDIT {
     G3DUI *gui;
 } G3DUIPICKTOOLEDIT;
-
-/******************************************************************************/
-typedef struct _G3DUIPLANEEDIT {
-    G3DUI *gui;
-} G3DUIPLANEEDIT;
 
 /******************************************************************************/
 typedef struct _G3DUIRENDEREDIT {

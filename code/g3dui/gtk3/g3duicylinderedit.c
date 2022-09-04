@@ -29,15 +29,16 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-#define EDITCUBEGENERAL "Cube"
-#define EDITCUBEXSLICES "X Slices"
-#define EDITCUBEYSLICES "Y Slices"
-#define EDITCUBEZSLICES "Z Slices"
-#define EDITCUBERADIUS  "Radius"
+/**** Widget names for CylinderEdit TextField widget ***/
+#define EDITCYLINDERGENERAL "Cylinder"
+#define EDITCYLINDERCAPS    "Caps"
+#define EDITCYLINDERSLICES  "Slices"
+#define EDITCYLINDERLENGTH  "Length"
+#define EDITCYLINDERRADIUS  "Radius"
 
 /******************************************************************************/
-static GTK3G3DUICUBEEDIT *gtk3_g3duicubeedit_new ( GTK3G3DUI *gtk3gui ) {
-    GTK3G3DUICUBEEDIT *gtk3ced = calloc ( 0x01, sizeof ( GTK3G3DUICUBEEDIT ) );
+static GTK3G3DUICYLINDEREDIT *gtk3_g3duicylinderedit_new ( GTK3G3DUI *gtk3gui ) {
+    GTK3G3DUICYLINDEREDIT *gtk3ced = calloc ( 0x01, sizeof ( GTK3G3DUICYLINDEREDIT ) );
 
     if ( gtk3ced == NULL ) {
         fprintf ( stderr, "%s: calloc failed\n", __func__ );
@@ -52,78 +53,51 @@ static GTK3G3DUICUBEEDIT *gtk3_g3duicubeedit_new ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
-static void updateGeneralPanel ( GTK3G3DUICUBEEDIT *gtk3ced ) {
+static void updateGeneralPanel ( GTK3G3DUICYLINDEREDIT *gtk3ced ) {
     gtk3ced->core.gui->lock = 0x01;
 
-    if ( gtk3ced->core.editedCube ) {
-        G3DPRIMITIVE *pri = gtk3ced->core.editedCube;
-        CUBEDATASTRUCT *cds = ( CUBEDATASTRUCT * ) pri->data;
+    if ( gtk3ced->core.editedCylinder ) {
+        G3DPRIMITIVE *pri = gtk3ced->core.editedCylinder;
+        CYLINDERDATASTRUCT *cds = ( CYLINDERDATASTRUCT * ) pri->data;
 
-        gtk_spin_button_set_value ( gtk3ced->xSlicesEntry, cds->nbx );
-        gtk_spin_button_set_value ( gtk3ced->ySlicesEntry, cds->nby );
-        gtk_spin_button_set_value ( gtk3ced->zSlicesEntry, cds->nbz );
-        gtk_spin_button_set_value ( gtk3ced->radiusEntry , cds->radius );
+        gtk_spin_button_set_value ( gtk3ced->capsEntry  , cds->capx );
+        gtk_spin_button_set_value ( gtk3ced->slicesEntry, cds->slice );
+        gtk_spin_button_set_value ( gtk3ced->lengthEntry, cds->length );
+        gtk_spin_button_set_value ( gtk3ced->radiusEntry, cds->radius );
     }
 
     gtk3ced->core.gui->lock = 0x00;
 }
 
 /******************************************************************************/
-static void xsliceCbk ( GtkWidget *widget, 
+static void slicesCbk ( GtkWidget *widget,
                         gpointer   user_data ) {
-    GTK3G3DUICUBEEDIT *gtk3ced = ( GTK3G3DUICUBEEDIT * ) user_data;
+    GTK3G3DUICYLINDEREDIT *gtk3ced = ( GTK3G3DUICYLINDEREDIT * ) user_data;
     G3DUI *gui = gtk3ced->core.gui;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
     int slice = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
-    /*** prevents loop and possibly lock reset if some panels are updated ***/
-    if ( gtk3ced->core.gui->lock ) return;
-
-    if ( slice ) {
-        g3duicubeedit_sliceCbk ( &gtk3ced->core, G3DUIXAXIS, slice );
+    if ( slice >= 0x03 ) {
+        g3duicylinderedit_sliceCbk ( &gtk3ced->core, slice );
     } else {
-        gtk3_g3duicubeedit_update ( gtk3ced );
+        updateGeneralPanel ( gtk3ced );
     }
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
 
 /******************************************************************************/
-static void ysliceCbk ( GtkWidget *widget,
+static void lengthCbk ( GtkWidget *widget,
                         gpointer   user_data ) {
-    GTK3G3DUICUBEEDIT *gtk3ced = ( GTK3G3DUICUBEEDIT * ) user_data;
+    GTK3G3DUICYLINDEREDIT *gtk3ced = ( GTK3G3DUICYLINDEREDIT * ) user_data;
     G3DUI *gui = gtk3ced->core.gui;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
-    int slice = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    float len = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
-    /*** prevents loop and possibly lock reset if some panels are updated ***/
-    if ( gtk3ced->core.gui->lock ) return;
+    /*** prevent useless primitive building when XmTextSetString is called ***/
+    if ( gui->lock ) return;
 
-    if ( slice ) {
-        g3duicubeedit_sliceCbk ( &gtk3ced->core, G3DUIYAXIS, slice );
-    } else {
-        gtk3_g3duicubeedit_update ( gtk3ced );
-    }
-
-    gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
-}
-
-/******************************************************************************/
-static void zsliceCbk ( GtkWidget *widget,
-                        gpointer   user_data ) {
-    GTK3G3DUICUBEEDIT *gtk3ced = ( GTK3G3DUICUBEEDIT * ) user_data;
-    G3DUI *gui = gtk3ced->core.gui;
-    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
-    int slice = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
-
-    /*** prevents loop and possibly lock reset if some panels are updated ***/
-    if ( gtk3ced->core.gui->lock ) return;
-
-    if ( slice ) {
-        g3duicubeedit_sliceCbk ( &gtk3ced->core, G3DUIZAXIS, slice );
-    } else {
-        gtk3_g3duicubeedit_update ( gtk3ced );
-    }
+    g3duicylinderedit_lengthCbk ( &gtk3ced->core, len );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
@@ -131,21 +105,41 @@ static void zsliceCbk ( GtkWidget *widget,
 /******************************************************************************/
 static void radiusCbk ( GtkWidget *widget,
                         gpointer   user_data ) {
-    GTK3G3DUICUBEEDIT *gtk3ced = ( GTK3G3DUICUBEEDIT * ) user_data;
+    GTK3G3DUICYLINDEREDIT *gtk3ced = ( GTK3G3DUICYLINDEREDIT * ) user_data;
     G3DUI *gui = gtk3ced->core.gui;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
     float rad = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
-    /*** prevents loop and possibly lock reset if some panels are updated ***/
-    if ( gtk3ced->core.gui->lock ) return;
+    /*** prevent useless primitive building when XmTextSetString is called ***/
+    if ( gui->lock ) return;
 
-    g3duicubeedit_radiusCbk ( &gtk3ced->core, rad );
+    g3duicylinderedit_radiusCbk ( &gtk3ced->core, rad );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
 
 /******************************************************************************/
-void gtk3_g3duicubeedit_update ( GTK3G3DUICUBEEDIT *gtk3ced ) {
+static void capsCbk ( GtkWidget *widget,
+                      gpointer   user_data ) {
+    GTK3G3DUICYLINDEREDIT *gtk3ced = ( GTK3G3DUICYLINDEREDIT * ) user_data;
+    G3DUI *gui = gtk3ced->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    int cap = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    /*** prevent useless primitive building when XmTextSetString is called ***/
+    if ( gui->lock ) return;
+
+    if ( cap ) {
+        g3duicylinderedit_capCbk ( &gtk3ced->core, G3DUIXAXIS, cap );
+    } else {
+        updateGeneralPanel ( gtk3ced );
+    }
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
+}
+
+/******************************************************************************/
+void gtk3_g3duicylinderedit_update ( GTK3G3DUICYLINDEREDIT *gtk3ced ) {
     G3DUI *gui = gtk3ced->core.gui;
 
     gui->lock = 0x01;
@@ -157,12 +151,12 @@ void gtk3_g3duicubeedit_update ( GTK3G3DUICUBEEDIT *gtk3ced ) {
         if ( nbsel ) {
             gtk_widget_set_sensitive ( GTK_WIDGET(gtk3ced->notebook), TRUE );
 
-            if ( g3dobjectlist_checkType ( sce->lsel, G3DCUBETYPE ) ) {
+            if ( g3dobjectlist_checkType ( sce->lsel, G3DCYLINDERTYPE ) ) {
                 gtk3ced->core.multi = ( nbsel > 0x01 ) ? 0x01 : 0x00;
 
-                gtk3ced->core.editedCube = ( G3DPRIMITIVE * ) g3dscene_getLastSelected ( sce );
+                gtk3ced->core.editedCylinder = ( G3DPRIMITIVE * ) g3dscene_getLastSelected ( sce );
 
-                if ( gtk3ced->core.editedCube ) {
+                if ( gtk3ced->core.editedCylinder ) {
                     updateGeneralPanel  ( gtk3ced );
                 }
             }
@@ -175,57 +169,60 @@ void gtk3_g3duicubeedit_update ( GTK3G3DUICUBEEDIT *gtk3ced ) {
 }
 
 /******************************************************************************/
-static void createGeneralPanel ( GTK3G3DUICUBEEDIT *gtk3ced,
-                                 gint               x,
-                                 gint               y,
-                                 gint               width,
-                                 gint               height ) {
+static void createGeneralPanel ( GTK3G3DUICYLINDEREDIT *gtk3ced,
+                                 gint                   x,
+                                 gint                   y,
+                                 gint                   width,
+                                 gint                   height ) {
     GtkFixed *pan = ui_createTab ( gtk3ced->notebook,
                                    gtk3ced,
-                                   EDITCUBEGENERAL,
+                                   EDITCYLINDERGENERAL,
                                    CLASS_MAIN,
                                    x,
                                    y,
                                    width,
                                    height );
 
-    gtk3ced->xSlicesEntry = ui_createIntegerText ( pan, 
-                                                   gtk3ced,
-                                                   EDITCUBEXSLICES,
-                                                   CLASS_MAIN,
-                                                   1, 100,
-                                                   0, 0, 96, 96, 20,
-                                                   xsliceCbk );
+    gtk3ced->capsEntry = ui_createIntegerText ( pan,
+                                                gtk3ced,
+                                                EDITCYLINDERCAPS,
+                                                CLASS_MAIN,
+                                                1, 100,
+                                                0, 0, 96, 96, 20,
+                                                capsCbk );
 
-    gtk3ced->ySlicesEntry = ui_createIntegerText ( pan, 
-                                                   gtk3ced,
-                                                   EDITCUBEYSLICES,
-                                                   CLASS_MAIN,
-                                                   1, 100,
-                                                   0, 24, 96, 96, 20,
-                                                   ysliceCbk );
+    /*createIntegerText ( frm, EDITCYLINDERYCAPS , 0, 20, 32, capycbk );*/
+    gtk3ced->slicesEntry = ui_createIntegerText ( pan,
+                                                  gtk3ced,
+                                                  EDITCYLINDERSLICES,
+                                                  CLASS_MAIN,
+                                                  1, 100,
+                                                  0, 24, 96, 96, 20,
+                                                  slicesCbk  );
 
-    gtk3ced->zSlicesEntry = ui_createIntegerText ( pan, 
-                                                   gtk3ced,
-                                                   EDITCUBEZSLICES,
-                                                   CLASS_MAIN,
-                                                   1, 100,
-                                                   0, 48, 96, 96, 20,
-                                                   zsliceCbk );
+    gtk3ced->lengthEntry = ui_createFloatText   ( pan,
+                                                  gtk3ced,
+                                                  EDITCYLINDERLENGTH,
+                                                  CLASS_MAIN,
+                                                  0.0f, FLT_MAX,
+                                                  0, 48, 96, 96, 20,
+                                                  lengthCbk );
 
-    gtk3ced->radiusEntry  = ui_createFloatText   ( pan, 
-                                                   gtk3ced,
-                                                   EDITCUBERADIUS,
-                                                   CLASS_MAIN,
-                                                   0.0f, FLT_MAX,
-                                                   0, 72, 96, 96, 20,
-                                                   radiusCbk );
+    gtk3ced->radiusEntry = ui_createFloatText   ( pan,
+                                                  gtk3ced,
+                                                  EDITCYLINDERRADIUS,
+                                                  CLASS_MAIN,
+                                                  0.0f, FLT_MAX,
+                                                  0, 72, 96, 96, 20,
+                                                  radiusCbk );
+
+
 }
 
 /******************************************************************************/
 static void Destroy ( GtkWidget *widget,
                       gpointer   user_data ) {
-    GTK3G3DUICUBEEDIT *gtk3ced = ( GTK3G3DUICUBEEDIT * ) user_data;
+    GTK3G3DUICYLINDEREDIT *gtk3ced = ( GTK3G3DUICYLINDEREDIT * ) user_data;
 
     free ( gtk3ced );
 }
@@ -233,16 +230,16 @@ static void Destroy ( GtkWidget *widget,
 /******************************************************************************/
 static void Realize ( GtkWidget *widget,
                       gpointer   user_data ) {
-    GTK3G3DUICUBEEDIT *gtk3ced = ( GTK3G3DUICUBEEDIT * ) user_data;
+    GTK3G3DUICYLINDEREDIT *gtk3ced = ( GTK3G3DUICYLINDEREDIT * ) user_data;
 
-    gtk3_g3duicubeedit_update ( gtk3ced );
+    gtk3_g3duicylinderedit_update ( gtk3ced );
 }
 
 /******************************************************************************/
-GTK3G3DUICUBEEDIT *gtk3_g3duicubeedit_create ( GtkWidget *parent,
-                                               GTK3G3DUI *gtk3gui,
-                                               char      *name ) {
-    GTK3G3DUICUBEEDIT *gtk3ced = gtk3_g3duicubeedit_new ( gtk3gui );
+GTK3G3DUICYLINDEREDIT *gtk3_g3duicylinderedit_create ( GtkWidget *parent,
+                                                       GTK3G3DUI *gtk3gui,
+                                                       char      *name ) {
+    GTK3G3DUICYLINDEREDIT *gtk3ced = gtk3_g3duicylinderedit_new ( gtk3gui );
     GtkWidget *notebook = gtk_notebook_new ( );
 
     gtk3ced->notebook = GTK_NOTEBOOK(notebook);
