@@ -30,6 +30,26 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+void g3duitimeboard_resize ( G3DUITIMEBOARD *tbrd, 
+                             uint32_t        width, 
+                             uint32_t        height ) {
+    tbrd->btnrec.x      = 0;
+    tbrd->btnrec.y      = 0;
+    tbrd->btnrec.width  = 144;
+    tbrd->btnrec.height = 24;
+
+    tbrd->linerec.x      = 144;
+    tbrd->linerec.y      = 0;
+    tbrd->linerec.width  = width - 144 - 48;
+    tbrd->linerec.height = 24;
+
+    tbrd->funcrec.x      = width - 48;
+    tbrd->funcrec.y      = 0;
+    tbrd->funcrec.width  = 48;
+    tbrd->funcrec.height = 24;
+}
+
+/******************************************************************************/
 uint64_t g3duitimeboard_stopCbk ( G3DUITIMEBOARD *tbrd ) {
     G3DUI *gui = tbrd->gui;
 

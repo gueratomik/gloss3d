@@ -216,7 +216,7 @@ typedef struct _GTK3G3DUIMAIN {
     G3DUIMAIN         core;
     GtkWidget        *layout;
     GtkWidget        *quad;
-    GtkWidget        *timeBoard;
+    GtkWidget        *timeboard;
     GtkWidget        *board;
 
     GtkWidget        *top;
@@ -462,6 +462,25 @@ typedef struct _GTK3G3DUIPARTICLEEMITTEREDIT {
 } GTK3G3DUIPARTICLEEMITTEREDIT;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUITIMEBOARD {
+    G3DUITIMEBOARD  core;
+
+    GtkLayout       *layout;
+
+    GtkFixed        *buttonsFixed;
+    GtkButton       *prevButton;
+    GtkButton       *nextButton;
+    GtkButton       *playButton;
+    GtkButton       *zoomButton;
+    GtkButton       *unzoomButton;
+    GtkButton       *recordButton;
+
+    GtkFixed        *functionsFixed;
+    GtkToggleButton *scaleButton;
+    GtkToggleButton *panButton;
+} GTK3G3DUITIMEBOARD;
+
+/******************************************************************************/
 /************************** GTK PatternList Widget ***************************/
 typedef struct _GTK3PATTERNPREVIEW {
     GdkPixbuf     *img;
@@ -623,9 +642,32 @@ GtkComboBoxText *ui_createAxisSelector ( GtkFixed *parent,
                                           gint     txtheight,
                                           void   (*cbk)( GtkWidget *, 
                                                          gpointer ) );
+GtkButton *ui_createImageButton ( GtkFixed    *parent,
+                                  void        *data, 
+                                  char        *name,
+                                  char        *class,
+                                  char       **xpm,
+                                  gint         x,
+                                  gint         y,
+                                  gint         width,
+                                  gint         height,
+                                  void       (*cbk)( GtkWidget *, 
+                                                     gpointer ) );
+GtkButton *ui_createPushButton ( GtkFixed *parent,
+                                 void     *data,
+                                 char     *name,
+                                 char     *class,
+                                 gint      x, 
+                                 gint      y,
+                                 gint      width,
+                                 gint      height,
+                                 void    (*cbk)( GtkWidget *, 
+                                                 gpointer ) );
 GtkFixed *ui_gtk_fixed_new ( char *class );
 GtkLabel *ui_gtk_label_new ( char *class,
                               char *name );
+GtkButton *ui_gtk_button_new ( char *class );
+GtkButton *ui_gtk_button_new_with_label ( char *class, char *name );
 GtkComboBoxText *ui_gtk_combo_box_text_new ( char *class );
 GtkSpinButton *ui_gtk_spin_button_new ( char          *class,
                                     GtkAdjustment *adjustment,
@@ -701,6 +743,12 @@ void gtk3_g3duiplaneedit_update ( GTK3G3DUIPLANEEDIT *gtk3ped );
 GTK3G3DUIPLANEEDIT *gtk3_g3duiplaneedit_create ( GtkWidget *parent,
                                                GTK3G3DUI *gtk3gui,
                                                char      *name );
+
+/***************************** g3duitimeboard.c *********************************/
+void gtk3_g3duitimeboard_update ( GTK3G3DUITIMEBOARD *gtk3timeboard );
+GTK3G3DUITIMEBOARD *gtk3_g3duitimeboard_create ( GtkWidget *parent,
+                                                 GTK3G3DUI *gtk3gui,
+                                                 char      *name );
 
 /***************************** g3duitoolbar.c *********************************/
 GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,

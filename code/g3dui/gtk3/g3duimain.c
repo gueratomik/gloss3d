@@ -119,14 +119,27 @@ static void gtk3_g3duimain_createBoard ( GTK3G3DUIMAIN *gtk3main ) {
 }
 
 /******************************************************************************/
+static void gtk3_g3duimain_createTimeboard ( GTK3G3DUIMAIN *gtk3main ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3main->core.gui;
+    GTK3G3DUITIMEBOARD *gtk3timeboard = gtk3_g3duitimeboard_create ( gtk3main->layout,
+                                                                     gtk3gui,
+                                                                     "timeboard" );
+
+    gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3timeboard->layout, 0, 0 );
+
+    gtk3main->core.timeboard = ( GTK3G3DUITIMEBOARD * ) gtk3timeboard;
+}
+
+/******************************************************************************/
 void gtk3_g3duimain_resize ( GTK3G3DUIMAIN *gtk3main,
                              uint32_t       width,
                              uint32_t       height ) {
-    GTK3G3DUIQUAD    *gtk3quad    = ( GTK3G3DUIQUAD    * ) gtk3main->core.quad;
-    GTK3G3DUIMENU    *gtk3menuBar = ( GTK3G3DUIMENU    * ) gtk3main->core.menuBar;
-    GTK3G3DUITOOLBAR *gtk3toolBar = ( GTK3G3DUITOOLBAR * ) gtk3main->core.toolBar;
-    GTK3G3DUIMODEBAR *gtk3modeBar = ( GTK3G3DUIMODEBAR * ) gtk3main->core.modeBar;
-    GTK3G3DUIBOARD   *gtk3board   = ( GTK3G3DUIBOARD   * ) gtk3main->core.board;
+    GTK3G3DUIQUAD      *gtk3quad      = ( GTK3G3DUIQUAD      * ) gtk3main->core.quad;
+    GTK3G3DUIMENU      *gtk3menuBar   = ( GTK3G3DUIMENU      * ) gtk3main->core.menuBar;
+    GTK3G3DUITOOLBAR   *gtk3toolBar   = ( GTK3G3DUITOOLBAR   * ) gtk3main->core.toolBar;
+    GTK3G3DUIMODEBAR   *gtk3modeBar   = ( GTK3G3DUIMODEBAR   * ) gtk3main->core.modeBar;
+    GTK3G3DUIBOARD     *gtk3board     = ( GTK3G3DUIBOARD     * ) gtk3main->core.board;
+    GTK3G3DUITIMEBOARD *gtk3timeboard = ( GTK3G3DUITIMEBOARD * ) gtk3main->core.timeboard;
 
     GdkRectangle gdkrec;
 
@@ -209,6 +222,23 @@ void gtk3_g3duimain_resize ( GTK3G3DUIMAIN *gtk3main,
                           gdkrec.y );
 
         gtk_widget_set_size_request ( gtk3board->layout,
+                                      gdkrec.width,
+                                      gdkrec.height );
+    }
+
+    if ( gtk3timeboard ) {
+        g3duirectangle_toGdkRectangle ( &gtk3main->core.timerec, &gdkrec );
+
+        gtk3_g3duitimeboard_resize ( gtk3timeboard,
+                                     gdkrec.width,
+                                     gdkrec.height );
+
+        gtk_layout_move ( gtk3main->layout,
+                          gtk3timeboard->layout,
+                          gdkrec.x,
+                          gdkrec.y );
+
+        gtk_widget_set_size_request ( gtk3timeboard->layout,
                                       gdkrec.width,
                                       gdkrec.height );
     }
@@ -398,11 +428,12 @@ GTK3G3DUIMAIN *gtk3_g3duimain_create ( GtkWidget *parent,
 
     gtk3main->layout = layout;
 
-    gtk3_g3duimain_createMenuBar ( gtk3main );
-    gtk3_g3duimain_createToolBar ( gtk3main );
-    gtk3_g3duimain_createModeBar ( gtk3main );
-    gtk3_g3duimain_createQuad    ( gtk3main );
-    gtk3_g3duimain_createBoard   ( gtk3main );
+    gtk3_g3duimain_createMenuBar   ( gtk3main );
+    gtk3_g3duimain_createToolBar   ( gtk3main );
+    gtk3_g3duimain_createModeBar   ( gtk3main );
+    gtk3_g3duimain_createQuad      ( gtk3main );
+    gtk3_g3duimain_createBoard     ( gtk3main );
+    gtk3_g3duimain_createTimeboard ( gtk3main );
 
     gtk_widget_show ( layout );
 

@@ -200,6 +200,30 @@ uint32_t g3duitimeline_onFrame ( G3DUITIMELINE *tim,
 }
 
 /******************************************************************************/
+void g3duitimeline_setTool ( G3DUITIMELINE *tim,
+                             uint32_t       tool ) {
+    tim->tool = tool;
+}
+
+/******************************************************************************/
+void g3duitimeline_incZoom ( G3DUITIMELINE *tim,
+                             uint32_t       nbpix ) {
+    tim->nbpix += nbpix;
+
+    if ( tim->nbpix > MAXIMUMFRAMEGAP ) tim->nbpix  = MAXIMUMFRAMEGAP;
+}
+
+/******************************************************************************/
+void g3duitimeline_decZoom ( G3DUITIMELINE *tim,
+                             uint32_t       nbpix ) {
+    tim->nbpix -= nbpix;
+
+    if ( tim->nbpix < MINIMUMFRAMEGAP ) {
+        tim->nbpix  = MINIMUMFRAMEGAP;
+    }
+}
+
+/******************************************************************************/
 void g3duitimeline_init ( G3DUITIMELINE *tim ) {
     tim->nbpix = DEFAULTFRAMEGAP;
 }

@@ -103,6 +103,38 @@ GtkLabel *ui_gtk_label_new ( char *class,
 }
 
 /******************************************************************************/
+GtkButton *ui_gtk_button_new ( char *class ) {
+    GtkWidget *btn = gtk_button_new ( );
+    GtkStyleContext *context = gtk_widget_get_style_context ( btn );
+
+    gtk_style_context_add_class ( context, class );
+
+    return GTK_BUTTON(btn);
+}
+
+/******************************************************************************/
+GtkButton *ui_gtk_button_new_with_label ( char *class,
+                                          char *name ) {
+    GtkWidget *btn = gtk_button_new_with_label ( name );
+    GtkStyleContext *context = gtk_widget_get_style_context ( btn );
+
+    gtk_style_context_add_class ( context, class );
+
+    return GTK_BUTTON(btn);
+}
+
+/******************************************************************************/
+GtkImage *ui_gtk_image_new_from_pixbuf ( char      *class,
+                                         GdkPixbuf *pixbuf ) {
+    GtkWidget *img = gtk_image_new_from_pixbuf ( pixbuf );
+    GtkStyleContext *context = gtk_widget_get_style_context ( img );
+
+    gtk_style_context_add_class ( context, class );
+
+    return GTK_IMAGE(img);
+}
+
+/******************************************************************************/
 GtkFixed *ui_createTab ( GtkNotebook *parent, 
                          void        *data,
                          char        *name,
@@ -489,6 +521,98 @@ GtkComboBoxText *ui_createPlaneSelector ( GtkFixed *parent,
     gtk_combo_box_text_append ( cmb, NULL, YZSTR );
 
     return cmb;
+}
+
+/******************************************************************************/
+static GtkButton *ui_createButton ( GtkFixed    *parent,
+                                    void        *data, 
+                                    char        *name,
+                                    char        *class,
+                                    char       **xpm,
+                                    gint         x, 
+                                    gint         y,
+                                    gint         width,
+                                    gint         height,
+                                    void       (*cbk)( GtkWidget *, 
+                                                       gpointer ) ) {
+    GtkButton *btn;
+
+    if ( xpm ) btn = ui_gtk_button_new ( class );
+    else       btn = ui_gtk_button_new_with_label ( class, name );
+
+    gtk_widget_set_name ( GTK_WIDGET(btn), name );
+
+    gtk_widget_set_size_request ( GTK_WIDGET(btn), width, height );
+
+    if ( cbk ) {
+        g_signal_connect ( btn, "clicked", G_CALLBACK ( cbk ), data );
+    }
+
+    gtk_fixed_put ( parent, GTK_WIDGET(btn), x, y );
+
+    if ( xpm ) {
+        GdkPixbuf *img = gdk_pixbuf_new_from_xpm_data ( xpm );
+
+        if ( img ) {
+            GtkImage *imgwid = ui_gtk_image_new_from_pixbuf ( class, img );
+
+            gtk_widget_show ( GTK_WIDGET(imgwid) );
+
+            gtk_button_set_image ( GTK_BUTTON(btn), GTK_WIDGET(imgwid) );
+        }
+    }
+
+    gtk_widget_show ( GTK_WIDGET(btn) );
+
+
+    return btn;
+}
+
+/******************************************************************************/
+GtkButton *ui_createPushButton ( GtkFixed *parent,
+                                 void     *data,
+                                 char     *name,
+                                 char     *class,
+                                 gint      x, 
+                                 gint      y,
+                                 gint      width,
+                                 gint      height,
+                                 void    (*cbk)( GtkWidget *, 
+                                                 gpointer ) ) {
+    return ui_createButton ( parent,
+                             data,
+                             name,
+                             class,
+                             NULL,
+                             x,
+                             y,
+                             width,
+                             height,
+                             cbk );
+}
+
+/******************************************************************************/
+GtkButton *ui_createImageButton ( GtkFixed  *parent,
+                                  void        *data, 
+                                  char        *name,
+                                  char        *class,
+                                  char       **xpm,
+                                  gint         x,
+                                  gint         y,
+                                  gint         width,
+                                  gint         height,
+                                  void       (*cbk)( GtkWidget *, 
+                                                     gpointer ) ) {
+    return ui_createButton ( parent,
+                             data,
+                             name,
+                             class,
+                             xpm,
+                             x,
+                             y,
+                             width,
+                             height,
+                             cbk );
 }
 
 /******************************************************************************/

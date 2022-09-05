@@ -717,8 +717,25 @@ typedef struct _G3DUITOOLBAR {
 } G3DUITOOLBAR;
 
 /******************************************************************************/
+typedef struct _G3DUITIMELINE {
+    G3DUI   *gui;
+
+    int32_t  midframe; /*** the frame in the middle of the widget     ***/
+    uint32_t nbpix;   /*** Number of pixels between frame indicators ***/
+    float (*funcKey)(G3DKEY *key, void *data );
+    void   *funcData;
+    uint32_t tool;
+} G3DUITIMELINE;
+
+/******************************************************************************/
 typedef struct _G3DUITIMEBOARD {
-    G3DUI *gui;
+    G3DUI         *gui;
+
+    G3DUIRECTANGLE linerec;
+    G3DUIRECTANGLE btnrec;
+    G3DUIRECTANGLE funcrec;
+
+    G3DUITIMELINE *timeline;
 } G3DUITIMEBOARD;
 
 /******************************************************************************/
@@ -733,15 +750,6 @@ typedef struct _G3DUIOBJECTLIST {
              oldHeight;
 } G3DUIOBJECTLIST;
 
-/******************************************************************************/
-typedef struct _G3DUITIMELINE {
-    G3DUI *gui;
-    int32_t midframe; /*** the frame in the middle of the widget     ***/
-    uint32_t nbpix;   /*** Number of pixels between frame indicators ***/
-    float (*funcKey)(G3DKEY *key, void *data );
-    void   *funcData;
-    uint32_t tool;
-} G3DUITIMELINE;
 
 /******************************************************************************/
 typedef struct _G3DUIRENDERBUFFER {
@@ -1025,6 +1033,7 @@ typedef struct _G3DUIMAIN {
     G3DUITOOLBAR   *toolBar;
     G3DUIQUAD      *quad;
     G3DUIBOARD     *board;
+    G3DUITIMEBOARD *timeboard;
 
     G3DUIRECTANGLE  menurec;
     G3DUIRECTANGLE  tbarrec;
@@ -1083,10 +1092,10 @@ typedef struct _G3DUIENTRYWIDGET {
 #define ACTION_DUMPSCREEN 0x02
 
 typedef struct _G3DUIACTION {
-    uint32_t wait;
-    uint32_t type;
+    uint32_t        wait;
+    uint32_t        type;
     pthread_mutex_t done;
-    G3DUI *gui;
+    G3DUI          *gui;
 } G3DUIACTION;
 
 typedef struct _GOTOFRAME {
@@ -1954,6 +1963,9 @@ uint64_t g3duitimeboard_stopCbk ( G3DUITIMEBOARD *tbrd );
 uint64_t g3duitimeboard_gotoFrameCbk ( G3DUITIMEBOARD *tbrd );
 uint64_t g3duitimeboard_recordFrameCbk ( G3DUITIMEBOARD *tbrd,
                                          uint32_t        key_flags );
+void g3duitimeboard_resize ( G3DUITIMEBOARD *tbrd, 
+                             uint32_t        width, 
+                             uint32_t        height );
 
 /******************************* g3duitimeline.c ******************************/
 
@@ -1982,6 +1994,13 @@ uint32_t g3duitimeline_onFrame ( G3DUITIMELINE *tim,
                                  int            y, 
                                  int            width );
 void g3duitimeline_init ( G3DUITIMELINE *tim );
+void g3duitimeline_decZoom ( G3DUITIMELINE *tim,
+                             uint32_t       nbpix );
+void g3duitimeline_incZoom ( G3DUITIMELINE *tim,
+                             uint32_t       nbpix );
+void g3duitimeline_setTool ( G3DUITIMELINE *tim,
+                             uint32_t       tool );
+
 
 /******************************* g3duitorusedit.c *****************************/
 

@@ -75,6 +75,7 @@ if HAVE_GTK3
                             common/m3dui.c \
                             gtk3/g3dui.c \
                             gtk3/g3duiboard.c \
+                            gtk3/g3duicom.c \
                             gtk3/g3duicubeedit.c \
                             gtk3/g3duicylinderedit.c \
                             gtk3/g3duiffdedit.c \
@@ -89,6 +90,7 @@ if HAVE_GTK3
                             gtk3/g3duiparticleemitteredit.c \
                             gtk3/g3duiquad.c \
                             gtk3/g3duisphereedit.c \
+                            gtk3/g3duitimeboard.c \
                             gtk3/g3duitoolbar.c \
                             gtk3/g3duitorusedit.c \
                             gtk3/g3duitubeedit.c \
