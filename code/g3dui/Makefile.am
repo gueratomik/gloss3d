@@ -91,10 +91,12 @@ if HAVE_GTK3
                             gtk3/g3duiquad.c \
                             gtk3/g3duisphereedit.c \
                             gtk3/g3duitimeboard.c \
+                            gtk3/g3duitimeline.c \
                             gtk3/g3duitoolbar.c \
                             gtk3/g3duitorusedit.c \
                             gtk3/g3duitubeedit.c \
                             gtk3/g3duiview.c \
+                            gtk3/g3duiwireframeedit.c \
                             gtk3/css/default.c
 endif
 

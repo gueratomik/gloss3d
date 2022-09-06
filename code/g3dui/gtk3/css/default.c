@@ -33,6 +33,7 @@ static const gchar *myCSS = { ".main,     \n"
                               " menu,     \n"
                               " menubar,  \n"
                               " menuitem, \n"
+                              " fixed,   \n"
                               " layout,   \n"
                               " button,   \n"
                               " window,   \n"
@@ -43,8 +44,8 @@ static const gchar *myCSS = { ".main,     \n"
                               " tab, \n"
                               " label {   \n"
 #ifdef __linux__
-                              /*"color: rgba(255, 255, 255, 1);"
-                              "background:  rgba(96, 96, 96, 1);"*/
+                              "color: rgba(0, 0, 0, 1);"
+                              "background:  rgba(192, 192, 192, 1);"
 
                               "    font-family: Lucida Sans; \n"
                               "    font-size: 12px; \n"

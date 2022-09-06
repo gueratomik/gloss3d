@@ -238,7 +238,6 @@ static gboolean SizeAllocate ( GtkWidget        *self,
                         event.width,
                         event.height );*/
 
-printf("view %d %d\n", event.width, event.height );
 #ifdef unused
     /*** Menu ***/
     if ( gtk3menu->menu ) {

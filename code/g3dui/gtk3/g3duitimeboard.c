@@ -86,7 +86,7 @@ void gtk3_g3duitimeboard_resize ( GTK3G3DUITIMEBOARD *gtk3timeboard,
     }
 
     /*** Timeline ***/
-    /*if ( gtk3timeboard->core.timeline ) {
+    if ( gtk3timeboard->core.timeline ) {
         GTK3G3DUITIMELINE *gtk3timeline = ( GTK3G3DUITIMELINE * )
                                            gtk3timeboard->core.timeline;
 
@@ -100,7 +100,7 @@ void gtk3_g3duitimeboard_resize ( GTK3G3DUITIMEBOARD *gtk3timeboard,
         gtk_widget_set_size_request ( GTK_WIDGET(gtk3timeline->area), 
                                       gdkrec.width,
                                       gdkrec.height  );
-    }*/
+    }
 
 
     if ( gtk3timeboard->functionsFixed ) {
@@ -118,17 +118,17 @@ void gtk3_g3duitimeboard_resize ( GTK3G3DUITIMEBOARD *gtk3timeboard,
 }
 
 /******************************************************************************/
-/*static void createTimeline ( GTK3G3DUITIMEBOARD *gtk3timeboard ) {
-    GTK3G3DUIOBJECTEDIT *gtk3objedit;
+static void createTimeline ( GTK3G3DUITIMEBOARD *gtk3timeboard ) {
+    GTK3G3DUITIMELINE *gtk3timeline;
 
-    gtk3objedit = gtk3_g3duiobjectedit_create ( gtk3timeboard->layout,
-                                ( GTK3G3DUI * ) gtk3timeboard->core.gui,
-                                                "Current object" );
+    gtk3timeline = gtk3_g3duitimeline_create ( gtk3timeboard->layout,
+                               ( GTK3G3DUI * ) gtk3timeboard->core.gui,
+                                                "Timeline" );
 
-    gtk_layout_put ( GTK_LAYOUT(gtk3timeboard->layout), gtk3objedit->scrolled, 0, 0 );
+    gtk_layout_put ( GTK_LAYOUT(gtk3timeboard->layout), gtk3timeline->area, 0, 0 );
 
-    gtk3timeboard->core.objedit = ( G3DUIOBJECTEDIT * ) gtk3objedit;
-}*/
+    gtk3timeboard->core.timeline = ( G3DUIOBJECTEDIT * ) gtk3timeline;
+}
 
 /******************************************************************************/
 static void useMoveToolCbk ( GtkWidget *widget, gpointer user_data ) {
@@ -339,6 +339,8 @@ static void recordFrameCbk ( GtkWidget *widget, gpointer user_data ) {
                                      KEYROTATION | 
                                      KEYSCALING  /*|
                                      KEYDATA*/ );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWTIMELINE );
 }
 
 /******************************************************************************/
@@ -424,7 +426,7 @@ GTK3G3DUITIMEBOARD *gtk3_g3duitimeboard_create ( GtkWidget *parent,
                                                  GTK3G3DUI *gtk3gui,
                                                  char      *name ) {
     GTK3G3DUITIMEBOARD *gtk3timeboard = gtk3_g3duitimeboard_new ( gtk3gui );
-    GtkWidget    *layout = gtk_layout_new ( NULL, NULL );
+    GtkWidget    *layout = ui_gtk_layout_new ( CLASS_MAIN, NULL, NULL );
 
     gtk3timeboard->layout = GTK_LAYOUT(layout);
 
@@ -438,6 +440,7 @@ GTK3G3DUITIMEBOARD *gtk3_g3duitimeboard_create ( GtkWidget *parent,
     gtk_widget_show ( layout );
 
     createButtons   ( gtk3timeboard );
+    createTimeline  ( gtk3timeboard );
     createFunctions ( gtk3timeboard );
 
     return gtk3timeboard;

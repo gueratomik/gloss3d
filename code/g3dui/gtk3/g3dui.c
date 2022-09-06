@@ -91,6 +91,18 @@ GtkFixed *ui_gtk_fixed_new ( char *class ) {
 }
 
 /******************************************************************************/
+GtkLayout *ui_gtk_layout_new ( char          *class, 
+                               GtkAdjustment *hadjustment,
+                               GtkAdjustment *vadjustment ) {
+    GtkWidget *layout = gtk_layout_new ( hadjustment, vadjustment );
+    GtkStyleContext *context = gtk_widget_get_style_context ( layout );
+
+    gtk_style_context_add_class ( context, class );
+
+    return GTK_LAYOUT(layout);
+}
+
+/******************************************************************************/
 GtkLabel *ui_gtk_label_new ( char *class,
                              char *name ) {
     GtkWidget *lab = gtk_label_new ( name );
@@ -110,6 +122,16 @@ GtkButton *ui_gtk_button_new ( char *class ) {
     gtk_style_context_add_class ( context, class );
 
     return GTK_BUTTON(btn);
+}
+
+/******************************************************************************/
+GtkDrawingArea *ui_gtk_drawing_area_new ( char *class ) {
+    GtkWidget *area = gtk_drawing_area_new ( );
+    GtkStyleContext *context = gtk_widget_get_style_context ( area );
+
+    gtk_style_context_add_class ( context, class );
+
+    return GTK_DRAWING_AREA(area);
 }
 
 /******************************************************************************/
@@ -890,6 +912,25 @@ static void gtk3_redrawGLViews ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
+static void gtk3_redrawTimeline ( GTK3G3DUI *gtk3gui ) {
+    G3DUI *gui = ( G3DUI * ) &gtk3gui->core;
+    GTK3G3DUIMAIN *gtk3main = gtk3gui->core.main;
+
+    if ( gtk3main ) {
+        GTK3G3DUITIMEBOARD *gtk3timeboard = gtk3main->core.timeboard;
+
+        if ( gtk3timeboard ) {
+            GTK3G3DUITIMELINE *gtk3timeline = gtk3timeboard->core.timeline;
+
+            if ( gtk3timeline ) {
+                gtk_widget_queue_draw ( gtk3timeline->area );
+                /*gdk_window_invalidate_rect ( window, &arec, FALSE );*/
+            }
+        }
+    }
+}
+
+/******************************************************************************/
 static void gtk3_dispatchGLMenuButton ( GTK3G3DUI    *gtk3gui,
                                         G3DMOUSETOOL *mou, 
                                         uint32_t      tool_flags ) {
@@ -963,6 +1004,10 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
         gtk3_updateObjectEdit ( gtk3gui );
     }
 
+    if ( msk & REDRAWTIMELINE ) {
+        gtk3_redrawTimeline ( gtk3gui );
+    }
+
 #ifdef TODO
     if ( msk & REDRAWCURRENTMATERIAL ) {
         gtk3_updateMaterialEdit ( );
@@ -993,10 +1038,6 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
 
     if ( msk & REDRAWCURRENTMOUSETOOL ) {
         gtk3_updateAllCurrentMouseTools ( );
-    }
-
-    if ( msk & REDRAWTIMELINE ) {
-        gtk3_redrawTimeline ( );
     }
 
     if ( msk & REDRAWCOORDS ) {

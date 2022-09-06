@@ -224,6 +224,8 @@ void g3duitimeline_decZoom ( G3DUITIMELINE *tim,
 }
 
 /******************************************************************************/
-void g3duitimeline_init ( G3DUITIMELINE *tim ) {
+void g3duitimeline_init ( G3DUITIMELINE *tim,
+                          G3DUI         *gui ) {
     tim->nbpix = DEFAULTFRAMEGAP;
+    tim->gui = gui;
 }

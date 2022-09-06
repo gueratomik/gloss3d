@@ -243,12 +243,6 @@ typedef struct _GTK3G3DUIRENDERWINDOW {
 } GTK3G3DUIRENDERWINDOW;
 
 /******************************************************************************/
-typedef struct _GTK3G3DUITIMELINE {
-    G3DUITIMELINE    core;
-    /*GtkWidget       *menu;*/
-} GTK3G3DUITIMELINE;
-
-/******************************************************************************/
 typedef struct _GTK3G3DUIMATERIALBOARD {
     G3DUIMATERIALBOARD core;
     GtkWidget        *layout;
@@ -363,6 +357,14 @@ typedef struct _GTK3G3DUISPHEREEDIT {
 } GTK3G3DUISPHEREEDIT;
 
 /******************************************************************************/
+typedef struct GTK3G3DUIWIREFRAMEEDIT {
+    G3DUIWIREFRAMEEDIT core;
+
+    GtkNotebook       *notebook;
+    GtkSpinButton     *thicknessEntry;
+} GTK3G3DUIWIREFRAMEEDIT;
+
+/******************************************************************************/
 typedef struct _GTK3G3DUICYLINDEREDIT {
     G3DUICYLINDEREDIT core;
 
@@ -460,6 +462,13 @@ typedef struct _GTK3G3DUIPARTICLEEMITTEREDIT {
     GtkSpinButton           *gravityForceYEntry;         
     GtkSpinButton           *gravityForceZEntry;         
 } GTK3G3DUIPARTICLEEMITTEREDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUITIMELINE {
+    G3DUITIMELINE   core;
+
+    GtkDrawingArea *area;
+} GTK3G3DUITIMELINE;
 
 /******************************************************************************/
 typedef struct _GTK3G3DUITIMEBOARD {
@@ -674,6 +683,10 @@ GtkSpinButton *ui_gtk_spin_button_new ( char          *class,
                                     gdouble        climb_rate,
                                     guint          digits );
 GtkCheckButton *ui_gtk_check_button_new ( char *class );
+GtkLayout *ui_gtk_layout_new ( char          *class, 
+                               GtkAdjustment *hadjustment,
+                               GtkAdjustment *vadjustment );
+GtkDrawingArea *ui_gtk_drawing_area_new ( char *class );
 
 /******************************* g3duiboard.c *********************************/
 GTK3G3DUIBOARD *gtk3_g3duiboard_create ( GtkWidget *parent,
@@ -811,5 +824,11 @@ void gtk3_g3duiview_updateMenuBar ( GTK3G3DUIVIEW *gtk3view );
 void gtk3_g3duiview_resize ( GTK3G3DUIVIEW *gtk3view,
                              uint32_t       width,
                              uint32_t       height );
+
+/**************************** g3duiwireframeedit.c ****************************/
+void gtk3_g3duiwireframeedit_update ( GTK3G3DUIWIREFRAMEEDIT *gtk3wed );
+GTK3G3DUIWIREFRAMEEDIT *gtk3_g3duiwireframeedit_create ( GtkWidget *parent,
+                                                         GTK3G3DUI *gtk3gui,
+                                                         char      *name );
 
 #endif

@@ -404,9 +404,6 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITTEXTROUNDNESS      "Roundness"
 #define EDITTEXTTHICKNESS      "Thickness"
 
-#define EDITWIREFRAME          "Wireframe"
-#define EDITWIREFRAMETHICKNESS "Thickness"
-
 #define EDITMORPHER            "Morpher"
 
 #define EDITINSTANCE           "Instance"
@@ -718,13 +715,14 @@ typedef struct _G3DUITOOLBAR {
 
 /******************************************************************************/
 typedef struct _G3DUITIMELINE {
-    G3DUI   *gui;
+    G3DUI     *gui;
+    G3DUIMENU *menu;
 
-    int32_t  midframe; /*** the frame in the middle of the widget     ***/
-    uint32_t nbpix;   /*** Number of pixels between frame indicators ***/
-    float (*funcKey)(G3DKEY *key, void *data );
-    void   *funcData;
-    uint32_t tool;
+    int32_t    midframe; /*** the frame in the middle of the widget     ***/
+    uint32_t   nbpix;   /*** Number of pixels between frame indicators ***/
+    float    (*funcKey)(G3DKEY *key, void *data );
+    void      *funcData;
+    uint32_t   tool;
 } G3DUITIMELINE;
 
 /******************************************************************************/
@@ -951,6 +949,7 @@ typedef struct _G3DUIOBJECTEDIT {
     G3DUISUBDIVIDEREDIT      *sdredit;
     G3DUISYMMETRYEDIT        *symedit;
     G3DUIPARTICLEEMITTEREDIT *pemedit;
+    G3DUIWIREFRAMEEDIT       *wiredit;
 } G3DUIOBJECTEDIT;
 
 /******************************************************************************/
@@ -1993,7 +1992,8 @@ uint32_t g3duitimeline_onFrame ( G3DUITIMELINE *tim,
                                  int            x, 
                                  int            y, 
                                  int            width );
-void g3duitimeline_init ( G3DUITIMELINE *tim );
+void g3duitimeline_init ( G3DUITIMELINE *tim,
+                          G3DUI         *gui );
 void g3duitimeline_decZoom ( G3DUITIMELINE *tim,
                              uint32_t       nbpix );
 void g3duitimeline_incZoom ( G3DUITIMELINE *tim,

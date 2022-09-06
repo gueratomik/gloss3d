@@ -58,6 +58,7 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
     GTK3G3DUITORUSEDIT           *toredit = ( GTK3G3DUITORUSEDIT           * ) gtk3objedit->core.toredit;
     GTK3G3DUISPHEREEDIT          *sphedit = ( GTK3G3DUISPHEREEDIT          * ) gtk3objedit->core.sphedit;
     GTK3G3DUIPLANEEDIT           *plnedit = ( GTK3G3DUIPLANEEDIT           * ) gtk3objedit->core.plnedit;
+    GTK3G3DUIWIREFRAMEEDIT       *wiredit = ( GTK3G3DUIWIREFRAMEEDIT       * ) gtk3objedit->core.wiredit;
 
     G3DUI *gui = gtk3objedit->core.gui;
     G3DSCENE *sce = gui->sce;
@@ -72,6 +73,7 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
     gtk_widget_hide ( toredit->notebook );
     gtk_widget_hide ( sphedit->notebook );
     gtk_widget_hide ( plnedit->notebook );
+    gtk_widget_hide ( wiredit->notebook );
 
     if ( sce ) {
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -114,6 +116,12 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
                     gtk3_g3duiplaneedit_update ( plnedit );
 
                     gtk_widget_show ( plnedit->notebook );
+                }
+
+                if ( obj->type == G3DWIREFRAMETYPE ) {
+                    gtk3_g3duiwireframeedit_update ( wiredit );
+
+                    gtk_widget_show ( wiredit->notebook );
                 }
 
                 if ( obj->type == G3DCYLINDERTYPE ) {
@@ -351,6 +359,20 @@ static void createFFDEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
 }
 
 /******************************************************************************/
+static void createWireframeEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3objedit->core.gui;
+    GTK3G3DUIWIREFRAMEEDIT *gtk3wiredit;
+
+    gtk3wiredit = gtk3_g3duiwireframeedit_create ( gtk3objedit->fixed,
+                                                   gtk3gui,
+                                                   "Edit Wireframe" );
+
+    gtk_fixed_put ( GTK_FIXED(gtk3objedit->fixed), gtk3wiredit->notebook, 0, 0 );
+
+    gtk3objedit->core.wiredit = ( GTK3G3DUIWIREFRAMEEDIT * ) gtk3wiredit;
+}
+
+/******************************************************************************/
 static void createInstanceEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3objedit->core.gui;
     GTK3G3DUIINSTANCEEDIT *gtk3insedit;
@@ -430,6 +452,7 @@ GTK3G3DUIOBJECTEDIT *gtk3_g3duiobjectedit_create ( GtkWidget *parent,
     createFFDEdit             ( gtk3objedit );
     createInstanceEdit        ( gtk3objedit );
     createParticleEmitterEdit ( gtk3objedit );
+    createWireframeEdit       ( gtk3objedit );
 
 /*
     createUVMapEdit           ( frm, gui, EDITUVMAP          , 0, 32, 296,  96 );

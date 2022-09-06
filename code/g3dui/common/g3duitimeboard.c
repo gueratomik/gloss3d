@@ -38,9 +38,9 @@ void g3duitimeboard_resize ( G3DUITIMEBOARD *tbrd,
     tbrd->btnrec.width  = 144;
     tbrd->btnrec.height = 24;
 
-    tbrd->linerec.x      = 144;
+    tbrd->linerec.x      = 150;
     tbrd->linerec.y      = 0;
-    tbrd->linerec.width  = width - 144 - 48;
+    tbrd->linerec.width  = width - 150 - 48;
     tbrd->linerec.height = 24;
 
     tbrd->funcrec.x      = width - 48;

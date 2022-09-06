@@ -175,8 +175,9 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duiobjectedit.c gtk3/g3duiplaneedit.c \
 	gtk3/g3duiparticleemitteredit.c gtk3/g3duiquad.c \
 	gtk3/g3duisphereedit.c gtk3/g3duitimeboard.c \
-	gtk3/g3duitoolbar.c gtk3/g3duitorusedit.c gtk3/g3duitubeedit.c \
-	gtk3/g3duiview.c gtk3/css/default.c
+	gtk3/g3duitimeline.c gtk3/g3duitoolbar.c gtk3/g3duitorusedit.c \
+	gtk3/g3duitubeedit.c gtk3/g3duiview.c \
+	gtk3/g3duiwireframeedit.c gtk3/css/default.c
 am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@am__objects_1 = common/g3dui.lo common/g3duiboard.lo \
 @HAVE_GTK3_TRUE@	common/g3duiboneedit.lo \
@@ -245,9 +246,10 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/g3duiobjectedit.lo gtk3/g3duiplaneedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiparticleemitteredit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiquad.lo gtk3/g3duisphereedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duitimeboard.lo gtk3/g3duitoolbar.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duitorusedit.lo gtk3/g3duitubeedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiview.lo gtk3/css/default.lo
+@HAVE_GTK3_TRUE@	gtk3/g3duitimeboard.lo gtk3/g3duitimeline.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duitoolbar.lo gtk3/g3duitorusedit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duitubeedit.lo gtk3/g3duiview.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duiwireframeedit.lo gtk3/css/default.lo
 @HAVE_GTK3_TRUE@am_libgloss_g3dui_gtk3_la_OBJECTS = $(am__objects_1)
 libgloss_g3dui_gtk3_la_OBJECTS = $(am_libgloss_g3dui_gtk3_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -349,9 +351,11 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	gtk3/$(DEPDIR)/g3duiplaneedit.Plo gtk3/$(DEPDIR)/g3duiquad.Plo \
 	gtk3/$(DEPDIR)/g3duisphereedit.Plo \
 	gtk3/$(DEPDIR)/g3duitimeboard.Plo \
+	gtk3/$(DEPDIR)/g3duitimeline.Plo \
 	gtk3/$(DEPDIR)/g3duitoolbar.Plo \
 	gtk3/$(DEPDIR)/g3duitorusedit.Plo \
 	gtk3/$(DEPDIR)/g3duitubeedit.Plo gtk3/$(DEPDIR)/g3duiview.Plo \
+	gtk3/$(DEPDIR)/g3duiwireframeedit.Plo \
 	gtk3/css/$(DEPDIR)/default.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -614,10 +618,12 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiquad.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duisphereedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitimeboard.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duitimeline.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitoolbar.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitorusedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitubeedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiview.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duiwireframeedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/css/default.c
 
 all: all-am
@@ -879,6 +885,8 @@ gtk3/g3duisphereedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duitimeboard.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duitimeline.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duitoolbar.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duitorusedit.lo: gtk3/$(am__dirstamp) \
@@ -886,6 +894,8 @@ gtk3/g3duitorusedit.lo: gtk3/$(am__dirstamp) \
 gtk3/g3duitubeedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiview.lo: gtk3/$(am__dirstamp) gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duiwireframeedit.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/css/$(am__dirstamp):
 	@$(MKDIR_P) gtk3/css
 	@: > gtk3/css/$(am__dirstamp)
@@ -997,10 +1007,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiquad.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duisphereedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitimeboard.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitimeline.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitoolbar.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitorusedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitubeedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiview.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiwireframeedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/css/$(DEPDIR)/default.Plo@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -1265,10 +1277,12 @@ distclean: distclean-am
 	-rm -f gtk3/$(DEPDIR)/g3duiquad.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duisphereedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitimeboard.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duitimeline.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitoolbar.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitorusedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitubeedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiview.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duiwireframeedit.Plo
 	-rm -f gtk3/css/$(DEPDIR)/default.Plo
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -1398,10 +1412,12 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gtk3/$(DEPDIR)/g3duiquad.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duisphereedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitimeboard.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duitimeline.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitoolbar.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitorusedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitubeedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiview.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duiwireframeedit.Plo
 	-rm -f gtk3/css/$(DEPDIR)/default.Plo
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
