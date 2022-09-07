@@ -279,7 +279,7 @@ static uint64_t fixBoneCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t makeEditableCbk ( G3DUIMENU *menu, 
                                   void      *data ) {
-    return g3dui_makeEditableCbk ( menu->gui, data );
+    return g3dui_makeEditableCbk ( menu->gui );
 }
 
 /******************************************************************************/

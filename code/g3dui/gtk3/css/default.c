@@ -29,23 +29,10 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-static const gchar *myCSS = { ".main,     \n"
-                              " menu,     \n"
-                              " menubar,  \n"
-                              " menuitem, \n"
-                              " fixed,   \n"
-                              " layout,   \n"
-                              " button,   \n"
-                              " window,   \n"
-                              " toolbar,  \n"
-                              " menubar,  \n"
-                              " colorchooser,    \n"
-                              " notebook, \n"
-                              " tab, \n"
-                              " label {   \n"
+static const gchar *myCSS = { ".main {   \n"
 #ifdef __linux__
-                              "color: rgba(0, 0, 0, 1);"
-                              "background:  rgba(192, 192, 192, 1);"
+                              /*"color: rgba(0, 0, 0, 1);"
+                              "background:  rgba(192, 192, 192, 1);"*/
 
                               "    font-family: Lucida Sans; \n"
                               "    font-size: 12px; \n"

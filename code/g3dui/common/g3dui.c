@@ -30,6 +30,95 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+uint64_t g3dui_deleteSelectionCbk ( G3DUI *gui ) {
+    G3DSCENE  *sce = gui->sce;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+    G3DURMANAGER *urm = gui->urm;
+    G3DMESH   *mes = NULL;
+    uint64_t ret = 0x00;
+
+    if ( gui->engine_flags & VIEWOBJECT ) {
+        g3durm_scene_deleteSelectedObjects ( urm, 
+                                             sce, 
+                                             gui->engine_flags, 
+                                             REDRAWVIEW | 
+                                             REDRAWLIST );
+
+        ret = REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT | REDRAWCOORDS;
+    } else {
+        if ( obj && ( obj->type == G3DSPLINETYPE ) ) {
+            G3DSPLINE *spline = ( G3DSPLINE * ) obj;
+            if ( gui->engine_flags & VIEWVERTEX ) {
+                LIST *lremovedPoints   = g3dcurve_getSelectedPoints ( spline->curve );
+
+                g3durm_spline_deletePoints ( urm,
+                                             spline, 
+                                             lremovedPoints, 
+                                             gui->engine_flags,
+                                             REDRAWVIEW );
+
+                g3dcurve_unselectAllPoints ( spline->curve );
+
+                ret = REDRAWVIEW | REDRAWLIST | REDRAWCOORDS;
+            }
+        }
+
+        if ( obj && ( obj->type == G3DMESHTYPE ) ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+
+            g3durm_mesh_deleteGeometry ( urm,
+                                         mes,
+                                         gui->engine_flags,
+                                         REDRAWVIEW );
+
+            ret = REDRAWVIEW | REDRAWLIST | REDRAWCOORDS;
+        }
+    }
+
+    return ret;
+}
+
+
+/******************************************************************************/
+uint64_t g3dui_closeScene ( G3DUI *gui ) {
+    G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+    Q3DSETTINGS *rsg;
+
+    /* reset background image and system values */
+    g3dsysinfo_reset ( sysinfo );
+
+    if ( gui->sce ) g3dobject_free ( gui->sce );
+
+    gui->sce = NULL;
+
+    if ( gui->lrsg ) list_free ( &gui->lrsg, q3dsettings_free );
+
+    rsg = q3dsettings_new ( );
+
+    g3dui_addRenderSettings ( gui, rsg );
+    g3dui_useRenderSettings ( gui, rsg );
+
+    g3dui_resetDefaultCameras ( gui );
+
+    return REDRAWALL;
+}
+
+
+/******************************************************************************/
+uint64_t g3dui_undoCbk ( G3DUI *gui ) {
+    G3DURMANAGER *urm = gui->urm;
+
+    return g3durmanager_undo ( urm, gui->engine_flags );
+}
+
+/******************************************************************************/
+uint64_t g3dui_redoCbk ( G3DUI *gui ) {
+    G3DURMANAGER *urm = gui->urm;
+
+    return g3durmanager_redo ( urm, gui->engine_flags );
+}
+
+/******************************************************************************/
 uint64_t g3dui_setMaterialCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     LIST *ltmpselobj = sce->lsel;
@@ -457,8 +546,7 @@ uint64_t g3dui_alignUVMapCbk ( G3DUI      *gui,
 }
 
 /******************************************************************************/
-uint64_t g3dui_makeEditableCbk ( G3DUI *gui, 
-                                 void  *data ) {
+uint64_t g3dui_makeEditableCbk ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
     uint32_t oid = g3dscene_getNextObjectID ( sce );
@@ -1638,7 +1726,7 @@ uint32_t g3dui_cancelRenderByID ( G3DUI   *gui,
 }
 
 /******************************************************************************/
-void g3dui_exitokcbk ( G3DUI *gui ) {
+void g3dui_exitOkCbk ( G3DUI *gui ) {
     g3durmanager_clear ( gui->urm );
 
     if ( gui->sce ) {
@@ -1651,7 +1739,7 @@ void g3dui_exitokcbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint32_t g3dui_exportfileokcbk ( G3DUI      *gui,
+uint32_t g3dui_exportFileOkCbk ( G3DUI      *gui,
                                  const char *filedesc, 
                                  const char *filename ) {
     /*#g3dui_setHourGlass ( gui );#*/
@@ -1692,7 +1780,7 @@ uint32_t g3dui_exportfileokcbk ( G3DUI      *gui,
 }
 
 /******************************************************************************/
-G3DSCENE *g3dui_importfileokcbk ( G3DUI      *gui, 
+G3DSCENE *g3dui_importFileOkCbk ( G3DUI      *gui, 
                                   const char *filedesc, 
                                   const char *filename ) {
     G3DSCENE *sce = gui->sce;

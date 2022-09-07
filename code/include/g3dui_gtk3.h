@@ -151,8 +151,8 @@ typedef struct _GTK3G3DUI {
     GdkWindow    *winAtPosition; /*** window at mouse position (for hourGlass)***/
 
     GtkWidget *topWin;
-    GtkWidget *curmou; /*** store the current pressed toggle button      ***/
-    GtkWidget *curmat; /*** current material ***/
+    GtkWidget *currentMouseToolButton; /*** store the current pressed toggle button      ***/
+    GtkWidget *curMaterialWidget; /*** current material ***/
     GtkWidget *currentUVMouseToolButton;
     GtkWidget *currentUVMapEditor;
 } GTK3G3DUI;
@@ -389,6 +389,19 @@ typedef struct _GTK3G3DUIFFDEDIT {
 } GTK3G3DUIFFDEDIT;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUISUBDIVIDEREDIT {
+    G3DUISUBDIVIDEREDIT core;
+
+    GtkNotebook        *notebook;
+    GtkSpinButton      *previewEntry;
+    GtkSpinButton      *renderEntry;
+    GtkWidget          *syncToggle;
+
+    GtkToggleButton    *sculptRadio;
+    GtkToggleButton    *heightRadio;
+} GTK3G3DUISUBDIVIDEREDIT;
+
+/******************************************************************************/
 typedef struct _GTK3G3DUIINSTANCEEDIT {
     G3DUIINSTANCEEDIT core;
 
@@ -531,8 +544,7 @@ gchar *gtk3_getDefaultCSS ( );
 
 void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in, 
                                      GdkRectangle   *out  );
-void gtk3_setMouseTool ( GtkWidget *widget, 
-                         gpointer   user_data );
+uint32_t gtk3_setMouseTool ( GTK3G3DUI *gtk3gui, char *name );
 void gtk3_setHourGlass ( GTK3G3DUI *gtk3gui );
 void gtk3_unsetHourGlass ( GTK3G3DUI *gtk3gui );
 static void gtk3_updateAllCurrentMouseTools ( GTK3G3DUI *gtk3gui );
@@ -541,6 +553,10 @@ void gtk3_initDefaultMouseTools ( GTK3G3DUI *gtk3gui );
 void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
                                    uint64_t   msk );
 
+void gtk3_newSceneCbk ( GTK3G3DUI *gtk3gui );
+void gtk3_openFileCbk ( GTK3G3DUI *gtk3gui );
+void gtk3_saveAsCbk ( GTK3G3DUI *gtk3gui );
+void gtk3_saveFileCbk ( GTK3G3DUI *gtk3gui );
 
 GtkFixed *ui_createTab ( GtkNotebook *parent, 
                          void        *data,
@@ -756,6 +772,12 @@ void gtk3_g3duiplaneedit_update ( GTK3G3DUIPLANEEDIT *gtk3ped );
 GTK3G3DUIPLANEEDIT *gtk3_g3duiplaneedit_create ( GtkWidget *parent,
                                                GTK3G3DUI *gtk3gui,
                                                char      *name );
+
+/*************************** g3duisubdivideredit.c ****************************/
+void gtk3_g3duisubdivideredit_update ( GTK3G3DUISUBDIVIDEREDIT *gtk3sed );
+GTK3G3DUISUBDIVIDEREDIT *gtk3_g3duisubdivideredit_create ( GtkWidget *parent,
+                                                           GTK3G3DUI *gtk3gui,
+                                                           char      *name );
 
 /***************************** g3duitimeboard.c *********************************/
 void gtk3_g3duitimeboard_update ( GTK3G3DUITIMEBOARD *gtk3timeboard );

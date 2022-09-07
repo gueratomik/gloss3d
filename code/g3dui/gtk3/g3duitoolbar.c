@@ -67,6 +67,103 @@ static GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_new ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
+static void saveFileCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
+
+    gtk3_saveFileCbk ( gtk3gui);
+}
+
+/******************************************************************************/
+static void saveAsCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
+
+    gtk3_saveAsCbk ( gtk3gui );
+}
+
+/******************************************************************************/
+static void openFileCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
+
+    gtk3_openFileCbk ( gtk3gui );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWALL );
+}
+
+/******************************************************************************/
+static void setMouseToolCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
+
+    if ( gtk3gui->core.lock ) return;
+
+    if ( widget != gtk3gui->currentMouseToolButton ) {
+        if ( gtk3_setMouseTool ( gtk3gui, gtk_widget_get_name ( widget ) ) ) {
+            /*** prevent callback to loop ***/
+            gtk3gui->core.lock = 0x01;
+
+            if ( GTK_IS_TOGGLE_TOOL_BUTTON ( gtk3gui->currentMouseToolButton ) ) {
+                GtkToggleToolButton *ttb = GTK_TOGGLE_TOOL_BUTTON(gtk3gui->currentMouseToolButton);
+
+                gtk_toggle_tool_button_set_active ( ttb, FALSE );
+            }
+
+            gtk3gui->currentMouseToolButton = widget;
+
+            gtk3gui->core.lock = 0x00;
+        }
+    }
+}
+
+/******************************************************************************/
+static void newSceneCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
+
+    gtk3_newSceneCbk ( gtk3gui );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWALL );
+}
+
+/******************************************************************************/
+static void undoCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
+    uint64_t ret = g3dui_undoCbk ( gtk3toolbar->core.gui );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
+}
+
+/******************************************************************************/
+static void redoCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
+    uint64_t ret = g3dui_redoCbk ( &gtk3gui->core );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
+}
+
+/******************************************************************************/
+static void makeEditableCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
+    uint64_t ret = g3dui_makeEditableCbk ( &gtk3gui->core );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
+}
+
+/******************************************************************************/
+void deleteSelectionCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
+    uint64_t ret = g3dui_deleteSelectionCbk ( gtk3toolbar->core.gui );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
+}
+
+/******************************************************************************/
 GtkWidget *addToolBarRadioButton ( GtkWidget   *bar,
                                    GtkWidget   *grp,
                                    void        *data,
@@ -218,42 +315,42 @@ GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
                                                 gtk3tb,
                                                 MENU_NEWSCENE,
                                                 newfile_xpm,
-                                                /*g3dui_newscenecbk*/NULL );
+                                                newSceneCbk  );
 
     gtk3tb->openFile   = addToolBarPushButton ( gtk3tb->bar,
                                                 gtk3tb, MENU_OPENFILE,
                                                 openfile_xpm,
-                                                /*g3dui_openfilecbk*/NULL );
+                                                openFileCbk );
 
     gtk3tb->saveFileAs = addToolBarPushButton ( gtk3tb->bar,
                                                 gtk3tb,
                                                 MENU_SAVEFILEAS,
                                                 saveas_xpm,
-                                                /*g3dui_saveascbk*/NULL );
+                                                saveAsCbk );
 
     gtk3tb->saveFile   = addToolBarPushButton ( gtk3tb->bar,
                                                 gtk3tb,
                                                 MENU_SAVEFILE,
                                                 save_xpm,
-                                                /*g3dui_savefilecbk*/NULL );
+                                                saveFileCbk );
 
     gtk3tb->undo       = addToolBarPushButton ( gtk3tb->bar,
                                                 gtk3tb,
                                                 MENU_UNDO,
                                                 undo_xpm,
-                                                /*g3dui_undoCbk*/NULL );
+                                                undoCbk );
 
     gtk3tb->redo       = addToolBarPushButton ( gtk3tb->bar,
                                                 gtk3tb,
                                                 MENU_REDO,
                                                 redo_xpm,
-                                                /*g3dui_redoCbk*/NULL );
+                                                redoCbk );
 
     gtk3tb->delete     = addToolBarPushButton ( gtk3tb->bar,
                                                 gtk3tb,
                                                 MENU_DELETE,
                                                 delete_xpm,
-                                                /*g3dui_deleteSelectionCbk*/NULL );
+                                                deleteSelectionCbk );
 
     /********************************/
 
@@ -261,27 +358,25 @@ GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
                                                   gtk3tb,
                                                   PICKTOOL,
                                                   pick_xpm,
-                                                  /*g3dui_setMouseTool*/NULL );
+                                                  setMouseToolCbk );
 
     gtk3tb->moveTool   = addToolBarToggleButton ( gtk3tb->bar,
                                                   gtk3tb,
                                                   MOVETOOL,
                                                   move_xpm,
-                                                  /*g3dui_setMouseTool*/NULL    );
+                                                  setMouseToolCbk );
 
     gtk3tb->scaleTool  = addToolBarToggleButton ( gtk3tb->bar,
                                                   gtk3tb,
                                                   SCALETOOL,
                                                   scale_xpm,
-                                                  /*g3dui_setMouseTool*/NULL  );
-
-
+                                                  setMouseToolCbk );
 
     gtk3tb->rotateTool = addToolBarToggleButton ( gtk3tb->bar,
                                                   gtk3tb,
                                                   ROTATETOOL,
                                                   rotate_xpm,
-                                                  /*g3dui_setMouseTool*/NULL );
+                                                  setMouseToolCbk );
 
     /********************************/
 
@@ -301,7 +396,7 @@ GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
                                                   gtk3tb,
                                                   MENU_MAKEEDITABLE,
                                                   makeedit_xpm,
-                                                  /*g3dui_makeEditableCbk*/NULL );
+                                                  makeEditableCbk );
 
     /********************************/
 

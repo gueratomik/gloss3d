@@ -1454,13 +1454,16 @@ uint64_t            g3dui_invertSelectionCbk ( G3DUI *gui );
 uint64_t            g3dui_getObjectStatsCbk ( G3DUI   *gui, 
                                               char    *buffer, 
                                               uint32_t bufferlen );
-uint64_t            g3dui_makeEditableCbk ( G3DUI *gui, 
-                                            void  *data );
+uint64_t            g3dui_makeEditableCbk ( G3DUI *gui );
 uint64_t            g3dui_addUVMapCbk ( G3DUI *gui );
 uint64_t            g3dui_fitUVMapCbk ( G3DUI *gui );
 uint64_t            g3dui_alignUVMapCbk ( G3DUI      *gui, 
                                           const char *option );
-uint64_t g3dui_setMaterialCbk ( G3DUI *gui );
+uint64_t            g3dui_setMaterialCbk ( G3DUI *gui );
+uint64_t            g3dui_redoCbk ( G3DUI *gui );
+uint64_t            g3dui_undoCbk ( G3DUI *gui );
+uint64_t            g3dui_closeScene ( G3DUI *gui );
+uint64_t            g3dui_deleteSelectionCbk ( G3DUI *gui );
 
 /******************************* g3duiboard.c ******************************/
 void g3duiboard_resize ( G3DUIBOARD *board, 

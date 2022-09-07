@@ -638,43 +638,242 @@ GtkButton *ui_createImageButton ( GtkFixed  *parent,
 }
 
 /******************************************************************************/
-void gtk3_setMouseTool ( GtkWidget *widget, 
-                         gpointer   user_data ) {
-    GTK3G3DUI *gtk3gui = gtk3_getUI ( );
+void g3dui_renderViewCbk ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
-    const char  *name = gtk_widget_get_name ( widget );
+
+    if ( gui->currentView ) {
+        GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) gui->currentView;
+        uint32_t width  = gtk_widget_get_allocated_width  ( gtk3view->glarea ),
+                 height = gtk_widget_get_allocated_height ( gtk3view->glarea );
+
+        G3DUIRENDERPROCESS *rps = g3dui_getRenderProcessByID ( gui, 
+                                                  ( uint64_t ) gtk3view->glarea );
+
+        if ( rps ) {
+            /* First cancel running render on that window  if any */
+            g3dui_cancelRenderByID ( gui, ( uint64_t ) gtk3view->glarea );
+        } else {
+            /*** We recreate the XImage for each rendering because the viewing window ***/
+            /*** size could change in between. So, clear() and init() ***/
+            g3duirenderbuffer_clear ( &gtk3view->core.rbuf );
+
+            g3duirenderbuffer_init ( &gtk3view->core.rbuf, 
+                                      gtk3view->glarea );
+        #ifdef __linux__
+            Q3DFILTER *progressiveDisplay = q3dfilter_toWindow_new ( gtk3view->core.rbuf.dis,
+                                                                     gtk3view->core.rbuf.win,
+                                                                     gtk3view->core.rbuf.gc,
+                                                                     gtk3view->core.rbuf.ximg,
+                                                                     0x01 );
+        #endif
+        #ifdef __MINGW32__
+            Q3DFILTER *progressiveDisplay = q3dfilter_toWindow_new ( gtk3view->core.rbuf.hWnd,
+                                                                     gtk3view->core.rbuf.wimg,
+                                                                     0x01 );
+        #endif
+
+            G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
+            float backgroundWidthRatio = ( ( float ) sysinfo->renderRectangle[0x01].x -
+                                                     sysinfo->renderRectangle[0x00].x ) / width;
+            /* declared static because must survive */
+            static Q3DSETTINGS viewRsg;
+            G3DCAMERA *cam = gtk3view->core.cam;
+
+            q3dsettings_copy ( &viewRsg, gui->currsg );
+
+            viewRsg.input.sce = gui->sce;
+            viewRsg.input.cam = cam;
+
+            viewRsg.background.widthRatio = backgroundWidthRatio;
+
+            viewRsg.output.x1 = 0x00;
+            viewRsg.output.x2 = width - 1;
+            viewRsg.output.y1 = 0x00;
+            viewRsg.output.y2 = height - 1;
+            viewRsg.output.width = width;
+            viewRsg.output.height = height;
+            viewRsg.background.image = sysinfo->backgroundImage;
+
+            viewRsg.output.startframe = gui->curframe;
+
+            viewRsg.flags = gui->currsg->flags & ( RENDERWIREFRAME |
+                                                   DISABLETEXTURING |
+                                                   WIREFRAMELIGHTING |
+                                                   ENABLEAA        |
+                                                   RENDERDOF       |
+                                                   RENDERFOG );
+
+            rps = g3dui_render_q3d ( gui, 
+                                    &viewRsg,
+                                     progressiveDisplay,
+                                     gui->toframe,
+                                     NULL,
+                                     NULL,
+                                     cam,
+                                     gui->curframe,
+                        ( uint64_t ) gtk3view->glarea,
+                                     0x00,
+                                     JOBFREEONCOMPLETION );
+        }
+    }
+}
+
+/******************************************************************************/
+void gtk3_newSceneCbk ( GTK3G3DUI *gtk3gui ) {
+    G3DUI * gui = ( G3DUI * ) gtk3gui;
+    GtkWidget *dialog;
+    gint       res;
+
+    dialog = gtk_message_dialog_new ( NULL,
+                                      GTK_DIALOG_MODAL,
+                                      GTK_MESSAGE_QUESTION,
+                                      GTK_BUTTONS_YES_NO,
+                                      "Close scene and create a new one ?" );
+
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_YES ) {
+        g3dui_closeScene ( gui );
+#ifdef TODO
+        g3dui_clearMaterials ( gui );
+#endif
+        gui->sce = g3dscene_new ( 0x00, "SCENE" );
+    }
+
+    gtk_widget_destroy ( dialog );
+}
+
+/******************************************************************************/
+void gtk3_saveAsCbk ( GTK3G3DUI *gtk3gui ) {
+    G3DUI * gui = ( G3DUI * ) gtk3gui;
+    GtkWidget *dialog;
+    gint       res;
+
+    dialog = gtk_file_chooser_dialog_new ( "Save file as ...",
+                                           GTK_WINDOW(gtk3gui->topWin),
+                        /*** from ristretto-0.3.5/src/main_window.c ***/
+                                           GTK_FILE_CHOOSER_ACTION_SAVE,
+                                           "_Cancel", 
+                                           GTK_RESPONSE_CANCEL,
+                                           "_Open", 
+                                           GTK_RESPONSE_OK,
+                                           NULL );
+
+    gtk_file_chooser_set_do_overwrite_confirmation ( GTK_FILE_CHOOSER(dialog), TRUE );
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_OK ) {
+        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
+        char           *filename = gtk_file_chooser_get_filename ( chooser );
+        static char     filenameext[0x1000] = { 0x00 };
+        static char     windowname[0x1000] = { 0x00 };
+
+        if ( strstr ( filename, ".g3d" ) == NULL ) {
+            snprintf ( filenameext, 0x1000, "%s.g3d", filename );
+        } else {
+            snprintf ( filenameext, 0x1000, "%s", filename );
+        }
+
+        g3dui_setFileName ( gui, filenameext );
+
+        g3dui_saveG3DFile ( gui );
+
+        snprintf ( windowname, 
+                   0x1000, 
+                  "%s %s (%s)", 
+                   G3DUIAPPNAME,
+                   VERSION,
+                   basename ( filenameext ) );
+
+        gtk_window_set_title ( gtk_widget_get_parent ( gtk3gui->topWin ), windowname );
+
+        g_free    ( ( gpointer ) filename );
+    }
+
+    gtk_widget_destroy ( dialog );
+}
+
+/******************************************************************************/
+void gtk3_saveFileCbk ( GTK3G3DUI *gtk3gui ) {
+    G3DUI * gui = ( G3DUI * ) gtk3gui;
+    GtkWidget *dialog;
+    gint       res;
+
+    if ( gui->filename ) {
+        printf ( "saving as:%s\n", gui->filename );
+
+        g3dui_saveG3DFile ( gui );
+    } else {
+        gtk3_saveAsCbk ( gtk3gui );
+    }
+}
+
+/******************************************************************************/
+/*** WTF: https://developer.gnome.org/gtk3/stable/GtkFileChooserDialog.html ***/
+void gtk3_openFileCbk ( GTK3G3DUI *gtk3gui ) {
+    G3DUI * gui = ( G3DUI * ) gtk3gui;
+    GtkWidget *dialog;
+    gint       res;
+
+    dialog = gtk_file_chooser_dialog_new ( "Open File",
+                                           GTK_WINDOW(gtk3gui->topWin),
+                        /*** from ristretto-0.3.5/src/main_window.c ***/
+                                           GTK_FILE_CHOOSER_ACTION_OPEN,
+                                           "_Cancel", 
+                                           GTK_RESPONSE_CANCEL,
+                                           "_Open", 
+                                           GTK_RESPONSE_OK,
+                                           NULL );
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_OK ) {
+        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
+        char           *filename = gtk_file_chooser_get_filename ( chooser );
+        static char     windowname[0x1000] = { 0x00 };
+
+        if ( filename ) {
+            g3dui_closeScene ( gui );
+
+            g3dui_openG3DFile ( gui, filename );
+
+            snprintf ( windowname, 
+                       0x1000, 
+                      "%s %s (%s)", 
+                       G3DUIAPPNAME,
+                       VERSION,
+                       basename ( filename ) );
+
+            gtk_window_set_title ( gtk_widget_get_parent ( gtk3gui->topWin ), windowname );
+
+            g_free    ( filename );
+        }
+    }
+
+    gtk_widget_destroy ( dialog );
+}
+
+/******************************************************************************/
+uint32_t gtk3_setMouseTool ( GTK3G3DUI *gtk3gui, char *name ) {
+    G3DUI * gui = ( G3DUI * ) gtk3gui;
     G3DMOUSETOOL *mou = g3dui_getMouseTool ( gui, name );
     G3DCAMERA *cam = gui->currentView->cam;
-
-    if ( gui->lock ) return;
 
     if ( mou ) {
         g3dui_setMouseTool ( gui, cam, mou );
 
         if ( ( mou->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
-            /*** Remember that widget ID, for example to be unset when a toggle button 
-            from another parent widget is called (because XmNradioBehavior won't talk
-            to other parent widget ***/
-            if ( gtk3gui->curmou && widget != gtk3gui->curmou ) {
-                gui->lock = 0x01;
+            gtk3_updateAllCurrentMouseTools ( gui );
 
-                if ( GTK_IS_TOGGLE_TOOL_BUTTON ( gtk3gui->curmou ) ) {
-                    GtkToggleToolButton *ttb = GTK_TOGGLE_TOOL_BUTTON(gtk3gui->curmou);
-
-                    gtk_toggle_tool_button_set_active ( ttb, FALSE );
-                }
-
-                gui->lock = 0x00;
-                /*XtVaSetValues ( ggt->curmou, XmNset, False, NULL );*/
-            }
-
-            gtk3gui->curmou = widget;
-
-           gtk3_updateAllCurrentMouseTools ( gui );
+            return 0x01;
         }
     } else {
         fprintf ( stderr, "No such mousetool %s\n", name );
     }
+
+    return 0x00;
 }
 
 /******************************************************************************/

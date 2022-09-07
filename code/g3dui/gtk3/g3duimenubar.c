@@ -370,7 +370,7 @@ gboolean g3dui_exitEventCbk ( GtkWidget *widget,
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
     if ( res == GTK_RESPONSE_YES ) {
-        g3dui_exitokcbk ( gui );
+        g3dui_exitOkCbk ( gui );
 
         return FALSE;
     }
@@ -381,7 +381,7 @@ gboolean g3dui_exitEventCbk ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-void g3dui_exitcbk ( GtkWidget *widget, 
+void g3dui_exitCbk ( GtkWidget *widget, 
                          gpointer   user_data ) {
     G3DUI *gui = ( G3DUI * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
@@ -398,14 +398,14 @@ void g3dui_exitcbk ( GtkWidget *widget,
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
     if ( res == GTK_RESPONSE_YES ) {
-        g3dui_exitokcbk ( gui );
+        g3dui_exitOkCbk ( gui );
     }
 
     gtk_widget_destroy ( dialog );
 }
 
 /******************************************************************************/
-void g3dui_exportfilecbk ( GtkWidget *widget, gpointer user_data ) {
+void g3dui_exportFileCbk ( GtkWidget *widget, gpointer user_data ) {
     const gchar *filedesc = gtk_widget_get_name  ( widget );
     G3DUI *gui = ( G3DUI * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
@@ -431,7 +431,7 @@ void g3dui_exportfilecbk ( GtkWidget *widget, gpointer user_data ) {
         GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
         const char *filename = gtk_file_chooser_get_filename ( chooser );
 
-        g3dui_exportfileokcbk ( gui, filedesc, filename );
+        g3dui_exportFileOkCbk ( gui, filedesc, filename );
 
         g_free    ( ( gpointer ) filename );
     }
@@ -440,7 +440,7 @@ void g3dui_exportfilecbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-void g3dui_importfilecbk ( GtkWidget *widget, gpointer user_data ) {
+void g3dui_importFileCbk ( GtkWidget *widget, gpointer user_data ) {
     const gchar *filedesc = gtk_widget_get_name  ( widget );
     G3DUI *gui = ( G3DUI * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
@@ -464,7 +464,7 @@ void g3dui_importfilecbk ( GtkWidget *widget, gpointer user_data ) {
         GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
         const char *filename = gtk_file_chooser_get_filename ( chooser );
 
-        g3dui_importfileokcbk ( gui, filedesc, filename );
+        g3dui_importFileOkCbk ( gui, filedesc, filename );
 
         g_free    ( ( gpointer ) filename );
     }
