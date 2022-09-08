@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duiffdedit_radiusCbk ( G3DUIFFDEDIT *ffdedit,
+uint64_t g3duiffdedit_radius ( G3DUIFFDEDIT *ffdedit,
                                   G3DUIAXIS     axis,
                                   float         radius ) {
     G3DUI *gui = ffdedit->gui;
@@ -75,7 +75,7 @@ uint64_t g3duiffdedit_radiusCbk ( G3DUIFFDEDIT *ffdedit,
 }
 
 /******************************************************************************/
-uint64_t g3duiffdedit_sliceCbk ( G3DUIFFDEDIT *ffdedit,
+uint64_t g3duiffdedit_slice ( G3DUIFFDEDIT *ffdedit,
                                  G3DUIAXIS     axis,
                                  int           slice ) {
     G3DUI *gui = ffdedit->gui;

@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duicameraedit_dofRadiusCbk ( G3DUICAMERAEDIT *camedit,
+uint64_t g3duicameraedit_dofRadius ( G3DUICAMERAEDIT *camedit,
                                         uint32_t         radius ) {
     G3DUI *gui = camedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -53,7 +53,7 @@ uint64_t g3duicameraedit_dofRadiusCbk ( G3DUICAMERAEDIT *camedit,
 }
 
 /******************************************************************************/
-uint64_t g3duicameraedit_dofNearBlurCbk ( G3DUICAMERAEDIT *camedit,
+uint64_t g3duicameraedit_dofNearBlur ( G3DUICAMERAEDIT *camedit,
                                           float            nearBlur ) {
     G3DUI *gui = camedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -76,7 +76,7 @@ uint64_t g3duicameraedit_dofNearBlurCbk ( G3DUICAMERAEDIT *camedit,
 }
 
 /******************************************************************************/
-uint64_t g3duicameraedit_dofNoBlurCbk ( G3DUICAMERAEDIT *camedit,
+uint64_t g3duicameraedit_dofNoBlur ( G3DUICAMERAEDIT *camedit,
                                         float            noBlur ) {
     G3DUI *gui = camedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -99,7 +99,7 @@ uint64_t g3duicameraedit_dofNoBlurCbk ( G3DUICAMERAEDIT *camedit,
 }
 
 /******************************************************************************/
-uint64_t g3duicameraedit_dofFarBlurCbk ( G3DUICAMERAEDIT *camedit,
+uint64_t g3duicameraedit_dofFarBlur ( G3DUICAMERAEDIT *camedit,
                                          float            farBlur ) {
     G3DUI *gui = camedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -123,7 +123,7 @@ uint64_t g3duicameraedit_dofFarBlurCbk ( G3DUICAMERAEDIT *camedit,
 
 
 /******************************************************************************/
-uint64_t g3duicameraedit_dofEnableCbk ( G3DUICAMERAEDIT *camedit ) {
+uint64_t g3duicameraedit_dofEnable ( G3DUICAMERAEDIT *camedit ) {
     G3DUI *gui = camedit->gui;
     G3DSCENE *sce = gui->sce;
     LIST *ltmpselobj = sce->lsel;

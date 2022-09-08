@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3dui_deleteSelectionCbk ( G3DUI *gui ) {
+uint64_t g3dui_deleteSelection ( G3DUI *gui ) {
     G3DSCENE  *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
     G3DURMANAGER *urm = gui->urm;
@@ -103,23 +103,8 @@ uint64_t g3dui_closeScene ( G3DUI *gui ) {
     return REDRAWALL;
 }
 
-
 /******************************************************************************/
-uint64_t g3dui_undoCbk ( G3DUI *gui ) {
-    G3DURMANAGER *urm = gui->urm;
-
-    return g3durmanager_undo ( urm, gui->engine_flags );
-}
-
-/******************************************************************************/
-uint64_t g3dui_redoCbk ( G3DUI *gui ) {
-    G3DURMANAGER *urm = gui->urm;
-
-    return g3durmanager_redo ( urm, gui->engine_flags );
-}
-
-/******************************************************************************/
-uint64_t g3dui_setMaterialCbk ( G3DUI *gui ) {
+uint64_t g3dui_setMaterial ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     LIST *ltmpselobj = sce->lsel;
 
@@ -138,7 +123,7 @@ uint64_t g3dui_setMaterialCbk ( G3DUI *gui ) {
                                               REDRAWVIEW | REDRAWLIST );
             }
 
-            g3dui_fitUVMapCbk ( gui );
+            g3dui_fitUVMap ( gui );
  
             ltmpselmat = ltmpselmat->next;
         }
@@ -151,7 +136,7 @@ uint64_t g3dui_setMaterialCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addVibratorTagCbk ( G3DUI *gui ) {
+uint64_t g3dui_addVibratorTag ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -170,7 +155,7 @@ uint64_t g3dui_addVibratorTagCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addTrackerTagCbk ( G3DUI *gui ) {
+uint64_t g3dui_addTrackerTag ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -191,7 +176,7 @@ uint64_t g3dui_addTrackerTagCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_removeSelectedTagCbk ( G3DUI *gui ) {
+uint64_t g3dui_removeSelectedTag ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -210,7 +195,7 @@ uint64_t g3dui_removeSelectedTagCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_mergeMeshCbk ( G3DUI *gui ) {
+uint64_t g3dui_mergeMesh ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -231,7 +216,7 @@ uint64_t g3dui_mergeMeshCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_splitMeshCbk ( G3DUI      *gui,
+uint64_t g3dui_splitMesh ( G3DUI      *gui,
                               const char *option ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
@@ -282,7 +267,7 @@ static uint32_t compareFloat ( float a,
 }
 
 /******************************************************************************/
-uint64_t g3dui_mirrorHeightmapCbk ( G3DUI      *gui,
+uint64_t g3dui_mirrorHeightmap ( G3DUI      *gui,
                                     const char *option ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
@@ -393,7 +378,7 @@ uint64_t g3dui_mirrorHeightmapCbk ( G3DUI      *gui,
 }
 
 /******************************************************************************/
-uint64_t g3dui_mirrorWeightGroupCbk ( G3DUI      *gui,
+uint64_t g3dui_mirrorWeightGroup ( G3DUI      *gui,
                                       const char *option ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
@@ -426,7 +411,7 @@ uint64_t g3dui_mirrorWeightGroupCbk ( G3DUI      *gui,
 }
 
 /******************************************************************************/
-uint64_t g3dui_addUVMapCbk ( G3DUI *gui ) {
+uint64_t g3dui_addUVMap ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -453,7 +438,7 @@ uint64_t g3dui_addUVMapCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_fitUVMapCbk ( G3DUI *gui ) {
+uint64_t g3dui_fitUVMap ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *objmes = g3dscene_getLastSelected ( sce );
@@ -506,7 +491,7 @@ uint64_t g3dui_fitUVMapCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_alignUVMapCbk ( G3DUI      *gui, 
+uint64_t g3dui_alignUVMap ( G3DUI      *gui, 
                                const char *option ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
@@ -546,7 +531,7 @@ uint64_t g3dui_alignUVMapCbk ( G3DUI      *gui,
 }
 
 /******************************************************************************/
-uint64_t g3dui_makeEditableCbk ( G3DUI *gui ) {
+uint64_t g3dui_makeEditable ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
     uint32_t oid = g3dscene_getNextObjectID ( sce );
@@ -593,7 +578,7 @@ uint64_t g3dui_makeEditableCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_resetBoneTreeCbk ( G3DUI *gui ) {
+uint64_t g3dui_resetBoneTree ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -608,7 +593,7 @@ uint64_t g3dui_resetBoneTreeCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_resetBoneCbk ( G3DUI *gui ) {
+uint64_t g3dui_resetBone ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -623,7 +608,7 @@ uint64_t g3dui_resetBoneCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_fixBoneTreeCbk ( G3DUI *gui ) {
+uint64_t g3dui_fixBoneTree ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -638,7 +623,7 @@ uint64_t g3dui_fixBoneTreeCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_fixBoneCbk ( G3DUI *gui ) {
+uint64_t g3dui_fixBone ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -653,7 +638,7 @@ uint64_t g3dui_fixBoneCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addBoneCbk ( G3DUI *gui ) {
+uint64_t g3dui_addBone ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     uint32_t oid = g3dscene_getNextObjectID ( sce );
@@ -676,7 +661,7 @@ uint64_t g3dui_addBoneCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addSkinCbk ( G3DUI *gui ) {
+uint64_t g3dui_addSkin ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -702,7 +687,7 @@ uint64_t g3dui_addSkinCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addMorpherCbk ( G3DUI *gui ) {
+uint64_t g3dui_addMorpher ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -728,7 +713,7 @@ uint64_t g3dui_addMorpherCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addFFDBoxCbk ( G3DUI *gui ) {
+uint64_t g3dui_addFFDBox ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
@@ -782,7 +767,7 @@ uint64_t g3dui_addFFDBoxCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addSymmetryCbk ( G3DUI *gui ) {
+uint64_t g3dui_addSymmetry ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     uint32_t oid = g3dscene_getNextObjectID ( sce );
@@ -806,7 +791,7 @@ uint64_t g3dui_addSymmetryCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addInstanceCbk ( G3DUI *gui ) {
+uint64_t g3dui_addInstance ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     uint32_t oid = g3dscene_getNextObjectID ( sce );
@@ -830,7 +815,7 @@ uint64_t g3dui_addInstanceCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addEmitterCbk ( G3DUI *gui ) {
+uint64_t g3dui_addEmitter ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     uint32_t oid = g3dscene_getNextObjectID ( sce );
@@ -854,7 +839,7 @@ uint64_t g3dui_addEmitterCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addSubdividerCbk ( G3DUI *gui ) {
+uint64_t g3dui_addSubdivider ( G3DUI *gui ) {
     G3DURMANAGER  *urm = gui->urm;
     G3DSCENE      *sce = gui->sce;
     G3DOBJECT     *obj = g3dscene_getLastSelected ( sce );
@@ -888,7 +873,7 @@ uint64_t g3dui_addSubdividerCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addWireframeCbk ( G3DUI *gui ) {
+uint64_t g3dui_addWireframe ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE     *sce = gui->sce;
     G3DOBJECT    *obj = g3dscene_getLastSelected ( sce );
@@ -922,7 +907,7 @@ uint64_t g3dui_addWireframeCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addEmptyMeshCbk ( G3DUI *gui ) {
+uint64_t g3dui_addEmptyMesh ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
@@ -946,7 +931,7 @@ uint64_t g3dui_addEmptyMeshCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addSplineCbk ( G3DUI *gui ) {
+uint64_t g3dui_addSpline ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
@@ -970,7 +955,7 @@ uint64_t g3dui_addSplineCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addSplineRevolverCbk ( G3DUI *gui ) {
+uint64_t g3dui_addSplineRevolver ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     G3DOBJECT    *obj = g3dscene_getLastSelected ( sce );
@@ -1004,7 +989,7 @@ uint64_t g3dui_addSplineRevolverCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addTextCbk ( G3DUI *gui ) {
+uint64_t g3dui_addText ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
@@ -1040,7 +1025,7 @@ uint64_t g3dui_addTextCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addCameraCbk ( G3DUI     *gui ) {
+uint64_t g3dui_addCamera ( G3DUI     *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t oid = g3dscene_getNextObjectID ( sce );
@@ -1074,7 +1059,7 @@ uint64_t g3dui_addCameraCbk ( G3DUI     *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addLightCbk ( G3DUI *gui ) {
+uint64_t g3dui_addLight ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t oid = g3dscene_getNextObjectID ( sce );
@@ -1099,7 +1084,7 @@ uint64_t g3dui_addLightCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addCylinderCbk ( G3DUI *gui ) {
+uint64_t g3dui_addCylinder ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
@@ -1125,7 +1110,7 @@ uint64_t g3dui_addCylinderCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addTubeCbk ( G3DUI *gui ) {
+uint64_t g3dui_addTube ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
@@ -1151,7 +1136,7 @@ uint64_t g3dui_addTubeCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addTorusCbk ( G3DUI *gui ) {
+uint64_t g3dui_addTorus ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
@@ -1176,7 +1161,7 @@ uint64_t g3dui_addTorusCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addSphereCbk ( G3DUI *gui ) {
+uint64_t g3dui_addSphere ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
@@ -1201,7 +1186,7 @@ uint64_t g3dui_addSphereCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addCubeCbk ( G3DUI *gui ) {
+uint64_t g3dui_addCube ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
@@ -1226,7 +1211,7 @@ uint64_t g3dui_addCubeCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addPlaneCbk ( G3DUI *gui ) {
+uint64_t g3dui_addPlane ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
@@ -1251,7 +1236,7 @@ uint64_t g3dui_addPlaneCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_addNullCbk ( G3DUI *gui ) {
+uint64_t g3dui_addNull ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
@@ -1274,7 +1259,7 @@ uint64_t g3dui_addNullCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_selectTreeCbk ( G3DUI      *gui,
+uint64_t g3dui_selectTree ( G3DUI      *gui,
                                const char *option ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE     *sce = gui->sce;
@@ -1298,7 +1283,7 @@ uint64_t g3dui_selectTreeCbk ( G3DUI      *gui,
 }
 
 /******************************************************************************/
-uint64_t g3dui_triangulateCbk ( G3DUI      *gui,
+uint64_t g3dui_triangulate ( G3DUI      *gui,
                                 const char *option ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE     *sce = gui->sce;
@@ -1322,7 +1307,7 @@ uint64_t g3dui_triangulateCbk ( G3DUI      *gui,
 }
 
 /******************************************************************************/
-uint64_t g3dui_invertNormalCbk ( G3DUI *gui ) {
+uint64_t g3dui_invertNormal ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE     *sce = gui->sce;
     G3DOBJECT    *obj = g3dscene_getLastSelected ( sce );
@@ -1337,7 +1322,7 @@ uint64_t g3dui_invertNormalCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_alignNormalsCbk ( G3DUI *gui ) {
+uint64_t g3dui_alignNormals ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE     *sce = gui->sce;
     G3DOBJECT    *obj = g3dscene_getLastSelected ( sce );
@@ -1359,7 +1344,7 @@ uint64_t g3dui_alignNormalsCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_untriangulateCbk ( G3DUI *gui ) {
+uint64_t g3dui_untriangulate ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE     *sce = gui->sce;
     G3DOBJECT    *obj = g3dscene_getLastSelected ( sce );
@@ -1374,7 +1359,7 @@ uint64_t g3dui_untriangulateCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_weldVerticesCbk ( G3DUI *gui ) {
+uint64_t g3dui_weldVertices ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE     *sce = gui->sce;
     G3DOBJECT    *obj = g3dscene_getLastSelected ( sce );
@@ -1389,7 +1374,7 @@ uint64_t g3dui_weldVerticesCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_deleteLoneVerticesCbk ( G3DUI *gui ) {
+uint64_t g3dui_deleteLoneVertices ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE     *sce = gui->sce;
     G3DOBJECT    *obj = g3dscene_getLastSelected ( sce );
@@ -1406,7 +1391,7 @@ uint64_t g3dui_deleteLoneVerticesCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_invertSelectionCbk ( G3DUI *gui ) {
+uint64_t g3dui_invertSelection ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE     *sce = gui->sce;
     G3DOBJECT    *obj = g3dscene_getLastSelected ( sce );
@@ -1437,7 +1422,7 @@ uint64_t g3dui_invertSelectionCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint64_t g3dui_getObjectStatsCbk ( G3DUI   *gui, 
+uint64_t g3dui_getObjectStats ( G3DUI   *gui, 
                                    char    *buffer, 
                                    uint32_t bufferlen ) {
     G3DURMANAGER *urm = gui->urm;
@@ -1545,7 +1530,7 @@ G3DUIRENDERPROCESS *g3dui_render_q3d ( G3DUI       *gui,
 }
 
 /******************************************************************************/
-uint32_t g3dui_selectAllCbk ( G3DUI *gui ) {
+uint32_t g3dui_selectAll ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
 
     /*** select all objects ***/
@@ -1726,7 +1711,7 @@ uint32_t g3dui_cancelRenderByID ( G3DUI   *gui,
 }
 
 /******************************************************************************/
-void g3dui_exitOkCbk ( G3DUI *gui ) {
+void g3dui_exitOk ( G3DUI *gui ) {
     g3durmanager_clear ( gui->urm );
 
     if ( gui->sce ) {
@@ -1739,7 +1724,7 @@ void g3dui_exitOkCbk ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
-uint32_t g3dui_exportFileOkCbk ( G3DUI      *gui,
+uint32_t g3dui_exportFileOk ( G3DUI      *gui,
                                  const char *filedesc, 
                                  const char *filename ) {
     /*#g3dui_setHourGlass ( gui );#*/
@@ -1780,7 +1765,7 @@ uint32_t g3dui_exportFileOkCbk ( G3DUI      *gui,
 }
 
 /******************************************************************************/
-G3DSCENE *g3dui_importFileOkCbk ( G3DUI      *gui, 
+G3DSCENE *g3dui_importFileOk ( G3DUI      *gui, 
                                   const char *filedesc, 
                                   const char *filename ) {
     G3DSCENE *sce = gui->sce;
@@ -2219,9 +2204,7 @@ void g3dui_init ( G3DUI     *gui,
     gui->engine_flags = ( VIEWOBJECT | XAXIS | YAXIS | ZAXIS );
 
     rsg = q3dsettings_new ( ); /*** default render settings ***/
-#ifdef TODO
-    gui->toframe = q3dfilter_gotoframe_new ( gui );
-#endif
+
     g3dui_addRenderSettings ( gui, rsg );
     g3dui_useRenderSettings ( gui, rsg );
 

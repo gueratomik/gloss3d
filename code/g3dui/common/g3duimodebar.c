@@ -39,7 +39,7 @@
 #include <xpm/sculptmode.xpm>
 
 /******************************************************************************/
-uint64_t m3duimodebar_setModeCbk ( M3DUIMODEBAR *mmb, 
+uint64_t m3duimodebar_setMode ( M3DUIMODEBAR *mmb, 
                                    const char   *modename ) {
     M3DUI *mui = mmb->mui;
     uint64_t curflags = mui->engine_flags & (~UVMODEMASK);
@@ -52,7 +52,7 @@ uint64_t m3duimodebar_setModeCbk ( M3DUIMODEBAR *mmb,
 }
 
 /******************************************************************************/
-uint64_t g3duimodebar_setModeCbk ( G3DUIMODEBAR *gmb,
+uint64_t g3duimodebar_setMode ( G3DUIMODEBAR *gmb,
                                    const char   *modename ) {
     /*** Discard mode flags ***/
     G3DUI *gui = gmb->gui;

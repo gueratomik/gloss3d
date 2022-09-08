@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duicubeedit_sliceCbk ( G3DUICUBEEDIT *cubedit,
+uint64_t g3duicubeedit_slice ( G3DUICUBEEDIT *cubedit,
                                   G3DUIAXIS      axis,
                                   int            slice ) {
     G3DUI *gui = cubedit->gui;
@@ -72,7 +72,7 @@ uint64_t g3duicubeedit_sliceCbk ( G3DUICUBEEDIT *cubedit,
 }
 
 /******************************************************************************/
-uint64_t g3duicubeedit_radiusCbk ( G3DUICUBEEDIT *cubedit,
+uint64_t g3duicubeedit_radius ( G3DUICUBEEDIT *cubedit,
                                    float          radius ) {
     G3DUI *gui = cubedit->gui;
     G3DSCENE *sce = gui->sce;

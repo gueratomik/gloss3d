@@ -50,7 +50,7 @@
 
 
 /******************************************************************************/
-uint64_t g3duimeshedit_useIsoLinesCbk ( G3DUIMESHEDIT *mesedit ) {
+uint64_t g3duimeshedit_useIsoLines ( G3DUIMESHEDIT *mesedit ) {
 FOR_EACH_SELECTED_MESH
     if ( mes->obj.flags & MESHUSEISOLINES ) {
         mes->obj.flags &= (~MESHUSEISOLINES);
@@ -66,7 +66,7 @@ END_FOR
 }
 
 /******************************************************************************/
-uint64_t g3duimeshedit_gouraudCbk ( G3DUIMESHEDIT *mesedit,
+uint64_t g3duimeshedit_gouraud ( G3DUIMESHEDIT *mesedit,
                                     float          scalarLimit ) {
 FOR_EACH_SELECTED_MESH
     mes->gouraudScalarLimit = cos ( scalarLimit );
@@ -76,7 +76,7 @@ END_FOR
 }
 
 /******************************************************************************/
-uint64_t g3duimeshedit_toggleShadingCbk ( G3DUIMESHEDIT *mesedit ) {
+uint64_t g3duimeshedit_toggleShading ( G3DUIMESHEDIT *mesedit ) {
 FOR_EACH_SELECTED_MESH
     if ( mes->obj.flags & OBJECTNOSHADING ) {
         mes->obj.flags &= (~OBJECTNOSHADING);

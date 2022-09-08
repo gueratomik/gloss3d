@@ -32,13 +32,6 @@
 static void gtk3_updateAllCurrentMouseTools ( );
 
 /******************************************************************************/
-GTK3G3DUI *gtk3_getUI ( ) {
-    static GTK3G3DUI gtk3gui;
-
-    return &gtk3gui;
-}
-
-/******************************************************************************/
 void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in, 
                                      GdkRectangle   *out  ) {
     out->x      = in->x;
@@ -50,9 +43,11 @@ void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in,
 /******************************************************************************/
 GtkComboBoxText *ui_gtk_combo_box_text_new ( char *class ) {
     GtkWidget *cmb = gtk_combo_box_text_new ( );
-    GtkStyleContext *context = gtk_widget_get_style_context ( cmb );
 
-    gtk_style_context_add_class ( context, class );
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( cmb );
+        gtk_style_context_add_class ( context, class );
+    }
 
     return GTK_COMBO_BOX_TEXT(cmb);
 }
@@ -60,9 +55,11 @@ GtkComboBoxText *ui_gtk_combo_box_text_new ( char *class ) {
 /******************************************************************************/
 GtkCheckButton *ui_gtk_check_button_new ( char *class ) {
     GtkWidget *btn = gtk_check_button_new ( );
-    GtkStyleContext *context = gtk_widget_get_style_context ( btn );
 
-    gtk_style_context_add_class ( context, class );
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( btn );
+        gtk_style_context_add_class ( context, class );
+    }
 
     return GTK_CHECK_BUTTON(btn);
 }
@@ -73,19 +70,86 @@ GtkSpinButton *ui_gtk_spin_button_new ( char          *class,
                                         gdouble        climb_rate,
                                         guint          digits ) {
     GtkWidget *spin = gtk_spin_button_new ( adjustment, climb_rate, digits );
-    GtkStyleContext *context = gtk_widget_get_style_context ( spin );
 
-    gtk_style_context_add_class ( context, class );
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( spin );
+        gtk_style_context_add_class ( context, class );
+    }
 
     return GTK_SPIN_BUTTON(spin);
 }
 
 /******************************************************************************/
+GtkToolbar *ui_gtk_toolbar_new ( char *class ) {
+    GtkWidget *toolbar = gtk_toolbar_new ( );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( toolbar );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_TOOLBAR(toolbar);
+}
+
+/******************************************************************************/
+GtkMenuBar *ui_gtk_menu_bar_new ( char *class ) {
+    GtkWidget *menuBar = gtk_menu_bar_new ( );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( menuBar );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_MENU_BAR(menuBar);
+}
+
+/******************************************************************************/
+GtkCheckMenuItem *ui_gtk_check_menu_item_new_with_mnemonic ( char *class,
+                                                             const gchar* label ) {
+    GtkWidget *menuItem = gtk_check_menu_item_new_with_mnemonic ( label );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( menuItem );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_CHECK_MENU_ITEM(menuItem);
+}
+
+/******************************************************************************/
+GtkMenuItem *ui_gtk_menu_item_new_with_mnemonic ( char *class,
+                                                  const gchar* label ) {
+    GtkWidget *menuItem = gtk_menu_item_new_with_mnemonic ( label );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( menuItem );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_MENU_ITEM(menuItem);
+}
+
+/******************************************************************************/
+GtkWindow *ui_gtk_window_new ( char         *class,
+                               GtkWindowType type ) {
+    GtkWidget *window = gtk_window_new ( type );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( window );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_WINDOW(window);
+}
+
+/******************************************************************************/
 GtkFixed *ui_gtk_fixed_new ( char *class ) {
     GtkWidget *fixed = gtk_fixed_new ( );
-    GtkStyleContext *context = gtk_widget_get_style_context ( fixed );
 
-    gtk_style_context_add_class ( context, class );
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( fixed );
+        gtk_style_context_add_class ( context, class );
+    }
 
     return GTK_FIXED(fixed);
 }
@@ -95,9 +159,11 @@ GtkLayout *ui_gtk_layout_new ( char          *class,
                                GtkAdjustment *hadjustment,
                                GtkAdjustment *vadjustment ) {
     GtkWidget *layout = gtk_layout_new ( hadjustment, vadjustment );
-    GtkStyleContext *context = gtk_widget_get_style_context ( layout );
 
-    gtk_style_context_add_class ( context, class );
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( layout );
+        gtk_style_context_add_class ( context, class );
+    }
 
     return GTK_LAYOUT(layout);
 }
@@ -106,10 +172,11 @@ GtkLayout *ui_gtk_layout_new ( char          *class,
 GtkLabel *ui_gtk_label_new ( char *class,
                              char *name ) {
     GtkWidget *lab = gtk_label_new ( name );
-    GtkStyleContext *context = gtk_widget_get_style_context ( lab );
 
-    gtk_style_context_add_class ( context, class );
-
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( lab );
+        gtk_style_context_add_class ( context, class );
+    }
 
     return GTK_LABEL(lab);
 }
@@ -117,30 +184,60 @@ GtkLabel *ui_gtk_label_new ( char *class,
 /******************************************************************************/
 GtkButton *ui_gtk_button_new ( char *class ) {
     GtkWidget *btn = gtk_button_new ( );
-    GtkStyleContext *context = gtk_widget_get_style_context ( btn );
 
-    gtk_style_context_add_class ( context, class );
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( btn );
+        gtk_style_context_add_class ( context, class );
+    }
 
     return GTK_BUTTON(btn);
 }
 
 /******************************************************************************/
+GtkMenu *ui_gtk_menu_new ( char *class ) {
+    GtkWidget *menu = gtk_menu_new ( );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( menu );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_MENU(menu);
+}
+
+/******************************************************************************/
 GtkDrawingArea *ui_gtk_drawing_area_new ( char *class ) {
     GtkWidget *area = gtk_drawing_area_new ( );
-    GtkStyleContext *context = gtk_widget_get_style_context ( area );
 
-    gtk_style_context_add_class ( context, class );
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( area );
+        gtk_style_context_add_class ( context, class );
+    }
 
     return GTK_DRAWING_AREA(area);
+}
+
+/******************************************************************************/
+GtkNotebook *ui_gtk_notebook_new ( char *class ) {
+    GtkWidget *notebook = gtk_notebook_new ( );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( notebook );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_NOTEBOOK(notebook);
 }
 
 /******************************************************************************/
 GtkButton *ui_gtk_button_new_with_label ( char *class,
                                           char *name ) {
     GtkWidget *btn = gtk_button_new_with_label ( name );
-    GtkStyleContext *context = gtk_widget_get_style_context ( btn );
 
-    gtk_style_context_add_class ( context, class );
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( btn );
+        gtk_style_context_add_class ( context, class );
+    }
 
     return GTK_BUTTON(btn);
 }
@@ -149,9 +246,12 @@ GtkButton *ui_gtk_button_new_with_label ( char *class,
 GtkImage *ui_gtk_image_new_from_pixbuf ( char      *class,
                                          GdkPixbuf *pixbuf ) {
     GtkWidget *img = gtk_image_new_from_pixbuf ( pixbuf );
-    GtkStyleContext *context = gtk_widget_get_style_context ( img );
 
-    gtk_style_context_add_class ( context, class );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( img );
+        gtk_style_context_add_class ( context, class );
+    }
 
     return GTK_IMAGE(img);
 }
@@ -638,7 +738,7 @@ GtkButton *ui_createImageButton ( GtkFixed  *parent,
 }
 
 /******************************************************************************/
-void g3dui_renderViewCbk ( GTK3G3DUI *gtk3gui ) {
+void gtk3_renderView ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
 
     if ( gui->currentView ) {
@@ -657,9 +757,14 @@ void g3dui_renderViewCbk ( GTK3G3DUI *gtk3gui ) {
             /*** size could change in between. So, clear() and init() ***/
             g3duirenderbuffer_clear ( &gtk3view->core.rbuf );
 
-            g3duirenderbuffer_init ( &gtk3view->core.rbuf, 
-                                      gtk3view->glarea );
         #ifdef __linux__
+            GdkDisplay *gdkdpy = gtk_widget_get_display ( gtk3view->glarea );
+            GdkWindow  *gdkwin = gtk_widget_get_window  ( gtk3view->glarea );
+
+            g3duirenderbuffer_init ( &gtk3view->core.rbuf, 
+                                      gdk_x11_display_get_xdisplay ( gdkdpy ),
+                                      gdk_x11_window_get_xid       ( gdkwin ) );
+
             Q3DFILTER *progressiveDisplay = q3dfilter_toWindow_new ( gtk3view->core.rbuf.dis,
                                                                      gtk3view->core.rbuf.win,
                                                                      gtk3view->core.rbuf.gc,
@@ -667,6 +772,13 @@ void g3dui_renderViewCbk ( GTK3G3DUI *gtk3gui ) {
                                                                      0x01 );
         #endif
         #ifdef __MINGW32__
+            HWND hWnd = GDK_WINDOW_HWND ( gtk_widget_get_window ( gtk3view->glarea ) );
+            HDC dc = GetDC ( hWnd );
+
+            g3duirenderbuffer_init ( &gtk3view->core.rbuf,
+                                     hWnd,
+                                     dc ) {
+
             Q3DFILTER *progressiveDisplay = q3dfilter_toWindow_new ( gtk3view->core.rbuf.hWnd,
                                                                      gtk3view->core.rbuf.wimg,
                                                                      0x01 );
@@ -719,7 +831,7 @@ void g3dui_renderViewCbk ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
-void gtk3_newSceneCbk ( GTK3G3DUI *gtk3gui ) {
+void gtk3_newScene ( GTK3G3DUI *gtk3gui ) {
     G3DUI * gui = ( G3DUI * ) gtk3gui;
     GtkWidget *dialog;
     gint       res;
@@ -745,7 +857,7 @@ void gtk3_newSceneCbk ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
-void gtk3_saveAsCbk ( GTK3G3DUI *gtk3gui ) {
+void gtk3_saveAs ( GTK3G3DUI *gtk3gui ) {
     G3DUI * gui = ( G3DUI * ) gtk3gui;
     GtkWidget *dialog;
     gint       res;
@@ -796,7 +908,7 @@ void gtk3_saveAsCbk ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
-void gtk3_saveFileCbk ( GTK3G3DUI *gtk3gui ) {
+void gtk3_saveFile ( GTK3G3DUI *gtk3gui ) {
     G3DUI * gui = ( G3DUI * ) gtk3gui;
     GtkWidget *dialog;
     gint       res;
@@ -806,13 +918,13 @@ void gtk3_saveFileCbk ( GTK3G3DUI *gtk3gui ) {
 
         g3dui_saveG3DFile ( gui );
     } else {
-        gtk3_saveAsCbk ( gtk3gui );
+        gtk3_saveAs ( gtk3gui );
     }
 }
 
 /******************************************************************************/
 /*** WTF: https://developer.gnome.org/gtk3/stable/GtkFileChooserDialog.html ***/
-void gtk3_openFileCbk ( GTK3G3DUI *gtk3gui ) {
+void gtk3_openFile ( GTK3G3DUI *gtk3gui ) {
     G3DUI * gui = ( G3DUI * ) gtk3gui;
     GtkWidget *dialog;
     gint       res;

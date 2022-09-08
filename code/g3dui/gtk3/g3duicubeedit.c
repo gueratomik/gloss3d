@@ -80,7 +80,7 @@ static void xsliceCbk ( GtkWidget *widget,
     if ( gtk3ced->core.gui->lock ) return;
 
     if ( slice ) {
-        g3duicubeedit_sliceCbk ( &gtk3ced->core, G3DUIXAXIS, slice );
+        g3duicubeedit_slice ( &gtk3ced->core, G3DUIXAXIS, slice );
     } else {
         gtk3_g3duicubeedit_update ( gtk3ced );
     }
@@ -100,7 +100,7 @@ static void ysliceCbk ( GtkWidget *widget,
     if ( gtk3ced->core.gui->lock ) return;
 
     if ( slice ) {
-        g3duicubeedit_sliceCbk ( &gtk3ced->core, G3DUIYAXIS, slice );
+        g3duicubeedit_slice ( &gtk3ced->core, G3DUIYAXIS, slice );
     } else {
         gtk3_g3duicubeedit_update ( gtk3ced );
     }
@@ -120,7 +120,7 @@ static void zsliceCbk ( GtkWidget *widget,
     if ( gtk3ced->core.gui->lock ) return;
 
     if ( slice ) {
-        g3duicubeedit_sliceCbk ( &gtk3ced->core, G3DUIZAXIS, slice );
+        g3duicubeedit_slice ( &gtk3ced->core, G3DUIZAXIS, slice );
     } else {
         gtk3_g3duicubeedit_update ( gtk3ced );
     }
@@ -139,7 +139,7 @@ static void radiusCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ced->core.gui->lock ) return;
 
-    g3duicubeedit_radiusCbk ( &gtk3ced->core, rad );
+    g3duicubeedit_radius ( &gtk3ced->core, rad );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }

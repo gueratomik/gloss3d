@@ -67,7 +67,7 @@ G3DMORPHERMESHPOSE *g3duimeshposelist_getMeshPose ( G3DUIMESHPOSELIST *gmp,
 }
 
 /******************************************************************************/
-uint64_t g3duimeshposelist_deleteCurrentPoseCbk ( G3DUIMESHPOSELIST *gmp ) {
+uint64_t g3duimeshposelist_deleteCurrentPose ( G3DUIMESHPOSELIST *gmp ) {
     G3DUI *gui = gmp->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
@@ -89,7 +89,7 @@ uint64_t g3duimeshposelist_deleteCurrentPoseCbk ( G3DUIMESHPOSELIST *gmp ) {
 }
 
 /******************************************************************************/
-uint64_t g3duimeshposelist_createPoseCbk ( G3DUIMESHPOSELIST *gmp ) {
+uint64_t g3duimeshposelist_createPose ( G3DUIMESHPOSELIST *gmp ) {
     G3DUI *gui = gmp->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
@@ -112,7 +112,7 @@ uint64_t g3duimeshposelist_createPoseCbk ( G3DUIMESHPOSELIST *gmp ) {
 }
 
 /******************************************************************************/
-uint64_t g3duimeshposelist_renameCurrentPoseCbk ( G3DUIMESHPOSELIST *gmp, 
+uint64_t g3duimeshposelist_renameCurrentPose ( G3DUIMESHPOSELIST *gmp, 
                                                   char              *mpsname ) {
     G3DUI *gui = gmp->gui;
     G3DSCENE *sce = gui->sce;
@@ -134,7 +134,7 @@ uint64_t g3duimeshposelist_renameCurrentPoseCbk ( G3DUIMESHPOSELIST *gmp,
 }
 
 /******************************************************************************/
-uint64_t g3duimeshposelist_deleteSelectedPoseCbk ( G3DUIMESHPOSELIST *gmp ) {
+uint64_t g3duimeshposelist_deleteSelectedPose ( G3DUIMESHPOSELIST *gmp ) {
     G3DUI *gui = gmp->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
@@ -166,7 +166,7 @@ uint64_t g3duimeshposelist_deleteSelectedPoseCbk ( G3DUIMESHPOSELIST *gmp ) {
 }
 
 /******************************************************************************/
-uint64_t g3duimeshposelist_selectPoseCbk ( G3DUIMESHPOSELIST  *gmp,
+uint64_t g3duimeshposelist_selectPose ( G3DUIMESHPOSELIST  *gmp,
                                            G3DMORPHERMESHPOSE *mps ) {
     G3DUI *gui = gmp->gui;
     G3DSCENE *sce = gui->sce;

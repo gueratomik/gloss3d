@@ -426,12 +426,12 @@ static gboolean panToolInput ( GtkWidget *widget,
 
             switch ( kev->keyval ) {
                 case GDK_KEY_Delete: {
-                    g3duitimeline_deleteSelectedKeysCbk ( &gtk3tim->core );
+                    g3duitimeline_deleteSelectedKeys ( &gtk3tim->core );
                 } break;
 
                 case GDK_KEY_a: {
                     if ( kev->state & GDK_CONTROL_MASK ) {
-                        g3duitimeline_selectAllKeysCbk ( &gtk3tim->core );
+                        g3duitimeline_selectAllKeys ( &gtk3tim->core );
                     }
                 } break;
             }

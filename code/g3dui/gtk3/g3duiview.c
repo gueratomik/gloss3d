@@ -40,17 +40,99 @@ static void PostMenu     ( GtkWidget *, GdkEvent *, gpointer );
 static void cancelRender ( GtkWidget *, G3DUI * );
 
 /******************************************************************************/
+void gdkevent_to_g3devent ( GdkEvent *gdkev, G3DEvent *g3dev ) {
+    memset ( g3dev, 0x00, sizeof ( G3DEvent ) );
+
+    switch ( gdkev->type ) {
+        case GDK_BUTTON_PRESS : {
+            GdkEventButton *gdkbev = ( GdkEventButton * ) gdkev;
+            G3DButtonEvent *g3dbev = ( G3DButtonEvent * ) g3dev;
+
+            g3dbev->type  = G3DButtonPress;
+            g3dbev->x     = gdkbev->x;
+            g3dbev->y     = gdkbev->y;
+
+            g3dbev->button = gdkbev->button;
+
+            if ( gdkbev->state & GDK_CONTROL_MASK ) g3dbev->state |= G3DControlMask;
+            if ( gdkbev->state & GDK_SHIFT_MASK   ) g3dbev->state |= G3DShiftMask;
+
+            /*if ( gdkbev->state & GDK_BUTTON1_MASK ) g3dbev->state |= G3DButton1Mask;
+            if ( gdkbev->state & GDK_BUTTON2_MASK ) g3dbev->state |= G3DButton2Mask;
+            if ( gdkbev->state & GDK_BUTTON3_MASK ) g3dbev->state |= G3DButton3Mask;*/
+
+        } break;
+
+        case GDK_BUTTON_RELEASE : {
+            GdkEventButton *gdkbev = ( GdkEventButton * ) gdkev;
+            G3DButtonEvent *g3dbev = ( G3DButtonEvent * ) g3dev;
+
+            g3dbev->type = G3DButtonRelease;
+            g3dbev->x    = gdkbev->x;
+            g3dbev->y    = gdkbev->y;
+
+            g3dbev->button = gdkbev->button;
+
+            if ( gdkbev->state & GDK_CONTROL_MASK ) g3dbev->state |= G3DControlMask;
+            if ( gdkbev->state & GDK_SHIFT_MASK   ) g3dbev->state |= G3DShiftMask;
+            /*if ( gdkbev->state & GDK_BUTTON1_MASK ) g3dbev->state |= G3DButton1Mask;
+            if ( gdkbev->state & GDK_BUTTON2_MASK ) g3dbev->state |= G3DButton2Mask;
+            if ( gdkbev->state & GDK_BUTTON3_MASK ) g3dbev->state |= G3DButton3Mask;*/
+        } break;
+
+        case GDK_MOTION_NOTIFY : {
+            GdkEventMotion *gdkmev = ( GdkEventMotion * ) gdkev;
+            G3DMotionEvent *g3dmev = ( G3DMotionEvent * ) g3dev;
+
+            g3dmev->type = G3DMotionNotify;
+            g3dmev->x    = gdkmev->x;
+            g3dmev->y    = gdkmev->y;
+
+            if ( gdkmev->state & GDK_CONTROL_MASK ) g3dmev->state |= G3DControlMask;
+            if ( gdkmev->state & GDK_SHIFT_MASK   ) g3dmev->state |= G3DShiftMask;
+            if ( gdkmev->state & GDK_BUTTON1_MASK ) g3dmev->state |= G3DButton1Mask;
+            if ( gdkmev->state & GDK_BUTTON2_MASK ) g3dmev->state |= G3DButton2Mask;
+            if ( gdkmev->state & GDK_BUTTON3_MASK ) g3dmev->state |= G3DButton3Mask;
+        } break;
+    }
+}
+
+/******************************************************************************/
 static gboolean inputGL ( GtkWidget *widget, 
                                GdkEvent *gdkev, 
                                gpointer user_data ) {
     GTK3G3DUIVIEW *gtk3view =  ( GTK3G3DUIVIEW * ) user_data;
     G3DUIVIEW     *view     = &gtk3view->core;
     G3DUI         *gui      = view->gui;
+    GTK3G3DUI     *gtk3gui = ( GTK3G3DUI * ) gui;
     GTK3G3DUIQUAD *gtk3quad = ( GTK3G3DUIQUAD * ) gui->main->quad;
 
-    gui->currentView = ( G3DUIVIEW * ) gtk3view;
+    if ( gui->currentView !=  ( G3DUIVIEW * ) gtk3view ) {
+        gui->currentView = ( G3DUIVIEW * ) gtk3view;
 
-    if ( gtk3quad ) gtk_widget_queue_draw ( gtk3quad->layout );
+        gtk_widget_queue_draw ( gtk3quad->layout );
+    }
+
+    if ( gui->mou ) {
+        /*** Call the mousetool callback and redraw if return value is > 0 ***/
+        G3DEvent g3dev;
+
+        gdkevent_to_g3devent ( gdkev, &g3dev );
+
+        if ( gui->mou->tool ) {
+            uint32_t msk = gui->mou->tool ( gui->mou, 
+                                            gui->sce,
+                                            view->cam, 
+                                            gui->urm,
+                                            gui->engine_flags, &g3dev );
+
+            gtk3_interpretUIReturnFlags ( gtk3gui, msk );
+
+            if ( gdkev->type == GDK_BUTTON_RELEASE ) {
+                g3dcursor_reset ( &gui->sce->csr );
+            }
+        }
+    }
 
     return TRUE;
 }
@@ -632,7 +714,7 @@ static gboolean navDraw ( GtkWidget *widget,
 
 /******************************************************************************/
 static void gtk3_g3duiview_createNavigationBar ( GTK3G3DUIVIEW *gtk3view ) {
-    GtkWidget *navbar = gtk_drawing_area_new ( );
+    GtkWidget *navbar = ui_gtk_drawing_area_new ( CLASS_VIEW_MENU_BAR );
     GtkStyleContext *context = gtk_widget_get_style_context ( navbar );
 
     gtk_style_context_add_class ( context, CLASS_MAIN );
@@ -1087,7 +1169,6 @@ void gdkevent_to_g3devent ( GdkEvent *gdkev, G3DEvent *g3dev ) {
             if ( gdkmev->state & GDK_BUTTON3_MASK ) g3dmev->state |= G3DButton3Mask;
         } break;
     }
-
 }
 
 /******************************************************************************/

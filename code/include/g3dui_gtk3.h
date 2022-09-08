@@ -275,9 +275,9 @@ typedef struct _GTK3G3DUIMOUSETOOLEDIT {
 
 /******************************************************************************/
 typedef struct _GTK3G3DUIBOARD {
-    G3DUIBOARD core;
-    GtkWidget *layout;
-    GtkWidget *tab;
+    G3DUIBOARD   core;
+    GtkWidget   *layout;
+    GtkNotebook *notebook;
 } GTK3G3DUIBOARD;
 
 /******************************************************************************/
@@ -553,10 +553,11 @@ void gtk3_initDefaultMouseTools ( GTK3G3DUI *gtk3gui );
 void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
                                    uint64_t   msk );
 
-void gtk3_newSceneCbk ( GTK3G3DUI *gtk3gui );
-void gtk3_openFileCbk ( GTK3G3DUI *gtk3gui );
-void gtk3_saveAsCbk ( GTK3G3DUI *gtk3gui );
-void gtk3_saveFileCbk ( GTK3G3DUI *gtk3gui );
+void gtk3_newScene ( GTK3G3DUI *gtk3gui );
+void gtk3_openFile ( GTK3G3DUI *gtk3gui );
+void gtk3_saveAs ( GTK3G3DUI *gtk3gui );
+void gtk3_saveFile ( GTK3G3DUI *gtk3gui );
+void gtk3_renderView ( GTK3G3DUI *gtk3gui );
 
 GtkFixed *ui_createTab ( GtkNotebook *parent, 
                          void        *data,
@@ -688,9 +689,18 @@ GtkButton *ui_createPushButton ( GtkFixed *parent,
                                  gint      height,
                                  void    (*cbk)( GtkWidget *, 
                                                  gpointer ) );
+GtkCheckMenuItem *ui_gtk_check_menu_item_new_with_mnemonic ( char *class,
+                                                             const gchar* label );
 GtkFixed *ui_gtk_fixed_new ( char *class );
 GtkLabel *ui_gtk_label_new ( char *class,
                               char *name );
+GtkNotebook *ui_gtk_notebook_new ( char *class );
+GtkWindow *ui_gtk_window_new ( char *class, GtkWindowType type );
+GtkMenu *ui_gtk_menu_new ( char *class );
+GtkMenuBar *ui_gtk_menu_bar_new ( char *class );
+GtkToolbar *ui_gtk_toolbar_new ( char *class );
+GtkMenuItem *ui_gtk_menu_item_new_with_mnemonic ( char *class, 
+                                                  const gchar* label );
 GtkButton *ui_gtk_button_new ( char *class );
 GtkButton *ui_gtk_button_new_with_label ( char *class, char *name );
 GtkComboBoxText *ui_gtk_combo_box_text_new ( char *class );
@@ -711,6 +721,15 @@ GTK3G3DUIBOARD *gtk3_g3duiboard_create ( GtkWidget *parent,
 void gtk3_g3duiboard_resize ( GTK3G3DUIBOARD *gtk3board,
                               uint32_t        width,
                               uint32_t        height );
+
+/******************************** g3duicom.c **********************************/
+Q3DFILTER *q3dfilter_gotoframe_new ( GTK3G3DUI *gtk3gui );
+void gtk3_g3duicom_handleAction ( GtkWidget *widget, 
+                             gpointer   ptr, 
+                             gpointer   user_data );
+void gtk3_g3duicom_handleAction ( GtkWidget *widget, 
+                                  gpointer   ptr, 
+                                  gpointer   user_data );
 
 /******************************* g3duicubeedit.c ******************************/
 void gtk3_g3duicubeedit_update ( GTK3G3DUICUBEEDIT *gtk3ced );
@@ -778,9 +797,16 @@ void gtk3_g3duisubdivideredit_update ( GTK3G3DUISUBDIVIDEREDIT *gtk3sed );
 GTK3G3DUISUBDIVIDEREDIT *gtk3_g3duisubdivideredit_create ( GtkWidget *parent,
                                                            GTK3G3DUI *gtk3gui,
                                                            char      *name );
+/***************************** g3duitimeline.c ********************************/
+GTK3G3DUITIMELINE *gtk3_g3duitimeline_create ( GtkWidget *parent,
+                                               GTK3G3DUI *gtk3gui,
+                                               char      *name );
 
-/***************************** g3duitimeboard.c *********************************/
+/***************************** g3duitimeboard.c *******************************/
 void gtk3_g3duitimeboard_update ( GTK3G3DUITIMEBOARD *gtk3timeboard );
+void gtk3_g3duitimeboard_resize ( GTK3G3DUITIMEBOARD *gtk3timeboard,
+                                  uint32_t              width,
+                                  uint32_t              height );
 GTK3G3DUITIMEBOARD *gtk3_g3duitimeboard_create ( GtkWidget *parent,
                                                  GTK3G3DUI *gtk3gui,
                                                  char      *name );

@@ -148,21 +148,21 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	common/g3duiobjectboard.c common/g3duiobjectlist.c \
 	common/g3duiobjectedit.c common/g3duiparticleemitteredit.c \
 	common/m3duipatternlist.c common/g3duiplaneedit.c \
-	common/g3duiquad.c common/g3duirenderedit.c \
-	common/g3duirenderprocess.c common/g3duisphereedit.c \
-	common/g3duisplinerevolveredit.c common/g3duisubdivideredit.c \
-	common/g3duisymmetryedit.c common/g3duitextedit.c \
-	common/g3duitextureedit.c common/g3duitimeboard.c \
-	common/g3duitimeline.c common/g3duitoolbar.c \
-	common/g3duitorusedit.c common/g3duitrackertagedit.c \
-	common/g3duitubeedit.c common/g3duiuvmapedit.c \
-	common/g3duiview.c common/g3duiviewexport.c \
-	common/g3duiweightgrouplist.c common/g3duiwireframeedit.c \
-	common/menu/condition.c common/menu/mainmenu.c \
-	common/menu/materialboardmenu.c common/menu/objectboardmenu.c \
-	common/menu/renderwindowmenu.c common/menu/timelinemenu.c \
-	common/menu/uveditormenu.c common/menu/viewmenu.c \
-	common/mousetool/m3duibuckettooledit.c \
+	common/g3duiquad.c common/g3duirenderbuffer.c \
+	common/g3duirenderedit.c common/g3duirenderprocess.c \
+	common/g3duisphereedit.c common/g3duisplinerevolveredit.c \
+	common/g3duisubdivideredit.c common/g3duisymmetryedit.c \
+	common/g3duitextedit.c common/g3duitextureedit.c \
+	common/g3duitimeboard.c common/g3duitimeline.c \
+	common/g3duitoolbar.c common/g3duitorusedit.c \
+	common/g3duitrackertagedit.c common/g3duitubeedit.c \
+	common/g3duiuvmapedit.c common/g3duiview.c \
+	common/g3duiviewexport.c common/g3duiweightgrouplist.c \
+	common/g3duiwireframeedit.c common/menu/condition.c \
+	common/menu/mainmenu.c common/menu/materialboardmenu.c \
+	common/menu/objectboardmenu.c common/menu/renderwindowmenu.c \
+	common/menu/timelinemenu.c common/menu/uveditormenu.c \
+	common/menu/viewmenu.c common/mousetool/m3duibuckettooledit.c \
 	common/mousetool/g3duicutmeshtooledit.c \
 	common/mousetool/m3duipentooledit.c \
 	common/mousetool/g3duipicktooledit.c \
@@ -205,6 +205,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	common/g3duiparticleemitteredit.lo \
 @HAVE_GTK3_TRUE@	common/m3duipatternlist.lo \
 @HAVE_GTK3_TRUE@	common/g3duiplaneedit.lo common/g3duiquad.lo \
+@HAVE_GTK3_TRUE@	common/g3duirenderbuffer.lo \
 @HAVE_GTK3_TRUE@	common/g3duirenderedit.lo \
 @HAVE_GTK3_TRUE@	common/g3duirenderprocess.lo \
 @HAVE_GTK3_TRUE@	common/g3duisphereedit.lo \
@@ -304,6 +305,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	common/$(DEPDIR)/g3duiparticleemitteredit.Plo \
 	common/$(DEPDIR)/g3duiplaneedit.Plo \
 	common/$(DEPDIR)/g3duiquad.Plo \
+	common/$(DEPDIR)/g3duirenderbuffer.Plo \
 	common/$(DEPDIR)/g3duirenderedit.Plo \
 	common/$(DEPDIR)/g3duirenderprocess.Plo \
 	common/$(DEPDIR)/g3duisphereedit.Plo \
@@ -569,6 +571,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            common/m3duipatternlist.c \
 @HAVE_GTK3_TRUE@                            common/g3duiplaneedit.c \
 @HAVE_GTK3_TRUE@                            common/g3duiquad.c \
+@HAVE_GTK3_TRUE@                            common/g3duirenderbuffer.c \
 @HAVE_GTK3_TRUE@                            common/g3duirenderedit.c \
 @HAVE_GTK3_TRUE@                            common/g3duirenderprocess.c \
 @HAVE_GTK3_TRUE@                            common/g3duisphereedit.c \
@@ -767,6 +770,8 @@ common/g3duiplaneedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiquad.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
+common/g3duirenderbuffer.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duirenderedit.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duirenderprocess.lo: common/$(am__dirstamp) \
@@ -960,6 +965,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiparticleemitteredit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiplaneedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiquad.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duirenderbuffer.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duirenderedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duirenderprocess.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duisphereedit.Plo@am__quote@ # am--include-marker
@@ -1231,6 +1237,7 @@ distclean: distclean-am
 	-rm -f common/$(DEPDIR)/g3duiparticleemitteredit.Plo
 	-rm -f common/$(DEPDIR)/g3duiplaneedit.Plo
 	-rm -f common/$(DEPDIR)/g3duiquad.Plo
+	-rm -f common/$(DEPDIR)/g3duirenderbuffer.Plo
 	-rm -f common/$(DEPDIR)/g3duirenderedit.Plo
 	-rm -f common/$(DEPDIR)/g3duirenderprocess.Plo
 	-rm -f common/$(DEPDIR)/g3duisphereedit.Plo
@@ -1367,6 +1374,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f common/$(DEPDIR)/g3duiparticleemitteredit.Plo
 	-rm -f common/$(DEPDIR)/g3duiplaneedit.Plo
 	-rm -f common/$(DEPDIR)/g3duiquad.Plo
+	-rm -f common/$(DEPDIR)/g3duirenderbuffer.Plo
 	-rm -f common/$(DEPDIR)/g3duirenderedit.Plo
 	-rm -f common/$(DEPDIR)/g3duirenderprocess.Plo
 	-rm -f common/$(DEPDIR)/g3duisphereedit.Plo

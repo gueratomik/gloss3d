@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duisymmetryedit_limitCbk ( G3DUISYMMETRYEDIT *symedit,
+uint64_t g3duisymmetryedit_limit ( G3DUISYMMETRYEDIT *symedit,
                                       float              limit ) {
     G3DUI *gui = symedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -72,7 +72,7 @@ uint64_t g3duisymmetryedit_limitCbk ( G3DUISYMMETRYEDIT *symedit,
 }
 
 /******************************************************************************/
-uint64_t g3duisymmetryedit_planeCbk ( G3DUISYMMETRYEDIT *symedit,
+uint64_t g3duisymmetryedit_plane ( G3DUISYMMETRYEDIT *symedit,
                                       char              *orientation ) {
     G3DUI *gui = symedit->gui;
     G3DSCENE *sce = gui->sce;

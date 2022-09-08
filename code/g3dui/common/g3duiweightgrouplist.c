@@ -64,7 +64,7 @@ G3DWEIGHTGROUP *g3duiweightgrouplist_getWeightGroup ( G3DUIWEIGHTGROUPLIST *wgrp
 }
 
 /******************************************************************************/
-uint64_t g3duiweightgrouplist_deleteWeightGroupCbk ( G3DUIWEIGHTGROUPLIST *wgrplist ) {
+uint64_t g3duiweightgrouplist_deleteWeightGroup ( G3DUIWEIGHTGROUPLIST *wgrplist ) {
     G3DUI *gui = wgrplist->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
@@ -81,7 +81,7 @@ uint64_t g3duiweightgrouplist_deleteWeightGroupCbk ( G3DUIWEIGHTGROUPLIST *wgrpl
 }
 
 /******************************************************************************/
-uint64_t g3duiweightgrouplist_addWeightGroupCbk ( G3DUIWEIGHTGROUPLIST *wgrplist ) {
+uint64_t g3duiweightgrouplist_addWeightGroup ( G3DUIWEIGHTGROUPLIST *wgrplist ) {
     G3DUI *gui = wgrplist->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
@@ -99,7 +99,7 @@ uint64_t g3duiweightgrouplist_addWeightGroupCbk ( G3DUIWEIGHTGROUPLIST *wgrplist
 }
 
 /******************************************************************************/
-uint64_t g3duiweightgrouplist_nameCbk ( G3DUIWEIGHTGROUPLIST *wgrplist,
+uint64_t g3duiweightgrouplist_name ( G3DUIWEIGHTGROUPLIST *wgrplist,
                                         const char           *grpname ) {
     G3DUI *gui = wgrplist->gui;
     G3DSCENE *sce = gui->sce;
@@ -115,7 +115,7 @@ uint64_t g3duiweightgrouplist_nameCbk ( G3DUIWEIGHTGROUPLIST *wgrplist,
 }
 
 /******************************************************************************/
-uint64_t g3duiweightgrouplist_deleteSelectedCbk ( G3DUIWEIGHTGROUPLIST *wgrplist ) {
+uint64_t g3duiweightgrouplist_deleteSelected ( G3DUIWEIGHTGROUPLIST *wgrplist ) {
     G3DUI *gui = wgrplist->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
@@ -146,7 +146,7 @@ uint64_t g3duiweightgrouplist_deleteSelectedCbk ( G3DUIWEIGHTGROUPLIST *wgrplist
 }
 
 /******************************************************************************/
-uint64_t g3duiweightgrouplist_selectCbk ( G3DUIWEIGHTGROUPLIST *wgrplist,
+uint64_t g3duiweightgrouplist_select ( G3DUIWEIGHTGROUPLIST *wgrplist,
                                           G3DWEIGHTGROUP       *grp ) {
     G3DUI *gui = wgrplist->gui;
     G3DSCENE *sce = gui->sce;

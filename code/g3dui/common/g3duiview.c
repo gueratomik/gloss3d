@@ -30,8 +30,8 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duiview_setShadingCbk ( G3DUIVIEW *view,
-                                   char      *shading ) {
+uint64_t g3duiview_setShading ( G3DUIVIEW *view,
+                                char      *shading ) {
     G3DUI *gui = view->gui;
 #ifdef __linux__
     glXMakeCurrent ( view->dpy, view->win, view->glctx );

@@ -399,6 +399,22 @@ static void Map ( GtkWidget *widget,
     if ( gui->inited == 0x00 ) {
         g3dui_init ( gui, ( G3DUIMAIN * ) gtk3main );
 
+        gui->toframe = q3dfilter_gotoframe_new ( gtk3gui );
+
+        /**** signal handling for dumping pixels or playing animation ***/
+        /*** because these are threaded actions and OpenGL does not ***/
+        /*** work in threaded processes ****/
+        g_signal_new( "action", G_TYPE_OBJECT, 
+                                   G_SIGNAL_RUN_FIRST,
+                                   0,
+                                   NULL, NULL,
+                                   g_cclosure_marshal_VOID__POINTER,
+                                   G_TYPE_NONE, 1, G_TYPE_POINTER );
+
+        g_signal_connect ( G_OBJECT(gtk3gui->topWin), 
+                           "action",
+                           G_CALLBACK ( gtk3_g3duicom_handleAction ), gui );
+
         gtk3_initDefaultMouseTools ( gtk3gui );
 
         gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWALL );

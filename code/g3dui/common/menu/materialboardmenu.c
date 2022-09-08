@@ -32,7 +32,7 @@
 /******************************************************************************/
 static uint64_t setMaterialCbk ( G3DUIMENU *menu, 
                                  void      *data ) {
-    g3dui_setMaterialCbk ( menu->gui );
+    g3dui_setMaterial ( menu->gui );
 
 
     return REDRAWVIEW;
@@ -136,7 +136,7 @@ static G3DUIMENU *matrootchildren[] = { &matfile_menu,
 
 static G3DUIMENU matrootnode = { NULL,
                                  "Bar",
-                                 NULL,
+                                 MENU_CLASS_MAIN,
                                  G3DUIMENUTYPE_MENUBAR,
                                  NULL,
                                  NULL,

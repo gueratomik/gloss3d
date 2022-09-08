@@ -198,7 +198,7 @@ static void stopCbk ( GtkWidget *widget,
     GTK3G3DUITIMEBOARD *gtk3timeboard = ( GTK3G3DUITIMEBOARD * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3timeboard->core.gui;
 
-    g3duitimeboard_stopCbk ( &gtk3timeboard->core );
+    g3duitimeboard_stop ( &gtk3timeboard->core );
 }
 
 /******************************************************************************/
@@ -223,7 +223,7 @@ static void *play_t ( void *user_data ) {
                 gtf.action.gui  = gui;
                 gtf.frame       = curframe;
 
-                g3duicom_requestActionFromMainThread ( gui, &gtf );
+                gtk3_g3duicom_requestActionFromMainThread ( gui, &gtf );
             }
 
 #ifdef __linux__
@@ -291,7 +291,7 @@ static void nextFrameCbk ( GtkWidget *widget, gpointer user_data ) {
 
     gui->curframe += 1;
 
-    g3duitimeboard_gotoFrameCbk ( &gtk3timeboard->core );
+    g3duitimeboard_gotoFrame ( &gtk3timeboard->core );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
@@ -304,7 +304,7 @@ static void prevFrameCbk ( GtkWidget *widget, gpointer user_data ) {
 
     gui->curframe -= 1;
 
-    g3duitimeboard_gotoFrameCbk ( &gtk3timeboard->core );
+    g3duitimeboard_gotoFrame ( &gtk3timeboard->core );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
@@ -334,7 +334,7 @@ static void recordFrameCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUITIMEBOARD *gtk3timeboard = ( GTK3G3DUITIMEBOARD * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3timeboard->core.gui;
 
-    g3duitimeboard_recordFrameCbk ( &gtk3timeboard->core, 
+    g3duitimeboard_recordFrame ( &gtk3timeboard->core, 
                                      KEYPOSITION | 
                                      KEYROTATION | 
                                      KEYSCALING  /*|

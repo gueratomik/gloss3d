@@ -329,7 +329,7 @@ static void getObjectStatsCbk ( G3DUIMENU *menu,
     char buffer[0x200] = { 0 };
     GtkWidget *dialog;
 
-    g3dui_getObjectStatsCbk ( menu->gui, buffer, 0x200 );
+    g3dui_getObjectStats ( menu->gui, buffer, 0x200 );
 
     if ( strlen ( buffer ) ) {
         dialog = gtk_message_dialog_new ( NULL,
@@ -370,7 +370,7 @@ gboolean g3dui_exitEventCbk ( GtkWidget *widget,
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
     if ( res == GTK_RESPONSE_YES ) {
-        g3dui_exitOkCbk ( gui );
+        g3dui_exitOk ( gui );
 
         return FALSE;
     }
@@ -398,7 +398,7 @@ void g3dui_exitCbk ( GtkWidget *widget,
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
     if ( res == GTK_RESPONSE_YES ) {
-        g3dui_exitOkCbk ( gui );
+        g3dui_exitOk ( gui );
     }
 
     gtk_widget_destroy ( dialog );
@@ -431,7 +431,7 @@ void g3dui_exportFileCbk ( GtkWidget *widget, gpointer user_data ) {
         GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
         const char *filename = gtk_file_chooser_get_filename ( chooser );
 
-        g3dui_exportFileOkCbk ( gui, filedesc, filename );
+        g3dui_exportFileOk ( gui, filedesc, filename );
 
         g_free    ( ( gpointer ) filename );
     }
@@ -464,7 +464,7 @@ void g3dui_importFileCbk ( GtkWidget *widget, gpointer user_data ) {
         GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
         const char *filename = gtk_file_chooser_get_filename ( chooser );
 
-        g3dui_importFileOkCbk ( gui, filedesc, filename );
+        g3dui_importFileOk ( gui, filedesc, filename );
 
         g_free    ( ( gpointer ) filename );
     }
@@ -515,7 +515,7 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
         break;
 
         case G3DUIMENUTYPE_TOGGLEBUTTON :
-            gtk3node->item = gtk_check_menu_item_new_with_mnemonic ( node->name );
+            gtk3node->item = ui_gtk_check_menu_item_new_with_mnemonic ( node->class, node->name );
 
             if ( node->callback ) {
                 g_signal_connect ( G_OBJECT ( gtk3node->item ), 
@@ -528,7 +528,7 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
         break;
 
         case G3DUIMENUTYPE_PUSHBUTTON :
-            gtk3node->item = gtk_menu_item_new_with_mnemonic ( node->name );
+            gtk3node->item = ui_gtk_menu_item_new_with_mnemonic ( node->class, node->name );
 
             if ( node->callback ) {
                 g_signal_connect ( G_OBJECT ( gtk3node->item ), 
@@ -543,7 +543,7 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
         case G3DUIMENUTYPE_MENUBAR : {
             uint32_t i = 0x00;
 
-            gtk3node->menu = gtk_menu_bar_new ( );
+            gtk3node->menu = ui_gtk_menu_bar_new ( node->class );
 
             gtk_widget_set_name ( gtk3node->menu, node->name );
 
@@ -566,11 +566,11 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
         case G3DUIMENUTYPE_SUBMENU : {
             uint32_t i = 0x00;
 
-            gtk3node->menu = gtk_menu_new ( );
+            gtk3node->menu = ui_gtk_menu_new ( node->class );
 
             gtk_widget_set_name ( gtk3node->menu, node->name );
 
-            gtk3node->item = gtk_menu_item_new_with_mnemonic ( node->name );
+            gtk3node->item = ui_gtk_menu_item_new_with_mnemonic ( node->class, node->name );
 
             gtk_menu_item_set_submenu ( GTK_MENU_ITEM ( gtk3node->item ), gtk3node->menu );
 
@@ -597,13 +597,6 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
 
         default :
         break;
-    }
-
-    if ( gtk3node->item ) {
-        /**** https://stackoverflow.com/questions/37609381 ***/
-        GtkStyleContext *context = gtk_widget_get_style_context(gtk3node->item);
-
-        gtk_style_context_add_class ( context, node->class );
     }
 
     if ( node->type == G3DUIMENUTYPE_SUBMENU  ) {

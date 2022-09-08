@@ -49,7 +49,7 @@
     }
 
 /******************************************************************************/
-uint64_t g3duilightedit_setSpecularityCbk ( G3DUILIGHTEDIT *ligedit,
+uint64_t g3duilightedit_setSpecularity ( G3DUILIGHTEDIT *ligedit,
                                             uint32_t        red,
                                             uint32_t        green,
                                             uint32_t        blue ) {
@@ -63,7 +63,7 @@ END_FOR
 }
 
 /******************************************************************************/
-uint64_t g3duilightedit_unsetSpotCbk ( G3DUILIGHTEDIT *ligedit ) {
+uint64_t g3duilightedit_unsetSpot ( G3DUILIGHTEDIT *ligedit ) {
 FOR_EACH_SELECTED_LIGHT
     g3dlight_unsetSpot ( lig );
 END_FOR
@@ -72,7 +72,7 @@ END_FOR
 }
 
 /******************************************************************************/
-uint64_t g3duilightedit_setSpotCbk ( G3DUILIGHTEDIT *ligedit ) {
+uint64_t g3duilightedit_setSpot ( G3DUILIGHTEDIT *ligedit ) {
 FOR_EACH_SELECTED_LIGHT
     g3dlight_setSpot ( lig );
 END_FOR
@@ -81,7 +81,7 @@ END_FOR
 }
 
 /******************************************************************************/
-uint64_t g3duilightedit_setSpotAngleCbk ( G3DUILIGHTEDIT *ligedit,
+uint64_t g3duilightedit_setSpotAngle ( G3DUILIGHTEDIT *ligedit,
                                           float           spotAngle ) {
 FOR_EACH_SELECTED_LIGHT
     g3dlight_setSpotAngle ( lig, spotAngle );
@@ -91,7 +91,7 @@ END_FOR
 }
 
 /******************************************************************************/
-uint64_t g3duilightedit_setSpotFadeAngleCbk ( G3DUILIGHTEDIT *ligedit,
+uint64_t g3duilightedit_setSpotFadeAngle ( G3DUILIGHTEDIT *ligedit,
                                               float           spotFadeAngle ) {
 FOR_EACH_SELECTED_LIGHT
     g3dlight_setSpotFadeAngle ( lig, spotFadeAngle );
@@ -101,7 +101,7 @@ END_FOR
 }
 
 /******************************************************************************/
-uint64_t g3duilightedit_setSpotLengthCbk ( G3DUILIGHTEDIT *ligedit,
+uint64_t g3duilightedit_setSpotLength ( G3DUILIGHTEDIT *ligedit,
                                            float           spotLength ) {
 FOR_EACH_SELECTED_LIGHT
     g3dlight_setSpotLength ( lig, spotLength );
@@ -111,7 +111,7 @@ END_FOR
 }
 
 /******************************************************************************/
-uint64_t g3duilightedit_castShadowsCbk ( G3DUILIGHTEDIT *ligedit ) {
+uint64_t g3duilightedit_castShadows ( G3DUILIGHTEDIT *ligedit ) {
 FOR_EACH_SELECTED_LIGHT
     if ( lig->obj.flags & LIGHTCASTSHADOWS ) {
         lig->obj.flags &= (~LIGHTCASTSHADOWS);
@@ -124,7 +124,7 @@ END_FOR
 }
 
 /******************************************************************************/
-uint64_t g3duilightedit_setSoftShadowsCbk ( G3DUILIGHTEDIT *ligedit ) {
+uint64_t g3duilightedit_setSoftShadows ( G3DUILIGHTEDIT *ligedit ) {
 FOR_EACH_SELECTED_LIGHT
     if ( lig->obj.flags & LIGHTHARDSHADOWS ) {
         lig->obj.flags &= (~LIGHTHARDSHADOWS);
@@ -141,7 +141,7 @@ END_FOR
 }
 
 /******************************************************************************/
-uint64_t g3duilightedit_shadowRadiusCbk ( G3DUILIGHTEDIT *ligedit,
+uint64_t g3duilightedit_shadowRadius ( G3DUILIGHTEDIT *ligedit,
                                           float           shadowRadius ) {
 FOR_EACH_SELECTED_LIGHT
     lig->shadowRadius = shadowRadius;
@@ -151,7 +151,7 @@ END_FOR
 }
 
 /******************************************************************************/
-uint64_t g3duilightedit_shadowSampleCbk ( G3DUILIGHTEDIT *ligedit,
+uint64_t g3duilightedit_shadowSample ( G3DUILIGHTEDIT *ligedit,
                                           uint32_t        shadowSample ) {
 FOR_EACH_SELECTED_LIGHT
     lig->shadowSample = shadowSample;
@@ -161,7 +161,7 @@ END_FOR
 }
 
 /******************************************************************************/
-uint64_t g3duilightedit_setDiffuseCbk ( G3DUILIGHTEDIT *ligedit,
+uint64_t g3duilightedit_setDiffuse ( G3DUILIGHTEDIT *ligedit,
                                         uint32_t        red,
                                         uint32_t        green,
                                         uint32_t        blue ) {

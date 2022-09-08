@@ -309,7 +309,7 @@ GTK3G3DUIQUAD *gtk3_g3duiquad_create ( GtkWidget *parent,
                                        char      *name ) {
     G3DUI *gui = &gtk3gui->core;
     GTK3G3DUIQUAD *gtk3quad = g3tk_g3duiquad_new ( gtk3gui );
-    GtkWidget    *layout  = gtk_layout_new ( NULL, NULL );
+    GtkWidget    *layout  = ui_gtk_layout_new ( CLASS_MAIN, NULL, NULL );
 
     gtk3quad->layout = layout;
 

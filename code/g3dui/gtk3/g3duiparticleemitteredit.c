@@ -131,7 +131,7 @@ static void gravityForceXCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_gravityForceXCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_gravityForceX ( &gtk3ped->core,
                                                  gravityForceX );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -148,7 +148,7 @@ static void gravityForceYCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_gravityForceYCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_gravityForceY ( &gtk3ped->core,
                                                  gravityForceY );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -165,7 +165,7 @@ static void gravityForceZCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_gravityForceZCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_gravityForceZ ( &gtk3ped->core,
                                                  gravityForceZ );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -262,7 +262,7 @@ static void finalTranspCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_finalTranspCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_finalTransp ( &gtk3ped->core,
                                                  finalTransp );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -279,7 +279,7 @@ static void finalRotXCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_finalRotXCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_finalRotX ( &gtk3ped->core,
                                                finalRotX );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -296,7 +296,7 @@ static void finalRotYCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_finalRotYCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_finalRotY ( &gtk3ped->core,
                                               finalRotY );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -313,7 +313,7 @@ static void finalRotZCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_finalRotZCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_finalRotZ ( &gtk3ped->core,
                                               finalRotZ );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -330,7 +330,7 @@ static void finalScaXCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_finalScaXCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_finalScaX ( &gtk3ped->core,
                                               finalScaX );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -347,7 +347,7 @@ static void finalScaYCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_finalScaYCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_finalScaY ( &gtk3ped->core,
                                               finalScaY );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -364,7 +364,7 @@ static void finalScaZCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_finalScaZCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_finalScaZ ( &gtk3ped->core,
                                               finalScaZ );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -381,7 +381,7 @@ static void finalSpeedXCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_finalSpeedXCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_finalSpeedX ( &gtk3ped->core,
                                                 finalSpeedX );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -398,7 +398,7 @@ static void finalSpeedYCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_finalSpeedYCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_finalSpeedY ( &gtk3ped->core,
                                                 finalSpeedY );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -415,7 +415,7 @@ static void finalSpeedZCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_finalSpeedZCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_finalSpeedZ ( &gtk3ped->core,
                                                 finalSpeedZ );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -432,7 +432,7 @@ static void finalAccelXCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_finalAccelXCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_finalAccelX ( &gtk3ped->core,
                                                 finalAccelX );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -449,7 +449,7 @@ static void finalAccelYCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_finalAccelYCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_finalAccelY ( &gtk3ped->core,
                                                 finalAccelY );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -466,7 +466,7 @@ static void finalAccelZCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_finalAccelZCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_finalAccelZ ( &gtk3ped->core,
                                                 finalAccelZ );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -642,7 +642,7 @@ static void initialTranspCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_initialTranspCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_initialTransp ( &gtk3ped->core,
                                                  initialTransp );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -659,7 +659,7 @@ static void initialRotXCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_initialRotXCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_initialRotX ( &gtk3ped->core,
                                                initialRotX );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -676,7 +676,7 @@ static void initialRotYCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_initialRotYCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_initialRotY ( &gtk3ped->core,
                                               initialRotY );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -693,7 +693,7 @@ static void initialRotZCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_initialRotZCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_initialRotZ ( &gtk3ped->core,
                                               initialRotZ );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -710,7 +710,7 @@ static void initialScaXCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_initialScaXCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_initialScaX ( &gtk3ped->core,
                                               initialScaX );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -727,7 +727,7 @@ static void initialScaYCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_initialScaYCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_initialScaY ( &gtk3ped->core,
                                               initialScaY );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -744,7 +744,7 @@ static void initialScaZCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_initialScaZCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_initialScaZ ( &gtk3ped->core,
                                               initialScaZ );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -761,7 +761,7 @@ static void initialSpeedXCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_initialSpeedXCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_initialSpeedX ( &gtk3ped->core,
                                                 initialSpeedX );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -778,7 +778,7 @@ static void initialSpeedYCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_initialSpeedYCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_initialSpeedY ( &gtk3ped->core,
                                                 initialSpeedY );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -795,7 +795,7 @@ static void initialSpeedZCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_initialSpeedZCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_initialSpeedZ ( &gtk3ped->core,
                                                 initialSpeedZ );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -812,7 +812,7 @@ static void initialAccelXCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_initialAccelXCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_initialAccelX ( &gtk3ped->core,
                                                 initialAccelX );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -829,7 +829,7 @@ static void initialAccelYCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_initialAccelYCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_initialAccelY ( &gtk3ped->core,
                                                 initialAccelY );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -846,7 +846,7 @@ static void initialAccelZCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_initialAccelZCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_initialAccelZ ( &gtk3ped->core,
                                                 initialAccelZ );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -1057,7 +1057,7 @@ static void startAtFrameCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_startAtFrameCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_startAtFrame ( &gtk3ped->core,
                                                startAtFrame );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -1074,7 +1074,7 @@ static void endAtFrameCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_endAtFrameCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_endAtFrame ( &gtk3ped->core,
                                               endAtFrame );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -1091,7 +1091,7 @@ static void radiusCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_radiusCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_radius ( &gtk3ped->core,
                                           radius );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -1108,7 +1108,7 @@ static void lifetimeCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_lifetimeCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_lifetime ( &gtk3ped->core,
                                             lifetime );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -1125,7 +1125,7 @@ static void ppfCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_ppfCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_ppf ( &gtk3ped->core,
                                        ppf );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -1142,7 +1142,7 @@ static void maxPreviewsCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_maxPreviewsCbk ( &gtk3ped->core,
+    g3duiparticleemitteredit_maxPreviews ( &gtk3ped->core,
                                                maxPreviews );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -1158,7 +1158,7 @@ static void displayPartCbk  ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiparticleemitteredit_displayPartCbk ( &gtk3ped->core );
+    g3duiparticleemitteredit_displayPart ( &gtk3ped->core );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }

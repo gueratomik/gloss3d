@@ -27,22 +27,4 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dui.h>
-
-/******************************************************************************/
-uint64_t g3duiobjectedit_name ( G3DUIOBJECTEDIT *objedit,
-                                   const char      *name ) {
-    G3DUI *gui = objedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
-
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
-
-        g3dobject_name ( sel, name );
-
-        ltmpselobj = ltmpselobj->next;
-    }
-
-    return REDRAWLIST;
-}
+#include <g3dui_gtk3.h>

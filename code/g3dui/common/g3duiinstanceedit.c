@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duiinstanceedit_setReferenceCbk ( G3DUIINSTANCEEDIT *insedit, 
+uint64_t g3duiinstanceedit_setReference ( G3DUIINSTANCEEDIT *insedit, 
                                              uint32_t           rank ) {
     G3DUI *gui = insedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -77,7 +77,7 @@ uint64_t g3duiinstanceedit_setReferenceCbk ( G3DUIINSTANCEEDIT *insedit,
 }
 
 /******************************************************************************/
-uint64_t g3duiinstanceedit_mirroredToggleCbk ( G3DUIINSTANCEEDIT *insedit ) {
+uint64_t g3duiinstanceedit_mirroredToggle ( G3DUIINSTANCEEDIT *insedit ) {
     G3DUI *gui = insedit->gui;
     G3DSCENE *sce = gui->sce;
     LIST *ltmpselobj = sce->lsel;
@@ -103,7 +103,7 @@ uint64_t g3duiinstanceedit_mirroredToggleCbk ( G3DUIINSTANCEEDIT *insedit ) {
 }
 
 /******************************************************************************/
-uint64_t g3duiinstanceedit_orientationCbk ( G3DUIINSTANCEEDIT *insedit,
+uint64_t g3duiinstanceedit_orientation ( G3DUIINSTANCEEDIT *insedit,
                                             char              *str ) {
     G3DUI *gui = insedit->gui;
     G3DSCENE *sce = gui->sce;

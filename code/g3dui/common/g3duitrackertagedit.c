@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duitrackertagedit_orientationCbk ( G3DUITRACKERTAGEDIT *ttedit, 
+uint64_t g3duitrackertagedit_orientation ( G3DUITRACKERTAGEDIT *ttedit, 
                                               char                *str ) {
     G3DUI *gui = ttedit->gui;
     G3DURMANAGER *urm = gui->urm;
@@ -70,7 +70,7 @@ uint64_t g3duitrackertagedit_orientationCbk ( G3DUITRACKERTAGEDIT *ttedit,
 }
 
 /******************************************************************************/
-uint64_t g3duitrackertagedit_setTargetCbk ( G3DUITRACKERTAGEDIT *ttedit, 
+uint64_t g3duitrackertagedit_setTarget ( G3DUITRACKERTAGEDIT *ttedit, 
                                             uint32_t             rank ) {
     G3DUI *gui = ttedit->gui;
     G3DURMANAGER *urm = gui->urm;

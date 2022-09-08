@@ -31,7 +31,7 @@
 
 
 /******************************************************************************/
-uint64_t g3duisphereedit_togglePerfectCbk ( G3DUISPHEREEDIT *sphedit ) {
+uint64_t g3duisphereedit_togglePerfect ( G3DUISPHEREEDIT *sphedit ) {
     G3DUI *gui = sphedit->gui;
     G3DSCENE *sce = gui->sce;
     LIST *ltmpselobj = sce->lsel;
@@ -58,7 +58,7 @@ uint64_t g3duisphereedit_togglePerfectCbk ( G3DUISPHEREEDIT *sphedit ) {
 }
 
 /******************************************************************************/
-uint64_t g3duisphereedit_radiusCbk ( G3DUISPHEREEDIT *sphedit,
+uint64_t g3duisphereedit_radius ( G3DUISPHEREEDIT *sphedit,
                                      float            radius ) {
     G3DUI *gui = sphedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -85,7 +85,7 @@ uint64_t g3duisphereedit_radiusCbk ( G3DUISPHEREEDIT *sphedit,
 }
 
 /******************************************************************************/
-uint64_t g3duisphereedit_capCbk ( G3DUISPHEREEDIT *sphedit,
+uint64_t g3duisphereedit_cap ( G3DUISPHEREEDIT *sphedit,
                                   uint32_t         cap ) {
     G3DUI *gui = sphedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -112,7 +112,7 @@ uint64_t g3duisphereedit_capCbk ( G3DUISPHEREEDIT *sphedit,
 }
 
 /******************************************************************************/
-uint64_t g3duisphereedit_sliceCbk ( G3DUISPHEREEDIT *sphedit,
+uint64_t g3duisphereedit_slice ( G3DUISPHEREEDIT *sphedit,
                                     uint32_t         slice ) {
     G3DUI *gui = sphedit->gui;
     G3DSCENE *sce = gui->sce;

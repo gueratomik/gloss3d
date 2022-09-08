@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duitimeline_scaleSelectedKeysCbk ( G3DUITIMELINE *tim, 
+uint64_t g3duitimeline_scaleSelectedKeys ( G3DUITIMELINE *tim, 
                                               float  factor, 
                                               float  reference ) {
     G3DUI *gui = tim->gui;
@@ -55,7 +55,7 @@ uint64_t g3duitimeline_scaleSelectedKeysCbk ( G3DUITIMELINE *tim,
 }
 
 /******************************************************************************/
-uint64_t g3duitimeline_deleteSelectedKeysCbk ( G3DUITIMELINE *tim ) {
+uint64_t g3duitimeline_deleteSelectedKeys ( G3DUITIMELINE *tim ) {
     G3DUI *gui = tim->gui;
 
     g3durm_objectList_removeSelectedKeys ( gui->urm, 
@@ -68,7 +68,7 @@ uint64_t g3duitimeline_deleteSelectedKeysCbk ( G3DUITIMELINE *tim ) {
 }
 
 /******************************************************************************/
-uint64_t g3duitimeline_selectAllKeysCbk ( G3DUITIMELINE *tim ) {
+uint64_t g3duitimeline_selectAllKeys ( G3DUITIMELINE *tim ) {
     G3DUI *gui = tim->gui;
     uint32_t selected = 0x00; /*** No key selected yet ***/
     LIST *ltmpobj = gui->sce->lsel;

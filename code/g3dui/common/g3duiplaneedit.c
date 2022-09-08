@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duiplaneedit_divCbk  ( G3DUIPLANEEDIT *plnedit,
+uint64_t g3duiplaneedit_div  ( G3DUIPLANEEDIT *plnedit,
                                   G3DUIAXIS       axis,
                                   int             div ) {
     G3DUI *gui = plnedit->gui;
@@ -67,7 +67,7 @@ uint64_t g3duiplaneedit_divCbk  ( G3DUIPLANEEDIT *plnedit,
 }
 
 /******************************************************************************/
-uint64_t g3duiplaneedit_radiusCbk ( G3DUIPLANEEDIT *plnedit,
+uint64_t g3duiplaneedit_radius ( G3DUIPLANEEDIT *plnedit,
                                     G3DUIAXIS       axis,
                                     float           radius ) {
     G3DUI *gui = plnedit->gui;
@@ -104,7 +104,7 @@ uint64_t g3duiplaneedit_radiusCbk ( G3DUIPLANEEDIT *plnedit,
 }
 
 /******************************************************************************/
-uint64_t g3duiplaneedit_orientationCbk ( G3DUIPLANEEDIT *plnedit,
+uint64_t g3duiplaneedit_orientation ( G3DUIPLANEEDIT *plnedit,
                                          const char     *oristr ) {
     G3DUI *gui = plnedit->gui;
     G3DSCENE *sce = gui->sce;

@@ -156,7 +156,7 @@ GTK3G3DUIOBJECTBOARD *gtk3_g3duiobjectboard_create ( GtkWidget *parent,
                                                      GTK3G3DUI *gtk3gui,
                                                      char      *name ) {
     GTK3G3DUIOBJECTBOARD *gtk3objboard = gtk3_g3duiobjectboard_new ( gtk3gui );
-    GtkWidget    *layout = gtk_layout_new ( NULL, NULL );
+    GtkWidget    *layout = ui_gtk_layout_new ( CLASS_MAIN, NULL, NULL );
 
     gtk_widget_set_name ( layout, name );
 

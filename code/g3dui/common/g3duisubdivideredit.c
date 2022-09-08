@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duisubdivideredit_displacementHeightCbk ( G3DUISUBDIVIDEREDIT *subedit ) {
+uint64_t g3duisubdivideredit_displacementHeight ( G3DUISUBDIVIDEREDIT *subedit ) {
     G3DUI *gui = subedit->gui;
     G3DSCENE *sce = gui->sce;
     LIST *ltmpselobj = sce->lsel;
@@ -54,7 +54,7 @@ uint64_t g3duisubdivideredit_displacementHeightCbk ( G3DUISUBDIVIDEREDIT *subedi
 }
 
 /******************************************************************************/
-uint64_t g3duisubdivideredit_displacementSculptCbk ( G3DUISUBDIVIDEREDIT *subedit ) {
+uint64_t g3duisubdivideredit_displacementSculpt ( G3DUISUBDIVIDEREDIT *subedit ) {
     G3DUI *gui = subedit->gui;
     G3DSCENE *sce = gui->sce;
     LIST *ltmpselobj = sce->lsel;
@@ -78,7 +78,7 @@ uint64_t g3duisubdivideredit_displacementSculptCbk ( G3DUISUBDIVIDEREDIT *subedi
 }
 
 /******************************************************************************/
-uint64_t g3duisubdivideredit_subdivSyncCbk ( G3DUISUBDIVIDEREDIT *subedit ) {
+uint64_t g3duisubdivideredit_subdivSync ( G3DUISUBDIVIDEREDIT *subedit ) {
     G3DUI *gui = subedit->gui;
     G3DSCENE *sce = gui->sce;
     LIST *ltmpselobj = sce->lsel;
@@ -104,7 +104,7 @@ uint64_t g3duisubdivideredit_subdivSyncCbk ( G3DUISUBDIVIDEREDIT *subedit ) {
 }
 
 /******************************************************************************/
-uint64_t g3duisubdivideredit_useIsoLinesCbk ( G3DUISUBDIVIDEREDIT *subedit ) {
+uint64_t g3duisubdivideredit_useIsoLines ( G3DUISUBDIVIDEREDIT *subedit ) {
     G3DUI *gui = subedit->gui;
     G3DSCENE *sce = gui->sce;
     LIST *ltmpselobj = sce->lsel;
@@ -130,7 +130,7 @@ uint64_t g3duisubdivideredit_useIsoLinesCbk ( G3DUISUBDIVIDEREDIT *subedit ) {
 }
 
 /******************************************************************************/
-uint64_t g3duisubdivideredit_subdivRenderCbk ( G3DUISUBDIVIDEREDIT *subedit,
+uint64_t g3duisubdivideredit_subdivRender ( G3DUISUBDIVIDEREDIT *subedit,
                                                uint32_t             level ) {
     G3DUI *gui = subedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -157,7 +157,7 @@ uint64_t g3duisubdivideredit_subdivRenderCbk ( G3DUISUBDIVIDEREDIT *subedit,
 }
 
 /******************************************************************************/
-uint64_t g3duisubdivideredit_subdivPreviewCbk ( G3DUISUBDIVIDEREDIT *subedit,
+uint64_t g3duisubdivideredit_subdivPreview ( G3DUISUBDIVIDEREDIT *subedit,
                                                 uint32_t             level ) {
     G3DUI *gui = subedit->gui;
     G3DSCENE *sce = gui->sce;

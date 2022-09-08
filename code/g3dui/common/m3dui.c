@@ -107,7 +107,7 @@ uint64_t m3dui_setUVMouseTool ( M3DUI        *mui,
 }
 
 /******************************************************************************/
-uint64_t m3dui_fillWithColorCbk ( M3DUI   *mui, 
+uint64_t m3dui_fillWithColor ( M3DUI   *mui, 
                                   uint32_t color ) {
     G3DIMAGE *img = m3dui_getWorkingImage ( mui );
 
@@ -167,7 +167,7 @@ void m3dui_resizeBuffers ( M3DUI *mui ) {
 }
 
 /******************************************************************************/
-uint64_t m3dui_uvset2facCbk ( M3DUI *mui ) {
+uint64_t m3dui_uvset2fac ( M3DUI *mui ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
@@ -221,7 +221,7 @@ uint64_t m3dui_uvset2facCbk ( M3DUI *mui ) {
 }
 
 /******************************************************************************/
-uint64_t m3dui_fac2uvsetCbk ( M3DUI *mui ) {
+uint64_t m3dui_fac2uvset ( M3DUI *mui ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
@@ -277,7 +277,7 @@ uint64_t m3dui_fac2uvsetCbk ( M3DUI *mui ) {
 }
 
 /******************************************************************************/
-uint64_t m3dui_uv2verCbk ( M3DUI *mui ) {
+uint64_t m3dui_uv2ver ( M3DUI *mui ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
@@ -336,7 +336,7 @@ uint64_t m3dui_uv2verCbk ( M3DUI *mui ) {
 }
 
 /******************************************************************************/
-uint64_t m3dui_ver2uvCbk ( M3DUI *mui ) {
+uint64_t m3dui_ver2uv ( M3DUI *mui ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( mui->gui->sce );
 
     if ( obj ) {
@@ -397,12 +397,12 @@ uint64_t m3dui_ver2uvCbk ( M3DUI *mui ) {
 }
 
 /******************************************************************************/
-uint64_t m3dui_undoCbk ( M3DUI *mui ) {
+uint64_t m3dui_undo ( M3DUI *mui ) {
     return g3durmanager_undo ( mui->gui->urm, mui->engine_flags );
 }
 
 /******************************************************************************/
-uint64_t m3dui_redoCbk ( M3DUI *mui ) {
+uint64_t m3dui_redo ( M3DUI *mui ) {
     return g3durmanager_redo ( mui->gui->urm, mui->engine_flags );
 }
 

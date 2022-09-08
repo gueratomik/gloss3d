@@ -68,7 +68,7 @@ static void thicknessCbk  ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
     double thickness = gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
-    g3duiwireframeedit_thicknessCbk ( &gtk3wed->core, thickness );
+    g3duiwireframeedit_thickness ( &gtk3wed->core, thickness );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }

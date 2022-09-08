@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duicoordinatesedit_posCbk ( G3DUICOORDINATESEDIT *coordedit, 
+uint64_t g3duicoordinatesedit_pos ( G3DUICOORDINATESEDIT *coordedit, 
                                        G3DUIAXIS             axis, 
                                        uint32_t              absolute,
                                        float                 val ) {
@@ -93,7 +93,7 @@ uint64_t g3duicoordinatesedit_posCbk ( G3DUICOORDINATESEDIT *coordedit,
 }
 
 /******************************************************************************/
-uint64_t g3duicoordinatesedit_rotCbk ( G3DUICOORDINATESEDIT *coordedit, 
+uint64_t g3duicoordinatesedit_rot ( G3DUICOORDINATESEDIT *coordedit, 
                                        G3DUIAXIS             axis, 
                                        float                 val ) {
     G3DUI *gui = coordedit->gui;
@@ -127,7 +127,7 @@ uint64_t g3duicoordinatesedit_rotCbk ( G3DUICOORDINATESEDIT *coordedit,
 }
 
 /******************************************************************************/
-uint64_t g3duicoordinatesedit_scaCbk ( G3DUICOORDINATESEDIT *coordedit, 
+uint64_t g3duicoordinatesedit_sca ( G3DUICOORDINATESEDIT *coordedit, 
                                        G3DUIAXIS             axis, 
                                        float                 val ) {
     G3DUI *gui = coordedit->gui;

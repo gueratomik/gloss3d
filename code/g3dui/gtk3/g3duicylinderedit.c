@@ -78,7 +78,7 @@ static void slicesCbk ( GtkWidget *widget,
     int slice = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
     if ( slice >= 0x03 ) {
-        g3duicylinderedit_sliceCbk ( &gtk3ced->core, slice );
+        g3duicylinderedit_slice ( &gtk3ced->core, slice );
     } else {
         updateGeneralPanel ( gtk3ced );
     }
@@ -97,7 +97,7 @@ static void lengthCbk ( GtkWidget *widget,
     /*** prevent useless primitive building when XmTextSetString is called ***/
     if ( gui->lock ) return;
 
-    g3duicylinderedit_lengthCbk ( &gtk3ced->core, len );
+    g3duicylinderedit_length ( &gtk3ced->core, len );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
@@ -113,7 +113,7 @@ static void radiusCbk ( GtkWidget *widget,
     /*** prevent useless primitive building when XmTextSetString is called ***/
     if ( gui->lock ) return;
 
-    g3duicylinderedit_radiusCbk ( &gtk3ced->core, rad );
+    g3duicylinderedit_radius ( &gtk3ced->core, rad );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
@@ -130,7 +130,7 @@ static void capsCbk ( GtkWidget *widget,
     if ( gui->lock ) return;
 
     if ( cap ) {
-        g3duicylinderedit_capCbk ( &gtk3ced->core, G3DUIXAXIS, cap );
+        g3duicylinderedit_cap ( &gtk3ced->core, G3DUIXAXIS, cap );
     } else {
         updateGeneralPanel ( gtk3ced );
     }

@@ -71,7 +71,7 @@ static void Realize ( GtkWidget *widget,
 
 /******************************************************************************/
 static void gtk3_g3duiboard_createBoards ( GTK3G3DUIBOARD *gtk3board ) {
-    GtkWidget *tab = gtk_notebook_new ( );
+    GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
     GtkWidget *objlab = gtk_label_new ( "Objects" );
     GtkWidget *matlab = gtk_label_new ( "Materials" );
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3board->core.gui;
@@ -83,7 +83,7 @@ static void gtk3_g3duiboard_createBoards ( GTK3G3DUIBOARD *gtk3board ) {
                                                   gtk3gui,
                                                   "Objects" );
 
-    gtk_notebook_append_page ( GTK_NOTEBOOK(tab), gtk3objboard->layout, objlab );
+    gtk_notebook_append_page ( GTK_NOTEBOOK(notebook), gtk3objboard->layout, objlab );
 
     gtk3board->core.objboard = ( G3DUIOBJECTBOARD * ) gtk3objboard;
 
@@ -93,16 +93,16 @@ static void gtk3_g3duiboard_createBoards ( GTK3G3DUIBOARD *gtk3board ) {
                                                     gtk3gui,
                                                     "Material" );
 
-    gtk_notebook_append_page ( GTK_NOTEBOOK(tab), gtk3matboard->layout, matlab );
+    gtk_notebook_append_page ( GTK_NOTEBOOK(notebook), gtk3matboard->layout, matlab );
 
     gtk3board->core.matboard = ( G3DUIMATERIALBOARD * ) gtk3matboard;
 */
 
-    gtk_layout_put ( GTK_LAYOUT(gtk3board->layout), tab, 0, 0 );
+    gtk_layout_put ( GTK_LAYOUT(gtk3board->layout), notebook, 0, 0 );
 
-    gtk_widget_show ( tab );
+    gtk_widget_show ( notebook );
 
-    gtk3board->tab = tab;
+    gtk3board->notebook = notebook;
 }
 
 /******************************************************************************/
@@ -121,11 +121,11 @@ void gtk3_g3duiboard_resize ( GTK3G3DUIBOARD *gtk3board,
     g3duirectangle_toGdkRectangle ( &gtk3board->core.boardrec, &gdkrec );
 
     gtk_layout_move ( gtk3board->layout,
-                      gtk3board->tab,
+                      gtk3board->notebook,
                       gdkrec.x,
                       gdkrec.y );
 
-    gtk_widget_set_size_request ( gtk3board->tab,
+    gtk_widget_set_size_request ( gtk3board->notebook,
                                   gdkrec.width,
                                   gdkrec.height );
 
@@ -149,7 +149,7 @@ GTK3G3DUIBOARD *gtk3_g3duiboard_create ( GtkWidget *parent,
                                          GTK3G3DUI *gtk3gui,
                                          char      *name ) {
     GTK3G3DUIBOARD *gtk3board = gtk3_g3duiboard_new ( gtk3gui );
-    GtkWidget    *layout = gtk_layout_new ( NULL, NULL );
+    GtkWidget    *layout = ui_gtk_layout_new ( CLASS_MAIN, NULL, NULL );
 
     gtk_widget_set_name ( layout, name );
 

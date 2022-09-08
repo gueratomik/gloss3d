@@ -80,7 +80,7 @@ static void intRadiusCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ted->core.gui->lock ) return;
 
-    g3duitorusedit_intRadiusCbk ( &gtk3ted->core, rad );
+    g3duitorusedit_intRadius ( &gtk3ted->core, rad );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
@@ -95,7 +95,7 @@ static void extRadiusCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ted->core.gui->lock ) return;
 
-    g3duitorusedit_extRadiusCbk ( &gtk3ted->core, rad );
+    g3duitorusedit_extRadius ( &gtk3ted->core, rad );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
@@ -111,7 +111,7 @@ static void capCbk ( GtkWidget *widget, gpointer user_data ) {
     if ( gtk3ted->core.gui->lock ) return;
 
     if ( cap >= 0x03 ) {
-        g3duitorusedit_capCbk ( &gtk3ted->core, cap );
+        g3duitorusedit_cap ( &gtk3ted->core, cap );
     } else {
         gtk3_g3duitorusedit_update ( gtk3ted );
     }
@@ -130,7 +130,7 @@ static void sliceCbk ( GtkWidget *widget, gpointer user_data ) {
     if ( gtk3ted->core.gui->lock ) return;
 
     if ( slice >= 0x03 ) {
-        g3duitorusedit_sliceCbk ( &gtk3ted->core, slice );
+        g3duitorusedit_slice ( &gtk3ted->core, slice );
     } else {
         gtk3_g3duitorusedit_update ( gtk3ted );
     }
@@ -149,7 +149,7 @@ static void orientationCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ted->core.gui->lock ) return;
 
-    g3duitorusedit_orientationCbk ( &gtk3ted->core, str );
+    g3duitorusedit_orientation ( &gtk3ted->core, str );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }

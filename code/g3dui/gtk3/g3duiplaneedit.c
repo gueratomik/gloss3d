@@ -81,7 +81,7 @@ static void divvCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiplaneedit_divCbk ( &gtk3ped->core, G3DUIVAXIS, div );
+    g3duiplaneedit_div ( &gtk3ped->core, G3DUIVAXIS, div );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
@@ -97,7 +97,7 @@ static void divuCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiplaneedit_divCbk ( &gtk3ped->core, G3DUIUAXIS, div );
+    g3duiplaneedit_div ( &gtk3ped->core, G3DUIUAXIS, div );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
@@ -113,7 +113,7 @@ static void radvCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiplaneedit_radiusCbk ( &gtk3ped->core, G3DUIUAXIS, rad );
+    g3duiplaneedit_radius ( &gtk3ped->core, G3DUIUAXIS, rad );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
@@ -129,7 +129,7 @@ static void raduCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiplaneedit_radiusCbk ( &gtk3ped->core, G3DUIVAXIS, rad );
+    g3duiplaneedit_radius ( &gtk3ped->core, G3DUIVAXIS, rad );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
@@ -145,7 +145,7 @@ static void orientationCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ped->core.gui->lock ) return;
 
-    g3duiplaneedit_orientationCbk ( &gtk3ped->core, str );
+    g3duiplaneedit_orientation ( &gtk3ped->core, str );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }

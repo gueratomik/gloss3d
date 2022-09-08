@@ -82,7 +82,7 @@ static void xsliceCbk ( GtkWidget *widget,
     if ( gtk3fed->core.gui->lock ) return;
 
     if ( slice ) {
-        g3duiffdedit_sliceCbk ( gtk3fed, G3DUIXAXIS, slice );
+        g3duiffdedit_slice ( gtk3fed, G3DUIXAXIS, slice );
     } else {
         updateGeneralPanel ( gtk3fed );
     }
@@ -102,7 +102,7 @@ static void ysliceCbk ( GtkWidget *widget,
     if ( gtk3fed->core.gui->lock ) return;
 
     if ( slice ) {
-        g3duiffdedit_sliceCbk ( gtk3fed, G3DUIYAXIS, slice );
+        g3duiffdedit_slice ( gtk3fed, G3DUIYAXIS, slice );
     } else {
         updateGeneralPanel ( gtk3fed );
     }
@@ -122,7 +122,7 @@ static void zsliceCbk ( GtkWidget *widget,
     if ( gtk3fed->core.gui->lock ) return;
 
     if ( slice ) {
-        g3duiffdedit_sliceCbk ( gtk3fed, G3DUIZAXIS, slice );
+        g3duiffdedit_slice ( gtk3fed, G3DUIZAXIS, slice );
     } else {
         updateGeneralPanel ( gtk3fed );
     }
@@ -142,7 +142,7 @@ static void xradiusCbk ( GtkWidget *widget,
     if ( gtk3fed->core.gui->lock ) return;
 
     if ( rad >= 0.0f ) {
-        g3duiffdedit_radiusCbk ( gtk3fed, G3DUIXAXIS, rad );
+        g3duiffdedit_radius ( gtk3fed, G3DUIXAXIS, rad );
     } else {
         updateGeneralPanel ( gtk3fed );
     }
@@ -162,7 +162,7 @@ static void yradiusCbk ( GtkWidget *widget,
     if ( gtk3fed->core.gui->lock ) return;
 
     if ( rad >= 0.0f ) {
-        g3duiffdedit_radiusCbk ( gtk3fed, G3DUIYAXIS, rad );
+        g3duiffdedit_radius ( gtk3fed, G3DUIYAXIS, rad );
     } else {
         updateGeneralPanel ( gtk3fed );
     }
@@ -182,7 +182,7 @@ static void zradiusCbk ( GtkWidget *widget,
     if ( gtk3fed->core.gui->lock ) return;
 
     if ( rad >= 0.0f ) {
-        g3duiffdedit_radiusCbk ( gtk3fed, G3DUIZAXIS, rad );
+        g3duiffdedit_radius ( gtk3fed, G3DUIZAXIS, rad );
     } else {
         updateGeneralPanel ( gtk3fed );
     }

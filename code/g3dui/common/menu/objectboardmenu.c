@@ -34,20 +34,20 @@
 
 static uint64_t addVibratorTagCbk ( G3DUIMENU *menu, 
                                     void      *data ) {
-    g3dui_addVibratorTagCbk ( menu->gui );
+    g3dui_addVibratorTag ( menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t addTrackerTagCbk ( G3DUIMENU *menu, 
                                    void      *data ) {
-    g3dui_addTrackerTagCbk ( menu->gui );
+    g3dui_addTrackerTag ( menu->gui );
 }
 
 
 /******************************************************************************/
 static uint64_t removeSelectedTagCbk ( G3DUIMENU *menu, 
                                        void      *data ) {
-    g3dui_removeSelectedTagCbk ( menu->gui );
+    g3dui_removeSelectedTag ( menu->gui );
 }
 
 /******************************************************************************/

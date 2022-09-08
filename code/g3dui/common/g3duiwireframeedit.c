@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duiwireframeedit_thicknessCbk ( G3DUIWIREFRAMEEDIT *wfmedit,
+uint64_t g3duiwireframeedit_thickness ( G3DUIWIREFRAMEEDIT *wfmedit,
                                            float               thickness ) {
     G3DUI *gui = wfmedit->gui;
     G3DSCENE *sce = gui->sce;

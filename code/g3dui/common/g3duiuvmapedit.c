@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duiuvmapedit_projectionCbk ( G3DUIUVMAPEDIT *uvedit,
+uint64_t g3duiuvmapedit_projection ( G3DUIUVMAPEDIT *uvedit,
                                         const char     *projection ) {
     G3DUI *gui = uvedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -75,7 +75,7 @@ uint64_t g3duiuvmapedit_projectionCbk ( G3DUIUVMAPEDIT *uvedit,
 }
 
 /******************************************************************************/
-uint64_t g3duiuvmapedit_lockUVMapCbk ( G3DUIUVMAPEDIT *uvedit ) {
+uint64_t g3duiuvmapedit_lockUVMap ( G3DUIUVMAPEDIT *uvedit ) {
     G3DUI *gui = uvedit->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );

@@ -140,7 +140,7 @@ static void mirroredToggleCbk  ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ied->core.gui->lock ) return;
 
-    g3duiinstanceedit_mirroredToggleCbk ( &gtk3ied->core );
+    g3duiinstanceedit_mirroredToggle ( &gtk3ied->core );
 
     gtk3_g3duiinstanceedit_update ( gtk3ied );
 }
@@ -156,7 +156,7 @@ static void objectSelectorCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ied->core.gui->lock ) return;
 
-    g3duiinstanceedit_setReferenceCbk ( &gtk3ied->core, rank );
+    g3duiinstanceedit_setReference ( &gtk3ied->core, rank );
 }
 
 /******************************************************************************/
@@ -170,7 +170,7 @@ static void orientationCbk ( GtkWidget *widget,
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ied->core.gui->lock ) return;
 
-    g3duiinstanceedit_orientationCbk ( &gtk3ied->core, str );
+    g3duiinstanceedit_orientation ( &gtk3ied->core, str );
 }
 
 /******************************************************************************/

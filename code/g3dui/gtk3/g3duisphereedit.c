@@ -82,7 +82,7 @@ static void togglePerfectCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3sed->core.gui->lock ) return;
 
-    g3duisphereedit_togglePerfectCbk ( &gtk3sed->core );
+    g3duisphereedit_togglePerfect ( &gtk3sed->core );
 }
 
 /******************************************************************************/
@@ -95,7 +95,7 @@ static void radiusCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3sed->core.gui->lock ) return;
 
-    g3duisphereedit_radiusCbk ( &gtk3sed->core, rad );
+    g3duisphereedit_radius ( &gtk3sed->core, rad );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
@@ -111,7 +111,7 @@ static void capCbk ( GtkWidget *widget, gpointer user_data ) {
     if ( gtk3sed->core.gui->lock ) return;
 
     if ( cap >= 0x03 ) {
-        g3duisphereedit_capCbk ( &gtk3sed->core, cap );
+        g3duisphereedit_cap ( &gtk3sed->core, cap );
     } else {
         gtk3_g3duisphereedit_update ( gtk3sed );
     }
@@ -130,7 +130,7 @@ static void sliceCbk ( GtkWidget *widget, gpointer user_data ) {
     if ( gtk3sed->core.gui->lock ) return;
 
     if ( slice >= 0x03 ) {
-        g3duisphereedit_sliceCbk ( &gtk3sed->core, slice );
+        g3duisphereedit_slice ( &gtk3sed->core, slice );
     } else {
         gtk3_g3duisphereedit_update ( gtk3sed );
     }

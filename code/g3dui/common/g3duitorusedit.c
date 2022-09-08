@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duitorusedit_sliceCbk ( G3DUITORUSEDIT *toredit,
+uint64_t g3duitorusedit_slice ( G3DUITORUSEDIT *toredit,
                                    uint32_t        slice ) {
     G3DUI *gui = toredit->gui;
     G3DSCENE *sce = gui->sce;
@@ -59,7 +59,7 @@ uint64_t g3duitorusedit_sliceCbk ( G3DUITORUSEDIT *toredit,
 }
 
 /******************************************************************************/
-uint64_t g3duitorusedit_capCbk ( G3DUITORUSEDIT *toredit,
+uint64_t g3duitorusedit_cap ( G3DUITORUSEDIT *toredit,
                                  uint32_t        cap ) {
     G3DUI *gui = toredit->gui;
     G3DSCENE *sce = gui->sce;
@@ -88,7 +88,7 @@ uint64_t g3duitorusedit_capCbk ( G3DUITORUSEDIT *toredit,
 }
 
 /******************************************************************************/
-uint64_t g3duitorusedit_extRadiusCbk ( G3DUITORUSEDIT *toredit,
+uint64_t g3duitorusedit_extRadius ( G3DUITORUSEDIT *toredit,
                                        float           extrad ) {
     G3DUI *gui = toredit->gui;
     G3DSCENE *sce = gui->sce;
@@ -117,7 +117,7 @@ uint64_t g3duitorusedit_extRadiusCbk ( G3DUITORUSEDIT *toredit,
 }
 
 /******************************************************************************/
-uint64_t g3duitorusedit_intRadiusCbk ( G3DUITORUSEDIT *toredit,
+uint64_t g3duitorusedit_intRadius ( G3DUITORUSEDIT *toredit,
                                        float           intrad ) {
     G3DUI *gui = toredit->gui;
     G3DSCENE *sce = gui->sce;
@@ -146,7 +146,7 @@ uint64_t g3duitorusedit_intRadiusCbk ( G3DUITORUSEDIT *toredit,
 }
 
 /******************************************************************************/
-uint64_t g3duitorusedit_orientationCbk ( G3DUITORUSEDIT *toredit,
+uint64_t g3duitorusedit_orientation ( G3DUITORUSEDIT *toredit,
                                          const char     *oristr ) {
     G3DUI *gui = toredit->gui;
     G3DSCENE *sce = gui->sce;

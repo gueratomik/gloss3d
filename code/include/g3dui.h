@@ -692,9 +692,10 @@ typedef struct _G3DUI {
 #define MENU_CONDITION_SENSITIVE   1
 #define MENU_CONDITION_ACTIVE    ( 1 << 1 )
 
-#define CLASS_MAIN      "main"
-#define MENU_CLASS_VIEW "view"
-#define MENU_CLASS_MAIN CLASS_MAIN
+#define CLASS_MAIN              "main"
+#define MENU_CLASS_MAIN         CLASS_MAIN
+#define CLASS_VIEW_MENU_BAR     "view_menu_bar"
+#define CLASS_VIEW_MENU_DEFAULT "view_menu_default"
 
 typedef struct _G3DUIMENU {
     G3DUI             *gui;
@@ -1368,13 +1369,13 @@ uint32_t            g3dui_setMouseTool ( G3DUI        *gui,
 void                g3dui_setFileName ( G3DUI      *gui, 
                                         const char *filename );
 void                g3dui_saveG3DFile ( G3DUI *gui );
-G3DSCENE           *g3dui_importfileokcbk ( G3DUI      *gui, 
+G3DSCENE           *g3dui_importFileOk ( G3DUI      *gui, 
                                             const char *filedesc, 
                                             const char *filename );
-uint32_t            g3dui_exportfileokcbk ( G3DUI      *gui,
+uint32_t            g3dui_exportFileOk ( G3DUI      *gui,
                                             const char *filedesc, 
                                             const char *filename );
-void                g3dui_exitokcbk ( G3DUI *gui );
+void                g3dui_exitOk ( G3DUI *gui );
 uint32_t            g3dui_cancelRenderByID ( G3DUI   *gui, 
                                              uint64_t id );
 uint32_t            g3dui_cancelRenderByScene ( G3DUI  *gui, 
@@ -1387,7 +1388,7 @@ void                g3dui_addRenderSettings ( G3DUI       *gui,
                                               Q3DSETTINGS *rsg );
 void                g3dui_useRenderSettings ( G3DUI       *gui,
                                               Q3DSETTINGS *rsg );
-uint32_t            g3dui_selectAllCbk ( G3DUI *gui );
+uint32_t            g3dui_selectAll ( G3DUI *gui );
 G3DUIRENDERPROCESS *g3dui_render_q3d ( G3DUI       *gui, 
                                        Q3DSETTINGS *rsg,
                                        Q3DFILTER   *towindow,
@@ -1401,69 +1402,69 @@ G3DUIRENDERPROCESS *g3dui_render_q3d ( G3DUI       *gui,
                                        uint64_t     job_flags );
 void                g3dui_processAnimatedImages ( G3DUI *gui );
 
-uint64_t            g3dui_addVibratorTagCbk ( G3DUI *gui );
-uint64_t            g3dui_addTrackerTagCbk ( G3DUI *gui );
-uint64_t            g3dui_removeSelectedTagCbk ( G3DUI *gui );
-uint64_t            g3duimenubar_addUVMapCbk ( G3DUI *gui );
-uint64_t            g3duimenubar_fitUVMapCbk ( G3DUI *gui );
-uint64_t            g3duimenubar_alignUVMapCbk ( G3DUI      *gui,
+uint64_t            g3dui_addVibratorTag ( G3DUI *gui );
+uint64_t            g3dui_addTrackerTag ( G3DUI *gui );
+uint64_t            g3dui_removeSelectedTag ( G3DUI *gui );
+uint64_t            g3duimenubar_addUVMap ( G3DUI *gui );
+uint64_t            g3duimenubar_fitUVMap ( G3DUI *gui );
+uint64_t            g3duimenubar_alignUVMap ( G3DUI      *gui,
                                                  const char *option );
-uint64_t            g3dui_mergeMeshCbk ( G3DUI *gui );
-uint64_t            g3dui_splitMeshCbk ( G3DUI      *gui,
+uint64_t            g3dui_mergeMesh ( G3DUI *gui );
+uint64_t            g3dui_splitMesh ( G3DUI      *gui,
                                          const char *option );
-uint64_t            g3dui_mirrorHeightmapCbk ( G3DUI      *gui,
+uint64_t            g3dui_mirrorHeightmap ( G3DUI      *gui,
                                                const char *option );
-uint64_t            g3dui_mirrorWeightGroupCbk ( G3DUI      *gui,
+uint64_t            g3dui_mirrorWeightGroup ( G3DUI      *gui,
                                                  const char *option );
-uint64_t            g3dui_resetBoneTreeCbk ( G3DUI *gui );
-uint64_t            g3dui_resetBoneCbk ( G3DUI *gui );
-uint64_t            g3dui_fixBoneTreeCbk ( G3DUI *gui );
-uint64_t            g3dui_fixBoneCbk ( G3DUI *gui );
-uint64_t            g3dui_addBoneCbk ( G3DUI *gui );
-uint64_t            g3dui_addSkinCbk ( G3DUI *gui );
-uint64_t            g3dui_addMorpherCbk ( G3DUI *gui );
-uint64_t            g3dui_addFFDBoxCbk ( G3DUI *gui );
-uint64_t            g3dui_addSymmetryCbk ( G3DUI *gui );
-uint64_t            g3dui_addInstanceCbk ( G3DUI *gui );
-uint64_t            g3dui_addEmitterCbk ( G3DUI *gui );
-uint64_t            g3dui_addSubdividerCbk ( G3DUI *gui );
-uint64_t            g3dui_addWireframeCbk ( G3DUI *gui );
-uint64_t            g3dui_addEmptyMeshCbk ( G3DUI *gui );
-uint64_t            g3dui_addSplineCbk ( G3DUI *gui );
-uint64_t            g3dui_addSplineRevolverCbk ( G3DUI *gui );
-uint64_t            g3dui_addTextCbk ( G3DUI *gui );
-uint64_t            g3dui_addCameraCbk ( G3DUI     *gui );
-uint64_t            g3dui_addLightCbk ( G3DUI *gui );
-uint64_t            g3dui_addCylinderCbk ( G3DUI *gui );
-uint64_t            g3dui_addTubeCbk ( G3DUI *gui );
-uint64_t            g3dui_addTorusCbk ( G3DUI *gui );
-uint64_t            g3dui_addSphereCbk ( G3DUI *gui );
-uint64_t            g3dui_addCubeCbk ( G3DUI *gui );
-uint64_t            g3dui_addPlaneCbk ( G3DUI *gui );
-uint64_t            g3dui_addNullCbk ( G3DUI *gui );
-uint64_t            g3dui_selectTreeCbk ( G3DUI      *gui,
+uint64_t            g3dui_resetBoneTree ( G3DUI *gui );
+uint64_t            g3dui_resetBone ( G3DUI *gui );
+uint64_t            g3dui_fixBoneTree ( G3DUI *gui );
+uint64_t            g3dui_fixBone ( G3DUI *gui );
+uint64_t            g3dui_addBone ( G3DUI *gui );
+uint64_t            g3dui_addSkin ( G3DUI *gui );
+uint64_t            g3dui_addMorpher ( G3DUI *gui );
+uint64_t            g3dui_addFFDBox ( G3DUI *gui );
+uint64_t            g3dui_addSymmetry ( G3DUI *gui );
+uint64_t            g3dui_addInstance ( G3DUI *gui );
+uint64_t            g3dui_addEmitter ( G3DUI *gui );
+uint64_t            g3dui_addSubdivider ( G3DUI *gui );
+uint64_t            g3dui_addWireframe ( G3DUI *gui );
+uint64_t            g3dui_addEmptyMesh ( G3DUI *gui );
+uint64_t            g3dui_addSpline ( G3DUI *gui );
+uint64_t            g3dui_addSplineRevolver ( G3DUI *gui );
+uint64_t            g3dui_addText ( G3DUI *gui );
+uint64_t            g3dui_addCamera ( G3DUI     *gui );
+uint64_t            g3dui_addLight ( G3DUI *gui );
+uint64_t            g3dui_addCylinder ( G3DUI *gui );
+uint64_t            g3dui_addTube ( G3DUI *gui );
+uint64_t            g3dui_addTorus ( G3DUI *gui );
+uint64_t            g3dui_addSphere ( G3DUI *gui );
+uint64_t            g3dui_addCube ( G3DUI *gui );
+uint64_t            g3dui_addPlane ( G3DUI *gui );
+uint64_t            g3dui_addNull ( G3DUI *gui );
+uint64_t            g3dui_selectTree ( G3DUI      *gui,
                                           const char *option );
-uint64_t            g3dui_triangulateCbk ( G3DUI      *gui,
+uint64_t            g3dui_triangulate ( G3DUI      *gui,
                                            const char *option );
-uint64_t            g3dui_invertNormalCbk ( G3DUI *gui );
-uint64_t            g3dui_alignNormalsCbk ( G3DUI *gui );
-uint64_t            g3dui_untriangulateCbk ( G3DUI *gui );
-uint64_t            g3dui_weldVerticesCbk ( G3DUI *gui );
-uint64_t            g3dui_deleteLoneVerticesCbk ( G3DUI *gui );
-uint64_t            g3dui_invertSelectionCbk ( G3DUI *gui );
-uint64_t            g3dui_getObjectStatsCbk ( G3DUI   *gui, 
+uint64_t            g3dui_invertNormal ( G3DUI *gui );
+uint64_t            g3dui_alignNormals ( G3DUI *gui );
+uint64_t            g3dui_untriangulate ( G3DUI *gui );
+uint64_t            g3dui_weldVertices ( G3DUI *gui );
+uint64_t            g3dui_deleteLoneVertices ( G3DUI *gui );
+uint64_t            g3dui_invertSelection ( G3DUI *gui );
+uint64_t            g3dui_getObjectStats ( G3DUI   *gui, 
                                               char    *buffer, 
                                               uint32_t bufferlen );
-uint64_t            g3dui_makeEditableCbk ( G3DUI *gui );
-uint64_t            g3dui_addUVMapCbk ( G3DUI *gui );
-uint64_t            g3dui_fitUVMapCbk ( G3DUI *gui );
-uint64_t            g3dui_alignUVMapCbk ( G3DUI      *gui, 
+uint64_t            g3dui_makeEditable ( G3DUI *gui );
+uint64_t            g3dui_addUVMap ( G3DUI *gui );
+uint64_t            g3dui_fitUVMap ( G3DUI *gui );
+uint64_t            g3dui_alignUVMap ( G3DUI      *gui, 
                                           const char *option );
-uint64_t            g3dui_setMaterialCbk ( G3DUI *gui );
-uint64_t            g3dui_redoCbk ( G3DUI *gui );
-uint64_t            g3dui_undoCbk ( G3DUI *gui );
+uint64_t            g3dui_setMaterial ( G3DUI *gui );
+uint64_t            g3dui_redo ( G3DUI *gui );
+uint64_t            g3dui_undo ( G3DUI *gui );
 uint64_t            g3dui_closeScene ( G3DUI *gui );
-uint64_t            g3dui_deleteSelectionCbk ( G3DUI *gui );
+uint64_t            g3dui_deleteSelection ( G3DUI *gui );
 
 /******************************* g3duiboard.c ******************************/
 void g3duiboard_resize ( G3DUIBOARD *board, 
@@ -1477,15 +1478,15 @@ void g3duiboard_resize ( G3DUIBOARD *board,
 
 /***************************** g3duicameraedit.c ******************************/
 
-uint64_t g3duicameraedit_dofRadiusCbk ( G3DUICAMERAEDIT *camedit,
+uint64_t g3duicameraedit_dofRadius ( G3DUICAMERAEDIT *camedit,
                                         uint32_t         radius );
-uint64_t g3duicameraedit_dofNearBlurCbk ( G3DUICAMERAEDIT *camedit,
+uint64_t g3duicameraedit_dofNearBlur ( G3DUICAMERAEDIT *camedit,
                                           float            nearBlur );
-uint64_t g3duicameraedit_dofNoBlurCbk ( G3DUICAMERAEDIT *camedit,
+uint64_t g3duicameraedit_dofNoBlur ( G3DUICAMERAEDIT *camedit,
                                         float            noBlur );
-uint64_t g3duicameraedit_dofFarBlurCbk ( G3DUICAMERAEDIT *camedit,
+uint64_t g3duicameraedit_dofFarBlur ( G3DUICAMERAEDIT *camedit,
                                          float            farBlur );
-uint64_t g3duicameraedit_dofEnableCbk ( G3DUICAMERAEDIT *camedit );
+uint64_t g3duicameraedit_dofEnable ( G3DUICAMERAEDIT *camedit );
 
 /****************************** g3duiclipboard.c ******************************/
 
@@ -1523,25 +1524,26 @@ void             g3duiclipboard_copyFaceSculptExtension ( G3DUICLIPBOARD *cli,
 void g3dui_loadConfiguration ( G3DUI *gui, 
                                char  *filename );
 
+
 /*************************** g3duicoordinatesedit.c ***************************/
 
-uint64_t g3duicoordinatesedit_posCbk ( G3DUICOORDINATESEDIT *coordedit, 
+uint64_t g3duicoordinatesedit_pos ( G3DUICOORDINATESEDIT *coordedit, 
                                        G3DUIAXIS             axis, 
                                        uint32_t              absolute,
                                        float                 val );
-uint64_t g3duicoordinatesedit_rotCbk ( G3DUICOORDINATESEDIT *coordedit, 
+uint64_t g3duicoordinatesedit_rot ( G3DUICOORDINATESEDIT *coordedit, 
                                        G3DUIAXIS             axis, 
                                        float                 val );
-uint64_t g3duicoordinatesedit_scaCbk ( G3DUICOORDINATESEDIT *coordedit, 
+uint64_t g3duicoordinatesedit_sca ( G3DUICOORDINATESEDIT *coordedit, 
                                        G3DUIAXIS             axis, 
                                        float                 val );
 
 /****************************** g3duicubeedit.c *******************************/
 
-uint64_t g3duicubeedit_sliceCbk ( G3DUICUBEEDIT *cubedit,
+uint64_t g3duicubeedit_slice ( G3DUICUBEEDIT *cubedit,
                                   G3DUIAXIS      axis,
                                   int            slice );
-uint64_t g3duicubeedit_radiusCbk ( G3DUICUBEEDIT *cubedit,
+uint64_t g3duicubeedit_radius ( G3DUICUBEEDIT *cubedit,
                                    float          radius );
 
 /****************************** g3duicurrentedit.c ****************************/
@@ -1549,14 +1551,14 @@ uint64_t g3duicubeedit_radiusCbk ( G3DUICUBEEDIT *cubedit,
 
 /****************************** g3duicylinderedit.c ***************************/
 
-uint64_t g3duicylinderedit_lengthCbk ( G3DUICYLINDEREDIT *cyledit, 
+uint64_t g3duicylinderedit_length ( G3DUICYLINDEREDIT *cyledit, 
                                        float              length );
-uint64_t g3duicylinderedit_radiusCbk ( G3DUICYLINDEREDIT *cyledit, 
+uint64_t g3duicylinderedit_radius ( G3DUICYLINDEREDIT *cyledit, 
                                        float              radius );
-uint64_t g3duicylinderedit_capCbk ( G3DUICYLINDEREDIT *cyledit, 
+uint64_t g3duicylinderedit_cap ( G3DUICYLINDEREDIT *cyledit, 
                                     G3DUIAXIS          axis,
                                     int                cap );
-uint64_t g3duicylinderedit_sliceCbk ( G3DUICYLINDEREDIT *cyledit, 
+uint64_t g3duicylinderedit_slice ( G3DUICYLINDEREDIT *cyledit, 
                                       int                slice );
 
 /********************************* g3duiexport.c ******************************/
@@ -1572,53 +1574,53 @@ void     g3dui_read ( G3DIMPORTV3DATA *gid,
 
 /********************************* g3duiffdedit.c *****************************/
 
-uint64_t g3duiffdedit_radiusCbk ( G3DUIFFDEDIT *ffdedit,
+uint64_t g3duiffdedit_radius ( G3DUIFFDEDIT *ffdedit,
                                   G3DUIAXIS     axis,
                                   float         radius );
-uint64_t g3duiffdedit_sliceCbk ( G3DUIFFDEDIT *ffdedit,
+uint64_t g3duiffdedit_slice ( G3DUIFFDEDIT *ffdedit,
                                  G3DUIAXIS     axis,
                                  int           slice );
 
 /***************************** g3duiinstanceedit.c ****************************/
 
-uint64_t g3duiinstanceedit_setReferenceCbk ( G3DUIINSTANCEEDIT *insedit, 
+uint64_t g3duiinstanceedit_setReference ( G3DUIINSTANCEEDIT *insedit, 
                                              uint32_t           rank );
-uint64_t g3duiinstanceedit_mirroredToggleCbk ( G3DUIINSTANCEEDIT *insedit );
-uint64_t g3duiinstanceedit_orientationCbk ( G3DUIINSTANCEEDIT *insedit,
+uint64_t g3duiinstanceedit_mirroredToggle ( G3DUIINSTANCEEDIT *insedit );
+uint64_t g3duiinstanceedit_orientation ( G3DUIINSTANCEEDIT *insedit,
                                             char              *str );
 
 /******************************** g3duikeyedit.c ******************************/
 
-uint64_t g3duikeyedit_setKeyTransformationsCbk ( G3DUIKEYEDIT *keyedit,
+uint64_t g3duikeyedit_setKeyTransformations ( G3DUIKEYEDIT *keyedit,
                                                  uint32_t      flag );
-uint64_t g3duikeyedit_unsetKeyTransformationsCbk ( G3DUIKEYEDIT *keyedit,
+uint64_t g3duikeyedit_unsetKeyTransformations ( G3DUIKEYEDIT *keyedit,
                                                    uint32_t      flag );
-uint64_t g3duikeyedit_loopFrameCbk ( G3DUIKEYEDIT *keyedit,
+uint64_t g3duikeyedit_loopFrame ( G3DUIKEYEDIT *keyedit,
                                      float         frame );
-uint64_t g3duikeyedit_loopCbk ( G3DUIKEYEDIT *keyedit,
+uint64_t g3duikeyedit_loop ( G3DUIKEYEDIT *keyedit,
                                 uint32_t      loop );
-uint64_t g3duikeyedit_keyCbk ( G3DUIKEYEDIT *keyedit,
+uint64_t g3duikeyedit_key ( G3DUIKEYEDIT *keyedit,
                                const char   *field,
                                float         val );
 
 /******************************* g3duilightedit.c *****************************/
 
-uint64_t g3duilightedit_setSpecularityCbk ( G3DUILIGHTEDIT *ligedit,
+uint64_t g3duilightedit_setSpecularity ( G3DUILIGHTEDIT *ligedit,
                                             uint32_t        red,
                                             uint32_t        green,
                                             uint32_t        blue );
-uint64_t g3duilightedit_unsetSpotCbk ( G3DUILIGHTEDIT *ligedit );
-uint64_t g3duilightedit_setSpotCbk ( G3DUILIGHTEDIT *ligedit );
-uint64_t g3duilightedit_setSpotAngleCbk ( G3DUILIGHTEDIT *ligedit, float spotAngle );
-uint64_t g3duilightedit_setSpotFadeAngleCbk ( G3DUILIGHTEDIT *ligedit, float spotFadeAngle );
-uint64_t g3duilightedit_setSpotLengthCbk ( G3DUILIGHTEDIT *ligedit, float spotLength );
-uint64_t g3duilightedit_castShadowsCbk ( G3DUILIGHTEDIT *ligedit );
-uint64_t g3duilightedit_setSoftShadowsCbk ( G3DUILIGHTEDIT *ligedit );
-uint64_t g3duilightedit_shadowRadiusCbk ( G3DUILIGHTEDIT *ligedit,
+uint64_t g3duilightedit_unsetSpot ( G3DUILIGHTEDIT *ligedit );
+uint64_t g3duilightedit_setSpot ( G3DUILIGHTEDIT *ligedit );
+uint64_t g3duilightedit_setSpotAngle ( G3DUILIGHTEDIT *ligedit, float spotAngle );
+uint64_t g3duilightedit_setSpotFadeAngle ( G3DUILIGHTEDIT *ligedit, float spotFadeAngle );
+uint64_t g3duilightedit_setSpotLength ( G3DUILIGHTEDIT *ligedit, float spotLength );
+uint64_t g3duilightedit_castShadows ( G3DUILIGHTEDIT *ligedit );
+uint64_t g3duilightedit_setSoftShadows ( G3DUILIGHTEDIT *ligedit );
+uint64_t g3duilightedit_shadowRadius ( G3DUILIGHTEDIT *ligedit,
                                           float           shadowRadius );
-uint64_t g3duilightedit_shadowSampleCbk ( G3DUILIGHTEDIT *ligedit,
+uint64_t g3duilightedit_shadowSample ( G3DUILIGHTEDIT *ligedit,
                                           uint32_t        shadowSample );
-uint64_t g3duilightedit_setDiffuseCbk ( G3DUILIGHTEDIT *ligedit,
+uint64_t g3duilightedit_setDiffuse ( G3DUILIGHTEDIT *ligedit,
                                         uint32_t        red,
                                         uint32_t        green,
                                         uint32_t        blue );
@@ -1637,50 +1639,50 @@ void g3duimain_resize ( G3DUIMAIN *gmn,
 
 /****************************** g3duimaterialedit.c ***************************/
 
-uint64_t g3duimaterialedit_setDiffuseColorCbk ( G3DUIMATERIALEDIT *matedit, 
+uint64_t g3duimaterialedit_setDiffuseColor ( G3DUIMATERIALEDIT *matedit, 
                                                 float              R,
                                                 float              G,
                                                 float              B,
                                                 float              A );
-uint64_t g3duimaterialedit_setSpecularColorCbk ( G3DUIMATERIALEDIT *matedit, 
+uint64_t g3duimaterialedit_setSpecularColor ( G3DUIMATERIALEDIT *matedit, 
                                                  float              R,
                                                  float              G,
                                                  float              B,
                                                  float              A );
-uint64_t g3duimaterialedit_setDisplacementStrengthCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_setDisplacementStrength ( G3DUIMATERIALEDIT *matedit,
                                                         float              strength );
-uint64_t g3duimaterialedit_setBumpStrengthCbk ( G3DUIMATERIALEDIT *matedit, 
+uint64_t g3duimaterialedit_setBumpStrength ( G3DUIMATERIALEDIT *matedit, 
                                                 float              strength );
-uint64_t g3duimaterialedit_setReflectionStrengthCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_setReflectionStrength ( G3DUIMATERIALEDIT *matedit,
                                                       float              strength );
-uint64_t g3duimaterialedit_setRefractionStrengthCbk ( G3DUIMATERIALEDIT *matedit, 
+uint64_t g3duimaterialedit_setRefractionStrength ( G3DUIMATERIALEDIT *matedit, 
                                                       float              strength );
-uint64_t g3duimaterialedit_setAlphaStrengthCbk ( G3DUIMATERIALEDIT *matedit, 
+uint64_t g3duimaterialedit_setAlphaStrength ( G3DUIMATERIALEDIT *matedit, 
                                                  float              strength );
-uint64_t g3duimaterialedit_setNameCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_setName ( G3DUIMATERIALEDIT *matedit,
                                         const char        *name );
-uint64_t g3duimaterialedit_setSpecularLevelCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_setSpecularLevel ( G3DUIMATERIALEDIT *matedit,
                                                  float              val );
-uint64_t g3duimaterialedit_setSpecularShininessCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_setSpecularShininess ( G3DUIMATERIALEDIT *matedit,
                                                      float              val );
-uint64_t g3duimaterialedit_channelChooseImageCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_channelChooseImage ( G3DUIMATERIALEDIT *matedit,
                                                    uint32_t           channelID,
                                                    char              *filename,
                                                    uint32_t           bindGL );
-uint64_t g3duimaterialedit_enableProceduralCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_enableProcedural ( G3DUIMATERIALEDIT *matedit,
                                                  uint32_t           channelID );
-uint64_t g3duimaterialedit_enableSolidColorCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_enableSolidColor ( G3DUIMATERIALEDIT *matedit,
                                                  uint32_t           channelID );
-uint64_t g3duimaterialedit_enableImageCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_enableImage ( G3DUIMATERIALEDIT *matedit,
                                             uint32_t           channelID );
-uint64_t g3duimaterialedit_chooseProceduralCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_chooseProcedural ( G3DUIMATERIALEDIT *matedit,
                                                  uint32_t           channelID,
                                                  const char        *procType,
                                                  const char        *procRes,
                                                  uint32_t           bindGL );
-uint64_t g3duimaterialedit_toggleDisplacementCbk ( G3DUIMATERIALEDIT *matedit );
-uint64_t g3duimaterialedit_toggleBumpCbk ( G3DUIMATERIALEDIT *matedit );
-uint64_t g3duimaterialedit_toggleAlphaCbk ( G3DUIMATERIALEDIT *matedit );
+uint64_t g3duimaterialedit_toggleDisplacement ( G3DUIMATERIALEDIT *matedit );
+uint64_t g3duimaterialedit_toggleBump ( G3DUIMATERIALEDIT *matedit );
+uint64_t g3duimaterialedit_toggleAlpha ( G3DUIMATERIALEDIT *matedit );
 
 /****************************** g3duimateriallist.c ***************************/
 
@@ -1690,23 +1692,23 @@ uint64_t g3duimaterialedit_toggleAlphaCbk ( G3DUIMATERIALEDIT *matedit );
 
 /******************************** g3duimeshedit.c *****************************/
 
-uint64_t g3duimeshedit_useIsoLinesCbk ( G3DUIMESHEDIT *mesedit );
-uint64_t g3duimeshedit_gouraudCbk ( G3DUIMESHEDIT *mesedit,
+uint64_t g3duimeshedit_useIsoLines ( G3DUIMESHEDIT *mesedit );
+uint64_t g3duimeshedit_gouraud ( G3DUIMESHEDIT *mesedit,
                                     float          scalarLimit );
-uint64_t g3duimeshedit_toggleShadingCbk ( G3DUIMESHEDIT *mesedit );
+uint64_t g3duimeshedit_toggleShading ( G3DUIMESHEDIT *mesedit );
 
 /****************************** g3duimeshposelist.c ***************************/
 
 /********************************* g3duimodebar.c *****************************/
 
-uint64_t g3duimodebar_setModeCbk ( G3DUIMODEBAR *gmb,
+uint64_t g3duimodebar_setMode ( G3DUIMODEBAR *gmb,
                                    const char   *modename );
-uint64_t m3duimodebar_setModeCbk ( M3DUIMODEBAR *mmb, 
+uint64_t m3duimodebar_setMode ( M3DUIMODEBAR *mmb, 
                                    const char   *modename );
 
 /******************************** g3duiobjectedit.c ***************************/
 
-uint64_t g3duiobjectedit_nameCbk ( G3DUIOBJECTEDIT *goe,
+uint64_t g3duiobjectedit_name ( G3DUIOBJECTEDIT *goe,
                                    const char      *name );
 
 /******************************** g3duiobjectboard.c **************************/
@@ -1716,100 +1718,113 @@ void g3duiobjectboard_resize ( G3DUIOBJECTBOARD *objbrd,
 
 /*************************** g3duiparticleemitteredit.c ***********************/
 
-uint64_t g3duiparticleemitteredit_gravityForceXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_startAtFrame ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                    uint32_t                  startAtFrame );
+uint64_t g3duiparticleemitteredit_endAtFrame ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                  uint32_t                  endAtFrame );
+uint64_t g3duiparticleemitteredit_radius ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                              float                     radius );
+uint64_t g3duiparticleemitteredit_lifetime ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                uint32_t                  lifetime );
+uint64_t g3duiparticleemitteredit_ppf ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                           float                     ppf );
+uint64_t g3duiparticleemitteredit_displayPart ( G3DUIPARTICLEEMITTEREDIT *gpeedit );
+uint64_t g3duiparticleemitteredit_maxPreviews ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+                                                   uint32_t                  maxPreviews );
+uint64_t g3duiparticleemitteredit_gravityForceX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     g );
-uint64_t g3duiparticleemitteredit_gravityForceYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_gravityForceY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     g );
-uint64_t g3duiparticleemitteredit_gravityForceZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_gravityForceZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     g );
-uint64_t g3duiparticleemitteredit_initialVarTranspCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarTransp ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                         float                     initialVarTransp );
-uint64_t g3duiparticleemitteredit_initialVarRotXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarRotX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                       float                     initialVarRotX );
-uint64_t g3duiparticleemitteredit_initialVarRotYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarRotY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                       float                     initialVarRotY );
-uint64_t g3duiparticleemitteredit_initialVarRotZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarRotZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                       float                     initialVarRotZ );
-uint64_t g3duiparticleemitteredit_initialVarScaXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarScaX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                       float                     initialVarScaX );
-uint64_t g3duiparticleemitteredit_initialVarScaYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarScaY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                       float                     initialVarScaY );
-uint64_t g3duiparticleemitteredit_initialVarScaZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarScaZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                       float                     initialVarScaZ );
-uint64_t g3duiparticleemitteredit_initialVarSpeedXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarSpeedX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                         float                     initialVarSpeedX );
-uint64_t g3duiparticleemitteredit_initialVarSpeedYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarSpeedY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                         float                     initialVarSpeedY );
-uint64_t g3duiparticleemitteredit_initialVarSpeedZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarSpeedZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                         float                     initialVarSpeedZ );
-uint64_t g3duiparticleemitteredit_initialVarAccelXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarAccelX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                         float                     initialVarAccelX );
-uint64_t g3duiparticleemitteredit_initialVarAccelYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarAccelY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                         float                     initialVarAccelY );
-uint64_t g3duiparticleemitteredit_initialVarAccelZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarAccelZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                         float                     initialVarAccelZ );
-uint64_t g3duiparticleemitteredit_finalTranspCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalTransp ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalTransp );
-uint64_t g3duiparticleemitteredit_finalRotXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalRotX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                  float                     finalRotX );
-uint64_t g3duiparticleemitteredit_finalRotYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalRotY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                  float                     finalRotY );
-uint64_t g3duiparticleemitteredit_finalRotZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalRotZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                  float                     finalRotZ );
-uint64_t g3duiparticleemitteredit_finalScaXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalScaX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                  float                     finalScaX );
-uint64_t g3duiparticleemitteredit_finalScaYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalScaY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                  float                     finalScaY );
-uint64_t g3duiparticleemitteredit_finalScaZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalScaZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                  float                     finalScaZ );
-uint64_t g3duiparticleemitteredit_finalSpeedXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalSpeedX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalSpeedX );
-uint64_t g3duiparticleemitteredit_finalSpeedYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalSpeedY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalSpeedY );
-uint64_t g3duiparticleemitteredit_finalSpeedZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalSpeedZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalSpeedZ );
-uint64_t g3duiparticleemitteredit_finalAccelXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalAccelX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalAccelX );
-uint64_t g3duiparticleemitteredit_finalAccelYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalAccelY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalAccelY );
-uint64_t g3duiparticleemitteredit_finalAccelZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalAccelZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalAccelZ );
-uint64_t g3duiparticleemitteredit_initialTranspCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialTransp ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialTransp );
-uint64_t g3duiparticleemitteredit_initialRotXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialRotX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialRotX );
-uint64_t g3duiparticleemitteredit_initialRotYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialRotY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialRotY );
-uint64_t g3duiparticleemitteredit_initialRotZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialRotZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialRotZ );
-uint64_t g3duiparticleemitteredit_initialScaXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialScaX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialScaX );
-uint64_t g3duiparticleemitteredit_initialScaYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialScaY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialScaY );
-uint64_t g3duiparticleemitteredit_initialScaZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialScaZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialScaZ );
-uint64_t g3duiparticleemitteredit_initialSpeedXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialSpeedX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialSpeedX );
-uint64_t g3duiparticleemitteredit_initialSpeedYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialSpeedY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialSpeedY );
-uint64_t g3duiparticleemitteredit_initialSpeedZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialSpeedZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialSpeedZ );
-uint64_t g3duiparticleemitteredit_initialAccelXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialAccelX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialAccelX );
-uint64_t g3duiparticleemitteredit_initialAccelYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialAccelY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialAccelY );
-uint64_t g3duiparticleemitteredit_initialAccelZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialAccelZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialAccelZ );
 
 /********************************* g3duiplaneedit.c ***************************/
 
-uint64_t g3duiplaneedit_divCbk  ( G3DUIPLANEEDIT *plnedit,
+uint64_t g3duiplaneedit_div  ( G3DUIPLANEEDIT *plnedit,
                                   G3DUIAXIS       axis,
                                   int             div );
-uint64_t g3duiplaneedit_radiusCbk ( G3DUIPLANEEDIT *plnedit,
+uint64_t g3duiplaneedit_radius ( G3DUIPLANEEDIT *plnedit,
                                     G3DUIAXIS       axis,
                                     float           radius );
-uint64_t g3duiplaneedit_orientationCbk ( G3DUIPLANEEDIT *plnedit,
+uint64_t g3duiplaneedit_orientation ( G3DUIPLANEEDIT *plnedit,
                                          const char     *oristr );
 
 /*********************************** g3duiquad.c ******************************/
@@ -1819,75 +1834,89 @@ void g3duiquad_resize ( G3DUIQUAD *quad,
                         uint32_t   height );
 void g3duiquad_init ( G3DUIQUAD *quad );
 
+/****************************** g3duirenderbuffer.c ***************************/
+#ifdef __MINGW32__
+void g3duirenderbuffer_clear ( G3DUIRENDERBUFFER *rbuf );
+void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
+                              HWND               hWnd,
+                              HDC                dc );
+#endif
+#ifdef __linux__
+void g3duirenderbuffer_clear ( G3DUIRENDERBUFFER *rbuf );
+void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
+                              Display            *dis,
+                              Window              win );
+#endif
+
 /******************************** g3duirenderedit.c ***************************/
 
-uint64_t g3duirenderedit_aaCbk ( G3DUIRENDEREDIT *redit );
-uint64_t g3duirenderedit_aaFullCbk ( G3DUIRENDEREDIT *redit );
-uint64_t g3duirenderedit_aaEdgeCbk ( G3DUIRENDEREDIT *redit );
-uint64_t g3duirenderedit_aaSamplesCbk ( G3DUIRENDEREDIT *redit,
+uint64_t g3duirenderedit_aa ( G3DUIRENDEREDIT *redit );
+uint64_t g3duirenderedit_aaFull ( G3DUIRENDEREDIT *redit );
+uint64_t g3duirenderedit_aaEdge ( G3DUIRENDEREDIT *redit );
+uint64_t g3duirenderedit_aaSamples ( G3DUIRENDEREDIT *redit,
                                         uint32_t         nbsamples );
-uint64_t g3duirenderedit_formatCbk ( G3DUIRENDEREDIT *redit,
+uint64_t g3duirenderedit_format ( G3DUIRENDEREDIT *redit,
                                      const char      *format );
-uint64_t g3duirenderedit_startFrameCbk ( G3DUIRENDEREDIT *redit,
+uint64_t g3duirenderedit_startFrame ( G3DUIRENDEREDIT *redit,
                                          float            frame );
-uint64_t g3duirenderedit_endFrameCbk ( G3DUIRENDEREDIT *redit,
+uint64_t g3duirenderedit_endFrame ( G3DUIRENDEREDIT *redit,
                                        float            frame );
-uint64_t g3duirenderedit_setMotionBlurCbk ( G3DUIRENDEREDIT *redit );
-uint64_t g3duirenderedit_setTexturingCbk ( G3DUIRENDEREDIT *redit );
-uint64_t g3duirenderedit_texturingColorCbk ( G3DUIRENDEREDIT *redit,
+uint64_t g3duirenderedit_setMotionBlur ( G3DUIRENDEREDIT *redit );
+uint64_t g3duirenderedit_setTexturing ( G3DUIRENDEREDIT *redit );
+uint64_t g3duirenderedit_texturingColor ( G3DUIRENDEREDIT *redit,
                                              unsigned char    R,
                                              unsigned char    G,
                                              unsigned char    B );
-uint64_t g3duirenderedit_setWireframeCbk ( G3DUIRENDEREDIT *redit );
-uint64_t g3duirenderedit_setWireframeLightingCbk ( G3DUIRENDEREDIT *redit );
-uint64_t g3duirenderedit_wireframeThicknessCbk ( G3DUIRENDEREDIT *redit,
+uint64_t g3duirenderedit_setWireframe ( G3DUIRENDEREDIT *redit );
+uint64_t g3duirenderedit_setWireframeLighting ( G3DUIRENDEREDIT *redit );
+uint64_t g3duirenderedit_wireframeThickness ( G3DUIRENDEREDIT *redit,
                                                  float  thickness );
-uint64_t g3duirenderedit_wireframeColorCbk ( G3DUIRENDEREDIT *redit, 
+uint64_t g3duirenderedit_wireframeColor ( G3DUIRENDEREDIT *redit, 
                                              unsigned char R, 
                                              unsigned char G, 
                                              unsigned char B );
-uint64_t g3duirenderedit_setFogStrengthCbk ( G3DUIRENDEREDIT *redit, 
+uint64_t g3duirenderedit_setFogStrength ( G3DUIRENDEREDIT *redit, 
                                              float            strength );
-uint64_t g3duirenderedit_setFogCbk ( G3DUIRENDEREDIT *redit );
-uint64_t g3duirenderedit_setFogAffectsBackgroundCbk ( G3DUIRENDEREDIT *redit );
-uint64_t g3duirenderedit_fogFarCbk ( G3DUIRENDEREDIT *redit,
+uint64_t g3duirenderedit_setFog ( G3DUIRENDEREDIT *redit );
+uint64_t g3duirenderedit_setFogAffectsBackground ( G3DUIRENDEREDIT *redit );
+uint64_t g3duirenderedit_fogFar ( G3DUIRENDEREDIT *redit,
                                      float            ffar );
-uint64_t g3duirenderedit_fogNearCbk ( G3DUIRENDEREDIT *redit,
+uint64_t g3duirenderedit_fogNear ( G3DUIRENDEREDIT *redit,
                                       float            fnear );
-uint64_t g3duirenderedit_fogColorCbk ( G3DUIRENDEREDIT *redit, 
+uint64_t g3duirenderedit_fogColor ( G3DUIRENDEREDIT *redit, 
                                        unsigned char    R, 
                                        unsigned char    G, 
                                        unsigned char    B );
-uint64_t g3duirenderedit_sceneMotionBlurCbk ( G3DUIRENDEREDIT *redit );
-uint64_t g3duirenderedit_vectorMotionBlurCbk ( G3DUIRENDEREDIT *redit );
-uint64_t g3duirenderedit_sceneMotionBlurIterationCbk ( G3DUIRENDEREDIT *redit, 
+uint64_t g3duirenderedit_sceneMotionBlur ( G3DUIRENDEREDIT *redit );
+uint64_t g3duirenderedit_vectorMotionBlur ( G3DUIRENDEREDIT *redit );
+uint64_t g3duirenderedit_sceneMotionBlurIteration ( G3DUIRENDEREDIT *redit, 
                                                        uint32_t nbstep );
-uint64_t g3duirenderedit_motionBlurStrengthCbk ( G3DUIRENDEREDIT *redit,
+uint64_t g3duirenderedit_motionBlurStrength ( G3DUIRENDEREDIT *redit,
                                                  float            strength );
-uint64_t g3duirenderedit_vectorMotionBlurSamplesCbk ( G3DUIRENDEREDIT *redit, 
+uint64_t g3duirenderedit_vectorMotionBlurSamples ( G3DUIRENDEREDIT *redit, 
                                                       uint32_t         nbSamples );
-uint64_t g3duirenderedit_vectorMotionBlurSubSamplingRateCbk ( G3DUIRENDEREDIT *redit, 
+uint64_t g3duirenderedit_vectorMotionBlurSubSamplingRate ( G3DUIRENDEREDIT *redit, 
                                                               float            subSamplingRate );
-uint64_t g3duirenderedit_fpsCbk ( G3DUIRENDEREDIT *redit,
+uint64_t g3duirenderedit_fps ( G3DUIRENDEREDIT *redit,
                                   uint32_t         fps );
-uint64_t g3duirenderedit_outputCbk ( G3DUIRENDEREDIT *redit, 
+uint64_t g3duirenderedit_output ( G3DUIRENDEREDIT *redit, 
                                      const char      *outfile );
-uint64_t g3duirenderedit_previewCbk ( G3DUIRENDEREDIT *redit );
-uint64_t g3duirenderedit_saveCbk ( G3DUIRENDEREDIT *redit,
+uint64_t g3duirenderedit_preview ( G3DUIRENDEREDIT *redit );
+uint64_t g3duirenderedit_save ( G3DUIRENDEREDIT *redit,
                                    uint32_t         save );
-uint64_t g3duirenderedit_widthCbk ( G3DUIRENDEREDIT *redit, 
+uint64_t g3duirenderedit_width ( G3DUIRENDEREDIT *redit, 
                                     uint32_t         width );
-uint64_t g3duirenderedit_heightCbk ( G3DUIRENDEREDIT *redit,
+uint64_t g3duirenderedit_height ( G3DUIRENDEREDIT *redit,
                                      uint32_t         height );
-uint64_t g3duirenderedit_ratioCbk ( G3DUIRENDEREDIT *redit, 
+uint64_t g3duirenderedit_ratio ( G3DUIRENDEREDIT *redit, 
                                     float            ratio );
-uint64_t g3duirenderedit_backgroundCbk ( G3DUIRENDEREDIT *redit, 
+uint64_t g3duirenderedit_background ( G3DUIRENDEREDIT *redit, 
                                          unsigned char    R, 
                                          unsigned char    G, 
                                          unsigned char    B );
-uint64_t g3duirenderedit_setBackgroundColorModeCbk ( G3DUIRENDEREDIT *redit );
-uint64_t g3duirenderedit_setBackgroundImageModeCbk ( G3DUIRENDEREDIT *redit );
-uint64_t g3duirenderedit_setBackgroundImageCbk ( G3DUIRENDEREDIT *redit,
+uint64_t g3duirenderedit_setBackgroundColorMode ( G3DUIRENDEREDIT *redit );
+uint64_t g3duirenderedit_setBackgroundImageMode ( G3DUIRENDEREDIT *redit );
+uint64_t g3duirenderedit_setBackgroundImage ( G3DUIRENDEREDIT *redit,
                                                  char            *filename );
 
 /****************************** g3duirenderprocess.c **************************/
@@ -1906,64 +1935,69 @@ void *g3duirenderprocess_render_sequence_t ( G3DUIRENDERPROCESS *rps );
 void g3duirenderprocess_filename ( G3DUIRENDERPROCESS *rps,
                                    char               *filename );
 
+/****************************** g3duirenderwindow.c ***************************/
+void g3duirenderwindow_resize ( G3DUIRENDERWINDOW *rwin,
+                                uint32_t           width, 
+                                uint32_t           height );
+
 /******************************* g3duisphereedit.c ****************************/
 
-uint64_t g3duisphereedit_togglePerfectCbk ( G3DUISPHEREEDIT *sphedit );
-uint64_t g3duisphereedit_radiusCbk ( G3DUISPHEREEDIT *sphedit,
+uint64_t g3duisphereedit_togglePerfect ( G3DUISPHEREEDIT *sphedit );
+uint64_t g3duisphereedit_radius ( G3DUISPHEREEDIT *sphedit,
                                      float            radius );
-uint64_t g3duisphereedit_capCbk ( G3DUISPHEREEDIT *sphedit,
+uint64_t g3duisphereedit_cap ( G3DUISPHEREEDIT *sphedit,
                                   uint32_t         cap );
-uint64_t g3duisphereedit_sliceCbk ( G3DUISPHEREEDIT *sphedit,
+uint64_t g3duisphereedit_slice ( G3DUISPHEREEDIT *sphedit,
                                     uint32_t         slice );
 
 /************************** g3duisplinerevolveredit.c *************************/
 
-uint64_t g3duisplinerevolveredit_splineRevolverStepsCbk ( G3DUISPLINEREVOLVEREDIT *srvedit,
+uint64_t g3duisplinerevolveredit_splineRevolverSteps ( G3DUISPLINEREVOLVEREDIT *srvedit,
                                                           uint32_t                 level );
-uint64_t g3duisplinerevolveredit_splineRevolverDivisCbk ( G3DUISPLINEREVOLVEREDIT *srvedit,  
+uint64_t g3duisplinerevolveredit_splineRevolverDivis ( G3DUISPLINEREVOLVEREDIT *srvedit,  
                                                           uint32_t                 level );
 
 /**************************** g3duisubdivideredit.c ***************************/
 
-uint64_t g3duisubdivideredit_displacementHeightCbk ( G3DUISUBDIVIDEREDIT *subedit );
-uint64_t g3duisubdivideredit_displacementSculptCbk ( G3DUISUBDIVIDEREDIT *subedit );
-uint64_t g3duisubdivideredit_subdivSyncCbk ( G3DUISUBDIVIDEREDIT *subedit );
-uint64_t g3duisubdivideredit_useIsoLinesCbk ( G3DUISUBDIVIDEREDIT *subedit );
-uint64_t g3duisubdivideredit_subdivRenderCbk ( G3DUISUBDIVIDEREDIT *subedit,
+uint64_t g3duisubdivideredit_displacementHeight ( G3DUISUBDIVIDEREDIT *subedit );
+uint64_t g3duisubdivideredit_displacementSculpt ( G3DUISUBDIVIDEREDIT *subedit );
+uint64_t g3duisubdivideredit_subdivSync ( G3DUISUBDIVIDEREDIT *subedit );
+uint64_t g3duisubdivideredit_useIsoLines ( G3DUISUBDIVIDEREDIT *subedit );
+uint64_t g3duisubdivideredit_subdivRender ( G3DUISUBDIVIDEREDIT *subedit,
                                                uint32_t             level );
-uint64_t g3duisubdivideredit_subdivPreviewCbk ( G3DUISUBDIVIDEREDIT *subedit,
+uint64_t g3duisubdivideredit_subdivPreview ( G3DUISUBDIVIDEREDIT *subedit,
                                                 uint32_t             level );
 
 /***************************** g3duisymmetryedit.c ****************************/
 
-uint64_t g3duisymmetryedit_limitCbk ( G3DUISYMMETRYEDIT *symedit,
+uint64_t g3duisymmetryedit_limit ( G3DUISYMMETRYEDIT *symedit,
                                       float              limit );
-uint64_t g3duisymmetryedit_planeCbk ( G3DUISYMMETRYEDIT *symedit,
+uint64_t g3duisymmetryedit_plane ( G3DUISYMMETRYEDIT *symedit,
                                       char              *orientation );
 
 /******************************* g3duitextedit.c ******************************/
 
-uint64_t g3duitextedit_setTextCbk ( G3DUITEXTEDIT *txtedit,
+uint64_t g3duitextedit_setText ( G3DUITEXTEDIT *txtedit,
                                     char          *newText );
-uint64_t g3duitextedit_thicknessCbk ( G3DUITEXTEDIT *txtedit,
+uint64_t g3duitextedit_thickness ( G3DUITEXTEDIT *txtedit,
                                       float          thickness );
-uint64_t g3duitextedit_roundnessCbk ( G3DUITEXTEDIT *txtedit,
+uint64_t g3duitextedit_roundness ( G3DUITEXTEDIT *txtedit,
                                       uint32_t       roundness );
-uint64_t g3duitextedit_sizeCbk ( G3DUITEXTEDIT *txtedit,
+uint64_t g3duitextedit_size ( G3DUITEXTEDIT *txtedit,
                                  uint32_t       size );
 
 /****************************** g3duitextureedit.c ****************************/
 
-uint64_t g3duitextureedit_toggleRestrictCbk ( G3DUITEXTUREEDIT *texedit );
-uint64_t g3duitextureedit_toggleRepeatCbk ( G3DUITEXTUREEDIT *texedit );
-uint64_t g3duitextureedit_setUVMapCbk ( G3DUITEXTUREEDIT *texedit,
+uint64_t g3duitextureedit_toggleRestrict ( G3DUITEXTUREEDIT *texedit );
+uint64_t g3duitextureedit_toggleRepeat ( G3DUITEXTUREEDIT *texedit );
+uint64_t g3duitextureedit_setUVMap ( G3DUITEXTUREEDIT *texedit,
                                         uint32_t         rank );
 
 /******************************* g3duitimeboard.c *****************************/
 
-uint64_t g3duitimeboard_stopCbk ( G3DUITIMEBOARD *tbrd );
-uint64_t g3duitimeboard_gotoFrameCbk ( G3DUITIMEBOARD *tbrd );
-uint64_t g3duitimeboard_recordFrameCbk ( G3DUITIMEBOARD *tbrd,
+uint64_t g3duitimeboard_stop ( G3DUITIMEBOARD *tbrd );
+uint64_t g3duitimeboard_gotoFrame ( G3DUITIMEBOARD *tbrd );
+uint64_t g3duitimeboard_recordFrame ( G3DUITIMEBOARD *tbrd,
                                          uint32_t        key_flags );
 void g3duitimeboard_resize ( G3DUITIMEBOARD *tbrd, 
                              uint32_t        width, 
@@ -1971,11 +2005,11 @@ void g3duitimeboard_resize ( G3DUITIMEBOARD *tbrd,
 
 /******************************* g3duitimeline.c ******************************/
 
-uint64_t g3duitimeline_scaleSelectedKeysCbk ( G3DUITIMELINE *tim, 
+uint64_t g3duitimeline_scaleSelectedKeys ( G3DUITIMELINE *tim, 
                                               float  factor, 
                                               float  reference );
-uint64_t g3duitimeline_deleteSelectedKeysCbk ( G3DUITIMELINE *tim );
-uint64_t g3duitimeline_selectAllKeysCbk ( G3DUITIMELINE *tim );
+uint64_t g3duitimeline_deleteSelectedKeys ( G3DUITIMELINE *tim );
+uint64_t g3duitimeline_selectAllKeys ( G3DUITIMELINE *tim );
 uint32_t g3duitimeline_selectKey ( G3DUITIMELINE *tim,
                                    int           frame,
                                    int           keep,
@@ -2007,43 +2041,43 @@ void g3duitimeline_setTool ( G3DUITIMELINE *tim,
 
 /******************************* g3duitorusedit.c *****************************/
 
-uint64_t g3duitorusedit_sliceCbk ( G3DUITORUSEDIT *toredit,
+uint64_t g3duitorusedit_slice ( G3DUITORUSEDIT *toredit,
                                    uint32_t        slice );
-uint64_t g3duitorusedit_capCbk ( G3DUITORUSEDIT *toredit,
+uint64_t g3duitorusedit_cap ( G3DUITORUSEDIT *toredit,
                                  uint32_t        cap );
-uint64_t g3duitorusedit_extRadiusCbk ( G3DUITORUSEDIT *toredit,
+uint64_t g3duitorusedit_extRadius ( G3DUITORUSEDIT *toredit,
                                        float           extrad );
-uint64_t g3duitorusedit_intRadiusCbk ( G3DUITORUSEDIT *toredit,
+uint64_t g3duitorusedit_intRadius ( G3DUITORUSEDIT *toredit,
                                        float           intrad );
-uint64_t g3duitorusedit_orientationCbk ( G3DUITORUSEDIT *toredit,
+uint64_t g3duitorusedit_orientation ( G3DUITORUSEDIT *toredit,
                                          const char     *oristr );
 
 /***************************** g3duitrackertagedit.c **************************/
 
-uint64_t g3duitrackertagedit_orientationCbk ( G3DUITRACKERTAGEDIT *ttedit, 
+uint64_t g3duitrackertagedit_orientation ( G3DUITRACKERTAGEDIT *ttedit, 
                                               char                *str );
-uint64_t g3duitrackertagedit_setTargetCbk ( G3DUITRACKERTAGEDIT *ttedit, 
+uint64_t g3duitrackertagedit_setTarget ( G3DUITRACKERTAGEDIT *ttedit, 
                                             uint32_t             rank );
 
 /******************************** g3duitubeedit.c *****************************/
 
-uint64_t g3duitubeedit_lengthCbk ( G3DUITUBEEDIT *tubedit,
+uint64_t g3duitubeedit_length ( G3DUITUBEEDIT *tubedit,
                                    float          length );
-uint64_t g3duitubeedit_radiusCbk ( G3DUITUBEEDIT *tubedit,
+uint64_t g3duitubeedit_radius ( G3DUITUBEEDIT *tubedit,
                                    float          radius );
-uint64_t g3duitubeedit_thicknessCbk ( G3DUITUBEEDIT *tubedit,
+uint64_t g3duitubeedit_thickness ( G3DUITUBEEDIT *tubedit,
                                       float          thickness );
-uint64_t g3duitubeedit_capCbk ( G3DUITUBEEDIT *tubedit,
+uint64_t g3duitubeedit_cap ( G3DUITUBEEDIT *tubedit,
                                 G3DUIAXIS      axis,
                                 uint32_t       cap );
-uint64_t g3duitubeedit_sliceCbk ( G3DUITUBEEDIT *tubedit,
+uint64_t g3duitubeedit_slice ( G3DUITUBEEDIT *tubedit,
                                   uint32_t       slice );
 
 /******************************** g3duiuvmapedit.c ****************************/
 
-uint64_t g3duiuvmapedit_projectionCbk ( G3DUIUVMAPEDIT *uvedit,
+uint64_t g3duiuvmapedit_projection ( G3DUIUVMAPEDIT *uvedit,
                                         const char     *projection );
-uint64_t g3duiuvmapedit_lockUVMapCbk ( G3DUIUVMAPEDIT *uvedit );
+uint64_t g3duiuvmapedit_lockUVMap ( G3DUIUVMAPEDIT *uvedit );
 
 /*********************************** g3duiview.c ******************************/
 
@@ -2084,7 +2118,7 @@ void g3duiview_showRenderingArea ( G3DUIVIEW *view,
 void g3duiview_showGL ( G3DUIVIEW    *view,
                         uint64_t      engine_flags );
 
-uint64_t g3duiview_setShadingCbk ( G3DUIVIEW *view,
+uint64_t g3duiview_setShading ( G3DUIVIEW *view,
                                    char      *shading );
 
 /*************************** g3duiweightgrouplist.c ***************************/
@@ -2093,17 +2127,17 @@ G3DWEIGHTGROUP *g3duiweightgrouplist_getWeightGroup ( G3DUIWEIGHTGROUPLIST *wgrp
                                                       G3DMESH              *mes, 
                                                       float                mouse_x,
                                                       float                mouse_y );
-uint64_t g3duiweightgrouplist_deleteWeightGroupCbk ( G3DUIWEIGHTGROUPLIST *wgrplist );
-uint64_t g3duiweightgrouplist_addWeightGroupCbk ( G3DUIWEIGHTGROUPLIST *wgrplist );
-uint64_t g3duiweightgrouplist_nameCbk ( G3DUIWEIGHTGROUPLIST *wgrplist,
+uint64_t g3duiweightgrouplist_deleteWeightGroup ( G3DUIWEIGHTGROUPLIST *wgrplist );
+uint64_t g3duiweightgrouplist_addWeightGroup ( G3DUIWEIGHTGROUPLIST *wgrplist );
+uint64_t g3duiweightgrouplist_name ( G3DUIWEIGHTGROUPLIST *wgrplist,
                                         const char           *grpname );
-uint64_t g3duiweightgrouplist_deleteSelectedCbk ( G3DUIWEIGHTGROUPLIST *wgrplist );
-uint64_t g3duiweightgrouplist_selectCbk ( G3DUIWEIGHTGROUPLIST *wgrplist,
+uint64_t g3duiweightgrouplist_deleteSelected ( G3DUIWEIGHTGROUPLIST *wgrplist );
+uint64_t g3duiweightgrouplist_select ( G3DUIWEIGHTGROUPLIST *wgrplist,
                                           G3DWEIGHTGROUP       *grp );
 
 /******************************* g3duiwireframeedit.c ****************************/
 
-uint64_t g3duiwireframeedit_thicknessCbk ( G3DUIWIREFRAMEEDIT *wfmedit,
+uint64_t g3duiwireframeedit_thickness ( G3DUIWIREFRAMEEDIT *wfmedit,
                                            float               thickness );
 
 /****************************** menu/condition.c ******************************/
@@ -2164,14 +2198,14 @@ Q3DFILTER *q3dfilter_preview_new ( G3DUI *gui );
 
 
 /********************************* M3DUI **************************************/
-uint64_t m3dui_redoCbk ( M3DUI *mui );
-uint64_t m3dui_undoCbk ( M3DUI *mui );
-uint64_t m3dui_fillWithColorCbk ( M3DUI   *mui, 
+uint64_t m3dui_redo ( M3DUI *mui );
+uint64_t m3dui_undo ( M3DUI *mui );
+uint64_t m3dui_fillWithColor ( M3DUI   *mui, 
                                uint32_t color );
-uint64_t m3dui_fac2uvsetCbk ( M3DUI *mui );
-uint64_t m3dui_uv2verCbk ( M3DUI *mui );
-uint64_t m3dui_ver2uvCbk ( M3DUI *mui );
-uint64_t m3dui_uvset2facCbk ( M3DUI *mui );
+uint64_t m3dui_fac2uvset ( M3DUI *mui );
+uint64_t m3dui_uv2ver ( M3DUI *mui );
+uint64_t m3dui_ver2uv ( M3DUI *mui );
+uint64_t m3dui_uvset2fac ( M3DUI *mui );
 G3DCHANNEL *m3dui_getWorkingChannel ( M3DUI *mui );
 void m3dui_resizeBuffers ( M3DUI *mui );
 void m3dui_setCanevas ( M3DUI *mui );

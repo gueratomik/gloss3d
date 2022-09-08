@@ -50,7 +50,7 @@ void g3duitimeboard_resize ( G3DUITIMEBOARD *tbrd,
 }
 
 /******************************************************************************/
-uint64_t g3duitimeboard_stopCbk ( G3DUITIMEBOARD *tbrd ) {
+uint64_t g3duitimeboard_stop ( G3DUITIMEBOARD *tbrd ) {
     G3DUI *gui = tbrd->gui;
 
     /*** if scene is currently played ***/
@@ -76,7 +76,7 @@ uint64_t g3duitimeboard_stopCbk ( G3DUITIMEBOARD *tbrd ) {
 }
 
 /******************************************************************************/
-uint64_t g3duitimeboard_gotoFrameCbk ( G3DUITIMEBOARD *tbrd ) {
+uint64_t g3duitimeboard_gotoFrame ( G3DUITIMEBOARD *tbrd ) {
     G3DUI *gui = tbrd->gui;
     G3DSCENE *sce = gui->sce;
 
@@ -98,7 +98,7 @@ uint64_t g3duitimeboard_gotoFrameCbk ( G3DUITIMEBOARD *tbrd ) {
 }
 
 /******************************************************************************/
-uint64_t g3duitimeboard_recordFrameCbk ( G3DUITIMEBOARD *tbrd,
+uint64_t g3duitimeboard_recordFrame ( G3DUITIMEBOARD *tbrd,
                                          uint32_t        key_flags ) {
     G3DUI *gui = tbrd->gui;
     G3DSCENE *sce = gui->sce;

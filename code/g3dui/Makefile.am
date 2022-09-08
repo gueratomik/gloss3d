@@ -40,8 +40,10 @@ if HAVE_GTK3
                             common/m3duipatternlist.c \
                             common/g3duiplaneedit.c \
                             common/g3duiquad.c \
+                            common/g3duirenderbuffer.c \
                             common/g3duirenderedit.c \
                             common/g3duirenderprocess.c \
+                            common/g3duirenderwindow.c \
                             common/g3duisphereedit.c \
                             common/g3duisplinerevolveredit.c \
                             common/g3duisubdivideredit.c \
@@ -89,6 +91,7 @@ if HAVE_GTK3
                             gtk3/g3duiplaneedit.c \
                             gtk3/g3duiparticleemitteredit.c \
                             gtk3/g3duiquad.c \
+                            gtk3/g3duirenderwindow.c \
                             gtk3/g3duisphereedit.c \
                             gtk3/g3duisubdivideredit.c \
                             gtk3/g3duitimeboard.c \

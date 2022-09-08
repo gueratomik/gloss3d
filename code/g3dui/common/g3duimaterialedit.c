@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-static void setChannelColorCbk ( G3DCHANNEL *cha,
+static void setChannelColor ( G3DCHANNEL *cha,
                                  float       R,
                                  float       G,
                                  float       B,
@@ -42,7 +42,7 @@ static void setChannelColorCbk ( G3DCHANNEL *cha,
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_setDiffuseColorCbk ( G3DUIMATERIALEDIT *matedit, 
+uint64_t g3duimaterialedit_setDiffuseColor ( G3DUIMATERIALEDIT *matedit, 
                                                 float              R,
                                                 float              G,
                                                 float              B,
@@ -56,7 +56,7 @@ uint64_t g3duimaterialedit_setDiffuseColorCbk ( G3DUIMATERIALEDIT *matedit,
                                                        DIFFUSECHANNELID );
 
         if ( cha ) {
-            setChannelColorCbk ( cha, R, G, B, A );
+            setChannelColor ( cha, R, G, B, A );
         }
 
         ltmpselmat = ltmpselmat->next;
@@ -67,7 +67,7 @@ uint64_t g3duimaterialedit_setDiffuseColorCbk ( G3DUIMATERIALEDIT *matedit,
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_setSpecularColorCbk ( G3DUIMATERIALEDIT *matedit, 
+uint64_t g3duimaterialedit_setSpecularColor ( G3DUIMATERIALEDIT *matedit, 
                                                  float              R,
                                                  float              G,
                                                  float              B,
@@ -81,7 +81,7 @@ uint64_t g3duimaterialedit_setSpecularColorCbk ( G3DUIMATERIALEDIT *matedit,
                                                        SPECULARCHANNELID );
 
         if ( cha ) {
-            setChannelColorCbk ( cha, R, G, B, A );
+            setChannelColor ( cha, R, G, B, A );
         }
 
         ltmpselmat = ltmpselmat->next;
@@ -92,7 +92,7 @@ uint64_t g3duimaterialedit_setSpecularColorCbk ( G3DUIMATERIALEDIT *matedit,
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_setDisplacementStrengthCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_setDisplacementStrength ( G3DUIMATERIALEDIT *matedit,
                                                         float              strength ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
@@ -103,7 +103,7 @@ uint64_t g3duimaterialedit_setDisplacementStrengthCbk ( G3DUIMATERIALEDIT *mated
                                                        DISPLACEMENTCHANNELID );
 
         if ( cha ) {
-            setChannelColorCbk ( cha, strength, strength, strength, strength );
+            setChannelColor ( cha, strength, strength, strength, strength );
 
             g3dmaterial_updateMeshes ( mat, gui->sce, gui->engine_flags );
         }
@@ -116,7 +116,7 @@ uint64_t g3duimaterialedit_setDisplacementStrengthCbk ( G3DUIMATERIALEDIT *mated
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_setBumpStrengthCbk ( G3DUIMATERIALEDIT *matedit, 
+uint64_t g3duimaterialedit_setBumpStrength ( G3DUIMATERIALEDIT *matedit, 
                                                 float              strength ) {
 
     G3DUI *gui = matedit->gui;
@@ -128,7 +128,7 @@ uint64_t g3duimaterialedit_setBumpStrengthCbk ( G3DUIMATERIALEDIT *matedit,
                                                        BUMPCHANNELID );
 
         if ( cha ) {
-            setChannelColorCbk ( cha, strength, strength, strength, strength );
+            setChannelColor ( cha, strength, strength, strength, strength );
         }
 
         ltmpselmat = ltmpselmat->next;
@@ -139,7 +139,7 @@ uint64_t g3duimaterialedit_setBumpStrengthCbk ( G3DUIMATERIALEDIT *matedit,
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_setReflectionStrengthCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_setReflectionStrength ( G3DUIMATERIALEDIT *matedit,
                                                       float              strength ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
@@ -150,7 +150,7 @@ uint64_t g3duimaterialedit_setReflectionStrengthCbk ( G3DUIMATERIALEDIT *matedit
                                                        REFLECTIONCHANNELID );
 
         if ( cha ) {
-            setChannelColorCbk ( cha, strength, strength, strength, strength );
+            setChannelColor ( cha, strength, strength, strength, strength );
         }
 
         ltmpselmat = ltmpselmat->next;
@@ -161,7 +161,7 @@ uint64_t g3duimaterialedit_setReflectionStrengthCbk ( G3DUIMATERIALEDIT *matedit
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_setRefractionStrengthCbk ( G3DUIMATERIALEDIT *matedit, 
+uint64_t g3duimaterialedit_setRefractionStrength ( G3DUIMATERIALEDIT *matedit, 
                                                       float              strength ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
@@ -172,7 +172,7 @@ uint64_t g3duimaterialedit_setRefractionStrengthCbk ( G3DUIMATERIALEDIT *matedit
                                                        REFRACTIONCHANNELID );
 
         if ( cha ) {
-            setChannelColorCbk ( cha, strength, strength, strength, strength );
+            setChannelColor ( cha, strength, strength, strength, strength );
         }
 
         ltmpselmat = ltmpselmat->next;
@@ -183,7 +183,7 @@ uint64_t g3duimaterialedit_setRefractionStrengthCbk ( G3DUIMATERIALEDIT *matedit
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_setAlphaStrengthCbk ( G3DUIMATERIALEDIT *matedit, 
+uint64_t g3duimaterialedit_setAlphaStrength ( G3DUIMATERIALEDIT *matedit, 
                                                  float              strength ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
@@ -201,7 +201,7 @@ uint64_t g3duimaterialedit_setAlphaStrengthCbk ( G3DUIMATERIALEDIT *matedit,
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_setNameCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_setName ( G3DUIMATERIALEDIT *matedit,
                                         const char        *name ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
@@ -219,7 +219,7 @@ uint64_t g3duimaterialedit_setNameCbk ( G3DUIMATERIALEDIT *matedit,
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_setSpecularLevelCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_setSpecularLevel ( G3DUIMATERIALEDIT *matedit,
                                                  float              val ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
@@ -237,7 +237,7 @@ uint64_t g3duimaterialedit_setSpecularLevelCbk ( G3DUIMATERIALEDIT *matedit,
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_setSpecularShininessCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_setSpecularShininess ( G3DUIMATERIALEDIT *matedit,
                                                      float              val ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
@@ -255,7 +255,7 @@ uint64_t g3duimaterialedit_setSpecularShininessCbk ( G3DUIMATERIALEDIT *matedit,
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_channelChooseImageCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_channelChooseImage ( G3DUIMATERIALEDIT *matedit,
                                                    uint32_t           channelID,
                                                    char              *filename,
                                                    uint32_t           bindGL ) {
@@ -300,7 +300,7 @@ uint64_t g3duimaterialedit_channelChooseImageCbk ( G3DUIMATERIALEDIT *matedit,
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_enableProceduralCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_enableProcedural ( G3DUIMATERIALEDIT *matedit,
                                                  uint32_t           channelID ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
@@ -329,7 +329,7 @@ uint64_t g3duimaterialedit_enableProceduralCbk ( G3DUIMATERIALEDIT *matedit,
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_enableSolidColorCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_enableSolidColor ( G3DUIMATERIALEDIT *matedit,
                                                  uint32_t           channelID ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
@@ -358,7 +358,7 @@ uint64_t g3duimaterialedit_enableSolidColorCbk ( G3DUIMATERIALEDIT *matedit,
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_enableImageCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_enableImage ( G3DUIMATERIALEDIT *matedit,
                                             uint32_t           channelID ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
@@ -384,7 +384,7 @@ uint64_t g3duimaterialedit_enableImageCbk ( G3DUIMATERIALEDIT *matedit,
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_chooseProceduralCbk ( G3DUIMATERIALEDIT *matedit,
+uint64_t g3duimaterialedit_chooseProcedural ( G3DUIMATERIALEDIT *matedit,
                                                  uint32_t           channelID,
                                                  const char        *procType,
                                                  const char        *procRes,
@@ -448,7 +448,7 @@ uint64_t g3duimaterialedit_chooseProceduralCbk ( G3DUIMATERIALEDIT *matedit,
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_toggleDisplacementCbk ( G3DUIMATERIALEDIT *matedit ) {
+uint64_t g3duimaterialedit_toggleDisplacement ( G3DUIMATERIALEDIT *matedit ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 
@@ -471,7 +471,7 @@ uint64_t g3duimaterialedit_toggleDisplacementCbk ( G3DUIMATERIALEDIT *matedit ) 
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_toggleBumpCbk ( G3DUIMATERIALEDIT *matedit ) {
+uint64_t g3duimaterialedit_toggleBump ( G3DUIMATERIALEDIT *matedit ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 
@@ -494,7 +494,7 @@ uint64_t g3duimaterialedit_toggleBumpCbk ( G3DUIMATERIALEDIT *matedit ) {
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_toggleAlphaCbk ( G3DUIMATERIALEDIT *matedit ) {
+uint64_t g3duimaterialedit_toggleAlpha ( G3DUIMATERIALEDIT *matedit ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 

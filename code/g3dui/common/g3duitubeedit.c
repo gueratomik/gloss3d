@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duitubeedit_lengthCbk ( G3DUITUBEEDIT *tubedit,
+uint64_t g3duitubeedit_length ( G3DUITUBEEDIT *tubedit,
                                    float          length ) {
     G3DUI *gui = tubedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -60,7 +60,7 @@ uint64_t g3duitubeedit_lengthCbk ( G3DUITUBEEDIT *tubedit,
 }
 
 /******************************************************************************/
-uint64_t g3duitubeedit_radiusCbk ( G3DUITUBEEDIT *tubedit,
+uint64_t g3duitubeedit_radius ( G3DUITUBEEDIT *tubedit,
                                    float          radius ) {
     G3DUI *gui = tubedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -90,7 +90,7 @@ uint64_t g3duitubeedit_radiusCbk ( G3DUITUBEEDIT *tubedit,
 }
 
 /******************************************************************************/
-uint64_t g3duitubeedit_thicknessCbk ( G3DUITUBEEDIT *tubedit,
+uint64_t g3duitubeedit_thickness ( G3DUITUBEEDIT *tubedit,
                                       float          thickness ) {
     G3DUI *gui = tubedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -120,7 +120,7 @@ uint64_t g3duitubeedit_thicknessCbk ( G3DUITUBEEDIT *tubedit,
 }
 
 /******************************************************************************/
-uint64_t g3duitubeedit_capCbk ( G3DUITUBEEDIT *tubedit,
+uint64_t g3duitubeedit_cap ( G3DUITUBEEDIT *tubedit,
                                 G3DUIAXIS      axis,
                                 uint32_t       cap ) {
     G3DUI *gui = tubedit->gui;
@@ -159,7 +159,7 @@ uint64_t g3duitubeedit_capCbk ( G3DUITUBEEDIT *tubedit,
 }
 
 /******************************************************************************/
-uint64_t g3duitubeedit_sliceCbk ( G3DUITUBEEDIT *tubedit,
+uint64_t g3duitubeedit_slice ( G3DUITUBEEDIT *tubedit,
                                   uint32_t       slice ) {
     G3DUI *gui = tubedit->gui;
     G3DSCENE *sce = gui->sce;

@@ -48,7 +48,7 @@
     }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_gravityForceXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_gravityForceX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     g ) {
 
     LISTLOOP(gpeedit, gravity.x, g);
@@ -57,7 +57,7 @@ uint64_t g3duiparticleemitteredit_gravityForceXCbk ( G3DUIPARTICLEEMITTEREDIT *g
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_gravityForceYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_gravityForceY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     g ) {
     LISTLOOP(gpeedit, gravity.y, g);
 
@@ -65,7 +65,7 @@ uint64_t g3duiparticleemitteredit_gravityForceYCbk ( G3DUIPARTICLEEMITTEREDIT *g
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_gravityForceZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_gravityForceZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     g ) {
 
     LISTLOOP(gpeedit, gravity.z, g);
@@ -74,7 +74,7 @@ uint64_t g3duiparticleemitteredit_gravityForceZCbk ( G3DUIPARTICLEEMITTEREDIT *g
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialVarTranspCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarTransp ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                         float                     initialVarTransp ) {
     LISTLOOP(gpeedit, initialVarTransparency, initialVarTransp);
 
@@ -82,7 +82,7 @@ uint64_t g3duiparticleemitteredit_initialVarTranspCbk ( G3DUIPARTICLEEMITTEREDIT
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialVarRotXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarRotX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                       float                     initialVarRotX ) {
     LISTLOOP(gpeedit, initialVarRotation.x, initialVarRotX);
 
@@ -90,7 +90,7 @@ uint64_t g3duiparticleemitteredit_initialVarRotXCbk ( G3DUIPARTICLEEMITTEREDIT *
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialVarRotYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarRotY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                       float                     initialVarRotY ) {
     LISTLOOP(gpeedit, initialVarRotation.y, initialVarRotY);
 
@@ -98,7 +98,7 @@ uint64_t g3duiparticleemitteredit_initialVarRotYCbk ( G3DUIPARTICLEEMITTEREDIT *
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialVarRotZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarRotZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                       float                     initialVarRotZ ) {
     LISTLOOP(gpeedit, initialVarRotation.z, initialVarRotZ);
 
@@ -106,7 +106,7 @@ uint64_t g3duiparticleemitteredit_initialVarRotZCbk ( G3DUIPARTICLEEMITTEREDIT *
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialVarScaXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarScaX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                       float                     initialVarScaX ) {
 
     LISTLOOP(gpeedit, initialVarScaling.x, initialVarScaX);
@@ -115,7 +115,7 @@ uint64_t g3duiparticleemitteredit_initialVarScaXCbk ( G3DUIPARTICLEEMITTEREDIT *
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialVarScaYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarScaY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                       float                     initialVarScaY ) {
     LISTLOOP(gpeedit, initialVarScaling.y, initialVarScaY);
 
@@ -123,7 +123,7 @@ uint64_t g3duiparticleemitteredit_initialVarScaYCbk ( G3DUIPARTICLEEMITTEREDIT *
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialVarScaZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarScaZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                       float                     initialVarScaZ ) {
     LISTLOOP(gpeedit, initialVarScaling.z, initialVarScaZ);
 
@@ -131,7 +131,7 @@ uint64_t g3duiparticleemitteredit_initialVarScaZCbk ( G3DUIPARTICLEEMITTEREDIT *
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialVarSpeedXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarSpeedX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                         float                     initialVarSpeedX ) {
     LISTLOOP(gpeedit, initialVarSpeed.x, initialVarSpeedX);
 
@@ -139,7 +139,7 @@ uint64_t g3duiparticleemitteredit_initialVarSpeedXCbk ( G3DUIPARTICLEEMITTEREDIT
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialVarSpeedYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarSpeedY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                         float                     initialVarSpeedY ) {
     LISTLOOP(gpeedit, initialVarSpeed.y, initialVarSpeedY);
 
@@ -147,7 +147,7 @@ uint64_t g3duiparticleemitteredit_initialVarSpeedYCbk ( G3DUIPARTICLEEMITTEREDIT
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialVarSpeedZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarSpeedZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                         float                     initialVarSpeedZ ) {
     LISTLOOP(gpeedit, initialVarSpeed.z, initialVarSpeedZ);
 
@@ -155,7 +155,7 @@ uint64_t g3duiparticleemitteredit_initialVarSpeedZCbk ( G3DUIPARTICLEEMITTEREDIT
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialVarAccelXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarAccelX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                         float                     initialVarAccelX ) {
     LISTLOOP(gpeedit, initialVarAccel.x, initialVarAccelX);
 
@@ -163,7 +163,7 @@ uint64_t g3duiparticleemitteredit_initialVarAccelXCbk ( G3DUIPARTICLEEMITTEREDIT
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialVarAccelYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarAccelY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                         float                     initialVarAccelY ) {
     LISTLOOP(gpeedit, initialVarAccel.y, initialVarAccelY);
 
@@ -171,7 +171,7 @@ uint64_t g3duiparticleemitteredit_initialVarAccelYCbk ( G3DUIPARTICLEEMITTEREDIT
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialVarAccelZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialVarAccelZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                         float                     initialVarAccelZ ) {
     LISTLOOP(gpeedit, initialVarAccel.z, initialVarAccelZ);
 
@@ -179,7 +179,7 @@ uint64_t g3duiparticleemitteredit_initialVarAccelZCbk ( G3DUIPARTICLEEMITTEREDIT
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_finalTranspCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalTransp ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalTransp ) {
     LISTLOOP(gpeedit, finalTransparency, finalTransp);
 
@@ -187,7 +187,7 @@ uint64_t g3duiparticleemitteredit_finalTranspCbk ( G3DUIPARTICLEEMITTEREDIT *gpe
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_finalRotXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalRotX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                  float                     finalRotX ) {
     LISTLOOP(gpeedit, finalRotation.x, finalRotX);
 
@@ -195,7 +195,7 @@ uint64_t g3duiparticleemitteredit_finalRotXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeed
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_finalRotYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalRotY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                  float                     finalRotY ) {
     LISTLOOP(gpeedit, finalRotation.y, finalRotY);
 
@@ -203,7 +203,7 @@ uint64_t g3duiparticleemitteredit_finalRotYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeed
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_finalRotZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalRotZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                  float                     finalRotZ ) {
     LISTLOOP(gpeedit, finalRotation.z, finalRotZ);
 
@@ -211,7 +211,7 @@ uint64_t g3duiparticleemitteredit_finalRotZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeed
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_finalScaXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalScaX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                  float                     finalScaX ) {
     LISTLOOP(gpeedit, finalScaling.x, finalScaX);
 
@@ -219,7 +219,7 @@ uint64_t g3duiparticleemitteredit_finalScaXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeed
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_finalScaYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalScaY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                  float                     finalScaY ) {
     LISTLOOP(gpeedit, finalScaling.y, finalScaY);
 
@@ -227,7 +227,7 @@ uint64_t g3duiparticleemitteredit_finalScaYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeed
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_finalScaZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalScaZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                  float                     finalScaZ ) {
     LISTLOOP(gpeedit, finalScaling.z, finalScaZ);
 
@@ -235,7 +235,7 @@ uint64_t g3duiparticleemitteredit_finalScaZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeed
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_finalSpeedXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalSpeedX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalSpeedX ) {
     LISTLOOP(gpeedit, finalSpeed.x, finalSpeedX);
 
@@ -243,7 +243,7 @@ uint64_t g3duiparticleemitteredit_finalSpeedXCbk ( G3DUIPARTICLEEMITTEREDIT *gpe
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_finalSpeedYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalSpeedY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalSpeedY ) {
     LISTLOOP(gpeedit, finalSpeed.y, finalSpeedY);
 
@@ -251,7 +251,7 @@ uint64_t g3duiparticleemitteredit_finalSpeedYCbk ( G3DUIPARTICLEEMITTEREDIT *gpe
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_finalSpeedZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalSpeedZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalSpeedZ ) {
     LISTLOOP(gpeedit, finalSpeed.z, finalSpeedZ);
 
@@ -259,7 +259,7 @@ uint64_t g3duiparticleemitteredit_finalSpeedZCbk ( G3DUIPARTICLEEMITTEREDIT *gpe
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_finalAccelXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalAccelX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalAccelX ) {
     LISTLOOP(gpeedit, finalAccel.x, finalAccelX);
 
@@ -267,7 +267,7 @@ uint64_t g3duiparticleemitteredit_finalAccelXCbk ( G3DUIPARTICLEEMITTEREDIT *gpe
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_finalAccelYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalAccelY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalAccelY ) {
     LISTLOOP(gpeedit, finalAccel.y, finalAccelY);
 
@@ -275,7 +275,7 @@ uint64_t g3duiparticleemitteredit_finalAccelYCbk ( G3DUIPARTICLEEMITTEREDIT *gpe
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_finalAccelZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_finalAccelZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalAccelZ ) {
     LISTLOOP(gpeedit, finalAccel.z, finalAccelZ);
 
@@ -283,7 +283,7 @@ uint64_t g3duiparticleemitteredit_finalAccelZCbk ( G3DUIPARTICLEEMITTEREDIT *gpe
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialTranspCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialTransp ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialTransp ) {
     LISTLOOP(gpeedit, initialTransparency, initialTransp);
 
@@ -291,7 +291,7 @@ uint64_t g3duiparticleemitteredit_initialTranspCbk ( G3DUIPARTICLEEMITTEREDIT *g
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialRotXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialRotX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialRotX ) {
     LISTLOOP(gpeedit, initialRotation.x, initialRotX);
 
@@ -299,7 +299,7 @@ uint64_t g3duiparticleemitteredit_initialRotXCbk ( G3DUIPARTICLEEMITTEREDIT *gpe
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialRotYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialRotY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialRotY ) {
     LISTLOOP(gpeedit, initialRotation.y, initialRotY);
 
@@ -307,7 +307,7 @@ uint64_t g3duiparticleemitteredit_initialRotYCbk ( G3DUIPARTICLEEMITTEREDIT *gpe
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialRotZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialRotZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialRotZ ) {
     LISTLOOP(gpeedit, initialRotation.z, initialRotZ);
 
@@ -315,7 +315,7 @@ uint64_t g3duiparticleemitteredit_initialRotZCbk ( G3DUIPARTICLEEMITTEREDIT *gpe
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialScaXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialScaX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialScaX ) {
     LISTLOOP(gpeedit, initialScaling.x, initialScaX);
 
@@ -323,13 +323,13 @@ uint64_t g3duiparticleemitteredit_initialScaXCbk ( G3DUIPARTICLEEMITTEREDIT *gpe
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialScaYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialScaY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialScaY ) {
     LISTLOOP(gpeedit, initialScaling.y, initialScaY);
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialScaZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialScaZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialScaZ ) {
     LISTLOOP(gpeedit, initialScaling.z, initialScaZ);
 
@@ -337,7 +337,7 @@ uint64_t g3duiparticleemitteredit_initialScaZCbk ( G3DUIPARTICLEEMITTEREDIT *gpe
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialSpeedXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialSpeedX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialSpeedX ) {
     LISTLOOP(gpeedit, initialSpeed.x, initialSpeedX);
 
@@ -345,7 +345,7 @@ uint64_t g3duiparticleemitteredit_initialSpeedXCbk ( G3DUIPARTICLEEMITTEREDIT *g
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialSpeedYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialSpeedY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialSpeedY ) {
     LISTLOOP(gpeedit, initialSpeed.y, initialSpeedY);
 
@@ -353,7 +353,7 @@ uint64_t g3duiparticleemitteredit_initialSpeedYCbk ( G3DUIPARTICLEEMITTEREDIT *g
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialSpeedZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialSpeedZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialSpeedZ ) {
     LISTLOOP(gpeedit, initialSpeed.z, initialSpeedZ);
 
@@ -361,7 +361,7 @@ uint64_t g3duiparticleemitteredit_initialSpeedZCbk ( G3DUIPARTICLEEMITTEREDIT *g
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialAccelXCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialAccelX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialAccelX ) {
     LISTLOOP(gpeedit, initialAccel.x, initialAccelX);
 
@@ -369,7 +369,7 @@ uint64_t g3duiparticleemitteredit_initialAccelXCbk ( G3DUIPARTICLEEMITTEREDIT *g
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialAccelYCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialAccelY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialAccelY ) {
     LISTLOOP(gpeedit, initialAccel.y, initialAccelY);
 
@@ -377,7 +377,7 @@ uint64_t g3duiparticleemitteredit_initialAccelYCbk ( G3DUIPARTICLEEMITTEREDIT *g
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_initialAccelZCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_initialAccelZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialAccelZ ) {
     LISTLOOP(gpeedit, initialAccel.z, initialAccelZ);
 
@@ -394,7 +394,7 @@ uint64_t g3duiparticleemitteredit_initialAccelZCbk ( G3DUIPARTICLEEMITTEREDIT *g
 
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_startAtFrameCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_startAtFrame ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                     uint32_t                  startAtFrame ) {
     LISTLOOP(gpeedit, startAtFrame, startAtFrame);
 
@@ -402,7 +402,7 @@ uint64_t g3duiparticleemitteredit_startAtFrameCbk ( G3DUIPARTICLEEMITTEREDIT *gp
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_endAtFrameCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_endAtFrame ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                   uint32_t                  endAtFrame ) {
     LISTLOOP(gpeedit, endAtFrame, endAtFrame);
 
@@ -410,7 +410,7 @@ uint64_t g3duiparticleemitteredit_endAtFrameCbk ( G3DUIPARTICLEEMITTEREDIT *gpee
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_radiusCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_radius ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                               float                     radius ) {
     G3DUI *gui = gpeedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -433,7 +433,7 @@ uint64_t g3duiparticleemitteredit_radiusCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_lifetimeCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_lifetime ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                 uint32_t                  lifetime ) {
     G3DUI *gui = gpeedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -458,7 +458,7 @@ uint64_t g3duiparticleemitteredit_lifetimeCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedi
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_ppfCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_ppf ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                            float                     ppf ) {
     G3DUI *gui = gpeedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -483,7 +483,7 @@ uint64_t g3duiparticleemitteredit_ppfCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_maxPreviewsCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
+uint64_t g3duiparticleemitteredit_maxPreviews ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    uint32_t                  maxPreviews ) {
     LISTLOOP(gpeedit, maxPreviewsPerFrame, maxPreviews);
 
@@ -492,7 +492,7 @@ uint64_t g3duiparticleemitteredit_maxPreviewsCbk ( G3DUIPARTICLEEMITTEREDIT *gpe
 }
 
 /******************************************************************************/
-uint64_t g3duiparticleemitteredit_displayPartCbk ( G3DUIPARTICLEEMITTEREDIT *gpeedit ) {
+uint64_t g3duiparticleemitteredit_displayPart ( G3DUIPARTICLEEMITTEREDIT *gpeedit ) {
     G3DUI *gui = gpeedit->gui;
     G3DSCENE *sce = gui->sce;
     LIST *ltmpselobj = sce->lsel;

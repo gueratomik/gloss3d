@@ -71,7 +71,7 @@ static void saveFileCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
 
-    gtk3_saveFileCbk ( gtk3gui);
+    gtk3_saveFile ( gtk3gui);
 }
 
 /******************************************************************************/
@@ -79,7 +79,7 @@ static void saveAsCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
 
-    gtk3_saveAsCbk ( gtk3gui );
+    gtk3_saveAs ( gtk3gui );
 }
 
 /******************************************************************************/
@@ -87,7 +87,7 @@ static void openFileCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
 
-    gtk3_openFileCbk ( gtk3gui );
+    gtk3_openFile ( gtk3gui );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWALL );
 }
@@ -122,7 +122,7 @@ static void newSceneCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
 
-    gtk3_newSceneCbk ( gtk3gui );
+    gtk3_newScene ( gtk3gui );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWALL );
 }
@@ -131,7 +131,7 @@ static void newSceneCbk ( GtkWidget *widget, gpointer user_data ) {
 static void undoCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
-    uint64_t ret = g3dui_undoCbk ( gtk3toolbar->core.gui );
+    uint64_t ret = g3dui_undo ( gtk3toolbar->core.gui );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, ret );
 }
@@ -140,7 +140,7 @@ static void undoCbk ( GtkWidget *widget, gpointer user_data ) {
 static void redoCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
-    uint64_t ret = g3dui_redoCbk ( &gtk3gui->core );
+    uint64_t ret = g3dui_redo ( &gtk3gui->core );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, ret );
 }
@@ -149,7 +149,7 @@ static void redoCbk ( GtkWidget *widget, gpointer user_data ) {
 static void makeEditableCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
-    uint64_t ret = g3dui_makeEditableCbk ( &gtk3gui->core );
+    uint64_t ret = g3dui_makeEditable ( &gtk3gui->core );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, ret );
 }
@@ -158,9 +158,53 @@ static void makeEditableCbk ( GtkWidget *widget, gpointer user_data ) {
 void deleteSelectionCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
-    uint64_t ret = g3dui_deleteSelectionCbk ( gtk3toolbar->core.gui );
+    uint64_t ret = g3dui_deleteSelection ( gtk3toolbar->core.gui );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, ret );
+}
+
+/******************************************************************************/
+static void renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
+
+    gtk3_renderView ( gtk3gui );
+}
+
+/******************************************************************************/
+static void xAxisCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
+    int status = gtk_toggle_tool_button_get_active ( GTK_TOGGLE_TOOL_BUTTON(widget) );
+
+    if ( gtk3gui->core.lock ) return;
+
+    if ( status ) gtk3gui->core.engine_flags |=   XAXIS;
+    else          gtk3gui->core.engine_flags &= (~XAXIS);
+}
+
+/******************************************************************************/
+static void yAxisCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
+    int status = gtk_toggle_tool_button_get_active ( GTK_TOGGLE_TOOL_BUTTON(widget) );
+
+    if ( gtk3gui->core.lock ) return;
+
+    if ( status ) gtk3gui->core.engine_flags |=   YAXIS;
+    else          gtk3gui->core.engine_flags &= (~YAXIS);
+}
+
+/******************************************************************************/
+static void zAxisCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
+    int status = gtk_toggle_tool_button_get_active ( GTK_TOGGLE_TOOL_BUTTON(widget) );
+
+    if ( gtk3gui->core.lock ) return;
+
+    if ( status ) gtk3gui->core.engine_flags |=   ZAXIS;
+    else          gtk3gui->core.engine_flags &= (~ZAXIS);
 }
 
 /******************************************************************************/
@@ -305,7 +349,7 @@ GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
                                              char      *name ) {
     GTK3G3DUITOOLBAR *gtk3tb = gtk3_g3duitoolbar_new ( gtk3gui );
 
-    gtk3tb->bar = gtk_toolbar_new ( );
+    gtk3tb->bar = ui_gtk_toolbar_new ( CLASS_MAIN );
 
     gtk_widget_set_name ( gtk3tb->bar, name );
 
@@ -384,7 +428,7 @@ GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
                                                   gtk3tb,
                                                   MENU_RENDERVIEW,
                                                   renderw_xpm,
-                                                  /*g3dui_renderViewCbk*/NULL );
+                                                  renderViewCbk );
 
     gtk3tb->renderFinal  = addToolBarPushButton ( gtk3tb->bar,
                                                   gtk3tb,
@@ -404,19 +448,19 @@ GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
                                              gtk3tb,
                                              MENU_XAXIS,
                                              xaxis_xpm,
-                                             /*xAxisCbk*/NULL );
+                                             xAxisCbk );
 
     gtk3tb->yAxis = addToolBarToggleButton ( gtk3tb->bar,
                                              gtk3tb,
                                              MENU_YAXIS,
                                              yaxis_xpm,
-                                             /*yAxisCbk*/NULL );
+                                             yAxisCbk );
 
     gtk3tb->zAxis = addToolBarToggleButton ( gtk3tb->bar,
                                              gtk3tb,
                                              MENU_ZAXIS,
                                              zaxis_xpm,
-                                             /*zAxisCbk*/NULL );
+                                             zAxisCbk );
 
     /********************************/
 

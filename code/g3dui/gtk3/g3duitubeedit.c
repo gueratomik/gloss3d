@@ -81,7 +81,7 @@ static void lengthCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ted->core.gui->lock ) return;
 
-    g3duitubeedit_lengthCbk ( &gtk3ted->core, len );
+    g3duitubeedit_length ( &gtk3ted->core, len );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
@@ -96,7 +96,7 @@ static void radiusCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ted->core.gui->lock ) return;
 
-    g3duitubeedit_radiusCbk ( &gtk3ted->core, rad );
+    g3duitubeedit_radius ( &gtk3ted->core, rad );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
@@ -112,7 +112,7 @@ static void thicknessCbk ( GtkWidget *widget, gpointer user_data ) {
     if ( gtk3ted->core.gui->lock ) return;
 
 
-    g3duitubeedit_thicknessCbk ( &gtk3ted->core, rad );
+    g3duitubeedit_thickness ( &gtk3ted->core, rad );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
@@ -128,7 +128,7 @@ static void capCbk ( GtkWidget *widget, gpointer user_data ) {
     if ( gtk3ted->core.gui->lock ) return;
 
     if ( cap ) {
-        g3duitubeedit_capCbk ( &gtk3ted->core, G3DUIXAXIS, cap );
+        g3duitubeedit_cap ( &gtk3ted->core, G3DUIXAXIS, cap );
     } else {
         gtk3_g3duitubeedit_update ( gtk3ted );
     }
@@ -147,7 +147,7 @@ static void sliceCbk ( GtkWidget *widget, gpointer user_data ) {
     if ( gtk3ted->core.gui->lock ) return;
 
     if ( slice >= 0x03 ) {
-        g3duitubeedit_sliceCbk ( &gtk3ted->core, slice );
+        g3duitubeedit_slice ( &gtk3ted->core, slice );
     } else {
         gtk3_g3duitubeedit_update ( gtk3ted );
     }

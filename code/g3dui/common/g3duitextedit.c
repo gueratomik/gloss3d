@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duitextedit_setTextCbk ( G3DUITEXTEDIT *txtedit,
+uint64_t g3duitextedit_setText ( G3DUITEXTEDIT *txtedit,
                                     char          *newText ) {
     G3DUI *gui = txtedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -61,7 +61,7 @@ uint64_t g3duitextedit_setTextCbk ( G3DUITEXTEDIT *txtedit,
 }
 
 /******************************************************************************/
-uint64_t g3duitextedit_thicknessCbk ( G3DUITEXTEDIT *txtedit,
+uint64_t g3duitextedit_thickness ( G3DUITEXTEDIT *txtedit,
                                       float          thickness ) {
     G3DUI *gui = txtedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -84,7 +84,7 @@ uint64_t g3duitextedit_thicknessCbk ( G3DUITEXTEDIT *txtedit,
 }
 
 /******************************************************************************/
-uint64_t g3duitextedit_roundnessCbk ( G3DUITEXTEDIT *txtedit,
+uint64_t g3duitextedit_roundness ( G3DUITEXTEDIT *txtedit,
                                       uint32_t       roundness ) {
     G3DUI *gui = txtedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -107,7 +107,7 @@ uint64_t g3duitextedit_roundnessCbk ( G3DUITEXTEDIT *txtedit,
 }
 
 /******************************************************************************/
-uint64_t g3duitextedit_sizeCbk ( G3DUITEXTEDIT *txtedit,
+uint64_t g3duitextedit_size ( G3DUITEXTEDIT *txtedit,
                                  uint32_t       size ) {
     G3DUI *gui = txtedit->gui;
     G3DSCENE *sce = gui->sce;

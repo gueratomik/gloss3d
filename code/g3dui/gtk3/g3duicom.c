@@ -74,9 +74,9 @@ static void dumpscreen ( GTK3G3DUI  *gtk3gui,
 }
 
 /****************** Event handler for interprocess communication **************/
-void g3duicom_handleAction ( GtkWidget *widget, 
-                             gpointer   ptr, 
-                             gpointer   user_data ) {
+void gtk3_g3duicom_handleAction ( GtkWidget *widget, 
+                                  gpointer   ptr, 
+                                  gpointer   user_data ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) user_data;
     G3DUIACTION *action = ( G3DUIACTION * ) ptr;
     G3DUI *gui = &gtk3gui->core;
@@ -100,16 +100,16 @@ void g3duicom_handleAction ( GtkWidget *widget,
 /******************************************************************************/
 static gboolean emitAction ( G3DUIACTION *action ) {
     GTK3G3DUI *gtk3gui = action->gui;
-#ifdef TODO
-    g_signal_emit_by_name ( gtk3gui->main, "action", action );
-#endif
+
+    g_signal_emit_by_name ( gtk3gui->topWin, "action", action );
+
 
     return G_SOURCE_REMOVE;
 }
 
 /******************************************************************************/
-void g3duicom_requestActionFromMainThread ( GTK3G3DUI   *gtk3gui,
-                                            G3DUIACTION *action ) {
+void gtk3_g3duicom_requestActionFromMainThread ( GTK3G3DUI   *gtk3gui,
+                                                 G3DUIACTION *action ) {
     G3DUI *gui = &gtk3gui->core;
 
     pthread_mutex_lock(&action->done);
@@ -152,7 +152,7 @@ uint32_t filtergotoframe_draw ( Q3DFILTER     *fil,
     gtf.frame              =  frameID;
     gtf.extra_engine_flags =  ONGOINGRENDERING;
 
-    g3duicom_requestActionFromMainThread ( gtk3gui, &gtf );
+    gtk3_g3duicom_requestActionFromMainThread ( gtk3gui, &gtf );
 
     return 0x00;
 }

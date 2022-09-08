@@ -31,8 +31,8 @@
 
 static const gchar *myCSS = { ".main {   \n"
 #ifdef __linux__
-                              /*"color: rgba(0, 0, 0, 1);"
-                              "background:  rgba(192, 192, 192, 1);"*/
+                              "color: rgba(0, 0, 0, 1);"
+                              "background:  rgba(192, 192, 192, 1);"
 
                               "    font-family: Lucida Sans; \n"
                               "    font-size: 12px; \n"
@@ -144,7 +144,9 @@ static const gchar *myCSS = { ".main {   \n"
                               "    padding-bottom: 2px; \n"
                               "    font-size:      12px; \n"
                               "}                        \n"
-                              "menuitem.view {\n"
+                              ".view_menu_bar {\n"
+                              "    color:          rgba(0, 0, 0, 1);"
+                              "    background:     rgba(160, 160, 160, 1);"
                               "    border-width:   0px; \n"
                               "    border-radius:  0px; \n"
                               "    margin-top:     0px; \n"

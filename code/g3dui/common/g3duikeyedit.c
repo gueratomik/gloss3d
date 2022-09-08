@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duikeyedit_setKeyTransformationsCbk ( G3DUIKEYEDIT *keyedit,
+uint64_t g3duikeyedit_setKeyTransformations ( G3DUIKEYEDIT *keyedit,
                                                  uint32_t      flag ) {
     G3DUI *gui = keyedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -64,7 +64,7 @@ uint64_t g3duikeyedit_setKeyTransformationsCbk ( G3DUIKEYEDIT *keyedit,
 }
 
 /******************************************************************************/
-uint64_t g3duikeyedit_unsetKeyTransformationsCbk ( G3DUIKEYEDIT *keyedit,
+uint64_t g3duikeyedit_unsetKeyTransformations ( G3DUIKEYEDIT *keyedit,
                                                    uint32_t      flag ) {
     G3DUI *gui = keyedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -100,7 +100,7 @@ uint64_t g3duikeyedit_unsetKeyTransformationsCbk ( G3DUIKEYEDIT *keyedit,
 }
 
 /******************************************************************************/
-uint64_t g3duikeyedit_loopFrameCbk ( G3DUIKEYEDIT *keyedit,
+uint64_t g3duikeyedit_loopFrame ( G3DUIKEYEDIT *keyedit,
                                      float         frame ) {
     G3DUI *gui = keyedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -119,7 +119,7 @@ uint64_t g3duikeyedit_loopFrameCbk ( G3DUIKEYEDIT *keyedit,
 }
 
 /******************************************************************************/
-uint64_t g3duikeyedit_loopCbk ( G3DUIKEYEDIT *keyedit,
+uint64_t g3duikeyedit_loop ( G3DUIKEYEDIT *keyedit,
                                 uint32_t      loop ) {
     G3DUI *gui = keyedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -142,7 +142,7 @@ uint64_t g3duikeyedit_loopCbk ( G3DUIKEYEDIT *keyedit,
 }
 
 /******************************************************************************/
-uint64_t g3duikeyedit_keyCbk ( G3DUIKEYEDIT *keyedit,
+uint64_t g3duikeyedit_key ( G3DUIKEYEDIT *keyedit,
                                const char   *field,
                                float         val ) {
     G3DUI *gui = keyedit->gui;

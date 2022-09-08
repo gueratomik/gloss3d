@@ -73,7 +73,7 @@ static uint64_t fgfillCbk ( G3DUIMENU *menu,
     M3DUI *mui = ( M3DUI * ) data;
     M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
 
-    m3dui_fillWithColorCbk ( mui, sysinfo->fgcolor );
+    m3dui_fillWithColor ( mui, sysinfo->fgcolor );
 
 
     return REDRAWUVMAPEDITOR;
@@ -85,7 +85,7 @@ static uint64_t bgfillCbk ( G3DUIMENU *menu,
     M3DUI *mui = ( M3DUI * ) data;
     M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
 
-    m3dui_fillWithColorCbk ( mui, sysinfo->bgcolor );
+    m3dui_fillWithColor ( mui, sysinfo->bgcolor );
 
 
     return REDRAWUVMAPEDITOR;
@@ -133,7 +133,7 @@ static uint64_t fac2uvsetCbk ( G3DUIMENU *menu,
                                void      *data ) {
     M3DUI *mui = ( M3DUI * ) data;
 
-    m3dui_fac2uvsetCbk ( mui );
+    m3dui_fac2uvset ( mui );
 
 
     return REDRAWUVMAPEDITOR;
@@ -144,7 +144,7 @@ static uint64_t uvset2facCbk ( G3DUIMENU *menu,
                                void      *data ) {
     M3DUI *mui = ( M3DUI * ) data;
 
-    m3dui_uvset2facCbk ( mui );
+    m3dui_uvset2fac ( mui );
 
 
     return REDRAWUVMAPEDITOR;
@@ -155,7 +155,7 @@ static uint64_t ver2uvCbk ( G3DUIMENU *menu,
                             void      *data ) {
     M3DUI *mui = ( M3DUI * ) data;
 
-    m3dui_ver2uvCbk ( mui );
+    m3dui_ver2uv ( mui );
 
 
     return REDRAWUVMAPEDITOR;
@@ -166,7 +166,7 @@ static uint64_t uv2verCbk ( G3DUIMENU *menu,
                             void      *data ) {
     M3DUI *mui = ( M3DUI * ) data;
 
-    m3dui_uv2verCbk ( mui );
+    m3dui_uv2ver ( mui );
 
 
     return REDRAWUVMAPEDITOR;
@@ -177,7 +177,7 @@ static uint64_t uvUndoCbk ( G3DUIMENU *menu,
                             void      *data ) {
     M3DUI *mui = ( M3DUI * ) data;
 
-    m3dui_undoCbk ( mui );
+    m3dui_undo ( mui );
 
 
     return REDRAWUVMAPEDITOR;
@@ -188,7 +188,7 @@ static uint64_t uvRedoCbk ( G3DUIMENU *menu,
                             void      *data ) {
     M3DUI *mui = ( M3DUI * ) data;
 
-    m3dui_redoCbk ( mui );
+    m3dui_redo ( mui );
 
 
     return REDRAWUVMAPEDITOR;

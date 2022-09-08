@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duisplinerevolveredit_splineRevolverStepsCbk ( G3DUISPLINEREVOLVEREDIT *srvedit,
+uint64_t g3duisplinerevolveredit_splineRevolverSteps ( G3DUISPLINEREVOLVEREDIT *srvedit,
                                                           uint32_t                 level ) {
     G3DUI *gui = srvedit->gui;
     G3DSCENE *sce = gui->sce;
@@ -57,7 +57,7 @@ uint64_t g3duisplinerevolveredit_splineRevolverStepsCbk ( G3DUISPLINEREVOLVEREDI
 
 
 /******************************************************************************/
-uint64_t g3duisplinerevolveredit_splineRevolverDivisCbk ( G3DUISPLINEREVOLVEREDIT *srvedit,  
+uint64_t g3duisplinerevolveredit_splineRevolverDivis ( G3DUISPLINEREVOLVEREDIT *srvedit,  
                                                           uint32_t                 level ) {
     G3DUI *gui = srvedit->gui;
     G3DSCENE *sce = gui->sce;

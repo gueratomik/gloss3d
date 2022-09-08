@@ -91,7 +91,7 @@ static void setMode ( GtkWidget *widget,
     gtk3_setHourGlass ( gtk3gui );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, 
-                                  g3duimodebar_setModeCbk ( &gtk3mb->core,
+                                  g3duimodebar_setMode ( &gtk3mb->core,
                                                              modename ) );
 
     gtk3_unsetHourGlass ( gtk3gui );
@@ -152,7 +152,7 @@ GTK3G3DUIMODEBAR *gtk3_g3duimodebar_create ( GtkWidget *parent,
                                              char      *name ) {
     GTK3G3DUIMODEBAR *gtk3mb = gtk3_g3duimodebar_new ( gtk3gui );
 
-    gtk3mb->bar = gtk_toolbar_new ( );
+    gtk3mb->bar = ui_gtk_toolbar_new ( CLASS_MAIN );
 
     gtk_widget_set_name ( gtk3mb->bar, name );
 

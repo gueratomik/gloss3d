@@ -107,7 +107,7 @@ static void setShadowTypeCbk ( GtkWidget *widget,
     if ( gtk3led->core.gui->lock ) return;
 
     if ( gtk3led->core.editedLight ) {
-        g3duilightedit_setSoftShadowsCbk ( &gtk3led->core );
+        g3duilightedit_setSoftShadows ( &gtk3led->core );
     }
 
     updateShadowsPanel ( gtk3led );
@@ -125,7 +125,7 @@ static void shadowRadiusCbk ( GtkWidget *widget,
     if ( gtk3led->core.gui->lock ) return;
 
     if ( gtk3led->core.editedLight ) {
-        g3duilightedit_shadowRadiusCbk ( &gtk3led->core, shadowRadius );
+        g3duilightedit_shadowRadius ( &gtk3led->core, shadowRadius );
     }
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -143,7 +143,7 @@ static void shadowSampleCbk ( GtkWidget *widget,
     if ( gtk3led->core.gui->lock ) return;
 
     if ( gtk3led->core.editedLight ) {
-        g3duilightedit_shadowSampleCbk ( &gtk3led->core, shadowSample );
+        g3duilightedit_shadowSample ( &gtk3led->core, shadowSample );
     }
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -208,7 +208,7 @@ static void specularityChangeCbk ( GtkWidget *widget,
     gtk_color_chooser_get_rgba ( ccr, &color );
 
     if ( gtk3led->core.editedLight ) {
-        g3duilightedit_setSpecularityCbk ( &gtk3led->core, 
+        g3duilightedit_setSpecularity ( &gtk3led->core, 
                                             color.red   * 255,
                                             color.green * 255,
                                             color.blue  * 255 );
@@ -284,7 +284,7 @@ static void diffuseChangeCbk ( GtkWidget *widget,
     gtk_color_chooser_get_rgba ( ccr, &color );
 
     if ( gtk3led->core.editedLight ) {
-        g3duilightedit_setDiffuseCbk ( &gtk3led->core,
+        g3duilightedit_setDiffuse ( &gtk3led->core,
                                         color.red   * 255,
                                         color.green * 255,
                                         color.blue  * 255 );
@@ -367,7 +367,7 @@ static void castShadowsCbk  ( GtkWidget *widget,
     if ( gtk3led->core.gui->lock ) return;
 
     if ( gtk3led->core.editedLight ) {
-        g3duilightedit_castShadowsCbk ( &gtk3led->core );
+        g3duilightedit_castShadows ( &gtk3led->core );
     }
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -387,7 +387,7 @@ static void spotLengthCbk ( GtkWidget *widget,
     if ( gtk3led->core.gui->lock ) return;
 
     if ( gtk3led->core.editedLight ) {
-        g3duilightedit_setSpotLengthCbk ( &gtk3led->core, spotLength );
+        g3duilightedit_setSpotLength ( &gtk3led->core, spotLength );
     }
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -405,7 +405,7 @@ static void spotFadeAngleCbk ( GtkWidget *widget,
     if ( gtk3led->core.gui->lock ) return;
 
     if ( gtk3led->core.editedLight ) {
-        g3duilightedit_setSpotFadeAngleCbk ( &gtk3led->core, spotFadeAngle );
+        g3duilightedit_setSpotFadeAngle ( &gtk3led->core, spotFadeAngle );
     }
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -423,7 +423,7 @@ static void spotAngleCbk ( GtkWidget *widget,
     if ( gtk3led->core.gui->lock ) return;
 
     if ( gtk3led->core.editedLight ) {
-        g3duilightedit_setSpotAngleCbk ( &gtk3led->core, spotAngle );
+        g3duilightedit_setSpotAngle ( &gtk3led->core, spotAngle );
     }
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
@@ -441,9 +441,9 @@ static void spotToggleCbk ( GtkWidget *widget,
 
     if ( gtk3led->core.editedLight ) {
         if ( gtk_toggle_button_get_active ( GTK_TOGGLE_BUTTON(widget) ) ) {
-            g3duilightedit_unsetSpotCbk ( &gtk3led->core );
+            g3duilightedit_unsetSpot ( &gtk3led->core );
         } else {
-            g3duilightedit_setSpotCbk ( &gtk3led->core );
+            g3duilightedit_setSpot ( &gtk3led->core );
         }
     }
 

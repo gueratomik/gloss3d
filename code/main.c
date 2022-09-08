@@ -169,7 +169,7 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     gtk_init ( &argc, &argv );
 
-    window  = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    window  = ui_gtk_window_new (CLASS_MAIN, GTK_WINDOW_TOPLEVEL);
 
     /*** Drawing area does not receive mous events by defaults ***/
     /*gtk_widget_set_events ( window, 

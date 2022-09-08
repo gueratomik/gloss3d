@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3dui_setMaterialCbk ( G3DUI *gui ) {
+void common_g3dui_setMaterial ( G3DUI *gui ) {
 #ifdef TODO
     G3DSCENE *sce = gui->sce;
     LIST *ltmpobj = sce->lsel;
@@ -44,7 +44,7 @@ void common_g3dui_setMaterialCbk ( G3DUI *gui ) {
                                       REDRAWVIEW | REDRAWLIST );
     }
 
-    common_g3duimenubar_fitUVMapCbk ( gui );
+    common_g3duimenubar_fitUVMap ( gui );
 
     g3dui_redrawGLViews ( gui );
 #endif

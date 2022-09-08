@@ -30,7 +30,7 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t g3duicylinderedit_lengthCbk ( G3DUICYLINDEREDIT *cyledit, 
+uint64_t g3duicylinderedit_length ( G3DUICYLINDEREDIT *cyledit, 
                                        float              length ) {
     G3DUI *gui = cyledit->gui;
     G3DSCENE *sce = gui->sce;
@@ -59,7 +59,7 @@ uint64_t g3duicylinderedit_lengthCbk ( G3DUICYLINDEREDIT *cyledit,
 }
 
 /******************************************************************************/
-uint64_t g3duicylinderedit_radiusCbk ( G3DUICYLINDEREDIT *cyledit, 
+uint64_t g3duicylinderedit_radius ( G3DUICYLINDEREDIT *cyledit, 
                                        float              radius ) {
     G3DUI *gui = cyledit->gui;
     G3DSCENE *sce = gui->sce;
@@ -89,7 +89,7 @@ uint64_t g3duicylinderedit_radiusCbk ( G3DUICYLINDEREDIT *cyledit,
 }
 
 /******************************************************************************/
-uint64_t g3duicylinderedit_capCbk ( G3DUICYLINDEREDIT *cyledit, 
+uint64_t g3duicylinderedit_cap ( G3DUICYLINDEREDIT *cyledit, 
                                     G3DUIAXIS          axis,
                                     int                cap ) {
     G3DUI *gui = cyledit->gui;
@@ -125,7 +125,7 @@ uint64_t g3duicylinderedit_capCbk ( G3DUICYLINDEREDIT *cyledit,
 }
 
 /******************************************************************************/
-uint64_t g3duicylinderedit_sliceCbk ( G3DUICYLINDEREDIT *cyledit, 
+uint64_t g3duicylinderedit_slice ( G3DUICYLINDEREDIT *cyledit, 
                                       int                slice ) {
     G3DUI *gui = cyledit->gui;
     G3DSCENE *sce = gui->sce;

@@ -85,19 +85,19 @@ static G3DUIMENU help_menu = { NULL,
 
 static uint64_t addUVMapCbk ( G3DUIMENU *menu, 
                               void      *data ) {
-    return g3dui_addUVMapCbk ( menu->gui );
+    return g3dui_addUVMap ( menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t fitUVMapCbk ( G3DUIMENU *menu, 
                               void      *data ) {
-    return g3dui_fitUVMapCbk ( menu->gui );
+    return g3dui_fitUVMap ( menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t alignUVMapCbk ( G3DUIMENU *menu, 
                                 void      *data ) {
-    return g3dui_alignUVMapCbk ( menu->gui, menu->name );
+    return g3dui_alignUVMap ( menu->gui, menu->name );
 }
 
 /******************************************************************************/
@@ -231,55 +231,55 @@ static G3DUIMENU render_menu = { NULL,
 
 static uint64_t mergeMeshCbk ( G3DUIMENU *menu, 
                                void      *data ) {
-    return g3dui_mergeMeshCbk ( menu->gui );
+    return g3dui_mergeMesh ( menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t splitMeshCbk ( G3DUIMENU *menu, 
                                void      *data ) {
-    return g3dui_splitMeshCbk ( menu->gui, menu->name );
+    return g3dui_splitMesh ( menu->gui, menu->name );
 }
 
 /******************************************************************************/
 static uint64_t mirrorHeightmapCbk ( G3DUIMENU *menu, 
                                      void      *data ) {
-    return g3dui_mirrorHeightmapCbk ( menu->gui, menu->name );
+    return g3dui_mirrorHeightmap ( menu->gui, menu->name );
 }
 
 /******************************************************************************/
 static uint64_t mirrorWeightGroupCbk ( G3DUIMENU *menu, 
                                        void      *data ) {
-    return g3dui_mirrorWeightGroupCbk ( menu->gui, menu->name );
+    return g3dui_mirrorWeightGroup ( menu->gui, menu->name );
 }
 
 /******************************************************************************/
 static uint64_t resetBoneTreeCbk ( G3DUIMENU *menu, 
                                    void      *data ) {
-    return g3dui_resetBoneTreeCbk ( menu->gui );
+    return g3dui_resetBoneTree ( menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t resetBoneCbk ( G3DUIMENU *menu, 
                                void      *data ) {
-    return g3dui_resetBoneCbk ( menu->gui );
+    return g3dui_resetBone ( menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t fixBoneTreeCbk ( G3DUIMENU *menu, 
                                  void      *data ) {
-    return g3dui_fixBoneTreeCbk ( menu->gui );
+    return g3dui_fixBoneTree ( menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t fixBoneCbk ( G3DUIMENU *menu, 
                              void      *data ) {
-    return g3dui_fixBoneCbk ( menu->gui );
+    return g3dui_fixBone ( menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t makeEditableCbk ( G3DUIMENU *menu, 
                                   void      *data ) {
-    return g3dui_makeEditableCbk ( menu->gui );
+    return g3dui_makeEditable ( menu->gui );
 }
 
 /******************************************************************************/
@@ -420,7 +420,7 @@ static G3DUIMENU functions_menu = { NULL,
 
 static uint64_t addSymmetryCbk ( G3DUIMENU *menu, 
                                  void      *data ) {
-    g3dui_addSymmetryCbk ( menu->gui );
+    g3dui_addSymmetry ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -429,7 +429,7 @@ static uint64_t addSymmetryCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addInstanceCbk ( G3DUIMENU *menu, 
                                  void      *data ) {
-    g3dui_addInstanceCbk ( menu->gui );
+    g3dui_addInstance ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -438,7 +438,7 @@ static uint64_t addInstanceCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addEmitterCbk ( G3DUIMENU *menu, 
                                 void      *data ) {
-    g3dui_addEmitterCbk ( menu->gui );
+    g3dui_addEmitter ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -488,7 +488,7 @@ static G3DUIMENU multipliers_menu = { NULL,
 static uint64_t addWireframeCbk ( G3DUIMENU *menu, 
                                   void      *data ) {
 
-    g3dui_addWireframeCbk ( menu->gui );
+    g3dui_addWireframe ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -497,7 +497,7 @@ static uint64_t addWireframeCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addSubdividerCbk ( G3DUIMENU *menu, 
                                    void      *data ) {
-    g3dui_addSubdividerCbk ( menu->gui );
+    g3dui_addSubdivider ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -506,7 +506,7 @@ static uint64_t addSubdividerCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addSplineRevolverCbk ( G3DUIMENU *menu, 
                                        void      *data ) {
-    g3dui_addSplineRevolverCbk ( menu->gui );
+    g3dui_addSplineRevolver ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -515,7 +515,7 @@ static uint64_t addSplineRevolverCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addFFDBoxCbk ( G3DUIMENU *menu, 
                                void      *data ) {
-    g3dui_addFFDBoxCbk ( menu->gui );
+    g3dui_addFFDBox ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -524,7 +524,7 @@ static uint64_t addFFDBoxCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addMorpherCbk ( G3DUIMENU *menu, 
                                 void      *data ) {
-    g3dui_addMorpherCbk ( menu->gui );
+    g3dui_addMorpher ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -533,7 +533,7 @@ static uint64_t addMorpherCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addSkinCbk ( G3DUIMENU *menu, 
                              void      *data ) {
-    g3dui_addSkinCbk ( menu->gui );
+    g3dui_addSkin ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -542,7 +542,7 @@ static uint64_t addSkinCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addBoneCbk ( G3DUIMENU *menu, 
                              void      *data ) {
-    g3dui_addBoneCbk ( menu->gui );
+    g3dui_addBone ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -682,7 +682,7 @@ static G3DUIMENU modifiers_menu = {  NULL,
 
 static uint64_t addPlaneCbk ( G3DUIMENU *menu, 
                               void      *data ) {
-    g3dui_addPlaneCbk ( menu->gui );
+    g3dui_addPlane ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -691,7 +691,7 @@ static uint64_t addPlaneCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addCubeCbk ( G3DUIMENU *menu, 
                              void      *data ) {
-    g3dui_addCubeCbk ( menu->gui );
+    g3dui_addCube ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -700,7 +700,7 @@ static uint64_t addCubeCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addSphereCbk ( G3DUIMENU *menu, 
                                void      *data ) {
-    g3dui_addSphereCbk ( menu->gui );
+    g3dui_addSphere ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -709,7 +709,7 @@ static uint64_t addSphereCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addTorusCbk ( G3DUIMENU *menu, 
                               void      *data ) {
-    g3dui_addTorusCbk ( menu->gui );
+    g3dui_addTorus ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -718,7 +718,7 @@ static uint64_t addTorusCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addCylinderCbk ( G3DUIMENU *menu, 
                                  void      *data ) {
-    g3dui_addCylinderCbk ( menu->gui );
+    g3dui_addCylinder ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -727,7 +727,7 @@ static uint64_t addCylinderCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addTubeCbk ( G3DUIMENU *menu, 
                              void      *data ) {
-    g3dui_addTubeCbk ( menu->gui );
+    g3dui_addTube ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -736,7 +736,7 @@ static uint64_t addTubeCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addLightCbk ( G3DUIMENU *menu, 
                               void      *data ) {
-    g3dui_addLightCbk ( menu->gui );
+    g3dui_addLight ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -745,7 +745,7 @@ static uint64_t addLightCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addCameraCbk ( G3DUIMENU *menu, 
                                void      *data ) {
-    g3dui_addCameraCbk ( menu->gui );
+    g3dui_addCamera ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -754,7 +754,7 @@ static uint64_t addCameraCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addEmptyMeshCbk  ( G3DUIMENU *menu, 
                                    void      *data ) {
-    g3dui_addEmptyMeshCbk ( menu->gui );
+    g3dui_addEmptyMesh ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -763,7 +763,7 @@ static uint64_t addEmptyMeshCbk  ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addSplineCbk ( G3DUIMENU *menu, 
                                    void      *data ) {
-    g3dui_addSplineCbk ( menu->gui );
+    g3dui_addSpline ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -772,7 +772,7 @@ static uint64_t addSplineCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addTextCbk ( G3DUIMENU *menu, 
                              void      *data ) {
-    g3dui_addTextCbk ( menu->gui );
+    g3dui_addText ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -781,7 +781,7 @@ static uint64_t addTextCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t addNullCbk ( G3DUIMENU *menu, 
                              void      *data ) {
-    g3dui_addNullCbk ( menu->gui );
+    g3dui_addNull ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -906,7 +906,7 @@ static G3DUIMENU objects_menu = { NULL,
 
 static uint64_t invertNormalCbk ( G3DUIMENU *menu, 
                                    void      *data ) {
-    g3dui_invertNormalCbk ( menu->gui );
+    g3dui_invertNormal ( menu->gui );
 
 
     return REDRAWVIEW;
@@ -915,7 +915,7 @@ static uint64_t invertNormalCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t alignNormalsCbk ( G3DUIMENU *menu, 
                                    void      *data ) {
-    g3dui_alignNormalsCbk ( menu->gui );
+    g3dui_alignNormals ( menu->gui );
 
 
     return REDRAWVIEW;
@@ -924,7 +924,7 @@ static uint64_t alignNormalsCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t triangulateCbk ( G3DUIMENU *menu, 
                                  void      *data ) {
-    g3dui_triangulateCbk ( menu->gui, menu->name );
+    g3dui_triangulate ( menu->gui, menu->name );
 
 
     return REDRAWVIEW;
@@ -933,7 +933,7 @@ static uint64_t triangulateCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t untriangulateCbk ( G3DUIMENU *menu, 
                                    void      *data ) {
-    g3dui_untriangulateCbk ( menu->gui );
+    g3dui_untriangulate ( menu->gui );
 
 
     return REDRAWVIEW;
@@ -942,7 +942,7 @@ static uint64_t untriangulateCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t weldVerticesCbk ( G3DUIMENU *menu, 
                                   void      *data ) {
-    g3dui_weldVerticesCbk ( menu->gui );
+    g3dui_weldVertices ( menu->gui );
 
 
     return REDRAWVIEW;
@@ -951,7 +951,7 @@ static uint64_t weldVerticesCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t deleteLoneVerticesCbk ( G3DUIMENU *menu, 
                                         void      *data ) {
-    g3dui_deleteLoneVerticesCbk ( menu->gui );
+    g3dui_deleteLoneVertices ( menu->gui );
 
 
     return REDRAWVIEW;
@@ -960,7 +960,7 @@ static uint64_t deleteLoneVerticesCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t selectAllCbk ( G3DUIMENU *menu, 
                                void      *data ) {
-    g3dui_selectAllCbk ( menu->gui );
+    g3dui_selectAll ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -969,7 +969,7 @@ static uint64_t selectAllCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t invertSelectionCbk ( G3DUIMENU *menu, 
                                      void      *data ) {
-    g3dui_invertSelectionCbk ( menu->gui );
+    g3dui_invertSelection ( menu->gui );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -983,7 +983,7 @@ static uint64_t getObjectStatsCbk ( G3DUIMENU *menu,
     char buffer[0x200] = { 0 };
     GtkWidget *dialog;
 
-    g3dui_getObjectStatsCbk ( menu->gui, buffer, 0x200 );
+    g3dui_getObjectStats ( menu->gui, buffer, 0x200 );
 
     if ( strlen ( buffer ) ) {
         dialog = gtk_message_dialog_new ( NULL,
@@ -1004,7 +1004,7 @@ static uint64_t getObjectStatsCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t selectTreeCbk ( G3DUIMENU *menu, 
                                 void      *data ) {
-    g3dui_selectTreeCbk ( menu->gui, menu->name );
+    g3dui_selectTree ( menu->gui, menu->name );
 
 
     return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
@@ -1242,7 +1242,7 @@ static uint64_t exportFileCbk ( G3DUIMENU *menu,
         GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
         const char *filename = gtk_file_chooser_get_filename ( chooser );
 
-        g3dui_exportFileOkCbk ( gui, filedesc, filename );
+        g3dui_exportFileOk ( gui, filedesc, filename );
 
         g_free    ( ( gpointer ) filename );
     }
@@ -1280,7 +1280,7 @@ static uint64_t importFileCbk ( G3DUIMENU *menu,
         GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
         const char *filename = gtk_file_chooser_get_filename ( chooser );
 
-        g3dui_importFileOkCbk ( gui, filedesc, filename );
+        g3dui_importFileOk ( gui, filedesc, filename );
 
         g_free    ( ( gpointer ) filename );
     }
@@ -1311,7 +1311,7 @@ static uint64_t exitCbk ( G3DUIMENU *menu,
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
     if ( res == GTK_RESPONSE_YES ) {
-        common_g3dui_exitokcbk ( gui );
+        g3dui_exitOk ( gui );
     }
 
     gtk_widget_destroy ( dialog );
@@ -1496,7 +1496,7 @@ static G3DUIMENU *rootchildren[] = { &file_menu,
 
 static G3DUIMENU rootnode = { NULL,
                               "MainMenuBar",
-                              NULL,
+                              MENU_CLASS_MAIN,
                               G3DUIMENUTYPE_MENUBAR,
                               NULL,
                               NULL,
