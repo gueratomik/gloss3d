@@ -182,17 +182,17 @@ typedef struct _GTK3G3DUITOOLBAR {
 
 /******************************************************************************/
 typedef struct _GTK3G3DUIMODEBAR {
-    G3DUIRENDERWINDOW   core;
-    GtkWidget          *bar;
-    GtkWidget          *objectMode;
-    GtkWidget          *vertexMode;
-    GtkWidget          *edgeMode;
-    GtkWidget          *faceMode;
-    GtkWidget          *sculptMode;
-    GtkWidget          *skinMode;
-    GtkWidget          *uvmapMode;
-    GtkWidget          *axisMode;
-    GtkWidget          *pathMode;
+    G3DUIMODEBAR   core;
+    GtkWidget     *bar;
+    GtkWidget     *objectMode;
+    GtkWidget     *vertexMode;
+    GtkWidget     *edgeMode;
+    GtkWidget     *faceMode;
+    GtkWidget     *sculptMode;
+    GtkWidget     *skinMode;
+    GtkWidget     *uvmapMode;
+    GtkWidget     *axisMode;
+    GtkWidget     *pathMode;
 } GTK3G3DUIMODEBAR;
 
 /******************************************************************************/
@@ -234,12 +234,11 @@ typedef struct _GTK3G3DUIMAIN {
 typedef struct _GTK3G3DUIRENDERWINDOW {
     G3DUIRENDERWINDOW   core;
 
-    GtkWidget          *menuBar;
-    GtkWidget          *fileMenu;
+    GtkLayout          *layout;
     GtkWidget          *drawingArea;
     GtkWidget          *scrolledWindow;
     GtkWidget          *statusBar;
-    GtkWidget          *topLevel;
+    GtkWidget          *topWin;
 } GTK3G3DUIRENDERWINDOW;
 
 /******************************************************************************/
@@ -558,6 +557,7 @@ void gtk3_openFile ( GTK3G3DUI *gtk3gui );
 void gtk3_saveAs ( GTK3G3DUI *gtk3gui );
 void gtk3_saveFile ( GTK3G3DUI *gtk3gui );
 void gtk3_renderView ( GTK3G3DUI *gtk3gui );
+void gtk3_runRenderCbk ( GTK3G3DUI *gtk3gui );
 
 GtkFixed *ui_createTab ( GtkNotebook *parent, 
                          void        *data,
@@ -791,6 +791,11 @@ void gtk3_g3duiplaneedit_update ( GTK3G3DUIPLANEEDIT *gtk3ped );
 GTK3G3DUIPLANEEDIT *gtk3_g3duiplaneedit_create ( GtkWidget *parent,
                                                GTK3G3DUI *gtk3gui,
                                                char      *name );
+
+/**************************** g3duirenderwindow.c *****************************/
+GTK3G3DUIRENDERWINDOW *gtk3_g3duirenderwindow_create ( GtkWindow *parent, 
+                                                       GTK3G3DUI *gtk3gui,
+                                                       char      *name );
 
 /*************************** g3duisubdivideredit.c ****************************/
 void gtk3_g3duisubdivideredit_update ( GTK3G3DUISUBDIVIDEREDIT *gtk3sed );

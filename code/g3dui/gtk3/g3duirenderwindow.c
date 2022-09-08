@@ -29,24 +29,26 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-#ifdef unused
 
 /******************************************************************************/
-static GTK3G3DUIRENDERWINDOW *g3duirenderwindow_new ( G3DUI *gui ) {
+static GTK3G3DUIRENDERWINDOW *gtk3_g3duirenderwindow_new ( GTK3G3DUI *gtk3gui ) {
     uint32_t size = sizeof ( GTK3G3DUIRENDERWINDOW );
-    GTK3G3DUIRENDERWINDOW *grw = ( GTK3G3DUIRENDERWINDOW * ) calloc ( 0x01, size );
+    GTK3G3DUIRENDERWINDOW *gtk3rwin = ( GTK3G3DUIRENDERWINDOW * ) calloc ( 0x01, size );
 
-    if ( grw == NULL ) {
+    if ( gtk3rwin == NULL ) {
         fprintf ( stderr, "%s: calloc failed\n", __func__);
 
         return NULL;
     }
 
-    grw->grp.gui = gui;
+    gtk3rwin->core.gui = &gtk3gui->core;
 
 
-    return grw;
+    return gtk3rwin;
 }
+
+
+#ifdef unused
 
 /******************************************************************************/
 static GtkWidget *window_get_area ( GtkWidget * );
@@ -531,7 +533,7 @@ static gboolean Destroy ( GtkWidget *widget,
 
     g3duirenderbuffer_clear ( &gtk3rwin->core.rbuf );
 
-    q3dfilter_free ( gtk3rwin->tostatus );
+    q3dfilter_free ( gtk3rwin->core.tostatus );
 
     free ( gtk3rwin );
 }
@@ -558,7 +560,7 @@ static void Configure ( GtkWidget *widget,
     GTK3G3DUIRENDERWINDOW *gtk3rwin = ( GTK3G3DUIRENDERWINDOW * ) user_data;
     GdkRectangle gdkrec;
 
-    if ( gtk_widget_get_realized ( GTK_WIDGET ( window ) ) ) {
+    if ( gtk_widget_get_realized ( GTK_WIDGET ( gtk3rwin->layout ) ) ) {
         g3duirenderwindow_resize ( &gtk3rwin->core, 
                                     event->configure.width, 
                                     event->configure.height );
@@ -591,7 +593,7 @@ static void Configure ( GtkWidget *widget,
                                           gdkrec.height );
         }
 
-        if ( gtk3rwin->area ) {
+        if ( gtk3rwin->drawingArea ) {
             float zoomfactor = /*gtk3rwin->core.zoomFactor*/1.0f;
 
             gtk_widget_set_size_request ( gtk3rwin->scrolledWindow,
@@ -606,7 +608,7 @@ GTK3G3DUIRENDERWINDOW *gtk3_g3duirenderwindow_create ( GtkWindow *parent,
                                                        GTK3G3DUI *gtk3gui,
                                                        char      *name ) {
     GTK3G3DUIRENDERWINDOW *gtk3rwin = gtk3_g3duirenderwindow_new ( gtk3gui );
-    GtkLayout *layout = ui_gtk_layout_new ( );
+    GtkLayout *layout = ui_gtk_layout_new ( CLASS_MAIN, NULL, NULL );
 
     gtk3rwin->topWin = parent;
     gtk3rwin->layout = layout;
@@ -615,7 +617,7 @@ GTK3G3DUIRENDERWINDOW *gtk3_g3duirenderwindow_create ( GtkWindow *parent,
 
     gtk_container_add ( GTK_CONTAINER(parent), layout );
 
-    createRenderWindowMenuBar     ( gtk3rwin );
+    gtk3_g3duirenderwindow_createMenuBar ( gtk3rwin );
 /*
     createRenderWindowDrawingArea ( gtk3rwin );
     createStatusBar               ( gtk3rwin );

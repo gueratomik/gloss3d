@@ -768,9 +768,14 @@ typedef struct _G3DUIRENDERBUFFER {
 /******************************************************************************/
 typedef struct _G3DUIRENDERWINDOW {
     G3DUI              *gui;
+
+    G3DUIMENU          *menuBar;
     Q3DFILTER          *tostatus;
     G3DUIRENDERPROCESS *rps;
     G3DUIRENDERBUFFER   rbuf;
+    G3DUIRECTANGLE      menurec;
+    G3DUIRECTANGLE      statusrec;
+    G3DUIRECTANGLE      scrrec;
 } G3DUIRENDERWINDOW;
 
 /******************************************************************************/

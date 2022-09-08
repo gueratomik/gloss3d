@@ -68,41 +68,6 @@ static void g3duirenderwindow_saveJPGCbk ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-static void exitRenderWindowCbk ( G3DUIMENU *menu, void *data ) {
-/***
-    G3DUIRENDERWINDOW *grw = ( G3DUIRENDERWINDOW * ) user_data;
-
-    gtk_widget_destroy ( grw->topLevel );
-*/
-}
-
-
-/******************************************************************************/
-/******************************************************************************/
-GtkWidget *createRenderWindowMenuBar ( GtkWidget         *parent,
-                                       G3DUIRENDERWINDOW *rwn,
-                                       char              *name,
-                                       gint               x,
-                                       gint               y,
-                                       gint               width,
-                                       gint               height ) {
-#ifdef TODO
-    GdkRectangle gdkrec = { x, y, width, height };
-
-    parseMenu_r ( &renderwindowrootnode, NULL, rwn );
-
-    gtk_widget_size_allocate ( renderwindowrootnode.menu, &gdkrec );
-    gtk_fixed_put ( GTK_FIXED(parent), renderwindowrootnode.menu, x, y );
-
-    gtk_widget_show ( renderwindowrootnode.menu );
-
-
-    return renderwindowrootnode.menu;
-#endif
-}
-
-
-/******************************************************************************/
 /******************************************************************************/
 GtkWidget *createTimeContextMenu ( GtkWidget     *parent,
                                    G3DUITIMELINE *tim,

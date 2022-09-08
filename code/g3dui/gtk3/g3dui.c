@@ -968,6 +968,30 @@ void gtk3_openFile ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
+void gtk3_runRenderCbk ( GTK3G3DUI *gtk3gui ) {
+    G3DUI * gui = ( G3DUI * ) gtk3gui;
+    Q3DSETTINGS *rsg = gui->currsg;
+
+    if ( gui->main ) {
+        if ( gui->main->quad ) {
+            if ( gui->main->quad->view[0x00] ) {
+                G3DCAMERA *mainCamera = gui->main->quad->view[0x00]->cam;
+
+                if ( mainCamera ) {
+                    GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+
+                    gtk3_g3duirenderwindow_create ( dial, 
+                                                    gtk3gui, 
+                                                    "Rendering" );
+
+                    gtk_widget_show ( dial );
+                }
+            }
+        }
+    }
+}
+
+/******************************************************************************/
 uint32_t gtk3_setMouseTool ( GTK3G3DUI *gtk3gui, char *name ) {
     G3DUI * gui = ( G3DUI * ) gtk3gui;
     G3DMOUSETOOL *mou = g3dui_getMouseTool ( gui, name );

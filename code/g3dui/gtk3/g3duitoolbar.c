@@ -172,6 +172,14 @@ static void renderViewCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void runRenderCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
+
+    gtk3_runRenderCbk ( gtk3gui );
+}
+
+/******************************************************************************/
 static void xAxisCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
@@ -434,7 +442,7 @@ GTK3G3DUITOOLBAR *gtk3_g3duitoolbar_create ( GtkWidget *parent,
                                                   gtk3tb,
                                                   MENU_RENDERFINAL,
                                                   render_xpm,
-                                                  /*g3dui_runRenderCbk*/NULL );
+                                                  runRenderCbk );
 
     gtk3tb->makeEditable = addToolBarPushButton ( gtk3tb->bar,
                                                   gtk3tb,
