@@ -30,6 +30,76 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+static uint32_t fitViewActiveCond ( G3DUIMENU *menu,
+                                    void      *data ) {
+    G3DUIRENDERWINDOW *rwin = ( G3DUIRENDERWINDOW * ) data;
+
+    return ( rwin->displayMode == RENDERWINDOW_FIT_SIZE ) ? MENU_CONDITION_SENSITIVE |
+                                                            MENU_CONDITION_ACTIVE : 
+                                                            MENU_CONDITION_SENSITIVE;
+}
+
+/******************************************************************************/
+static uint32_t fullViewActiveCond ( G3DUIMENU *menu,
+                                     void      *data ) {
+    G3DUIRENDERWINDOW *rwin = ( G3DUIRENDERWINDOW * ) data;
+
+    return ( rwin->displayMode == RENDERWINDOW_FULL_SIZE ) ? MENU_CONDITION_SENSITIVE |
+                                                             MENU_CONDITION_ACTIVE : 
+                                                             MENU_CONDITION_SENSITIVE;
+}
+
+/******************************************************************************/
+/*** Note: alos treated in gtk3/g3duimenubar.c/menuItemCallback() ***/
+static uint64_t rwViewFitCbk ( G3DUIMENU *menu, void *data ) {
+    G3DUIRENDERWINDOW *rwin = ( G3DUIRENDERWINDOW * ) data;
+
+    rwin->displayMode = RENDERWINDOW_FIT_SIZE;
+
+    return RESIZERENDERWINDOW | REDRAWRENDERWINDOWMENU;
+}
+
+/******************************************************************************/
+/*** Note: alos treated in gtk3/g3duimenubar.c/menuItemCallback() ***/
+static uint64_t rwViewFullCbk ( G3DUIMENU *menu, void *data ) {
+    G3DUIRENDERWINDOW *rwin = ( G3DUIRENDERWINDOW * ) data;
+
+    rwin->displayMode = RENDERWINDOW_FULL_SIZE;
+
+    return RESIZERENDERWINDOW | REDRAWRENDERWINDOWMENU;
+}
+
+/******************************************************************************/
+
+static G3DUIMENU rw_view_fit   = { NULL,
+                                   RWMENU_VIEW_FIT,
+                                   MENU_CLASS_MAIN,
+                                   G3DUIMENUTYPE_TOGGLEBUTTON,
+                                   fitViewActiveCond,
+                                   rwViewFitCbk };
+
+static G3DUIMENU rw_view_full = { NULL,
+                                  RWMENU_VIEW_FULL,
+                                  MENU_CLASS_MAIN,
+                                  G3DUIMENUTYPE_TOGGLEBUTTON,
+                                  fullViewActiveCond,
+                                  rwViewFullCbk };
+
+/******************************************************************************/
+
+static G3DUIMENU *rwviewchildren[] = { &rw_view_fit,
+                                       &rw_view_full,
+                                        NULL };
+
+static G3DUIMENU rw_view_menu = { NULL,
+                                  "_View",
+                                  MENU_CLASS_MAIN,
+                                  G3DUIMENUTYPE_SUBMENU,
+                                  NULL,
+                                  NULL,
+                                 .nodes = rwviewchildren };
+
+/******************************************************************************/
 static uint64_t renderwindowExitCbk ( G3DUIMENU *menu, void *data ) {
 /***
     G3DUIRENDERWINDOW *grw = ( G3DUIRENDERWINDOW * ) user_data;
@@ -84,6 +154,7 @@ static G3DUIMENU rw_file_menu = { NULL,
 /******************************************************************************/
 /******************************************************************************/
 static G3DUIMENU *renderwindowchildren[] = { &rw_file_menu,
+                                             &rw_view_menu,
                                               NULL };
 
 static G3DUIMENU renderwindowrootnode = { NULL,

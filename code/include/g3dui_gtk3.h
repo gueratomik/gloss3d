@@ -530,12 +530,6 @@ typedef struct _FILTERTOGDKWINDOW {
     GdkWindow       *gdkwin;
 } FILTERTOGDKWINDOW;
 
-typedef struct _FILTERTOSTATUSBAR {
-    GtkWidget *widget;
-    float lastFrame;
-    uint32_t done;
-} FILTERTOSTATUSBAR;
-
 /******************************** css/default.c *******************************/
 gchar *gtk3_getDefaultCSS ( );
 
@@ -694,6 +688,10 @@ GtkCheckMenuItem *ui_gtk_check_menu_item_new_with_mnemonic ( char *class,
 GtkFixed *ui_gtk_fixed_new ( char *class );
 GtkLabel *ui_gtk_label_new ( char *class,
                               char *name );
+GtkScrolledWindow *ui_gtk_scrolled_window_new ( char          *class,
+                                                GtkAdjustment *hadjustment,
+                                                GtkAdjustment *vadjustment );
+GtkStatusbar *ui_gtk_statusbar_new ( char *class );
 GtkNotebook *ui_gtk_notebook_new ( char *class );
 GtkWindow *ui_gtk_window_new ( char *class, GtkWindowType type );
 GtkMenu *ui_gtk_menu_new ( char *class );
@@ -730,6 +728,8 @@ void gtk3_g3duicom_handleAction ( GtkWidget *widget,
 void gtk3_g3duicom_handleAction ( GtkWidget *widget, 
                                   gpointer   ptr, 
                                   gpointer   user_data );
+void gtk3_g3duicom_requestActionFromMainThread ( GTK3G3DUI   *gtk3gui,
+                                                 G3DUIACTION *action );
 
 /******************************* g3duicubeedit.c ******************************/
 void gtk3_g3duicubeedit_update ( GTK3G3DUICUBEEDIT *gtk3ced );
@@ -796,6 +796,10 @@ GTK3G3DUIPLANEEDIT *gtk3_g3duiplaneedit_create ( GtkWidget *parent,
 GTK3G3DUIRENDERWINDOW *gtk3_g3duirenderwindow_create ( GtkWindow *parent, 
                                                        GTK3G3DUI *gtk3gui,
                                                        char      *name );
+void gtk3_g3duirenderwindow_resize ( GTK3G3DUIRENDERWINDOW *gtk3rwin,
+                                     uint32_t               width,
+                                     uint32_t               height );
+void gtk3_g3duirenderwindow_updateMenuBar ( GTK3G3DUIRENDERWINDOW *gtk3rwin );
 
 /*************************** g3duisubdivideredit.c ****************************/
 void gtk3_g3duisubdivideredit_update ( GTK3G3DUISUBDIVIDEREDIT *gtk3sed );
@@ -883,5 +887,10 @@ void gtk3_g3duiwireframeedit_update ( GTK3G3DUIWIREFRAMEEDIT *gtk3wed );
 GTK3G3DUIWIREFRAMEEDIT *gtk3_g3duiwireframeedit_create ( GtkWidget *parent,
                                                          GTK3G3DUI *gtk3gui,
                                                          char      *name );
+
+/********************************* q3dfilters.c *******************************/
+uint32_t q3dfilter_toStatusBar_getStatus ( Q3DFILTER *fil );
+Q3DFILTER *q3dfilter_toStatusBar_new ( GtkWidget *widget, 
+                                       float      lastFrame );
 
 #endif

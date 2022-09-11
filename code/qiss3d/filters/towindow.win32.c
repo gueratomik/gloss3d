@@ -33,16 +33,18 @@
 #ifdef __MINGW32__
 
 /******************************************************************************/
-void filtertowindow_free (  Q3DFILTER *fil ) {
+static void filtertowindow_free (  Q3DFILTER *fil ) {
     FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) fil->data;
 
     free ( ftw );
 }
 
 /******************************************************************************/
-FILTERTOWINDOW *filtertowindow_new ( HWND     hWnd,
-                                     WImage  *wimg,
-                                     uint32_t active_fill ) {
+static FILTERTOWINDOW *filtertowindow_new ( HWND     hWnd,
+                                            uint32_t width,
+                                            uint32_t height,
+                                            WImage  *wimg,
+                                            uint32_t active_fill ) {
     uint32_t structsize = sizeof ( FILTERTOWINDOW );
     FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) calloc ( 0x01, structsize );
     HDC dc;
@@ -59,33 +61,27 @@ FILTERTOWINDOW *filtertowindow_new ( HWND     hWnd,
     ftw->hWnd = hWnd;
     ftw->wimg = wimg;
 
-    /*filtertowindow_allocWImage ( ftw, hWnd ); */
+    ftw->depth  = 24;
+    ftw->width  = width;
+    ftw->height = height;
 
     return ftw;
 }
 
 /******************************************************************************/
-uint32_t filtertowindow_draw ( Q3DFILTER     *fil, 
-                               Q3DJOB        *qjob,
-                               uint32_t       cpuID, 
-                               float          frameID,
-                               unsigned char *img, 
-                               uint32_t       from, 
-                               uint32_t       to, 
-                               uint32_t       depth, 
-                               uint32_t       width ) {
+static uint32_t filtertowindow_draw ( Q3DFILTER     *fil, 
+                                      Q3DJOB        *qjob,
+                                      uint32_t       cpuID, 
+                                      float          frameID,
+                                      unsigned char *img, 
+                                      uint32_t       from, 
+                                      uint32_t       to, 
+                                      uint32_t       depth, 
+                                      uint32_t       width ) {
     uint32_t bytesperline = ( depth >> 0x03 ) * width;
     FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) fil->data;
-    uint32_t win_depth, win_width, win_height;
     int i, j;
     HDC dc = GetDC ( ftw->hWnd );
-    RECT rec;
-
-    GetWindowRect ( ftw->hWnd, &rec );
-
-    ftw->depth = win_depth  = GetDeviceCaps ( dc, BITSPIXEL );
-    win_width  = ( rec.right  - rec.left );
-    win_height = ( rec.bottom  - rec.top );
 
     for ( i = from; i < to; i++ ) {
         uint32_t offset = ( i * bytesperline );
@@ -132,12 +128,12 @@ uint32_t filtertowindow_draw ( Q3DFILTER     *fil,
         if ( ftw->active_fill ) {
             SetDIBitsToDevice ( dc, 0x00,            /* int XDest               */
                                     0x00,            /* int YDest               */
-                                    win_width,       /* DWORD dwWidth           */
-                                    win_height,      /* DWORD dwHeight          */
+                                    ftw->width,       /* DWORD dwWidth           */
+                                    ftw->height,      /* DWORD dwHeight          */
                                     0x00,            /* int XSrc                */
                                     0x00,               /* int YSrc                */
                                     0x00,            /* UINT uStartScan         */
-                                    win_height,      /* UINT cScanLines         */
+                                    ftw->height,     /* UINT cScanLines         */
                                     ftw->wimg->data, /* const VOID *lpvBits     */
                                     ftw->wimg->bi,   /* const BITMAPINFO *lpbmi */
                                     ftw->wimg->bi->bmiHeader.biClrUsed );
@@ -151,6 +147,8 @@ uint32_t filtertowindow_draw ( Q3DFILTER     *fil,
 
 /******************************************************************************/
 Q3DFILTER *q3dfilter_toWindow_new ( HWND     hWnd,
+                                    uint32_t width,
+                                    uint32_t height,
                                     WImage  *wimg,
                                     uint32_t active_fill ) {
     Q3DFILTER *fil;
@@ -159,7 +157,11 @@ Q3DFILTER *q3dfilter_toWindow_new ( HWND     hWnd,
                           TOWINDOWFILTERNAME,
                           filtertowindow_draw,
                           filtertowindow_free,
-                          filtertowindow_new ( hWnd, wimg, active_fill ) );
+                          filtertowindow_new ( hWnd, 
+                                               width,
+                                               height,
+                                               wimg,
+                                               active_fill ) );
 
     return fil;
 }

@@ -41,6 +41,20 @@ void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in,
 }
 
 /******************************************************************************/
+GtkScrolledWindow *ui_gtk_scrolled_window_new ( char          *class,
+                                                GtkAdjustment *hadjustment,
+                                                GtkAdjustment *vadjustment ) {
+    GtkWidget *cmb = gtk_scrolled_window_new ( hadjustment, vadjustment );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( cmb );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_SCROLLED_WINDOW(cmb);
+}
+
+/******************************************************************************/
 GtkComboBoxText *ui_gtk_combo_box_text_new ( char *class ) {
     GtkWidget *cmb = gtk_combo_box_text_new ( );
 
@@ -77,6 +91,18 @@ GtkSpinButton *ui_gtk_spin_button_new ( char          *class,
     }
 
     return GTK_SPIN_BUTTON(spin);
+}
+
+/******************************************************************************/
+GtkStatusbar *ui_gtk_statusbar_new ( char *class ) {
+    GtkWidget *statusBar = gtk_statusbar_new ( );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( statusBar );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_STATUSBAR(statusBar);
 }
 
 /******************************************************************************/
@@ -761,13 +787,17 @@ void gtk3_renderView ( GTK3G3DUI *gtk3gui ) {
             GdkDisplay *gdkdpy = gtk_widget_get_display ( gtk3view->glarea );
             GdkWindow  *gdkwin = gtk_widget_get_window  ( gtk3view->glarea );
 
-            g3duirenderbuffer_init ( &gtk3view->core.rbuf, 
+            g3duirenderbuffer_init ( &gtk3view->core.rbuf,
                                       gdk_x11_display_get_xdisplay ( gdkdpy ),
-                                      gdk_x11_window_get_xid       ( gdkwin ) );
+                                      gdk_x11_window_get_xid       ( gdkwin ),
+                                      width, 
+                                      height );
 
             Q3DFILTER *progressiveDisplay = q3dfilter_toWindow_new ( gtk3view->core.rbuf.dis,
                                                                      gtk3view->core.rbuf.win,
                                                                      gtk3view->core.rbuf.gc,
+                                                                     width,
+                                                                     height,
                                                                      gtk3view->core.rbuf.ximg,
                                                                      0x01 );
         #endif
@@ -777,9 +807,12 @@ void gtk3_renderView ( GTK3G3DUI *gtk3gui ) {
 
             g3duirenderbuffer_init ( &gtk3view->core.rbuf,
                                      hWnd,
-                                     dc ) {
+                                     width,
+                                     height );
 
             Q3DFILTER *progressiveDisplay = q3dfilter_toWindow_new ( gtk3view->core.rbuf.hWnd,
+                                                                     width,
+                                                                     height,
                                                                      gtk3view->core.rbuf.wimg,
                                                                      0x01 );
         #endif
@@ -972,21 +1005,24 @@ void gtk3_runRenderCbk ( GTK3G3DUI *gtk3gui ) {
     G3DUI * gui = ( G3DUI * ) gtk3gui;
     Q3DSETTINGS *rsg = gui->currsg;
 
-    if ( gui->main ) {
-        if ( gui->main->quad ) {
-            if ( gui->main->quad->view[0x00] ) {
-                G3DCAMERA *mainCamera = gui->main->quad->view[0x00]->cam;
+    if ( ( gui->renderWindow == NULL   ) &&
+         ( gui->main                   ) &&
+         ( gui->main->quad             ) &&
+         ( gui->main->quad->view[0x00] ) ) {
+        G3DCAMERA *mainCamera = gui->main->quad->view[0x00]->cam;
 
-                if ( mainCamera ) {
-                    GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+        if ( mainCamera ) {
+            GtkWidget *dial = ui_gtk_window_new ( CLASS_MAIN, 
+                                                  GTK_WINDOW_TOPLEVEL );
 
-                    gtk3_g3duirenderwindow_create ( dial, 
-                                                    gtk3gui, 
-                                                    "Rendering" );
+            gtk3_g3duirenderwindow_create ( dial, 
+                                            gtk3gui, 
+                                            "Rendering" );
 
-                    gtk_widget_show ( dial );
-                }
-            }
+            gtk_window_set_position ( dial, GTK_WIN_POS_CENTER_ALWAYS );
+            gtk_widget_set_size_request ( dial, 800, 600 );
+
+            gtk_widget_show ( dial );
         }
     }
 }
@@ -1227,6 +1263,20 @@ static void gtk3_updateGLViewsMenu ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
+static void gtk3_redrawRenderWindowMenu ( GTK3G3DUI *gtk3gui ) {
+    gtk3_g3duirenderwindow_updateMenuBar ( gtk3gui->core.renderWindow );
+}
+
+/******************************************************************************/
+static void gtk3_resizeRenderWindow ( GTK3G3DUI *gtk3gui ) {
+    GTK3G3DUIRENDERWINDOW *gtk3rwin = gtk3gui->core.renderWindow;
+
+    gtk3_g3duirenderwindow_resize ( gtk3rwin,
+                                    gtk_widget_get_allocated_width  ( gtk3rwin->layout ),
+                                    gtk_widget_get_allocated_height ( gtk3rwin->layout ) );
+}
+
+/******************************************************************************/
 static void gtk3_redrawGLViews ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) &gtk3gui->core;
     LIST *ltmpview = gtk3gui->core.lview;
@@ -1341,6 +1391,14 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
 
     if ( msk & REDRAWTIMELINE ) {
         gtk3_redrawTimeline ( gtk3gui );
+    }
+
+    if ( msk & RESIZERENDERWINDOW ) {
+        gtk3_resizeRenderWindow ( gtk3gui );
+    }
+
+    if ( msk & REDRAWRENDERWINDOWMENU ) {
+        gtk3_redrawRenderWindowMenu ( gtk3gui );
     }
 
 #ifdef TODO

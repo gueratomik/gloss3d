@@ -29,7 +29,6 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-
 /******************************************************************************/
 static GTK3G3DUIRENDERWINDOW *gtk3_g3duirenderwindow_new ( GTK3G3DUI *gtk3gui ) {
     uint32_t size = sizeof ( GTK3G3DUIRENDERWINDOW );
@@ -47,18 +46,12 @@ static GTK3G3DUIRENDERWINDOW *gtk3_g3duirenderwindow_new ( GTK3G3DUI *gtk3gui ) 
     return gtk3rwin;
 }
 
-
-#ifdef unused
-
-/******************************************************************************/
-static GtkWidget *window_get_area ( GtkWidget * );
-
 /******************************************************************************/
 void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
-    GTK3G3DUIRENDERWINDOW *grw = ( GTK3G3DUIRENDERWINDOW * ) user_data;
+    GTK3G3DUIRENDERWINDOW *gtk3rwin = ( GTK3G3DUIRENDERWINDOW * ) user_data;
     GdkDisplay *gdkdpy   = gtk_widget_get_display ( widget );
     GdkWindow  *gdkwin   = gtk_widget_get_window  ( widget );
-    G3DUI *gui = ( G3DUI * ) grw->grp.gui;
+    G3DUI *gui = ( G3DUI * ) gtk3rwin->core.gui;
     uint32_t width  = gtk_widget_get_allocated_width  ( widget ),
              height = gtk_widget_get_allocated_height ( widget );
     uint32_t x = 0, y = 0;
@@ -74,10 +67,9 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
     #ifdef __linux__
     Display    *dis      = gdk_x11_display_get_xdisplay ( gdkdpy );
     Window      win      = gdk_x11_window_get_xid ( gdkwin );
-    static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
     #endif
     #ifdef __MINGW32__
-    HDC dc = GetDC ( grw->rbuf.hWnd );
+    HDC dc = GetDC ( gtk3rwin->core.rbuf.hWnd );
     #endif
 
     /*** Tell cairo to shut the F*** up ***/
@@ -90,137 +82,92 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
     /*************************************/
 
     #ifdef __linux__
-    if ( width  > grw->rbuf.ximg->width  ) x = ( width  - grw->rbuf.ximg->width  ) * 0.5f;
-    if ( height > grw->rbuf.ximg->height ) y = ( height - grw->rbuf.ximg->height ) * 0.5f;
+    if ( width  > gtk3rwin->core.rbuf.ximg->width  ) x = ( width  - gtk3rwin->core.rbuf.ximg->width  ) * 0.5f;
+    if ( height > gtk3rwin->core.rbuf.ximg->height ) y = ( height - gtk3rwin->core.rbuf.ximg->height ) * 0.5f;
 
     /*pthread_mutex_lock ( &lock );*/
-    XShmPutImage ( grw->rbuf.dis,
-                   grw->rbuf.win, 
-                   grw->rbuf.gc, 
-                   grw->rbuf.ximg,
+    XShmPutImage ( gtk3rwin->core.rbuf.dis,
+                   gtk3rwin->core.rbuf.win, 
+                   gtk3rwin->core.rbuf.gc, 
+                   gtk3rwin->core.rbuf.ximg,
                    0x00, 0x00,
                    x, y,
-                   grw->rbuf.ximg->width, 
-                   grw->rbuf.ximg->height, False );
+                   gtk3rwin->core.rbuf.ximg->width, 
+                   gtk3rwin->core.rbuf.ximg->height, False );
+
     /*** must be called or else expect jerky effects ***/
-    XSync ( grw->rbuf.dis, 0 ); 
-    XFlush ( grw->rbuf.dis );
+    XSync ( gtk3rwin->core.rbuf.dis, 0 ); 
+    XFlush ( gtk3rwin->core.rbuf.dis );
     #endif
     #ifdef __MINGW32__
-    if ( width  > grw->rbuf.wimg->bi->bmiHeader.biWidth  ) x = ( width  - grw->rbuf.wimg->bi->bmiHeader.biWidth  ) * 0.5f;
-    if ( height > grw->rbuf.wimg->bi->bmiHeader.biHeight ) y = ( height - grw->rbuf.wimg->bi->bmiHeader.biHeight ) * 0.5f;
+    if ( width  > gtk3rwin->core.rbuf.wimg->bi->bmiHeader.biWidth  ) x = ( width  - gtk3rwin->core.rbuf.wimg->bi->bmiHeader.biWidth  ) * 0.5f;
+    if ( height > gtk3rwin->core.rbuf.wimg->bi->bmiHeader.biHeight ) y = ( height - gtk3rwin->core.rbuf.wimg->bi->bmiHeader.biHeight ) * 0.5f;
 
     SetDIBitsToDevice ( dc, x,                                 /* int XDest               */
                             y,                                 /* int YDest               */
-                            grw->rbuf.wimg->bi->bmiHeader.biWidth,  /* DWORD dwWidth           */
-                            grw->rbuf.wimg->bi->bmiHeader.biHeight, /* DWORD dwHeight          */
+                            gtk3rwin->core.rbuf.wimg->bi->bmiHeader.biWidth,  /* DWORD dwWidth           */
+                            gtk3rwin->core.rbuf.wimg->bi->bmiHeader.biHeight, /* DWORD dwHeight          */
                             0x00,                              /* int XSrc                */
                             0x00,                              /* int YSrc                */
                             0x00,                              /* UINT uStartScan         */
-                            grw->rbuf.wimg->bi->bmiHeader.biHeight, /* UINT cScanLines         */
-                            grw->rbuf.wimg->data,                   /* const VOID *lpvBits     */
-                            grw->rbuf.wimg->bi,                     /* const BITMAPINFO *lpbmi */
-                            grw->rbuf.wimg->bi->bmiHeader.biClrUsed );
+                            gtk3rwin->core.rbuf.wimg->bi->bmiHeader.biHeight, /* UINT cScanLines         */
+                            gtk3rwin->core.rbuf.wimg->data,                   /* const VOID *lpvBits     */
+                            gtk3rwin->core.rbuf.wimg->bi,                     /* const BITMAPINFO *lpbmi */
+                            gtk3rwin->core.rbuf.wimg->bi->bmiHeader.biClrUsed );
 
-    ReleaseDC ( grw->rbuf.hWnd, dc );
+    ReleaseDC ( gtk3rwin->core.rbuf.hWnd, dc );
 
     #endif
+
     /*pthread_mutex_unlock ( &lock );*/
-}
-
-/******************************************************************************/
-uint32_t filtertostatusbar_getStatus ( Q3DFILTER *fil ) {
-    FILTERTOSTATUSBAR *tsb = ( FILTERTOSTATUSBAR * ) fil->data;
-
-    return tsb->done;
-}
-
-/******************************************************************************/
-uint32_t filtertostatusbar_draw ( Q3DFILTER     *fil, 
-                                  Q3DJOB        *qjob,
-                                  uint32_t       cpuID, 
-                                  float          frameID,
-                                  unsigned char *img, 
-                                  uint32_t       from, 
-                                  uint32_t       to, 
-                                  uint32_t       depth, 
-                                  uint32_t       width ) {
-    FILTERTOSTATUSBAR *tsb = ( FILTERTOSTATUSBAR * ) fil->data;
-    guint cont = gtk_statusbar_get_context_id ( tsb->widget, "context" );
-    static char str[100];
-
-    /*** When called from "filter render before" event ***/
-    if ( ( from == 0x00 ) &&
-         ( to   == 0x00 ) ) {
-        snprintf ( str, 100, "Rendering frame %.2f (%.2f%%)", frameID,
-                                                              ( frameID - qjob->qrsg->output.startframe ) / ( qjob->qrsg->output.endframe - qjob->qrsg->output.startframe ) * 100.0f );
-    } else {
-        /*** when called from "filter render image" event ***/
-        if ( ( int ) tsb->lastFrame == ( int ) frameID ) {
-            snprintf ( str, 100, "Done (100%%)" );
-
-            tsb->done = 0xFFFFFFFF;
-        }
-    }
-
-    gtk_statusbar_push ( tsb->widget, cont, str );
-
-    return 0x00;
-}
-
-/******************************************************************************/
-void filtertostatusbar_free ( Q3DFILTER *fil ) {
-    FILTERTOSTATUSBAR *tsb = ( FILTERTOSTATUSBAR * ) fil->data;
-
-    free ( tsb );
-}
-
-/******************************************************************************/
-/*** This filter is declared in the g3dui layer because of GtkWidget struct***/
-Q3DFILTER *q3dfilter_toStatusBar_new ( GtkWidget *widget, 
-                                       float      lastFrame ) {
-    FILTERTOSTATUSBAR *tsb = calloc ( 0x01, sizeof ( FILTERTOSTATUSBAR ) );
-
-    Q3DFILTER *fil = q3dfilter_new ( FILTERBEFORE | FILTERIMAGE,
-                                     TOSTATUSBARFILTERNAME,
-                                     filtertostatusbar_draw,
-                                     filtertostatusbar_free, 
-                                     tsb );
-
-    tsb->widget = widget;
-    tsb->lastFrame = lastFrame;
-
-    return fil;
 }
 
 /******************************************************************************/
 static void Map ( GtkWidget *widget, 
                   gpointer   user_data ) {
-    GTK3G3DUIRENDERWINDOW *grw = ( GTK3G3DUIRENDERWINDOW * ) user_data;
+    GTK3G3DUIRENDERWINDOW *gtk3rwin = ( GTK3G3DUIRENDERWINDOW * ) user_data;
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-    G3DUI *gui = grw->grp.gui;
-    G3DUIGTK3   *ggt  = ( G3DUIGTK3 * ) gui->toolkit_data;
-    G3DUIRENDERPROCESS *rps = grw->rps;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3rwin->core.gui;
+    G3DUI *gui = &gtk3gui->core;
+    G3DUIRENDERPROCESS *rps = gtk3rwin->core.rps;
     Q3DSETTINGS *rsg = gui->currsg;
-    /*rsg->width  = gtk_widget_get_allocated_width  ( widget );
-    rsg->height = gtk_widget_get_allocated_height ( widget );*/
     G3DCAMERA *cam = g3dui_getMainViewCamera ( gui );
 
+
     if ( rps == NULL ) {
-        g3duirenderbuffer_init ( &grw->rbuf, 
-                                  grw->drawingArea );
+        GdkDisplay *gdkdpy = gtk_widget_get_display ( gtk3rwin->drawingArea );
+        GdkWindow  *gdkwin = gtk_widget_get_window  ( gtk3rwin->drawingArea );
         Q3DFILTER *makepreview = NULL;
+        Q3DFILTER *towindow = NULL;
 #ifdef __linux__
-        Q3DFILTER *towindow = q3dfilter_toWindow_new ( grw->rbuf.dis,
-                                                       grw->rbuf.win,
-                                                       grw->rbuf.gc,
-                                                       grw->rbuf.ximg,
-                                                       0x00 );
+        g3duirenderbuffer_init ( &gtk3rwin->core.rbuf, 
+                                  gdk_x11_display_get_xdisplay ( gdkdpy ),
+                                  gdk_x11_window_get_xid       ( gdkwin ),
+                                  rsg->output.width,
+                                  rsg->output.height );
+
+        towindow = q3dfilter_toWindow_new ( gtk3rwin->core.rbuf.dis,
+                                            gtk3rwin->core.rbuf.win,
+                                            gtk3rwin->core.rbuf.gc,
+                                            rsg->output.width,
+                                            rsg->output.height,
+                                            gtk3rwin->core.rbuf.ximg,
+                                            0x00 );
+
 #endif
 #ifdef __MINGW32__
-        Q3DFILTER *towindow = q3dfilter_toWindow_new ( grw->rbuf.hWnd,
-                                                       grw->rbuf.wimg,
-                                                       0x00 );
+        HWND hWnd = GDK_WINDOW_HWND ( gtk_widget_get_window ( gtk3rwin->drawingArea ) );
+
+        g3duirenderbuffer_init ( &gtk3rwin->core.rbuf, 
+                                  hWnd,
+                                  rsg->output.width,
+                                  rsg->output.height );
+
+        towindow = q3dfilter_toWindow_new ( gtk3rwin->core.rbuf.hWnd,
+                                            rsg->output.width,
+                                            rsg->output.height,
+                                            gtk3rwin->core.rbuf.wimg,
+                                            0x00 );
 #endif
 
         /*** This filter is used for saving images ***/
@@ -241,10 +188,10 @@ static void Map ( GtkWidget *widget,
 */
 
         if ( rsg->flags & RENDERPREVIEW ) {
+#ifdef TODO
             makepreview = q3dfilter_preview_new ( gui );
+#endif
         }
-
-        grw->tostatus = q3dfilter_toStatusBar_new ( getChild ( gtk_widget_get_toplevel ( widget ), RENDERWINDOWSTATUSBARNAME ), rsg->output.endframe );
 
 #ifdef unusedQISS3D
         if ( rsg->flags & RENDERSAVE ) {
@@ -308,7 +255,7 @@ static void Map ( GtkWidget *widget,
         rsg->output.y2 = rsg->output.height  - 0x01;
         rsg->background.image = sysinfo->backgroundImage;
 
-        g3dui_setHourGlass ( gui );
+        gtk3_setHourGlass ( gtk3gui );
 
         if ( rsg->output.startframe != rsg->output.endframe ) {
            /*** refresh fFMpeg path in case the user just installed it ***/
@@ -326,49 +273,34 @@ static void Map ( GtkWidget *widget,
                gtk_dialog_run ( GTK_DIALOG ( dialog ) );
                gtk_widget_destroy ( dialog );
            } else {
-                grw->rps = common_g3dui_render_q3d ( gui, 
-                                                     rsg,
-                                                     towindow,
-                                                     gui->toframe,
-                                                     grw->tostatus,
-                                                     makepreview,
-                                                     cam,
-                                                     rsg->output.startframe,
-                                                     ( uint64_t ) widget,
-                                                     0x01,
-                                                     0x00 );
+                gtk3rwin->core.rps = g3dui_render_q3d ( gui, 
+                                                        rsg,
+                                                        towindow,
+                                                        gui->toframe,
+                                                        gtk3rwin->core.tostatus,
+                                                        makepreview,
+                                                        cam,
+                                                        rsg->output.startframe,
+                                                        ( uint64_t ) widget,
+                                                        0x01,
+                                                        0x00 );
             }
         } else {
-            grw->rps = common_g3dui_render_q3d ( gui,
-                                                 rsg,
-                                                 towindow,
-                                                 gui->toframe,
-                                                 grw->tostatus,
-                                                 makepreview,
-                                                 cam,
-                                                 rsg->output.startframe,
-                                                 ( uint64_t ) widget,
-                                                 0x00,
-                                                 0x00 );
+            gtk3rwin->core.rps = g3dui_render_q3d ( gui,
+                                                    rsg,
+                                                    towindow,
+                                                    gui->toframe,
+                                                    gtk3rwin->core.tostatus,
+                                                    makepreview,
+                                                    cam,
+                                                    rsg->output.startframe,
+                                                    ( uint64_t ) widget,
+                                                    0x00,
+                                                    0x00 );
         }
 
-        g3dui_unsetHourGlass ( gui );
+        gtk3_unsetHourGlass ( gtk3gui );
     }
-}
-
-/******************************************************************************/
-static void Realize ( GtkWidget *widget, 
-                      gpointer   user_data ) {
-    GTK3G3DUIRENDERWINDOW *grw = ( GTK3G3DUIRENDERWINDOW * ) user_data;
-
-}
-
-/******************************************************************************/
-static void Pause ( GtkWidget    *widget, 
-                    GdkRectangle *allocation,
-                    gpointer      user_data ) {
-    GTK3G3DUIRENDERWINDOW *grw = ( GTK3G3DUIRENDERWINDOW * ) user_data;
-
 }
 
 /******************************************************************************/
@@ -377,167 +309,117 @@ static void Unmap ( GtkWidget *widget,
     GTK3G3DUIRENDERWINDOW *grw = ( GTK3G3DUIRENDERWINDOW * ) user_data;
 }
 
+
 /******************************************************************************/
-static void createRenderWindowDrawingArea ( GtkWidget        *parent, 
-                                            GTK3G3DUIRENDERWINDOW *grw,
-                                            char             *name,
-                                            gint              x,
-                                            gint              y,
-                                            gint              width,
-                                            gint              height ) {
-    GdkRectangle scrrec = { 0, 0, width + 32, height + 48 };
-    GdkRectangle drwrec = { 0, 0, 0x120, 0x120  };
-    GtkWidget *scr, *drw;
+static void
+gtk3_g3duirenderwindow_createDrawingArea ( GTK3G3DUIRENDERWINDOW *gtk3rwin ) {
+    GtkWidget *scr = ui_gtk_scrolled_window_new ( CLASS_MAIN, NULL, NULL );
+    GtkWidget *drw = ui_gtk_drawing_area_new ( CLASS_MAIN );
 
+    gtk3rwin->scrolledWindow = scr;
+    gtk3rwin->drawingArea    = drw;
 
-    scr = gtk_scrolled_window_new ( NULL, NULL );
-
-    gtk_widget_set_name ( scr, name );
-
-    gtk_widget_set_size_request ( scr, scrrec.width, scrrec.height );
+    gtk_layout_put ( GTK_LAYOUT(gtk3rwin->layout), scr, 0, 0 );
 
     gtk_scrolled_window_set_policy ( GTK_SCROLLED_WINDOW(scr),
                                      GTK_POLICY_AUTOMATIC,
                                      GTK_POLICY_AUTOMATIC );
 
-    gtk_fixed_put ( GTK_FIXED(parent), scr, x, y );
-
-
-
-    /*** Drawing area within the Scrolled Window ***/
-    drw = gtk_drawing_area_new ( );
-
-    /*** For keyboard inputs ***/
-    gtk_widget_set_can_focus ( drw, TRUE );
-
     /*** prevents erasing the background ***/
     gtk_widget_set_double_buffered (GTK_WIDGET (drw), FALSE);
-    gtk_widget_set_app_paintable (GTK_WIDGET (drw), TRUE);
+    gtk_widget_set_app_paintable   (GTK_WIDGET (drw), TRUE);
 
-    /*** Drawing area does not receive mous events by defaults ***/
-    gtk_widget_set_events ( drw, gtk_widget_get_events ( drw )  |
-                                 GDK_KEY_PRESS_MASK             |
-                                 GDK_KEY_RELEASE_MASK           |
-                                 GDK_BUTTON_PRESS_MASK          |
-                                 GDK_BUTTON_RELEASE_MASK        |
-                                 GDK_POINTER_MOTION_MASK        |
-                                 GDK_POINTER_MOTION_HINT_MASK );
-
-    g_signal_connect ( G_OBJECT (drw), "size-allocate", G_CALLBACK (Pause  ), grw );
-    g_signal_connect ( G_OBJECT (drw), "realize"      , G_CALLBACK (Realize), grw );
-    g_signal_connect ( G_OBJECT (drw), "draw"         , G_CALLBACK (Draw   ), grw );
-    g_signal_connect ( G_OBJECT (drw), "unmap"        , G_CALLBACK (Unmap), grw );
+    g_signal_connect ( G_OBJECT (drw), "draw" , G_CALLBACK (Draw) , gtk3rwin );
+    g_signal_connect ( G_OBJECT (drw), "unmap", G_CALLBACK (Unmap), gtk3rwin );
     /** We use the map signal because we need drawable surface to be created **/
-    g_signal_connect ( G_OBJECT (drw), "map"          , G_CALLBACK (Map)    , grw );
+    g_signal_connect ( G_OBJECT (drw), "map"  , G_CALLBACK (Map)  , gtk3rwin );
 
-    gtk_widget_set_size_request ( drw, 
-                                  grw->grp.gui->currsg->output.width, 
-                                  grw->grp.gui->currsg->output.height );
-
-#if GTK_CHECK_VERSION(3,8,0)
+/*#if GTK_CHECK_VERSION(3,8,0)*/
     gtk_container_add ( GTK_CONTAINER(scr), drw );
-#else
+/*#else
     gtk_scrolled_window_add_with_viewport ( GTK_SCROLLED_WINDOW(scr), drw );
-#endif
+#endif*/
 
     gtk_widget_show ( drw );
     gtk_widget_show ( scr );
 
-    grw->scrolledWindow = scr;
-    grw->drawingArea = drw;
 
     return drw;
 }
 
 /******************************************************************************/
-static void createStatusBar ( GtkWidget        *parent, 
-                              GTK3G3DUIRENDERWINDOW *grw,
-                              char             *name,
-                              gint             x, 
-                              gint             y,
-                              gint             width,
-                              gint             height ) {
-    GtkWidget *bar = gtk_statusbar_new ( );
+static void 
+gtk3_g3duirenderwindow_createStatusBar ( GTK3G3DUIRENDERWINDOW *gtk3rwin ) {
+    GtkStatusbar *bar = ui_gtk_statusbar_new ( CLASS_MAIN );
+    GTK3G3DUI *gtk3gui = ( gtk3rwin->core.gui );
+    G3DUI *gui = ( G3DUI * ) gtk3rwin->core.gui;
+    Q3DSETTINGS *rsg = gui->currsg;
 
-    gtk_widget_set_name ( bar, name );
+    gtk3rwin->statusBar = bar;
 
-    gtk_widget_set_size_request ( bar, width, height );
-
-    gtk_fixed_put ( GTK_FIXED(parent), bar, x, y );
+    gtk_layout_put ( GTK_LAYOUT(gtk3rwin->layout), bar, 0, 0 );
 
     gtk_widget_show ( bar );
 
-    grw->statusBar = bar;
+    gtk3rwin->core.tostatus = q3dfilter_toStatusBar_new ( bar, rsg->output.endframe );
 
 
     return bar;
 }
 
 /******************************************************************************/
-static void wResize ( GtkWidget    *widget, 
-                      GdkRectangle *allocation, 
-                      gpointer      user_data ) {
-    GTK3G3DUIRENDERWINDOW *grw = ( GTK3G3DUIRENDERWINDOW * ) user_data;
-    GdkRectangle gdkrec;
-
-    gdkrec.x      = 0x00;
-    gdkrec.y      = 0x00;
-    gdkrec.width  = allocation->width;
-    gdkrec.height = 0x20;
-    gtk_widget_size_allocate ( grw->menuBar, &gdkrec );
-
-    gdkrec.x      = 0x00;
-    gdkrec.y      = 0x20;
-    gdkrec.width  = allocation->width;
-    gdkrec.height = allocation->height - 0x40;
-    gtk_widget_size_allocate ( grw->scrolledWindow, &gdkrec );
-
-    gdkrec.x      = 0x00;
-    gdkrec.y      = allocation->height - 0x20;
-    gdkrec.width  = allocation->width;
-    gdkrec.height = 0x20;
-    gtk_widget_size_allocate ( grw->statusBar, &gdkrec );
-}
-#endif
-
-/******************************************************************************/
 static void Realize ( GtkWidget *widget, 
                       gpointer   user_data ) {
-    GTK3G3DUIRENDERWINDOW *grw = ( GTK3G3DUIRENDERWINDOW * ) user_data;
+    GTK3G3DUIRENDERWINDOW *gtk3rwin = ( GTK3G3DUIRENDERWINDOW * ) user_data;
 
+    gtk3_g3duirenderwindow_updateMenuBar ( gtk3rwin );
+
+    /*** MANDATORY !!! we allow only 1 rendering window ***/
+    gtk3rwin->core.gui->renderWindow = &gtk3rwin->core;
 }
 
 /******************************************************************************/
-static gboolean Destroy ( GtkWidget *widget,
-                          gpointer   user_data ) {
+static void Destroy ( GtkWidget *widget,
+                      gpointer   user_data ) {
     GTK3G3DUIRENDERWINDOW *gtk3rwin = ( GTK3G3DUIRENDERWINDOW * ) user_data;
 #ifdef __linux__
-    XSync  ( gtk3rwin->core.rbuf.dis, 0 );
-    XFlush ( gtk3rwin->core.rbuf.dis );
+    /*XSync  ( gtk3rwin->core.rbuf.dis, 0 );
+    XFlush ( gtk3rwin->core.rbuf.dis );*/
 #endif
 #ifdef __MINGW32__
     /*** nothing here ***/
 #endif
 
-    if ( gtk3rwin->core.rps->qjob->running ) {
-        /*** tell the running thread thread to free the resources ***/
-        gtk3rwin->core.rps->qjob->flags |= JOBFREEONCOMPLETION;
+    if ( gtk3rwin->core.rps ) {
+        if ( gtk3rwin->core.rps->qjob ) {
+            if ( gtk3rwin->core.rps->qjob->running ) {
+                /*** tell the running thread thread to free the resources ***/
+                gtk3rwin->core.rps->qjob->flags |= JOBFREEONCOMPLETION;
 
-        q3djob_end ( gtk3rwin->core.rps->qjob );
-    } else {
-        /*** if the thread is not running anymore, free the resources ***/
-        q3djob_free ( gtk3rwin->core.rps->qjob );
+                q3djob_end ( gtk3rwin->core.rps->qjob );
+            } else {
+                /*** if the thread is not running anymore, free the resources ***/
+                q3djob_free ( gtk3rwin->core.rps->qjob );
 
-        g3duirenderbuffer_clear ( &gtk3rwin->core.rbuf );
+                /*g3duirenderbuffer_clear ( &gtk3rwin->core.rbuf );*/
+            }
+        }
     }
 
     g3duirenderbuffer_clear ( &gtk3rwin->core.rbuf );
 
     q3dfilter_free ( gtk3rwin->core.tostatus );
 
+    /*** MANDATORY !!! we allow only 1 rendering window ***/
+    gtk3rwin->core.gui->renderWindow = NULL;
+
     free ( gtk3rwin );
 }
 
+/******************************************************************************/
+void gtk3_g3duirenderwindow_updateMenuBar ( GTK3G3DUIRENDERWINDOW *gtk3rwin ) {
+    gtk3_g3duimenu_update_r ( ( GTK3G3DUIMENU * ) gtk3rwin->core.menuBar );
+}
 
 /******************************************************************************/
 static void gtk3_g3duirenderwindow_createMenuBar ( GTK3G3DUIRENDERWINDOW *gtk3rwin ) {
@@ -550,20 +432,20 @@ static void gtk3_g3duirenderwindow_createMenuBar ( GTK3G3DUIRENDERWINDOW *gtk3rw
     gtk_layout_put ( GTK_LAYOUT(gtk3rwin->layout), gtk3menu->menu, 0, 0 );
 
 
+
     gtk3rwin->core.menuBar = ( G3DUIMENU * ) gtk3menu;
 }
 
 /******************************************************************************/
-static void Configure ( GtkWidget *widget, 
-                        GdkEvent  *event, 
-                        gpointer   user_data ) {
-    GTK3G3DUIRENDERWINDOW *gtk3rwin = ( GTK3G3DUIRENDERWINDOW * ) user_data;
-    GdkRectangle gdkrec;
-
+void gtk3_g3duirenderwindow_resize ( GTK3G3DUIRENDERWINDOW *gtk3rwin,
+                                     uint32_t               width,
+                                     uint32_t               height ) {
     if ( gtk_widget_get_realized ( GTK_WIDGET ( gtk3rwin->layout ) ) ) {
+        GdkRectangle gdkrec;
+
         g3duirenderwindow_resize ( &gtk3rwin->core, 
-                                    event->configure.width, 
-                                    event->configure.height );
+                                    width, 
+                                    height );
 
         if ( gtk3rwin->core.menuBar ) {
             GTK3G3DUIMENU *gtk3menu = ( GTK3G3DUIMENU * ) gtk3rwin->core.menuBar;
@@ -600,7 +482,39 @@ static void Configure ( GtkWidget *widget,
                                           gdkrec.width  * zoomfactor,
                                           gdkrec.height * zoomfactor );
         }
+
+        if ( gtk3rwin->statusBar ) {
+            g3duirectangle_toGdkRectangle ( &gtk3rwin->core.statusrec, &gdkrec );
+
+            gtk_layout_move ( gtk3rwin->layout,
+                              gtk3rwin->statusBar, 
+                              gdkrec.x,
+                              gdkrec.y );
+
+            gtk_widget_set_size_request ( gtk3rwin->statusBar,
+                                          gdkrec.width,
+                                          gdkrec.height );
+        }
+
+        if ( gtk3rwin->drawingArea ) {
+            g3duirectangle_toGdkRectangle ( &gtk3rwin->core.arearec, &gdkrec );
+
+            gtk_widget_set_size_request ( gtk3rwin->drawingArea,
+                                          gdkrec.width,
+                                          gdkrec.height );
+        }
     }
+}
+
+/******************************************************************************/
+static void Configure ( GtkWidget *widget, 
+                        GdkEvent  *event, 
+                        gpointer   user_data ) {
+    GTK3G3DUIRENDERWINDOW *gtk3rwin = ( GTK3G3DUIRENDERWINDOW * ) user_data;
+
+    gtk3_g3duirenderwindow_resize ( gtk3rwin,
+                                    event->configure.width,
+                                    event->configure.height );
 }
 
 /******************************************************************************/
@@ -618,6 +532,8 @@ GTK3G3DUIRENDERWINDOW *gtk3_g3duirenderwindow_create ( GtkWindow *parent,
     gtk_container_add ( GTK_CONTAINER(parent), layout );
 
     gtk3_g3duirenderwindow_createMenuBar ( gtk3rwin );
+    gtk3_g3duirenderwindow_createStatusBar ( gtk3rwin );
+    gtk3_g3duirenderwindow_createDrawingArea ( gtk3rwin );
 /*
     createRenderWindowDrawingArea ( gtk3rwin );
     createStatusBar               ( gtk3rwin );

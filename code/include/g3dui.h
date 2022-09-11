@@ -539,6 +539,9 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define RWMENU_SAVEPNG           "Save as PNG"
 #define RWMENU_CLOSE             "Close window"
 
+#define RWMENU_VIEW_FIT  "Fit to window"
+#define RWMENU_VIEW_FULL "Full size"
+
 #define VIEWMENU_LIGHTING        "Lights on"
 #define VIEWMENU_BACKGROUND      "Show background"
 #define VIEWMENU_TEXTURES        "Show textures"
@@ -619,12 +622,13 @@ typedef struct _G3DUISEGMENT {
     short x1, x2, y1, y2;
 } G3DUISEGMENT; 
 
-typedef struct _G3DUIMENU    G3DUIMENU;
-typedef struct _G3DUIVIEW    G3DUIVIEW;
-typedef struct _G3DUIMODEBAR G3DUIMODEBAR;
-typedef struct _G3DUIQUAD    G3DUIQUAD;
-typedef struct _G3DUIMAIN    G3DUIMAIN;
-typedef struct _G3DUIBOARD   G3DUIBOARD;
+typedef struct _G3DUIMENU         G3DUIMENU;
+typedef struct _G3DUIVIEW         G3DUIVIEW;
+typedef struct _G3DUIMODEBAR      G3DUIMODEBAR;
+typedef struct _G3DUIQUAD         G3DUIQUAD;
+typedef struct _G3DUIMAIN         G3DUIMAIN;
+typedef struct _G3DUIBOARD        G3DUIBOARD;
+typedef struct _G3DUIRENDERWINDOW G3DUIRENDERWINDOW;
 
 /********************************* G3DUI **************************************/
 typedef struct _G3DUI {
@@ -679,6 +683,7 @@ typedef struct _G3DUI {
     /*** GUI toolkit extends the following data ***/
     G3DUIVIEW    *currentView;
     G3DUIMAIN    *main;
+    G3DUIRENDERWINDOW *renderWindow;
     LIST         *lview;
 } G3DUI;
 
@@ -766,8 +771,12 @@ typedef struct _G3DUIRENDERBUFFER {
 } G3DUIRENDERBUFFER;
 
 /******************************************************************************/
+#define RENDERWINDOW_FIT_SIZE   0x00
+#define RENDERWINDOW_FULL_SIZE  0x01
+ 
 typedef struct _G3DUIRENDERWINDOW {
     G3DUI              *gui;
+    uint32_t            displayMode;
 
     G3DUIMENU          *menuBar;
     Q3DFILTER          *tostatus;
@@ -776,6 +785,7 @@ typedef struct _G3DUIRENDERWINDOW {
     G3DUIRECTANGLE      menurec;
     G3DUIRECTANGLE      statusrec;
     G3DUIRECTANGLE      scrrec;
+    G3DUIRECTANGLE      arearec;
 } G3DUIRENDERWINDOW;
 
 /******************************************************************************/
@@ -1356,6 +1366,7 @@ typedef struct _M3DUIPATTERNLIST {
 
 /********************************** g3dui.c ***********************************/
 
+G3DCAMERA          *g3dui_getMainViewCamera ( G3DUI *gui );
 uint64_t            g3dui_undo ( G3DUI *gui );
 uint64_t            g3dui_redo ( G3DUI *gui );
 void                g3dui_init ( G3DUI     *gui,
@@ -1844,13 +1855,16 @@ void g3duiquad_init ( G3DUIQUAD *quad );
 void g3duirenderbuffer_clear ( G3DUIRENDERBUFFER *rbuf );
 void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
                               HWND               hWnd,
-                              HDC                dc );
+                              uint32_t           width,
+                              uint32_t           height );
 #endif
 #ifdef __linux__
 void g3duirenderbuffer_clear ( G3DUIRENDERBUFFER *rbuf );
 void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
                               Display            *dis,
-                              Window              win );
+                              Window              win,
+                              uint32_t            width,
+                              uint32_t            height );
 #endif
 
 /******************************** g3duirenderedit.c ***************************/

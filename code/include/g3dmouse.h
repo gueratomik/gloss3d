@@ -127,6 +127,9 @@
                                  REDRAWPARAMS | REDRAWCURRENTOBJECT | \
                                  REDRAWCURRENTMATERIAL | \
                                  REDRAWTIMELINE | REDRAWCURRENTMOUSETOOL )
+#define RESIZERENDERWINDOW     ( 1 << 16 )
+#define REDRAWRENDERWINDOWMENU ( 1 << 17 )
+
 
 #define PICKMINRADIUS 0x10
 

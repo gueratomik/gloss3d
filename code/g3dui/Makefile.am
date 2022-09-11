@@ -101,6 +101,7 @@ if HAVE_GTK3
                             gtk3/g3duitubeedit.c \
                             gtk3/g3duiview.c \
                             gtk3/g3duiwireframeedit.c \
+                            gtk3/q3dfilters.c \
                             gtk3/css/default.c
 endif
 

@@ -33,6 +33,8 @@
 void g3duirenderwindow_resize ( G3DUIRENDERWINDOW *rwin,
                                 uint32_t           width, 
                                 uint32_t           height ) {
+    G3DUI *gui = rwin->gui;
+
     rwin->menurec.x      = 0;
     rwin->menurec.y      = 0;
     rwin->menurec.width  = width;
@@ -49,4 +51,21 @@ void g3duirenderwindow_resize ( G3DUIRENDERWINDOW *rwin,
     rwin->scrrec.height = height - 
                           rwin->menurec.height - 
                           rwin->statusrec.height;
+
+    if ( rwin->displayMode == RENDERWINDOW_FIT_SIZE ) {
+        rwin->arearec.x      = 0;
+        rwin->arearec.y      = 0;
+        rwin->arearec.width  = rwin->scrrec.width;
+        rwin->arearec.height = rwin->scrrec.height;
+    }
+
+
+    if ( rwin->displayMode == RENDERWINDOW_FULL_SIZE ) {
+        Q3DSETTINGS *rsg = gui->currsg;
+
+        rwin->arearec.x      = 0;
+        rwin->arearec.y      = 0;
+        rwin->arearec.width  = rsg->output.width;
+        rwin->arearec.height = rsg->output.height;
+    }
 }

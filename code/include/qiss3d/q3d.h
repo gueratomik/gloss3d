@@ -1086,14 +1086,6 @@ Q3DFILTER *q3dfilter_new       ( uint32_t   type,
 void q3dfilter_free ( Q3DFILTER *fil );
 
 /******************************************************************************/
-#ifdef __linux__
-Q3DFILTER *q3dfilter_toWindow_new ( Display *dis, 
-                                    Window   win, 
-                                    GC       gc,
-                                    XImage  *ximg,
-                                    uint32_t active_fill );
-#endif
-
 Q3DFILTER *q3dfilter_simpleaa_new ( );
 Q3DFILTER *q3dfilter_softshadows_new ( );
 
@@ -1122,29 +1114,22 @@ typedef struct _FILTERTOWINDOW {
                           /*** reponsible for showing the XImage on exposure***/
 } FILTERTOWINDOW;
 
-uint32_t filtertowindow_draw ( Q3DFILTER     *fil, 
-                               Q3DJOB        *qjob,
-                               uint32_t       cpuID, 
-                               float          frameID,
-                               unsigned char *img, 
-                               uint32_t       from, 
-                               uint32_t       to, 
-                               uint32_t       depth, 
-                               uint32_t       width );
 #ifdef __linux__
-FILTERTOWINDOW *filtertowindow_new ( Display *dis, 
-                                     Window   win, 
-                                     GC       gc,
-                                     XImage  *ximg,
-                                     uint32_t active_fill );
+Q3DFILTER *q3dfilter_toWindow_new ( Display *dis, 
+                                    Window   win, 
+                                    GC       gc,
+                                    uint32_t width,
+                                    uint32_t height,
+                                    XImage  *ximg,
+                                    uint32_t active_fill );
 #endif
 #ifdef __MINGW32__
 Q3DFILTER *q3dfilter_toWindow_new ( HWND     hWnd,
+                                    uint32_t width,
+                                    uint32_t height,
                                     WImage  *wimg,
                                     uint32_t active_fill );
 #endif
-
-void filtertowindow_free (  Q3DFILTER *fil );
 
 /******************************************************************************/
 Q3DFILTER *q3dfilter_writeImage_new ( const char *filename,

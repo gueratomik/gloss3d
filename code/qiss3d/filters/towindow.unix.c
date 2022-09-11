@@ -34,18 +34,20 @@
 
 
 /******************************************************************************/
-void filtertowindow_free (  Q3DFILTER *fil ) {
+static void filtertowindow_free ( Q3DFILTER *fil ) {
     FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) fil->data;
 
     free ( ftw );
 }
 
 /******************************************************************************/
-FILTERTOWINDOW *filtertowindow_new ( Display *dis, 
-                                     Window   win, 
-                                     GC       gc,
-                                     XImage  *ximg,
-                                     uint32_t active_fill ) {
+static FILTERTOWINDOW *filtertowindow_new ( Display *dis, 
+                                            Window   win, 
+                                            GC       gc,
+                                            uint32_t width,
+                                            uint32_t height,
+                                            XImage  *ximg,
+                                            uint32_t active_fill ) {
     uint32_t structsize = sizeof ( FILTERTOWINDOW );
     FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) calloc ( 0x01, structsize );
     XWindowAttributes wattr;
@@ -63,26 +65,24 @@ FILTERTOWINDOW *filtertowindow_new ( Display *dis,
     ftw->gc   = gc;
     ftw->ximg = ximg;
 
-    XGetWindowAttributes ( dis, win, &wattr );
-
-    ftw->depth  = wattr.depth;
-    ftw->width  = wattr.width;
-    ftw->height = wattr.height;
+    ftw->depth  = 24;
+    ftw->width  = width;
+    ftw->height = height;
 
 
     return ftw;
 }
 
 /******************************************************************************/
-uint32_t filtertowindow_draw ( Q3DFILTER     *fil, 
-                               Q3DJOB        *qjob,
-                               uint32_t       cpuID,
-                               float          frameID,
-                               unsigned char *img, 
-                               uint32_t       from, 
-                               uint32_t       to, 
-                               uint32_t       depth, 
-                               uint32_t       width ) {
+static uint32_t filtertowindow_draw ( Q3DFILTER     *fil, 
+                                      Q3DJOB        *qjob,
+                                      uint32_t       cpuID,
+                                      float          frameID,
+                                      unsigned char *img, 
+                                      uint32_t       from, 
+                                      uint32_t       to, 
+                                      uint32_t       depth, 
+                                      uint32_t       width ) {
     uint32_t bytesperline = ( depth >> 0x03 ) * width;
     FILTERTOWINDOW *ftw = ( FILTERTOWINDOW * ) fil->data;
     int i, j;
@@ -131,7 +131,10 @@ uint32_t filtertowindow_draw ( Q3DFILTER     *fil,
         /** Note: crashes when window closed abruptly. Set active_fill to 1 ***/
         /** only on non-destroyable windows ***/
         if ( ftw->active_fill ) {
-            XShmPutImage ( ftw->dis, ftw->win, ftw->gc, ftw->ximg,
+            XShmPutImage ( ftw->dis, 
+                           ftw->win,
+                           ftw->gc,
+                           ftw->ximg,
                            0x00, i,
                            0x00, i,
                            ftw->width, 0x01, False );
@@ -148,6 +151,8 @@ uint32_t filtertowindow_draw ( Q3DFILTER     *fil,
 Q3DFILTER *q3dfilter_toWindow_new ( Display *dis, 
                                     Window   win, 
                                     GC       gc,
+                                    uint32_t width,
+                                    uint32_t height,
                                     XImage  *ximg,
                                     uint32_t active_fill ) {
     Q3DFILTER *fil;
@@ -159,9 +164,11 @@ Q3DFILTER *q3dfilter_toWindow_new ( Display *dis,
                           filtertowindow_new ( dis, 
                                                win,
                                                gc,
+                                               width,
+                                               height,
                                                ximg,
                                                active_fill ) );
 
     return fil;
 }
-#endif
+#endif /* __linux__ */

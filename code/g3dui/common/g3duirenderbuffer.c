@@ -124,27 +124,12 @@ static WImage *WCreateImage ( HDC      dc,
 /******************************************************************************/
 void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
                               HWND               hWnd,
-                              HDC                dc ) {
-    /*HWND hWnd = GDK_WINDOW_HWND ( gtk_widget_get_window ( drawingArea ) );
-    HDC dc = GetDC ( hWnd );*/
-    uint32_t depth = GetDeviceCaps ( dc, BITSPIXEL );
-    RECT rec;
-
+                              uint32_t           width,
+                              uint32_t           height, ) {
     rbuf->hWnd = hWnd;
 
-    GetWindowRect ( rbuf->hWnd, &rec );
-
-    rbuf->wimg = WCreateImage ( dc, ( rec.right  - rec.left ),
-                                    ( rec.bottom - rec.top  ), depth );
-
-    /*BitBlt ( ftw->wimg->dc, 0x00, 0x00, ( rec.right  - rec.left ),
-                                        ( rec.bottom - rec.top  ), dc,
-                            0x00, 0x00, SRCCOPY );*/
-
-    /*glReadPixels ( 0, 0, ( rec.right  - rec.left ),
-                         ( rec.bottom - rec.top  ),  GL_BGRA, GL_UNSIGNED_BYTE, ftw->wimg->data );*/
-
-    ReleaseDC ( rbuf->hWnd, dc );
+    rbuf->wimg = WCreateImage ( dc, width,
+                                    height, 24 );
 }
 
 /******************************************************************************/
@@ -163,15 +148,17 @@ void g3duirenderbuffer_clear ( G3DUIRENDERBUFFER *rbuf ) {
 #ifdef __linux__
 static XImage *allocXImage ( Display         *dis,
                              Window           win,
-                             GC               gc,
+                             /*GC               gc,*/
+                             uint32_t         width,
+                             uint32_t         height,
                              XShmSegmentInfo *ssi ) {
-    XWindowAttributes wattr;
+    /*XWindowAttributes wattr;*/
     uint32_t imgsize;
     XImage *ximg;
     void *data;
     int shmid;
 
-    XGetWindowAttributes ( dis, win, &wattr );
+    /*XGetWindowAttributes ( dis, win, &wattr );*/
 
     if ( XShmQueryExtension ( dis ) == 0x00 ) {
         fprintf ( stderr, "filtertowindow_new: XSHM not availabale\n" );
@@ -183,12 +170,12 @@ static XImage *allocXImage ( Display         *dis,
     /*** HOW_TO_USE_THE_SHARED_MEMORY_EXTENSION ***/
     ximg = XShmCreateImage ( dis, 
                              DefaultVisual ( dis, 0x00 ),
-                             wattr.depth,
+                             /*wattr.depth*/24,
                              ZPixmap,
                              NULL,
                              ssi,
-                             wattr.width,
-                             wattr.height );
+                             /*wattr.*/width,
+                             /*wattr.*/height );
 
     if ( ximg == NULL ) {
         fprintf ( stderr, "XShmCreateImage failed\n" );
@@ -218,7 +205,9 @@ static XImage *allocXImage ( Display         *dis,
 /******************************************************************************/
 void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
                               Display            *dis,
-                              Window              win ) {
+                              Window              win,
+                              uint32_t            width,
+                              uint32_t            height ) {
 /*
     GdkDisplay *gdkdpy = gtk_widget_get_display ( drawingArea );
     GdkWindow  *gdkwin = gtk_widget_get_window  ( drawingArea );
@@ -228,12 +217,15 @@ void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
 */
     rbuf->dis = dis;
     rbuf->win = win;
+
     rbuf->gc  = XCreateGC ( rbuf->dis, 
                             rbuf->win, 0x00, NULL );
 
     rbuf->ximg = allocXImage ( rbuf->dis, 
                                rbuf->win, 
-                               rbuf->gc, 
+                               /*rbuf->gc, */
+                               width,
+                               height,
                               &rbuf->ssi );
 }
 
@@ -246,6 +238,7 @@ void g3duirenderbuffer_clear ( G3DUIRENDERBUFFER *rbuf ) {
         shmdt ( rbuf->ssi.shmaddr );
 
         rbuf->ximg = NULL;
+        rbuf->gc = NULL;
     }
 }
 

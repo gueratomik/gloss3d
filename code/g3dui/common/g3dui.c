@@ -30,6 +30,16 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+G3DCAMERA *g3dui_getMainViewCamera ( G3DUI *gui ) {
+    if ( gui->main )
+        if ( gui->main->quad )
+            if ( gui->main->quad->view[0] )
+                return gui->main->quad->view[0]->cam;
+
+    return NULL;
+}
+
+/******************************************************************************/
 uint64_t g3dui_deleteSelection ( G3DUI *gui ) {
     G3DSCENE  *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
