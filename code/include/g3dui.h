@@ -1037,7 +1037,8 @@ typedef struct _G3DUIPICKTOOLEDIT {
 
 /******************************************************************************/
 typedef struct _G3DUIRENDEREDIT {
-    G3DUI *gui;
+    G3DUI       *gui;
+    Q3DSETTINGS *editedRsg;
 } G3DUIRENDEREDIT;
 
 /******************************************************************************/
@@ -1196,6 +1197,7 @@ typedef struct _G3DUIVIEW {
     pthread_t      render_tid; /*** current rendering thread - Used for canceling***/
 #endif
 #ifdef __MINGW32__
+    HWND           hWnd
     HGLRC          glctx;
     HANDLE         render_tid;
 #endif

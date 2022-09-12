@@ -34,15 +34,13 @@ uint64_t g3duiview_setShading ( G3DUIVIEW *view,
                                 char      *shading ) {
     G3DUI *gui = view->gui;
 #ifdef __linux__
-    glXMakeCurrent ( view->dpy, view->win, view->glctx );
+    if ( glXMakeCurrent ( view->dpy,
+                          view->win,
+                          view->glctx ) == TRUE ) {
 #endif
 #ifdef __MINGW32__
-    HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
-    HDC dc = GetDC ( hWnd );
-
-    wglMakeCurrent ( dc, view->glctx );
-
-    ReleaseDC ( hWnd, dc );
+    HDC dc = GetDC ( view->hWnd );
+    if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
 #endif
 
     if ( strcmp ( shading, SHADINGMENU_GOURAUD ) == 0x00 ) {
@@ -75,6 +73,13 @@ uint64_t g3duiview_setShading ( G3DUIVIEW *view,
         view->engine_flags |= NOTEXTURE;
         view->mode          = GLVIEWWIREFRAME;
     }
+
+#ifdef __linux__
+    }
+#endif
+#ifdef __MINGW32__
+    } ReleaseDC ( view->hWnd, dc );
+#endif
 
     return REDRAWVIEW | REDRAWVIEWMENU;
 }
@@ -331,6 +336,16 @@ void g3duiview_sizeGL ( G3DUIVIEW *view,
                         uint32_t   height ) {
     G3DCAMERA *cam = getCamera ( view );
 
+#ifdef __linux__
+    if ( glXMakeCurrent ( view->dpy,
+                          view->win,
+                          view->glctx ) == TRUE ) {
+#endif
+#ifdef __MINGW32__
+    HDC dc = GetDC ( view->hWnd );
+    if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
+#endif
+
     if ( cam ) {
         glViewport ( 0, 0, width, height );
 
@@ -340,11 +355,28 @@ void g3duiview_sizeGL ( G3DUIVIEW *view,
         /*** Really, you don't want a divide by zero ***/
         cam->ratio = ( height ) ? ( double ) width / height : 1.0f;
     }
+
+#ifdef __linux__
+    }
+#endif
+#ifdef __MINGW32__
+    } ReleaseDC ( view->hWnd, dc );
+#endif
 }
 
 /******************************************************************************/
 void g3duiview_initGL ( G3DUIVIEW *view ) {
     G3DCAMERA *cam = getCamera ( view );
+
+#ifdef __linux__
+    if ( glXMakeCurrent ( view->dpy,
+                          view->win,
+                          view->glctx ) == TRUE ) {
+#endif
+#ifdef __MINGW32__
+    HDC dc = GetDC ( view->hWnd );
+    if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
+#endif
 
     if ( cam ) {
         float      clearColorf = ( float ) CLEARCOLOR / 255.0f;
@@ -365,6 +397,13 @@ void g3duiview_initGL ( G3DUIVIEW *view ) {
             g3duiview_init2D ( view );
         }
     }
+
+#ifdef __linux__
+    }
+#endif
+#ifdef __MINGW32__
+    } ReleaseDC ( view->hWnd, dc );
+#endif
 }
 
 /******************************************************************************/
@@ -424,6 +463,16 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
     G3DSCENE *sce = gui->sce;
     G3DCAMERA *cam = view->cam;
     G3DMOUSETOOL  *mou = gui->mou;
+
+#ifdef __linux__
+    if ( glXMakeCurrent ( view->dpy,
+                          view->win,
+                          view->glctx ) == TRUE ) {
+#endif
+#ifdef __MINGW32__
+    HDC dc = GetDC ( view->hWnd );
+    if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
+#endif
 
     engine_flags |= gui->engine_flags;
 
@@ -564,4 +613,14 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
             gui->engine_flags &= (~ONGOINGANIMATION);
         }
     }
+
+#ifdef __linux__
+    } glXSwapBuffers ( view->dpy, view->win);
+#endif
+#ifdef __MINGW32__
+    } SwapBuffers ( dc );
+
+      ReleaseDC ( view->hWnd, dc );
+#endif
+    
 }

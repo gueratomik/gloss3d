@@ -280,6 +280,65 @@ typedef struct _GTK3G3DUIBOARD {
 } GTK3G3DUIBOARD;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUIRENDEREDIT {
+    G3DUIRENDEREDIT core;
+
+    GtkNotebook     *fixed;
+    GtkNotebook     *notebook;
+
+    GtkToggleButton *renderPreviewToggle;
+    GtkSpinButton   *fromFrameEntry;
+    GtkSpinButton   *toFrameEntry;
+    GtkSpinButton   *framerateEntry;
+
+    GtkFixed        *generalTab;
+    GtkFixed        *effectsTab;
+
+    GtkSpinButton   *renderWidthEntry;
+    GtkSpinButton   *renderHeightEntry;
+    GtkSpinButton   *renderRatioEntry;
+
+    GtkToggleButton *blurEnabledToggle;
+    GtkToggleButton *blurVectorEnabledToggle;
+    GtkToggleButton *blurSceneEnabledToggle;
+    GtkSpinButton   *blurSamplesEntry;
+    GtkSpinButton   *blurSubSamplingEntry;
+    GtkSpinButton   *blurStrengthEntry;
+    GtkSpinButton   *blurIterationsEntry;
+
+    GtkToggleButton *backgroundColorToggle;
+    GtkColorButton  *backgroundColorButton;
+    GtkToggleButton *backgroundImageToggle;
+    GtkButton       *backgroundImageButton;
+
+    GtkToggleButton *outputEnabledToggle;
+    GtkButton       *outputCodecButton;
+    GtkEntry        *outputFileEntry;
+    GtkComboBoxText *outputFormatSelector;
+
+    GtkToggleButton *wireframeEnabledToggle;
+    GtkToggleButton *wireframeAffectedToggle;
+    GtkSpinButton   *wireframeThicknessEntry;
+    GtkColorButton  *wireframeColorButton;
+
+    GtkToggleButton *fogAffectsBackgroundToggle;
+    GtkToggleButton *fogEnabledToggle;
+    GtkSpinButton   *fogNearEntry;
+    GtkSpinButton   *fogFarEntry;
+    GtkColorButton  *fogColorButton;
+    GtkSpinButton   *fogStrengthEntry;
+
+    GtkToggleButton *texturingDisabledToggle;
+    GtkWidget       *texturingColorButton;
+
+    GtkToggleButton *aliasingEnabledToggle;
+    GtkToggleButton *aliasingEdgeToggle;
+    GtkToggleButton *aliasingFullToggle;
+    GtkToggleButton *aliasingS5Toggle;
+    GtkToggleButton *aliasingS9Toggle;
+} GTK3G3DUIRENDEREDIT;
+
+/******************************************************************************/
 typedef struct _GTK3G3DUILIGHTEDIT {
     G3DUILIGHTEDIT core;
 
@@ -551,7 +610,7 @@ void gtk3_openFile ( GTK3G3DUI *gtk3gui );
 void gtk3_saveAs ( GTK3G3DUI *gtk3gui );
 void gtk3_saveFile ( GTK3G3DUI *gtk3gui );
 void gtk3_renderView ( GTK3G3DUI *gtk3gui );
-void gtk3_runRenderCbk ( GTK3G3DUI *gtk3gui );
+void gtk3_runRender ( GTK3G3DUI *gtk3gui );
 
 GtkFixed *ui_createTab ( GtkNotebook *parent, 
                          void        *data,
@@ -683,11 +742,27 @@ GtkButton *ui_createPushButton ( GtkFixed *parent,
                                  gint      height,
                                  void    (*cbk)( GtkWidget *, 
                                                  gpointer ) );
+GtkEntry *ui_createCharText ( GtkWidget *parent, 
+                              void      *data,
+                              char      *name,
+                              char      *class,
+                              gint       x, 
+                              gint       y,
+                              gint       labwidth,
+                              gint       txtwidth,
+                              gint       txtheight,
+                              void     (*cbk)( GtkWidget *,
+                                               GdkEvent  *, 
+                                               gpointer ) );
+
 GtkCheckMenuItem *ui_gtk_check_menu_item_new_with_mnemonic ( char *class,
                                                              const gchar* label );
 GtkFixed *ui_gtk_fixed_new ( char *class );
 GtkLabel *ui_gtk_label_new ( char *class,
                               char *name );
+GtkEntry *ui_gtk_entry_new ( char *class );
+GtkFrame *ui_gtk_frame_new ( char       *class,
+                             const char *label );
 GtkScrolledWindow *ui_gtk_scrolled_window_new ( char          *class,
                                                 GtkAdjustment *hadjustment,
                                                 GtkAdjustment *vadjustment );
@@ -791,6 +866,12 @@ void gtk3_g3duiplaneedit_update ( GTK3G3DUIPLANEEDIT *gtk3ped );
 GTK3G3DUIPLANEEDIT *gtk3_g3duiplaneedit_create ( GtkWidget *parent,
                                                GTK3G3DUI *gtk3gui,
                                                char      *name );
+
+/***************************** g3duirenderedit.c ******************************/
+GTK3G3DUIRENDEREDIT* gtk3_g3duirenderedit_create ( GtkWidget   *parent, 
+                                                   GTK3G3DUI   *gtk3gui,
+                                                   char        *name,
+                                                   Q3DSETTINGS *rsg );
 
 /**************************** g3duirenderwindow.c *****************************/
 GTK3G3DUIRENDERWINDOW *gtk3_g3duirenderwindow_create ( GtkWindow *parent, 

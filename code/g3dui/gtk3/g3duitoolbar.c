@@ -176,7 +176,7 @@ static void runRenderCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
 
-    gtk3_runRenderCbk ( gtk3gui );
+    gtk3_runRender ( gtk3gui );
 }
 
 /******************************************************************************/

@@ -41,6 +41,19 @@ void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in,
 }
 
 /******************************************************************************/
+GtkFrame *ui_gtk_frame_new ( char       *class,
+                             const char *label ) {
+    GtkFrame *frm = gtk_frame_new ( label );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( frm );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_FRAME(frm);
+}
+
+/******************************************************************************/
 GtkScrolledWindow *ui_gtk_scrolled_window_new ( char          *class,
                                                 GtkAdjustment *hadjustment,
                                                 GtkAdjustment *vadjustment ) {
@@ -52,6 +65,18 @@ GtkScrolledWindow *ui_gtk_scrolled_window_new ( char          *class,
     }
 
     return GTK_SCROLLED_WINDOW(cmb);
+}
+
+/******************************************************************************/
+GtkEntry *ui_gtk_entry_new ( char *class ) {
+    GtkEntry *ent = gtk_entry_new ( );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( ent );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_COMBO_BOX_TEXT(ent);
 }
 
 /******************************************************************************/
@@ -612,6 +637,50 @@ GtkComboBoxText *ui_createSelector ( GtkFixed  *parent,
 }
 
 /******************************************************************************/
+GtkEntry *ui_createCharText ( GtkWidget *parent, 
+                              void      *data,
+                              char      *name,
+                              char      *class,
+                              gint       x, 
+                              gint       y,
+                              gint       labwidth,
+                              gint       txtwidth,
+                              gint       txtheight,
+                              void     (*cbk)( GtkWidget *,
+                                               GdkEvent  *, 
+                                               gpointer ) ) {
+    GtkWidget *ent = ui_gtk_entry_new ( class );
+
+    gtk_widget_set_name ( ent, name );
+
+    gtk_widget_set_size_request ( ent, txtwidth, txtheight );
+
+    /*gtk_entry_set_width_chars ( ent, 12 );*/
+
+    gtk_fixed_put ( GTK_FIXED(parent), ent, x + labwidth, y );
+
+    if ( labwidth ) {
+        GtkWidget   *lab  = gtk_label_new ( name );
+
+        gtk_widget_set_name ( lab, name );
+
+        gtk_widget_set_size_request ( lab, labwidth, txtheight );
+
+        gtk_fixed_put ( GTK_FIXED(parent), lab, x, y );
+
+        gtk_widget_show ( lab );
+    }
+
+    if ( cbk ) {
+        g_signal_connect ( ent, "key-release-event", G_CALLBACK(cbk), data );
+    }
+
+    gtk_widget_show ( ent );
+
+    return ent;
+}
+
+/******************************************************************************/
 GtkComboBoxText *ui_createAxisSelector ( GtkFixed *parent,
                                           void     *data, 
                                           char     *name,
@@ -1001,7 +1070,7 @@ void gtk3_openFile ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
-void gtk3_runRenderCbk ( GTK3G3DUI *gtk3gui ) {
+void gtk3_runRender ( GTK3G3DUI *gtk3gui ) {
     G3DUI * gui = ( G3DUI * ) gtk3gui;
     Q3DSETTINGS *rsg = gui->currsg;
 
@@ -1372,6 +1441,24 @@ static void gtk3_dispatchGLMenuButton ( GTK3G3DUI    *gtk3gui,
 }
 
 /******************************************************************************/
+void gtk3_createRenderEdit ( GTK3G3DUI *gtk3gui ) {
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+    GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+
+    GTK3G3DUIRENDEREDIT *gtk3redit =  gtk3_g3duirenderedit_create ( NULL, 
+                                                                    gtk3gui,
+                                                                    "Render edit",
+                                                                    gtk3gui->core.currsg );
+
+
+    gtk_widget_set_size_request ( gtk3redit->fixed, 480, 340 );
+
+    gtk_container_add ( dial, gtk3redit->fixed );
+
+    gtk_widget_show ( dial );
+}
+
+/******************************************************************************/
 void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
                                    uint64_t   msk ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
@@ -1401,6 +1488,9 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
         gtk3_redrawRenderWindowMenu ( gtk3gui );
     }
 
+    if ( msk & CREATERENDEREDIT ) {
+        gtk3_createRenderEdit ( gtk3gui );
+    }
 #ifdef TODO
     if ( msk & REDRAWCURRENTMATERIAL ) {
         gtk3_updateMaterialEdit ( );

@@ -178,22 +178,7 @@ static uint64_t renderViewCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t renderSettingsCbk ( G3DUIMENU *menu, 
                                     void      *data ) {
-#ifdef TODO
-    G3DUI *gui = ( G3DUI * ) user_data;
-    GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
-
-    /*** For some reason, GtkSpinButtons calls its callbacks ***/
-    /*** when being realized. With this trick I bypass that. ***/
-    /*** Callbacks will return prematurely if gui->lock == 0x01 ***/
-    gui->lock = 0x01;
-
-    createRenderEdit ( dial, gui, "RENDEREDIT", 0, 0, 480, 340 );
-
-    gtk_widget_show ( dial );
-
-    gui->lock = 0x00;
-#endif
-    return 0x00;
+    return CREATERENDEREDIT;
 }
 
 /******************************************************************************/

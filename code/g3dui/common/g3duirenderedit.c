@@ -32,7 +32,7 @@
 /******************************************************************************/
 uint64_t g3duirenderedit_aa ( G3DUIRENDEREDIT *redit ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     if ( rsg->flags & ENABLEAA ) {
         rsg->flags = (rsg->flags & ~ENABLEAA);
@@ -46,7 +46,7 @@ uint64_t g3duirenderedit_aa ( G3DUIRENDEREDIT *redit ) {
 /******************************************************************************/
 uint64_t g3duirenderedit_aaFull ( G3DUIRENDEREDIT *redit ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->aa.mode = AAFULLMODE;
 
@@ -56,7 +56,7 @@ uint64_t g3duirenderedit_aaFull ( G3DUIRENDEREDIT *redit ) {
 /******************************************************************************/
 uint64_t g3duirenderedit_aaEdge ( G3DUIRENDEREDIT *redit ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->aa.mode = AAEDGEMODE;
 
@@ -67,7 +67,7 @@ uint64_t g3duirenderedit_aaEdge ( G3DUIRENDEREDIT *redit ) {
 uint64_t g3duirenderedit_aaSamples ( G3DUIRENDEREDIT *redit,
                                         uint32_t         nbsamples ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->aa.nbsamples = nbsamples;
 
@@ -78,7 +78,7 @@ uint64_t g3duirenderedit_aaSamples ( G3DUIRENDEREDIT *redit,
 uint64_t g3duirenderedit_format ( G3DUIRENDEREDIT *redit,
                                      const char      *format ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     if ( strcmp ( format, RENDERTOIMAGENAME ) == 0x00 ) {
         rsg->output.format = RENDERTOIMAGE;
@@ -95,7 +95,7 @@ uint64_t g3duirenderedit_format ( G3DUIRENDEREDIT *redit,
 uint64_t g3duirenderedit_startFrame ( G3DUIRENDEREDIT *redit,
                                          float            frame ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->output.startframe = frame;
 
@@ -110,7 +110,7 @@ uint64_t g3duirenderedit_startFrame ( G3DUIRENDEREDIT *redit,
 uint64_t g3duirenderedit_endFrame ( G3DUIRENDEREDIT *redit,
                                        float            frame ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->output.endframe = frame;
 
@@ -124,7 +124,7 @@ uint64_t g3duirenderedit_endFrame ( G3DUIRENDEREDIT *redit,
 /******************************************************************************/
 uint64_t g3duirenderedit_setMotionBlur ( G3DUIRENDEREDIT *redit ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     if ( rsg->flags & ENABLEMOTIONBLUR ) {
         rsg->flags = (rsg->flags & ~ENABLEMOTIONBLUR);
@@ -138,7 +138,7 @@ uint64_t g3duirenderedit_setMotionBlur ( G3DUIRENDEREDIT *redit ) {
 /******************************************************************************/
 uint64_t g3duirenderedit_setTexturing ( G3DUIRENDEREDIT *redit ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     if ( rsg->flags & DISABLETEXTURING ) {
         rsg->flags = (rsg->flags & ~DISABLETEXTURING);
@@ -155,7 +155,7 @@ uint64_t g3duirenderedit_texturingColor ( G3DUIRENDEREDIT *redit,
                                              unsigned char    G,
                                              unsigned char    B ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->defaultColor.r = R;
     rsg->defaultColor.g = G;
@@ -167,7 +167,7 @@ uint64_t g3duirenderedit_texturingColor ( G3DUIRENDEREDIT *redit,
 /******************************************************************************/
 uint64_t g3duirenderedit_setWireframe ( G3DUIRENDEREDIT *redit ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     if ( rsg->flags & RENDERWIREFRAME ) {
         rsg->flags = (rsg->flags & ~RENDERWIREFRAME);
@@ -181,7 +181,7 @@ uint64_t g3duirenderedit_setWireframe ( G3DUIRENDEREDIT *redit ) {
 /******************************************************************************/
 uint64_t g3duirenderedit_setWireframeLighting ( G3DUIRENDEREDIT *redit ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     if ( rsg->flags & WIREFRAMELIGHTING ) {
         rsg->flags = (rsg->flags & ~WIREFRAMELIGHTING);
@@ -196,7 +196,7 @@ uint64_t g3duirenderedit_setWireframeLighting ( G3DUIRENDEREDIT *redit ) {
 uint64_t g3duirenderedit_wireframeThickness ( G3DUIRENDEREDIT *redit,
                                                  float  thickness ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->wireframe.thickness = thickness;
 
@@ -209,7 +209,7 @@ uint64_t g3duirenderedit_wireframeColor ( G3DUIRENDEREDIT *redit,
                                              unsigned char G, 
                                              unsigned char B ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->wireframe.color = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
 
@@ -221,7 +221,7 @@ uint64_t g3duirenderedit_wireframeColor ( G3DUIRENDEREDIT *redit,
 uint64_t g3duirenderedit_setFogStrength ( G3DUIRENDEREDIT *redit, 
                                              float            strength ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->fog.strength = strength / 100.0f;
 
@@ -231,7 +231,7 @@ uint64_t g3duirenderedit_setFogStrength ( G3DUIRENDEREDIT *redit,
 /******************************************************************************/
 uint64_t g3duirenderedit_setFog ( G3DUIRENDEREDIT *redit ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     if ( rsg->flags & RENDERFOG ) {
         rsg->flags = (rsg->flags & ~RENDERFOG);
@@ -245,7 +245,7 @@ uint64_t g3duirenderedit_setFog ( G3DUIRENDEREDIT *redit ) {
 /******************************************************************************/
 uint64_t g3duirenderedit_setFogAffectsBackground ( G3DUIRENDEREDIT *redit ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     if ( rsg->fog.flags & FOGAFFECTSBACKGROUND ) {
         rsg->fog.flags = rsg->fog.flags & (~FOGAFFECTSBACKGROUND);
@@ -260,7 +260,7 @@ uint64_t g3duirenderedit_setFogAffectsBackground ( G3DUIRENDEREDIT *redit ) {
 uint64_t g3duirenderedit_fogFar ( G3DUIRENDEREDIT *redit,
                                      float            ffar ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->fog.ffar = ffar;
 
@@ -271,7 +271,7 @@ uint64_t g3duirenderedit_fogFar ( G3DUIRENDEREDIT *redit,
 uint64_t g3duirenderedit_fogNear ( G3DUIRENDEREDIT *redit,
                                       float            fnear ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->fog.fnear = fnear;
 
@@ -284,7 +284,7 @@ uint64_t g3duirenderedit_fogColor ( G3DUIRENDEREDIT *redit,
                                        unsigned char    G, 
                                        unsigned char    B ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->fog.color = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
 
@@ -294,7 +294,7 @@ uint64_t g3duirenderedit_fogColor ( G3DUIRENDEREDIT *redit,
 /******************************************************************************/
 uint64_t g3duirenderedit_sceneMotionBlur ( G3DUIRENDEREDIT *redit ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->flags = (rsg->flags | SCENEMOTIONBLUR) & ~VECTORMOTIONBLUR;
 
@@ -304,7 +304,7 @@ uint64_t g3duirenderedit_sceneMotionBlur ( G3DUIRENDEREDIT *redit ) {
 /******************************************************************************/
 uint64_t g3duirenderedit_vectorMotionBlur ( G3DUIRENDEREDIT *redit ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->flags = (rsg->flags | VECTORMOTIONBLUR) & ~SCENEMOTIONBLUR;
 
@@ -315,7 +315,7 @@ uint64_t g3duirenderedit_vectorMotionBlur ( G3DUIRENDEREDIT *redit ) {
 uint64_t g3duirenderedit_sceneMotionBlurIteration ( G3DUIRENDEREDIT *redit, 
                                                        uint32_t nbstep ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->motionBlur.iterations = nbstep;
 
@@ -326,7 +326,7 @@ uint64_t g3duirenderedit_sceneMotionBlurIteration ( G3DUIRENDEREDIT *redit,
 uint64_t g3duirenderedit_motionBlurStrength ( G3DUIRENDEREDIT *redit,
                                                  float            strength ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->motionBlur.strength = strength / 100.0f;
 
@@ -337,7 +337,7 @@ uint64_t g3duirenderedit_motionBlurStrength ( G3DUIRENDEREDIT *redit,
 uint64_t g3duirenderedit_vectorMotionBlurSamples ( G3DUIRENDEREDIT *redit, 
                                                       uint32_t         nbSamples ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->motionBlur.vMotionBlurSamples = nbSamples;
 
@@ -348,7 +348,7 @@ uint64_t g3duirenderedit_vectorMotionBlurSamples ( G3DUIRENDEREDIT *redit,
 uint64_t g3duirenderedit_vectorMotionBlurSubSamplingRate ( G3DUIRENDEREDIT *redit, 
                                                               float            subSamplingRate ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->motionBlur.vMotionBlurSubSamplingRate = subSamplingRate;
 
@@ -359,7 +359,7 @@ uint64_t g3duirenderedit_vectorMotionBlurSubSamplingRate ( G3DUIRENDEREDIT *redi
 uint64_t g3duirenderedit_fps ( G3DUIRENDEREDIT *redit,
                                   uint32_t         fps ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->output.fps = fps;
 
@@ -370,7 +370,7 @@ uint64_t g3duirenderedit_fps ( G3DUIRENDEREDIT *redit,
 uint64_t g3duirenderedit_output ( G3DUIRENDEREDIT *redit, 
                                      const char      *outfile ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     if ( rsg->output.outfile ) free ( rsg->output.outfile );
 
@@ -382,7 +382,7 @@ uint64_t g3duirenderedit_output ( G3DUIRENDEREDIT *redit,
 /******************************************************************************/
 uint64_t g3duirenderedit_preview ( G3DUIRENDEREDIT *redit ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     if ( rsg->flags & RENDERPREVIEW ) {
         rsg->flags &= (~RENDERPREVIEW);
@@ -397,7 +397,7 @@ uint64_t g3duirenderedit_preview ( G3DUIRENDEREDIT *redit ) {
 uint64_t g3duirenderedit_save ( G3DUIRENDEREDIT *redit,
                                    uint32_t         save ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     if ( save ) {
         rsg->flags |=   RENDERSAVE;
@@ -412,7 +412,7 @@ uint64_t g3duirenderedit_save ( G3DUIRENDEREDIT *redit,
 uint64_t g3duirenderedit_width ( G3DUIRENDEREDIT *redit, 
                                     uint32_t         width ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->output.width  = width;
     rsg->output.height = round ( ( float ) width / rsg->output.ratio );
@@ -424,7 +424,7 @@ uint64_t g3duirenderedit_width ( G3DUIRENDEREDIT *redit,
 uint64_t g3duirenderedit_height ( G3DUIRENDEREDIT *redit,
                                      uint32_t         height ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->output.height = height;
     rsg->output.width  = round ( ( float ) height * rsg->output.ratio );
@@ -436,7 +436,7 @@ uint64_t g3duirenderedit_height ( G3DUIRENDEREDIT *redit,
 uint64_t g3duirenderedit_ratio ( G3DUIRENDEREDIT *redit, 
                                     float            ratio ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     rsg->output.ratio = ratio;
     rsg->output.width = round ( ( float ) rsg->output.height * 
@@ -451,7 +451,7 @@ uint64_t g3duirenderedit_background ( G3DUIRENDEREDIT *redit,
                                          unsigned char    G, 
                                          unsigned char    B ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     if ( rsg ) {
         rsg->background.color = ( ( R << 0x10 ) | ( G << 0x08 ) | B );
@@ -463,7 +463,7 @@ uint64_t g3duirenderedit_background ( G3DUIRENDEREDIT *redit,
 /******************************************************************************/
 uint64_t g3duirenderedit_setBackgroundColorMode ( G3DUIRENDEREDIT *redit ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     if ( rsg ) {
         rsg->background.mode &= (~BACKGROUND_IMAGE);
@@ -475,7 +475,7 @@ uint64_t g3duirenderedit_setBackgroundColorMode ( G3DUIRENDEREDIT *redit ) {
 /******************************************************************************/
 uint64_t g3duirenderedit_setBackgroundImageMode ( G3DUIRENDEREDIT *redit ) {
     G3DUI *gui = redit->gui;
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     if ( rsg ) {
         rsg->background.mode |= BACKGROUND_IMAGE;
@@ -489,7 +489,7 @@ uint64_t g3duirenderedit_setBackgroundImage ( G3DUIRENDEREDIT *redit,
                                                  char            *filename ) {
     G3DUI *gui = redit->gui;
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-    Q3DSETTINGS *rsg = gui->currsg;
+    Q3DSETTINGS *rsg = redit->editedRsg;
 
     if ( rsg && sysinfo ) {
         if ( rsg->background.image ) {

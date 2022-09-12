@@ -91,6 +91,7 @@ if HAVE_GTK3
                             gtk3/g3duiplaneedit.c \
                             gtk3/g3duiparticleemitteredit.c \
                             gtk3/g3duiquad.c \
+                            gtk3/g3duirenderedit.c \
                             gtk3/g3duirenderwindow.c \
                             gtk3/g3duisphereedit.c \
                             gtk3/g3duisubdivideredit.c \

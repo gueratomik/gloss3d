@@ -144,40 +144,23 @@ static void sizeGL ( GtkWidget     *widget,
     GTK3G3DUIVIEW *gtk3view =  ( GTK3G3DUIVIEW * ) user_data;
     G3DUIVIEW     *view    = &gtk3view->core;
     G3DUI         *gui     = view->gui;
-    GdkDisplay    *gdkdpy  =  gtk_widget_get_display ( widget );
-    GdkWindow     *gdkwin  =  gtk_widget_get_window ( widget );
+    /*GdkDisplay    *gdkdpy  =  gtk_widget_get_display ( widget );
+    GdkWindow     *gdkwin  =  gtk_widget_get_window ( widget );*/
 
 /*printf("glarea %d %d\n", allocation->width, allocation->height );*/
 
-    if ( gdkwin ) {
-#ifdef __linux__
-        Display       *dpy     = gdk_x11_display_get_xdisplay ( gdkdpy );
-        Window         win     = gdk_x11_window_get_xid ( gdkwin );
-#endif
-#ifdef __MINGW32__
-        HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
-        HDC dc = GetDC ( hWnd );
-#endif
-
-#ifdef __linux__
-        if ( glXMakeCurrent ( dpy, win, view->glctx ) == TRUE ) {
-#endif
-#ifdef __MINGW32__
-        if ( wglMakeCurrent ( dc, view->glctx )       == TRUE ) {
-#endif
-
+    /*if ( gdkwin ) {*/
 #ifdef TODO : find why I get allocation.{width,height} = 1
 #endif
-            if ( (allocation->width > 1 ) && (allocation->height > 1) ) {
-                /*** cancel renderprocess if any ***/
-                g3dui_cancelRenderByID ( gui, ( uint64_t ) widget );
+        if ( (allocation->width > 1 ) && (allocation->height > 1) ) {
+            /*** cancel renderprocess if any ***/
+            g3dui_cancelRenderByID ( gui, ( uint64_t ) widget );
 
-                g3duiview_sizeGL ( view, allocation->width, allocation->height );
+            g3duiview_sizeGL ( view, allocation->width, allocation->height );
 
-                /*gtk_widget_queue_draw ( widget );*/
-            }
+            /*gtk_widget_queue_draw ( widget );*/
         }
-    }
+   /* }*/
 }
 
 /******************************************************************************/
@@ -185,27 +168,7 @@ static void initGL ( GtkWidget *widget,
                      gpointer   user_data ) {
     GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
     G3DUIVIEW     *view    = &gtk3view->core;
-    GdkDisplay    *gdkdpy  = gtk_widget_get_display ( widget );
-    GdkWindow     *gdkwin  = gtk_widget_get_window ( widget );
 
-#ifdef __linux__
-    Display       *dpy     = gdk_x11_display_get_xdisplay ( gdkdpy );
-    Window         win     = gdk_x11_window_get_xid ( gdkwin );
-#endif
-#ifdef __MINGW32__
-    HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
-    HDC dc = GetDC ( hWnd );
-#endif
-
-#ifdef __linux__
-    if ( glXMakeCurrent ( dpy, win, view->glctx ) == TRUE ) {
-#endif
-#ifdef __MINGW32__
-    if ( wglMakeCurrent ( dc, view->glctx )       == TRUE ) {
-#endif
-
-        g3duiview_initGL ( view );
-    }
 }
 
 /******************************************************************************/
@@ -214,38 +177,33 @@ static gboolean showGL ( GtkWidget *widget,
                          gpointer   user_data ) {
     GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
     G3DUIVIEW     *view    = &gtk3view->core;
-    GdkDisplay    *gdkdpy  = gtk_widget_get_display ( widget );
-    GdkWindow     *gdkwin  = gtk_widget_get_window ( widget );
-
-#ifdef __linux__
-    Display       *dpy     = gdk_x11_display_get_xdisplay ( gdkdpy );
-    Window         win     = gdk_x11_window_get_xid ( gdkwin );
-#endif
-#ifdef __MINGW32__
-    HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
-    HDC dc = GetDC ( hWnd );
-#endif
-
-#ifdef __linux__
-    if ( glXMakeCurrent ( dpy, win, view->glctx ) == TRUE ) {
-#endif
-#ifdef __MINGW32__
-    if ( wglMakeCurrent ( dc, view->glctx )       == TRUE ) {
-#endif
 
     g3duiview_showGL ( view, view->engine_flags );
 
+    return FALSE;
+}
+
+/******************************************************************************/
+static void mapGL ( GtkWidget *widget, 
+                    gpointer   user_data ) {
+    GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
+    G3DUIVIEW     *view    = &gtk3view->core;
+    GdkDisplay    *gdkdpy  = gtk_widget_get_display ( widget );
 #ifdef __linux__
-        glXSwapBuffers (dpy, win);
+    GdkWindow     *gdkwin  = gtk_widget_get_window ( widget );
+    Display       *dpy     = gdk_x11_display_get_xdisplay ( gdkdpy );
+    Window         win     = gdk_x11_window_get_xid ( gdkwin );
+
+    gtk3view->core.dpy = dpy;
+    gtk3view->core.win = win;
 #endif
 #ifdef __MINGW32__
-    SwapBuffers ( dc );
+    HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
 
-    ReleaseDC ( hWnd, dc );
+    gtk3view->core.hWnd = hWnd;
 #endif
-    }
 
-    return FALSE;
+    g3duiview_initGL ( view );
 }
 
 /******************************************************************************/
@@ -429,6 +387,7 @@ gtk_widget_set_visual(glarea, visual);
     g_signal_connect ( G_OBJECT (glarea), "size-allocate"     , G_CALLBACK (sizeGL ), gtk3view );
     g_signal_connect ( G_OBJECT (glarea), "realize"           , G_CALLBACK (initGL ), gtk3view );
     g_signal_connect ( G_OBJECT (glarea), "draw"              , G_CALLBACK (showGL ), gtk3view );
+    g_signal_connect ( G_OBJECT (glarea), "map"               , G_CALLBACK (mapGL  ), gtk3view );
 
     g_signal_connect ( G_OBJECT (glarea), "motion_notify_event" , G_CALLBACK (inputGL), gtk3view );
     g_signal_connect ( G_OBJECT (glarea), "key_press_event"     , G_CALLBACK (inputGL), gtk3view );
