@@ -343,9 +343,12 @@ static void gtk3_g3duiview_createMenuBar ( GTK3G3DUIVIEW *gtk3view ) {
 
 /******************************************************************************/
 static void gtk3_g3duiview_createGLArea ( GTK3G3DUIVIEW *gtk3view ) {
+    G3DUI *gui = gtk3view->core.gui;
     GtkWidget    *glarea = gtk_drawing_area_new ( );
 GdkVisual* visual;
 GdkScreen *screen;
+
+#ifdef __linux__
 XVisualInfo *xvisual;
 Colormap xcolormap;
 Display *display;
@@ -366,9 +369,17 @@ root = RootWindow (display, xscreen);
 xcolormap = XCreateColormap (display, root, xvisual->visual, AllocNone);
 gtk_widget_set_visual(glarea, visual);
 
-    gtk3view->core.glctx = glXCreateContext (display, xvisual, NULL, TRUE);
+
+    gtk3view->core.glctx = glXCreateContext ( display, 
+                                              xvisual, 
+                                              gui->sharedCtx,
+                                              TRUE);
+
+    /*** share textures ***/
+    if ( gui->sharedCtx == NULL ) gui->sharedCtx = gtk3view->core.glctx;
 
     free (xvisual);
+#endif /* __linux__ */
 
     /*** For keyboard inputs ***/
 

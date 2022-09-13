@@ -366,6 +366,7 @@ void g3duiview_sizeGL ( G3DUIVIEW *view,
 
 /******************************************************************************/
 void g3duiview_initGL ( G3DUIVIEW *view ) {
+    G3DUI *gui = view->gui;
     G3DCAMERA *cam = getCamera ( view );
 
 #ifdef __linux__
@@ -377,6 +378,15 @@ void g3duiview_initGL ( G3DUIVIEW *view ) {
     HDC dc = GetDC ( view->hWnd );
     if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
 #endif
+
+     /*** share textures ***/
+    if ( gui->sharedCtx == NULL ) {
+        gui->sharedCtx = view->glctx;
+    } else {
+#ifdef __MINGW32__
+        wglShareLists( gui->sharedCtx, view->glctx );
+#endif
+    }
 
     if ( cam ) {
         float      clearColorf = ( float ) CLEARCOLOR / 255.0f;

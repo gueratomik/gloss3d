@@ -360,7 +360,7 @@ void g3dlight_reset ( G3DLIGHT *lig ) {
 /******************************************************************************/
 void g3dlight_unsetSpot ( G3DLIGHT *lig ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
-
+printf("unsetting\n");
     obj->flags &= (~SPOTLIGHT);
 }
 

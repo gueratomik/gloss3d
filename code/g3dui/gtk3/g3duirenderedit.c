@@ -41,17 +41,20 @@
 #define EDITRENDERWIDTH            "Render width"
 #define EDITRENDERHEIGHT           "Render height"
 #define EDITRENDERRATIO            "W/H ratio"
-#define EDITRENDERMOTIONBLURFRAME  "Motion Blur Settings"
-#define EDITRENDERVECTORMOTIONBLUR "Vector Motion Blur"
-#define EDITRENDERVECTORMOTIONBLURSAMPLES "Samples"
-#define EDITRENDERVECTORMOTIONBLURSUBSAMPLINGRATE "Sub-Sampling %"
-#define EDITRENDERMOTIONBLURSTRENGTH "Strength"
-#define EDITRENDERSCENEMOTIONBLUR  "Scene Motion Blur"
-#define EDITRENDERSCENEMOTIONBLURITERATION "Iterations:"
-#define EDITRENDERENABLEMOTIONBLUR "Enable Motion Blur"
+
+#define EDITRENDERMOTIONBLURFRAME                 "Motion Blur Settings"
+#define EDITRENDERENABLEMOTIONBLUR                "Enabled"
+#define EDITRENDERVECTORMOTIONBLUR                "Vector"
+#define EDITRENDERSCENEMOTIONBLUR                 "Scene"
+#define EDITRENDERMOTIONBLURSTRENGTH              "Strength"
+#define EDITRENDERVECTORMOTIONBLURSAMPLES         "Samples"
+#define EDITRENDERVECTORMOTIONBLURSUBSAMPLINGRATE "Sub-Sampl. %"
+#define EDITRENDERSCENEMOTIONBLURITERATION        "Iterations"
+
+
 #define EDITRENDERBACKGROUNDFRAME        "Background settings"
-#define EDITRENDERBACKGROUNDCOLOR        "Background Color"
-#define EDITRENDERBACKGROUNDIMAGE        "Background Image"
+#define EDITRENDERBACKGROUNDCOLOR        "Color"
+#define EDITRENDERBACKGROUNDIMAGE        "Image"
 #define EDITRENDERBACKGROUNDSTRETCHIMAGE "Stretch Image"
 
 #define EDITRENDERPREVIEW          "Make preview"
@@ -61,7 +64,7 @@
 
 
 #define EDITRENDERALIASINGFRAME      "Anti-Aliasing"
-#define EDITRENDERALIASING           "Enable Anti-Aliasing"
+#define EDITRENDERALIASING           "Enabled"
 #define EDITRENDERALIASINGMODE       "Mode"
 #define EDITRENDERALIASINGEDGE       "Edge"
 #define EDITRENDERALIASINGFULL       "Full"
@@ -69,14 +72,14 @@
 #define EDITRENDERALIASINGSAMPLES_9  "9 samples"
 
 #define EDITRENDERWIREFRAMEFRAME     "Wireframe Settings"
-#define EDITRENDERWIREFRAME          "Wireframe"
-#define EDITRENDERWIREFRAMELIGHTING  "Affected by Lighting"
+#define EDITRENDERWIREFRAME          "Enabled"
+#define EDITRENDERWIREFRAMELIGHTING  "Shaded"
 #define EDITRENDERWIREFRAMETHICKNESS "Thickness"
 #define EDITRENDERWIREFRAMECOLOR     "Color"
 
 #define EDITRENDERFOGFRAME             "Fog Settings"
 #define EDITRENDERFOGAFFECTSBACKGROUND "Affects background"
-#define EDITRENDERFOG                  "Enable Fog"
+#define EDITRENDERFOG                  "Enabled"
 #define EDITRENDERFOGNEAR              "Near distance"
 #define EDITRENDERFOGFAR               "Far distance"
 #define EDITRENDERFOGCOLOR             "Color"
@@ -85,6 +88,8 @@
 #define EDITRENDERTEXTURINGFRAME       "Texturing"
 #define EDITRENDERTEXTURINGCOLOR       "Mesh default color"
 #define EDITRENDERTEXTURING            "Disable texturing"
+
+#define WINWIDTH 320
 
 /******************************************************************************/
 static GTK3G3DUIRENDEREDIT *gtk3_g3duirenderedit_new ( GTK3G3DUI   *gtk3gui,
@@ -112,6 +117,9 @@ static void formatCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     GtkComboBoxText *cmbt = GTK_COMBO_BOX_TEXT(widget);
     const char *str = gtk_combo_box_text_get_active_text ( cmbt );
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_format ( &gtk3red->core, str );
 
@@ -163,6 +171,9 @@ static void saveCbk ( GtkWidget *widget, gpointer user_data ) {
     uint32_t save = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget));
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_save ( &gtk3red->core, save );
 
     updateSaveOutputFrame ( gtk3red );
@@ -173,6 +184,9 @@ static void saveCbk ( GtkWidget *widget, gpointer user_data ) {
 static void previewCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_preview ( &gtk3red->core );
 }
 
@@ -180,6 +194,9 @@ static void previewCbk ( GtkWidget *widget, gpointer user_data ) {
 static void startFrameCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     float frame = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_startFrame ( &gtk3red->core, frame );
 
@@ -191,6 +208,9 @@ static void fpsCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     float fps = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_fps ( &gtk3red->core, fps );
 }
 
@@ -198,6 +218,9 @@ static void fpsCbk ( GtkWidget *widget, gpointer user_data ) {
 static void endFrameCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     float frame = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_endFrame ( &gtk3red->core, frame );
 
@@ -209,6 +232,9 @@ static void ratioCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     float ratio = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_ratio ( &gtk3red->core, ratio );
 
     updateGeneralPanel ( gtk3red );
@@ -219,6 +245,9 @@ static void widthCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     int width = (int) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_width ( &gtk3red->core, ( uint32_t ) width );
 
     updateGeneralPanel ( gtk3red );
@@ -228,6 +257,9 @@ static void widthCbk ( GtkWidget *widget, gpointer user_data ) {
 static void heightCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     int height = (int) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_height ( &gtk3red->core, ( uint32_t ) height );
 
@@ -241,6 +273,9 @@ static void outputCbk ( GtkWidget *widget,
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     const char *outfile = gtk_entry_get_text ( GTK_ENTRY(widget) );
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_output ( &gtk3red->core, outfile );
 }
 
@@ -248,6 +283,9 @@ static void outputCbk ( GtkWidget *widget,
 static void backgroundCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     GdkRGBA color;
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
 
     gtk_color_chooser_get_rgba ( GTK_COLOR_CHOOSER(widget), &color );
 
@@ -261,6 +299,9 @@ static void wireframeColorCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     GdkRGBA color;
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     gtk_color_chooser_get_rgba ( GTK_COLOR_CHOOSER(widget), &color );
 
     g3duirenderedit_wireframeColor ( &gtk3red->core, ( color.red   * 255 ), 
@@ -273,12 +314,18 @@ static void runRenderCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) user_data;
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     gtk3_runRender ( gtk3gui );
 }
 
 /******************************************************************************/
 static void setMotionBlurCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_setMotionBlur ( &gtk3red->core );
 
@@ -288,6 +335,9 @@ static void setMotionBlurCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void sceneMotionBlurCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_sceneMotionBlur ( &gtk3red->core );
 
@@ -299,12 +349,18 @@ static void sceneMotionBlurIterationCbk ( GtkWidget *widget, gpointer user_data 
     uint32_t iteration = gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_sceneMotionBlurIteration ( &gtk3red->core, iteration );
 }
 
 /******************************************************************************/
 static void vectorMotionBlurCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_vectorMotionBlur ( &gtk3red->core );
 
@@ -317,6 +373,9 @@ static void motionBlurStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = gtk3red->core.gui;
     float strength = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_motionBlurStrength ( &gtk3red->core, strength );
 }
 
@@ -324,6 +383,9 @@ static void motionBlurStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
 static void vectorMotionBlurSamplesCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     uint32_t samples = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_vectorMotionBlurSamples ( &gtk3red->core, samples );
 }
@@ -333,6 +395,9 @@ static void vectorMotionBlurSubSamplingRateCbk ( GtkWidget *widget, gpointer use
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     float rate = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_vectorMotionBlurSubSamplingRate ( &gtk3red->core, rate / 100.0f );
 }
 
@@ -340,6 +405,10 @@ static void vectorMotionBlurSubSamplingRateCbk ( GtkWidget *widget, gpointer use
 static void chooseCodecCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     G3DUI *gui = gtk3red->core.gui;
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
 #ifdef __MINGW32__
     gui->cvars.cbSize = sizeof ( COMPVARS );
 
@@ -366,9 +435,8 @@ static void updateSaveOutputFrame ( GTK3G3DUIRENDEREDIT *gtk3red ) {
 
         gtk_toggle_button_set_active ( gtk3red->outputEnabledToggle, TRUE  );
 
-        gtk_widget_set_sensitive ( gtk3red->outputCodecButton, TRUE );
-        gtk_widget_set_sensitive ( gtk3red->outputCodecButton, TRUE );
-        gtk_widget_set_sensitive ( gtk3red->outputCodecButton, TRUE );
+        gtk_widget_set_sensitive ( gtk3red->outputFileEntry     , TRUE );
+        gtk_widget_set_sensitive ( gtk3red->outputFormatSelector, TRUE );
 
 #ifdef __MINGW32__
         gtk_widget_set_sensitive ( gtk3red->outputCodecButton, tovid );
@@ -376,9 +444,8 @@ static void updateSaveOutputFrame ( GTK3G3DUIRENDEREDIT *gtk3red ) {
     } else {
         gtk_toggle_button_set_active ( gtk3red->outputEnabledToggle, FALSE );
 
-        gtk_widget_set_sensitive ( gtk3red->outputCodecButton, FALSE );
-        gtk_widget_set_sensitive ( gtk3red->outputCodecButton, FALSE );
-        gtk_widget_set_sensitive ( gtk3red->outputCodecButton, FALSE );
+        gtk_widget_set_sensitive ( gtk3red->outputFileEntry     , FALSE );
+        gtk_widget_set_sensitive ( gtk3red->outputFormatSelector, FALSE );
 
 #ifdef __MINGW32__
         gtk_widget_set_sensitive ( gtk3red->outputCodecButton, FALSE );
@@ -400,24 +467,26 @@ static void createSaveOutputFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                     gint                 height ) {
     G3DUI *gui = gtk3red->core.gui;
     GtkFixed *fix = ui_gtk_fixed_new ( CLASS_MAIN );
-    GtkFrame *frm = ui_gtk_frame_new ( CLASS_MAIN, EDITRENDERFOGFRAME );
+    GtkFrame *frm = ui_gtk_frame_new ( CLASS_MAIN, EDITRENDERSAVEOUTPUTFRAME );
 
     gtk_container_add ( GTK_CONTAINER(frm), fix );
 
     gtk_widget_set_size_request ( GTK_WIDGET(frm), width, height );
+
+    gtk_fixed_put ( gtk3red->generalTab, frm, x, y );
 
     gtk3red->outputEnabledToggle = 
                           ui_createToggleLabel  ( fix,
                                                   gtk3red,
                                                   EDITRENDERSAVE,
                                                   CLASS_MAIN,
-                                                  0,  0, 96, 20, 20,
+                                                  0,  0, 120, 20, 20,
                                                   saveCbk );
 
     gtk3red->outputFormatSelector =
                           ui_createRenderFormat ( fix,
                                                   gtk3red,
-                                                  0, 24, 96, 96, 20,
+                                                  0, 24, 120, 96, 20,
                                                   formatCbk );
 
 #ifdef __MINGW32__
@@ -433,8 +502,8 @@ static void createSaveOutputFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                           ui_createCharText     ( fix, 
                                                   gtk3red,
                                                   EDITRENDEROUTPUT,
-                                                  CLASS_MAIN,
-                                                  0, 72, 96, 200, 20,
+                                                  CLASS_ENTRY,
+                                                  0, 72, 120, 200, 20,
                                                   outputCbk );
 
     gtk_widget_show ( fix );
@@ -477,6 +546,9 @@ static void aliasingCbk ( GtkWidget *widget, gpointer user_data ) {
     uint32_t aa = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(widget));
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_aa ( &gtk3red->core );
 
     updateAliasingFrame ( gtk3red );
@@ -486,12 +558,18 @@ static void aliasingCbk ( GtkWidget *widget, gpointer user_data ) {
 static void aliasingEdgeCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_aaEdge ( &gtk3red->core );
 }
 
 /******************************************************************************/
 static void aliasingFullCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_aaFull ( &gtk3red->core );
 }
@@ -500,12 +578,18 @@ static void aliasingFullCbk ( GtkWidget *widget, gpointer user_data ) {
 static void aliasingS5Cbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_aaSamples ( &gtk3red->core, 5 );
 }
 
 /******************************************************************************/
 static void aliasingS9Cbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_aaSamples ( &gtk3red->core, 9 );
 }
@@ -524,12 +608,14 @@ static GtkWidget *createAliasingFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
 
     gtk_widget_set_size_request ( GTK_WIDGET(frm), width, height );
 
+    gtk_fixed_put ( gtk3red->generalTab, frm, x, y );
+
     gtk3red->aliasingEnabledToggle = 
                         ui_createToggleLabel ( fix,
                                                gtk3red,
                                                EDITRENDERALIASING,
                                                CLASS_MAIN,
-                                               0,  0, 96, 20, 20,
+                                               0,  0, 120, 20, 20,
                                                aliasingCbk );
 
     gtk3red->aliasingEdgeToggle = 
@@ -537,7 +623,7 @@ static GtkWidget *createAliasingFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                gtk3red,
                                                EDITRENDERALIASINGEDGE,
                                                CLASS_MAIN,
-                                               0, 24, 96, 20, 20,
+                                               0, 24, 120, 20, 20,
                                                aliasingEdgeCbk );
 
     gtk3red->aliasingFullToggle = 
@@ -545,7 +631,7 @@ static GtkWidget *createAliasingFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                gtk3red,
                                                EDITRENDERALIASINGFULL,
                                                CLASS_MAIN,
-                                               0, 48, 96, 20, 20,
+                                               0, 48, 120, 20, 20,
                                                aliasingFullCbk );
 
     gtk3red->aliasingS5Toggle = 
@@ -553,7 +639,7 @@ static GtkWidget *createAliasingFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                gtk3red,
                                                EDITRENDERALIASINGSAMPLES_5,
                                                CLASS_MAIN,
-                                               60, 24, 96, 20, 20,
+                                               120, 24, 96, 20, 20,
                                                aliasingS5Cbk );
 
     gtk3red->aliasingS9Toggle = 
@@ -561,7 +647,7 @@ static GtkWidget *createAliasingFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                gtk3red,
                                                EDITRENDERALIASINGSAMPLES_9,
                                                CLASS_MAIN,
-                                               60, 48, 96, 20, 20,
+                                               120, 48, 96, 20, 20,
                                                aliasingS9Cbk );
 
     gtk_widget_show ( fix );
@@ -651,7 +737,7 @@ static void createMotionBlurFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                       gtk3red,
                                       EDITRENDERENABLEMOTIONBLUR,
                                       CLASS_MAIN,
-                                      0,  0, 96, 20, 20,
+                                      0,  0, 120, 20, 20,
                                       setMotionBlurCbk );
 
     gtk3red->blurStrengthEntry = 
@@ -668,7 +754,7 @@ static void createMotionBlurFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                       gtk3red,
                                       EDITRENDERVECTORMOTIONBLUR,
                                       CLASS_MAIN,
-                                      0,  24, 96, 20, 20,
+                                      0,  24, 120, 20, 20,
                                       vectorMotionBlurCbk );
 
     gtk3red->blurSamplesEntry = 
@@ -694,7 +780,7 @@ static void createMotionBlurFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                       gtk3red,
                                       EDITRENDERSCENEMOTIONBLUR,
                                       CLASS_MAIN,
-                                      0, 72, 96, 20, 20,
+                                      0, 72, 120, 20, 20,
                                       sceneMotionBlurCbk );
 
     gtk3red->blurIterationsEntry = 
@@ -755,6 +841,9 @@ static void updateWireframeFrame ( GTK3G3DUIRENDEREDIT *gtk3red ) {
 static void setWireframeCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_setWireframe ( &gtk3red->core );
 
     updateWireframeFrame( gtk3red );
@@ -763,6 +852,9 @@ static void setWireframeCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void setWireframeLightingCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_setWireframeLighting ( &gtk3red->core );
 
@@ -773,6 +865,9 @@ static void setWireframeLightingCbk ( GtkWidget *widget, gpointer user_data ) {
 static void wireframeThicknessCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     float thickness = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_wireframeThickness ( &gtk3red->core, thickness );
 }
@@ -798,7 +893,7 @@ static GtkWidget *createWireframeFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                    gtk3red,
                                                    EDITRENDERWIREFRAME,
                                                    CLASS_MAIN,
-                                                   0,  0, 96, 20, 20,
+                                                   0,  0, 120, 20, 20,
                                                    setWireframeCbk );
 
     gtk3red->wireframeAffectedToggle = 
@@ -806,7 +901,7 @@ static GtkWidget *createWireframeFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                    gtk3red,
                                                    EDITRENDERWIREFRAMELIGHTING,
                                                    CLASS_MAIN,
-                                                   0, 24, 96, 20, 20,
+                                                   0, 24, 120, 20, 20,
                                                    setWireframeLightingCbk );
 
     gtk3red->wireframeThicknessEntry = 
@@ -815,7 +910,7 @@ static GtkWidget *createWireframeFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                    EDITRENDERWIREFRAMETHICKNESS,
                                                    CLASS_MAIN,
                                                    0.0f, FLT_MAX,
-                                                   0, 48, 96,  96, 20,
+                                                   0, 48, 120,  96, 20,
                                                    wireframeThicknessCbk );
 
     gtk3red->wireframeColorButton =
@@ -823,7 +918,7 @@ static GtkWidget *createWireframeFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                    gtk3red,
                                                    EDITRENDERWIREFRAMECOLOR,
                                                    CLASS_MAIN,
-                                                   96, 72, 96, 32, 20,
+                                                   0, 72, 120, 32, 20,
                                                    wireframeColorCbk );
 
     gtk_widget_show ( fix );
@@ -859,6 +954,9 @@ static void texturingColorCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = gtk3red->core.gui;
     GdkRGBA color;
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     gtk_color_chooser_get_rgba ( GTK_COLOR_CHOOSER(widget), &color );
 
     g3duirenderedit_texturingColor ( &gtk3red->core, ( color.red   * 255 ), 
@@ -869,6 +967,9 @@ static void texturingColorCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void setTexturingCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_setTexturing ( &gtk3red->core );
 }
@@ -894,7 +995,7 @@ static void createTexturingFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                      gtk3red,
                                                      EDITRENDERTEXTURING,
                                                      CLASS_MAIN,
-                                                     0,  0, 96, 20, 20,
+                                                     0,  0, 120, 20, 20,
                                                      setTexturingCbk );
 
     gtk3red->texturingColorButton =
@@ -902,7 +1003,7 @@ static void createTexturingFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                      gtk3red,
                                                      EDITRENDERTEXTURINGCOLOR,
                                                      CLASS_MAIN,
-                                                     96, 24, 96, 32, 20, 
+                                                     0, 24, 120, 32, 20, 
                                                      texturingColorCbk );
 
     gtk_widget_show ( fix );
@@ -969,6 +1070,9 @@ static void setFogAffectsBackgroundCbk ( GtkWidget *widget, gpointer user_data )
 static void setFogCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_setFog ( &gtk3red->core );
 
     updateFogFrame ( gtk3red );
@@ -979,6 +1083,9 @@ static void fogStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     float strength = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_setFogStrength ( &gtk3red->core, strength );
 }
 
@@ -986,6 +1093,9 @@ static void fogStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
 static void fogNearCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     float fnear = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_fogNear ( &gtk3red->core, fnear );
 }
@@ -995,6 +1105,9 @@ static void fogFarCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     float ffar = (float) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_fogFar ( &gtk3red->core, ffar );
 }
 
@@ -1002,6 +1115,9 @@ static void fogFarCbk ( GtkWidget *widget, gpointer user_data ) {
 static void fogColorCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
     GdkRGBA color;
+
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
 
     gtk_color_chooser_get_rgba ( GTK_COLOR_CHOOSER(widget), &color );
 
@@ -1031,7 +1147,7 @@ static void createFogFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                 gtk3red,
                                                 EDITRENDERFOG,
                                                 CLASS_MAIN,
-                                                0,  0, 96, 20, 20,
+                                                0,  0, 120, 20, 20,
                                                 setFogCbk );
 
     gtk3red->fogAffectsBackgroundToggle = 
@@ -1039,7 +1155,7 @@ static void createFogFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                 gtk3red,
                                                 EDITRENDERFOGAFFECTSBACKGROUND,
                                                 CLASS_MAIN,
-                                                0, 24, 96, 20, 20,
+                                                0, 24, 120, 20, 20,
                                                 setFogAffectsBackgroundCbk );
 
     gtk3red->fogStrengthEntry = 
@@ -1048,7 +1164,7 @@ static void createFogFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                 EDITRENDERFOGSTRENGTH,
                                                 CLASS_MAIN,
                                                 0.0f, 100.0f,
-                                                0, 48, 96, 96, 20,
+                                                0, 48, 120, 96, 20,
                                                 fogStrengthCbk );
 
     gtk3red->fogNearEntry =
@@ -1058,7 +1174,7 @@ static void createFogFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                 CLASS_MAIN,
                                                 0.0f,
                                                 FLT_MAX,
-                                                0, 72, 96, 96, 20,
+                                                0, 72, 120, 96, 20,
                                                 fogNearCbk );
 
     gtk3red->fogFarEntry = 
@@ -1068,7 +1184,7 @@ static void createFogFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                 CLASS_MAIN,
                                                 0.0f,
                                                 FLT_MAX,
-                                                0, 96, 96, 96, 20,
+                                                0, 96, 120, 96, 20,
                                                 fogFarCbk );
 
     gtk3red->fogColorButton = 
@@ -1076,7 +1192,7 @@ static void createFogFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                 gtk3red,
                                                 EDITRENDERFOGCOLOR,
                                                 CLASS_MAIN,
-                                                96, 120, 96, 32, 20, 
+                                                0, 120, 120, 32, 20, 
                                                 fogColorCbk );
 
     gtk_widget_show ( fix );
@@ -1164,7 +1280,12 @@ static void setBackgroundColorModeCbk ( GtkWidget *widget,
                                         gpointer   user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_setBackgroundColorMode ( &gtk3red->core );
+
+    updateBackgroundFrame ( gtk3red );
 }
 
 /******************************************************************************/
@@ -1172,7 +1293,12 @@ static void setBackgroundImageModeCbk ( GtkWidget *widget,
                                         gpointer   user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_setBackgroundImageMode ( &gtk3red->core );
+
+    updateBackgroundFrame ( gtk3red );
 }
 
 /******************************************************************************/
@@ -1184,16 +1310,18 @@ static void createBackgroundFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
     GtkFixed *fix = ui_gtk_fixed_new ( CLASS_MAIN );
     GtkFrame *frm = ui_gtk_frame_new ( CLASS_MAIN, EDITRENDERBACKGROUNDFRAME );
 
+    gtk_widget_set_size_request ( GTK_WIDGET(fix), width, height );
+
     gtk_container_add (GTK_CONTAINER(frm), fix );
 
-    gtk_widget_set_size_request ( GTK_WIDGET(frm), width, height );
+    gtk_fixed_put ( gtk3red->generalTab, frm, x, y );
 
     gtk3red->backgroundColorToggle  =
                           ui_createToggleLabel ( fix, 
                                                  gtk3red,
                                                  EDITRENDERBACKGROUNDCOLOR,
                                                  CLASS_MAIN,
-                                                 0,  0, 96, 20, 20,
+                                                 0,  0, 120, 20, 20,
                                                  setBackgroundColorModeCbk );
 
     gtk3red->backgroundImageToggle  = 
@@ -1201,7 +1329,7 @@ static void createBackgroundFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                  gtk3red,
                                                  EDITRENDERBACKGROUNDIMAGE,
                                                  CLASS_MAIN,
-                                                 0, 24, 96, 20, 20,
+                                                 0, 24, 120, 20, 20,
                                                  setBackgroundImageModeCbk );
 
     gtk3red->backgroundColorButton =
@@ -1209,7 +1337,7 @@ static void createBackgroundFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                  gtk3red,
                                                  EDITRENDERBACKGROUNDCOLOR,
                                                  CLASS_MAIN,
-                                                 160, 0, 96, 32, 20,
+                                                 160, 0, 0, 32, 20,
                                                  backgroundCbk );
 
     gtk3red->backgroundImageButton = 
@@ -1258,80 +1386,80 @@ static void createGeneralPanel ( GTK3G3DUIRENDEREDIT *gtk3red,
                                  gint                 y,
                                  gint                 width,
                                  gint                 height ) {
-    GtkFixed *pan = ui_createTab ( gtk3red->notebook,
-                                   gtk3red,
-                                   EDITRENDERGENERAL,
-                                   CLASS_MAIN,
-                                   x,
-                                   y,
-                                   width,
-                                   height );
+    gtk3red->generalTab = ui_createTab ( gtk3red->notebook,
+                                         gtk3red,
+                                         EDITRENDERGENERAL,
+                                         CLASS_MAIN,
+                                         x,
+                                         y,
+                                         width,
+                                         height );
 
-    gtk3red->renderPreviewToggle = ui_createToggleLabel ( pan,
+    gtk3red->renderPreviewToggle = ui_createToggleLabel ( gtk3red->generalTab,
                                                           gtk3red,
                                                           EDITRENDERPREVIEW,
                                                           CLASS_MAIN,
-                                                          0,  0, 96, 20, 20,
+                                                          0,  0, 120, 20, 20,
                                                           previewCbk );
 
-    gtk3red->fromFrameEntry      = ui_createIntegerText ( pan, 
+    gtk3red->fromFrameEntry      = ui_createIntegerText ( gtk3red->generalTab, 
                                                           gtk3red, 
                                                           EDITRENDERSTART,
                                                           CLASS_MAIN,
                                                           INT_MIN,
                                                           INT_MAX,
-                                                          0,  24, 96, 96, 20,
+                                                          0,  24, 120, 96, 20,
                                                           startFrameCbk );
 
-    gtk3red->toFrameEntry        = ui_createIntegerText ( pan,
+    gtk3red->toFrameEntry        = ui_createIntegerText ( gtk3red->generalTab,
                                                           gtk3red,
                                                           EDITRENDEREND,
                                                           CLASS_MAIN,
                                                           INT_MIN,
                                                           INT_MAX,
-                                                          0,  48, 96, 96, 20,
+                                                          0,  48, 120, 96, 20,
                                                           endFrameCbk );
 
-    gtk3red->framerateEntry      = ui_createIntegerText ( pan,
+    gtk3red->framerateEntry      = ui_createIntegerText ( gtk3red->generalTab,
                                                           gtk3red,
                                                           EDITRENDERFPS,
                                                           CLASS_MAIN,
                                                           0,
                                                           INT_MAX,
-                                                          0,  72, 96, 96, 20,
+                                                          0,  72, 120, 96, 20,
                                                           fpsCbk );
 
-    gtk3red->renderWidthEntry    = ui_createIntegerText ( pan,
+    gtk3red->renderWidthEntry    = ui_createIntegerText ( gtk3red->generalTab,
                                                           gtk3red,
                                                           EDITRENDERWIDTH,
                                                           CLASS_MAIN,
                                                           0,
                                                           INT_MAX,
-                                                          0,  96, 96, 96, 20,
+                                                          0,  96, 120, 96, 20,
                                                           widthCbk );
 
-    gtk3red->renderHeightEntry   = ui_createIntegerText ( pan,
+    gtk3red->renderHeightEntry   = ui_createIntegerText ( gtk3red->generalTab,
                                                           gtk3red,
                                                           EDITRENDERHEIGHT,
                                                           CLASS_MAIN,
                                                           0,
                                                           INT_MAX,
-                                                          0, 120, 96, 96, 20,
+                                                          0, 120, 120, 96, 20,
                                                           heightCbk );
 
-    gtk3red->renderRatioEntry    = ui_createFloatText   ( pan,
+    gtk3red->renderRatioEntry    = ui_createFloatText   ( gtk3red->generalTab,
                                                           gtk3red,
                                                           EDITRENDERRATIO,
                                                           CLASS_MAIN,
                                                           0.0f,
                                                           FLT_MAX,
-                                                          0, 144, 96, 96, 20,
+                                                          0, 144, 120, 96, 20,
                                                           ratioCbk );
 
 
-    createBackgroundFrame ( gtk3red, 0, 168, 256, 96 );
-    createSaveOutputFrame ( gtk3red, 0, 264, 256, 96 );
-    createAliasingFrame   ( gtk3red, 0, 364, 256, 96 );
+    createBackgroundFrame ( gtk3red, 0, 176, WINWIDTH, 48 );
+    createSaveOutputFrame ( gtk3red, 0, 248, WINWIDTH, 112 );
+    createAliasingFrame   ( gtk3red, 0, 364, WINWIDTH, 96 );
 }
 
 /******************************************************************************/
@@ -1357,10 +1485,10 @@ static void createEffectsPanel ( GTK3G3DUIRENDEREDIT *gtk3red,
                                          width,
                                          height );
 
-    createMotionBlurFrame ( gtk3red, 0,   0, 256,  96 );
-    createWireframeFrame  ( gtk3red, 0, 108, 256,  96 );
-    createFogFrame        ( gtk3red, 0, 220, 256,  96 );
-    createTexturingFrame  ( gtk3red, 0, 376, 256,  96 );
+    createMotionBlurFrame ( gtk3red, 0,   0, WINWIDTH,  112 );
+    createWireframeFrame  ( gtk3red, 0, 120, WINWIDTH,  96 );
+    createFogFrame        ( gtk3red, 0, 240, WINWIDTH,  96 );
+    createTexturingFrame  ( gtk3red, 0, 376, WINWIDTH,  96 );
 }
 
 /******************************************************************************/
@@ -1411,8 +1539,8 @@ GTK3G3DUIRENDEREDIT* gtk3_g3duirenderedit_create ( GtkWidget   *parent,
                            0,  0, 24, 24,
                            runRenderCbk );*/
 
-    createGeneralPanel ( gtk3red, 0, 24, 200, 200 );
-    createEffectsPanel ( gtk3red, 0, 24, 200, 200 );
+    createGeneralPanel ( gtk3red, 0, 24, WINWIDTH, 360 );
+    createEffectsPanel ( gtk3red, 0, 24, WINWIDTH, 360 );
 
     gtk_widget_show ( notebook );
     gtk_widget_show ( fixed );

@@ -441,9 +441,9 @@ static void spotToggleCbk ( GtkWidget *widget,
 
     if ( gtk3led->core.editedLight ) {
         if ( gtk_toggle_button_get_active ( GTK_TOGGLE_BUTTON(widget) ) ) {
-            g3duilightedit_unsetSpot ( &gtk3led->core );
-        } else {
             g3duilightedit_setSpot ( &gtk3led->core );
+        } else {
+            g3duilightedit_unsetSpot ( &gtk3led->core );
         }
     }
 

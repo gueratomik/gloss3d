@@ -427,7 +427,7 @@ GTK3G3DUIOBJECTEDIT *gtk3_g3duiobjectedit_create ( GtkWidget *parent,
                                                    GTK3G3DUI *gtk3gui,
                                                    char      *name ) {
     GTK3G3DUIOBJECTEDIT *gtk3objedit = gtk3_g3duiobjectedit_new ( gtk3gui );
-    GtkWidget *scrolled = gtk_scrolled_window_new ( NULL, NULL );
+    GtkWidget *scrolled = ui_gtk_scrolled_window_new ( CLASS_MAIN, NULL, NULL );
     GtkWidget *fixed = ui_gtk_fixed_new ( CLASS_MAIN );
 
     gtk3objedit->scrolled = scrolled;

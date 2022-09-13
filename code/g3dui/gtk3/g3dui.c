@@ -460,39 +460,22 @@ GtkSpinButton *ui_createNumericText ( GtkFixed      *parent,
                                       gint           txtheight,
                                       void (*cbk)( GtkWidget *, 
                                                    gpointer ) ) {
-    GtkSpinButton *btn  = ui_gtk_spin_button_new ( class, adj, 1.0, 0 );
-    GtkStyleContext *context = gtk_widget_get_style_context ( GTK_WIDGET(btn) );
-    GdkRectangle   brec = { 0x00, 0x00, txtwidth, txtheight };
-    PangoFontDescription *fdesc;
+    GtkSpinButton *btn  = ui_gtk_spin_button_new ( CLASS_ENTRY, adj, 1.0, 0 );
     uint32_t charwidth;
 
-    gtk_style_context_get ( context, GTK_STATE_FLAG_NORMAL, "font", &fdesc, NULL );
+    gtk_entry_set_width_chars   ( GTK_ENTRY(btn), 0 );
 
-    charwidth = pango_font_description_get_size ( fdesc ) / PANGO_SCALE;
-
-    /*printf ( "%s\n", pango_font_description_get_family ( fdesc ) );*/
-
-    /*gtk_spin_button_set_numeric ( btn, TRUE );*/
-
-    gtk_widget_set_name ( GTK_WIDGET(btn), name );
-
-    gtk_widget_set_size_request ( GTK_WIDGET(btn), brec.width, brec.height );
-
-    gtk_widget_set_hexpand ( GTK_WIDGET(btn), FALSE );
-
-    if ( txtwidth ) {
-        gtk_entry_set_width_chars ( GTK_ENTRY(btn), txtwidth / charwidth );
-    }
+    gtk_widget_set_name         ( GTK_WIDGET(btn), name );
+    gtk_widget_set_size_request ( GTK_WIDGET(btn), txtwidth, txtheight );
+    gtk_widget_set_hexpand      ( GTK_WIDGET(btn), FALSE );
 
     gtk_fixed_put ( GTK_FIXED(parent), GTK_WIDGET(btn), x + labwidth, y );
 
     if ( labwidth ) {
-        GdkRectangle lrec = { 0x00, 0x00, labwidth, txtheight };
-        GtkLabel   *lab  = ui_gtk_label_new ( class, name );
+        GtkLabel *lab  = ui_gtk_label_new ( class, name );
 
-        gtk_widget_set_name ( GTK_WIDGET(lab), name );
-
-        gtk_widget_set_size_request ( GTK_WIDGET(lab), lrec.width, lrec.height );
+        gtk_widget_set_name         ( GTK_WIDGET(lab), name );
+        gtk_widget_set_size_request ( GTK_WIDGET(lab), labwidth, txtheight );
 
         gtk_fixed_put ( GTK_FIXED(parent), GTK_WIDGET(lab), x, y );
 
@@ -1443,15 +1426,12 @@ static void gtk3_dispatchGLMenuButton ( GTK3G3DUI    *gtk3gui,
 /******************************************************************************/
 void gtk3_createRenderEdit ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
-    GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
-
-    GTK3G3DUIRENDEREDIT *gtk3redit =  gtk3_g3duirenderedit_create ( NULL, 
-                                                                    gtk3gui,
-                                                                    "Render edit",
-                                                                    gtk3gui->core.currsg );
-
-
-    gtk_widget_set_size_request ( gtk3redit->fixed, 480, 340 );
+    GtkWidget *dial = ui_gtk_window_new ( CLASS_MAIN, GTK_WINDOW_TOPLEVEL );
+    GTK3G3DUIRENDEREDIT *gtk3redit = 
+                            gtk3_g3duirenderedit_create ( NULL, 
+                                                          gtk3gui,
+                                                          "Render edit",
+                                                          gtk3gui->core.currsg );
 
     gtk_container_add ( dial, gtk3redit->fixed );
 
