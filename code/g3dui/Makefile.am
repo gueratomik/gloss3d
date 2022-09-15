@@ -33,6 +33,7 @@ if HAVE_GTK3
                             common/g3duimeshedit.c \
                             common/g3duimeshposelist.c \
                             common/g3duimodebar.c \
+                            common/g3duimousetool.c \
                             common/g3duiobjectboard.c \
                             common/g3duiobjectlist.c \
                             common/g3duiobjectedit.c \

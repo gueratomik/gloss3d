@@ -42,7 +42,7 @@ void g3dmousetool_init ( G3DMOUSETOOL *gtool,
                          void (*draw) ( G3DMOUSETOOL *,
                                         G3DSCENE *, 
                                         uint64_t ),
-                         int  (*tool) ( G3DMOUSETOOL *, 
+                         int  (*event) ( G3DMOUSETOOL *, 
                                         G3DSCENE *,
                                         G3DCAMERA *, 
                                         G3DURMANAGER *,
@@ -59,7 +59,7 @@ void g3dmousetool_init ( G3DMOUSETOOL *gtool,
     gtool->icon  = icon;
     gtool->init  = G3DMOUSE_INITFUNC(init);
     gtool->draw  = G3DMOUSE_DRAWFUNC(draw);
-    gtool->tool  = G3DMOUSE_TOOLFUNC(tool);
+    gtool->event = G3DMOUSE_TOOLFUNC(event);
     gtool->key   = key;
     gtool->flags = flags;
 }
@@ -75,7 +75,7 @@ void m3dmousetool_init ( M3DMOUSETOOL *ltool,
                          void (*draw) ( G3DMOUSETOOL *,
                                         G3DSCENE *, 
                                         uint64_t ),
-                         int  (*tool) ( G3DMOUSETOOL *, 
+                         int  (*event) ( G3DMOUSETOOL *, 
                                         G3DSCENE *,
                                         G3DCAMERA *, 
                                         G3DURMANAGER *,
@@ -88,6 +88,6 @@ void m3dmousetool_init ( M3DMOUSETOOL *ltool,
                          icon,
                          init,
                          draw,
-                         tool,
+                         event,
                          flags );
 }

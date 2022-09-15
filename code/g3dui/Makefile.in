@@ -145,25 +145,25 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	common/g3duimateriallist.c common/g3duimaterialnameedit.c \
 	common/g3duimenu.c common/g3duimeshedit.c \
 	common/g3duimeshposelist.c common/g3duimodebar.c \
-	common/g3duiobjectboard.c common/g3duiobjectlist.c \
-	common/g3duiobjectedit.c common/g3duiparticleemitteredit.c \
-	common/m3duipatternlist.c common/g3duiplaneedit.c \
-	common/g3duiquad.c common/g3duirenderbuffer.c \
-	common/g3duirenderedit.c common/g3duirenderprocess.c \
-	common/g3duirenderwindow.c common/g3duisphereedit.c \
-	common/g3duisplinerevolveredit.c common/g3duisubdivideredit.c \
-	common/g3duisymmetryedit.c common/g3duitextedit.c \
-	common/g3duitextureedit.c common/g3duitimeboard.c \
-	common/g3duitimeline.c common/g3duitoolbar.c \
-	common/g3duitorusedit.c common/g3duitrackertagedit.c \
-	common/g3duitubeedit.c common/g3duiuvmapedit.c \
-	common/g3duiview.c common/g3duiviewexport.c \
-	common/g3duiweightgrouplist.c common/g3duiwireframeedit.c \
-	common/menu/condition.c common/menu/mainmenu.c \
-	common/menu/materialboardmenu.c common/menu/objectboardmenu.c \
-	common/menu/renderwindowmenu.c common/menu/timelinemenu.c \
-	common/menu/uveditormenu.c common/menu/viewmenu.c \
-	common/mousetool/m3duibuckettooledit.c \
+	common/g3duimousetool.c common/g3duiobjectboard.c \
+	common/g3duiobjectlist.c common/g3duiobjectedit.c \
+	common/g3duiparticleemitteredit.c common/m3duipatternlist.c \
+	common/g3duiplaneedit.c common/g3duiquad.c \
+	common/g3duirenderbuffer.c common/g3duirenderedit.c \
+	common/g3duirenderprocess.c common/g3duirenderwindow.c \
+	common/g3duisphereedit.c common/g3duisplinerevolveredit.c \
+	common/g3duisubdivideredit.c common/g3duisymmetryedit.c \
+	common/g3duitextedit.c common/g3duitextureedit.c \
+	common/g3duitimeboard.c common/g3duitimeline.c \
+	common/g3duitoolbar.c common/g3duitorusedit.c \
+	common/g3duitrackertagedit.c common/g3duitubeedit.c \
+	common/g3duiuvmapedit.c common/g3duiview.c \
+	common/g3duiviewexport.c common/g3duiweightgrouplist.c \
+	common/g3duiwireframeedit.c common/menu/condition.c \
+	common/menu/mainmenu.c common/menu/materialboardmenu.c \
+	common/menu/objectboardmenu.c common/menu/renderwindowmenu.c \
+	common/menu/timelinemenu.c common/menu/uveditormenu.c \
+	common/menu/viewmenu.c common/mousetool/m3duibuckettooledit.c \
 	common/mousetool/g3duicutmeshtooledit.c \
 	common/mousetool/m3duipentooledit.c \
 	common/mousetool/g3duipicktooledit.c \
@@ -201,6 +201,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	common/g3duimenu.lo common/g3duimeshedit.lo \
 @HAVE_GTK3_TRUE@	common/g3duimeshposelist.lo \
 @HAVE_GTK3_TRUE@	common/g3duimodebar.lo \
+@HAVE_GTK3_TRUE@	common/g3duimousetool.lo \
 @HAVE_GTK3_TRUE@	common/g3duiobjectboard.lo \
 @HAVE_GTK3_TRUE@	common/g3duiobjectlist.lo \
 @HAVE_GTK3_TRUE@	common/g3duiobjectedit.lo \
@@ -305,6 +306,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	common/$(DEPDIR)/g3duimeshedit.Plo \
 	common/$(DEPDIR)/g3duimeshposelist.Plo \
 	common/$(DEPDIR)/g3duimodebar.Plo \
+	common/$(DEPDIR)/g3duimousetool.Plo \
 	common/$(DEPDIR)/g3duiobjectboard.Plo \
 	common/$(DEPDIR)/g3duiobjectedit.Plo \
 	common/$(DEPDIR)/g3duiobjectlist.Plo \
@@ -573,6 +575,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            common/g3duimeshedit.c \
 @HAVE_GTK3_TRUE@                            common/g3duimeshposelist.c \
 @HAVE_GTK3_TRUE@                            common/g3duimodebar.c \
+@HAVE_GTK3_TRUE@                            common/g3duimousetool.c \
 @HAVE_GTK3_TRUE@                            common/g3duiobjectboard.c \
 @HAVE_GTK3_TRUE@                            common/g3duiobjectlist.c \
 @HAVE_GTK3_TRUE@                            common/g3duiobjectedit.c \
@@ -768,6 +771,8 @@ common/g3duimeshedit.lo: common/$(am__dirstamp) \
 common/g3duimeshposelist.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duimodebar.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/g3duimousetool.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
 common/g3duiobjectboard.lo: common/$(am__dirstamp) \
 	common/$(DEPDIR)/$(am__dirstamp)
@@ -980,6 +985,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimeshedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimeshposelist.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimodebar.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duimousetool.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiobjectboard.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiobjectedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/g3duiobjectlist.Plo@am__quote@ # am--include-marker
@@ -1256,6 +1262,7 @@ distclean: distclean-am
 	-rm -f common/$(DEPDIR)/g3duimeshedit.Plo
 	-rm -f common/$(DEPDIR)/g3duimeshposelist.Plo
 	-rm -f common/$(DEPDIR)/g3duimodebar.Plo
+	-rm -f common/$(DEPDIR)/g3duimousetool.Plo
 	-rm -f common/$(DEPDIR)/g3duiobjectboard.Plo
 	-rm -f common/$(DEPDIR)/g3duiobjectedit.Plo
 	-rm -f common/$(DEPDIR)/g3duiobjectlist.Plo
@@ -1397,6 +1404,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f common/$(DEPDIR)/g3duimeshedit.Plo
 	-rm -f common/$(DEPDIR)/g3duimeshposelist.Plo
 	-rm -f common/$(DEPDIR)/g3duimodebar.Plo
+	-rm -f common/$(DEPDIR)/g3duimousetool.Plo
 	-rm -f common/$(DEPDIR)/g3duiobjectboard.Plo
 	-rm -f common/$(DEPDIR)/g3duiobjectedit.Plo
 	-rm -f common/$(DEPDIR)/g3duiobjectlist.Plo

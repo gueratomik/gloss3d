@@ -31,7 +31,7 @@
 
 /******************************************************************************/
 void common_g3duisculpttooledit_setCircularCbk ( G3DUI *gui ) {
-    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->mou;
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->curmou->tool;
 
     if ( gui->lock ) return;
 
@@ -42,7 +42,7 @@ void common_g3duisculpttooledit_setCircularCbk ( G3DUI *gui ) {
 
 /******************************************************************************/
 void common_g3duisculpttooledit_unsetCircularCbk ( G3DUI *gui ) {
-    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->mou;
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->curmou->tool;
 
     if ( gui->lock ) return;
 
@@ -54,7 +54,7 @@ void common_g3duisculpttooledit_unsetCircularCbk ( G3DUI *gui ) {
 /******************************************************************************/
 void common_g3duisculpttooledit_setRadiusCbk ( G3DUI *gui,
                                                int    radius ) {
-    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->mou;
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->curmou->tool;
 
     if ( gui->lock ) return;
 
@@ -66,7 +66,7 @@ void common_g3duisculpttooledit_setRadiusCbk ( G3DUI *gui,
 /******************************************************************************/
 void common_g3duisculpttooledit_setPressureCbk ( G3DUI *gui,
                                                  float  pressure ) {
-    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->mou;
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->curmou->tool;
 
     if ( gui->lock ) return;
 
@@ -78,7 +78,7 @@ void common_g3duisculpttooledit_setPressureCbk ( G3DUI *gui,
 /******************************************************************************/
 void common_g3duisculpttooledit_onlyVisibleCbk ( G3DUI *gui,
                                                  int    visible ) {
-    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->mou;
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->curmou->tool;
 
     if ( gui->lock ) return;
 

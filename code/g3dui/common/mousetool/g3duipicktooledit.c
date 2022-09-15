@@ -33,7 +33,7 @@
 uint64_t g3duipicktooledit_paintRadiusCbk ( G3DUIPICKTOOLEDIT *ptedit,
                                             float              radius ) {
     G3DUI *gui = ptedit->gui;
-    G3DMOUSETOOL *mou = gui->mou;
+    G3DMOUSETOOL *mou = gui->curmou->tool;
     G3DMOUSETOOLPICK *pt = ( G3DMOUSETOOLPICK * ) mou;
 
     if ( pt ) {
@@ -47,7 +47,7 @@ uint64_t g3duipicktooledit_paintRadiusCbk ( G3DUIPICKTOOLEDIT *ptedit,
 uint64_t g3duipicktooledit_setWeightCbk ( G3DUIPICKTOOLEDIT *ptedit,
                                           float              weight ) {
     G3DUI *gui = ptedit->gui;
-    G3DMOUSETOOL *mou = gui->mou;
+    G3DMOUSETOOL *mou = gui->curmou->tool;
     G3DMOUSETOOLPICK *pt = ( G3DMOUSETOOLPICK * ) mou;
 
     if ( pt ) {
@@ -61,7 +61,7 @@ uint64_t g3duipicktooledit_setWeightCbk ( G3DUIPICKTOOLEDIT *ptedit,
 uint64_t g3duipicktooledit_onlyVisibleCbk ( G3DUIPICKTOOLEDIT *ptedit, 
                                             int                visible_only ) {
     G3DUI *gui = ptedit->gui;
-    G3DMOUSETOOL *mou = gui->mou;
+    G3DMOUSETOOL *mou = gui->curmou->tool;
     G3DMOUSETOOLPICK *pt = ( G3DMOUSETOOLPICK * ) mou;
 
     if ( pt ) {

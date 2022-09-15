@@ -472,7 +472,7 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
     G3DUI *gui = view->gui;
     G3DSCENE *sce = gui->sce;
     G3DCAMERA *cam = view->cam;
-    G3DMOUSETOOL  *mou = gui->mou;
+    G3DUIMOUSETOOL *mou = gui->curmou;
 
 #ifdef __linux__
     if ( glXMakeCurrent ( view->dpy,
@@ -613,8 +613,8 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
 
         /*** draw the mouse tool only in the current workspace window ***/
         if ( current ) {
-            if ( mou && mou->draw ) {
-                mou->draw ( mou, sce, engine_flags );
+            if ( mou && mou->tool->draw ) {
+                mou->tool->draw ( mou->tool, sce, engine_flags );
             }
         }
 

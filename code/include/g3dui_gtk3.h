@@ -123,18 +123,6 @@ typedef struct _G3DUIWIDGETGROUP {
 /******************************************************************************/
 typedef struct _GTK3G3DUI {
     G3DUI          core;
-    /* context menus for all objects */
-    LIST         *lObjectModeMenu;
-    /* context menus for meshes */
-    LIST         *lVertexModeMeshMenu;
-    LIST         *lEdgeModeMeshMenu;
-    LIST         *lFaceModeMeshMenu;
-    LIST         *lSculptModeMeshMenu;
-    /* context menu for splines */
-    LIST         *lVertexModeSplineMenu;
-    /* context menu for morphers */
-    LIST         *lVertexModeMorpherMenu;
-    /**********************/
     LIST         *lmtools; /*** list of mousetools widget ***/
     LIST         *lobjlist;
     LIST         *lmatlist;

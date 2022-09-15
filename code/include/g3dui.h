@@ -629,15 +629,37 @@ typedef struct _G3DUIQUAD         G3DUIQUAD;
 typedef struct _G3DUIMAIN         G3DUIMAIN;
 typedef struct _G3DUIBOARD        G3DUIBOARD;
 typedef struct _G3DUIRENDERWINDOW G3DUIRENDERWINDOW;
+typedef struct _G3DUIMOUSETOOL    G3DUIMOUSETOOL;
 
 /********************************* G3DUI **************************************/
 typedef struct _G3DUI {
-    G3DMOUSETOOL *mou; /*** current mouse tool ***/
-    G3DMOUSETOOL *uvmou; /*** current mouse tool for UV editor ***/
+    G3DUIMOUSETOOL *curmou; /*** current mouse tool ***/
+    G3DUIMOUSETOOL *curuvmou; /*** current mouse tool for UV editor ***/
     G3DUICLIPBOARD *cli;
     G3DSCENE     *sce;
     G3DUICONF     conf;
     uint64_t      engine_flags;
+
+    /* context menus for all objects */
+    LIST         *lObjectModeMenu;
+    /* context menus for meshes */
+    LIST         *lVertexModeMeshMenu;
+    LIST         *lEdgeModeMeshMenu;
+    LIST         *lFaceModeMeshMenu;
+    LIST         *lSculptModeMeshMenu;
+    /* context menu for splines */
+    LIST         *lVertexModeSplineMenu;
+    /* context menu for morphers */
+    LIST         *lVertexModeMorpherMenu;
+
+    G3DUIMENU *objectModeMenu;
+    G3DUIMENU *vertexModeMeshMenu;
+    G3DUIMENU *edgeModeMeshMenu;
+    G3DUIMENU *faceModeMeshMenu;
+    G3DUIMENU *sculptModeMeshMenu;
+    G3DUIMENU *vertexModeSplineMenu;
+    G3DUIMENU *vertexModeMorpherMenu;
+
 
     LIST         *limg; /*** List of images (among them are textures) ***/
     LIST         *lrps; /*** list of render process ***/
@@ -714,6 +736,13 @@ typedef struct _G3DUIMENU {
     void               *data;
     struct _G3DUIMENU **nodes;
 } G3DUIMENU;
+
+/******************************************************************************/
+typedef struct _G3DUIMOUSETOOL {
+    G3DMOUSETOOL *tool;
+    G3DUIMENU    *menu;
+    uint32_t     flags;
+} G3DUIMOUSETOOL;
 
 /******************************************************************************/
 typedef struct _G3DUITOOLBAR {
@@ -1378,13 +1407,13 @@ uint64_t            g3dui_openG3DFile ( G3DUI      *gui,
                                         const char *filename );
 void                g3dui_createDefaultCameras ( G3DUI *gui );
 void                g3dui_resetDefaultCameras ( G3DUI *gui );
-void                g3dui_addMouseTool ( G3DUI        *gui, 
-                                         G3DMOUSETOOL *mou );
-G3DMOUSETOOL       *g3dui_getMouseTool ( G3DUI      *gui, 
+void                g3dui_addMouseTool ( G3DUI          *gui, 
+                                         G3DUIMOUSETOOL *mou );
+G3DUIMOUSETOOL     *g3dui_getMouseTool ( G3DUI      *gui, 
                                          const char *name );
-uint32_t            g3dui_setMouseTool ( G3DUI        *gui, 
-                                         G3DCAMERA    *cam, 
-                                         G3DMOUSETOOL *mou );
+uint32_t            g3dui_setMouseTool ( G3DUI          *gui, 
+                                         G3DCAMERA      *cam, 
+                                         G3DUIMOUSETOOL *mou );
 void                g3dui_setFileName ( G3DUI      *gui, 
                                         const char *filename );
 void                g3dui_saveG3DFile ( G3DUI *gui );
@@ -1724,6 +1753,12 @@ uint64_t g3duimodebar_setMode ( G3DUIMODEBAR *gmb,
                                    const char   *modename );
 uint64_t m3duimodebar_setMode ( M3DUIMODEBAR *mmb, 
                                    const char   *modename );
+
+/******************************* g3duimousetool.c *****************************/
+G3DUIMOUSETOOL *g3duimousetool_new ( G3DMOUSETOOL *tool,
+                                     G3DUIMENU    *menu,
+                                     uint32_t      uiflags );
+void g3duimousetool_free ( G3DUIMOUSETOOL *mou );
 
 /******************************** g3duiobjectedit.c ***************************/
 

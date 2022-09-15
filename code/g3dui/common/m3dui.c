@@ -78,28 +78,28 @@ G3DIMAGE *m3dui_getWorkingImage ( M3DUI *mui ) {
 }
 
 /******************************************************************************/
-uint64_t m3dui_setUVMouseTool ( M3DUI        *mui, 
-                                G3DCAMERA    *cam, 
-                                G3DMOUSETOOL *mou ) {
+uint64_t m3dui_setUVMouseTool ( M3DUI          *mui, 
+                                G3DCAMERA      *cam, 
+                                G3DUIMOUSETOOL *mou ) {
     G3DUI *gui = mui->gui;
     uint32_t msk = 0x00;
 
     /*** Call the mouse tool initialization function once. This ***/
     /*** can be used by this function to initialize some values ***/
     if ( mou ) {
-        if ( mou->init ) {
-            msk = mou->init ( mou, 
-                              gui->sce,
-                             &mui->cam,
-                              gui->urm, 
-                              mui->engine_flags );
+        if ( mou->tool->init ) {
+            msk = mou->tool->init ( mou->tool, 
+                                    gui->sce,
+                                   &mui->cam,
+                                    gui->urm, 
+                                    mui->engine_flags );
         }
 
         if ( ( mou->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
-            gui->uvmou = mou;
+            gui->curuvmou = mou;
         }
     } else {
-        gui->uvmou = NULL;
+        gui->curuvmou = NULL;
     }
 
 

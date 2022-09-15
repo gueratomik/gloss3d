@@ -1913,41 +1913,83 @@ void g3dui_setFileName ( G3DUI      *gui,
 }
 
 /******************************************************************************/
-uint32_t g3dui_setMouseTool ( G3DUI        *gui, 
-                              G3DCAMERA    *cam, 
-                              G3DMOUSETOOL *mou ) {
+void g3dui_addMouseTool ( G3DUI          *gui, 
+                          G3DUIMOUSETOOL *mou ) {
+    list_insert ( &gui->lmou, mou );
+
+    if ( mou->flags & OBJECTMODETOOL ) {
+        list_insert ( &gui->lObjectModeMenu           , mou->menu );
+    }
+
+    if ( mou->flags & VERTEXMODETOOL ) {
+        if ( mou->flags & SPLINETOOL ) {
+            list_insert ( &gui->lVertexModeSplineMenu , mou->menu );
+        }
+
+        if ( mou->flags & MESHTOOL ) {
+            list_insert ( &gui->lVertexModeMeshMenu   , mou->menu );
+        }
+
+        if ( mou->flags & MORPHERTOOL ) {
+            list_insert ( &gui->lVertexModeMorpherMenu, mou->menu );
+        }
+    }
+
+    if ( mou->flags & EDGEMODETOOL ) {
+        if ( mou->flags & MESHTOOL ) {
+            list_insert ( &gui->lEdgeModeMeshMenu     , mou->menu );
+        }
+    }
+
+    if ( mou->flags & FACEMODETOOL ) {
+        if ( mou->flags & MESHTOOL ) {
+            list_insert ( &gui->lFaceModeMeshMenu     , mou->menu );
+        }
+    }
+
+    if ( mou->flags & SCULPTMODETOOL ) {
+        if ( mou->flags & MESHTOOL ) {
+            list_insert ( &gui->lSculptModeMeshMenu   , mou->menu );
+        }
+    }
+}
+
+/******************************************************************************/
+uint32_t g3dui_setMouseTool ( G3DUI          *gui, 
+                              G3DCAMERA      *cam, 
+                              G3DUIMOUSETOOL *mou ) {
     uint32_t msk = 0x00;
 
     /*** Call the mouse tool initialization function once. This ***/
     /*** can be used by this function to initialize some values ***/
     if ( mou ) {
-        if ( mou->init ) {
-            msk = mou->init ( mou, 
-                              gui->sce, 
-                              cam, 
-                              gui->urm,
-                              gui->engine_flags );
+        if ( mou->tool->init ) {
+            msk = mou->tool->init ( mou->tool, 
+                                    gui->sce, 
+                                    cam, 
+                                    gui->urm,
+                                    gui->engine_flags );
         }
 
-        if ( ( mou->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
-            gui->mou = mou;
+        if ( ( mou->tool->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
+            gui->curmou = mou;
         }
     } else {
-        gui->mou = NULL;
+        gui->curmou = NULL;
     }
 
     return msk;
 }
 
 /******************************************************************************/
-G3DMOUSETOOL *g3dui_getMouseTool ( G3DUI      *gui, 
-                                   const char *name ) {
+G3DUIMOUSETOOL *g3dui_getMouseTool ( G3DUI      *gui, 
+                                     const char *name ) {
     LIST *ltmp = gui->lmou;
 
     while ( ltmp ) {
-        G3DMOUSETOOL *mou = ( G3DMOUSETOOL * ) ltmp->data;
+        G3DUIMOUSETOOL *mou = ( G3DUIMOUSETOOL * ) ltmp->data;
 
-        if ( strcmp ( mou->name, name ) == 0x00 ) {
+        if ( strcmp ( mou->tool->name, name ) == 0x00 ) {
 
             return mou;
         }
@@ -1956,12 +1998,6 @@ G3DMOUSETOOL *g3dui_getMouseTool ( G3DUI      *gui,
     }
 
     return NULL;
-}
-
-/******************************************************************************/
-void g3dui_addMouseTool ( G3DUI        *gui, 
-                          G3DMOUSETOOL *mou ) {
-    list_insert ( &gui->lmou, mou );
 }
 
 /******************************************************************************/

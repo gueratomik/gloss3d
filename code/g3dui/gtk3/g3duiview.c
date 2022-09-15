@@ -36,10 +36,6 @@
 #include <xpm/zoom_view.xpm>
 
 /******************************************************************************/
-static void PostMenu     ( GtkWidget *, GdkEvent *, gpointer );
-static void cancelRender ( GtkWidget *, G3DUI * );
-
-/******************************************************************************/
 void gdkevent_to_g3devent ( GdkEvent *gdkev, G3DEvent *g3dev ) {
     memset ( g3dev, 0x00, sizeof ( G3DEvent ) );
 
@@ -98,9 +94,147 @@ void gdkevent_to_g3devent ( GdkEvent *gdkev, G3DEvent *g3dev ) {
 }
 
 /******************************************************************************/
+/*** for some unknown reason, the gtk_popup_menu does not position my menu ***/
+/*** correctly on dual monitor configuration, so I had to make this trick ***/
+void SetMenuPosition ( GtkMenu *menu, gint *x,
+                                      gint *y,
+                                      gboolean *push_in,
+                                      gpointer user_data ) {
+    GdkEventButton *bev = ( GdkEventButton  * ) user_data;
+    GdkScreen *scr = gdk_screen_get_default ( );
+    gint mx, my;
+    int mon = gdk_screen_get_monitor_at_window ( scr, bev->window );
+
+    gtk_menu_set_monitor ( menu, mon );
+
+    gdk_window_get_origin ( bev->window, &mx, &my );
+    /*gdk_window_get_device_position ( bev->window, bev->device,
+                                                 &mx,
+                                                 &my,
+                                                  NULL );*/
+
+    (*x) = mx + bev->x;
+    (*y) = my + bev->y;
+}
+
+/******************************************************************************/
+static void PostMenu ( GTK3G3DUI *gtk3gui,
+                       GdkEvent  *event ) {
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+    GdkEventButton *bev      = ( GdkEventButton * ) event;
+    G3DOBJECT      *selObj   = g3dscene_getSelectedObject ( gui->sce );
+    GTK3G3DUIMENU *node = NULL;
+
+
+    if ( gui->engine_flags & VIEWOBJECT ) {
+        node = ( GTK3G3DUIMENU * ) gui->objectModeMenu;
+    }
+
+    if ( selObj ) {
+        if ( gui->engine_flags & VIEWVERTEX ) {
+            if ( selObj->type == G3DSPLINETYPE ) {
+                node = ( GTK3G3DUIMENU * ) gui->vertexModeSplineMenu;
+            }
+
+            if ( selObj->type == G3DMESHTYPE ) {
+                node = ( GTK3G3DUIMENU * ) gui->vertexModeMeshMenu;
+            }
+
+            if ( selObj->type == G3DMORPHERTYPE ) {
+                node = ( GTK3G3DUIMENU * ) gui->vertexModeMorpherMenu;
+            }
+        }
+
+        if ( gui->engine_flags & VIEWEDGE ) {
+            if ( selObj->type == G3DMESHTYPE ) {
+                node = ( GTK3G3DUIMENU * ) gui->edgeModeMeshMenu;
+            }
+        }
+
+        if ( gui->engine_flags & VIEWFACE ) {
+            if ( selObj->type == G3DMESHTYPE ) {
+                node = ( GTK3G3DUIMENU * ) gui->faceModeMeshMenu;
+            }
+        }
+
+        if ( gui->engine_flags & VIEWSCULPT ) {
+            if ( selObj->type == G3DSUBDIVIDERTYPE ) {
+                node = ( GTK3G3DUIMENU * ) gui->sculptModeMeshMenu;
+            }
+        }
+    }
+
+#ifdef unused
+    while ( ltmpmenu ) {
+        GtkWidget *menu = ( GtkWidget * ) ltmpmenu->data;
+
+        if ( gui->engine_flags & VIEWOBJECT ) {
+            if ( strcmp ( gtk_widget_get_name ( menu ), OBJECTMENUNAME ) == 0x00 ) curmenu = menu;
+        }
+
+        if ( selObj ) {
+            if ( gui->engine_flags & VIEWVERTEX ) {
+                if ( selObj->type == G3DSPLINETYPE ) {
+                    if ( strcmp ( gtk_widget_get_name ( menu ), VERTEXMODESPLINEMENUNAME ) == 0x00 ) curmenu = menu;
+                }
+
+                if ( selObj->type == G3DMESHTYPE ) {
+                    if ( strcmp ( gtk_widget_get_name ( menu ), VERTEXMODEMESHMENUNAME ) == 0x00 ) curmenu = menu;
+                }
+
+                if ( selObj->type == G3DMORPHERTYPE ) {
+                    if ( strcmp ( gtk_widget_get_name ( menu ), VERTEXMODEMORPHERMENUNAME ) == 0x00 ) curmenu = menu;
+                }
+            }
+
+            if ( gui->engine_flags & VIEWEDGE ) {
+                if ( selObj->type == G3DMESHTYPE ) {
+                    if ( strcmp ( gtk_widget_get_name ( menu ), EDGEMODEMESHMENUNAME   ) == 0x00 ) curmenu = menu;
+                }
+            }
+
+            if ( gui->engine_flags & VIEWFACE ) {
+                if ( selObj->type == G3DMESHTYPE ) {
+                    if ( strcmp ( gtk_widget_get_name ( menu ), FACEMODEMESHMENUNAME   ) == 0x00 ) curmenu = menu;
+                }
+            }
+
+            if ( gui->engine_flags & VIEWSCULPT ) {
+                if ( selObj->type == G3DSUBDIVIDERTYPE ) {
+                    if ( strcmp ( gtk_widget_get_name ( menu ), SCULPTMODEMESHMENUNAME   ) == 0x00 ) curmenu = menu;
+                }
+            }
+        } 
+
+        ltmpmenu = ltmpmenu->next;
+    }
+#endif
+
+    if ( node ) {
+        /*gtk_menu_popup_for_device ( GTK_MENU ( curmenu ), bev->device, 
+                                                          NULL, 
+                                                          NULL, 
+                                                          NULL, 
+                                                          NULL,
+                                                          NULL,
+                                                          bev->button,
+                                                          gdk_event_get_time( ( GdkEvent * ) event ) );*/
+
+        gtk_menu_popup ( GTK_MENU ( node->menu ), 
+                         NULL, 
+                         NULL,
+                         SetMenuPosition,
+                         bev,
+                         bev->button,
+                         gdk_event_get_time( ( GdkEvent * ) event ) );
+    }
+}
+
+
+/******************************************************************************/
 static gboolean inputGL ( GtkWidget *widget, 
-                               GdkEvent *gdkev, 
-                               gpointer user_data ) {
+                          GdkEvent  *gdkev, 
+                          gpointer   user_data ) {
     GTK3G3DUIVIEW *gtk3view =  ( GTK3G3DUIVIEW * ) user_data;
     G3DUIVIEW     *view     = &gtk3view->core;
     G3DUI         *gui      = view->gui;
@@ -110,21 +244,32 @@ static gboolean inputGL ( GtkWidget *widget,
     if ( gui->currentView !=  ( G3DUIVIEW * ) gtk3view ) {
         gui->currentView = ( G3DUIVIEW * ) gtk3view;
 
+        /*** foirce redrawing the frame around the current view ***/
         gtk_widget_queue_draw ( gtk3quad->layout );
     }
 
-    if ( gui->mou ) {
+    if ( gdkev->type == GDK_BUTTON_PRESS ) {
+        GdkEventButton *bev = ( GdkEventButton * ) gdkev;
+
+        if ( bev->button == 3 ) {
+            PostMenu ( gtk3gui, gdkev );
+
+            return TRUE;
+        }
+    }
+
+    if ( gui->curmou ) {
         /*** Call the mousetool callback and redraw if return value is > 0 ***/
         G3DEvent g3dev;
 
         gdkevent_to_g3devent ( gdkev, &g3dev );
 
-        if ( gui->mou->tool ) {
-            uint32_t msk = gui->mou->tool ( gui->mou, 
-                                            gui->sce,
-                                            view->cam, 
-                                            gui->urm,
-                                            gui->engine_flags, &g3dev );
+        if ( gui->curmou->tool->event ) {
+            uint32_t msk = gui->curmou->tool->event ( gui->curmou->tool, 
+                                                   gui->sce,
+                                                   view->cam, 
+                                                   gui->urm,
+                                                   gui->engine_flags, &g3dev );
 
             gtk3_interpretUIReturnFlags ( gtk3gui, msk );
 
@@ -1256,18 +1401,18 @@ gboolean gtk3_inputGL ( GtkWidget *widget,
         break;
     }
 
-    if ( gui->mou ) {
+    if ( gui->curmou ) {
         /*** Call the mousetool callback and redraw if return value is > 0 ***/
         G3DEvent g3dev;
 
         gdkevent_to_g3devent ( gdkev, &g3dev );
 
-        if ( gui->mou->tool ) {
-            uint32_t msk = gui->mou->tool ( gui->mou, 
-                                            gui->sce,
-                                            view->cam, 
-                                            gui->urm,
-                                            gui->engine_flags, &g3dev );
+        if ( gui->curmou->tool->event ) {
+            uint32_t msk = gui->curmou->tool->event ( gui->curmou->tool, 
+                                                   gui->sce,
+                                                   view->cam, 
+                                                   gui->urm,
+                                                   gui->engine_flags, &g3dev );
 
             gtk3_interpretUIReturnFlags ( gui, msk );
 

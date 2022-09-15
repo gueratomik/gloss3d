@@ -87,7 +87,7 @@
 
 #define EDITRENDERTEXTURINGFRAME       "Texturing"
 #define EDITRENDERTEXTURINGCOLOR       "Mesh default color"
-#define EDITRENDERTEXTURING            "Disable texturing"
+#define EDITRENDERTEXTURING            "Disable"
 
 #define WINWIDTH 320
 
