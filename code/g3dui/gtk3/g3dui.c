@@ -1579,9 +1579,13 @@ void gtk3_initDefaultMouseTools ( GTK3G3DUI *gtk3gui ) {
                  *scaleTool              = g3dmousetoolscale_new ( ),
                  *rotateTool             = g3dmousetoolrotate_new ( ),
                  *pickUVTool             = g3dmousetoolpickUV_new ( ),
-                 *umoveUVTool            = g3dmousetoolmoveUV_new ( ),
+                 *moveUVTool             = g3dmousetoolmoveUV_new ( ),
                  *scaleUVTool            = g3dmousetoolscaleUV_new ( ),
                  *rotateUVTool           = g3dmousetoolrotateUV_new ( );
+
+#ifdef TODO
+/*g3dmousetoolremovevertexpose_new*/
+#endif
 
     G3DUIMENU pickToolMenu         = { .name      = pickTool->name,
                                        .class     = CLASS_MAIN,
@@ -1784,6 +1788,105 @@ void gtk3_initDefaultMouseTools ( GTK3G3DUI *gtk3gui ) {
 
     /*******************************************/
 
+
+    g3dui_addMouseTool ( gui, g3duimousetool_new (  unsculptTool,
+                                                   &unsculptToolMenu,
+                                                    SCULPTMODETOOL | 
+                                                    MESHTOOL     |
+                                                    GLMENUTOOL ) );
+
+    g3dui_addMouseTool ( gui, g3duimousetool_new (  sculptCreaseTool,
+                                                   &sculptCreaseToolMenu,
+                                                    SCULPTMODETOOL | 
+                                                    MESHTOOL     |
+                                                    GLMENUTOOL ) );
+
+    g3dui_addMouseTool ( gui, g3duimousetool_new (  sculptInflateTool,
+                                                   &sculptInflateToolMenu,
+                                                    SCULPTMODETOOL | 
+                                                    MESHTOOL     |
+                                                    GLMENUTOOL ) );
+
+    g3dui_addMouseTool ( gui, g3duimousetool_new (  createFacegroupTool,
+                                                   &createFacegroupToolMenu,
+                                                    FACEMODETOOL |
+                                                    MESHTOOL     | 
+                                                    GLMENUTOOL ) );
+
+    g3dui_addMouseTool ( gui, g3duimousetool_new (  invertNormalTool,
+                                                   &invertNormalToolMenu,
+                                                    FACEMODETOOL |
+                                                    MESHTOOL     | 
+                                                    GLMENUTOOL ) );
+
+    g3dui_addMouseTool ( gui, g3duimousetool_new (  weldNeighboursTool,
+                                                   &weldNeighboursToolMenu,
+                                                    VERTEXMODETOOL |
+                                                    MESHTOOL     | 
+                                                    GLMENUTOOL ) );
+
+    g3dui_addMouseTool ( gui, g3duimousetool_new (  weldVerticesTool,
+                                                   &weldVerticesToolMenu,
+                                                    VERTEXMODETOOL |
+                                                    MESHTOOL     | 
+                                                    GLMENUTOOL ) );
+
+    g3dui_addMouseTool ( gui, g3duimousetool_new (  roundSplinePointTool,
+                                                   &roundSplinePointToolMenu,
+                                                    VERTEXMODETOOL |
+                                                    SPLINETOOL     | 
+                                                    GLMENUTOOL ) );
+
+    g3dui_addMouseTool ( gui, g3duimousetool_new (  triangulateTool,
+                                                   &triangulateToolMenu,
+                                                    FACEMODETOOL | 
+                                                    MESHTOOL     |
+                                                    GLMENUTOOL ) );
+
+    g3dui_addMouseTool ( gui, g3duimousetool_new (  untriangulateTool,
+                                                   &untriangulateToolMenu,
+                                                    FACEMODETOOL | 
+                                                    MESHTOOL     |
+                                                    GLMENUTOOL ) );
+
+    g3dui_addMouseTool ( gui, g3duimousetool_new (  extrudeInnerTool,
+                                                   &extrudeInnerToolMenu,
+                                                    FACEMODETOOL | 
+                                                    MESHTOOL     |
+                                                    GLMENUTOOL ) );
+
+    g3dui_addMouseTool ( gui, g3duimousetool_new (  extrudeFaceTool,
+                                                   &extrudeFaceToolMenu,
+                                                    FACEMODETOOL | 
+                                                    MESHTOOL     |
+                                                    GLMENUTOOL ) );
+
+    g3dui_addMouseTool ( gui, g3duimousetool_new (  bridgeVertexTool,
+                                                   &bridgeVertexToolMenu,
+                                                    VERTEXMODETOOL |
+                                                    MESHTOOL       |
+                                                    SPLINETOOL     |
+                                                    GLMENUTOOL ) );
+
+    g3dui_addMouseTool ( gui, g3duimousetool_new (  revertSplineTool,
+                                                   &revertSplineToolMenu,
+                                                    VERTEXMODETOOL |
+                                                    SPLINETOOL     |
+                                                    GLMENUTOOL ) );
+
+    g3dui_addMouseTool ( gui, g3duimousetool_new (  revertSplineTool,
+                                                   &revertSplineToolMenu,
+                                                    VERTEXMODETOOL |
+                                                    SPLINETOOL     |
+                                                    GLMENUTOOL ) );
+
+    g3dui_addMouseTool ( gui, g3duimousetool_new (  createVertexTool,
+                                                   &createVertexToolMenu,
+                                                    VERTEXMODETOOL |
+                                                    MESHTOOL       |
+                                                    SPLINETOOL     |
+                                                    GLMENUTOOL ) );
+
     g3dui_addMouseTool ( gui, g3duimousetool_new (  cutMeshTool,
                                                    &cutMeshToolMenu,
                                                     VERTEXMODETOOL | 
@@ -1793,16 +1896,15 @@ void gtk3_initDefaultMouseTools ( GTK3G3DUI *gtk3gui ) {
                                                     SPLINETOOL     |
                                                     GLMENUTOOL ) );
 
+    /*******************************************/
 
-
-
-
-
-
-
-
-
-
+    g3dui_addMouseTool ( gui, g3duimousetool_new ( moveTool    , NULL, 0x00 ) );
+    g3dui_addMouseTool ( gui, g3duimousetool_new ( scaleTool   , NULL, 0x00 ) );
+    g3dui_addMouseTool ( gui, g3duimousetool_new ( rotateTool  , NULL, 0x00 ) );
+    g3dui_addMouseTool ( gui, g3duimousetool_new ( pickUVTool  , NULL, 0x00 ) );
+    g3dui_addMouseTool ( gui, g3duimousetool_new ( moveUVTool  , NULL, 0x00 ) );
+    g3dui_addMouseTool ( gui, g3duimousetool_new ( scaleUVTool , NULL, 0x00 ) );
+    g3dui_addMouseTool ( gui, g3duimousetool_new ( rotateUVTool, NULL, 0x00 ) );
 
     gtk3_buildContextMenus ( gtk3gui, NULL );
 
