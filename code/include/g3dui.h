@@ -1010,6 +1010,28 @@ typedef struct _G3DUIMATERIALBOARD {
 } G3DUIMATERIALBOARD;
 
 /******************************************************************************/
+typedef struct _G3DUIMATERIALLIST {
+    G3DUI   *gui;
+    LIST    *lpreview;
+    uint32_t image_width;
+    uint32_t image_height;
+    uint32_t preview_width;
+    uint32_t preview_height;
+    uint32_t preview_border;
+    uint32_t preview_name_height;
+} G3DUIMATERIALLIST;
+
+/************************** GTK MaterialList Widget ***************************/
+typedef struct _G3DUIMATERIALPREVIEW {
+    /*** The vector map that helps us to build the preview sphere ***/
+    /*** This is per-preview because we need individual maps in case ***/
+    /*** normal vectors are affected by bump maps for instance ***/
+    G3DUIMATERIALMAP *map;
+    G3DUIRECTANGLE    rec;
+    G3DMATERIAL      *mat;
+} G3DUIMATERIALPREVIEW;
+
+/******************************************************************************/
 typedef struct _G3DUIOBJECTBOARD {
     G3DUI            *gui;
     G3DUIRECTANGLE    menurec;
@@ -1318,13 +1340,6 @@ typedef struct _PICKEDOBJECT {
     uint32_t picked; 
 } PICKEDOBJECT;
 
-/******************************************************************************/
-typedef struct _OBJECTLISTPRIVATEDATA {
-    G3DUI *gui;
-    uint32_t oldWidth, oldHeight;
-} OBJECTLISTPRIVATEDATA;
-
-
 /****************************** Material Previews *****************************/
 /******************************************************************************/
 #define VECNORMMAX 1.001f
@@ -1345,18 +1360,6 @@ typedef struct _G3DUIMATERIALMAP {
     uint32_t width;
     uint32_t height;
 } G3DUIMATERIALMAP;
-
-/******************************************************************************/
-typedef struct _MATERIALLISTDATA {
-    /*** List of material previews (those are ToolKit related) ***/
-    LIST *lpreview;
-    uint32_t image_width;
-    uint32_t image_height;
-    uint32_t preview_width;
-    uint32_t preview_height;
-    uint32_t preview_border;
-    uint32_t preview_name_height;
-} MATERIALLISTDATA;
 
 /******************************************************************************/
 #define NBPATTERNS 0x0C
@@ -1399,6 +1402,7 @@ typedef struct _M3DUIPATTERNLIST {
 /********************************** g3dui.c ***********************************/
 
 G3DCAMERA          *g3dui_getMainViewCamera ( G3DUI *gui );
+void g3dui_initDefaultMouseTools ( G3DUI *gui );
 uint64_t            g3dui_undo ( G3DUI *gui );
 uint64_t            g3dui_redo ( G3DUI *gui );
 void                g3dui_init ( G3DUI     *gui,
@@ -1673,10 +1677,6 @@ uint64_t g3duilightedit_setDiffuse ( G3DUILIGHTEDIT *ligedit,
                                         uint32_t        green,
                                         uint32_t        blue );
 
-/******************************* g3duiobjectlist.c ****************************/
-
-
-
 /********************************* g3duimain.c ********************************/
 
 void g3duimain_resize ( G3DUIMAIN *gmn, 
@@ -1684,6 +1684,10 @@ void g3duimain_resize ( G3DUIMAIN *gmn,
                         uint32_t   height );
 
 /***************************** g3duimaterialboard.c ***************************/
+
+void g3duimaterialboard_resize ( G3DUIMATERIALBOARD *matboard, 
+                                 uint32_t            width,
+                                 uint32_t            height );
 
 /****************************** g3duimaterialedit.c ***************************/
 
@@ -1734,6 +1738,40 @@ uint64_t g3duimaterialedit_toggleAlpha ( G3DUIMATERIALEDIT *matedit );
 
 /****************************** g3duimateriallist.c ***************************/
 
+void g3duimateriallist_init ( G3DUIMATERIALLIST *matlist,
+                              G3DUI             *gui,
+                              uint32_t           image_width,
+                              uint32_t           image_height );
+G3DUIMATERIALPREVIEW *g3duimateriallist_pickPreview ( G3DUIMATERIALLIST *matlist,
+                                                      uint32_t           x,
+                                                      uint32_t           y );
+uint32_t g3duimateriallist_arrangePreviews ( G3DUIMATERIALLIST *matlist,
+                                             uint32_t           win_x,
+                                             uint32_t           win_y,
+                                             uint32_t           win_width,
+                                             uint32_t           win_height );
+G3DUIMATERIALPREVIEW *g3duimateriallist_getPreview ( G3DUIMATERIALLIST *matlist,
+                                                     G3DMATERIAL       *mat );
+void g3duimateriallist_removePreview ( G3DUIMATERIALLIST *matlist, 
+                                       G3DMATERIAL       *mat );
+void g3duimateriallist_getPreview ( G3DUIMATERIALLIST *matlist, 
+                                    G3DMATERIAL       *mat );
+void g3duimateriallist_removeAllPreviews ( G3DUIMATERIALLIST *matlist );
+G3DUIMATERIALMAP *g3duimaterialmap_new ( uint32_t width,
+                                         uint32_t height );
+void g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
+                                    G3DMATERIAL      *mat,
+                                    float             radius );
+void g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
+                                 G3DMATERIAL      *mat,
+                                 unsigned char (*data)[3] );
+void g3duimateriallist_removeMaterial ( G3DUIMATERIALLIST *matlist,
+                                        G3DSCENE          *sce,
+                                        G3DURMANAGER      *urm,
+                                        G3DMATERIAL       *mat );
+void g3duimateriallist_addPreview ( G3DUIMATERIALLIST    *matlist, 
+                                    G3DUIMATERIALPREVIEW *preview );
+
 /*************************** g3duimaterialnameedit.c **************************/
 
 /********************************* g3duimenu.c ********************************/
@@ -1766,9 +1804,40 @@ uint64_t g3duiobjectedit_name ( G3DUIOBJECTEDIT *goe,
                                    const char      *name );
 
 /******************************** g3duiobjectboard.c **************************/
+
 void g3duiobjectboard_resize ( G3DUIOBJECTBOARD *objbrd, 
                                uint32_t          width,
                                uint32_t          height );
+
+/******************************* g3duiobjectlist.c ****************************/
+
+LISTEDOBJECT *g3duiobjectlist_sizeListedObject ( G3DUIOBJECTLIST *objlis,
+                                                 G3DOBJECT       *obj, 
+                                                 uint32_t         x, 
+                                                 uint32_t         y,
+                                                 uint32_t         xsep,
+                                                 uint32_t         strwidth,
+                                                 uint32_t         query_flags );
+void g3duiobjectlist_init ( G3DUIOBJECTLIST *objlist, G3DUI *gui );
+
+uint32_t g3duiobjectlist_initListedObject ( G3DUIOBJECTLIST *objlis,
+                                            LISTEDOBJECT    *lob,
+                                            uint32_t         x, 
+                                            uint32_t         y,
+                                            uint32_t         strwidth );
+
+PICKEDOBJECT *g3duiobjectlist_pickObject ( G3DUIOBJECTLIST *objlist,
+                                           uint32_t         x, 
+                                           uint32_t         y,
+                                           uint32_t         xsep,
+                                           uint32_t         xm,
+                                           uint32_t         ym,
+                                           uint32_t         strwidth,
+                                           G3DOBJECT       *obj,
+                                           G3DSCENE        *sce,
+                                           G3DURMANAGER    *urm,
+                                           uint32_t         pick_flags,
+                                           uint64_t         engine_flags );
 
 /*************************** g3duiparticleemitteredit.c ***********************/
 

@@ -1301,6 +1301,35 @@ static void gtk3_updateObjectEdit ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
+static void gtk3_redrawObjectList ( GTK3G3DUI *gtk3gui ) {
+    if (  gtk3gui->core.main ) {
+        G3DUIMAIN *main = ( G3DUIMAIN * ) gtk3gui->core.main;
+
+        if (  main ) {
+            G3DUIBOARD *board = main->board;
+
+            if ( board ) {
+                G3DUIOBJECTBOARD *objboard = board->objboard;
+
+                if ( objboard ) {
+                    G3DUIOBJECTLIST *objlist = objboard->objlist;
+                    GTK3G3DUIOBJECTLIST *gtk3objlist = ( GTK3G3DUIOBJECTLIST * ) objlist;
+
+                    if ( gtk3objlist ) {
+                        GdkRectangle arec;
+
+                        arec.x = arec.y = 0x00;
+                        arec.width = arec.height = 1;
+
+                        gtk_widget_queue_draw ( gtk3objlist->area );
+                    }
+                }
+            }
+        }
+    }
+}
+
+/******************************************************************************/
 static void gtk3_updateGLViewsMenu ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) &gtk3gui->core;
     LIST *ltmpview = gtk3gui->core.lview;
@@ -1372,7 +1401,7 @@ static GTK3G3DUIMENU *buildMenuFromList ( LIST  *lmenu,
                                           G3DUI *gui, 
                                           void  *data ) {
     uint32_t nbitems = list_count ( lmenu );
-    GTK3G3DUIMENU *retmenu = NULL;;
+    GTK3G3DUIMENU *retmenu = NULL;
     static G3DUIMENU rootnode = { NULL,
                                   "Context Menu",
                                   MENU_CLASS_MAIN,
@@ -1382,6 +1411,7 @@ static GTK3G3DUIMENU *buildMenuFromList ( LIST  *lmenu,
                                  .nodes = NULL };
 
     if ( nbitems ) {
+        /*** build a temporary menu array ready for parsing ****/
         /*** note: last item is NULL ****/
         G3DUIMENU **items = calloc ( nbitems + 0x01, sizeof ( G3DUIMENU * ) );
         LIST *ltmpmenu = lmenu;
@@ -1397,6 +1427,7 @@ static GTK3G3DUIMENU *buildMenuFromList ( LIST  *lmenu,
 
         rootnode.nodes = items;
 
+        /*** then parse it ***/
         retmenu = gtk3_g3duimenu_parse_r ( &rootnode, gui, data );
 
         free ( items );
@@ -1487,6 +1518,11 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
     if ( msk & CREATERENDEREDIT ) {
         gtk3_createRenderEdit ( gtk3gui );
     }
+
+    if ( msk & REDRAWLIST ) {
+        gtk3_redrawObjectList ( gtk3gui );
+    }
+
 #ifdef TODO
     if ( msk & REDRAWCURRENTMATERIAL ) {
         gtk3_updateMaterialEdit ( );
@@ -1511,10 +1547,6 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
         gtk3_updateMenuBar    ( );
     }
 
-    if ( msk & REDRAWLIST ) {
-        gtk3_redrawObjectList ( );
-    }
-
     if ( msk & REDRAWCURRENTMOUSETOOL ) {
         gtk3_updateAllCurrentMouseTools ( );
     }
@@ -1535,376 +1567,11 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
 #endif
 }
 
-/******************************************************************************/
-static uint64_t setMouseToolCbk ( G3DUIMENU *menu, 
-                                  void      *data ) {
-    g3dui_setMouseTool ( menu->gui, 
-                         menu->gui->currentView->cam, 
-                         g3dui_getMouseTool ( menu->gui, menu->name ) );
-
-    return 0x00;
-}
 
 /******************************************************************************/
 void gtk3_initDefaultMouseTools ( GTK3G3DUI *gtk3gui ) {
-    G3DUI *gui = ( G3DUI * ) gtk3gui;
-    G3DMOUSETOOL *pickTool               = g3dmousetoolpick_new ( ),
-                 *createSphereTool       = g3dmousetoolcreatesphere_new ( ),
-                 *createCubeTool         = g3dmousetoolcreatecube_new ( ),
-                 *createPlaneTool        = g3dmousetoolcreateplane_new ( ),
-                 *createCylinderTool     = g3dmousetoolcreatecylinder_new ( ),
-                 *createTubeTool         = g3dmousetoolcreatetube_new ( ),
-                 *createTorusTool        = g3dmousetoolcreatetorus_new ( ),
-                 *createBoneTool         = g3dmousetoolcreatebone_new ( ),
-                 *createMakeEditableTool = g3dmousetoolmakeeditable_new ( ),
 
-                 *cutMeshTool            = g3dmousetoolcutmesh_new ( ),
-                 *createVertexTool       = g3dmousetoolcreatevertex_new ( ),
-                 *revertSplineTool       = g3dmousetoolrevertspline_new ( ),
-                 *bridgeVertexTool       = g3dmousetoolbridge_new ( ),
-                 *extrudeFaceTool        = g3dmousetoolextrudeface_new ( ),
-                 *extrudeInnerTool       = g3dmousetoolextrudeinner_new ( ),
-                 *untriangulateTool      = g3dmousetooluntriangulate_new ( ),
-                 *triangulateTool        = g3dmousetooltriangulate_new ( ),
-                 *roundSplinePointTool   = g3dmousetoolroundsplinepoint_new ( ),
-                 *weldVerticesTool       = g3dmousetoolweldvertices_new ( ),
-                 *weldNeighboursTool     = g3dmousetoolweldneighbours_new ( ),
-                 *invertNormalTool       = g3dmousetoolinvertnormal_new ( ),
-                 *createFacegroupTool    = g3dmousetoolcreatefacegroup_new ( ),
-                 *sculptInflateTool      = g3dmousetoolsculpt_new ( SCULPTINFLATE ),
-                 *sculptCreaseTool       = g3dmousetoolsculpt_new ( SCULPTCREASE ),
-                 *unsculptTool           = g3dmousetoolsculpt_new ( SCULPTUNSCULPT ),
-
-                 *moveTool               = g3dmousetoolmove_new ( ),
-                 *scaleTool              = g3dmousetoolscale_new ( ),
-                 *rotateTool             = g3dmousetoolrotate_new ( ),
-                 *pickUVTool             = g3dmousetoolpickUV_new ( ),
-                 *moveUVTool             = g3dmousetoolmoveUV_new ( ),
-                 *scaleUVTool            = g3dmousetoolscaleUV_new ( ),
-                 *rotateUVTool           = g3dmousetoolrotateUV_new ( );
-
-#ifdef TODO
-/*g3dmousetoolremovevertexpose_new*/
-#endif
-
-    G3DUIMENU pickToolMenu         = { .name      = pickTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-              createSphereToolMenu = { .name      = createSphereTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-              createCubeToolMenu   = { .name      = createCubeTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-              createPlaneToolMenu  = { .name      = createPlaneTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-            createCylinderToolMenu = { .name      = createCylinderTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-                createTubeToolMenu = { .name      = createTubeTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-               createTorusToolMenu = { .name      = createTorusTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-                createBoneToolMenu = { .name      = createBoneTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-        createMakeEditableToolMenu = { .name      = createMakeEditableTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-                   cutMeshToolMenu = { .name      = cutMeshTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-              createVertexToolMenu = { .name      = createVertexTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-              revertSplineToolMenu = { .name      = revertSplineTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-              bridgeVertexToolMenu = { .name      = bridgeVertexTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-               extrudeFaceToolMenu = { .name      = extrudeFaceTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-              extrudeInnerToolMenu = { .name      = extrudeInnerTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-             untriangulateToolMenu = { .name      = untriangulateTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-               triangulateToolMenu = { .name      = triangulateTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-          roundSplinePointToolMenu = { .name      = roundSplinePointTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-              weldVerticesToolMenu = { .name      = weldVerticesTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-            weldNeighboursToolMenu = { .name      = weldNeighboursTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-              invertNormalToolMenu = { .name      = invertNormalTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-           createFacegroupToolMenu = { .name      = createFacegroupTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-             sculptInflateToolMenu = { .name      = sculptInflateTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-              sculptCreaseToolMenu = { .name      = sculptCreaseTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL },
-                  unsculptToolMenu = { .name      = unsculptTool->name,
-                                       .class     = CLASS_MAIN,
-                                       .type      = G3DUIMENUTYPE_PUSHBUTTON,
-                                       .condition = NULL,
-                                       .callback  = setMouseToolCbk,
-                                       .data      = NULL };
-
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  pickTool,
-                                                    NULL,
-                                                    0x00 ) );
-
-
-    /*******************************************/
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  createMakeEditableTool,
-                                                   &createMakeEditableToolMenu,
-                                                    OBJECTMODETOOL | 
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  createBoneTool,
-                                                   &createBoneToolMenu,
-                                                    OBJECTMODETOOL | 
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  createTorusTool,
-                                                   &createTorusToolMenu,
-                                                    OBJECTMODETOOL | 
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  createTubeTool,
-                                                   &createTubeToolMenu,
-                                                    OBJECTMODETOOL | 
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  createCylinderTool,
-                                                   &createCylinderToolMenu,
-                                                    OBJECTMODETOOL | 
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  createPlaneTool,
-                                                   &createPlaneToolMenu,
-                                                    OBJECTMODETOOL | 
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  createCubeTool,
-                                                   &createCubeToolMenu,
-                                                    OBJECTMODETOOL | 
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  createSphereTool,
-                                                   &createSphereToolMenu,
-                                                    OBJECTMODETOOL | 
-                                                    GLMENUTOOL ) );
-
-    /*******************************************/
-
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  unsculptTool,
-                                                   &unsculptToolMenu,
-                                                    SCULPTMODETOOL | 
-                                                    MESHTOOL     |
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  sculptCreaseTool,
-                                                   &sculptCreaseToolMenu,
-                                                    SCULPTMODETOOL | 
-                                                    MESHTOOL     |
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  sculptInflateTool,
-                                                   &sculptInflateToolMenu,
-                                                    SCULPTMODETOOL | 
-                                                    MESHTOOL     |
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  createFacegroupTool,
-                                                   &createFacegroupToolMenu,
-                                                    FACEMODETOOL |
-                                                    MESHTOOL     | 
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  invertNormalTool,
-                                                   &invertNormalToolMenu,
-                                                    FACEMODETOOL |
-                                                    MESHTOOL     | 
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  weldNeighboursTool,
-                                                   &weldNeighboursToolMenu,
-                                                    VERTEXMODETOOL |
-                                                    MESHTOOL     | 
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  weldVerticesTool,
-                                                   &weldVerticesToolMenu,
-                                                    VERTEXMODETOOL |
-                                                    MESHTOOL     | 
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  roundSplinePointTool,
-                                                   &roundSplinePointToolMenu,
-                                                    VERTEXMODETOOL |
-                                                    SPLINETOOL     | 
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  triangulateTool,
-                                                   &triangulateToolMenu,
-                                                    FACEMODETOOL | 
-                                                    MESHTOOL     |
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  untriangulateTool,
-                                                   &untriangulateToolMenu,
-                                                    FACEMODETOOL | 
-                                                    MESHTOOL     |
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  extrudeInnerTool,
-                                                   &extrudeInnerToolMenu,
-                                                    FACEMODETOOL | 
-                                                    MESHTOOL     |
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  extrudeFaceTool,
-                                                   &extrudeFaceToolMenu,
-                                                    FACEMODETOOL | 
-                                                    MESHTOOL     |
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  bridgeVertexTool,
-                                                   &bridgeVertexToolMenu,
-                                                    VERTEXMODETOOL |
-                                                    MESHTOOL       |
-                                                    SPLINETOOL     |
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  revertSplineTool,
-                                                   &revertSplineToolMenu,
-                                                    VERTEXMODETOOL |
-                                                    SPLINETOOL     |
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  revertSplineTool,
-                                                   &revertSplineToolMenu,
-                                                    VERTEXMODETOOL |
-                                                    SPLINETOOL     |
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  createVertexTool,
-                                                   &createVertexToolMenu,
-                                                    VERTEXMODETOOL |
-                                                    MESHTOOL       |
-                                                    SPLINETOOL     |
-                                                    GLMENUTOOL ) );
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new (  cutMeshTool,
-                                                   &cutMeshToolMenu,
-                                                    VERTEXMODETOOL | 
-                                                    FACEMODETOOL   | 
-                                                    EDGEMODETOOL   |
-                                                    MESHTOOL       |
-                                                    SPLINETOOL     |
-                                                    GLMENUTOOL ) );
-
-    /*******************************************/
-
-    g3dui_addMouseTool ( gui, g3duimousetool_new ( moveTool    , NULL, 0x00 ) );
-    g3dui_addMouseTool ( gui, g3duimousetool_new ( scaleTool   , NULL, 0x00 ) );
-    g3dui_addMouseTool ( gui, g3duimousetool_new ( rotateTool  , NULL, 0x00 ) );
-    g3dui_addMouseTool ( gui, g3duimousetool_new ( pickUVTool  , NULL, 0x00 ) );
-    g3dui_addMouseTool ( gui, g3duimousetool_new ( moveUVTool  , NULL, 0x00 ) );
-    g3dui_addMouseTool ( gui, g3duimousetool_new ( scaleUVTool , NULL, 0x00 ) );
-    g3dui_addMouseTool ( gui, g3duimousetool_new ( rotateUVTool, NULL, 0x00 ) );
+    g3dui_initDefaultMouseTools ( &gtk3gui->core );
 
     gtk3_buildContextMenus ( gtk3gui, NULL );
 

@@ -88,7 +88,7 @@ static void gtk3_g3duiboard_createBoards ( GTK3G3DUIBOARD *gtk3board ) {
     gtk3board->core.objboard = ( G3DUIOBJECTBOARD * ) gtk3objboard;
 
     /**************** Material board **************/
-/*
+
     gtk3matboard = gtk3_g3duimaterialboard_create ( gtk3board->layout,
                                                     gtk3gui,
                                                     "Material" );
@@ -96,7 +96,9 @@ static void gtk3_g3duiboard_createBoards ( GTK3G3DUIBOARD *gtk3board ) {
     gtk_notebook_append_page ( GTK_NOTEBOOK(notebook), gtk3matboard->layout, matlab );
 
     gtk3board->core.matboard = ( G3DUIMATERIALBOARD * ) gtk3matboard;
-*/
+
+
+
 
     gtk_layout_put ( GTK_LAYOUT(gtk3board->layout), notebook, 0, 0 );
 

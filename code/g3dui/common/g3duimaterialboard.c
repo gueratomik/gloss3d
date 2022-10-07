@@ -30,23 +30,23 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3dui_setMaterial ( G3DUI *gui ) {
-#ifdef TODO
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpobj = sce->lsel;
-    G3DMATERIAL *mat = gui->selmat;
+void g3duimaterialboard_resize ( G3DUIMATERIALBOARD *matboard, 
+                                 uint32_t            width,
+                                 uint32_t            height ) {
+    /*** Menu ***/
+    matboard->menurec.x      = 0x00;
+    matboard->menurec.y      = 0x00;
+    matboard->menurec.width  = width;
+    matboard->menurec.height = 0x20;
 
-    if ( mat ) {
-        g3durm_selection_addTexture ( gui->urm,
-                                      sce->lsel, 
-                                      mat,
-                                      gui->engine_flags,
-                                      REDRAWVIEW | REDRAWLIST );
-    }
+    matboard->listrec.x      = 0x00;
+    matboard->listrec.y      = matboard->menurec.height;
+    matboard->listrec.width  = width;
+    matboard->listrec.height = ( height - matboard->menurec.height ) * 0.65f;
 
-    common_g3duimenubar_fitUVMap ( gui );
-
-    g3dui_redrawGLViews ( gui );
-#endif
+    matboard->editrec.x      = 0x00;
+    matboard->editrec.y      = matboard->listrec.height +
+                               matboard->menurec.height;
+    matboard->editrec.width  = width;
+    matboard->editrec.height = ( height - matboard->menurec.height ) * 0.35f;
 }
-

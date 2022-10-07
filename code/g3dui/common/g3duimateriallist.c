@@ -30,29 +30,139 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-MATERIALLISTDATA *materiallistdata_new ( uint32_t image_width,
-                                         uint32_t image_height ) {
-    uint32_t structsize = sizeof ( MATERIALLISTDATA );
-    MATERIALLISTDATA *mdata = ( MATERIALLISTDATA * ) calloc ( 0x01, structsize );
-
-    if ( mdata == NULL ) {
-        fprintf ( stderr, "g3duimateriallist_new: memory allocation failed\n" );
-
-        return NULL;
-    }
-
+void g3duimateriallist_init ( G3DUIMATERIALLIST *matlist,
+                              G3DUI             *gui,
+                              uint32_t           image_width,
+                              uint32_t           image_height ) {
     /*mdata->matmap = common_g3duimaterialmap_new ( image_width, 
                                                    image_height );*/
-    mdata->preview_border = 0x04;
-    mdata->preview_name_height = BUTTONSIZE;
-    mdata->image_width    = image_width;
-    mdata->image_height   = image_height;
-    mdata->preview_width  = image_width  + ( mdata->preview_border * 0x02 );
-    mdata->preview_height = image_height + ( mdata->preview_border * 0x02 ) +
-                                             mdata->preview_name_height;
+
+    matlist->gui = gui;
+
+    matlist->preview_border      = 0x04;
+    matlist->preview_name_height = BUTTONSIZE;
+    matlist->image_width         = image_width;
+    matlist->image_height        = image_height;
+    matlist->preview_width       = image_width  + ( matlist->preview_border * 0x02 );
+    matlist->preview_height      = image_height + ( matlist->preview_border * 0x02 ) +
+                                                    matlist->preview_name_height;
+
+}
+
+/******************************************************************************/
+G3DUIMATERIALPREVIEW *g3duimateriallist_pickPreview ( G3DUIMATERIALLIST *matlist,
+                                                      uint32_t           x,
+                                                      uint32_t           y ) {
+    LIST *ltmppreview = matlist->lpreview;
+
+    while ( ltmppreview ) {
+        G3DUIMATERIALPREVIEW *preview = ( G3DUIMATERIALPREVIEW * ) ltmppreview->data;
+
+        if ( ( x > preview->rec.x ) && ( x < ( preview->rec.x + 
+                                               preview->rec.width  ) ) &&
+             ( y > preview->rec.y ) && ( y < ( preview->rec.y + 
+                                               preview->rec.height ) ) ) {
+            return preview;
+        }
+
+        ltmppreview = ltmppreview->next;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
+uint32_t g3duimateriallist_arrangePreviews ( G3DUIMATERIALLIST *matlist,
+                                             uint32_t           win_x,
+                                             uint32_t           win_y,
+                                             uint32_t           win_width,
+                                             uint32_t           win_height ) {
+    LIST *ltmppreview = matlist->lpreview;
+    uint32_t maxheight = 0x00, maxwidth = ( matlist->preview_width * 3 );
+
+    while ( ltmppreview ) {
+        G3DUIMATERIALPREVIEW *preview = ( G3DUIMATERIALPREVIEW * ) ltmppreview->data;
+
+        preview->rec.x = win_x;
+        preview->rec.y = win_y;
+
+        preview->rec.width  = matlist->preview_width;
+        preview->rec.height = matlist->preview_height;
+
+        if ( win_y + matlist->preview_height > maxheight ) {
+            maxheight = win_y + matlist->preview_height;
+        }
+
+        if (   ( win_x + matlist->preview_width >= maxwidth ) ||
+             ( ( win_width - win_x ) < matlist->preview_width ) ) {
+            win_y += matlist->preview_height;
+
+            win_x  = 0x00;
+        } else {
+            win_x += matlist->preview_width;
+        }
+ 
+        ltmppreview = ltmppreview->next;
+    }
+
+    return ( maxheight << 0x10 ) | maxwidth;
+}
+
+/******************************************************************************/
+G3DUIMATERIALPREVIEW *g3duimateriallist_getPreview ( G3DUIMATERIALLIST *matlist,
+                                                     G3DMATERIAL       *mat ) {
+    LIST *ltmppreview = matlist->lpreview;
+
+    while ( ltmppreview ) {
+        G3DUIMATERIALPREVIEW *preview = ( G3DUIMATERIALPREVIEW * ) ltmppreview->data;
+
+        if ( preview->mat == mat ) return preview;
+
+        ltmppreview = ltmppreview->next;
+    }
+
+    return NULL;
+}
 
 
-    return mdata;
+/******************************************************************************/
+void g3duimateriallist_removeMaterial ( G3DUIMATERIALLIST *matlist,
+                                        G3DSCENE          *sce,
+                                        G3DURMANAGER      *urm,
+                                        G3DMATERIAL       *mat ) {
+     g3durm_scene_removeMaterial ( urm, 
+                                   sce, 
+                                   mat, 
+                                   0x00,
+                                   REDRAWLIST | REBUILDMATERIALLIST  );
+
+    g3duimateriallist_removePreview ( matlist, mat );
+}
+
+
+/******************************************************************************/
+void g3duimateriallist_removePreview ( G3DUIMATERIALLIST *matlist, 
+                                       G3DMATERIAL       *mat ) {
+    G3DUIMATERIALPREVIEW *preview = g3duimateriallist_getPreview ( matlist,
+                                                                   mat );
+
+    list_remove ( &matlist->lpreview, preview );
+}
+
+/******************************************************************************/
+void g3duimateriallist_addPreview ( G3DUIMATERIALLIST    *matlist, 
+                                    G3DUIMATERIALPREVIEW *preview ) {
+    list_insert ( &mdata->lpreview, preview );
+}
+
+/******************************************************************************/
+void g3duimateriallist_getPreview ( G3DUIMATERIALLIST *matlist, 
+                                    G3DMATERIAL       *mat ) {
+    G3DUIMATERIALPREVIEW *preview = g3duimaterialpreview_new ( mat, 
+                                                               matlist->image_width,
+                                                               matlist->image_height );
+
+    list_insert ( &matlist->lpreview, preview );
 }
 
 /******************************************************************************/
@@ -207,7 +317,7 @@ void g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
 /******************************************************************************/
 /*** Data must have the same width&height@24 as the vector map ***/
 void g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
-                                 G3DMATERIAL *mat,
+                                 G3DMATERIAL      *mat,
                                  unsigned char (*data)[3] ) {
     G3DUIMATERIALPIXEL *pixel = matmap->pixel;
     static int GRAY = 0x40;

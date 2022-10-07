@@ -46,6 +46,8 @@ G3DUIMOUSETOOL *g3duimousetool_new ( G3DMOUSETOOL *tool,
     mou->menu  = menu;
     mou->flags = flags;
 
+    if ( menu ) menu->name = tool->name;
+
     return mou;
 }
 

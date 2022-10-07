@@ -238,7 +238,8 @@ typedef struct _GTK3G3DUIMATERIALBOARD {
 /******************************************************************************/
 typedef struct _GTK3G3DUIOBJECTLIST {
     G3DUIOBJECTLIST core;
-    GtkWidget      *drawingArea;
+    GtkWidget      *area;
+    GtkWidget      *scrolled;
 } GTK3G3DUIOBJECTLIST;
 
 /******************************************************************************/
@@ -559,13 +560,8 @@ typedef struct _GTK3PATTERNPREVIEW {
 /******************************************************************************/
 /************************** GTK MaterialList Widget ***************************/
 typedef struct _GTK3MATERIALPREVIEW {
-    GdkPixbuf *img;
-    G3DMATERIAL *mat;
-    /*** The vector map that helps us to build the preview sphere ***/
-    /*** This is per-preview because we need individual maps in case ***/
-    /*** normal vectors are affected by bump maps for instance ***/
-    G3DUIMATERIALMAP *map;
-    G3DUIRECTANGLE rec;
+    G3DUIMATERIALPREVIEW core;
+    GdkPixbuf           *img;
 } GTK3MATERIALPREVIEW;
 
 /******************************************************************************/

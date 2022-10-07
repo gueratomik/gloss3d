@@ -85,10 +85,12 @@ if HAVE_GTK3
                             gtk3/g3duiinstanceedit.c \
                             gtk3/g3duilightedit.c \
                             gtk3/g3duimain.c \
+                            gtk3/g3duimaterialboard.c \
                             gtk3/g3duimenubar.c \
                             gtk3/g3duimodebar.c \
                             gtk3/g3duiobjectboard.c \
                             gtk3/g3duiobjectedit.c \
+                            gtk3/g3duiobjectlist.c \
                             gtk3/g3duiplaneedit.c \
                             gtk3/g3duiparticleemitteredit.c \
                             gtk3/g3duiquad.c \

@@ -35,6 +35,11 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+void g3duiobjectlist_init ( G3DUIOBJECTLIST *objlist, G3DUI *gui ) {
+    objlist->gui = gui;
+}
+
+/******************************************************************************/
 /*** Apply picking policy ***/
 static void pickedobject_parse ( PICKEDOBJECT *pob,
                                  G3DSCENE     *sce, 
@@ -150,10 +155,11 @@ static uint32_t inRectangle ( G3DUIRECTANGLE *rec, uint32_t xm, uint32_t ym ) {
 }
 
 /*******************************************************************************/
-static uint32_t listedObject_sizeInit ( LISTEDOBJECT *lob,
-                                        uint32_t      x, 
-                                        uint32_t      y,
-                                        uint32_t      strwidth ) {
+uint32_t g3duiobjectlist_initListedObject ( G3DUIOBJECTLIST *objlis,
+                                            LISTEDOBJECT    *lob,
+                                            uint32_t         x, 
+                                            uint32_t         y,
+                                            uint32_t         strwidth ) {
     lob->hit = 0x00;
 
     /*** The expand icon (+) or (-) ***/
@@ -178,20 +184,21 @@ static uint32_t listedObject_sizeInit ( LISTEDOBJECT *lob,
 }
 
 /*******************************************************************************/
-static LISTEDOBJECT *sizeListedObject ( G3DOBJECT       *obj, 
-                                        uint32_t         x, 
-                                        uint32_t         y,
-                                        uint32_t         xsep,
-                                        uint32_t         strwidth,
-                                        uint32_t         query_flags ) {
+LISTEDOBJECT *g3duiobjectlist_sizeListedObject ( G3DUIOBJECTLIST *objlist,
+                                                 G3DOBJECT       *obj, 
+                                                 uint32_t         x, 
+                                                 uint32_t         y,
+                                                 uint32_t         xsep,
+                                                 uint32_t         strwidth,
+                                                 uint32_t         query_flags ) {
     static LISTEDOBJECT lob; /*** Defined as static variable so we can    ***/
-                           /*** return a valid pointer to this variable ***/
+                             /*** return a valid pointer to this variable ***/
     uint32_t nextx;
     uint32_t nbtag = 0x00;
     LIST *ltmptag = obj->ltag;
 
     /*** size expander + icon + name ***/
-    listedObject_sizeInit ( &lob, x, y, strwidth );
+    g3duiobjectlist_initListedObject ( objlist, &lob, x, y, strwidth );
 
     /*** the name rectangle expands to the separator ***/
     lob.name.width     = ( xsep - lob.name.x );
@@ -273,18 +280,25 @@ static LISTEDOBJECT *sizeListedObject ( G3DOBJECT       *obj,
 }
 
 /******************************************************************************/
-PICKEDOBJECT *pickobject ( uint32_t x, 
-                           uint32_t y,
-                           uint32_t xsep,
-                           uint32_t xm,
-                           uint32_t ym,
-                           uint32_t strwidth,
-                           G3DOBJECT *obj,
-                           G3DSCENE *sce,
-                           G3DURMANAGER *urm,
-                           uint32_t pick_flags,
-                           uint64_t engine_flags ) {
-    LISTEDOBJECT *lob = sizeListedObject ( obj, x, y, xsep, strwidth, 0x00 );
+PICKEDOBJECT *g3duiobjectlist_pickObject ( G3DUIOBJECTLIST *objlist,
+                                           uint32_t         x, 
+                                           uint32_t         y,
+                                           uint32_t         xsep,
+                                           uint32_t         xm,
+                                           uint32_t         ym,
+                                           uint32_t         strwidth,
+                                           G3DOBJECT       *obj,
+                                           G3DSCENE        *sce,
+                                           G3DURMANAGER    *urm,
+                                           uint32_t         pick_flags,
+                                           uint64_t         engine_flags ) {
+    LISTEDOBJECT *lob = g3duiobjectlist_sizeListedObject ( objlist, 
+                                                           obj,
+                                                           x,
+                                                           y,
+                                                           xsep,
+                                                           strwidth,
+                                                           0x00 );
     static PICKEDOBJECT pob;
     uint32_t nbtex = 0x00, nbtag = 0x00;
     uint32_t i;
