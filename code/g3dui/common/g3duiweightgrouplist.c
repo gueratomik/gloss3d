@@ -77,7 +77,7 @@ uint64_t g3duiweightgrouplist_deleteWeightGroup ( G3DUIWEIGHTGROUPLIST *wgrplist
         }
     }
 
-    return REDRAWCURRENTOBJECT;
+    return UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -95,7 +95,7 @@ uint64_t g3duiweightgrouplist_addWeightGroup ( G3DUIWEIGHTGROUPLIST *wgrplist ) 
         g3dmesh_addWeightGroup ( mes, g3dweightgroup_new ( mes, buf ) );
     }
 
-    return REDRAWCURRENTOBJECT;
+    return UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -111,7 +111,7 @@ uint64_t g3duiweightgrouplist_name ( G3DUIWEIGHTGROUPLIST *wgrplist,
         g3dweightgroup_name ( mes->curgrp, ( char * ) grpname );
     }
 
-    return REDRAWCURRENTOBJECT;
+    return UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -142,7 +142,7 @@ uint64_t g3duiweightgrouplist_deleteSelected ( G3DUIWEIGHTGROUPLIST *wgrplist ) 
         }
     }
 
-    return REDRAWVIEW | REDRAWCURRENTOBJECT;
+    return REDRAWVIEW | UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -187,5 +187,5 @@ uint64_t g3duiweightgrouplist_select ( G3DUIWEIGHTGROUPLIST *wgrplist,
         list_free ( &lver, NULL );
     }
 
-    return REDRAWCURRENTOBJECT | REDRAWVIEW;
+    return UPDATECURRENTOBJECT | REDRAWVIEW;
 }

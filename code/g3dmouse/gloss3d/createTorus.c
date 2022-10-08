@@ -107,10 +107,10 @@ static int createTorus ( G3DMOUSETOOL *mou,
 
                 g3dobject_updateMatrix_r ( obj, 0x00 );
 
-                g3durm_object_addChild ( urm, sce, engine_flags, REDRAWVIEW | REDRAWLIST,
+                g3durm_object_addChild ( urm, sce, engine_flags, REDRAWVIEW | REDRAWOBJECTLIST,
                                          NULL, ( G3DOBJECT * ) sce, obj );
             }
-        } return REDRAWALL;
+        } return UPDATEANDREDRAWALL;
 
         case G3DMotionNotify : {
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
@@ -142,7 +142,7 @@ static int createTorus ( G3DMOUSETOOL *mou,
                 inny = objy;
                 innz = objz;
 
-                return REDRAWVIEW | REDRAWCURRENTOBJECT;
+                return REDRAWVIEW | UPDATECURRENTOBJECT;
             }
 
             /*** step2, the inner radius ***/
@@ -168,7 +168,7 @@ static int createTorus ( G3DMOUSETOOL *mou,
                                       tds->extrad,
                                       radius );
 
-                return REDRAWVIEW | REDRAWCURRENTOBJECT;
+                return REDRAWVIEW | UPDATECURRENTOBJECT;
             }
         } return 0x00;
 

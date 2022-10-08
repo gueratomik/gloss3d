@@ -59,9 +59,9 @@ void gtk3_g3duimaterialboard_resize ( GTK3G3DUIMATERIALBOARD *gtk3matboard,
                                       uint32_t                height ) {
     GTK3G3DUIMENU *gtk3menu = ( GTK3G3DUIMENU * ) gtk3matboard->core.menuBar;
     GdkRectangle gdkrec;
-/*
-    GTK3G3DUIMATERIALLIST *matlist = ( GTK3G3DUIMATERIALLIST * ) gtk3matboard->core.matlist;
-    GTK3G3DUIMATERIALEDIT *matedit = ( GTK3G3DUIMATERIALEDIT * ) gtk3matboard->core.matedit;
+
+    GTK3G3DUIMATERIALLIST *gtk3matlist = ( GTK3G3DUIMATERIALLIST * ) gtk3matboard->core.matlist;
+/*    GTK3G3DUIMATERIALEDIT *matedit = ( GTK3G3DUIMATERIALEDIT * ) gtk3matboard->core.matedit;
 */
     g3duimaterialboard_resize ( &gtk3matboard->core,
                                  width,
@@ -78,25 +78,19 @@ void gtk3_g3duimaterialboard_resize ( GTK3G3DUIMATERIALBOARD *gtk3matboard,
 
 
     /*** Material List ***/
-
-    /*g3duirectangle_toGdkRectangle ( &gtk3matboard->core.listrec, &gdkrec );
-
-    gtk_widget_size_allocate ( objlist->layout, &gdkrec );*/
-
-    /*if ( matlist ) {
-
+    if ( gtk3matlist ) {
         g3duirectangle_toGdkRectangle ( &gtk3matboard->core.listrec, &gdkrec );
 
         gtk_layout_move ( gtk3matboard->layout,
-                          matlist->scrolled,
+                          gtk3matlist->scrolled,
                           gdkrec.x,
                           gdkrec.y );
 
-        gtk_widget_set_size_request ( matlist->scrolled,
+        gtk_widget_set_size_request ( gtk3matlist->scrolled,
                                       gdkrec.width,
                                       gdkrec.height );
 
-    }*/
+    }
 
     /*** Material Edit ***/
 
@@ -138,19 +132,19 @@ void gtk3_g3duimaterialboard_updateMenuBar ( GTK3G3DUIMATERIALBOARD *gtk3matboar
 }
 
 /******************************************************************************/
-/*
-static void createObjectList ( GTK3G3DUIMATERIALBOARD *gtk3matboard ) {
-    GTK3G3DUIMATERIALLIST *gtk3objlist;
 
-    gtk3objlist = gtk3_g3duiobjectlist_create ( gtk3matboard->layout,
-                                ( GTK3G3DUI * ) gtk3matboard->core.gui,
-                                                "Object list" );
+static void createMaterialList ( GTK3G3DUIMATERIALBOARD *gtk3matboard ) {
+    GTK3G3DUIMATERIALLIST *gtk3matlist;
 
-    gtk_layout_put ( GTK_LAYOUT(gtk3matboard->layout), gtk3objlist->scrolled, 0, 0 );
+    gtk3matlist = gtk3_g3duimateriallist_create ( gtk3matboard->layout,
+                                  ( GTK3G3DUI * ) gtk3matboard->core.gui,
+                                                  "Material list" );
 
-    gtk3matboard->core.objlist = ( G3DUIMATERIALLIST * ) gtk3objlist;
+    gtk_layout_put ( GTK_LAYOUT(gtk3matboard->layout), gtk3matlist->scrolled, 0, 0 );
+
+    gtk3matboard->core.matlist = ( G3DUIMATERIALLIST * ) gtk3matlist;
 }
-*/
+
 
 /******************************************************************************/
 /*
@@ -202,8 +196,8 @@ GTK3G3DUIMATERIALBOARD *gtk3_g3duimaterialboard_create ( GtkWidget *parent,
 
     gtk3matboard->layout = layout;
 
-    /*createObjectList ( gtk3matboard );*/
-    createMenuBar    ( gtk3matboard );
+    createMaterialList ( gtk3matboard );
+    createMenuBar      ( gtk3matboard );
     /*createObjectEdit ( gtk3matboard );*/
 
 

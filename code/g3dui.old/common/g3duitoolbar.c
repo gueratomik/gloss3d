@@ -42,11 +42,11 @@ void common_g3dui_undoCbk ( G3DUI *gui ) {
         g3dui_redrawGLViews ( gui );
     }
 
-    if ( return_value & REDRAWLIST ) {
+    if ( return_value & REDRAWOBJECTLIST ) {
         g3dui_redrawObjectList ( gui );
     }
 
-    if ( return_value & REDRAWCURRENTOBJECT ) {
+    if ( return_value & UPDATECURRENTOBJECT ) {
         g3dui_updateAllCurrentEdit ( gui );
     }*/
 }
@@ -64,11 +64,11 @@ void common_g3dui_redoCbk ( G3DUI *gui ) {
         g3dui_redrawGLViews ( gui );
     }
 
-    if ( return_value & REDRAWLIST ) {
+    if ( return_value & REDRAWOBJECTLIST ) {
         g3dui_redrawObjectList ( gui );
     }
 
-    if ( return_value & REDRAWCURRENTOBJECT ) {
+    if ( return_value & UPDATECURRENTOBJECT ) {
         g3dui_updateAllCurrentEdit ( gui );
     }*/
 }
@@ -84,9 +84,9 @@ void common_g3dui_makeEditableCbk ( G3DUI *gui ) {
                                    gui->sce,
                                    gui->engine_flags, ( G3DPRIMITIVE * ) obj,
                                                ( G3DOBJECT    * ) obj->parent,
-                                               ( REDRAWCURRENTOBJECT | 
+                                               ( UPDATECURRENTOBJECT | 
                                                  REDRAWVIEW          | 
-                                                 REDRAWLIST ) );
+                                                 REDRAWOBJECTLIST ) );
 
         g3dui_redrawObjectList     ( gui );
         g3dui_updateAllCurrentEdit ( gui );
@@ -106,7 +106,7 @@ void common_g3dui_makeEditableCbk ( G3DUI *gui ) {
                                      gui->sce, 
                                      gui->engine_flags, 
                                      ( REDRAWVIEW |
-                                       REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                       REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                      ( G3DOBJECT * ) NULL,
                                      ( G3DOBJECT * ) sce,
                                      ( G3DOBJECT * ) commitedObj );
@@ -205,7 +205,7 @@ uint32_t common_g3dui_deleteSelectionCbk ( G3DUI *gui ) {
                                                    sce, 
                                                    gui->engine_flags, 
                                                    REDRAWVIEW | 
-                                                   REDRAWLIST );
+                                                   REDRAWOBJECTLIST );
 
         g3dui_updateAllCurrentEdit ( gui );
         g3dui_updateCoords         ( gui );

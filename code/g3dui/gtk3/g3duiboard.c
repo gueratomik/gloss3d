@@ -135,6 +135,10 @@ void gtk3_g3duiboard_resize ( GTK3G3DUIBOARD *gtk3board,
                                    gdkrec.width,
                                    gdkrec.height );
 
+    gtk3_g3duimaterialboard_resize ( gtk3board->core.matboard,
+                                     gdkrec.width,
+                                     gdkrec.height );
+
     /*gtk_widget_size_allocate ( gtk3board->tab, &gdkrec );*/
 
 

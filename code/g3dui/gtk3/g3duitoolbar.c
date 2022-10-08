@@ -89,7 +89,7 @@ static void openFileCbk ( GtkWidget *widget, gpointer user_data ) {
 
     gtk3_openFile ( gtk3gui );
 
-    gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWALL );
+    gtk3_interpretUIReturnFlags ( gtk3gui, UPDATEANDREDRAWALL );
 }
 
 /******************************************************************************/
@@ -124,7 +124,7 @@ static void newSceneCbk ( GtkWidget *widget, gpointer user_data ) {
 
     gtk3_newScene ( gtk3gui );
 
-    gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWALL );
+    gtk3_interpretUIReturnFlags ( gtk3gui, UPDATEANDREDRAWALL );
 }
 
 /******************************************************************************/

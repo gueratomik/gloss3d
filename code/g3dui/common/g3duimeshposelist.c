@@ -85,7 +85,7 @@ uint64_t g3duimeshposelist_deleteCurrentPose ( G3DUIMESHPOSELIST *gmp ) {
         }
     }
 
-    return REDRAWCURRENTOBJECT;
+    return UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -108,7 +108,7 @@ uint64_t g3duimeshposelist_createPose ( G3DUIMESHPOSELIST *gmp ) {
         }
     }
 
-    return REDRAWCURRENTOBJECT;
+    return UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -130,7 +130,7 @@ uint64_t g3duimeshposelist_renameCurrentPose ( G3DUIMESHPOSELIST *gmp,
         }
     }
 
-    return REDRAWCURRENTOBJECT;
+    return UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -162,7 +162,7 @@ uint64_t g3duimeshposelist_deleteSelectedPose ( G3DUIMESHPOSELIST *gmp ) {
         }
     }
 
-    return REDRAWVIEW | REDRAWCURRENTOBJECT;
+    return REDRAWVIEW | UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -199,7 +199,7 @@ uint64_t g3duimeshposelist_selectPose ( G3DUIMESHPOSELIST  *gmp,
                               RESETMODIFIERS, gui->engine_flags );*/
     }
 
-    return REDRAWVIEW | REDRAWCURRENTOBJECT;
+    return REDRAWVIEW | UPDATECURRENTOBJECT;
 }
 
 #endif

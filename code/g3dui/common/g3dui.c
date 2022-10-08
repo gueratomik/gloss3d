@@ -52,9 +52,9 @@ uint64_t g3dui_deleteSelection ( G3DUI *gui ) {
                                              sce, 
                                              gui->engine_flags, 
                                              REDRAWVIEW | 
-                                             REDRAWLIST );
+                                             REDRAWOBJECTLIST );
 
-        ret = REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT | REDRAWCOORDS;
+        ret = REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | UPDATECOORDS;
     } else {
         if ( obj && ( obj->type == G3DSPLINETYPE ) ) {
             G3DSPLINE *spline = ( G3DSPLINE * ) obj;
@@ -69,7 +69,7 @@ uint64_t g3dui_deleteSelection ( G3DUI *gui ) {
 
                 g3dcurve_unselectAllPoints ( spline->curve );
 
-                ret = REDRAWVIEW | REDRAWLIST | REDRAWCOORDS;
+                ret = REDRAWVIEW | REDRAWOBJECTLIST | UPDATECOORDS;
             }
         }
 
@@ -81,7 +81,7 @@ uint64_t g3dui_deleteSelection ( G3DUI *gui ) {
                                          gui->engine_flags,
                                          REDRAWVIEW );
 
-            ret = REDRAWVIEW | REDRAWLIST | REDRAWCOORDS;
+            ret = REDRAWVIEW | REDRAWOBJECTLIST | UPDATECOORDS;
         }
     }
 
@@ -110,7 +110,7 @@ uint64_t g3dui_closeScene ( G3DUI *gui ) {
 
     g3dui_resetDefaultCameras ( gui );
 
-    return REDRAWALL;
+    return UPDATEANDREDRAWALL;
 }
 
 /******************************************************************************/
@@ -130,7 +130,7 @@ uint64_t g3dui_setMaterial ( G3DUI *gui ) {
                                               sce->lsel, 
                                               gui->lselmat,
                                               gui->engine_flags,
-                                              REDRAWVIEW | REDRAWLIST );
+                                              REDRAWVIEW | REDRAWOBJECTLIST );
             }
 
             g3dui_fitUVMap ( gui );
@@ -158,10 +158,10 @@ uint64_t g3dui_addVibratorTag ( G3DUI *gui ) {
                                   obj,
                                   tag,
                                   gui->engine_flags,
-                                  REDRAWVIEW | REDRAWLIST );
+                                  REDRAWVIEW | REDRAWOBJECTLIST );
     }
 
-    return REDRAWVIEW | REDRAWLIST;
+    return REDRAWVIEW | REDRAWOBJECTLIST;
 }
 
 /******************************************************************************/
@@ -177,12 +177,12 @@ uint64_t g3dui_addTrackerTag ( G3DUI *gui ) {
                                   obj,
                                   tag,
                                   gui->engine_flags,
-                                  REDRAWVIEW | REDRAWLIST );
+                                  REDRAWVIEW | REDRAWOBJECTLIST );
 
         g3dobject_updateMatrix_r ( obj, gui->engine_flags );
     }
 
-    return REDRAWVIEW | REDRAWLIST;
+    return REDRAWVIEW | REDRAWOBJECTLIST;
 }
 
 /******************************************************************************/
@@ -197,11 +197,11 @@ uint64_t g3dui_removeSelectedTag ( G3DUI *gui ) {
                                          obj,
                                          obj->seltag,
                                          gui->engine_flags,
-                                         REDRAWVIEW | REDRAWLIST );
+                                         REDRAWVIEW | REDRAWOBJECTLIST );
         }
     }
 
-    return REDRAWVIEW | REDRAWLIST;
+    return REDRAWVIEW | REDRAWOBJECTLIST;
 }
 
 /******************************************************************************/
@@ -216,13 +216,13 @@ uint64_t g3dui_mergeMesh ( G3DUI *gui ) {
 
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) sce,
                                            ( G3DOBJECT * ) mrg );
     }
 
-    return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT | REDRAWTIMELINE;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -256,13 +256,13 @@ uint64_t g3dui_splitMesh ( G3DUI      *gui,
                                     keep,
                                     gui->engine_flags,
                                     REDRAWVIEW |
-                                    REDRAWLIST | 
-                                    REDRAWCURRENTOBJECT );
+                                    REDRAWOBJECTLIST | 
+                                    UPDATECURRENTOBJECT );
             }
         }
     }
 
-    return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT | REDRAWTIMELINE;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -384,7 +384,7 @@ uint64_t g3dui_mirrorHeightmap ( G3DUI      *gui,
         }
     }
 
-    return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -417,7 +417,7 @@ uint64_t g3dui_mirrorWeightGroup ( G3DUI      *gui,
         }
     }
 
-    return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -437,14 +437,14 @@ uint64_t g3dui_addUVMap ( G3DUI *gui ) {
                                    mes,
                                    map, 
                                    gui->engine_flags,
-                                   REDRAWVIEW | REDRAWLIST );
+                                   REDRAWVIEW | REDRAWOBJECTLIST );
 
             g3dmesh_unselectAllUVMaps ( mes );
             g3dmesh_selectUVMap ( mes, map );
         }
     }
 
-    return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -497,7 +497,7 @@ uint64_t g3dui_fitUVMap ( G3DUI *gui ) {
         }
     }
 
-    return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -537,7 +537,7 @@ uint64_t g3dui_alignUVMap ( G3DUI      *gui,
         }
     }
 
-    return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -551,10 +551,10 @@ uint64_t g3dui_makeEditable ( G3DUI *gui ) {
                                    gui->sce,
                                    gui->engine_flags, ( G3DPRIMITIVE * ) obj,
                                                ( G3DOBJECT    * ) obj->parent,
-                                               ( REDRAWCURRENTOBJECT | 
+                                               ( UPDATECURRENTOBJECT | 
                                                  REDRAWVIEW          | 
-                                                 REDRAWCOORDS        |
-                                                 REDRAWLIST ) );
+                                                 UPDATECOORDS        |
+                                                 REDRAWOBJECTLIST ) );
     }
 
     if ( obj && ( ( obj->type & MODIFIER         ) ||
@@ -570,9 +570,9 @@ uint64_t g3dui_makeEditable ( G3DUI *gui ) {
                                      gui->sce, 
                                      gui->engine_flags, 
                                      ( REDRAWVIEW   |
-                                       REDRAWLIST   |
-                                       REDRAWCOORDS |
-                                       REDRAWCURRENTOBJECT ),
+                                       REDRAWOBJECTLIST   |
+                                       UPDATECOORDS |
+                                       UPDATECURRENTOBJECT ),
                                      ( G3DOBJECT * ) NULL,
                                      ( G3DOBJECT * ) sce,
                                      ( G3DOBJECT * ) commitedObj );
@@ -584,7 +584,7 @@ uint64_t g3dui_makeEditable ( G3DUI *gui ) {
         }
     }
 
-    return REDRAWVIEW | REDRAWLIST | REDRAWCURRENTOBJECT | REDRAWCOORDS;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | UPDATECOORDS;
 }
 
 /******************************************************************************/
@@ -599,7 +599,7 @@ uint64_t g3dui_resetBoneTree ( G3DUI *gui ) {
         g3dbone_unfix_r ( bon, gui->engine_flags );
     }
 
-    return REDRAWVIEW | REDRAWLIST;
+    return REDRAWVIEW | REDRAWOBJECTLIST;
 }
 
 /******************************************************************************/
@@ -614,7 +614,7 @@ uint64_t g3dui_resetBone ( G3DUI *gui ) {
         g3dbone_unfix ( bon, gui->engine_flags );
     }
 
-    return REDRAWVIEW | REDRAWLIST;
+    return REDRAWVIEW | REDRAWOBJECTLIST;
 }
 
 /******************************************************************************/
@@ -629,7 +629,7 @@ uint64_t g3dui_fixBoneTree ( G3DUI *gui ) {
         g3dbone_fix_r ( bon, gui->engine_flags );
     }
 
-    return REDRAWVIEW | REDRAWLIST;
+    return REDRAWVIEW | REDRAWOBJECTLIST;
 }
 
 /******************************************************************************/
@@ -644,7 +644,7 @@ uint64_t g3dui_fixBone ( G3DUI *gui ) {
         g3dbone_fix ( bon, gui->engine_flags );
     }
 
-    return REDRAWVIEW | REDRAWLIST;
+    return REDRAWVIEW | REDRAWOBJECTLIST;
 }
 
 /******************************************************************************/
@@ -657,7 +657,7 @@ uint64_t g3dui_addBone ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) obj,
                                        ( G3DOBJECT * ) bon );
@@ -666,7 +666,7 @@ uint64_t g3dui_addBone ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) bon, gui->engine_flags );
 
     return REDRAWVIEW |
-           REDRAWLIST |
+           REDRAWOBJECTLIST |
            REDRAWTIMELINE;
 }
 
@@ -683,16 +683,16 @@ uint64_t g3dui_addSkin ( G3DUI *gui ) {
 
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) obj,
                                            ( G3DOBJECT * ) skn );
     }
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -709,16 +709,16 @@ uint64_t g3dui_addMorpher ( G3DUI *gui ) {
 
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) obj,
                                            ( G3DOBJECT * ) mpr );
     }
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -753,7 +753,7 @@ uint64_t g3dui_addFFDBox ( G3DUI *gui ) {
 
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) obj,
                                            ( G3DOBJECT * ) ffd );
@@ -763,16 +763,16 @@ uint64_t g3dui_addFFDBox ( G3DUI *gui ) {
 
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) sce,
                                            ( G3DOBJECT * ) ffd );
     }
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -785,7 +785,7 @@ uint64_t g3dui_addSymmetry ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) sym );
@@ -794,9 +794,9 @@ uint64_t g3dui_addSymmetry ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) sym, gui->engine_flags );
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -809,7 +809,7 @@ uint64_t g3dui_addInstance ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) ins );
@@ -818,9 +818,9 @@ uint64_t g3dui_addInstance ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) ins, gui->engine_flags );
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -833,7 +833,7 @@ uint64_t g3dui_addEmitter ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) pem );
@@ -842,9 +842,9 @@ uint64_t g3dui_addEmitter ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) pem, gui->engine_flags );
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -859,14 +859,14 @@ uint64_t g3dui_addSubdivider ( G3DUI *gui ) {
     if ( obj ) {
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) obj,
                                            ( G3DOBJECT * ) sdr );
     } else {
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) sce,
                                            ( G3DOBJECT * ) sdr );
@@ -876,9 +876,9 @@ uint64_t g3dui_addSubdivider ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) sdr, gui->engine_flags );
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -893,14 +893,14 @@ uint64_t g3dui_addWireframe ( G3DUI *gui ) {
     if ( obj ) {
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) obj,
                                            ( G3DOBJECT * ) wir );
     } else {
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) sce,
                                            ( G3DOBJECT * ) wir );
@@ -910,9 +910,9 @@ uint64_t g3dui_addWireframe ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) wir, gui->engine_flags );
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -925,7 +925,7 @@ uint64_t g3dui_addEmptyMesh ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) mes );
@@ -934,9 +934,9 @@ uint64_t g3dui_addEmptyMesh ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) mes, gui->engine_flags );
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -949,7 +949,7 @@ uint64_t g3dui_addSpline ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) spline );
@@ -958,9 +958,9 @@ uint64_t g3dui_addSpline ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) spline, gui->engine_flags );
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -975,14 +975,14 @@ uint64_t g3dui_addSplineRevolver ( G3DUI *gui ) {
     if ( obj ) {
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) obj,
                                            ( G3DOBJECT * ) srv );
     } else {
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) sce,
                                            ( G3DOBJECT * ) srv );
@@ -992,9 +992,9 @@ uint64_t g3dui_addSplineRevolver ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) srv, gui->engine_flags );
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -1019,7 +1019,7 @@ uint64_t g3dui_addText ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) txt );
@@ -1028,9 +1028,9 @@ uint64_t g3dui_addText ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) txt, gui->engine_flags );
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -1050,7 +1050,7 @@ uint64_t g3dui_addCamera ( G3DUI     *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) cam );
@@ -1062,9 +1062,9 @@ uint64_t g3dui_addCamera ( G3DUI     *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) lig );*/
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -1077,7 +1077,7 @@ uint64_t g3dui_addLight ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) lig );
@@ -1087,9 +1087,9 @@ uint64_t g3dui_addLight ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) lig );*/
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -1104,7 +1104,7 @@ uint64_t g3dui_addCylinder ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) pri );
@@ -1113,9 +1113,9 @@ uint64_t g3dui_addCylinder ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) pri, gui->engine_flags );
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -1130,7 +1130,7 @@ uint64_t g3dui_addTube ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) pri );
@@ -1139,9 +1139,9 @@ uint64_t g3dui_addTube ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) pri, gui->engine_flags );
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -1156,7 +1156,7 @@ uint64_t g3dui_addTorus ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) pri );
@@ -1164,9 +1164,9 @@ uint64_t g3dui_addTorus ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) pri, gui->engine_flags );
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -1181,7 +1181,7 @@ uint64_t g3dui_addSphere ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) pri );
@@ -1189,9 +1189,9 @@ uint64_t g3dui_addSphere ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) pri, gui->engine_flags );
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -1206,7 +1206,7 @@ uint64_t g3dui_addCube ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) pri );
@@ -1214,9 +1214,9 @@ uint64_t g3dui_addCube ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) pri, gui->engine_flags );
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -1231,7 +1231,7 @@ uint64_t g3dui_addPlane ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) pri );
@@ -1239,9 +1239,9 @@ uint64_t g3dui_addPlane ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) pri, gui->engine_flags );
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -1254,7 +1254,7 @@ uint64_t g3dui_addNull ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) obj );
@@ -1262,9 +1262,9 @@ uint64_t g3dui_addNull ( G3DUI *gui ) {
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) obj, gui->engine_flags );
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -1286,9 +1286,9 @@ uint64_t g3dui_selectTree ( G3DUI      *gui,
     }
 
     return REDRAWVIEW          |
-           REDRAWLIST          | 
-           REDRAWCURRENTOBJECT | 
-           REDRAWCOORDS        | 
+           REDRAWOBJECTLIST          | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS        | 
            REDRAWTIMELINE;
 }
 
@@ -1313,7 +1313,7 @@ uint64_t g3dui_triangulate ( G3DUI      *gui,
         }
     }
 
-    return REDRAWVIEW | REDRAWLIST;
+    return REDRAWVIEW | REDRAWOBJECTLIST;
 }
 
 /******************************************************************************/
@@ -1328,7 +1328,7 @@ uint64_t g3dui_invertNormal ( G3DUI *gui ) {
         g3durm_mesh_invertNormal ( urm, mes, gui->engine_flags, REDRAWVIEW );
     }
 
-    return REDRAWVIEW | REDRAWLIST;
+    return REDRAWVIEW | REDRAWOBJECTLIST;
 }
 
 /******************************************************************************/
@@ -1350,7 +1350,7 @@ uint64_t g3dui_alignNormals ( G3DUI *gui ) {
 
     }
 
-    return REDRAWVIEW | REDRAWLIST;
+    return REDRAWVIEW | REDRAWOBJECTLIST;
 }
 
 /******************************************************************************/
@@ -1365,7 +1365,7 @@ uint64_t g3dui_untriangulate ( G3DUI *gui ) {
         g3durm_mesh_untriangulate ( urm, mes, gui->engine_flags, REDRAWVIEW );
     }
 
-    return REDRAWVIEW | REDRAWLIST | REDRAWCOORDS;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECOORDS;
 }
 
 /******************************************************************************/
@@ -1380,7 +1380,7 @@ uint64_t g3dui_weldVertices ( G3DUI *gui ) {
         g3durm_mesh_weldSelectedVertices ( urm, mes, 0x01, gui->engine_flags, REDRAWVIEW );
     }
 
-    return REDRAWVIEW | REDRAWLIST | REDRAWCOORDS;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECOORDS;
 }
 
 /******************************************************************************/
@@ -1397,7 +1397,7 @@ uint64_t g3dui_deleteLoneVertices ( G3DUI *gui ) {
         }
     }
 
-    return REDRAWVIEW | REDRAWLIST | REDRAWCOORDS;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECOORDS;
 }
 
 /******************************************************************************/
@@ -1428,7 +1428,7 @@ uint64_t g3dui_invertSelection ( G3DUI *gui ) {
         }
     }
 
-    return REDRAWVIEW | REDRAWLIST | REDRAWCOORDS;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECOORDS;
 }
 
 /******************************************************************************/
@@ -1586,7 +1586,7 @@ uint32_t g3dui_selectAll ( G3DUI *gui ) {
     }
 
 
-    return REDRAWVIEW | REDRAWLIST;
+    return REDRAWVIEW | REDRAWOBJECTLIST;
 
     /*#g3dui_redrawGLViews ( gui );
     g3dui_redrawObjectList     ( gui );#*/
@@ -1769,9 +1769,9 @@ uint32_t g3dui_exportFileOk ( G3DUI      *gui,
     g3dui_updateAllCurrentEdit ( gui );#*/
 
     return REDRAWVIEW   |
-           REDRAWCOORDS |
-           REDRAWLIST   |
-           REDRAWCURRENTOBJECT;
+           UPDATECOORDS |
+           REDRAWOBJECTLIST   |
+           UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -2540,11 +2540,11 @@ uint64_t g3dui_openG3DFile ( G3DUI      *gui,
     }
 
     return REDRAWVIEW          |
-           REBUILDMATERIALLIST |
-           REDRAWVIEWMENU      |
-           REDRAWLIST          |
-           REDRAWCOORDS        |
-           REDRAWCURRENTOBJECT;
+           UPDATEMATERIALLIST  |
+           UPDATEVIEWMENU      |
+           REDRAWOBJECTLIST    |
+           UPDATECOORDS        |
+           UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/

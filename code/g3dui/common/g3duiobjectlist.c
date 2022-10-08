@@ -76,7 +76,7 @@ static void pickedobject_parse ( PICKEDOBJECT *pob,
                                                      lselnew, 
                                                      VIEWOBJECT, 
                                                      REDRAWVIEW | 
-                                                     REDRAWLIST );
+                                                     REDRAWOBJECTLIST );
             }
         }
     }

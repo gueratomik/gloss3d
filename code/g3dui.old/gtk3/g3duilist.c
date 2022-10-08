@@ -605,7 +605,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
 
             switch ( kev->keyval ) {
                 case GDK_KEY_Delete: {
-                    uint32_t retflags = ( REDRAWVIEW | REDRAWLIST );
+                    uint32_t retflags = ( REDRAWVIEW | REDRAWOBJECTLIST );
 
                     if ( pob ) {
                         switch ( pob->picked ) {
@@ -624,7 +624,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                                                           pob->obj,
                                                           pob->uvmap, 
                                                           gui->engine_flags,
-                                                          REDRAWVIEW |REDRAWLIST );
+                                                          REDRAWVIEW |REDRAWOBJECTLIST );
                             } break;
 
                             case TAGRECTHIT : {
@@ -632,7 +632,7 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                                                              pob->obj,
                                                              pob->tag,
                                                              gui->engine_flags,
-                                                             REDRAWVIEW | REDRAWLIST );
+                                                             REDRAWVIEW | REDRAWOBJECTLIST );
                             } break;
 
                             default : {
@@ -861,8 +861,8 @@ void objectlistarea_input ( GtkWidget *widget, GdkEvent *gdkev,
                         /*** Perform action & record for the undo-redo manager ***/
                         g3durm_object_addChild ( urm, sce, gui->engine_flags,
                                                            ( REDRAWVIEW |
-                                                             REDRAWLIST | 
-                                                             REDRAWCURRENTOBJECT ),
+                                                             REDRAWOBJECTLIST | 
+                                                             UPDATECURRENTOBJECT ),
                                                ( G3DOBJECT * ) par,
                                                ( G3DOBJECT * ) dst,
                                                ( G3DOBJECT * ) obj );

@@ -344,9 +344,9 @@ int scaleUV_tool ( G3DMOUSETOOL *mou,
 
                             olduv = newuv = NULL;
                         } return REDRAWVIEW            | 
-                                 REDRAWCOORDS          | 
+                                 UPDATECOORDS          | 
                                  BUFFEREDSUBDIVISIONOK | 
-                                 REDRAWCURRENTOBJECT   | 
+                                 UPDATECURRENTOBJECT   | 
                                  REDRAWUVMAPEDITOR;
 
                         default :
@@ -499,9 +499,9 @@ static int scale_morpher ( G3DMORPHER       *mpr,
                         oldpos = newpos = NULL;
                     }
                 } return REDRAWVIEW            | 
-                         REDRAWCOORDS          | 
+                         UPDATECOORDS          | 
                          BUFFEREDSUBDIVISIONOK | 
-                         REDRAWCURRENTOBJECT   | 
+                         UPDATECURRENTOBJECT   | 
                          REDRAWUVMAPEDITOR;
 
                 default :
@@ -694,9 +694,9 @@ static int scale_mesh ( G3DMESH          *mes,
 
             oldpos = newpos = NULL;
         } return REDRAWVIEW            | 
-                 REDRAWCOORDS          | 
+                 UPDATECOORDS          | 
                  BUFFEREDSUBDIVISIONOK | 
-                 REDRAWCURRENTOBJECT   | 
+                 UPDATECURRENTOBJECT   | 
                  REDRAWUVMAPEDITOR;
 
         default :
@@ -826,7 +826,7 @@ static int scale_object ( LIST        *lobj,
             }
 
             orix = mev->x;
-        } return REDRAWVIEW | REDRAWCOORDS;
+        } return REDRAWVIEW | UPDATECOORDS;
 
         case G3DButtonRelease : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
@@ -867,7 +867,7 @@ static int scale_object ( LIST        *lobj,
                 urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
             }
 
-        } return REDRAWALL;
+        } return UPDATEANDREDRAWALL;
 
         default :
         break;

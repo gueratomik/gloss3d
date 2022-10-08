@@ -488,13 +488,14 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define UVMAPBACKGROUND  0x03
 
 /****************************** Material Flags ********************************/
-#define DIFFUSE_ENABLED      ( 1       )
-#define SPECULAR_ENABLED     ( 1 <<  1 )
-#define DISPLACEMENT_ENABLED ( 1 <<  2 )
-#define BUMP_ENABLED         ( 1 <<  3 )
-#define REFLECTION_ENABLED   ( 1 <<  4 )
-#define REFRACTION_ENABLED   ( 1 <<  5 )
-#define ALPHA_ENABLED        ( 1 <<  6 )
+#define MATERIALSELECTED     ( 1       )
+#define DIFFUSE_ENABLED      ( 1 <<  1 )
+#define SPECULAR_ENABLED     ( 1 <<  2 )
+#define DISPLACEMENT_ENABLED ( 1 <<  3 )
+#define BUMP_ENABLED         ( 1 <<  4 )
+#define REFLECTION_ENABLED   ( 1 <<  5 )
+#define REFRACTION_ENABLED   ( 1 <<  6 )
+#define ALPHA_ENABLED        ( 1 <<  7 )
 
 /******************************* Channel Flags ********************************/
 #define USESOLIDCOLOR        ( 1       )
@@ -3093,6 +3094,8 @@ void         g3dmaterial_name ( G3DMATERIAL *, const char * );
 LIST        *g3dmaterial_getObjects ( G3DMATERIAL *mat, G3DSCENE *sce );
 G3DCHANNEL *g3dmaterial_getChannelByID ( G3DMATERIAL *mat, 
                                          uint32_t     id );
+void g3dmaterial_setSelected ( G3DMATERIAL *mat );
+void g3dmaterial_unsetSelected ( G3DMATERIAL *mat );
 
 /******************************************************************************/
 /*void  g3drttriangle_getposition ( G3DRTTRIANGLE *, G3DDOUBLEVECTOR * );

@@ -42,7 +42,7 @@ void common_g3dui_addVibratorTagCbk ( G3DUI *gui ) {
                                   obj,
                                   tag,
                                   gui->engine_flags,
-                                  REDRAWVIEW | REDRAWLIST );
+                                  REDRAWVIEW | REDRAWOBJECTLIST );
     }
 
     g3dui_redrawObjectList ( gui );
@@ -63,7 +63,7 @@ void common_g3dui_addTrackerTagCbk ( G3DUI *gui ) {
                                   obj,
                                   tag,
                                   gui->engine_flags,
-                                  REDRAWVIEW | REDRAWLIST );
+                                  REDRAWVIEW | REDRAWOBJECTLIST );
 
         g3dobject_updateMatrix_r ( obj, gui->engine_flags );
     }
@@ -85,7 +85,7 @@ void common_g3dui_removeSelectedTagCbk ( G3DUI *gui ) {
                                          obj,
                                          obj->seltag,
                                          gui->engine_flags,
-                                         REDRAWVIEW | REDRAWLIST );
+                                         REDRAWVIEW | REDRAWOBJECTLIST );
         }
     }
 
@@ -111,7 +111,7 @@ void common_g3duimenubar_addUVMapCbk ( G3DUI *gui ) {
                                    mes,
                                    map, 
                                    gui->engine_flags,
-                                   REDRAWVIEW | REDRAWLIST );
+                                   REDRAWVIEW | REDRAWOBJECTLIST );
 
             g3dmesh_unselectAllUVMaps ( mes );
             g3dmesh_selectUVMap ( mes, map );
@@ -231,7 +231,7 @@ void common_g3dui_mergeMeshCbk ( G3DUI *gui ) {
 
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) sce,
                                            ( G3DOBJECT * ) mrg );
@@ -273,8 +273,8 @@ void common_g3dui_splitMeshCbk ( G3DUI *gui, const char *option ) {
                                     keep,
                                     gui->engine_flags,
                                     REDRAWVIEW |
-                                    REDRAWLIST | 
-                                    REDRAWCURRENTOBJECT );
+                                    REDRAWOBJECTLIST | 
+                                    UPDATECURRENTOBJECT );
             }
         }
     }
@@ -522,7 +522,7 @@ void common_g3dui_addBoneCbk ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) obj,
                                        ( G3DOBJECT * ) bon );
@@ -549,7 +549,7 @@ void common_g3dui_addSkinCbk ( G3DUI *gui ) {
 
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) obj,
                                            ( G3DOBJECT * ) skn );
@@ -576,7 +576,7 @@ void common_g3dui_addMorpherCbk ( G3DUI *gui ) {
 
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) obj,
                                            ( G3DOBJECT * ) mpr );
@@ -621,7 +621,7 @@ void common_g3dui_addFFDBoxCbk ( G3DUI *gui ) {
 
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) obj,
                                            ( G3DOBJECT * ) ffd );
@@ -631,7 +631,7 @@ void common_g3dui_addFFDBoxCbk ( G3DUI *gui ) {
 
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) sce,
                                            ( G3DOBJECT * ) ffd );
@@ -654,7 +654,7 @@ void common_g3dui_addSymmetryCbk ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) sym );
@@ -679,7 +679,7 @@ void common_g3dui_addInstanceCbk ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) ins );
@@ -704,7 +704,7 @@ void common_g3dui_addEmitterCbk ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) pem );
@@ -731,14 +731,14 @@ void common_g3dui_addSubdividerCbk ( G3DUI *gui ) {
     if ( obj ) {
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) obj,
                                            ( G3DOBJECT * ) sdr );
     } else {
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) sce,
                                            ( G3DOBJECT * ) sdr );
@@ -766,14 +766,14 @@ void common_g3dui_addWireframeCbk ( G3DUI *gui ) {
     if ( obj ) {
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) obj,
                                            ( G3DOBJECT * ) wir );
     } else {
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) sce,
                                            ( G3DOBJECT * ) wir );
@@ -799,7 +799,7 @@ void common_g3dui_addEmptyMeshCbk ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) mes );
@@ -824,7 +824,7 @@ void common_g3dui_addSplineCbk ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) spline );
@@ -851,14 +851,14 @@ void common_g3dui_addSplineRevolverCbk ( G3DUI *gui ) {
     if ( obj ) {
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) obj,
                                            ( G3DOBJECT * ) srv );
     } else {
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                            ( REDRAWVIEW |
-                                             REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                             REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) NULL,
                                            ( G3DOBJECT * ) sce,
                                            ( G3DOBJECT * ) srv );
@@ -896,7 +896,7 @@ void common_g3dui_addTextCbk ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) txt );
@@ -927,7 +927,7 @@ void common_g3dui_addCameraCbk ( G3DUI *gui, G3DCAMERA *currentCamera ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) cam );
@@ -955,7 +955,7 @@ void common_g3dui_addLightCbk ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) lig );
@@ -983,7 +983,7 @@ void common_g3dui_addCylinderCbk ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) pri );
@@ -1010,7 +1010,7 @@ void common_g3dui_addTubeCbk ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) pri );
@@ -1037,7 +1037,7 @@ void common_g3dui_addTorusCbk ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) pri );
@@ -1063,7 +1063,7 @@ void common_g3dui_addSphereCbk ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) pri );
@@ -1089,7 +1089,7 @@ void common_g3dui_addCubeCbk ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) pri );
@@ -1115,7 +1115,7 @@ void common_g3dui_addPlaneCbk ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) pri );
@@ -1139,7 +1139,7 @@ void common_g3dui_addNullCbk ( G3DUI *gui ) {
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
-                                         REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                         REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                        ( G3DOBJECT * ) NULL,
                                        ( G3DOBJECT * ) sce,
                                        ( G3DOBJECT * ) obj );

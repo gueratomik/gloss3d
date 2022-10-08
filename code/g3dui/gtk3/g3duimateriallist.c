@@ -29,6 +29,7 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
+static void gtk3_g3duimaterialpreview_update ( GTK3G3DUIMATERIALPREVIEW * );
 
 /******************************************************************************/
 GTK3G3DUIMATERIALPREVIEW *gtk3_g3duimaterialpreview_new ( G3DMATERIAL *mat,
@@ -63,36 +64,41 @@ void gtk3_g3duimaterialpreview_free ( GTK3G3DUIMATERIALPREVIEW *gtk3preview ) {
 }
 
 /******************************************************************************/
-void gtk3_g3duimaterialpreview_update ( GTK3G3DUIMATERIALPREVIEW *gtk3matpreview ) {
+static void destroyPixbuf ( guchar *pixels, gpointer data ) {
+    free ( pixels );
+}
+
+/******************************************************************************/
+static void gtk3_g3duimaterialpreview_update ( GTK3G3DUIMATERIALPREVIEW *gtk3preview ) {
     unsigned char (*data)[0x03];
 
     /*** build the material sphere vector map ***/
-    g3duimaterialmap_buildSphere ( gtk3matpreview->core.map,
-                                   gtk3matpreview->core.mat, 0.8f );
+    g3duimaterialmap_buildSphere ( gtk3preview->core.map,
+                                   gtk3preview->core.mat, 0.8f );
 
-    if ( gtk3matpreview->img ) g_object_unref ( gtk3matpreview->img );
+    if ( gtk3preview->img ) g_object_unref ( gtk3preview->img );
 
-    gtk3matpreview->img = NULL;
+    gtk3preview->img = NULL;
 
     /*** Alloc a buffer that is filled with the material preview ***/
-    data = calloc ( 0x03, gtk3matpreview->core.map->width * 
-                          gtk3matpreview->core.map->height );
+    data = calloc ( 0x03, gtk3preview->core.map->width * 
+                          gtk3preview->core.map->height );
 
     if ( data == NULL ) {
         fprintf ( stderr, "gtk3materialpreview_new: memory allocation failed\n" );
     }
 
-    g3duimaterialmap_fillData ( preview->map, 
-                                preview->mat, data );
+    g3duimaterialmap_fillData ( gtk3preview->core.map, 
+                                gtk3preview->core.mat, data );
 
     /*** Convert to a GdkPixbuf image ***/
-    gtk3matpreview->img = gdk_pixbuf_new_from_data ( (const guchar *) data,
+    gtk3preview->img = gdk_pixbuf_new_from_data ( (const guchar *) data,
                                                      GDK_COLORSPACE_RGB, 
                                                      FALSE,
                                                      0x08,
-                                                     gtk3matpreview->core.map->width,
-                                                     gtk3matpreview->core.map->height,
-                                                     gtk3matpreview->core.map->width * 0x03,
+                                                     gtk3preview->core.map->width,
+                                                     gtk3preview->core.map->height,
+                                                     gtk3preview->core.map->width * 0x03,
                                                      destroyPixbuf,
                                                      NULL );
 }
@@ -102,17 +108,37 @@ static void gtk3_g3duimateriallist_removeAllMaterials ( GTK3G3DUIMATERIALLIST *g
     list_free ( &gtk3matlist->core.lpreview, (void(*)(void*)) gtk3_g3duimaterialpreview_free );
 }
 
+
+/******************************************************************************/
+static void gtk3_g3duimateriallist_arrange ( GTK3G3DUIMATERIALLIST *gtk3matlist ) {
+    uint32_t maxheight;
+    uint32_t maxwidth;
+    uint32_t maxsize;
+
+    maxsize = g3duimateriallist_arrangePreviews ( &gtk3matlist->core );
+
+    maxheight = ( maxsize & 0xFFFF0000 ) >> 0x10;
+    maxwidth  = ( maxsize & 0x0000FFFF );
+
+    gtk_widget_set_size_request ( gtk3matlist->area, maxwidth, maxheight );
+}
+
 /******************************************************************************/
 static GTK3G3DUIMATERIALLIST *gtk3_g3duimateriallist_new ( GTK3G3DUI *gtk3gui,
                                                            uint32_t   width,
-                                                           uint32_t   height ) {
+                                                           uint32_t   height,
+                                                           uint32_t   previewPerLine ) {
     GTK3G3DUIMATERIALLIST *gtk3matlist = calloc ( 0x01, sizeof ( GTK3G3DUIMATERIALLIST ) );
 
     if ( gtk3matlist == NULL ) {
         fprintf ( stderr, "%s: calloc failed\n", __func__ );
     }
 
-    g3duimateriallist_init ( &gtk3matlist->core, &gtk3gui->core, width, height );
+    g3duimateriallist_init ( &gtk3matlist->core,
+                             &gtk3gui->core,
+                              width,
+                              height,
+                              previewPerLine );
 
 
     return gtk3matlist; 
@@ -126,37 +152,36 @@ static void gtk3_g3duimateriallist_free ( GTK3G3DUIMATERIALLIST *gtk3matlist ) {
 }
 
 /******************************************************************************/
-static void gtk3_g3duimateriallist_updatePreview ( GTK3G3DUIMATERIALLIST *gtk3matlist,
-                                                   G3DMATERIAL           *mat ) {
+void gtk3_g3duimateriallist_updatePreview ( GTK3G3DUIMATERIALLIST *gtk3matlist,
+                                            G3DMATERIAL           *mat ) {
     G3DUIMATERIALLIST *matlist = ( G3DUIMATERIALLIST * ) &gtk3matlist->core;
     GTK3G3DUIMATERIALPREVIEW *gtk3preview = g3duimateriallist_getPreview ( matlist,
                                                                            mat );
 
-    if ( preview ) gtk3_g3duimaterialpreview_new ( gtk3preview );
+    if ( gtk3preview ) gtk3_g3duimaterialpreview_update ( gtk3preview );
 
-    gtk_widget_queue_draw_area ( widget,
-                                 preview->rec.x, 
-                                 preview->rec.y,
-                                 preview->rec.width, 
-                                 preview->rec.height );
+    gtk_widget_queue_draw_area ( gtk3matlist->area,
+                                 gtk3preview->core.rec.x, 
+                                 gtk3preview->core.rec.y,
+                                 gtk3preview->core.rec.width, 
+                                 gtk3preview->core.rec.height );
 }
 
 /******************************************************************************/
 void gtk3_g3duimateriallist_addMaterial ( GTK3G3DUIMATERIALLIST *gtk3matlist,
                                           G3DMATERIAL           *mat ) {
-    G3DUIMATERIALLIST *matlist = ( G3DUIMATERIALLIST * ) &gtk3matlist->core;
+    G3DUI *gui = ( G3DUI * ) gtk3matlist->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
     GTK3G3DUIMATERIALPREVIEW *gtk3preview;
     GtkAllocation allocation;
 
     gtk_widget_get_allocation ( gtk3matlist->area, &allocation );
 
     gtk3preview = gtk3_g3duimaterialpreview_new ( mat, 
-                                                  allocation.width,
-                                                  allocation.height );
+                                                  gtk3matlist->core.preview_width,
+                                                  gtk3matlist->core.preview_height );
 
-    g3duimateriallist_addPreview ( matlist, gtk3preview );
-
-    /* TODO: redraw */
+    g3duimateriallist_addPreview ( &gtk3matlist->core, gtk3preview );
 }
 
 /******************************************************************************/
@@ -164,20 +189,24 @@ void gtk3_g3duimateriallist_removeMaterial ( GTK3G3DUIMATERIALLIST *gtk3matlist,
                                              G3DSCENE              *sce,
                                              G3DURMANAGER          *urm,
                                              G3DMATERIAL           *mat ) {
+    G3DUI *gui = ( G3DUI * ) gtk3matlist->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    G3DUIMATERIALPREVIEW *preview = g3duimateriallist_getPreview ( &gtk3matlist->core,
+                                                                    mat );
+
     g3durm_scene_removeMaterial ( urm, 
                                   sce, 
                                   mat, 
                                   0x00,
-                                  REDRAWLIST | REBUILDMATERIALLIST  );
+                                  REDRAWOBJECTLIST | UPDATEMATERIALLIST  );
 
-    g3duimateriallist_removePreview ( &gtk3matlist->core, mat );
-
-    /* TODO: redraw */
+    g3duimateriallist_removePreview ( &gtk3matlist->core, preview );
 }
 
 /******************************************************************************/
-void gtk3_g3duimateriallist_importFromScene ( GTK3G3DUIMATERIALLIST *gtk3matlist,
-                                              G3DSCENE              *sce ) {
+static void gtk3_g3duimateriallist_importFromScene ( GTK3G3DUIMATERIALLIST *gtk3matlist ) {
+    G3DUI *gui = ( G3DUI * ) gtk3matlist->core.gui;
+    G3DSCENE *sce = ( G3DSCENE * ) gui->sce;
     LIST *ltmpmat = sce->lmat;
 
     while ( ltmpmat ) {
@@ -190,17 +219,17 @@ void gtk3_g3duimateriallist_importFromScene ( GTK3G3DUIMATERIALLIST *gtk3matlist
 }
 
 /******************************************************************************/
-void gtk3_g3duimateriallist_drawPreview ( GTK3G3DUIMATERIALLIST    *gtk3matlist,
-                                          cairo_t                  *cr,
-                                          GTK3G3DUIMATERIALPREVIEW *gtk3preview,
-                                          uint32_t                  selected ) {
-    GtkStyleContext *context = gtk_widget_get_style_context ( widget );
+static void gtk3_g3duimateriallist_drawPreview ( GTK3G3DUIMATERIALLIST    *gtk3matlist,
+                                                 cairo_t                  *cr,
+                                                 GTK3G3DUIMATERIALPREVIEW *gtk3preview,
+                                                 uint32_t                  selected ) {
+    GtkStyleContext *context = gtk_widget_get_style_context ( gtk3matlist->area );
     cairo_text_extents_t te;
     float text_x, text_y;
     GdkRGBA fg;
 
     /*** Draw the texture name ***/
-    cairo_text_extents ( cr, preview->mat->name, &te );
+    cairo_text_extents ( cr, gtk3preview->core.mat->name, &te );
 
     gtk_style_context_get_color ( context, GTK_STATE_FLAG_NORMAL, &fg );
 
@@ -229,7 +258,7 @@ void gtk3_g3duimateriallist_drawPreview ( GTK3G3DUIMATERIALLIST    *gtk3matlist,
 
     cairo_set_source_rgba ( cr, fg.red, fg.green, fg.blue, fg.alpha );
     cairo_move_to        ( cr, text_x, text_y );
-    cairo_show_text      ( cr, preview->mat->name );
+    cairo_show_text      ( cr, gtk3preview->core.mat->name );
 
     /*** Draw the texture preview ***/
     gdk_cairo_set_source_pixbuf ( cr,
@@ -241,15 +270,9 @@ void gtk3_g3duimateriallist_drawPreview ( GTK3G3DUIMATERIALLIST    *gtk3matlist,
 }
 
 /******************************************************************************/
-static void destroyPixbuf ( guchar *pixels, gpointer data ) {
-    free ( pixels );
-}
-
-
-/******************************************************************************/
-void gtk3_g3duimateriallist_input ( GtkWidget *widget,
-                                    GdkEvent  *gdkev, 
-                                    gpointer   user_data ) {
+static void Input ( GtkWidget *widget,
+                    GdkEvent  *gdkev, 
+                    gpointer   user_data ) {
     GTK3G3DUIMATERIALLIST *gtk3matlist = ( GTK3G3DUIMATERIALLIST * ) user_data;
     G3DUI *gui = ( G3DUI * ) gtk3matlist->core.gui;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
@@ -260,20 +283,29 @@ void gtk3_g3duimateriallist_input ( GtkWidget *widget,
 
             switch ( kev->keyval ) {
                 case GDK_KEY_Delete: {
-                    if ( gui->selmat ) {
-                        g3duimateriallist_removeMaterial ( &gtk3matlist->core,
-                                                            gui->sce, 
-                                                            gui->urm,
-                                                            gui->selmat );
+                    if ( gui->lselmat ) {
+                        LIST *ltmpselmat = gui->lselmat;
 
-                        gui->selmat = NULL;
+                         /* TODO: Multiselection */
+                        if ( ltmpselmat ) {
+                            G3DMATERIAL *selmat = ltmpselmat->data;
+
+                            gtk3_g3duimateriallist_removeMaterial ( &gtk3matlist->core,
+                                                                     gui->sce, 
+                                                                     gui->urm,
+                                                                     selmat );
+
+
+                        }
+
+                        list_free ( &gui->lselmat, NULL );
                     }
                 } break;
             }
 
             gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW          |
                                                    REDRAWMATERIALLIST  | 
-                                                   REDRAWCURRENTMATERIAL );
+                                                   UPDATECURRENTMATERIAL );
         } break;
 
         case GDK_BUTTON_PRESS : {
@@ -287,11 +319,18 @@ void gtk3_g3duimateriallist_input ( GtkWidget *widget,
                                                        bev->x,
                                                        bev->y );
 
-            if ( preview ) gui->selmat = preview->mat;
+             /* TODO: Multiselection */
+            list_free ( &gui->lselmat, g3dmaterial_unsetSelected );
+
+            if ( preview ) {
+                g3dmaterial_setSelected ( preview->mat );
+
+                list_insert ( &gui->lselmat, preview->mat );
+            }
 
             gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW          |
                                                    REDRAWMATERIALLIST  | 
-                                                   REDRAWCURRENTMATERIAL );
+                                                   UPDATECURRENTMATERIAL );
         } break;
 
         default:
@@ -325,16 +364,24 @@ static void Draw ( GtkWidget *widget,
 
     while ( ltmppreview ) {
         GTK3G3DUIMATERIALPREVIEW *gtk3preview = ( GTK3G3DUIMATERIALPREVIEW * ) ltmppreview->data;
-        uint32_t selected = 0x00;
+        uint32_t selected = ( gtk3preview->core.mat->flags & MATERIALSELECTED );
 
-        if ( gtk3preview->core.mat == gui->selmat ) {
-            selected = 0x01;
-        }
-
-        g3duimateriallist_drawPreview ( gtk3matlist, cr, gtk3preview, selected );
+        gtk3_g3duimateriallist_drawPreview ( gtk3matlist,
+                                             cr,
+                                             gtk3preview,
+                                             selected );
 
         ltmppreview = ltmppreview->next;
     }
+}
+
+
+
+/******************************************************************************/
+void gtk3_g3duimateriallist_update ( GTK3G3DUIMATERIALLIST *gtk3matlist ) {
+    gtk3_g3duimateriallist_removeAllMaterials ( gtk3matlist );
+    gtk3_g3duimateriallist_importFromScene    ( gtk3matlist );
+    gtk3_g3duimateriallist_arrange            ( gtk3matlist );
 }
 
 /******************************************************************************/
@@ -350,34 +397,8 @@ static void Realize ( GtkWidget *widget,
     GTK3G3DUIMATERIALLIST *gtk3matlist = ( GTK3G3DUIMATERIALLIST * ) user_data;
     G3DUI *gui = ( G3DUI * ) gtk3matlist->core.gui;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
-    GtkStyleContext *context = gtk_widget_get_style_context ( widget );
 
-    /*** Render with button style ***/
-    gtk_style_context_add_class ( context, GTK_STYLE_CLASS_BUTTON );
-
-    gtk3_g3duimateriallist_removeAllMaterials ( gtk3matlist );
-    gtk3_g3duimateriallist_importFromScene    ( gtk3matlist, gui->sce );
-}
-
-/******************************************************************************/
-static void Resize ( GtkWidget    *widget,
-                     GdkRectangle *allocation,
-                     gpointer      user_data ) {
-    GTK3G3DUIMATERIALLIST *gtk3matlist = ( GTK3G3DUIMATERIALLIST * ) user_data;
-    G3DUI *gui = ( G3DUI * ) gtk3matlist->core.gui;
-    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
-    uint32_t maxsize, maxheight, maxwidth;
-
-    maxsize = g3duimateriallist_arrangePreviews ( &gtk3matlist->core,
-                                                   allocation->x,
-                                                   allocation->y,
-                                                   allocation->width,
-                                                   allocation->height );
-
-    maxheight = ( maxsize & 0xFFFF0000 ) >> 0x10;
-    maxwidth  = ( maxsize & 0x0000FFFF );
-
-    gtk_widget_set_size_request ( widget, maxwidth, maxheight );
+    gtk3_g3duimateriallist_update ( gtk3matlist );
 }
 
 /******************************************************************************/
@@ -386,7 +407,8 @@ GTK3G3DUIMATERIALLIST *gtk3_g3duimateriallist_create ( GtkWidget *parent,
                                                        char      *name ) {
     GTK3G3DUIMATERIALLIST *gtk3matlist = gtk3_g3duimateriallist_new ( gtk3gui, 
                                                                       0x60,
-                                                                      0x60 );
+                                                                      0x60,
+                                                                      0x03 );
     GtkWidget *scrolled = ui_gtk_scrolled_window_new ( CLASS_MAIN, NULL, NULL );
     GtkWidget *drw = ui_gtk_drawing_area_new ( CLASS_MAIN );
 
@@ -414,7 +436,7 @@ GTK3G3DUIMATERIALLIST *gtk3_g3duimateriallist_create ( GtkWidget *parent,
                                  GDK_POINTER_MOTION_MASK        |
                                  GDK_POINTER_MOTION_HINT_MASK );
 
-    gtk_scrolled_window_set_policy ( GTK_SCROLLED_WINDOW(scr),
+    gtk_scrolled_window_set_policy ( GTK_SCROLLED_WINDOW(scrolled),
                                      GTK_POLICY_AUTOMATIC,
                                      GTK_POLICY_AUTOMATIC );
 
@@ -431,5 +453,5 @@ GTK3G3DUIMATERIALLIST *gtk3_g3duimateriallist_create ( GtkWidget *parent,
     gtk_widget_show ( drw );
     gtk_widget_show ( scrolled );
 
-    return scrolled;
+    return gtk3matlist;
 }

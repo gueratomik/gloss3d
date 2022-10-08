@@ -56,7 +56,7 @@ static uint64_t rwViewFitCbk ( G3DUIMENU *menu, void *data ) {
 
     rwin->displayMode = RENDERWINDOW_FIT_SIZE;
 
-    return RESIZERENDERWINDOW | REDRAWRENDERWINDOWMENU;
+    return RESIZERENDERWINDOW | UPDATERENDERWINDOWMENU;
 }
 
 /******************************************************************************/
@@ -66,7 +66,7 @@ static uint64_t rwViewFullCbk ( G3DUIMENU *menu, void *data ) {
 
     rwin->displayMode = RENDERWINDOW_FULL_SIZE;
 
-    return RESIZERENDERWINDOW | REDRAWRENDERWINDOWMENU;
+    return RESIZERENDERWINDOW | UPDATERENDERWINDOWMENU;
 }
 
 /******************************************************************************/

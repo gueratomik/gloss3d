@@ -44,5 +44,5 @@ uint64_t g3duiobjectedit_name ( G3DUIOBJECTEDIT *objedit,
         ltmpselobj = ltmpselobj->next;
     }
 
-    return REDRAWLIST;
+    return REDRAWOBJECTLIST;
 }

@@ -81,7 +81,7 @@ uint64_t g3duiview_setShading ( G3DUIVIEW *view,
     } ReleaseDC ( view->hWnd, dc );
 #endif
 
-    return REDRAWVIEW | REDRAWVIEWMENU;
+    return REDRAWVIEW | UPDATEVIEWMENU;
 }
 
 /******************************************************************************/
@@ -107,7 +107,7 @@ uint64_t g3duiview_orbit ( G3DUIVIEW *view,
 
     g3dpivot_orbit ( piv, diffx, diffy );
 
-    if ( view->defcam != cam ) return REDRAWCOORDS;
+    if ( view->defcam != cam ) return UPDATECOORDS;
 
     return 0x00;
 }
@@ -125,7 +125,7 @@ uint64_t g3duiview_spin ( G3DUIVIEW *view,
 
     g3dcamera_spin ( cam, diffx );
 
-    if ( view->defcam != cam ) return REDRAWCOORDS;
+    if ( view->defcam != cam ) return UPDATECOORDS;
 
     return 0x00;
 }
@@ -140,7 +140,7 @@ uint64_t g3duiview_zoom ( G3DUIVIEW *view,
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
 
-    if ( view->defcam != cam ) return REDRAWCOORDS;
+    if ( view->defcam != cam ) return UPDATECOORDS;
 
     return 0x00;
 }
@@ -174,7 +174,7 @@ uint64_t g3duiview_moveSideward ( G3DUIVIEW *view,
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
 
-    if ( view->defcam != cam ) return REDRAWCOORDS;
+    if ( view->defcam != cam ) return UPDATECOORDS;
 
     return 0x00;
 }
@@ -211,7 +211,7 @@ uint64_t g3duiview_moveForward ( G3DUIVIEW *view,
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
 
-    if ( view->defcam != cam ) return REDRAWCOORDS;
+    if ( view->defcam != cam ) return UPDATECOORDS;
 
     return 0x00;
 }

@@ -777,13 +777,6 @@ typedef struct _G3DUIMESHPOSELIST {
     G3DUI *gui;
 } G3DUIMESHPOSELIST;
 
-/******************************************************************************/
-typedef struct _G3DUIOBJECTLIST {
-    G3DUI *gui;
-    uint32_t oldWidth,
-             oldHeight;
-} G3DUIOBJECTLIST;
-
 
 /******************************************************************************/
 typedef struct _G3DUIRENDERBUFFER {
@@ -973,6 +966,61 @@ typedef struct _G3DUIPARTICLEEMITTEREDIT {
     G3DPARTICLEEMITTER *editedPEmitter;
 } G3DUIPARTICLEEMITTEREDIT;
 
+
+/******************************************************************************/
+#define VECNORMMAX 1.001f
+#define VECNORMMIN 0.999f
+typedef struct _G3DUIMATERIALPIXEL {
+    uint32_t used;
+    G3DVECTOR pos;
+    G3DVECTOR nor;
+    float     diff;
+    float     spec; /*** specular reflection dot product ***/
+    float     u, v;
+} G3DUIMATERIALPIXEL;
+
+/******************************************************************************/
+typedef struct _G3DUIMATERIALMAP {
+    G3DUIMATERIALPIXEL *pixel;
+    uint32_t            width;
+    uint32_t            height;
+} G3DUIMATERIALMAP;
+
+/************************** GTK MaterialList Widget ***************************/
+typedef struct _G3DUIMATERIALPREVIEW {
+    /*** The vector map that helps us to build the preview sphere ***/
+    /*** This is per-preview because we need individual maps in case ***/
+    /*** normal vectors are affected by bump maps for instance ***/
+    G3DUIMATERIALMAP *map;
+    G3DUIRECTANGLE    rec;
+    G3DMATERIAL      *mat;
+} G3DUIMATERIALPREVIEW;
+
+
+/******************************************************************************/
+typedef struct _G3DUIMATERIALLIST {
+    G3DUI   *gui;
+    LIST    *lpreview;
+    uint32_t image_width;
+    uint32_t image_height;
+    uint32_t preview_per_line;
+    uint32_t preview_width;
+    uint32_t preview_height;
+    uint32_t preview_border;
+    uint32_t preview_name_height;
+} G3DUIMATERIALLIST;
+
+/******************************************************************************/
+typedef struct _G3DUIMATERIALBOARD {
+    G3DUI              *gui;
+    G3DUIRECTANGLE      menurec;
+    G3DUIRECTANGLE      listrec;
+    G3DUIRECTANGLE      editrec;
+    G3DUIMENU          *menuBar;
+    G3DUIMATERIALLIST  *matlist;
+    G3DUIMATERIALEDIT  *matedit;
+} G3DUIMATERIALBOARD;
+
 /******************************************************************************/
 typedef struct _G3DUIOBJECTEDIT {
     G3DUI                   *gui;
@@ -999,37 +1047,11 @@ typedef struct _G3DUIOBJECTEDIT {
 } G3DUIOBJECTEDIT;
 
 /******************************************************************************/
-typedef struct _G3DUIMATERIALBOARD {
-    G3DUI              *gui;
-    G3DUIRECTANGLE      menurec;
-    G3DUIRECTANGLE      listrec;
-    G3DUIRECTANGLE      editrec;
-    G3DUIMENU          *menuBar;
-    G3DUIOBJECTLIST    *matlist;
-    G3DUIMATERIALEDIT  *matedit;
-} G3DUIMATERIALBOARD;
-
-/******************************************************************************/
-typedef struct _G3DUIMATERIALLIST {
-    G3DUI   *gui;
-    LIST    *lpreview;
-    uint32_t image_width;
-    uint32_t image_height;
-    uint32_t preview_width;
-    uint32_t preview_height;
-    uint32_t preview_border;
-    uint32_t preview_name_height;
-} G3DUIMATERIALLIST;
-
-/************************** GTK MaterialList Widget ***************************/
-typedef struct _G3DUIMATERIALPREVIEW {
-    /*** The vector map that helps us to build the preview sphere ***/
-    /*** This is per-preview because we need individual maps in case ***/
-    /*** normal vectors are affected by bump maps for instance ***/
-    G3DUIMATERIALMAP *map;
-    G3DUIRECTANGLE    rec;
-    G3DMATERIAL      *mat;
-} G3DUIMATERIALPREVIEW;
+typedef struct _G3DUIOBJECTLIST {
+    G3DUI *gui;
+    uint32_t oldWidth,
+             oldHeight;
+} G3DUIOBJECTLIST;
 
 /******************************************************************************/
 typedef struct _G3DUIOBJECTBOARD {
@@ -1340,26 +1362,7 @@ typedef struct _PICKEDOBJECT {
     uint32_t picked; 
 } PICKEDOBJECT;
 
-/****************************** Material Previews *****************************/
-/******************************************************************************/
-#define VECNORMMAX 1.001f
-#define VECNORMMIN 0.999f
-/******************************************************************************/
-typedef struct _G3DUIMATERIALPIXEL {
-    uint32_t used;
-    G3DVECTOR pos;
-    G3DVECTOR nor;
-    float diff;
-    float spec; /*** specular reflection dot product ***/
-    float u, v;
-} G3DUIMATERIALPIXEL;
 
-/******************************************************************************/
-typedef struct _G3DUIMATERIALMAP {
-    G3DUIMATERIALPIXEL *pixel;
-    uint32_t width;
-    uint32_t height;
-} G3DUIMATERIALMAP;
 
 /******************************************************************************/
 #define NBPATTERNS 0x0C
@@ -1741,21 +1744,16 @@ uint64_t g3duimaterialedit_toggleAlpha ( G3DUIMATERIALEDIT *matedit );
 void g3duimateriallist_init ( G3DUIMATERIALLIST *matlist,
                               G3DUI             *gui,
                               uint32_t           image_width,
-                              uint32_t           image_height );
+                              uint32_t           image_height,
+                              uint32_t           preview_per_line );
 G3DUIMATERIALPREVIEW *g3duimateriallist_pickPreview ( G3DUIMATERIALLIST *matlist,
                                                       uint32_t           x,
                                                       uint32_t           y );
-uint32_t g3duimateriallist_arrangePreviews ( G3DUIMATERIALLIST *matlist,
-                                             uint32_t           win_x,
-                                             uint32_t           win_y,
-                                             uint32_t           win_width,
-                                             uint32_t           win_height );
+uint32_t g3duimateriallist_arrangePreviews ( G3DUIMATERIALLIST *matlist );
 G3DUIMATERIALPREVIEW *g3duimateriallist_getPreview ( G3DUIMATERIALLIST *matlist,
                                                      G3DMATERIAL       *mat );
-void g3duimateriallist_removePreview ( G3DUIMATERIALLIST *matlist, 
-                                       G3DMATERIAL       *mat );
-void g3duimateriallist_getPreview ( G3DUIMATERIALLIST *matlist, 
-                                    G3DMATERIAL       *mat );
+void g3duimateriallist_removePreview ( G3DUIMATERIALLIST    *matlist, 
+                                       G3DUIMATERIALPREVIEW *preview );
 void g3duimateriallist_removeAllPreviews ( G3DUIMATERIALLIST *matlist );
 G3DUIMATERIALMAP *g3duimaterialmap_new ( uint32_t width,
                                          uint32_t height );

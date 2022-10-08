@@ -417,7 +417,7 @@ static void Map ( GtkWidget *widget,
 
         gtk3_initDefaultMouseTools ( gtk3gui );
 
-        gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWALL );
+        gtk3_interpretUIReturnFlags ( gtk3gui, UPDATEANDREDRAWALL );
     }
 }
 

@@ -1199,7 +1199,7 @@ static void gtk3_updateSelectedMaterialPreview ( GTK3G3DUI *gtk3gui ) {
         while ( ltmpmatlist ) {
             GtkWidget *matlst = ( GtkWidget * ) ltmpmatlist->data;
 
-            g3duimateriallist_updatePreview ( matlst, mat );
+            gtk3_g3duimateriallist_updatePreview ( matlst, mat );
 
 
             ltmpmatlist = ltmpmatlist->next;
@@ -1316,13 +1316,54 @@ static void gtk3_redrawObjectList ( GTK3G3DUI *gtk3gui ) {
                     GTK3G3DUIOBJECTLIST *gtk3objlist = ( GTK3G3DUIOBJECTLIST * ) objlist;
 
                     if ( gtk3objlist ) {
-                        GdkRectangle arec;
-
-                        arec.x = arec.y = 0x00;
-                        arec.width = arec.height = 1;
-
                         gtk_widget_queue_draw ( gtk3objlist->area );
                     }
+                }
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+static void gtk3_redrawMaterialList ( GTK3G3DUI *gtk3gui ) {
+    if (  gtk3gui->core.main ) {
+        G3DUIMAIN *main = ( G3DUIMAIN * ) gtk3gui->core.main;
+
+        if (  main ) {
+            G3DUIBOARD *board = main->board;
+
+            if ( board ) {
+                G3DUIMATERIALBOARD *matboard = board->matboard;
+
+                if ( matboard ) {
+                    G3DUIMATERIALLIST *matlist = matboard->matlist;
+                    GTK3G3DUIMATERIALLIST *gtk3matlist = ( GTK3G3DUIMATERIALLIST * ) matlist;
+
+                    if ( gtk3matlist ) {
+                        gtk_widget_queue_draw ( gtk3matlist->area );
+                    }
+                }
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+static void gtk3_updateMaterialList ( GTK3G3DUI *gtk3gui ) {
+    if (  gtk3gui->core.main ) {
+        G3DUIMAIN *main = ( G3DUIMAIN * ) gtk3gui->core.main;
+
+        if (  main ) {
+            G3DUIBOARD *board = main->board;
+
+            if ( board ) {
+                G3DUIMATERIALBOARD *matboard = board->matboard;
+
+                if ( matboard ) {
+                    G3DUIMATERIALLIST *matlist = matboard->matlist;
+                    GTK3G3DUIMATERIALLIST *gtk3matlist = ( GTK3G3DUIMATERIALLIST * ) matlist;
+
+                    gtk3_g3duimateriallist_update ( gtk3matlist );
                 }
             }
         }
@@ -1494,64 +1535,67 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
         gtk3_redrawGLViews ( gtk3gui );
     }
 
-    if ( msk & REDRAWVIEWMENU ) {
+    if ( msk & UPDATEVIEWMENU ) {
 
         gtk3_updateGLViewsMenu ( gtk3gui );
     }
 
-    if ( msk & REDRAWCURRENTOBJECT ) {
+    if ( msk & UPDATECURRENTOBJECT ) {
         gtk3_updateObjectEdit ( gtk3gui );
     }
 
-    if ( msk & REDRAWTIMELINE ) {
-        gtk3_redrawTimeline ( gtk3gui );
+    if ( msk & UPDATERENDERWINDOWMENU ) {
+        gtk3_redrawRenderWindowMenu ( gtk3gui );
     }
 
     if ( msk & RESIZERENDERWINDOW ) {
         gtk3_resizeRenderWindow ( gtk3gui );
     }
 
-    if ( msk & REDRAWRENDERWINDOWMENU ) {
-        gtk3_redrawRenderWindowMenu ( gtk3gui );
-    }
-
     if ( msk & CREATERENDEREDIT ) {
         gtk3_createRenderEdit ( gtk3gui );
     }
 
-    if ( msk & REDRAWLIST ) {
+    if ( msk & REDRAWOBJECTLIST ) {
         gtk3_redrawObjectList ( gtk3gui );
     }
 
+    if ( msk & REDRAWMATERIALLIST ) {
+        gtk3_redrawMaterialList ( gtk3gui );
+    }
+
+    if ( msk & REDRAWTIMELINE ) {
+        gtk3_redrawTimeline ( gtk3gui );
+    }
+
+    if ( msk & UPDATEMATERIALLIST ) {
+        gtk3_updateMaterialList ( gtk3gui );
+        /*gtk3_updateMaterialEdit ( );*/
+    }
+
 #ifdef TODO
-    if ( msk & REDRAWCURRENTMATERIAL ) {
+    if ( msk & UPDATECURRENTMATERIAL ) {
         gtk3_updateMaterialEdit ( );
         gtk3_updateSelectedMaterialPreview ( );
     }
 
-    if ( msk & REDRAWMATERIALLIST ) {
-        gtk3_redrawMaterialList ( );
-    }
 
-    if ( msk & REBUILDMATERIALLIST ) {
-        gtk3_clearMaterials     ( );
-        gtk3_importMaterials    ( );
-        gtk3_redrawMaterialList ( );
-    }
+
+
 
     if ( msk & REDRAWUVMAPEDITOR ) {
         gtk3_redrawUVMapEditors ( );
     }
 
-    if ( msk & REDRAWMENU ) {
+    if ( msk & UPDATEMAINMENU ) {
         gtk3_updateMenuBar    ( );
     }
 
-    if ( msk & REDRAWCURRENTMOUSETOOL ) {
+    if ( msk & UPDATECURRENTMOUSETOOL ) {
         gtk3_updateAllCurrentMouseTools ( );
     }
 
-    if ( msk & REDRAWCOORDS ) {
+    if ( msk & UPDATECOORDS ) {
         gtk3_updateCoords ( );
     }
 

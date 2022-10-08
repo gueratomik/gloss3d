@@ -107,28 +107,37 @@
 #define G3DButton3Mask   ( 1  << 4  )
 
 #define REDRAWVIEW             ( 1       )
-#define REDRAWVIEWMENU         ( 1 <<  1 )
+#define UPDATEVIEWMENU         ( 1 <<  1 )
 #define REDRAWUVMAPEDITOR      ( 1 <<  2 )
-#define REDRAWLIST             ( 1 <<  3 )
-#define REDRAWMENU             ( 1 <<  4 )
-#define REDRAWCOORDS           ( 1 <<  5 )
-#define REDRAWPARAMS           ( 1 <<  6 )
-#define REDRAWCURRENTOBJECT    ( 1 <<  7 )
-#define REDRAWCURRENTMOUSETOOL ( 1 <<  8 )
-#define REDRAWCURRENTMATERIAL  ( 1 <<  9 )
+#define REDRAWOBJECTLIST       ( 1 <<  3 )
+#define UPDATEMAINMENU         ( 1 <<  4 )
+#define UPDATECOORDS           ( 1 <<  5 )
+#define UPDATEPARAMS           ( 1 <<  6 )
+#define UPDATECURRENTOBJECT    ( 1 <<  7 )
+#define UPDATECURRENTMOUSETOOL ( 1 <<  8 )
+#define UPDATECURRENTMATERIAL  ( 1 <<  9 )
 #define REDRAWTIMELINE         ( 1 << 10 )
-#define REDRAWMESHPOSELIST     ( 1 << 11 )
+#define UPDATEMESHPOSELIST     ( 1 << 11 )
 #define REDRAWMATERIALLIST     ( 1 << 12 )
-#define REBUILDMATERIALLIST    ( 1 << 13 )
+#define UPDATEMATERIALLIST     ( 1 << 13 )
 #define NOBUFFEREDSUBDIVISION  ( 1 << 14 )
 #define BUFFEREDSUBDIVISIONOK  ( 1 << 15 )
-#define REDRAWALL              ( REDRAWVIEW | REDRAWLIST | REDRAWCOORDS | \
-                                 REDRAWUVMAPEDITOR | REDRAWVIEWMENU | \
-                                 REDRAWPARAMS | REDRAWCURRENTOBJECT | \
-                                 REDRAWCURRENTMATERIAL | \
-                                 REDRAWTIMELINE | REDRAWCURRENTMOUSETOOL )
+#define UPDATEANDREDRAWALL     ( REDRAWVIEW             | \
+                                 UPDATEVIEWMENU         | \
+                                 REDRAWOBJECTLIST       | \
+                                 UPDATEMAINMENU         | \
+                                 UPDATECOORDS           | \
+                                 UPDATEPARAMS           | \
+                                 UPDATECURRENTOBJECT    | \
+                                 UPDATECURRENTMATERIAL  | \
+                                 UPDATECURRENTMOUSETOOL | \
+                                 UPDATECURRENTMATERIAL  | \
+                                 REDRAWTIMELINE         | \
+                                 REDRAWMATERIALLIST     | \
+                                 UPDATEMATERIALLIST     )
+
 #define RESIZERENDERWINDOW     ( 1 << 16 )
-#define REDRAWRENDERWINDOWMENU ( 1 << 17 )
+#define UPDATERENDERWINDOWMENU ( 1 << 17 )
 #define CREATERENDEREDIT       ( 1 << 18 )
 
 #define PICKMINRADIUS 0x10

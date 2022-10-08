@@ -70,7 +70,7 @@ static void pickedobject_parse ( PICKEDOBJECT *pob, G3DSCENE *sce,
                                                      lselnew, 
                                                      VIEWOBJECT, 
                                                      REDRAWVIEW | 
-                                                     REDRAWLIST );
+                                                     REDRAWOBJECTLIST );
             }
         }
     }

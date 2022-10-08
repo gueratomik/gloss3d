@@ -75,11 +75,11 @@ static uint32_t makeeditable_init  ( G3DMOUSETOOL *mou,
                                    sce,
                                    engine_flags, ( G3DPRIMITIVE * ) obj,
                                                  ( G3DOBJECT    * ) obj->parent,
-                                                 ( REDRAWCURRENTOBJECT | 
+                                                 ( UPDATECURRENTOBJECT | 
                                                    REDRAWVIEW          | 
-                                                   REDRAWLIST ) );
+                                                   REDRAWOBJECTLIST ) );
 
-        return REDRAWALL;
+        return UPDATEANDREDRAWALL;
     }
 
     if ( obj && ( ( obj->type & MODIFIER         ) ||
@@ -95,7 +95,7 @@ static uint32_t makeeditable_init  ( G3DMOUSETOOL *mou,
                                      sce, 
                                      engine_flags, 
                                      ( REDRAWVIEW |
-                                       REDRAWLIST | REDRAWCURRENTOBJECT ),
+                                       REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
                                      ( G3DOBJECT * ) NULL,
                                      ( G3DOBJECT * ) sce,
                                      ( G3DOBJECT * ) commitedObj );
@@ -106,7 +106,7 @@ static uint32_t makeeditable_init  ( G3DMOUSETOOL *mou,
                                     engine_flags );
         }
 
-        return REDRAWALL;
+        return UPDATEANDREDRAWALL;
     }
 
     return 0x00;

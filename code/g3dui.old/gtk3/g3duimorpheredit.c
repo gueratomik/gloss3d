@@ -154,7 +154,7 @@ static void createMeshPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
                                             mpd->gui->sce,
                                             mpr,
                                             mpd->gui->engine_flags,
-                                            REDRAWVIEW | REDRAWCURRENTOBJECT );
+                                            REDRAWVIEW | UPDATECURRENTOBJECT );
         }
     }
 
@@ -179,7 +179,7 @@ static void deleteMeshPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
                                                 mpr->selmpose,
                                                 mpd->gui->engine_flags,
                                                 REDRAWVIEW | 
-                                                REDRAWCURRENTOBJECT );
+                                                UPDATECURRENTOBJECT );
             }
         }
     }
@@ -269,7 +269,7 @@ static gboolean selectMeshPoseCbk ( GtkWidget *widget,
                                             fgd->mpr,
                                             fgd->mpose,
                                             gui->engine_flags,
-                                            REDRAWVIEW | REDRAWCURRENTOBJECT );
+                                            REDRAWVIEW | UPDATECURRENTOBJECT );
         break;
 
 /* can't get it to work :(

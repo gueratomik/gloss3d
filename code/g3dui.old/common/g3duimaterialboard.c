@@ -40,7 +40,7 @@ void common_g3dui_setMaterialCbk ( G3DUI *gui ) {
                                       sce->lsel, 
                                       mat,
                                       gui->engine_flags,
-                                      REDRAWVIEW | REDRAWLIST );
+                                      REDRAWVIEW | REDRAWOBJECTLIST );
     }
 
     common_g3duimenubar_fitUVMapCbk ( gui );

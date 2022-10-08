@@ -840,7 +840,7 @@ static int weight_tool ( G3DMOUSETOOL *mou,
             }
 
             glGetIntegerv ( GL_VIEWPORT, VPX );
-        } return REDRAWVIEW | REDRAWCURRENTOBJECT;
+        } return REDRAWVIEW | UPDATECURRENTOBJECT;
 
         case G3DMotionNotify : {
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
@@ -901,7 +901,7 @@ int pickUV_tool ( G3DMOUSETOOL *mou,
         	                pt->start = 0x01;
 
         	                startSelectionRectangle ( bev->x, VPX[0x03] - bev->y, pt->coord );
-                        } return REDRAWALL;
+                        } return UPDATEANDREDRAWALL;
 
                         case G3DMotionNotify : {
         	            /*** if G3DButtonPress was called ***/
@@ -953,7 +953,7 @@ int pickUV_tool ( G3DMOUSETOOL *mou,
                             }
 
         	                pt->start = 0x00;
-                        } return REDRAWALL;
+                        } return UPDATEANDREDRAWALL;
 
                         default :
                         break;
@@ -991,7 +991,7 @@ int pick_tool ( G3DMOUSETOOL *mou,
         	    pt->start = 0x01;
 
         	    startSelectionRectangle ( bev->x, VPX[0x03] - bev->y, pt->coord );
-            } return REDRAWALL;
+            } return UPDATEANDREDRAWALL;
 
             case G3DMotionNotify : {
         	/*** if G3DButtonPress was called ***/
@@ -1203,7 +1203,7 @@ int pick_tool ( G3DMOUSETOOL *mou,
         	    /*pick_push ( urm, obj, lselold, lselnew, gdt->flags );*/
 
         	    pt->start = 0x00;
-            } return REDRAWALL;
+            } return UPDATEANDREDRAWALL;
 
             default :
             break;

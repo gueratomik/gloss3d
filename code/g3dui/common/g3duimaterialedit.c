@@ -63,7 +63,7 @@ uint64_t g3duimaterialedit_setDiffuseColor ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -88,7 +88,7 @@ uint64_t g3duimaterialedit_setSpecularColor ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -112,7 +112,7 @@ uint64_t g3duimaterialedit_setDisplacementStrength ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -135,7 +135,7 @@ uint64_t g3duimaterialedit_setBumpStrength ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -157,7 +157,7 @@ uint64_t g3duimaterialedit_setReflectionStrength ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -179,7 +179,7 @@ uint64_t g3duimaterialedit_setRefractionStrength ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -197,7 +197,7 @@ uint64_t g3duimaterialedit_setAlphaStrength ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -215,7 +215,7 @@ uint64_t g3duimaterialedit_setName ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWMATERIALLIST | REDRAWCURRENTMATERIAL;
+    return REDRAWMATERIALLIST | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -233,7 +233,7 @@ uint64_t g3duimaterialedit_setSpecularLevel ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -251,7 +251,7 @@ uint64_t g3duimaterialedit_setSpecularShininess ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -296,7 +296,7 @@ uint64_t g3duimaterialedit_channelChooseImage ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -325,7 +325,7 @@ uint64_t g3duimaterialedit_enableProcedural ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -354,7 +354,7 @@ uint64_t g3duimaterialedit_enableSolidColor ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -380,7 +380,7 @@ uint64_t g3duimaterialedit_enableImage ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -444,7 +444,7 @@ uint64_t g3duimaterialedit_chooseProcedural ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -467,7 +467,7 @@ uint64_t g3duimaterialedit_toggleDisplacement ( G3DUIMATERIALEDIT *matedit ) {
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -490,7 +490,7 @@ uint64_t g3duimaterialedit_toggleBump ( G3DUIMATERIALEDIT *matedit ) {
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -512,5 +512,5 @@ uint64_t g3duimaterialedit_toggleAlpha ( G3DUIMATERIALEDIT *matedit ) {
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | UPDATECURRENTMATERIAL;
 }

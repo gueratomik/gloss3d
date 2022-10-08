@@ -95,6 +95,16 @@ void g3dmaterial_updateMeshes ( G3DMATERIAL *mat,
 }
 
 /******************************************************************************/
+void g3dmaterial_setSelected ( G3DMATERIAL *mat ) {
+    mat->flags |= MATERIALSELECTED;
+}
+
+/******************************************************************************/
+void g3dmaterial_unsetSelected ( G3DMATERIAL *mat ) {
+    mat->flags &= (~MATERIALSELECTED);
+}
+
+/******************************************************************************/
 void g3dmaterial_addObject ( G3DMATERIAL *mat, G3DOBJECT *obj ) {
     list_insert ( &mat->lobj, obj );
 

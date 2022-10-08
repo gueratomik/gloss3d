@@ -208,7 +208,7 @@ void g3duiclipboard_paste ( G3DUICLIPBOARD *cli,
                 ltmpcpy = ltmpcpy->next;
             }
 
-            g3durm_object_addChildren ( urm, sce, flags, REDRAWVIEW | REDRAWLIST,
+            g3durm_object_addChildren ( urm, sce, flags, REDRAWVIEW | REDRAWOBJECTLIST,
                                         NULL, dst, lcpyobj );
 
             list_free ( &lcpyobj, NULL );

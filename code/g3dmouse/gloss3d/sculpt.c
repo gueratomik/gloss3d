@@ -388,7 +388,7 @@ int sculpt_tool ( G3DMOUSETOOL *mou,
 
                 glGetIntegerv ( GL_VIEWPORT, VPX );
 
-            } return REDRAWVIEW | REDRAWCURRENTOBJECT;
+            } return REDRAWVIEW | UPDATECURRENTOBJECT;
 
             case G3DMotionNotify : {
                 G3DMotionEvent *mev = ( G3DMotionEvent * ) event;

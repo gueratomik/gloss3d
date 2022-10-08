@@ -243,6 +243,13 @@ typedef struct _GTK3G3DUIOBJECTLIST {
 } GTK3G3DUIOBJECTLIST;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUIMATERIALLIST {
+    G3DUIMATERIALLIST core;
+    GtkWidget        *area;
+    GtkWidget        *scrolled;
+} GTK3G3DUIMATERIALLIST;
+
+/******************************************************************************/
 typedef struct _GTK3G3DUIOBJECTEDIT {
     G3DUIOBJECTEDIT core;
     GtkWidget      *fixed;
@@ -559,10 +566,10 @@ typedef struct _GTK3PATTERNPREVIEW {
 
 /******************************************************************************/
 /************************** GTK MaterialList Widget ***************************/
-typedef struct _GTK3MATERIALPREVIEW {
+typedef struct _GTK3G3DUIMATERIALPREVIEW {
     G3DUIMATERIALPREVIEW core;
     GdkPixbuf           *img;
-} GTK3MATERIALPREVIEW;
+} GTK3G3DUIMATERIALPREVIEW;
 
 /******************************************************************************/
 #define TOGDKWINDOWFILTERNAME "TOGDKWINDOWFILTERNAME"
@@ -826,7 +833,15 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
                                         void      *data );
 void gtk3_g3duimenu_update_r ( GTK3G3DUIMENU *gtk3node );
 
-/******************************* g3duimain.c **********************************/
+/**************************** g3duimaterialboard.c ****************************/
+GTK3G3DUIMATERIALBOARD *gtk3_g3duimaterialboard_create ( GtkWidget *parent,
+                                                         GTK3G3DUI *gtk3gui,
+                                                         char      *name );
+void gtk3_g3duimaterialboard_resize ( GTK3G3DUIMATERIALBOARD *gtk3matboard,
+                                      uint32_t                width,
+                                      uint32_t                height );
+
+/**************************** g3duimateriallist.c *****************************/
 GTK3G3DUIMAIN *gtk3_g3duimain_create ( GtkWidget *parent,
                                        GTK3G3DUI *gtk3gui,
                                        char      *name,
@@ -839,6 +854,23 @@ void gtk3_g3duimain_updateMenuBar ( GTK3G3DUIMAIN *gtk3main );
 void gtk3_g3duimain_resize ( GTK3G3DUIMAIN *gtk3main,
                              uint32_t       width,
                              uint32_t       height );
+void gtk3_g3duimateriallist_update ( GTK3G3DUIMATERIALLIST *gtk3matlist );
+void gtk3_g3duimateriallist_updatePreview ( GTK3G3DUIMATERIALLIST *gtk3matlist,
+                                            G3DMATERIAL           *mat );
+void gtk3_g3duimateriallist_addMaterial ( GTK3G3DUIMATERIALLIST *gtk3matlist,
+                                          G3DMATERIAL           *mat );
+void gtk3_g3duimateriallist_removeMaterial ( GTK3G3DUIMATERIALLIST *gtk3matlist, 
+                                             G3DSCENE              *sce,
+                                             G3DURMANAGER          *urm,
+                                             G3DMATERIAL           *mat );
+GTK3G3DUIMATERIALLIST *gtk3_g3duimateriallist_create ( GtkWidget *parent,
+                                                       GTK3G3DUI *gtk3gui,
+                                                       char      *name );
+
+/**************************** g3duiobjectlist.c *******************************/
+GTK3G3DUIOBJECTLIST *gtk3_g3duiobjectlist_create ( GtkWidget *parent,
+                                                   GTK3G3DUI *gtk3gui,
+                                                   char      *name );
 
 /************************ g3duiparticleemitter.c ******************************/
 void gtk3_g3duiparticleemitteredit_update ( GTK3G3DUIPARTICLEEMITTEREDIT *gtk3ped );

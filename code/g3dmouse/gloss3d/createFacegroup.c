@@ -75,9 +75,9 @@ static uint32_t createFacegroup_init  ( G3DMOUSETOOL *mou,
 
         g3durm_mesh_createFacegroup ( urm, mes, "FaceGroup", engine_flags,
                                                              REDRAWVIEW | 
-                                                             REDRAWCURRENTOBJECT );
+                                                             UPDATECURRENTOBJECT );
 
-        return REDRAWVIEW | REDRAWCURRENTOBJECT;
+        return REDRAWVIEW | UPDATECURRENTOBJECT;
     }
 
     return 0x00;

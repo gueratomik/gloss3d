@@ -423,7 +423,7 @@ static void Input ( Widget w, XtPointer client,
             if ( XLookupString ( kev, &c, 0x01, &keysym, NULL ) > 0x00 ) {
                 switch ( keysym ) {
                     case XK_Delete: {
-                        uint32_t retflags = ( REDRAWVIEW | REDRAWLIST );
+                        uint32_t retflags = ( REDRAWVIEW | REDRAWOBJECTLIST );
 
                         if ( pob && ( pob->picked == TEXTURERECTHIT ) ) {
                             g3dmesh_removeMaterial ( ( G3DMESH * ) pob->obj, pob->tex->mat );
@@ -555,8 +555,8 @@ printf("pasting\n");
                     /*** Perform action & record for the undo-redo manager ***/
                     g3durm_object_addChild ( urm, sce, gui->engine_flags,
                                                        ( REDRAWVIEW |
-                                                         REDRAWLIST | 
-                                                         REDRAWCURRENTOBJECT ),
+                                                         REDRAWOBJECTLIST | 
+                                                         UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) par,
                                            ( G3DOBJECT * ) dst,
                                            ( G3DOBJECT * ) obj );
@@ -624,7 +624,7 @@ static void Input ( Widget w, XtPointer client,
             if ( XLookupString ( kev, &c, 0x01, &keysym, NULL ) > 0x00 ) {
                 switch ( keysym ) {
                     case XK_Delete: {
-                        uint32_t retflags = ( REDRAWVIEW | REDRAWLIST );
+                        uint32_t retflags = ( REDRAWVIEW | REDRAWOBJECTLIST );
 
                         if ( pob && ( pob->picked == TEXTURERECTHIT ) ) {
                             g3dmesh_removeMaterial ( ( G3DMESH * ) pob->obj, pob->tex->mat );
@@ -832,8 +832,8 @@ XmProcessTraversal(w, XmTRAVERSE_CURRENT);
                     /*** Perform action & record for the undo-redo manager ***/
                     g3durm_object_addChild ( urm, sce, gui->engine_flags,
                                                        ( REDRAWVIEW |
-                                                         REDRAWLIST | 
-                                                         REDRAWCURRENTOBJECT ),
+                                                         REDRAWOBJECTLIST | 
+                                                         UPDATECURRENTOBJECT ),
                                            ( G3DOBJECT * ) par,
                                            ( G3DOBJECT * ) dst,
                                            ( G3DOBJECT * ) obj );

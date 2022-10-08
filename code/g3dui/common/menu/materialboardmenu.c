@@ -61,36 +61,29 @@ static uint64_t removeMaterialCbk ( G3DUIMENU *menu,
     }
 #endif
 
-    return REDRAWVIEW | REDRAWMATERIALLIST | REDRAWCURRENTMATERIAL;
+    return REDRAWVIEW | REDRAWMATERIALLIST | UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
 static uint64_t addMaterialCbk ( G3DUIMENU *menu, 
                                  void      *data ) {
-#ifdef TODO
     G3DMATERIAL *mat = g3dmaterial_new ( "Material" );
-    G3DUI *gui = ( G3DUI * ) user_data;
-    LIST *ltmpmatlist = gui->lmatlist;
 
-    g3durm_scene_addMaterial ( gui->urm,
-                               gui->sce, 
+    g3durm_scene_addMaterial ( menu->gui->urm,
+                               menu->gui->sce, 
                                mat,
-                               gui->engine_flags,
-                               REBUILDMATERIALLIST );
+                               menu->gui->engine_flags,
+                               UPDATEMATERIALLIST | 
+                               REDRAWMATERIALLIST |
+                               UPDATECURRENTMATERIAL );
 
-    while ( ltmpmatlist ) {
-        GtkWidget *matlst = ( GtkWidget * ) ltmpmatlist->data;
+    gtk3_g3duimateriallist_addMaterial ( menu->gui->main->board->matboard->matlist, mat );
 
-        g3duimateriallist_addPreview ( matlst, mat );
+    list_insert ( &menu->gui->lselmat, mat );
 
-        ltmpmatlist = ltmpmatlist->next;
-    }
-
-    gui->selmat = mat;
-#endif
-
-
-    return REDRAWMATERIALLIST | REDRAWCURRENTMATERIAL;
+    return UPDATEMATERIALLIST   |
+           REDRAWMATERIALLIST   | 
+           UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/

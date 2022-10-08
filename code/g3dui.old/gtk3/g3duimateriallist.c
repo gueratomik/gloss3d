@@ -238,7 +238,7 @@ void g3duimateriallist_removeMaterial ( GtkWidget *widget, G3DSCENE *sce,
                                    sce, 
                                    mat, 
                                    0x00,
-                                   REDRAWLIST | REBUILDMATERIALLIST  );
+                                   REDRAWOBJECTLIST | UPDATEMATERIALLIST  );
 
     g3duimateriallist_removePreview ( widget, mat );
 }

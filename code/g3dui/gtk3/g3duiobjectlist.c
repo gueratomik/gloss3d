@@ -121,7 +121,7 @@ static void Input ( GtkWidget *widget,
 
             switch ( kev->keyval ) {
                 case GDK_KEY_Delete: {
-                    uint32_t retflags = ( REDRAWVIEW | REDRAWLIST );
+                    uint32_t retflags = ( REDRAWVIEW | REDRAWOBJECTLIST );
 
                     if ( pob ) {
                         switch ( pob->picked ) {
@@ -140,7 +140,7 @@ static void Input ( GtkWidget *widget,
                                                           pob->obj,
                                                           pob->uvmap, 
                                                           gui->engine_flags,
-                                                          REDRAWVIEW |REDRAWLIST );
+                                                          REDRAWVIEW |REDRAWOBJECTLIST );
                             } break;
 
                             case TAGRECTHIT : {
@@ -148,7 +148,7 @@ static void Input ( GtkWidget *widget,
                                                              pob->obj,
                                                              pob->tag,
                                                              gui->engine_flags,
-                                                             REDRAWVIEW | REDRAWLIST );
+                                                             REDRAWVIEW | REDRAWOBJECTLIST );
                             } break;
 
                             default : {
@@ -198,8 +198,8 @@ static void Input ( GtkWidget *widget,
 
             gtk3_interpretUIReturnFlags ( gtk3gui, 
                                           REDRAWVIEW       |
-                                          REDRAWLIST |
-                                          REDRAWCURRENTOBJECT );
+                                          REDRAWOBJECTLIST |
+                                          UPDATECURRENTOBJECT );
         } break;
 
         case GDK_2BUTTON_PRESS : {
@@ -339,9 +339,9 @@ static void Input ( GtkWidget *widget,
 
             gtk3_interpretUIReturnFlags ( gtk3gui, 
                                           REDRAWVIEW       |
-                                          REDRAWLIST       |
+                                          REDRAWOBJECTLIST       |
                                           REDRAWTIMELINE   |
-                                          REDRAWCURRENTOBJECT );
+                                          UPDATECURRENTOBJECT );
         } break;
 
         case GDK_MOTION_NOTIFY : {
@@ -399,7 +399,7 @@ static void Input ( GtkWidget *widget,
 
                 dst = ( pob ) ? pob->obj : NULL;
 
-                gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWLIST );
+                gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWOBJECTLIST );
             }
         } break;
 
@@ -433,8 +433,8 @@ static void Input ( GtkWidget *widget,
                                                  sce,
                                                  gui->engine_flags,
                                                  REDRAWVIEW |
-                                                 REDRAWLIST | 
-                                                 REDRAWCURRENTOBJECT,
+                                                 REDRAWOBJECTLIST | 
+                                                 UPDATECURRENTOBJECT,
                                  ( G3DOBJECT * ) par,
                                  ( G3DOBJECT * ) dst,
                                  ( G3DOBJECT * ) obj );
@@ -448,16 +448,16 @@ static void Input ( GtkWidget *widget,
                             g3dmesh_update ( ( G3DMESH * ) obj, gui->engine_flags );
                         }
 
-                        gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWCOORDS );
+                        gtk3_interpretUIReturnFlags ( gtk3gui, UPDATECOORDS );
                     }
                 }
 
             gtk3_interpretUIReturnFlags ( gtk3gui, 
                                           REDRAWVIEW       |
-                                          REDRAWCOORDS     |
-                                          REDRAWLIST       |
+                                          UPDATECOORDS     |
+                                          REDRAWOBJECTLIST       |
                                           REDRAWTIMELINE   |
-                                          REDRAWMENU );
+                                          UPDATEMAINMENU );
 
             obj = dst = NULL;
         } break;
@@ -559,7 +559,7 @@ static PICKEDOBJECT *selectObject_r ( GTK3G3DUIOBJECTLIST *gtk3objlis,
     LIST *ltmpobj = obj->lchildren;
     PICKEDOBJECT *pob;
     uint32_t strwidth;
-    static curheight;
+    static int curheight;
 
     strwidth = getObjectNameWidth ( context, obj );
 

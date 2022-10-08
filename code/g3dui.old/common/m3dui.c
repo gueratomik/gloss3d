@@ -395,11 +395,11 @@ void common_m3dui_undoCbk ( M3DUI *mui ) {
         g3dui_redrawGLViews ( gui );
     }
 
-    if ( return_value & REDRAWLIST ) {
+    if ( return_value & REDRAWOBJECTLIST ) {
         g3dui_redrawObjectList ( gui );
     }
 
-    if ( return_value & REDRAWCURRENTOBJECT ) {
+    if ( return_value & UPDATECURRENTOBJECT ) {
         g3dui_updateAllCurrentEdit ( gui );
     }*/
 }
@@ -416,11 +416,11 @@ void common_m3dui_redoCbk ( M3DUI *mui ) {
         g3dui_redrawGLViews ( gui );
     }
 
-    if ( return_value & REDRAWLIST ) {
+    if ( return_value & REDRAWOBJECTLIST ) {
         g3dui_redrawObjectList ( gui );
     }
 
-    if ( return_value & REDRAWCURRENTOBJECT ) {
+    if ( return_value & UPDATECURRENTOBJECT ) {
         g3dui_updateAllCurrentEdit ( gui );
     }*/
 }

@@ -71,7 +71,7 @@ uint64_t g3duiffdedit_radius ( G3DUIFFDEDIT *ffdedit,
     }
 
 
-    return REDRAWVIEW | REDRAWLIST;
+    return REDRAWVIEW | REDRAWOBJECTLIST;
 }
 
 /******************************************************************************/
@@ -116,5 +116,5 @@ uint64_t g3duiffdedit_slice ( G3DUIFFDEDIT *ffdedit,
     }
 
 
-    return REDRAWVIEW | REDRAWLIST;
+    return REDRAWVIEW | REDRAWOBJECTLIST;
 }

@@ -85,6 +85,7 @@ if HAVE_GTK3
                             gtk3/g3duiinstanceedit.c \
                             gtk3/g3duilightedit.c \
                             gtk3/g3duimain.c \
+                            gtk3/g3duimateriallist.c \
                             gtk3/g3duimaterialboard.c \
                             gtk3/g3duimenubar.c \
                             gtk3/g3duimodebar.c \

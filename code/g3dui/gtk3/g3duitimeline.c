@@ -545,7 +545,7 @@ static gboolean panToolInput ( GtkWidget *widget,
                             g3dobject_update_r ( ( G3DOBJECT * ) sce, gui->engine_flags );
 
                             gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW   |
-                                                                   REDRAWCOORDS |
+                                                                   UPDATECOORDS |
                                                                    REDRAWTIMELINE );
                         } else {
                         /*** or else drag the whole timeline ***/

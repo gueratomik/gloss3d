@@ -100,7 +100,7 @@ uint64_t g3duisubdivideredit_subdivSync ( G3DUISUBDIVIDEREDIT *subedit ) {
     }
 
 
-    return REDRAWVIEW | REDRAWCURRENTOBJECT;
+    return REDRAWVIEW | UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -153,7 +153,7 @@ uint64_t g3duisubdivideredit_subdivRender ( G3DUISUBDIVIDEREDIT *subedit,
     }
 
 
-    return REDRAWCURRENTOBJECT;
+    return UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -187,5 +187,5 @@ uint64_t g3duisubdivideredit_subdivPreview ( G3DUISUBDIVIDEREDIT *subedit,
     }
 
 
-    return REDRAWCURRENTOBJECT;
+    return UPDATECURRENTOBJECT;
 }

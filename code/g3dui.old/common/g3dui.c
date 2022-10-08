@@ -686,7 +686,7 @@ void common_g3dui_interpretMouseToolReturnFlags ( G3DUI *gui, uint32_t msk ) {
         g3dui_redrawMaterialList ( gui );
     }
 
-    if ( msk & REBUILDMATERIALLIST ) {
+    if ( msk & UPDATEMATERIALLIST ) {
         g3dui_clearMaterials ( gui );
         g3dui_importMaterials ( gui );
         g3dui_redrawMaterialList ( gui );
@@ -696,13 +696,13 @@ void common_g3dui_interpretMouseToolReturnFlags ( G3DUI *gui, uint32_t msk ) {
         g3dui_redrawUVMapEditors ( gui );
     }
 
-    if ( msk & REDRAWLIST ) {
+    if ( msk & REDRAWOBJECTLIST ) {
         g3dui_redrawObjectList ( gui );
 
         g3dui_updateMenuBar ( gui );
     }
 
-    if ( msk & REDRAWCURRENTOBJECT ) {
+    if ( msk & UPDATECURRENTOBJECT ) {
         g3dui_updateAllCurrentEdit ( gui );
     }
 
@@ -710,7 +710,7 @@ void common_g3dui_interpretMouseToolReturnFlags ( G3DUI *gui, uint32_t msk ) {
         g3dui_redrawTimeline ( gui );
     }
 
-    if ( msk & REDRAWCOORDS ) {
+    if ( msk & UPDATECOORDS ) {
         g3dui_updateCoords ( gui );
     }
 

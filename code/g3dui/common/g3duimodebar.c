@@ -128,5 +128,5 @@ uint64_t g3duimodebar_setMode ( G3DUIMODEBAR *gmb,
     /* common_g3dui_setMouseTool ( gui, NULL, NULL ); */
 
 
-    return REDRAWCURRENTMOUSETOOL | REDRAWVIEW | REDRAWMENU;
+    return UPDATECURRENTMOUSETOOL | REDRAWVIEW | UPDATEMAINMENU;
 }

@@ -129,7 +129,7 @@ static uint64_t useDefaultCameraCbk ( G3DUIMENU *menu,
     view->cam = view->defcam;
 
 
-    return REDRAWVIEWMENU | REDRAWVIEW;
+    return UPDATEVIEWMENU | REDRAWVIEW;
 }
 
 /******************************************************************************/
@@ -147,7 +147,7 @@ static uint64_t useSelectedCameraCbk ( G3DUIMENU *menu,
     }
 
 
-    return REDRAWVIEWMENU | REDRAWVIEW;
+    return UPDATEVIEWMENU | REDRAWVIEW;
 }
 
 /******************************************************************************/
@@ -173,7 +173,7 @@ static uint64_t toggleNormalsCbk ( G3DUIMENU *menu,
     }
 
 
-    return REDRAWVIEWMENU | REDRAWVIEW;
+    return UPDATEVIEWMENU | REDRAWVIEW;
 }
 
 /******************************************************************************/
@@ -199,7 +199,7 @@ static uint64_t toggleBonesCbk ( G3DUIMENU *menu,
     }
 
 
-    return REDRAWVIEWMENU | REDRAWVIEW;
+    return UPDATEVIEWMENU | REDRAWVIEW;
 }
 
 /******************************************************************************/
@@ -241,7 +241,7 @@ static uint64_t toggleLightingCbk ( G3DUIMENU *menu,
 #endif
 
 
-    return REDRAWVIEWMENU | REDRAWVIEW;
+    return UPDATEVIEWMENU | REDRAWVIEW;
 }
 
 /******************************************************************************/
@@ -267,7 +267,7 @@ static uint64_t toggleGridCbk ( G3DUIMENU *menu,
     }
 
 
-    return REDRAWVIEWMENU | REDRAWVIEW;
+    return UPDATEVIEWMENU | REDRAWVIEW;
 }
 
 /******************************************************************************/
@@ -293,7 +293,7 @@ static uint64_t toggleTexturesCbk ( G3DUIMENU *menu,
     }
 
 
-    return REDRAWVIEWMENU | REDRAWVIEW;
+    return UPDATEVIEWMENU | REDRAWVIEW;
 }
 
 /******************************************************************************/
@@ -319,7 +319,7 @@ static uint64_t toggleBackgroundImageCbk ( G3DUIMENU *menu,
     }
 
 
-    return REDRAWVIEWMENU | REDRAWVIEW;
+    return UPDATEVIEWMENU | REDRAWVIEW;
 }
 
 /******************************************************************************/

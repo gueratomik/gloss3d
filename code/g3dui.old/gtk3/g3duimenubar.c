@@ -759,7 +759,7 @@ static void addMaterialCbk ( GtkWidget *widget, gpointer user_data ) {
                                gui->sce, 
                                mat,
                                gui->engine_flags,
-                               REBUILDMATERIALLIST );
+                               UPDATEMATERIALLIST );
 
     while ( ltmpmatlist ) {
         GtkWidget *matlst = ( GtkWidget * ) ltmpmatlist->data;
