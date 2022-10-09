@@ -160,7 +160,7 @@ void q3dray_bump ( Q3DRAY      *qray,
             }
 
             if ( mat ) {
-                if ( mat->flags & BUMP_ENABLED ) {
+                if ( mat->bump.flags & USECHANNEL ) {
                     float strength = mat->bump.solid.r;
                     Q3DVECTOR3F tangent;
                     Q3DVECTOR3F binomial;
@@ -293,7 +293,7 @@ void q3dray_specular ( Q3DRAY      *qray,
                 }
 
                 if ( mat ) {
-                    if ( mat->flags & SPECULAR_ENABLED ) {
+                    if ( mat->specular.flags & USECHANNEL ) {
                         g3dchannel_getColor ( &mat->specular, 
                                                avgu, 
                                                avgv, 
@@ -639,7 +639,7 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
             }
         }
 
-        if ( mat->flags & DIFFUSE_ENABLED ) {
+        if ( mat->diffuse.flags & USECHANNEL ) {
             g3dchannel_getColor ( &mat->diffuse, avgu, avgv, &retval, repeat );
 
             diffuse->r += retval.r;
@@ -650,7 +650,7 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
             divDiffuse++;
         }
 
-        if ( mat->flags & SPECULAR_ENABLED ) {
+        if ( mat->specular.flags & USECHANNEL ) {
             g3dchannel_getColor ( &mat->specular, avgu, avgv, &retval, repeat );
 
             specular->r += retval.r;
@@ -661,7 +661,7 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
             divSpecular++;
         }
 
-        if ( mat->flags & REFLECTION_ENABLED ) {
+        if ( mat->reflection.flags & USECHANNEL ) {
             g3dchannel_getColor ( &mat->reflection, avgu, avgv, &retval, repeat );
 
             reflection->r += retval.r;
@@ -672,7 +672,7 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
             divReflection++;
         }
 
-        if ( mat->flags & ALPHA_ENABLED ) {
+        if ( mat->alpha.flags & USECHANNEL ) {
             g3dchannel_getColor ( &mat->alpha, avgu, avgv, &retval, repeat );
 
             alpha->r += retval.r;
@@ -684,7 +684,7 @@ uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
             divAlpha++;
         }
 
-        if ( mat->flags & REFRACTION_ENABLED ) {
+        if ( mat->refraction.flags & USECHANNEL ) {
             g3dchannel_getColor ( &mat->refraction, avgu, avgv, &retval, repeat );
 
             refraction->r += retval.r;

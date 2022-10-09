@@ -488,20 +488,14 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define UVMAPBACKGROUND  0x03
 
 /****************************** Material Flags ********************************/
-#define MATERIALSELECTED     ( 1       )
-#define DIFFUSE_ENABLED      ( 1 <<  1 )
-#define SPECULAR_ENABLED     ( 1 <<  2 )
-#define DISPLACEMENT_ENABLED ( 1 <<  3 )
-#define BUMP_ENABLED         ( 1 <<  4 )
-#define REFLECTION_ENABLED   ( 1 <<  5 )
-#define REFRACTION_ENABLED   ( 1 <<  6 )
-#define ALPHA_ENABLED        ( 1 <<  7 )
+#define MATERIALSELECTED     ( 1 <<  7 )
 
 /******************************* Channel Flags ********************************/
 #define USESOLIDCOLOR        ( 1       )
 #define USEIMAGECOLOR        ( 1 <<  1 )
 #define USEPROCEDURAL        ( 1 <<  2 )
 #define USECHANNELMASK       ( USESOLIDCOLOR | USEIMAGECOLOR | USEPROCEDURAL )
+#define USECHANNEL           ( 1 <<  3 )
 
 /******************************* Procedural types *****************************/
 #define PROCEDURALNOISE        0x00
@@ -3074,9 +3068,9 @@ G3DPROCEDURAL *g3dmaterial_addDisplacementProcedural ( G3DMATERIAL *,
                                                        G3DPROCEDURAL * );
 void         g3dmaterial_addObject            ( G3DMATERIAL *, G3DOBJECT * );
 void         g3dmaterial_removeObject         ( G3DMATERIAL *, G3DOBJECT * );
-void g3dmaterial_updateMeshes ( G3DMATERIAL *mat, 
-                                G3DSCENE    *sce, 
-                                uint64_t     engine_flags );
+void         g3dmaterial_updateMeshes ( G3DMATERIAL *mat, 
+                                        G3DSCENE    *sce, 
+                                        uint64_t     engine_flags );
 void         g3dmaterial_draw                 ( G3DMATERIAL *, G3DFACE *, uint32_t );
 void         g3dmaterial_disableDisplacement  ( G3DMATERIAL *mat );
 void         g3dmaterial_enableDisplacement   ( G3DMATERIAL *mat );
@@ -3084,6 +3078,14 @@ void         g3dmaterial_disableBump  ( G3DMATERIAL *mat );
 void         g3dmaterial_enableBump   ( G3DMATERIAL *mat );
 void         g3dmaterial_disableAlpha  ( G3DMATERIAL *mat );
 void         g3dmaterial_enableAlpha   ( G3DMATERIAL *mat );
+void         g3dmaterial_enableDiffuse ( G3DMATERIAL *mat );
+void         g3dmaterial_disableDiffuse ( G3DMATERIAL *mat );
+void         g3dmaterial_enableSpecular ( G3DMATERIAL *mat );
+void         g3dmaterial_disableSpecular ( G3DMATERIAL *mat );
+void         g3dmaterial_enableReflection ( G3DMATERIAL *mat );
+void         g3dmaterial_disableReflection ( G3DMATERIAL *mat );
+void         g3dmaterial_enableRefraction ( G3DMATERIAL *mat );
+void         g3dmaterial_disableRefraction ( G3DMATERIAL *mat );
 void         g3dmaterial_enableDisplacementImageColor ( G3DMATERIAL * );
 void         g3dmaterial_enableDisplacementProcedural ( G3DMATERIAL * );
 void         g3dmaterial_enableDiffuseImageColor ( G3DMATERIAL * );

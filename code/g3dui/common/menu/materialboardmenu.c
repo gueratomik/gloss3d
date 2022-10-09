@@ -41,27 +41,22 @@ static uint64_t setMaterialCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t removeMaterialCbk ( G3DUIMENU *menu, 
                                     void      *data ) {
-#ifdef TODO
-    G3DUI *gui = ( G3DUI * ) user_data;
-    LIST *ltmpmatlist = gui->lmatlist;
+    if ( menu->gui->lselmat ) {
+        /*** TODO: multiple removal ***/
+        G3DMATERIAL *mat = ( G3DMATERIAL * ) menu->gui->lselmat->data;
 
-    if ( gui->selmat ) {
-        while ( ltmpmatlist ) {
-            GtkWidget *matlst = ( GtkWidget * ) ltmpmatlist->data;
-
-            g3duimateriallist_removeMaterial ( matlst, gui->sce, 
-                                                       gui->urm,
-                                                       gui->selmat );
-
-            gui->selmat = NULL;
-
-
-            ltmpmatlist = ltmpmatlist->next;
-        }
+        g3durm_scene_removeMaterial ( menu->gui->urm, 
+                                      menu->gui->sce, 
+                                      mat, 
+                                      0x00,
+                                      UPDATEMATERIALLIST | 
+                                      REDRAWMATERIALLIST |
+                                      UPDATECURRENTMATERIAL );
     }
-#endif
 
-    return REDRAWVIEW | REDRAWMATERIALLIST | UPDATECURRENTMATERIAL;
+    return UPDATEMATERIALLIST   |
+           REDRAWMATERIALLIST   | 
+           UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -77,9 +72,12 @@ static uint64_t addMaterialCbk ( G3DUIMENU *menu,
                                REDRAWMATERIALLIST |
                                UPDATECURRENTMATERIAL );
 
-    gtk3_g3duimateriallist_addMaterial ( menu->gui->main->board->matboard->matlist, mat );
+    /*** unselect all materials first ***/
+    list_free ( &menu->gui->lselmat, g3dmaterial_unsetSelected );
 
     list_insert ( &menu->gui->lselmat, mat );
+
+    g3dmaterial_setSelected ( mat );
 
     return UPDATEMATERIALLIST   |
            REDRAWMATERIALLIST   | 

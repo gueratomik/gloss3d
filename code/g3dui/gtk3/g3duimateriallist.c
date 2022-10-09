@@ -45,7 +45,8 @@ GTK3G3DUIMATERIALPREVIEW *gtk3_g3duimaterialpreview_new ( G3DMATERIAL *mat,
     }
 
     gtk3matpreview->core.mat = mat;
-    /* TODO: should be the same map for all */
+    /* Could be the same map for all previews but this
+       would pose issues for displacement and bump */
     gtk3matpreview->core.map = g3duimaterialmap_new ( width, height );
 
     gtk3_g3duimaterialpreview_update ( gtk3matpreview );
@@ -104,7 +105,7 @@ static void gtk3_g3duimaterialpreview_update ( GTK3G3DUIMATERIALPREVIEW *gtk3pre
 }
 
 /******************************************************************************/
-static void gtk3_g3duimateriallist_removeAllMaterials ( GTK3G3DUIMATERIALLIST *gtk3matlist ) {
+static void gtk3_g3duimateriallist_removeAllPeviews ( GTK3G3DUIMATERIALLIST *gtk3matlist ) {
     list_free ( &gtk3matlist->core.lpreview, (void(*)(void*)) gtk3_g3duimaterialpreview_free );
 }
 
@@ -146,7 +147,7 @@ static GTK3G3DUIMATERIALLIST *gtk3_g3duimateriallist_new ( GTK3G3DUI *gtk3gui,
 
 /******************************************************************************/
 static void gtk3_g3duimateriallist_free ( GTK3G3DUIMATERIALLIST *gtk3matlist ) {
-    gtk3_g3duimateriallist_removeAllMaterials ( gtk3matlist );
+    gtk3_g3duimateriallist_removeAllPeviews ( gtk3matlist );
 
     free ( gtk3matlist );
 }
@@ -168,8 +169,8 @@ void gtk3_g3duimateriallist_updatePreview ( GTK3G3DUIMATERIALLIST *gtk3matlist,
 }
 
 /******************************************************************************/
-void gtk3_g3duimateriallist_addMaterial ( GTK3G3DUIMATERIALLIST *gtk3matlist,
-                                          G3DMATERIAL           *mat ) {
+static void gtk3_g3duimateriallist_addPreview ( GTK3G3DUIMATERIALLIST *gtk3matlist,
+                                                G3DMATERIAL           *mat ) {
     G3DUI *gui = ( G3DUI * ) gtk3matlist->core.gui;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
     GTK3G3DUIMATERIALPREVIEW *gtk3preview;
@@ -185,20 +186,14 @@ void gtk3_g3duimateriallist_addMaterial ( GTK3G3DUIMATERIALLIST *gtk3matlist,
 }
 
 /******************************************************************************/
-void gtk3_g3duimateriallist_removeMaterial ( GTK3G3DUIMATERIALLIST *gtk3matlist, 
-                                             G3DSCENE              *sce,
-                                             G3DURMANAGER          *urm,
-                                             G3DMATERIAL           *mat ) {
+static void gtk3_g3duimateriallist_removePreview ( GTK3G3DUIMATERIALLIST *gtk3matlist, 
+                                                   G3DSCENE              *sce,
+                                                   G3DURMANAGER          *urm,
+                                                   G3DMATERIAL           *mat ) {
     G3DUI *gui = ( G3DUI * ) gtk3matlist->core.gui;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
     G3DUIMATERIALPREVIEW *preview = g3duimateriallist_getPreview ( &gtk3matlist->core,
                                                                     mat );
-
-    g3durm_scene_removeMaterial ( urm, 
-                                  sce, 
-                                  mat, 
-                                  0x00,
-                                  REDRAWOBJECTLIST | UPDATEMATERIALLIST  );
 
     g3duimateriallist_removePreview ( &gtk3matlist->core, preview );
 }
@@ -212,7 +207,7 @@ static void gtk3_g3duimateriallist_importFromScene ( GTK3G3DUIMATERIALLIST *gtk3
     while ( ltmpmat ) {
         G3DMATERIAL *mat = ( G3DMATERIAL * ) ltmpmat->data;
 
-        gtk3_g3duimateriallist_addMaterial ( gtk3matlist, mat );
+        gtk3_g3duimateriallist_addPreview ( gtk3matlist, mat );
 
         ltmpmat = ltmpmat->next;
     }
@@ -257,8 +252,8 @@ static void gtk3_g3duimateriallist_drawPreview ( GTK3G3DUIMATERIALLIST    *gtk3m
     }
 
     cairo_set_source_rgba ( cr, fg.red, fg.green, fg.blue, fg.alpha );
-    cairo_move_to        ( cr, text_x, text_y );
-    cairo_show_text      ( cr, gtk3preview->core.mat->name );
+    cairo_move_to         ( cr, text_x, text_y );
+    cairo_show_text       ( cr, gtk3preview->core.mat->name );
 
     /*** Draw the texture preview ***/
     gdk_cairo_set_source_pixbuf ( cr,
@@ -290,12 +285,7 @@ static void Input ( GtkWidget *widget,
                         if ( ltmpselmat ) {
                             G3DMATERIAL *selmat = ltmpselmat->data;
 
-                            gtk3_g3duimateriallist_removeMaterial ( &gtk3matlist->core,
-                                                                     gui->sce, 
-                                                                     gui->urm,
-                                                                     selmat );
-
-
+                            gtk3_g3duimateriallist_update ( gtk3matlist );
                         }
 
                         list_free ( &gui->lselmat, NULL );
@@ -379,9 +369,9 @@ static void Draw ( GtkWidget *widget,
 
 /******************************************************************************/
 void gtk3_g3duimateriallist_update ( GTK3G3DUIMATERIALLIST *gtk3matlist ) {
-    gtk3_g3duimateriallist_removeAllMaterials ( gtk3matlist );
-    gtk3_g3duimateriallist_importFromScene    ( gtk3matlist );
-    gtk3_g3duimateriallist_arrange            ( gtk3matlist );
+    gtk3_g3duimateriallist_removeAllPeviews ( gtk3matlist );
+    gtk3_g3duimateriallist_importFromScene  ( gtk3matlist );
+    gtk3_g3duimateriallist_arrange          ( gtk3matlist );
 }
 
 /******************************************************************************/

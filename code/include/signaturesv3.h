@@ -36,7 +36,15 @@
 #define  SIG_MATERIAL_DISPLACEMENT                           0xA094CAED
 #define  SIG_MATERIAL_DISPLACEMENT_STRENGTH                  0x0FB07028
 #define  SIG_MATERIAL_ENTRY                                  0xD8A97057
-#define  SIG_MATERIAL_FLAGS                                  0x8FD3FEB1
+#define  SIG_MATERIAL_FLAGS                                  0x003BE230
+#define  SIG_MATERIAL_FLAGS_ALPHA                            0x06CF42F5
+#define  SIG_MATERIAL_FLAGS_BUMP                             0x0F2B676D
+#define  SIG_MATERIAL_FLAGS_DIFFUSE                          0x76B880A3
+#define  SIG_MATERIAL_FLAGS_DISPLACEMENT                     0xDCBEFEF8
+#define  SIG_MATERIAL_FLAGS_OLD                              0x8FD3FEB1
+#define  SIG_MATERIAL_FLAGS_REFLECTION                       0x903A653D
+#define  SIG_MATERIAL_FLAGS_REFRACTION                       0x49FAD570
+#define  SIG_MATERIAL_FLAGS_SPECULAR                         0x37C5E440
 #define  SIG_MATERIAL_NAME                                   0x9B8F73CE
 #define  SIG_MATERIAL_REFLECTION                             0x2ED1D57E
 #define  SIG_MATERIAL_REFLECTION_STRENGTH                    0xA6E27549

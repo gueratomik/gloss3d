@@ -323,63 +323,13 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITWEIGHTRADIUS  "Paint Radius"
 #define EDITWEIGHTVALUE   "Weight Value"
 
-#define EDITMATERIALNAME           "Material Name"
-#define EDITMATERIALCHANNELS       "Material Channels"
-
-#define EDITCHANNELCOLOR           "Color"
-#define EDITCHANNELIMAGE           "Image"
-#define EDITCHANNELPROCEDURAL      "Procedural"
-#define EDITCHANNELPROCEDURALTYPE  "Procedural Type"
-#define EDITCHANNELPROCEDURALRES   "Procedural Res"
-
-#define EDITDIFFUSE                "Diffuse"
-#define EDITDIFFUSECOLOR           EDITCHANNELCOLOR
-#define EDITDIFFUSEIMAGE           EDITCHANNELIMAGE
-#define EDITDIFFUSEPROCEDURAL      EDITCHANNELPROCEDURAL
-#define EDITDIFFUSEPROCEDURALTYPE  EDITCHANNELPROCEDURALTYPE
-#define EDITDIFFUSEPROCEDURALRES   EDITCHANNELPROCEDURALRES
-#define EDITDIFFUSEPROCEDURALEDIT  "Procedural diffuse settings"
-
-#define EDITSPECULAR            "Specularity"
-#define EDITSPECULARSHININESS   "Shininess"
-#define EDITSPECULARLEVEL       "Level"
-#define EDITSPECULARCOLOR       EDITCHANNELCOLOR
-#define EDITSPECULARIMAGE       EDITCHANNELIMAGE
-
-#define EDITDISPLACEMENT           "Displacement"
-#define EDITDISPLACEMENTENABLED    "Enable Displacement Channel"
-#define EDITDISPLACEMENTCHANNEL    "Displacement Channel"
-#define EDITDISPLACEMENTIMAGE      EDITCHANNELIMAGE
-#define EDITDISPLACEMENTPROCEDURAL EDITCHANNELPROCEDURAL
-#define EDITDISPLACEMENTSTRENGTH   "Strength"
-#define EDITDISPLACEMENTPROCEDURALEDIT  "Procedural displacement settings"
-
-#define EDITBUMP                   "Bump"
-#define EDITBUMPENABLED            "Enable Bump Channel"
-#define EDITBUMPCHANNEL            "Bump Channel"
-#define EDITBUMPIMAGE               EDITCHANNELIMAGE
-#define EDITBUMPPROCEDURAL          EDITCHANNELPROCEDURAL
-#define EDITBUMPSTRENGTH           "Strength"
-#define EDITBUMPPROCEDURALEDIT  "Procedural bump settings"
-
-#define EDITALPHA                   "Alpha"
-#define EDITALPHAENABLED            "Enable Alpha Channel"
-#define EDITALPHACHANNEL            "Alpha Channel"
-#define EDITALPHAIMAGE               EDITCHANNELIMAGE
-#define EDITALPHAPROCEDURAL          EDITCHANNELPROCEDURAL
-#define EDITALPHASTRENGTH           "Opacity"
-#define EDITALPHAPROCEDURALEDIT  "Procedural alpha settings"
-
-#define EDITREFLECTION             "Reflection"
-#define EDITREFLECTIONSTRENGTH     "Strength"
-
-#define EDITREFRACTION             "Refraction"
-#define EDITREFRACTIONTRANSPARENCY "Transparency"
-#define EDITREFRACTIONSTRENGTH     "Strength"
-
-#define EDITCOLORSOLID             EDITCHANNELCOLOR
-#define EDITCOLORIMAGE             EDITCHANNELIMAGE
-#define EDITCOLORPROCEDURAL        EDITCHANNELPROCEDURAL
+#define EDITCHANNELENABLED              "Enabled"
+#define EDITCHANNELSOLID                "Solid color"
+#define EDITCHANNELIMAGE                "Image"
+#define EDITCHANNELPROCEDURAL           "Procedural"
+#define EDITCHANNELPROCEDURALTYPE       "Type"
+#define EDITCHANNELPROCEDURALRESOLUTION "Resolutiom"
+#define EDITCHANNELPROCEDURALSETTINGS   "Settings"
 
 #define EDITUVMAP             "UVMap"
 #define EDITUVMAPPROJECTION   "Projection"
@@ -823,11 +773,6 @@ typedef struct _G3DUIUVMAPEDIT {
     G3DUI *gui;
 } G3DUIUVMAPEDIT;
 
-/******************************************************************************/
-typedef struct _G3DUIMATERIALEDIT {
-    G3DUI *gui;
-} G3DUIMATERIALEDIT;
-
 typedef struct _G3DUIWEIGHTGROUPLIST {
     G3DUI *gui;
 } G3DUIWEIGHTGROUPLIST;
@@ -996,7 +941,6 @@ typedef struct _G3DUIMATERIALPREVIEW {
     G3DMATERIAL      *mat;
 } G3DUIMATERIALPREVIEW;
 
-
 /******************************************************************************/
 typedef struct _G3DUIMATERIALLIST {
     G3DUI   *gui;
@@ -1009,6 +953,12 @@ typedef struct _G3DUIMATERIALLIST {
     uint32_t preview_border;
     uint32_t preview_name_height;
 } G3DUIMATERIALLIST;
+
+/******************************************************************************/
+typedef struct _G3DUIMATERIALEDIT {
+    G3DUI       *gui;
+    G3DMATERIAL *editedMaterial;
+} G3DUIMATERIALEDIT;
 
 /******************************************************************************/
 typedef struct _G3DUIMATERIALBOARD {
@@ -1735,9 +1685,14 @@ uint64_t g3duimaterialedit_chooseProcedural ( G3DUIMATERIALEDIT *matedit,
                                                  const char        *procType,
                                                  const char        *procRes,
                                                  uint32_t           bindGL );
-uint64_t g3duimaterialedit_toggleDisplacement ( G3DUIMATERIALEDIT *matedit );
-uint64_t g3duimaterialedit_toggleBump ( G3DUIMATERIALEDIT *matedit );
-uint64_t g3duimaterialedit_toggleAlpha ( G3DUIMATERIALEDIT *matedit );
+uint64_t g3duimaterialedit_setChannelColor ( G3DUIMATERIALEDIT *matedit, 
+                                             uint32_t           channelID,
+                                             float              R,
+                                             float              G,
+                                             float              B,
+                                             float              A );
+uint64_t g3duimaterialedit_toggleChannel ( G3DUIMATERIALEDIT *matedit, 
+                                           uint32_t           channelID );
 
 /****************************** g3duimateriallist.c ***************************/
 

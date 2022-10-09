@@ -257,6 +257,22 @@ GtkMenu *ui_gtk_menu_new ( char *class ) {
 }
 
 /******************************************************************************/
+GtkScale *ui_gtk_scale_new_with_range ( char          *class,
+                                        GtkOrientation orientation,
+                                        double         min,
+                                        double         max,
+                                        double         step ) {
+    GtkWidget *scl = gtk_scale_new_with_range ( orientation, min, max, step );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( scl );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_SCALE(scl);
+}
+
+/******************************************************************************/
 GtkDrawingArea *ui_gtk_drawing_area_new ( char *class ) {
     GtkWidget *area = gtk_drawing_area_new ( );
 
@@ -392,6 +408,58 @@ GtkLabel *ui_createSimpleLabel ( GtkFixed *parent,
     gtk_widget_show ( GTK_WIDGET(lab) );
 
     return lab;
+}
+
+/******************************************************************************/
+GtkScale *ui_createHorizontalScale ( GtkWidget *parent,
+                                     void      *data,
+                                     char      *name,
+                                     char      *class,
+                                     gint       x, 
+                                     gint       y,
+                                     gint       labwidth,
+                                     gint       width,
+                                     gint       height,
+                                     float      min,
+                                     float      max,
+                                     float      step,
+                                     void     (*cbk)( GtkWidget *, 
+                                                      gpointer ) ) {
+    GtkScale *scl = ui_gtk_scale_new_with_range ( class,
+                                                  GTK_ORIENTATION_HORIZONTAL, 
+                                                  min,
+                                                  max,
+                                                  step );
+
+    gtk_widget_set_name ( scl, name );
+
+    gtk_scale_set_value_pos ( GTK_SCALE(scl), GTK_POS_RIGHT );
+
+    gtk_widget_set_size_request ( scl, width, height );
+
+    if ( cbk ) {
+        g_signal_connect ( scl, "value-changed", G_CALLBACK ( cbk ), data );
+    }
+
+    gtk_fixed_put ( GTK_FIXED(parent), scl, x + labwidth + 8, y );
+
+    if ( labwidth ) {
+        GdkRectangle lrec = { 0x00, 0x00, labwidth, height };
+        GtkLabel   *lab  = ui_gtk_label_new ( class, name );
+
+        gtk_widget_set_name ( GTK_WIDGET(lab), name );
+
+        gtk_widget_set_size_request ( GTK_WIDGET(lab), lrec.width, lrec.height );
+
+        gtk_fixed_put ( GTK_FIXED(parent), GTK_WIDGET(lab), x, y );
+
+        gtk_widget_show ( GTK_WIDGET(lab) );
+    }
+
+    gtk_widget_show ( scl );
+
+
+    return scl;
 }
 
 /******************************************************************************/
@@ -664,6 +732,37 @@ GtkEntry *ui_createCharText ( GtkWidget *parent,
 }
 
 /******************************************************************************/
+GtkComboBoxText *ui_createProceduralSelector ( GtkFixed *parent,
+                                               void     *data, 
+                                               char     *name,
+                                               char     *class,
+                                               gint     x,
+                                               gint     y,
+                                               gint     labwidth,
+                                               gint     txtwidth,
+                                               gint     txtheight,
+                                               void   (*cbk)( GtkWidget *, 
+                                                              gpointer ) ) {
+    GtkComboBoxText *cmb = ui_createSelector ( parent,
+                                               data,
+                                               name,
+                                               class,
+                                               x,
+                                               y,
+                                               labwidth,
+                                               txtwidth,
+                                               txtheight,
+                                               cbk );
+
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PROCPERLINNOISE );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PROCCHESSBOARD  );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PROCBRICK       );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, PROCGRADIENT    );
+
+    return cmb;
+}
+
+/******************************************************************************/
 GtkComboBoxText *ui_createAxisSelector ( GtkFixed *parent,
                                           void     *data, 
                                           char     *name,
@@ -813,6 +912,56 @@ GtkButton *ui_createImageButton ( GtkFixed  *parent,
                              width,
                              height,
                              cbk );
+}
+
+/******************************************************************************/
+uint64_t gtk3_loadImageForChannel ( GTK3G3DUI  *gtk3gui,
+                                    uint32_t    channelID ) {
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+
+    GtkFileFilter *filter = gtk_file_filter_new ();
+    GtkWidget *dialog;
+    gint       res;
+
+    dialog = gtk_file_chooser_dialog_new ( "Open File",
+                                           GTK_WINDOW(gtk3gui->topWin),
+                        /*** from ristretto-0.3.5/src/main_window.c ***/
+                                           GTK_FILE_CHOOSER_ACTION_OPEN,
+                                           "_Cancel", 
+                                           GTK_RESPONSE_CANCEL,
+                                           "_Open", 
+                                           GTK_RESPONSE_OK,
+                                           NULL );
+
+    /* extension filters */
+    gtk_file_filter_add_pattern ( filter, "*.jpg" );
+    gtk_file_filter_add_pattern ( filter, "*.png" );
+    gtk_file_filter_add_pattern ( filter, "*.avi" );
+    gtk_file_filter_add_pattern ( filter, "*.mkv" );
+    gtk_file_filter_add_pattern ( filter, "*.flv" );
+    gtk_file_filter_add_pattern ( filter, "*.gif" );
+    gtk_file_filter_add_pattern ( filter, "*.mp4" );
+    gtk_file_chooser_set_filter ( GTK_FILE_CHOOSER ( dialog ), filter );
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_OK ) {
+        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
+        const char     *filename = gtk_file_chooser_get_filename ( chooser );
+        G3DUIMATERIALEDIT matedit = { .gui = gui };
+
+        g3duimaterialedit_channelChooseImage ( &matedit,
+                                                channelID,
+                                                filename,
+                                                0x00 );
+
+        g_free    ( ( gpointer ) filename );
+    }
+
+    gtk_widget_destroy ( dialog );
+
+    return REDRAWMATERIALLIST | 
+           UPDATECURRENTMATERIAL;
 }
 
 /******************************************************************************/
@@ -1371,6 +1520,54 @@ static void gtk3_updateMaterialList ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
+static void gtk3_updateMaterialEdit ( GTK3G3DUI *gtk3gui ) {
+    if (  gtk3gui->core.main ) {
+        G3DUIMAIN *main = ( G3DUIMAIN * ) gtk3gui->core.main;
+
+        if (  main ) {
+            G3DUIBOARD *board = main->board;
+
+            if ( board ) {
+                G3DUIMATERIALBOARD *matboard = board->matboard;
+
+                if ( matboard ) {
+                    G3DUIMATERIALEDIT *matedit = matboard->matedit;
+                    GTK3G3DUIMATERIALEDIT *gtk3matedit = ( GTK3G3DUIMATERIALEDIT * ) matedit;
+
+                    gtk3_g3duimaterialedit_update ( gtk3matedit );
+                }
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+static void gtk3_updateCurrentMaterialPreview ( GTK3G3DUI *gtk3gui ) {
+    if ( gtk3gui->core.lselmat ) {
+        G3DMATERIAL *mat = ( G3DMATERIAL * ) gtk3gui->core.lselmat->data;
+
+        if (  gtk3gui->core.main ) {
+            G3DUIMAIN *main = ( G3DUIMAIN * ) gtk3gui->core.main;
+
+            if (  main ) {
+                G3DUIBOARD *board = main->board;
+
+                if ( board ) {
+                    G3DUIMATERIALBOARD *matboard = board->matboard;
+
+                    if ( matboard ) {
+                        G3DUIMATERIALLIST *matlist = matboard->matlist;
+                        GTK3G3DUIMATERIALLIST *gtk3matlist = ( GTK3G3DUIMATERIALLIST * ) matlist;
+
+                        gtk3_g3duimateriallist_updatePreview ( gtk3matlist, mat );
+                    }
+                }
+            }
+        }
+    }
+}
+
+/******************************************************************************/
 static void gtk3_updateGLViewsMenu ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) &gtk3gui->core;
     LIST *ltmpview = gtk3gui->core.lview;
@@ -1548,6 +1745,19 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
         gtk3_redrawRenderWindowMenu ( gtk3gui );
     }
 
+    if ( msk & UPDATEMATERIALLIST ) {
+        gtk3_updateMaterialList ( gtk3gui );
+        /*gtk3_updateMaterialEdit ( );*/
+    }
+
+    if ( msk & UPDATECURRENTMATERIAL ) {
+        gtk3_updateMaterialEdit ( gtk3gui );
+    }
+
+    if ( msk & UPDATECURRENTMATERIALPREVIEW ) {
+        gtk3_updateCurrentMaterialPreview ( gtk3gui );
+    }
+
     if ( msk & RESIZERENDERWINDOW ) {
         gtk3_resizeRenderWindow ( gtk3gui );
     }
@@ -1568,20 +1778,7 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
         gtk3_redrawTimeline ( gtk3gui );
     }
 
-    if ( msk & UPDATEMATERIALLIST ) {
-        gtk3_updateMaterialList ( gtk3gui );
-        /*gtk3_updateMaterialEdit ( );*/
-    }
-
 #ifdef TODO
-    if ( msk & UPDATECURRENTMATERIAL ) {
-        gtk3_updateMaterialEdit ( );
-        gtk3_updateSelectedMaterialPreview ( );
-    }
-
-
-
-
 
     if ( msk & REDRAWUVMAPEDITOR ) {
         gtk3_redrawUVMapEditors ( );

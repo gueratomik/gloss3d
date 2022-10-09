@@ -238,7 +238,7 @@ void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex, G3DVECTOR *pos ) {
                                 uint32_t gray = 0x00;
                                 float factor;
 
-                                if ( mat->flags & DISPLACEMENT_ENABLED ) {
+                                if ( mat->displacement.flags & USECHANNEL ) {
                                     if ( mat->displacement.flags & USEPROCEDURAL ) {
                                         if ( mat->displacement.proc ) {
                                             G3DPROCEDURAL *proc = mat->displacement.proc;

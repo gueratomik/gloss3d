@@ -747,7 +747,7 @@ uint32_t g3dface_bindMaterials ( G3DFACE        *fac,
             }
         }
 
-        if ( mat->flags & DIFFUSE_ENABLED ) {
+        if ( mat->diffuse.flags & USECHANNEL ) {
             if ( mat->diffuse.flags & USESOLIDCOLOR ) {
                 if ( selection == 0x00 ) {
                     glMaterialfv ( GL_FRONT_AND_BACK,
@@ -763,7 +763,7 @@ uint32_t g3dface_bindMaterials ( G3DFACE        *fac,
             if ( nbtex < GL_MAX_TEXTURE_UNITS_ARB ) {
                 glDisable ( GL_COLOR_MATERIAL );
 
-                if ( mat->flags & DIFFUSE_ENABLED ) {
+                if ( mat->diffuse.flags & USECHANNEL ) {
                     if ( mat->diffuse.flags & USEIMAGECOLOR ) {
                         difimg = mat->diffuse.image;
                     }
@@ -865,7 +865,7 @@ void g3dface_unbindMaterials ( G3DFACE *fac,
 
         if ( uvset ) {
             if ( nbtex < GL_MAX_TEXTURE_UNITS_ARB ) {
-                if ( mat->flags & DIFFUSE_ENABLED ) {
+                if ( mat->diffuse.flags & USECHANNEL ) {
                     if ( mat->diffuse.flags & USEIMAGECOLOR ) {
                         difimg = mat->diffuse.image;
                     }

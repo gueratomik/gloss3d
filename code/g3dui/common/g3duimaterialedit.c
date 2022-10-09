@@ -43,42 +43,40 @@ static void setChannelColor ( G3DCHANNEL *cha,
 
 /******************************************************************************/
 uint64_t g3duimaterialedit_setDiffuseColor ( G3DUIMATERIALEDIT *matedit, 
-                                                float              R,
-                                                float              G,
-                                                float              B,
-                                                float              A ) {
-    G3DUI *gui = matedit->gui;
-    LIST *ltmpselmat = gui->lselmat;
-
-    while ( ltmpselmat ) {
-        G3DMATERIAL *mat = ( G3DMATERIAL * ) ltmpselmat->data;
-        G3DCHANNEL *cha = g3dmaterial_getChannelByID ( mat,
-                                                       DIFFUSECHANNELID );
-
-        if ( cha ) {
-            setChannelColor ( cha, R, G, B, A );
-        }
-
-        ltmpselmat = ltmpselmat->next;
-    }
-
-
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
+                                             float              R,
+                                             float              G,
+                                             float              B,
+                                             float              A ) {
+    return g3duimaterialedit_setChannelColor ( matedit, 
+                                               DIFFUSECHANNELID,
+                                               R, G, B, A );
 }
 
 /******************************************************************************/
 uint64_t g3duimaterialedit_setSpecularColor ( G3DUIMATERIALEDIT *matedit, 
-                                                 float              R,
-                                                 float              G,
-                                                 float              B,
-                                                 float              A ) {
+                                              float              R,
+                                              float              G,
+                                              float              B,
+                                              float              A ) {
+    return g3duimaterialedit_setChannelColor ( matedit, 
+                                               SPECULARCHANNELID,
+                                               R, G, B, A );
+}
+
+/******************************************************************************/
+uint64_t g3duimaterialedit_setChannelColor ( G3DUIMATERIALEDIT *matedit, 
+                                             uint32_t           channelID,
+                                             float              R,
+                                             float              G,
+                                             float              B,
+                                             float              A ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 
     while ( ltmpselmat ) {
         G3DMATERIAL *mat = ( G3DMATERIAL * ) ltmpselmat->data;
         G3DCHANNEL *cha = g3dmaterial_getChannelByID ( mat,
-                                                       SPECULARCHANNELID );
+                                                       channelID );
 
         if ( cha ) {
             setChannelColor ( cha, R, G, B, A );
@@ -88,7 +86,9 @@ uint64_t g3duimaterialedit_setSpecularColor ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
+    return REDRAWVIEW            | 
+           REDRAWMATERIALLIST    | 
+           UPDATECURRENTMATERIALPREVIEW;
 }
 
 /******************************************************************************/
@@ -112,12 +112,14 @@ uint64_t g3duimaterialedit_setDisplacementStrength ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
+    return REDRAWVIEW            |
+           REDRAWMATERIALLIST    | 
+           UPDATECURRENTMATERIALPREVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duimaterialedit_setBumpStrength ( G3DUIMATERIALEDIT *matedit, 
-                                                float              strength ) {
+                                             float              strength ) {
 
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
@@ -135,7 +137,9 @@ uint64_t g3duimaterialedit_setBumpStrength ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
+    return REDRAWVIEW            | 
+           REDRAWMATERIALLIST    | 
+           UPDATECURRENTMATERIALPREVIEW;
 }
 
 /******************************************************************************/
@@ -157,7 +161,9 @@ uint64_t g3duimaterialedit_setReflectionStrength ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
+    return REDRAWVIEW            | 
+           REDRAWMATERIALLIST    | 
+           UPDATECURRENTMATERIALPREVIEW;
 }
 
 /******************************************************************************/
@@ -179,7 +185,9 @@ uint64_t g3duimaterialedit_setRefractionStrength ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
+    return REDRAWVIEW            | 
+           REDRAWMATERIALLIST    | 
+           UPDATECURRENTMATERIALPREVIEW;
 }
 
 /******************************************************************************/
@@ -197,7 +205,9 @@ uint64_t g3duimaterialedit_setAlphaStrength ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
+    return REDRAWVIEW            | 
+           REDRAWMATERIALLIST    | 
+           UPDATECURRENTMATERIALPREVIEW;
 }
 
 /******************************************************************************/
@@ -215,12 +225,14 @@ uint64_t g3duimaterialedit_setName ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWMATERIALLIST | UPDATECURRENTMATERIAL;
+    return REDRAWVIEW            | 
+           REDRAWMATERIALLIST    | 
+           UPDATECURRENTMATERIALPREVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duimaterialedit_setSpecularLevel ( G3DUIMATERIALEDIT *matedit,
-                                                 float              val ) {
+                                              float              val ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 
@@ -233,7 +245,9 @@ uint64_t g3duimaterialedit_setSpecularLevel ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
+    return REDRAWVIEW            | 
+           REDRAWMATERIALLIST    | 
+           UPDATECURRENTMATERIALPREVIEW;
 }
 
 /******************************************************************************/
@@ -251,14 +265,16 @@ uint64_t g3duimaterialedit_setSpecularShininess ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
+    return REDRAWVIEW            | 
+           REDRAWMATERIALLIST    | 
+           UPDATECURRENTMATERIALPREVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duimaterialedit_channelChooseImage ( G3DUIMATERIALEDIT *matedit,
-                                                   uint32_t           channelID,
-                                                   char              *filename,
-                                                   uint32_t           bindGL ) {
+                                                uint32_t           channelID,
+                                                char              *filename,
+                                                uint32_t           bindGL ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 
@@ -296,12 +312,14 @@ uint64_t g3duimaterialedit_channelChooseImage ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
+    return REDRAWVIEW            | 
+           REDRAWMATERIALLIST    | 
+           UPDATECURRENTMATERIALPREVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duimaterialedit_enableProcedural ( G3DUIMATERIALEDIT *matedit,
-                                                 uint32_t           channelID ) {
+                                              uint32_t           channelID ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 
@@ -325,12 +343,14 @@ uint64_t g3duimaterialedit_enableProcedural ( G3DUIMATERIALEDIT *matedit,
     }
 
 
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
+    return REDRAWVIEW            | 
+           REDRAWMATERIALLIST    | 
+           UPDATECURRENTMATERIALPREVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duimaterialedit_enableSolidColor ( G3DUIMATERIALEDIT *matedit,
-                                                 uint32_t           channelID ) {
+                                              uint32_t           channelID ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 
@@ -353,13 +373,14 @@ uint64_t g3duimaterialedit_enableSolidColor ( G3DUIMATERIALEDIT *matedit,
         ltmpselmat = ltmpselmat->next;
     }
 
-
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
+    return REDRAWVIEW            | 
+           REDRAWMATERIALLIST    | 
+           UPDATECURRENTMATERIALPREVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duimaterialedit_enableImage ( G3DUIMATERIALEDIT *matedit,
-                                            uint32_t           channelID ) {
+                                         uint32_t           channelID ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 
@@ -379,16 +400,17 @@ uint64_t g3duimaterialedit_enableImage ( G3DUIMATERIALEDIT *matedit,
         ltmpselmat = ltmpselmat->next;
     }
 
-
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
+    return REDRAWVIEW            | 
+           REDRAWMATERIALLIST    | 
+           UPDATECURRENTMATERIALPREVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duimaterialedit_chooseProcedural ( G3DUIMATERIALEDIT *matedit,
-                                                 uint32_t           channelID,
-                                                 const char        *procType,
-                                                 const char        *procRes,
-                                                 uint32_t           bindGL ) {
+                                              uint32_t           channelID,
+                                              const char        *procType,
+                                              const char        *procRes,
+                                              uint32_t           bindGL ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 
@@ -443,74 +465,36 @@ uint64_t g3duimaterialedit_chooseProcedural ( G3DUIMATERIALEDIT *matedit,
         ltmpselmat = ltmpselmat->next;
     }
 
-
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
+    return REDRAWVIEW            |
+           REDRAWMATERIALLIST    | 
+           UPDATECURRENTMATERIALPREVIEW;
 }
 
 /******************************************************************************/
-uint64_t g3duimaterialedit_toggleDisplacement ( G3DUIMATERIALEDIT *matedit ) {
+uint64_t g3duimaterialedit_toggleChannel ( G3DUIMATERIALEDIT *matedit, 
+                                           uint32_t           channelID ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 
     while ( ltmpselmat ) {
         G3DMATERIAL *mat = ( G3DMATERIAL * ) ltmpselmat->data;
+        G3DCHANNEL *cha = g3dmaterial_getChannelByID ( mat, channelID );
 
-        if ( mat->flags & DISPLACEMENT_ENABLED ) {
-            g3dmaterial_disableDisplacement ( mat );
+        if ( cha->flags & USECHANNEL ) {
+            cha->flags &= (~USECHANNEL);
         } else {
-            g3dmaterial_enableDisplacement  ( mat );
+            cha->flags |=   USECHANNEL;
         }
 
-        g3dmaterial_updateMeshes ( mat, gui->sce, gui->engine_flags );
+        if ( cha == &mat->displacement ) {
+            g3dmaterial_updateMeshes ( mat, gui->sce, gui->engine_flags );
+        }
 
         ltmpselmat = ltmpselmat->next;
     }
 
 
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
-}
-
-/******************************************************************************/
-uint64_t g3duimaterialedit_toggleBump ( G3DUIMATERIALEDIT *matedit ) {
-    G3DUI *gui = matedit->gui;
-    LIST *ltmpselmat = gui->lselmat;
-
-    while ( ltmpselmat ) {
-        G3DMATERIAL *mat = ( G3DMATERIAL * ) ltmpselmat->data;
-
-        if ( mat->flags & BUMP_ENABLED ) {
-            g3dmaterial_disableBump ( mat );
-        } else {
-            g3dmaterial_enableBump  ( mat );
-        }
-
-        g3dmaterial_updateMeshes ( mat, gui->sce, gui->engine_flags );
-
-        ltmpselmat = ltmpselmat->next;
-    }
-
-
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
-}
-
-/******************************************************************************/
-uint64_t g3duimaterialedit_toggleAlpha ( G3DUIMATERIALEDIT *matedit ) {
-    G3DUI *gui = matedit->gui;
-    LIST *ltmpselmat = gui->lselmat;
-
-    while ( ltmpselmat ) {
-        G3DMATERIAL *mat = ( G3DMATERIAL * ) ltmpselmat->data;
-
-        if ( mat->flags & ALPHA_ENABLED ) {
-            g3dmaterial_disableAlpha ( mat );
-        } else {
-            g3dmaterial_enableAlpha  ( mat );
-        }
-
-        g3dmaterial_updateMeshes ( mat, gui->sce, gui->engine_flags );
-
-    }
-
-
-    return REDRAWVIEW | UPDATECURRENTMATERIAL;
+    return REDRAWVIEW            | 
+           REDRAWMATERIALLIST    | 
+           UPDATECURRENTMATERIALPREVIEW;
 }

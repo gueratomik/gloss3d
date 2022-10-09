@@ -2982,7 +2982,7 @@ uint32_t g3dmesh_isDisplaced ( G3DMESH *mes,
         G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data;
         G3DMATERIAL *mat = tex->mat;
 
-        if ( ( mat->flags & DISPLACEMENT_ENABLED ) &&
+        if ( ( mat->displacement.flags & USECHANNEL ) &&
 /*** displacement strength is stored in the solid color ***/
              ( mat->displacement.solid.a ) ) { 
             return 0x01;

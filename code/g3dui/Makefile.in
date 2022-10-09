@@ -172,15 +172,16 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duicubeedit.c gtk3/g3duicylinderedit.c \
 	gtk3/g3duiffdedit.c gtk3/g3duiinstanceedit.c \
 	gtk3/g3duilightedit.c gtk3/g3duimain.c \
-	gtk3/g3duimateriallist.c gtk3/g3duimaterialboard.c \
-	gtk3/g3duimenubar.c gtk3/g3duimodebar.c \
-	gtk3/g3duiobjectboard.c gtk3/g3duiobjectedit.c \
-	gtk3/g3duiobjectlist.c gtk3/g3duiplaneedit.c \
-	gtk3/g3duiparticleemitteredit.c gtk3/g3duiquad.c \
-	gtk3/g3duirenderedit.c gtk3/g3duirenderwindow.c \
-	gtk3/g3duisphereedit.c gtk3/g3duisubdivideredit.c \
-	gtk3/g3duitimeboard.c gtk3/g3duitimeline.c gtk3/g3duitoolbar.c \
-	gtk3/g3duitorusedit.c gtk3/g3duitubeedit.c gtk3/g3duiview.c \
+	gtk3/g3duimateriallist.c gtk3/g3duimaterialedit.c \
+	gtk3/g3duimaterialboard.c gtk3/g3duimenubar.c \
+	gtk3/g3duimodebar.c gtk3/g3duiobjectboard.c \
+	gtk3/g3duiobjectedit.c gtk3/g3duiobjectlist.c \
+	gtk3/g3duiplaneedit.c gtk3/g3duiparticleemitteredit.c \
+	gtk3/g3duiquad.c gtk3/g3duirenderedit.c \
+	gtk3/g3duirenderwindow.c gtk3/g3duisphereedit.c \
+	gtk3/g3duisubdivideredit.c gtk3/g3duitimeboard.c \
+	gtk3/g3duitimeline.c gtk3/g3duitoolbar.c gtk3/g3duitorusedit.c \
+	gtk3/g3duitubeedit.c gtk3/g3duiview.c \
 	gtk3/g3duiwireframeedit.c gtk3/q3dfilters.c gtk3/css/default.c
 am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@am__objects_1 = common/g3dui.lo common/g3duiboard.lo \
@@ -249,6 +250,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/g3duiinstanceedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duilightedit.lo gtk3/g3duimain.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duimateriallist.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duimaterialedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duimaterialboard.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duimenubar.lo gtk3/g3duimodebar.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiobjectboard.lo \
@@ -361,6 +363,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	gtk3/$(DEPDIR)/g3duiinstanceedit.Plo \
 	gtk3/$(DEPDIR)/g3duilightedit.Plo gtk3/$(DEPDIR)/g3duimain.Plo \
 	gtk3/$(DEPDIR)/g3duimaterialboard.Plo \
+	gtk3/$(DEPDIR)/g3duimaterialedit.Plo \
 	gtk3/$(DEPDIR)/g3duimateriallist.Plo \
 	gtk3/$(DEPDIR)/g3duimenubar.Plo \
 	gtk3/$(DEPDIR)/g3duimodebar.Plo \
@@ -636,6 +639,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duilightedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimain.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimateriallist.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duimaterialedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimaterialboard.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimenubar.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duimodebar.c \
@@ -909,6 +913,8 @@ gtk3/g3duilightedit.lo: gtk3/$(am__dirstamp) \
 gtk3/g3duimain.lo: gtk3/$(am__dirstamp) gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duimateriallist.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duimaterialedit.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duimaterialboard.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duimenubar.lo: gtk3/$(am__dirstamp) \
@@ -1055,6 +1061,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duilightedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimain.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimaterialboard.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimaterialedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimateriallist.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimenubar.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duimodebar.Plo@am__quote@ # am--include-marker
@@ -1335,6 +1342,7 @@ distclean: distclean-am
 	-rm -f gtk3/$(DEPDIR)/g3duilightedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimain.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimaterialboard.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duimaterialedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimateriallist.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimenubar.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimodebar.Plo
@@ -1480,6 +1488,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gtk3/$(DEPDIR)/g3duilightedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimain.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimaterialboard.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duimaterialedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimateriallist.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimenubar.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duimodebar.Plo

@@ -49,7 +49,6 @@ static void nameCbk ( GtkWidget *widget, GdkEvent *event, gpointer user_data ) {
     common_g3dui_materialSetNameCbk ( gui, name );
 }
 
-
 /******************************************************************************/
 const char *getProdeduralTypeSelection ( GtkWidget *widget ) {
     GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );

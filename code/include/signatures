@@ -81,8 +81,23 @@ SIG_ROOT=0x44335347
 ------------------------------- SIG_MATERIAL_ENTRY
 ----------------------------------- SIG_MATERIAL_NAME
 --------------------------------------- Name ( char[] )
------------------------------------ SIG_MATERIAL_FLAGS
+----------------------------------- SIG_MATERIAL_FLAGS_OLD=0x8FD3FEB1
 --------------------------------------- Flags ( uint32_t )
+----------------------------------- SIG_MATERIAL_FLAGS=0x003BE230
+--------------------------------------- SIG_MATERIAL_FLAGS_DIFFUSE
+------------------------------------------- enabled (uint32_t)
+--------------------------------------- SIG_MATERIAL_FLAGS_SPECULAR
+------------------------------------------- enabled (uint32_t)
+--------------------------------------- SIG_MATERIAL_FLAGS_DISPLACEMENT
+------------------------------------------- enabled (uint32_t)
+--------------------------------------- SIG_MATERIAL_FLAGS_BUMP
+------------------------------------------- enabled (uint32_t)
+--------------------------------------- SIG_MATERIAL_FLAGS_REFLECTION
+------------------------------------------- enabled (uint32_t)
+--------------------------------------- SIG_MATERIAL_FLAGS_REFRACTION
+------------------------------------------- enabled (uint32_t)
+--------------------------------------- SIG_MATERIAL_FLAGS_ALPHA
+------------------------------------------- enabled (uint32_t)
 ----------------------------------- SIG_MATERIAL_DIFFUSE
 --------------------------------------- SIG_CHANNEL
 ------------------------------------------- SIG_CHANNEL_SOLID
@@ -484,14 +499,14 @@ SIG_ROOT=0x44335347
 --------------- SIG_OBJECT_KEYS
 ------------------- SIG_OBJECT_KEY_ENTRY
 ----------------------- SIG_OBJECT_KEY_FLAGS
------------------------ SIG_OBJECT_KEY_FLAGS_TRANSLATION
---------------------------- enabled (uint32_t)
------------------------ SIG_OBJECT_KEY_FLAGS_ROTATION
---------------------------- enabled (uint32_t)
------------------------ SIG_OBJECT_KEY_FLAGS_SCALING
---------------------------- enabled (uint32_t)
------------------------ SIG_OBJECT_KEY_FLAGS_DATA
---------------------------- enabled (uint32_t)
+--------------------------- SIG_OBJECT_KEY_FLAGS_TRANSLATION
+------------------------------- enabled (uint32_t)
+--------------------------- SIG_OBJECT_KEY_FLAGS_ROTATION
+------------------------------- enabled (uint32_t)
+--------------------------- SIG_OBJECT_KEY_FLAGS_SCALING
+------------------------------- enabled (uint32_t)
+--------------------------- SIG_OBJECT_KEY_FLAGS_DATA
+------------------------------- enabled (uint32_t)
 ----------------------- SIG_OBJECT_KEY_TRANSFORMATION
 --------------------------- frame num ( float )
 --------------------------- Translation  ( float-float-float-uint32_t ) /** last int is usage **/

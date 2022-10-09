@@ -57,8 +57,95 @@ void g3dimportv3material ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc )
                                           gid->currentMaterial );
             } break;
 
-            case SIG_MATERIAL_FLAGS : {
+            case SIG_MATERIAL_FLAGS_OLD : {
                 g3dimportv3_freadl ( &gid->currentMaterial->flags, fsrc );
+            } break;
+
+            case SIG_MATERIAL_FLAGS : {
+            } break;
+
+            case SIG_MATERIAL_FLAGS_DIFFUSE : {
+                uint32_t enabled;
+
+                g3dimportv3_freadl ( &enabled, fsrc );
+
+                if ( enabled ) {
+                    g3dmaterial_enableDiffuse ( gid->currentMaterial );
+                } else {
+                    g3dmaterial_disableDiffuse ( gid->currentMaterial );
+                }
+            } break;
+
+            case SIG_MATERIAL_FLAGS_SPECULAR : {
+                uint32_t enabled;
+
+                g3dimportv3_freadl ( &enabled, fsrc );
+
+                if ( enabled ) {
+                    g3dmaterial_enableSpecular ( gid->currentMaterial );
+                } else {
+                    g3dmaterial_disableSpecular ( gid->currentMaterial );
+                }
+            } break;
+
+            case SIG_MATERIAL_FLAGS_DISPLACEMENT : {
+                uint32_t enabled;
+
+                g3dimportv3_freadl ( &enabled, fsrc );
+
+                if ( enabled ) {
+                    g3dmaterial_enableDisplacement ( gid->currentMaterial );
+                } else {
+                    g3dmaterial_disableDisplacement ( gid->currentMaterial );
+                }
+            } break;
+
+            case SIG_MATERIAL_FLAGS_BUMP : {
+                uint32_t enabled;
+
+                g3dimportv3_freadl ( &enabled, fsrc );
+
+                if ( enabled ) {
+                    g3dmaterial_enableBump ( gid->currentMaterial );
+                } else {
+                    g3dmaterial_disableBump ( gid->currentMaterial );
+                }
+            } break;
+
+            case SIG_MATERIAL_FLAGS_REFLECTION : {
+                uint32_t enabled;
+
+                g3dimportv3_freadl ( &enabled, fsrc );
+
+                if ( enabled ) {
+                    g3dmaterial_enableReflection ( gid->currentMaterial );
+                } else {
+                    g3dmaterial_disableReflection ( gid->currentMaterial );
+                }
+            } break;
+
+            case SIG_MATERIAL_FLAGS_REFRACTION : {
+                uint32_t enabled;
+
+                g3dimportv3_freadl ( &enabled, fsrc );
+
+                if ( enabled ) {
+                    g3dmaterial_enableRefraction ( gid->currentMaterial );
+                } else {
+                    g3dmaterial_disableRefraction ( gid->currentMaterial );
+                }
+            } break;
+
+            case SIG_MATERIAL_FLAGS_ALPHA : {
+                uint32_t enabled;
+
+                g3dimportv3_freadl ( &enabled, fsrc );
+
+                if ( enabled ) {
+                    g3dmaterial_enableAlpha ( gid->currentMaterial );
+                } else {
+                    g3dmaterial_disableAlpha ( gid->currentMaterial );
+                }
             } break;
 
             case SIG_MATERIAL_DIFFUSE : {

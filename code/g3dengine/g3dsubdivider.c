@@ -1328,7 +1328,7 @@ static void bindMaterials ( G3DSUBDIVIDER *sdr,
             }
         }
 
-        if ( mat->flags & DIFFUSE_ENABLED ) {
+        if ( mat->diffuse.flags & USECHANNEL ) {
             if ( mat->diffuse.flags & USESOLIDCOLOR ) {
                 if ( selection == 0x00 ) {
                     glMaterialfv ( GL_FRONT_AND_BACK,
@@ -1341,7 +1341,7 @@ static void bindMaterials ( G3DSUBDIVIDER *sdr,
         }
 
         if ( uvset ) {
-            if ( mat->flags & DIFFUSE_ENABLED ) {
+            if ( mat->diffuse.flags & USECHANNEL ) {
                 if ( mat->diffuse.flags & USEIMAGECOLOR ) {
                     difimg = mat->diffuse.image;
                 }
@@ -1422,7 +1422,7 @@ static void unbindMaterials ( G3DMESH *mes,
         }
 
         if ( uvset ) {
-            if ( mat->flags & DIFFUSE_ENABLED ) {
+            if ( mat->diffuse.flags & USECHANNEL ) {
                 if ( mat->diffuse.flags & USEIMAGECOLOR ) {
                     difimg = mat->diffuse.image;
                 }

@@ -250,6 +250,54 @@ typedef struct _GTK3G3DUIMATERIALLIST {
 } GTK3G3DUIMATERIALLIST;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUIMATERIALEDIT {
+    G3DUIMATERIALEDIT core;
+
+    GtkNotebook      *scrolled;
+    GtkNotebook      *notebook;
+
+    /*GtkFixed         *diffusePanel;*/
+    GtkToggleButton  *diffuseEnabledToggle;
+    GtkToggleButton  *diffuseSolidToggle;
+    GtkColorButton   *diffuseColorButton;
+    GtkToggleButton  *diffuseImageToggle;
+    GtkButton        *diffuseImageButton;
+    GtkToggleButton  *diffuseProcToggle;
+    GtkComboBoxText  *diffuseProcTypeCombo;
+    GtkButton        *diffuseProcSettingsButton;
+
+    /*GtkFixed         *specularPanel;*/
+    GtkToggleButton  *specularEnabledToggle;
+    GtkScale         *specularShininessScale;
+    GtkScale         *specularLevelScale;
+    GtkToggleButton  *specularSolidToggle;
+    GtkColorButton   *specularColorButton;
+    GtkToggleButton  *specularImageToggle;
+    GtkButton        *specularImageButton;
+    GtkToggleButton  *specularProcToggle;
+    GtkComboBoxText  *specularProcTypeCombo;
+    GtkButton        *specularProcSettingsButton;
+
+    GtkSpinButton    *bumpStrengthEntry;
+    GtkToggleButton  *bumpEnabledToggle;
+    GtkScale         *bumpStrengthScale;
+    GtkToggleButton  *bumpImageToggle;
+    GtkButton        *bumpImageButton;
+    GtkToggleButton  *bumpProcToggle;
+    GtkComboBoxText  *bumpProcTypeCombo;
+    GtkButton        *bumpProcSettingsButton;
+
+    GtkSpinButton    *displacementStrengthEntry;
+    GtkToggleButton  *displacementEnabledToggle;
+    GtkScale         *displacementStrengthScale;
+    GtkToggleButton  *displacementImageToggle;
+    GtkButton        *displacementImageButton;
+    GtkToggleButton  *displacementProcToggle;
+    GtkComboBoxText  *displacementProcTypeCombo;
+    GtkButton        *displacementProcSettingsButton;
+} GTK3G3DUIMATERIALEDIT;
+
+/******************************************************************************/
 typedef struct _GTK3G3DUIOBJECTEDIT {
     G3DUIOBJECTEDIT core;
     GtkWidget      *fixed;
@@ -602,6 +650,8 @@ void gtk3_saveAs ( GTK3G3DUI *gtk3gui );
 void gtk3_saveFile ( GTK3G3DUI *gtk3gui );
 void gtk3_renderView ( GTK3G3DUI *gtk3gui );
 void gtk3_runRender ( GTK3G3DUI *gtk3gui );
+uint64_t gtk3_loadImageForChannel ( GTK3G3DUI  *gtk3gui,
+                                    uint32_t    channelID );
 
 GtkFixed *ui_createTab ( GtkNotebook *parent, 
                          void        *data,
@@ -611,6 +661,21 @@ GtkFixed *ui_createTab ( GtkNotebook *parent,
                          gint         y,
                          gint         width,
                          gint         height );
+
+GtkScale *ui_createHorizontalScale ( GtkWidget *parent,
+                                     void      *data,
+                                     char      *name,
+                                     char      *class,
+                                     gint       x, 
+                                     gint       y,
+                                     gint       labwidth,
+                                     gint       width,
+                                     gint       height,
+                                     float      min,
+                                     float      max,
+                                     float      step,
+                                     void     (*cbk)( GtkWidget *, 
+                                                      gpointer ) );
 GtkToggleButton *ui_createToggleLabel ( GtkFixed *parent, 
                                         void     *data,
                                         char     *name,
@@ -746,11 +811,28 @@ GtkEntry *ui_createCharText ( GtkWidget *parent,
                                                GdkEvent  *, 
                                                gpointer ) );
 
+GtkComboBoxText *ui_createProceduralSelector ( GtkFixed *parent,
+                                               void     *data, 
+                                               char     *name,
+                                               char     *class,
+                                               gint     x,
+                                               gint     y,
+                                               gint     labwidth,
+                                               gint     txtwidth,
+                                               gint     txtheight,
+                                               void   (*cbk)( GtkWidget *, 
+                                                              gpointer ) );
+
 GtkCheckMenuItem *ui_gtk_check_menu_item_new_with_mnemonic ( char *class,
                                                              const gchar* label );
 GtkFixed *ui_gtk_fixed_new ( char *class );
 GtkLabel *ui_gtk_label_new ( char *class,
                               char *name );
+GtkScale *ui_gtk_scale_new_with_range ( char *class,
+                                        GtkOrientation orientation,
+                                        double         min,
+                                        double         max,
+                                        double         step );
 GtkEntry *ui_gtk_entry_new ( char *class );
 GtkFrame *ui_gtk_frame_new ( char       *class,
                              const char *label );
@@ -840,6 +922,12 @@ GTK3G3DUIMATERIALBOARD *gtk3_g3duimaterialboard_create ( GtkWidget *parent,
 void gtk3_g3duimaterialboard_resize ( GTK3G3DUIMATERIALBOARD *gtk3matboard,
                                       uint32_t                width,
                                       uint32_t                height );
+
+/**************************** g3duimaterialedit.c *****************************/
+void gtk3_g3duimaterialedit_update ( GTK3G3DUIMATERIALEDIT *gtk3med );
+GTK3G3DUIMATERIALEDIT *gtk3_g3duimaterialedit_create ( GtkWidget *parent,
+                                                       GTK3G3DUI *gtk3gui,
+                                                       char      *name );
 
 /**************************** g3duimateriallist.c *****************************/
 GTK3G3DUIMAIN *gtk3_g3duimain_create ( GtkWidget *parent,

@@ -166,32 +166,72 @@ G3DPROCEDURAL *g3dmaterial_addDisplacementProcedural ( G3DMATERIAL   *mat,
 
 /******************************************************************************/
 void g3dmaterial_enableAlpha ( G3DMATERIAL *mat ) {
-    mat->flags |= ALPHA_ENABLED;
+    mat->alpha.flags |= USECHANNEL;
 }
 
 /******************************************************************************/
 void g3dmaterial_disableAlpha ( G3DMATERIAL *mat ) {
-    mat->flags &= (~ALPHA_ENABLED);
+    mat->alpha.flags &= (~USECHANNEL);
 }
 
 /******************************************************************************/
 void g3dmaterial_enableBump ( G3DMATERIAL *mat ) {
-    mat->flags |= BUMP_ENABLED;
+    mat->bump.flags |= USECHANNEL;
 }
 
 /******************************************************************************/
 void g3dmaterial_disableBump ( G3DMATERIAL *mat ) {
-    mat->flags &= (~BUMP_ENABLED);
+    mat->bump.flags &= (~USECHANNEL);
 }
 
 /******************************************************************************/
 void g3dmaterial_enableDisplacement ( G3DMATERIAL *mat ) {
-    mat->flags |= DISPLACEMENT_ENABLED;
+    mat->displacement.flags |= USECHANNEL;
 }
 
 /******************************************************************************/
 void g3dmaterial_disableDisplacement ( G3DMATERIAL *mat ) {
-    mat->flags &= (~DISPLACEMENT_ENABLED);
+    mat->displacement.flags &= (~USECHANNEL);
+}
+
+/******************************************************************************/
+void g3dmaterial_enableDiffuse ( G3DMATERIAL *mat ) {
+    mat->diffuse.flags |= USECHANNEL;
+}
+
+/******************************************************************************/
+void g3dmaterial_disableDiffuse ( G3DMATERIAL *mat ) {
+    mat->diffuse.flags &= (~USECHANNEL);
+}
+
+/******************************************************************************/
+void g3dmaterial_enableSpecular ( G3DMATERIAL *mat ) {
+    mat->specular.flags |= USECHANNEL;
+}
+
+/******************************************************************************/
+void g3dmaterial_disableSpecular ( G3DMATERIAL *mat ) {
+    mat->specular.flags &= (~USECHANNEL);
+}
+
+/******************************************************************************/
+void g3dmaterial_enableReflection ( G3DMATERIAL *mat ) {
+    mat->reflection.flags |= USECHANNEL;
+}
+
+/******************************************************************************/
+void g3dmaterial_disableReflection ( G3DMATERIAL *mat ) {
+    mat->reflection.flags &= (~USECHANNEL);
+}
+
+/******************************************************************************/
+void g3dmaterial_enableRefraction ( G3DMATERIAL *mat ) {
+    mat->refraction.flags |= USECHANNEL;
+}
+
+/******************************************************************************/
+void g3dmaterial_disableRefraction ( G3DMATERIAL *mat ) {
+    mat->refraction.flags &= (~USECHANNEL);
 }
 
 /******************************************************************************/
@@ -242,10 +282,7 @@ G3DMATERIAL *g3dmaterial_new ( const char *name ) {
 
     if ( name ) g3dmaterial_name ( mat, name );
 
-    mat->flags = DIFFUSE_ENABLED    | 
-                 SPECULAR_ENABLED   |
-                 REFLECTION_ENABLED |
-                 REFRACTION_ENABLED;
+    mat->flags;
 
     mat->alphaOpacity = 1.0f;
 
@@ -258,14 +295,14 @@ G3DMATERIAL *g3dmaterial_new ( const char *name ) {
 
     /*** default material color is gray ***/
     mat->diffuse.name = "diffuse";
-    mat->diffuse.flags         = USESOLIDCOLOR;
+    mat->diffuse.flags         = USESOLIDCOLOR | USECHANNEL;
     mat->diffuse.solid.r       = 0.5f;
     mat->diffuse.solid.g       = 0.5f;
     mat->diffuse.solid.b       = 0.5f;
     mat->diffuse.solid.a       = 1.0f;
 
     mat->specular.name = "specular";
-    mat->specular.flags        = USESOLIDCOLOR;
+    mat->specular.flags        = USESOLIDCOLOR | USECHANNEL;
     mat->specular.solid.r      = 1.0f;
     mat->specular.solid.g      = 1.0f;
     mat->specular.solid.b      = 1.0f;
@@ -294,14 +331,14 @@ G3DMATERIAL *g3dmaterial_new ( const char *name ) {
     mat->displacement.solid.a  = 0.25f;
 
     mat->reflection.name = "reflection";
-    mat->reflection.flags      = USESOLIDCOLOR;
+    mat->reflection.flags      = USESOLIDCOLOR | USECHANNEL;
     mat->reflection.solid.r    = 0.0f;
     mat->reflection.solid.g    = 0.0f;
     mat->reflection.solid.b    = 0.0f;
     mat->reflection.solid.a    = 0.0f;
 
     mat->refraction.name = "refraction";
-    mat->refraction.flags      = USESOLIDCOLOR;
+    mat->refraction.flags      = USESOLIDCOLOR | USECHANNEL;
     mat->refraction.solid.r    = 1.0f;
     mat->refraction.solid.g    = 1.0f;
     mat->refraction.solid.b    = 1.0f;

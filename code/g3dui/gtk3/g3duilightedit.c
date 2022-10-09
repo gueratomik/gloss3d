@@ -43,6 +43,8 @@
 #define EDITLIGHTSOFTSHADOWS       "Area Shadows"
 #define EDITLIGHTSOFTSHADOWSRADIUS "Area radius"
 #define EDITLIGHTSOFTSHADOWSSAMPLE "Sample count"
+#define EDITLIGHTDIFFUSE           "Diffuse"
+#define EDITLIGHTSPECULAR          "Specular"
 
 /******************************************************************************/
 static GTK3G3DUILIGHTEDIT *gtk3_g3duilightedit_new ( GTK3G3DUI *gtk3gui ) {
@@ -251,7 +253,7 @@ static void createSpecularityPanel ( GTK3G3DUILIGHTEDIT *gtk3led,
 
     GtkFixed *pan = ui_createTab ( gtk3led->notebook,
                                    gtk3led,
-                                   EDITSPECULAR,
+                                   EDITLIGHTSPECULAR,
                                    CLASS_MAIN,
                                    x,
                                    y,
@@ -262,7 +264,7 @@ static void createSpecularityPanel ( GTK3G3DUILIGHTEDIT *gtk3led,
 
     gtk3led->specularColorButton = ui_createColorButton ( pan, 
                                                           gtk3led,
-                                                          EDITSPECULARCOLOR,
+                                                          EDITCHANNELSOLID,
                                                           CLASS_MAIN,
                                                           0,  0, 96, 20, 20,
                                                           specularityChangeCbk );
@@ -341,7 +343,7 @@ static void createDiffuseColorPanel( GTK3G3DUILIGHTEDIT *gtk3led,
                                      uint32_t            height ) {
     GtkFixed *pan = ui_createTab ( gtk3led->notebook,
                                    gtk3led,
-                                   EDITDIFFUSE,
+                                   EDITLIGHTDIFFUSE,
                                    CLASS_MAIN,
                                    x,
                                    y,
@@ -350,7 +352,7 @@ static void createDiffuseColorPanel( GTK3G3DUILIGHTEDIT *gtk3led,
 
     gtk3led->diffuseColorButton = ui_createColorButton ( pan, 
                                                          gtk3led,
-                                                         EDITDIFFUSECOLOR,
+                                                         EDITCHANNELSOLID,
                                                          CLASS_MAIN,
                                                          0,  0, 96, 20, 20,
                                                          diffuseChangeCbk );
@@ -598,7 +600,7 @@ GTK3G3DUILIGHTEDIT *gtk3_g3duilightedit_create ( GtkWidget *parent,
                                                  GTK3G3DUI *gtk3gui,
                                                  char      *name ) {
     GTK3G3DUILIGHTEDIT *gtk3led = gtk3_g3duilightedit_new ( gtk3gui );
-    GtkWidget *notebook = gtk_notebook_new ( );
+    GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
 
     gtk3led->notebook = GTK_NOTEBOOK(notebook);
 

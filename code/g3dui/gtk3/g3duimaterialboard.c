@@ -61,8 +61,8 @@ void gtk3_g3duimaterialboard_resize ( GTK3G3DUIMATERIALBOARD *gtk3matboard,
     GdkRectangle gdkrec;
 
     GTK3G3DUIMATERIALLIST *gtk3matlist = ( GTK3G3DUIMATERIALLIST * ) gtk3matboard->core.matlist;
-/*    GTK3G3DUIMATERIALEDIT *matedit = ( GTK3G3DUIMATERIALEDIT * ) gtk3matboard->core.matedit;
-*/
+    GTK3G3DUIMATERIALEDIT *gtk3matedit = ( GTK3G3DUIMATERIALEDIT * ) gtk3matboard->core.matedit;
+
     g3duimaterialboard_resize ( &gtk3matboard->core,
                                  width,
                                  height );
@@ -94,20 +94,19 @@ void gtk3_g3duimaterialboard_resize ( GTK3G3DUIMATERIALBOARD *gtk3matboard,
 
     /*** Material Edit ***/
 
-    /*if ( matedit ) {
-
+    if ( gtk3matedit ) {
         g3duirectangle_toGdkRectangle ( &gtk3matboard->core.editrec, &gdkrec );
 
         gtk_layout_move ( gtk3matboard->layout,
-                          matedit->scrolled,
+                          gtk3matedit->scrolled,
                           gdkrec.x,
                           gdkrec.y );
 
-        gtk_widget_set_size_request ( matedit->scrolled,
+        gtk_widget_set_size_request ( gtk3matedit->scrolled,
                                       gdkrec.width,
                                       gdkrec.height );
 
-    }*/
+    }
 }
 
 /******************************************************************************/
@@ -132,7 +131,6 @@ void gtk3_g3duimaterialboard_updateMenuBar ( GTK3G3DUIMATERIALBOARD *gtk3matboar
 }
 
 /******************************************************************************/
-
 static void createMaterialList ( GTK3G3DUIMATERIALBOARD *gtk3matboard ) {
     GTK3G3DUIMATERIALLIST *gtk3matlist;
 
@@ -145,6 +143,18 @@ static void createMaterialList ( GTK3G3DUIMATERIALBOARD *gtk3matboard ) {
     gtk3matboard->core.matlist = ( G3DUIMATERIALLIST * ) gtk3matlist;
 }
 
+/******************************************************************************/
+static void createMaterialEdit ( GTK3G3DUIMATERIALBOARD *gtk3matboard ) {
+    GTK3G3DUIMATERIALEDIT *gtk3matedit;
+
+    gtk3matedit = gtk3_g3duimaterialedit_create ( gtk3matboard->layout,
+                                  ( GTK3G3DUI * ) gtk3matboard->core.gui,
+                                                  "Material edit" );
+
+    gtk_layout_put ( GTK_LAYOUT(gtk3matboard->layout), gtk3matedit->scrolled, 0, 0 );
+
+    gtk3matboard->core.matedit = ( GTK3G3DUIMATERIALEDIT * ) gtk3matedit;
+}
 
 /******************************************************************************/
 /*
@@ -198,7 +208,7 @@ GTK3G3DUIMATERIALBOARD *gtk3_g3duimaterialboard_create ( GtkWidget *parent,
 
     createMaterialList ( gtk3matboard );
     createMenuBar      ( gtk3matboard );
-    /*createObjectEdit ( gtk3matboard );*/
+    createMaterialEdit ( gtk3matboard );
 
 
     return gtk3matboard;

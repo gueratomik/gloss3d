@@ -216,7 +216,7 @@ void g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
                 p->u =   ( atan2f( p->nor.z, p->nor.x ) / ( 2.0f * M_PI ) ) + 0.5f;
                 p->v = - ( asin  ( p->nor.y )           / ( M_PI        ) ) + 0.5f;
 
-                if ( mat->flags & BUMP_ENABLED ) {
+                if ( mat->bump.flags & USECHANNEL ) {
                     G3DVECTOR tangent;
                     G3DVECTOR binomial;
                     G3DVECTOR bumpnor, finbump;
@@ -322,7 +322,7 @@ void g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
                 float rf, gf, bf;
                 uint32_t col = 0x00;
 
-                if ( mat->flags & DIFFUSE_ENABLED ) {
+                if ( mat->diffuse.flags & USECHANNEL ) {
                     G3DRGBA rgba;
 
                     g3dchannel_getColor ( &mat->diffuse, p->u, p->v, &rgba, 0x01 );
@@ -332,7 +332,7 @@ void g3duimaterialmap_fillData ( G3DUIMATERIALMAP *matmap,
                     B = rgba.b;
                 }
 
-                if ( mat->flags & ALPHA_ENABLED ) {
+                if ( mat->alpha.flags & USECHANNEL ) {
                     float trans = 1.0f - mat->alphaOpacity;
                     G3DRGBA rgba;
 
