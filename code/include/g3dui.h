@@ -324,7 +324,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITWEIGHTVALUE   "Weight Value"
 
 #define EDITCHANNELENABLED              "Enabled"
-#define EDITCHANNELSOLID                "Solid color"
+#define EDITCHANNELSOLID                "Solid"
 #define EDITCHANNELIMAGE                "Image"
 #define EDITCHANNELPROCEDURAL           "Procedural"
 #define EDITCHANNELPROCEDURALTYPE       "Type"

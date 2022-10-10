@@ -326,6 +326,490 @@ static void channelProceduralResCbk  ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void updateRefractionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
+    gtk3med->core.gui->lock = 0x01;
+
+    gtk_widget_set_sensitive ( gtk3med->refractionImageButton       , FALSE );
+    gtk_widget_set_sensitive ( gtk3med->refractionProcTypeCombo     , FALSE );
+    gtk_widget_set_sensitive ( gtk3med->refractionProcSettingsButton, FALSE );
+    gtk_combo_box_set_active ( gtk3med->refractionProcTypeCombo     , 0x00 );
+
+    if ( gtk3med->core.editedMaterial ) {
+        G3DMATERIAL *mat = gtk3med->core.editedMaterial;
+        G3DPROCEDURAL *proc = mat->refraction.proc;
+        GdkRGBA rgba = { .red   = mat->refraction.solid.r,
+                         .green = mat->refraction.solid.g,
+                         .blue  = mat->refraction.solid.b,
+                         .alpha = mat->refraction.solid.a };
+
+        if ( mat->refraction.flags & USECHANNEL ) {
+            gtk_toggle_button_set_active ( gtk3med->refractionEnabledToggle, TRUE  );
+        } else {
+            gtk_toggle_button_set_active ( gtk3med->refractionEnabledToggle, FALSE );
+        }
+
+        if ( mat->refraction.flags & USESOLIDCOLOR ) {
+            gtk_toggle_button_set_active ( gtk3med->refractionSolidToggle, TRUE  );
+        } else {
+            gtk_toggle_button_set_active ( gtk3med->refractionSolidToggle, FALSE );
+        }
+
+        if ( mat->refraction.flags & USEIMAGECOLOR ) {
+            gtk_toggle_button_set_active ( gtk3med->refractionImageToggle, TRUE  );
+
+            gtk_widget_set_sensitive ( gtk3med->refractionImageButton, TRUE );
+        } else {
+            gtk_toggle_button_set_active ( gtk3med->refractionImageToggle, FALSE );
+        }
+
+        if ( mat->refraction.flags & USEPROCEDURAL ) {
+            gtk_toggle_button_set_active ( gtk3med->refractionProcToggle, TRUE  );
+
+            gtk_widget_set_sensitive ( gtk3med->refractionProcTypeCombo     , TRUE );
+            gtk_widget_set_sensitive ( gtk3med->refractionProcSettingsButton, TRUE );
+        } else {
+            gtk_toggle_button_set_active ( gtk3med->refractionProcToggle, FALSE );
+        }
+
+        if ( proc ) {
+            gtk_combo_box_set_active ( gtk3med->refractionProcTypeCombo, proc->type );
+        }
+
+        gtk_range_set_value ( gtk3med->refractionStrengthScale, mat->refraction.solid.a );
+
+        if ( mat->refraction.image ) {
+            if ( mat->refraction.image->filename ) {
+                char *imgpath, *imgname;
+
+                imgpath = g3dcore_strclone ( mat->refraction.image->filename );
+
+                /*** We just keep the image name, not the whole ***/
+               /*** path and display it as the button label.   ***/
+                imgname = basename ( imgpath );
+
+                gtk_button_set_label ( gtk3med->refractionImageButton, imgname );
+
+                free ( imgpath );
+            }
+        } else {
+            gtk_button_set_label ( gtk3med->refractionImageButton, EDITCHANNELIMAGE );
+        }
+    }
+
+    gtk3med->core.gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void refractionStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
+    float val = ( float ) gtk_range_get_value ( GTK_RANGE(widget) );
+
+    g3duimaterialedit_setRefractionStrength ( gtk3med, val / 100.0f );
+}
+
+/******************************************************************************/
+static GtkWidget *createRefractionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
+                                     uint32_t               x,
+                                     uint32_t               y,
+                                     uint32_t               width,
+                                     uint32_t               height ) {
+    GtkFixed *pan = ui_createTab ( gtk3med->notebook,
+                                   gtk3med,
+                                   EDITMATERIALREFRACTION,
+                                   CLASS_MAIN,
+                                   x,
+                                   y,
+                                   width,
+                                   height );
+
+    gtk3med->refractionEnabledToggle  = ui_createToggleLabel ( pan, 
+                                                         gtk3med,
+                                                         EDITCHANNELENABLED,
+                                                         CLASS_MAIN,
+                                                         0,  0, 96, 20, 20,
+                                                         channelEnabledCbk );
+
+          /*** Use Solid color as texture ***/
+    gtk3med->refractionSolidToggle = ui_createToggleLabel ( pan, 
+                                                         gtk3med,
+                                                         EDITCHANNELSOLID,
+                                                         CLASS_MAIN,
+                                                         0,  24, 96, 20, 20,
+                                                         channelSolidCbk );
+
+          /*** Use image as texture ***/
+    gtk3med->refractionImageToggle    = ui_createToggleLabel ( pan,
+                                                         gtk3med,
+                                                         EDITCHANNELIMAGE,
+                                                         CLASS_MAIN,
+                                                         0, 48, 96, 20, 20,
+                                                         channelImageCbk );
+
+          /*** Image chooser button **/
+    gtk3med->refractionImageButton    = ui_createPushButton  ( pan,
+                                                         gtk3med, 
+                                                         EDITCHANNELIMAGE,
+                                                         CLASS_MAIN,
+                                                         120, 48, 96, 20,
+                                                         channelImageChooseCbk );
+
+          /*** Use image as texture ***/
+    gtk3med->refractionProcToggle     = ui_createToggleLabel ( pan,
+                                                         gtk3med,
+                                                         EDITCHANNELPROCEDURAL,
+                                                         CLASS_MAIN,
+                                                         0, 72, 96, 20, 20,
+                                                         channelProceduralCbk );
+
+    gtk3med->refractionProcTypeCombo 
+                                = ui_createProceduralSelector
+                                                       ( pan,
+                                                         gtk3med, 
+                                                         EDITCHANNELPROCEDURALTYPE,
+                                                         CLASS_MAIN,
+                                                         0, 96, 96, 64, 20,
+                                                         channelProceduralTypeCbk );
+
+    /*** Procedural settings **/
+    gtk3med->refractionProcSettingsButton 
+                                = ui_createPushButton  ( pan,
+                                                         gtk3med, 
+                                                         EDITCHANNELPROCEDURALSETTINGS,
+                                                         CLASS_MAIN,
+                                                         96, 120, 96, 18,
+                                                         channelProceduralSettingsCbk );
+
+    gtk3med->refractionStrengthScale  = ui_createHorizontalScale
+                                                       ( pan,
+                                                         gtk3med,
+                                                         EDITMATERIALREFLECTIONSTRENGTH,
+                                                         CLASS_MAIN,
+                                                         0, 144, 96, 208, 20,
+                                                         0.0f, 100.0f, 1.0f,
+                                                         refractionStrengthCbk );
+
+    return pan;
+}
+
+
+/******************************************************************************/
+static void updateReflectionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
+    gtk3med->core.gui->lock = 0x01;
+
+    gtk_widget_set_sensitive ( gtk3med->reflectionImageButton       , FALSE );
+    gtk_widget_set_sensitive ( gtk3med->reflectionProcTypeCombo     , FALSE );
+    gtk_widget_set_sensitive ( gtk3med->reflectionProcSettingsButton, FALSE );
+    gtk_combo_box_set_active ( gtk3med->reflectionProcTypeCombo     , 0x00 );
+
+    if ( gtk3med->core.editedMaterial ) {
+        G3DMATERIAL *mat = gtk3med->core.editedMaterial;
+        G3DPROCEDURAL *proc = mat->reflection.proc;
+        GdkRGBA rgba = { .red   = mat->reflection.solid.r,
+                         .green = mat->reflection.solid.g,
+                         .blue  = mat->reflection.solid.b,
+                         .alpha = mat->reflection.solid.a };
+
+        if ( mat->reflection.flags & USECHANNEL ) {
+            gtk_toggle_button_set_active ( gtk3med->reflectionEnabledToggle, TRUE  );
+        } else {
+            gtk_toggle_button_set_active ( gtk3med->reflectionEnabledToggle, FALSE );
+        }
+
+        if ( mat->reflection.flags & USESOLIDCOLOR ) {
+            gtk_toggle_button_set_active ( gtk3med->reflectionSolidToggle, TRUE  );
+        } else {
+            gtk_toggle_button_set_active ( gtk3med->reflectionSolidToggle, FALSE );
+        }
+
+        if ( mat->reflection.flags & USEIMAGECOLOR ) {
+            gtk_toggle_button_set_active ( gtk3med->reflectionImageToggle, TRUE  );
+
+            gtk_widget_set_sensitive ( gtk3med->reflectionImageButton, TRUE );
+        } else {
+            gtk_toggle_button_set_active ( gtk3med->reflectionImageToggle, FALSE );
+        }
+
+        if ( mat->reflection.flags & USEPROCEDURAL ) {
+            gtk_toggle_button_set_active ( gtk3med->reflectionProcToggle, TRUE  );
+
+            gtk_widget_set_sensitive ( gtk3med->reflectionProcTypeCombo     , TRUE );
+            gtk_widget_set_sensitive ( gtk3med->reflectionProcSettingsButton, TRUE );
+        } else {
+            gtk_toggle_button_set_active ( gtk3med->reflectionProcToggle, FALSE );
+        }
+
+        if ( proc ) {
+            gtk_combo_box_set_active ( gtk3med->reflectionProcTypeCombo, proc->type );
+        }
+
+        gtk_range_set_value ( gtk3med->reflectionStrengthScale, mat->reflection.solid.a );
+
+        if ( mat->reflection.image ) {
+            if ( mat->reflection.image->filename ) {
+                char *imgpath, *imgname;
+
+                imgpath = g3dcore_strclone ( mat->reflection.image->filename );
+
+                /*** We just keep the image name, not the whole ***/
+               /*** path and display it as the button label.   ***/
+                imgname = basename ( imgpath );
+
+                gtk_button_set_label ( gtk3med->reflectionImageButton, imgname );
+
+                free ( imgpath );
+            }
+        } else {
+            gtk_button_set_label ( gtk3med->reflectionImageButton, EDITCHANNELIMAGE );
+        }
+    }
+
+    gtk3med->core.gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void reflectionStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
+    float val = ( float ) gtk_range_get_value ( GTK_RANGE(widget) );
+
+    g3duimaterialedit_setReflectionStrength ( gtk3med, val  / 100.0f );
+}
+
+/******************************************************************************/
+static GtkWidget *createReflectionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
+                                     uint32_t               x,
+                                     uint32_t               y,
+                                     uint32_t               width,
+                                     uint32_t               height ) {
+    GtkFixed *pan = ui_createTab ( gtk3med->notebook,
+                                   gtk3med,
+                                   EDITMATERIALREFLECTION,
+                                   CLASS_MAIN,
+                                   x,
+                                   y,
+                                   width,
+                                   height );
+
+    gtk3med->reflectionEnabledToggle  = ui_createToggleLabel ( pan, 
+                                                         gtk3med,
+                                                         EDITCHANNELENABLED,
+                                                         CLASS_MAIN,
+                                                         0,  0, 96, 20, 20,
+                                                         channelEnabledCbk );
+
+          /*** Use Solid color as texture ***/
+    gtk3med->reflectionSolidToggle = ui_createToggleLabel ( pan, 
+                                                         gtk3med,
+                                                         EDITCHANNELSOLID,
+                                                         CLASS_MAIN,
+                                                         0,  24, 96, 20, 20,
+                                                         channelSolidCbk );
+
+          /*** Use image as texture ***/
+    gtk3med->reflectionImageToggle    = ui_createToggleLabel ( pan,
+                                                         gtk3med,
+                                                         EDITCHANNELIMAGE,
+                                                         CLASS_MAIN,
+                                                         0, 48, 96, 20, 20,
+                                                         channelImageCbk );
+
+          /*** Image chooser button **/
+    gtk3med->reflectionImageButton    = ui_createPushButton  ( pan,
+                                                         gtk3med, 
+                                                         EDITCHANNELIMAGE,
+                                                         CLASS_MAIN,
+                                                         120, 48, 96, 20,
+                                                         channelImageChooseCbk );
+
+          /*** Use image as texture ***/
+    gtk3med->reflectionProcToggle     = ui_createToggleLabel ( pan,
+                                                         gtk3med,
+                                                         EDITCHANNELPROCEDURAL,
+                                                         CLASS_MAIN,
+                                                         0, 72, 96, 20, 20,
+                                                         channelProceduralCbk );
+
+    gtk3med->reflectionProcTypeCombo 
+                                = ui_createProceduralSelector
+                                                       ( pan,
+                                                         gtk3med, 
+                                                         EDITCHANNELPROCEDURALTYPE,
+                                                         CLASS_MAIN,
+                                                         0, 96, 96, 64, 20,
+                                                         channelProceduralTypeCbk );
+
+    /*** Procedural settings **/
+    gtk3med->reflectionProcSettingsButton 
+                                = ui_createPushButton  ( pan,
+                                                         gtk3med, 
+                                                         EDITCHANNELPROCEDURALSETTINGS,
+                                                         CLASS_MAIN,
+                                                         96, 120, 96, 18,
+                                                         channelProceduralSettingsCbk );
+
+    gtk3med->reflectionStrengthScale  = ui_createHorizontalScale
+                                                       ( pan,
+                                                         gtk3med,
+                                                         EDITMATERIALREFLECTIONSTRENGTH,
+                                                         CLASS_MAIN,
+                                                         0, 144, 96, 208, 20,
+                                                         0.0f, 100.0f, 1.0f,
+                                                         reflectionStrengthCbk );
+
+    return pan;
+}
+
+/******************************************************************************/
+static void updateAlphaPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
+    gtk3med->core.gui->lock = 0x01;
+
+    gtk_widget_set_sensitive ( gtk3med->alphaImageButton       , FALSE );
+    gtk_widget_set_sensitive ( gtk3med->alphaProcTypeCombo     , FALSE );
+    gtk_widget_set_sensitive ( gtk3med->alphaProcSettingsButton, FALSE );
+    gtk_combo_box_set_active ( gtk3med->alphaProcTypeCombo     , 0x00 );
+
+    if ( gtk3med->core.editedMaterial ) {
+        G3DMATERIAL *mat = gtk3med->core.editedMaterial;
+        G3DPROCEDURAL *proc = mat->alpha.proc;
+        GdkRGBA rgba = { .red   = mat->alpha.solid.r,
+                         .green = mat->alpha.solid.g,
+                         .blue  = mat->alpha.solid.b,
+                         .alpha = mat->alpha.solid.a };
+
+        if ( mat->alpha.flags & USECHANNEL ) {
+            gtk_toggle_button_set_active ( gtk3med->alphaEnabledToggle, TRUE  );
+        } else {
+            gtk_toggle_button_set_active ( gtk3med->alphaEnabledToggle, FALSE );
+        }
+
+        if ( mat->alpha.flags & USEIMAGECOLOR ) {
+            gtk_toggle_button_set_active ( gtk3med->alphaImageToggle, TRUE  );
+
+            gtk_widget_set_sensitive ( gtk3med->alphaImageButton, TRUE );
+        } else {
+            gtk_toggle_button_set_active ( gtk3med->alphaImageToggle, FALSE );
+        }
+
+        if ( mat->alpha.flags & USEPROCEDURAL ) {
+            gtk_toggle_button_set_active ( gtk3med->alphaProcToggle, TRUE  );
+
+            gtk_widget_set_sensitive ( gtk3med->alphaProcTypeCombo     , TRUE );
+            gtk_widget_set_sensitive ( gtk3med->alphaProcSettingsButton, TRUE );
+        } else {
+            gtk_toggle_button_set_active ( gtk3med->alphaProcToggle, FALSE );
+        }
+
+        if ( proc ) {
+            gtk_combo_box_set_active ( gtk3med->alphaProcTypeCombo, proc->type );
+        }
+
+        gtk_spin_button_set_value ( gtk3med->alphaStrengthEntry, mat->alpha.solid.a );
+
+        if ( mat->alpha.image ) {
+            if ( mat->alpha.image->filename ) {
+                char *imgpath, *imgname;
+
+                imgpath = g3dcore_strclone ( mat->alpha.image->filename );
+
+                /*** We just keep the image name, not the whole ***/
+               /*** path and display it as the button label.   ***/
+                imgname = basename ( imgpath );
+
+                gtk_button_set_label ( gtk3med->alphaImageButton, imgname );
+
+                free ( imgpath );
+            }
+        } else {
+            gtk_button_set_label ( gtk3med->alphaImageButton, EDITCHANNELIMAGE );
+        }
+    }
+
+    gtk3med->core.gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void alphaStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
+    float val = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    g3duimaterialedit_setAlphaStrength ( gtk3med, val );
+}
+
+/******************************************************************************/
+static GtkWidget *createAlphaPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
+                                     uint32_t               x,
+                                     uint32_t               y,
+                                     uint32_t               width,
+                                     uint32_t               height ) {
+    GtkFixed *pan = ui_createTab ( gtk3med->notebook,
+                                   gtk3med,
+                                   EDITMATERIALALPHA,
+                                   CLASS_MAIN,
+                                   x,
+                                   y,
+                                   width,
+                                   height );
+
+    gtk3med->alphaEnabledToggle  = ui_createToggleLabel ( pan, 
+                                                         gtk3med,
+                                                         EDITCHANNELENABLED,
+                                                         CLASS_MAIN,
+                                                         0,  0, 96, 20, 20,
+                                                         channelEnabledCbk );
+
+    gtk3med->alphaStrengthEntry  = ui_createFloatText   ( pan, 
+                                                         gtk3med,
+                                                         EDITMATERIALALPHASTRENGTH,
+                                                         CLASS_MAIN,
+                                                         0.0f, FLT_MAX,
+                                                         0, 24, 96, 96, 20,
+                                                         alphaStrengthCbk );
+
+          /*** Use image as texture ***/
+    gtk3med->alphaImageToggle    = ui_createToggleLabel ( pan,
+                                                         gtk3med,
+                                                         EDITCHANNELIMAGE,
+                                                         CLASS_MAIN,
+                                                         0, 48, 96, 20, 20,
+                                                         channelImageCbk );
+
+          /*** Image chooser button **/
+    gtk3med->alphaImageButton    = ui_createPushButton  ( pan,
+                                                         gtk3med, 
+                                                         EDITCHANNELIMAGE,
+                                                         CLASS_MAIN,
+                                                         120, 48, 96, 20,
+                                                         channelImageChooseCbk );
+
+          /*** Use image as texture ***/
+    gtk3med->alphaProcToggle     = ui_createToggleLabel ( pan,
+                                                         gtk3med,
+                                                         EDITCHANNELPROCEDURAL,
+                                                         CLASS_MAIN,
+                                                         0, 72, 96, 20, 20,
+                                                         channelProceduralCbk );
+
+    gtk3med->alphaProcTypeCombo 
+                                = ui_createProceduralSelector
+                                                       ( pan,
+                                                         gtk3med, 
+                                                         EDITCHANNELPROCEDURALTYPE,
+                                                         CLASS_MAIN,
+                                                         0, 96, 96, 64, 20,
+                                                         channelProceduralTypeCbk );
+
+    /*** Procedural settings **/
+    gtk3med->alphaProcSettingsButton 
+                                = ui_createPushButton  ( pan,
+                                                         gtk3med, 
+                                                         EDITCHANNELPROCEDURALSETTINGS,
+                                                         CLASS_MAIN,
+                                                         96, 120, 96, 18,
+                                                         channelProceduralSettingsCbk );
+
+    return pan;
+}
+
+/******************************************************************************/
 static void updateDisplacementPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
     gtk3med->core.gui->lock = 0x01;
 
@@ -425,7 +909,7 @@ static GtkWidget *createDisplacementPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
 
     gtk3med->displacementStrengthEntry  = ui_createFloatText   ( pan, 
                                                          gtk3med,
-                                                         EDITMATERIALBUMPSTRENGTH,
+                                                         EDITMATERIALDISPLACEMENTSTRENGTH,
                                                          CLASS_MAIN,
                                                          0.0f, FLT_MAX,
                                                          0, 24, 96, 96, 20,
@@ -1011,14 +1495,12 @@ void gtk3_g3duimaterialedit_update ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
             updateSpecularPanel     ( gtk3med );
             updateBumpPanel         ( gtk3med );
             updateDisplacementPanel ( gtk3med );
+            updateAlphaPanel        ( gtk3med );
+            updateReflectionPanel   ( gtk3med );
+            updateRefractionPanel   ( gtk3med );
+
             /*gtk3med->core.multi = ( nbsel > 0x01 ) ? 0x01 : 0x00;*/
 
-/*
-            updateSpecularityPanel  ( gtk3med );
-            updateDiffuseColorPanel ( gtk3med );
-            updateLightGeneralPanel ( gtk3med );
-            updateShadowsPanel      ( gtk3med );
-*/
         } else {
             gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->notebook), FALSE );
         }
@@ -1065,8 +1547,6 @@ GTK3G3DUIMATERIALEDIT *gtk3_g3duimaterialedit_create ( GtkWidget *parent,
     gtk_scrolled_window_add_with_viewport ( GTK_SCROLLED_WINDOW(scrolled), notebook );
 #endif
 
-    /*gtk_widget_set_size_request ( tab, width, height );*/
-
     g_signal_connect ( G_OBJECT (notebook), "realize", G_CALLBACK (Realize), gtk3med );
     g_signal_connect ( G_OBJECT (notebook), "destroy", G_CALLBACK (Destroy), gtk3med );
 
@@ -1074,12 +1554,9 @@ GTK3G3DUIMATERIALEDIT *gtk3_g3duimaterialedit_create ( GtkWidget *parent,
     createSpecularPanel     ( gtk3med, 0, 0, 310, 250 );
     createBumpPanel         ( gtk3med, 0, 0, 310, 250 );
     createDisplacementPanel ( gtk3med, 0, 0, 310, 250 );
-/*
-    createLightGeneralPanel ( gtk3med, 0, 0, 310, 150 );
-    createDiffuseColorPanel ( gtk3med, 0, 0, 310, 150 );
-    createSpecularityPanel  ( gtk3med, 0, 0, 310, 150 );
-    createShadowsPanel      ( gtk3med, 0, 0, 310, 150 );
-*/
+    createAlphaPanel        ( gtk3med, 0, 0, 310, 250 );
+    createReflectionPanel   ( gtk3med, 0, 0, 310, 250 );
+    createRefractionPanel   ( gtk3med, 0, 0, 310, 250 );
 
     gtk_widget_show ( notebook );
     gtk_widget_show ( scrolled );

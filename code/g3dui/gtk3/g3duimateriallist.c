@@ -285,6 +285,14 @@ static void Input ( GtkWidget *widget,
                         if ( ltmpselmat ) {
                             G3DMATERIAL *selmat = ltmpselmat->data;
 
+                            g3durm_scene_removeMaterial ( gui->urm, 
+                                                          gui->sce, 
+                                                          selmat, 
+                                                          0x00,
+                                                          UPDATEMATERIALLIST | 
+                                                          REDRAWMATERIALLIST |
+                                                          UPDATECURRENTMATERIAL );
+
                             gtk3_g3duimateriallist_update ( gtk3matlist );
                         }
 

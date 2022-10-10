@@ -295,6 +295,33 @@ typedef struct _GTK3G3DUIMATERIALEDIT {
     GtkToggleButton  *displacementProcToggle;
     GtkComboBoxText  *displacementProcTypeCombo;
     GtkButton        *displacementProcSettingsButton;
+
+    GtkSpinButton    *alphaStrengthEntry;
+    GtkToggleButton  *alphaEnabledToggle;
+    GtkScale         *alphaStrengthScale;
+    GtkToggleButton  *alphaImageToggle;
+    GtkButton        *alphaImageButton;
+    GtkToggleButton  *alphaProcToggle;
+    GtkComboBoxText  *alphaProcTypeCombo;
+    GtkButton        *alphaProcSettingsButton;
+
+    GtkToggleButton  *reflectionEnabledToggle;
+    GtkToggleButton  *reflectionSolidToggle;
+    GtkToggleButton  *reflectionImageToggle;
+    GtkButton        *reflectionImageButton;
+    GtkToggleButton  *reflectionProcToggle;
+    GtkComboBoxText  *reflectionProcTypeCombo;
+    GtkButton        *reflectionProcSettingsButton;
+    GtkScale         *reflectionStrengthScale;
+
+    GtkToggleButton  *refractionEnabledToggle;
+    GtkToggleButton  *refractionSolidToggle;
+    GtkToggleButton  *refractionImageToggle;
+    GtkButton        *refractionImageButton;
+    GtkToggleButton  *refractionProcToggle;
+    GtkComboBoxText  *refractionProcTypeCombo;
+    GtkButton        *refractionProcSettingsButton;
+    GtkScale         *refractionStrengthScale;
 } GTK3G3DUIMATERIALEDIT;
 
 /******************************************************************************/
