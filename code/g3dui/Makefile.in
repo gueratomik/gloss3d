@@ -177,11 +177,13 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duimodebar.c gtk3/g3duiobjectboard.c \
 	gtk3/g3duiobjectedit.c gtk3/g3duiobjectlist.c \
 	gtk3/g3duiplaneedit.c gtk3/g3duiparticleemitteredit.c \
-	gtk3/g3duiquad.c gtk3/g3duirenderedit.c \
-	gtk3/g3duirenderwindow.c gtk3/g3duisphereedit.c \
-	gtk3/g3duisubdivideredit.c gtk3/g3duitimeboard.c \
-	gtk3/g3duitimeline.c gtk3/g3duitoolbar.c gtk3/g3duitorusedit.c \
-	gtk3/g3duitubeedit.c gtk3/g3duiview.c \
+	gtk3/g3duiproceduralbrickedit.c \
+	gtk3/g3duiproceduralchessedit.c \
+	gtk3/g3duiproceduralgradientedit.c gtk3/g3duiquad.c \
+	gtk3/g3duirenderedit.c gtk3/g3duirenderwindow.c \
+	gtk3/g3duisphereedit.c gtk3/g3duisubdivideredit.c \
+	gtk3/g3duitimeboard.c gtk3/g3duitimeline.c gtk3/g3duitoolbar.c \
+	gtk3/g3duitorusedit.c gtk3/g3duitubeedit.c gtk3/g3duiview.c \
 	gtk3/g3duiwireframeedit.c gtk3/q3dfilters.c gtk3/css/default.c
 am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@am__objects_1 = common/g3dui.lo common/g3duiboard.lo \
@@ -257,6 +259,9 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/g3duiobjectedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiobjectlist.lo gtk3/g3duiplaneedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiparticleemitteredit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duiproceduralbrickedit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duiproceduralchessedit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duiproceduralgradientedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiquad.lo gtk3/g3duirenderedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duirenderwindow.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duisphereedit.lo \
@@ -371,7 +376,11 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	gtk3/$(DEPDIR)/g3duiobjectedit.Plo \
 	gtk3/$(DEPDIR)/g3duiobjectlist.Plo \
 	gtk3/$(DEPDIR)/g3duiparticleemitteredit.Plo \
-	gtk3/$(DEPDIR)/g3duiplaneedit.Plo gtk3/$(DEPDIR)/g3duiquad.Plo \
+	gtk3/$(DEPDIR)/g3duiplaneedit.Plo \
+	gtk3/$(DEPDIR)/g3duiproceduralbrickedit.Plo \
+	gtk3/$(DEPDIR)/g3duiproceduralchessedit.Plo \
+	gtk3/$(DEPDIR)/g3duiproceduralgradientedit.Plo \
+	gtk3/$(DEPDIR)/g3duiquad.Plo \
 	gtk3/$(DEPDIR)/g3duirenderedit.Plo \
 	gtk3/$(DEPDIR)/g3duirenderwindow.Plo \
 	gtk3/$(DEPDIR)/g3duisphereedit.Plo \
@@ -648,6 +657,9 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiobjectlist.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiplaneedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiparticleemitteredit.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duiproceduralbrickedit.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duiproceduralchessedit.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duiproceduralgradientedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiquad.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duirenderedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duirenderwindow.c \
@@ -931,6 +943,12 @@ gtk3/g3duiplaneedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiparticleemitteredit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duiproceduralbrickedit.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duiproceduralchessedit.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duiproceduralgradientedit.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duiquad.lo: gtk3/$(am__dirstamp) gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duirenderedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
@@ -1070,6 +1088,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiobjectlist.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiparticleemitteredit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiplaneedit.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiproceduralbrickedit.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiproceduralchessedit.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiproceduralgradientedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiquad.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duirenderedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duirenderwindow.Plo@am__quote@ # am--include-marker
@@ -1351,6 +1372,9 @@ distclean: distclean-am
 	-rm -f gtk3/$(DEPDIR)/g3duiobjectlist.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiparticleemitteredit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiplaneedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duiproceduralbrickedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duiproceduralchessedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duiproceduralgradientedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiquad.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duirenderedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duirenderwindow.Plo
@@ -1497,6 +1521,9 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gtk3/$(DEPDIR)/g3duiobjectlist.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiparticleemitteredit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiplaneedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duiproceduralbrickedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duiproceduralchessedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duiproceduralgradientedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiquad.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duirenderedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duirenderwindow.Plo

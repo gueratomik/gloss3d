@@ -562,6 +562,8 @@ static void aliasingEdgeCbk ( GtkWidget *widget, gpointer user_data ) {
     if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_aaEdge ( &gtk3red->core );
+
+    updateAliasingFrame ( gtk3red );
 }
 
 /******************************************************************************/
@@ -572,6 +574,8 @@ static void aliasingFullCbk ( GtkWidget *widget, gpointer user_data ) {
     if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_aaFull ( &gtk3red->core );
+
+    updateAliasingFrame ( gtk3red );
 }
 
 /******************************************************************************/
@@ -582,6 +586,8 @@ static void aliasingS5Cbk ( GtkWidget *widget, gpointer user_data ) {
     if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_aaSamples ( &gtk3red->core, 5 );
+
+    updateAliasingFrame ( gtk3red );
 }
 
 /******************************************************************************/
@@ -592,6 +598,8 @@ static void aliasingS9Cbk ( GtkWidget *widget, gpointer user_data ) {
     if ( gtk3red->core.gui->lock ) return;
 
     g3duirenderedit_aaSamples ( &gtk3red->core, 9 );
+
+    updateAliasingFrame ( gtk3red );
 }
 
 /******************************************************************************/
@@ -639,7 +647,7 @@ static GtkWidget *createAliasingFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                gtk3red,
                                                EDITRENDERALIASINGSAMPLES_5,
                                                CLASS_MAIN,
-                                               120, 24, 96, 20, 20,
+                                               144, 24, 96, 20, 20,
                                                aliasingS5Cbk );
 
     gtk3red->aliasingS9Toggle = 
@@ -647,7 +655,7 @@ static GtkWidget *createAliasingFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                gtk3red,
                                                EDITRENDERALIASINGSAMPLES_9,
                                                CLASS_MAIN,
-                                               120, 48, 96, 20, 20,
+                                               144, 48, 96, 20, 20,
                                                aliasingS9Cbk );
 
     gtk_widget_show ( fix );
@@ -724,7 +732,6 @@ static void createMotionBlurFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
     G3DUI *gui = gtk3red->core.gui;
     GtkFixed *fix = ui_gtk_fixed_new ( CLASS_MAIN );
     GtkFrame *frm = ui_gtk_frame_new ( CLASS_MAIN, EDITRENDERMOTIONBLURFRAME );
-
 
     gtk_container_add (GTK_CONTAINER(frm), fix );
 

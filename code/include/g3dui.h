@@ -1066,6 +1066,30 @@ typedef struct _G3DUIRENDEREDIT {
 } G3DUIRENDEREDIT;
 
 /******************************************************************************/
+typedef struct _G3DUIPROCEDURALBRICKEDIT {
+    G3DUI              *gui;
+    G3DPROCEDURALBRICK *brick;
+    uint32_t            bindGL;
+    G3DPROCEDURALBRICK  dummy; /* Stores the temp image at the correct size */
+} G3DUIPROCEDURALBRICKEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIPROCEDURALCHESSEDIT {
+    G3DUI              *gui;
+    G3DPROCEDURALCHESS *chess;
+    uint32_t            bindGL;
+    G3DPROCEDURALCHESS  dummy; /* Stores the temp image at the correct size */
+} G3DUIPROCEDURALCHESSEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIPROCEDURALGRADIENTEDIT {
+    G3DUI                 *gui;
+    G3DPROCEDURALGRADIENT *gradient;
+    uint32_t               bindGL;
+    G3DPROCEDURALGRADIENT  dummy; /* Stores the temp image at the correct size */
+} G3DUIPROCEDURALGRADIENTEDIT;
+
+/******************************************************************************/
 typedef struct _G3DUIMAIN {
     G3DUI          *gui;
     G3DUIMENU      *menuBar;

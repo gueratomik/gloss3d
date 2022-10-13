@@ -42,11 +42,11 @@ void g3duimaterialboard_resize ( G3DUIMATERIALBOARD *matboard,
     matboard->listrec.x      = 0x00;
     matboard->listrec.y      = matboard->menurec.height;
     matboard->listrec.width  = width;
-    matboard->listrec.height = ( height - matboard->menurec.height ) * 0.65f;
+    matboard->listrec.height = ( height - matboard->menurec.height ) * 0.60f;
 
     matboard->editrec.x      = 0x00;
     matboard->editrec.y      = matboard->listrec.height +
                                matboard->menurec.height;
     matboard->editrec.width  = width;
-    matboard->editrec.height = ( height - matboard->menurec.height ) * 0.35f;
+    matboard->editrec.height = ( height - matboard->menurec.height ) * 0.40;
 }

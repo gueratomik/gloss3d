@@ -131,6 +131,18 @@ GtkStatusbar *ui_gtk_statusbar_new ( char *class ) {
 }
 
 /******************************************************************************/
+GtkDialog *ui_gtk_dialog_new ( char *class ) {
+    GtkDialog *dial = gtk_dialog_new ( );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( dial );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_DIALOG(dial);
+}
+
+/******************************************************************************/
 GtkToolbar *ui_gtk_toolbar_new ( char *class ) {
     GtkWidget *toolbar = gtk_toolbar_new ( );
 
@@ -321,6 +333,36 @@ GtkImage *ui_gtk_image_new_from_pixbuf ( char      *class,
     }
 
     return GTK_IMAGE(img);
+}
+
+/******************************************************************************/
+GtkDrawingArea *ui_createDrawingArea ( GtkFixed *parent,
+                                       void     *data,
+                                       char     *name,
+                                       char     *class,
+                                       gint      x, 
+                                       gint      y,
+                                       gint      width,
+                                       gint      height,
+                                       void    (*cbk)( GtkWidget *, 
+                                                       cairo_t   *cr,
+                                                       gpointer ) ) {
+    GtkWidget *area = ui_gtk_drawing_area_new ( class );
+
+    gtk_widget_set_name ( area, name );
+
+    gtk_widget_set_size_request ( area, width, height );
+
+    if ( cbk ) {
+        g_signal_connect ( area, "draw", G_CALLBACK ( cbk ), data );
+    }
+
+    gtk_fixed_put ( GTK_FIXED(parent), area, x, y );
+
+    gtk_widget_show ( area );
+
+
+    return area;
 }
 
 /******************************************************************************/

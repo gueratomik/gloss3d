@@ -128,30 +128,34 @@ static void channelProceduralSettingsCbk ( GtkWidget *widget,
 
         if ( cha ) {
             if (cha->proc ) {
-                GtkWidget *dial = gtk_dialog_new ( );
+                GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
                 GtkWidget *box = gtk_dialog_get_content_area ( dial );
                 G3DPROCEDURAL *proc = cha->proc;
 
                 switch ( proc->type ) {
-                    case PROCEDURALBRICK :
-#ifdef TODO
-                        createProceduralBrickEdit ( box,
-                                                    gui,
-                                                    cha->proc, 
-                                                    "Procedural Brick",
-                                                    0, 0, 350, 35, 0x01 );
-#endif
-                    break;
+                    case PROCEDURALBRICK : {
+                        GTK3G3DUIPROCEDURALBRICKEDIT *bedit =
+                        gtk3_g3duiproceduralbrickedit_create ( box,
+                                                               gtk3gui,
+                                                               cha->proc, 
+                                                               "Procedural Brick",
+                                                               0, 0,
+                                                               0, 0,
+                                                               0x01 );
 
-                    case PROCEDURALCHESS :
-#ifdef TODO
-                        createProceduralChessEdit ( box,
-                                                    gui,
-                                                    cha->proc, 
-                                                    "Procedural Chess",
-                                                    0, 0, 350, 35, 0x01 );
-#endif
-                    break;
+                        gtk_container_add ( GTK_CONTAINER(box), bedit->fixed );
+                    } break;
+
+                    case PROCEDURALCHESS : {
+                        GTK3G3DUIPROCEDURALCHESSEDIT *cedit =
+                        gtk3_g3duiproceduralchessedit_create ( box,
+                                                               gtk3gui,
+                                                               cha->proc, 
+                                                               "Procedural Chess",
+                                                               0, 0, 350, 35, 0x01 );
+
+                        gtk_container_add ( GTK_CONTAINER(box), cedit->fixed );
+                    } break;
 
                     case PROCEDURALNOISE :
 #ifdef TODO
@@ -163,15 +167,15 @@ static void channelProceduralSettingsCbk ( GtkWidget *widget,
 #endif
                     break;
 
-                    case PROCEDURALGRADIENT :
-#ifdef TODO
-                        createProceduralGradientEdit ( box,
-                                                       gui,
-                                                       cha->proc, 
-                                                       "Procedural Gradient",
-                                                       0, 0, 350, 35, 0x01 );
-#endif
-                    break;
+                    case PROCEDURALGRADIENT : {
+                        GTK3G3DUIPROCEDURALGRADIENTEDIT *gedit =
+                        gtk3_g3duiproceduralgradientedit_create ( box,
+                                                                  gui,
+                                                                  cha->proc, 
+                                                                  "Procedural Gradient",
+                                                                  0, 0, 350, 35, 0x01 );
+                        gtk_container_add ( GTK_CONTAINER(box), gedit->fixed );
+                    } break;
 
                     default :
                     break;
@@ -482,7 +486,7 @@ static GtkWidget *createRefractionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
     gtk3med->refractionStrengthScale  = ui_createHorizontalScale
                                                        ( pan,
                                                          gtk3med,
-                                                         EDITMATERIALREFLECTIONSTRENGTH,
+                                                         EDITMATERIALREFRACTIONSTRENGTH,
                                                          CLASS_MAIN,
                                                          0, 144, 96, 208, 20,
                                                          0.0f, 100.0f, 1.0f,
@@ -662,18 +666,13 @@ static GtkWidget *createReflectionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
 static void updateAlphaPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
     gtk3med->core.gui->lock = 0x01;
 
-    gtk_widget_set_sensitive ( gtk3med->alphaImageButton       , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->alphaProcTypeCombo     , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->alphaProcSettingsButton, FALSE );
-    gtk_combo_box_set_active ( gtk3med->alphaProcTypeCombo     , 0x00 );
+    gtk_widget_set_sensitive ( gtk3med->alphaImageButton  , FALSE );
+    gtk_widget_set_sensitive ( gtk3med->alphaProcTypeCombo, FALSE );
+    gtk_widget_set_sensitive ( gtk3med->alphaStrengthEntry, FALSE );
 
     if ( gtk3med->core.editedMaterial ) {
         G3DMATERIAL *mat = gtk3med->core.editedMaterial;
         G3DPROCEDURAL *proc = mat->alpha.proc;
-        GdkRGBA rgba = { .red   = mat->alpha.solid.r,
-                         .green = mat->alpha.solid.g,
-                         .blue  = mat->alpha.solid.b,
-                         .alpha = mat->alpha.solid.a };
 
         if ( mat->alpha.flags & USECHANNEL ) {
             gtk_toggle_button_set_active ( gtk3med->alphaEnabledToggle, TRUE  );
@@ -702,7 +701,9 @@ static void updateAlphaPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
             gtk_combo_box_set_active ( gtk3med->alphaProcTypeCombo, proc->type );
         }
 
-        gtk_spin_button_set_value ( gtk3med->alphaStrengthEntry, mat->alpha.solid.a );
+        gtk_widget_set_sensitive ( gtk3med->alphaStrengthEntry, TRUE );
+
+        gtk_spin_button_set_value ( gtk3med->alphaStrengthEntry, mat->alphaOpacity * 100.0f );
 
         if ( mat->alpha.image ) {
             if ( mat->alpha.image->filename ) {
@@ -731,7 +732,7 @@ static void alphaStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
     float val = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
-    g3duimaterialedit_setAlphaStrength ( gtk3med, val );
+    g3duimaterialedit_setAlphaStrength ( gtk3med, val / 100.0f );
 }
 
 /******************************************************************************/

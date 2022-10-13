@@ -632,6 +632,45 @@ typedef struct _GTK3G3DUITIMEBOARD {
 } GTK3G3DUITIMEBOARD;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUIPROCEDURALBRICKEDIT {
+    G3DUIPROCEDURALBRICKEDIT core;
+    GdkPixbuf               *pix;
+    GtkFixed                *fixed;
+    GtkDrawingArea          *drawingArea;
+    GtkColorButton          *brickColorButton;
+    GtkColorButton          *spacingColorButton;
+    GtkSpinButton           *nbLinesEntry;
+    GtkSpinButton           *nbBricksPerLineEntry;
+    GtkSpinButton           *uSpacingEntry;
+    GtkSpinButton           *vSpacingEntry;
+} GTK3G3DUIPROCEDURALBRICKEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIPROCEDURALCHESSEDIT {
+    G3DUIPROCEDURALCHESSEDIT core;
+    GdkPixbuf               *pix;
+    GtkFixed                *fixed;
+    GtkDrawingArea          *drawingArea;
+    GtkColorButton          *color1Button;
+    GtkColorButton          *color2Button;
+    GtkSpinButton           *nbBricksPerLineEntry;
+    GtkSpinButton           *uDivEntry;
+    GtkSpinButton           *vDivEntry;
+} GTK3G3DUIPROCEDURALCHESSEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIPROCEDURALGRADIENTEDIT {
+    G3DUIPROCEDURALGRADIENTEDIT core;
+    GdkPixbuf                  *pix;
+    GtkFixed                   *fixed;
+    GtkDrawingArea             *drawingArea;
+    GtkColorButton             *color1Button;
+    GtkColorButton             *color2Button;
+    GtkToggleButton            *horizontalToggle;
+    GtkToggleButton            *verticalToggle;
+} GTK3G3DUIPROCEDURALGRADIENTEDIT;
+
+/******************************************************************************/
 /************************** GTK PatternList Widget ***************************/
 typedef struct _GTK3PATTERNPREVIEW {
     GdkPixbuf     *img;
@@ -838,6 +877,18 @@ GtkEntry *ui_createCharText ( GtkWidget *parent,
                                                GdkEvent  *, 
                                                gpointer ) );
 
+GtkDrawingArea *ui_createDrawingArea ( GtkFixed *parent,
+                                       void     *data,
+                                       char     *name,
+                                       char     *class,
+                                       gint      x, 
+                                       gint      y,
+                                       gint      width,
+                                       gint      height,
+                                       void    (*cbk)( GtkWidget *, 
+                                                       cairo_t   *cr,
+                                                       gpointer ) );
+
 GtkComboBoxText *ui_createProceduralSelector ( GtkFixed *parent,
                                                void     *data, 
                                                char     *name,
@@ -863,6 +914,7 @@ GtkScale *ui_gtk_scale_new_with_range ( char *class,
 GtkEntry *ui_gtk_entry_new ( char *class );
 GtkFrame *ui_gtk_frame_new ( char       *class,
                              const char *label );
+GtkDialog *ui_gtk_dialog_new ( char *class );
 GtkScrolledWindow *ui_gtk_scrolled_window_new ( char          *class,
                                                 GtkAdjustment *hadjustment,
                                                 GtkAdjustment *vadjustment );
@@ -997,6 +1049,42 @@ void gtk3_g3duiplaneedit_update ( GTK3G3DUIPLANEEDIT *gtk3ped );
 GTK3G3DUIPLANEEDIT *gtk3_g3duiplaneedit_create ( GtkWidget *parent,
                                                GTK3G3DUI *gtk3gui,
                                                char      *name );
+
+/************************* g3duiproceduralbrickedit.c *************************/
+GTK3G3DUIPROCEDURALBRICKEDIT* 
+gtk3_g3duiproceduralbrickedit_create ( GtkWidget          *parent,
+                                       GTK3G3DUI          *gtk3gui,
+                                       G3DPROCEDURALBRICK *brick,
+                                       char               *name,
+                                       gint                x,
+                                       gint                y,
+                                       gint                width,
+                                       gint                height,
+                                       uint32_t            bindGL );
+
+/************************* g3duiproceduralchessedit.c *************************/
+GTK3G3DUIPROCEDURALCHESSEDIT* 
+gtk3_g3duiproceduralchessedit_create ( GtkWidget          *parent,
+                                       GTK3G3DUI          *gtk3gui,
+                                       G3DPROCEDURALCHESS *chess,
+                                       char               *name,
+                                       gint                x,
+                                       gint                y,
+                                       gint                width,
+                                       gint                height,
+                                       uint32_t            bindGL );
+
+/************************ g3duiproceduralgradientedit.c ***********************/
+GTK3G3DUIPROCEDURALGRADIENTEDIT* 
+gtk3_g3duiproceduralgradientedit_create ( GtkWidget             *parent,
+                                          GTK3G3DUI             *gtk3gui,
+                                          G3DPROCEDURALGRADIENT *gradient,
+                                          char                  *name,
+                                          gint                   x,
+                                          gint                   y,
+                                          gint                   width,
+                                          gint                   height,
+                                          uint32_t               bindGL );
 
 /***************************** g3duirenderedit.c ******************************/
 GTK3G3DUIRENDEREDIT* gtk3_g3duirenderedit_create ( GtkWidget   *parent, 

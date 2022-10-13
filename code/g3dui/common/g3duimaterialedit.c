@@ -192,7 +192,7 @@ uint64_t g3duimaterialedit_setRefractionStrength ( G3DUIMATERIALEDIT *matedit,
 
 /******************************************************************************/
 uint64_t g3duimaterialedit_setAlphaStrength ( G3DUIMATERIALEDIT *matedit, 
-                                                 float              strength ) {
+                                              float              strength ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 
