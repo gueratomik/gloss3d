@@ -234,8 +234,8 @@ gtk3_g3duiproceduralchessedit_create ( GtkWidget          *parent,
 
 
     gtk3ped->drawingArea  = ui_createDrawingArea ( fixed, gtk3ped, "preview" , CLASS_MAIN,         192,  0,    256, 256, previewCbk );
-    gtk3ped->color1Button = ui_createColorButton ( fixed, gtk3ped, COLOR1    , CLASS_MAIN,           0,  0, 96, 96,  20, color1Cbk  );
-    gtk3ped->color2Button = ui_createColorButton ( fixed, gtk3ped, COLOR2    , CLASS_MAIN,           0, 24, 96, 96,  20, color2Cbk  );
+    gtk3ped->color1Button = ui_createColorButton ( fixed, gtk3ped, COLOR1    , CLASS_MAIN,           0,  0, 96, 92,  20, color1Cbk  );
+    gtk3ped->color2Button = ui_createColorButton ( fixed, gtk3ped, COLOR2    , CLASS_MAIN,           0, 24, 96, 92,  20, color2Cbk  );
     gtk3ped->uDivEntry    = ui_createIntegerText ( fixed, gtk3ped, UDIVISIONS, CLASS_MAIN,   0, 100, 0, 48, 96, 96,  20, uDivCbk    );
     gtk3ped->vDivEntry    = ui_createIntegerText ( fixed, gtk3ped, VDIVISIONS, CLASS_MAIN,   0, 100, 0, 72, 96, 96,  20, vDivCbk    );
 

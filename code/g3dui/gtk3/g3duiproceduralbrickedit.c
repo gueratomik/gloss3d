@@ -285,8 +285,8 @@ gtk3_g3duiproceduralbrickedit_create ( GtkWidget          *parent,
 
     gtk3ped->drawingArea          = ui_createDrawingArea ( fixed, gtk3ped, "preview"      , CLASS_MAIN,         192,   0,    256, 256, previewCbk         );
 
-    gtk3ped->brickColorButton     = ui_createColorButton ( fixed, gtk3ped, BRICKCOLOR     , CLASS_MAIN,           0,   0, 96, 96,  20, brickColorCbk      );
-    gtk3ped->spacingColorButton   = ui_createColorButton ( fixed, gtk3ped, SPACINGCOLOR   , CLASS_MAIN,           0,  24, 96, 96,  20, spacingColorCbk    );
+    gtk3ped->brickColorButton     = ui_createColorButton ( fixed, gtk3ped, BRICKCOLOR     , CLASS_MAIN,           0,   0, 96, 92,  20, brickColorCbk      );
+    gtk3ped->spacingColorButton   = ui_createColorButton ( fixed, gtk3ped, SPACINGCOLOR   , CLASS_MAIN,           0,  24, 96, 92,  20, spacingColorCbk    );
     gtk3ped->nbLinesEntry         = ui_createIntegerText ( fixed, gtk3ped, NBLINES        , CLASS_MAIN,   0, 100, 0,  48, 96, 96,  20, nbLinesCbk         );
     gtk3ped->nbBricksPerLineEntry = ui_createIntegerText ( fixed, gtk3ped, NBBRICKSPERLINE, CLASS_MAIN,   0, 100, 0,  72, 96, 96,  20, nbBricksPerLineCbk );
     gtk3ped->uSpacingEntry        = ui_createFloatText   ( fixed, gtk3ped, USPACING       , CLASS_MAIN,   0, 100, 0,  96, 96, 96,  20, uspacingCbk        );

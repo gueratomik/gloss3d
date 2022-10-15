@@ -670,6 +670,44 @@ typedef struct _GTK3G3DUIPROCEDURALGRADIENTEDIT {
     GtkToggleButton            *verticalToggle;
 } GTK3G3DUIPROCEDURALGRADIENTEDIT;
 
+typedef struct _GTK3G3DUIPROCEDURALNOISEEDIT {
+    G3DUIPROCEDURALNOISEEDIT core;
+    GdkPixbuf               *pix;
+    GtkFixed                *fixed;
+    GtkDrawingArea          *drawingArea;
+    GtkSpinButton           *uGradientsEntry;
+    GtkSpinButton           *vGradientsEntry;
+    GtkSpinButton           *octavesEntry;
+    GtkSpinButton           *nbpairsEntry;
+    struct GTK3G3DUIPROCEDURALNOISEPAIR {
+        GtkFixed       *fixed;
+        GtkSpinButton  *thresholdEntry;
+        GtkColorButton *color1Button;
+        GtkColorButton *color2Button;
+    } pair[MAXNOISECOLORS];
+} GTK3G3DUIPROCEDURALNOISEEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUITEXTUREEDIT {
+    G3DUITEXTUREEDIT core;
+    GtkFixed        *fixed;
+    GtkFixed        *facegroupFrame;
+    GtkFixed        *facegroupFixed;
+    GtkToggleButton *restrictToggle;
+    GtkToggleButton *repeatToggle;
+    GtkButton       *editButton;
+    GtkComboBoxText *uvmapSelector;
+} GTK3G3DUITEXTUREEDIT ;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIUVMAPEDIT {
+    G3DUIUVMAPEDIT   core;
+    GtkFixed        *fixed;
+    GtkEntry        *nameEntry;
+    GtkToggleButton *fixedToggle;
+    GtkComboBoxText *projectionCombo;
+} GTK3G3DUIUVMAPEDIT;
+
 /******************************************************************************/
 /************************** GTK PatternList Widget ***************************/
 typedef struct _GTK3PATTERNPREVIEW {
@@ -876,7 +914,17 @@ GtkEntry *ui_createCharText ( GtkWidget *parent,
                               void     (*cbk)( GtkWidget *,
                                                GdkEvent  *, 
                                                gpointer ) );
-
+GtkComboBoxText *ui_createProjectionSelector ( GtkFixed *parent,
+                                               void     *data, 
+                                               char     *name,
+                                               char     *class,
+                                               gint     x,
+                                               gint     y,
+                                               gint     labwidth,
+                                               gint     txtwidth,
+                                               gint     txtheight,
+                                               void   (*cbk)( GtkWidget *, 
+                                                              gpointer ) );
 GtkDrawingArea *ui_createDrawingArea ( GtkFixed *parent,
                                        void     *data,
                                        char     *name,
@@ -938,6 +986,8 @@ GtkLayout *ui_gtk_layout_new ( char          *class,
                                GtkAdjustment *hadjustment,
                                GtkAdjustment *vadjustment );
 GtkDrawingArea *ui_gtk_drawing_area_new ( char *class );
+GtkCheckButton *ui_gtk_check_button_new_with_label ( char *class,
+                                                     char *label );
 
 /******************************* g3duiboard.c *********************************/
 GTK3G3DUIBOARD *gtk3_g3duiboard_create ( GtkWidget *parent,
@@ -1086,6 +1136,18 @@ gtk3_g3duiproceduralgradientedit_create ( GtkWidget             *parent,
                                           gint                   height,
                                           uint32_t               bindGL );
 
+/************************* g3duiproceduralnoiseedit.c *************************/
+GTK3G3DUIPROCEDURALNOISEEDIT* 
+gtk3_g3duiproceduralnoiseedit_create ( GtkWidget          *parent,
+                                       GTK3G3DUI          *gtk3gui,
+                                       G3DPROCEDURALNOISE *noise,
+                                       char               *name,
+                                       gint                x,
+                                       gint                y,
+                                       gint                width,
+                                       gint                height,
+                                       uint32_t            bindGL );
+
 /***************************** g3duirenderedit.c ******************************/
 GTK3G3DUIRENDEREDIT* gtk3_g3duirenderedit_create ( GtkWidget   *parent, 
                                                    GTK3G3DUI   *gtk3gui,
@@ -1106,6 +1168,18 @@ void gtk3_g3duisubdivideredit_update ( GTK3G3DUISUBDIVIDEREDIT *gtk3sed );
 GTK3G3DUISUBDIVIDEREDIT *gtk3_g3duisubdivideredit_create ( GtkWidget *parent,
                                                            GTK3G3DUI *gtk3gui,
                                                            char      *name );
+
+/**************************** g3duitextureedit.c ******************************/
+GTK3G3DUITEXTUREEDIT* gtk3_g3duitextureedit_create ( GtkWidget *parent,
+                                                     GTK3G3DUI *gtk3gui,
+                                                     char      *name,
+                                                     gint       x,
+                                                     gint       y,
+                                                     gint       width,
+                                                     gint       height );
+
+void updateTextureEdit ( GTK3G3DUITEXTUREEDIT *gtk3ted );
+
 /***************************** g3duitimeline.c ********************************/
 GTK3G3DUITIMELINE *gtk3_g3duitimeline_create ( GtkWidget *parent,
                                                GTK3G3DUI *gtk3gui,
@@ -1172,6 +1246,16 @@ void gtk3_g3duiquad_rearrange ( GTK3G3DUIQUAD *gtk3quad,
 void gtk3_g3duiquad_resize ( GTK3G3DUIQUAD *gtk3quad,
                              uint32_t       width,
                              uint32_t       height );
+
+/****************************** g3duiuvmapedit.c ******************************/
+void gtk3_g3duiuvmapedit_update ( GTK3G3DUIUVMAPEDIT *gtk3uvmed );
+GTK3G3DUIUVMAPEDIT* gtk3_g3duiuvmapedit_create ( GtkWidget *parent,
+                                                 GTK3G3DUI *gtk3gui,
+                                                 char      *name,
+                                                 gint       x,
+                                                 gint       y,
+                                                 gint       width,
+                                                 gint       height );
 
 /****************************** g3duiview.c ***********************************/
 GTK3G3DUIVIEW *gtk3_g3duiview_create ( GtkWidget *parent, 

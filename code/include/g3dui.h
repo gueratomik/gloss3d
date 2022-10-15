@@ -247,14 +247,6 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 
 /******************************************************************************/
 
-#define EDITTEXTUREMAPPING   "Choose UVW Map"
-#define EDITTEXTURERESTRICT  "Restrict to selection"
-#define EDITTEXTUREREPEAT    "Repeat texture"
- 
-
-
-
-
 
 #define EDITFFD         "Edit FFD"
 #define EDITFFDXSLICES  "X Slices"
@@ -1088,6 +1080,14 @@ typedef struct _G3DUIPROCEDURALGRADIENTEDIT {
     uint32_t               bindGL;
     G3DPROCEDURALGRADIENT  dummy; /* Stores the temp image at the correct size */
 } G3DUIPROCEDURALGRADIENTEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUIPROCEDURALNOISEEDIT {
+    G3DUI              *gui;
+    G3DPROCEDURALNOISE *noise;
+    uint32_t            bindGL;
+    G3DPROCEDURALNOISE  dummy; /* Stores the temp image at the correct size */
+} G3DUIPROCEDURALNOISEEDIT;
 
 /******************************************************************************/
 typedef struct _G3DUIMAIN {

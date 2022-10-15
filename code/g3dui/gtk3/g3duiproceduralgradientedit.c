@@ -243,10 +243,10 @@ gtk3_g3duiproceduralgradientedit_create ( GtkWidget             *parent,
 
     gtk3ped->drawingArea      = ui_createDrawingArea ( fixed, gtk3ped, "preview" , CLASS_MAIN, 192,  0,    256, 256, previewCbk );
 
-    gtk3ped->color1Button     = ui_createColorButton ( fixed, gtk3ped, COLOR1    , CLASS_MAIN,   0,  0, 96, 96,  20, color1Cbk  );
-    gtk3ped->color2Button     = ui_createColorButton ( fixed, gtk3ped, COLOR2    , CLASS_MAIN,   0, 24, 96, 96,  20, color2Cbk  );
-    gtk3ped->horizontalToggle = ui_createToggleLabel ( fixed, gtk3ped, HORIZONTAL, CLASS_MAIN,   0, 48, 96, 96,  20, horizontalToggleCbk );
-    gtk3ped->verticalToggle   = ui_createToggleLabel ( fixed, gtk3ped, VERTICAL  , CLASS_MAIN,   0, 72, 96, 96,  20, verticalToggleCbk   );
+    gtk3ped->color1Button     = ui_createColorButton ( fixed, gtk3ped, COLOR1    , CLASS_MAIN,   0,  0, 96, 92,  20, color1Cbk  );
+    gtk3ped->color2Button     = ui_createColorButton ( fixed, gtk3ped, COLOR2    , CLASS_MAIN,   0, 24, 96, 92,  20, color2Cbk  );
+    gtk3ped->horizontalToggle = ui_createToggleLabel ( fixed, gtk3ped, HORIZONTAL, CLASS_MAIN,   0, 48, 96, 20,  20, horizontalToggleCbk );
+    gtk3ped->verticalToggle   = ui_createToggleLabel ( fixed, gtk3ped, VERTICAL  , CLASS_MAIN,   0, 72, 96, 20,  20, verticalToggleCbk   );
 
     g_signal_connect ( G_OBJECT (fixed), "realize", G_CALLBACK (Realize), gtk3ped );
     g_signal_connect ( G_OBJECT (fixed), "destroy", G_CALLBACK (Destroy), gtk3ped );

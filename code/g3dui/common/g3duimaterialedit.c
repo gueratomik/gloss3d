@@ -93,7 +93,7 @@ uint64_t g3duimaterialedit_setChannelColor ( G3DUIMATERIALEDIT *matedit,
 
 /******************************************************************************/
 uint64_t g3duimaterialedit_setDisplacementStrength ( G3DUIMATERIALEDIT *matedit,
-                                                        float              strength ) {
+                                                     float              strength ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 
@@ -144,7 +144,7 @@ uint64_t g3duimaterialedit_setBumpStrength ( G3DUIMATERIALEDIT *matedit,
 
 /******************************************************************************/
 uint64_t g3duimaterialedit_setReflectionStrength ( G3DUIMATERIALEDIT *matedit,
-                                                      float              strength ) {
+                                                   float              strength ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 
@@ -168,7 +168,7 @@ uint64_t g3duimaterialedit_setReflectionStrength ( G3DUIMATERIALEDIT *matedit,
 
 /******************************************************************************/
 uint64_t g3duimaterialedit_setRefractionStrength ( G3DUIMATERIALEDIT *matedit, 
-                                                      float              strength ) {
+                                                   float              strength ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 
@@ -212,7 +212,7 @@ uint64_t g3duimaterialedit_setAlphaStrength ( G3DUIMATERIALEDIT *matedit,
 
 /******************************************************************************/
 uint64_t g3duimaterialedit_setName ( G3DUIMATERIALEDIT *matedit,
-                                        const char        *name ) {
+                                     const char        *name ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 
@@ -252,7 +252,7 @@ uint64_t g3duimaterialedit_setSpecularLevel ( G3DUIMATERIALEDIT *matedit,
 
 /******************************************************************************/
 uint64_t g3duimaterialedit_setSpecularShininess ( G3DUIMATERIALEDIT *matedit,
-                                                     float              val ) {
+                                                  float              val ) {
     G3DUI *gui = matedit->gui;
     LIST *ltmpselmat = gui->lselmat;
 

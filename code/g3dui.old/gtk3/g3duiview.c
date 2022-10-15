@@ -1487,6 +1487,7 @@ gboolean gtk3_showGL ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
 
     glXSwapBuffers ( dpy, win );
 
+
     XSync ( dpy, False );
 #endif
 

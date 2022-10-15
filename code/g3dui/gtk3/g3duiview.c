@@ -164,52 +164,6 @@ static void PostMenu ( GTK3G3DUI *gtk3gui,
         }
     }
 
-#ifdef unused
-    while ( ltmpmenu ) {
-        GtkWidget *menu = ( GtkWidget * ) ltmpmenu->data;
-
-        if ( gui->engine_flags & VIEWOBJECT ) {
-            if ( strcmp ( gtk_widget_get_name ( menu ), OBJECTMENUNAME ) == 0x00 ) curmenu = menu;
-        }
-
-        if ( selObj ) {
-            if ( gui->engine_flags & VIEWVERTEX ) {
-                if ( selObj->type == G3DSPLINETYPE ) {
-                    if ( strcmp ( gtk_widget_get_name ( menu ), VERTEXMODESPLINEMENUNAME ) == 0x00 ) curmenu = menu;
-                }
-
-                if ( selObj->type == G3DMESHTYPE ) {
-                    if ( strcmp ( gtk_widget_get_name ( menu ), VERTEXMODEMESHMENUNAME ) == 0x00 ) curmenu = menu;
-                }
-
-                if ( selObj->type == G3DMORPHERTYPE ) {
-                    if ( strcmp ( gtk_widget_get_name ( menu ), VERTEXMODEMORPHERMENUNAME ) == 0x00 ) curmenu = menu;
-                }
-            }
-
-            if ( gui->engine_flags & VIEWEDGE ) {
-                if ( selObj->type == G3DMESHTYPE ) {
-                    if ( strcmp ( gtk_widget_get_name ( menu ), EDGEMODEMESHMENUNAME   ) == 0x00 ) curmenu = menu;
-                }
-            }
-
-            if ( gui->engine_flags & VIEWFACE ) {
-                if ( selObj->type == G3DMESHTYPE ) {
-                    if ( strcmp ( gtk_widget_get_name ( menu ), FACEMODEMESHMENUNAME   ) == 0x00 ) curmenu = menu;
-                }
-            }
-
-            if ( gui->engine_flags & VIEWSCULPT ) {
-                if ( selObj->type == G3DSUBDIVIDERTYPE ) {
-                    if ( strcmp ( gtk_widget_get_name ( menu ), SCULPTMODEMESHMENUNAME   ) == 0x00 ) curmenu = menu;
-                }
-            }
-        } 
-
-        ltmpmenu = ltmpmenu->next;
-    }
-#endif
-
     if ( node ) {
         /*gtk_menu_popup_for_device ( GTK_MENU ( curmenu ), bev->device, 
                                                           NULL, 
@@ -562,12 +516,12 @@ gtk_widget_set_visual(glarea, visual);
 /******************************************************************************/
 static void redrawGLArea ( GTK3G3DUIVIEW  *gtk3view ) {
     GdkWindow *window = gtk_widget_get_window ( gtk3view->glarea );
-    GdkRectangle arec;
+    /*GdkRectangle arec;
 
     arec.x = arec.y = 0x00;
-    arec.width = arec.height = 1;
+    arec.width = arec.height = 1;*/
 
-    gdk_window_invalidate_rect ( window, &arec, FALSE );
+    gdk_window_invalidate_rect ( window, NULL, FALSE );
 }
 
 /******************************************************************************/
@@ -700,7 +654,7 @@ static gboolean navInput ( GtkWidget *widget,
     G3DCAMERA *cam = view->cam;
     G3DSCENE *sce = gui->sce;
     static uint32_t grabbing;
-    static int xori, yori;
+    static int xori, yori, xold, yold;
 
     switch ( event->type ) {
         case GDK_BUTTON_PRESS : {
@@ -710,8 +664,8 @@ static gboolean navInput ( GtkWidget *widget,
 
             g3duiview_pressButton ( view, bev->x, bev->y );
 
-            xori = bev->x;
-            yori = bev->y;
+            xori = xold = bev->x;
+            yori = yold = bev->y;
 
             if ( view->pressedButtonID != MAXIMIZEBUTTON ) {
                 GdkWindow *gdkwin = gtk_widget_get_window ( gtk3gui->topWin );
@@ -741,8 +695,8 @@ static gboolean navInput ( GtkWidget *widget,
             GdkEventMotion *mev = ( GdkEventMotion * ) event;
 
             if ( grabbing ) {
-                float difx = ( xori - mev->x ) * 0.5f,
-                      dify = ( yori - mev->y ) * 0.5f;
+                float difx = ( xold - mev->x ) * 0.5f,
+                      dify = ( yold - mev->y ) * 0.5f;
 
                 motionNotify ( gtk3view,
                                mev->state,
@@ -750,10 +704,19 @@ static gboolean navInput ( GtkWidget *widget,
                                difx,
                                dify );
 
-                movePointer ( widget, mev, xori, yori );
-
                 redrawGLArea ( gtk3view );
+
+                if ( ( xori != mev->x ) || ( yori != mev->y ) ) {
+                    /*** this must be called before the gtk_events_pending()***/
+                    /*** thing because it's also dispatched by the event loop**/
+                    /*** and we absolutely want the event to be generated ***/
+                    /*** right after the redrawing of the gl area ***/
+                    movePointer ( widget, mev, xori, yori );
+                }
             }
+
+            xold = xori;
+            yold = yori;
         } break;
 
         case GDK_BUTTON_RELEASE : {
@@ -949,480 +912,3 @@ GTK3G3DUIVIEW *gtk3_g3duiview_create ( GtkWidget *parent,
 
     return gtk3view;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#ifdef unused
-
-/******************************************************************************/
-static void createObjectMenu ( GtkWidget *widget, G3DUI *gui ) {
-    GtkView   *gvw  = ( GtkView * ) gtk_widget_get_parent ( widget );
-    GtkWidget *menu = createViewMenu ( widget, gui, OBJECTMENUNAME );
-    G3DUIVIEW *view = &gvw->view;
-
-    list_insert ( &gui->lObjectModeMenu, menu );
-
-    list_insert ( &view->lmenu  , menu );
-
-/*    g_signal_connect ( G_OBJECT (widget), "button_press_event"  , G_CALLBACK (PostMenu), menu );
-    g_signal_connect ( G_OBJECT (widget), "button_release_event", G_CALLBACK (PostMenu), menu );
-*/}
-
-/******************************************************************************/
-static void createVertexModeSplineMenu ( GtkWidget *widget, G3DUI *gui ) {
-    GtkView   *gvw  = ( GtkView * ) gtk_widget_get_parent ( widget );
-    GtkWidget *menu = createViewMenu ( widget, gui, VERTEXMODESPLINEMENUNAME );
-    G3DUIVIEW *view = &gvw->view;
-
-    list_insert ( &gui->lVertexModeSplineMenu, menu );
-    list_insert ( &view->lmenu  , menu );
-}
-
-/******************************************************************************/
-static void createVertexModeMorpherMenu ( GtkWidget *widget, G3DUI *gui ) {
-    GtkView   *gvw  = ( GtkView * ) gtk_widget_get_parent ( widget );
-    GtkWidget *menu = createViewMenu ( widget, gui, VERTEXMODEMORPHERMENUNAME );
-    G3DUIVIEW *view = &gvw->view;
-
-    list_insert ( &gui->lVertexModeMorpherMenu, menu );
-    list_insert ( &view->lmenu  , menu );
-}
-
-/******************************************************************************/
-static void createVertexModeMeshMenu ( GtkWidget *widget, G3DUI *gui ) {
-    GtkView   *gvw  = ( GtkView * ) gtk_widget_get_parent ( widget );
-    GtkWidget *menu = createViewMenu ( widget, gui, VERTEXMODEMESHMENUNAME );
-    G3DUIVIEW *view = &gvw->view;
-
-    list_insert ( &gui->lVertexModeMeshMenu, menu );
-    list_insert ( &view->lmenu  , menu );
-}
-
-/******************************************************************************/
-static void createEdgeModeMeshMenu ( GtkWidget *widget, G3DUI *gui ) {
-    GtkView   *gvw  = ( GtkView * ) gtk_widget_get_parent ( widget );
-    GtkWidget *menu = createViewMenu ( widget, gui, EDGEMODEMESHMENUNAME );
-    G3DUIVIEW *view = &gvw->view;
-
-    list_insert ( &gui->lEdgeModeMeshMenu, menu );
-    list_insert ( &view->lmenu  , menu );
-}
-
-
-/******************************************************************************/
-static void createFaceModeMeshMenu ( GtkWidget *widget, G3DUI *gui ) {
-    GtkView   *gvw  = ( GtkView * ) gtk_widget_get_parent ( widget );
-    GtkWidget *menu = createViewMenu ( widget, gui, FACEMODEMESHMENUNAME );
-    G3DUIVIEW *view = &gvw->view;
-
-    list_insert ( &gui->lFaceModeMeshMenu, menu );
-    list_insert ( &view->lmenu  , menu );
-}
-
-/******************************************************************************/
-static void createSculptModeMeshMenu ( GtkWidget *widget, G3DUI *gui ) {
-    GtkView   *gvw  = ( GtkView * ) gtk_widget_get_parent ( widget );
-    GtkWidget *menu = createViewMenu ( widget, gui, SCULPTMODEMESHMENUNAME );
-    G3DUIVIEW *view = &gvw->view;
-
-    list_insert ( &gui->lSculptModeMeshMenu, menu );
-    list_insert ( &view->lmenu  , menu );
-}
-
-/******************************************************************************/
-/*** for some unknown reason, the gtk_popup_menu does not position my menu ***/
-/*** correctly on dual monitor configuration, so I had to make this trick ***/
-void SetMenuPosition ( GtkMenu *menu, gint *x,
-                                      gint *y,
-                                      gboolean *push_in,
-                                      gpointer user_data ) {
-    GdkEventButton *bev = ( GdkEventButton  * ) user_data;
-    GdkScreen *scr = gdk_screen_get_default ( );
-    gint mx, my;
-    int mon = gdk_screen_get_monitor_at_window ( scr, bev->window );
-
-    gtk_menu_set_monitor ( menu, mon );
-
-    gdk_window_get_origin ( bev->window, &mx, &my );
-    /*gdk_window_get_device_position ( bev->window, bev->device,
-                                                 &mx,
-                                                 &my,
-                                                  NULL );*/
-
-    (*x) = mx + bev->x;
-    (*y) = my + bev->y;
-
-    /*(*x) = (gint) bev->x;
-    (*y) = (gint) bev->y;
-
-    printf ( "%f %f\n", bev->x, bev->y );*/
-}
-
-/******************************************************************************/
-static void PostMenu ( GtkWidget *widget, GdkEvent *event,
-                                          gpointer user_data ) {
-    GtkView        *gvw      = ( GtkView   * ) gtk_widget_get_parent ( widget );
-    G3DUI          *gui      = ( G3DUI * ) user_data;
-    GdkEventButton *bev      = ( GdkEventButton * ) event;
-    G3DUIVIEW      *view     = &gvw->view;
-    GtkWidget      *curmenu  = NULL;
-    LIST           *ltmpmenu = view->lmenu;
-    G3DOBJECT      *selObj   = g3dscene_getSelectedObject ( gui->sce );
-
-    while ( ltmpmenu ) {
-        GtkWidget *menu = ( GtkWidget * ) ltmpmenu->data;
-
-        if ( gui->engine_flags & VIEWOBJECT ) {
-            if ( strcmp ( gtk_widget_get_name ( menu ), OBJECTMENUNAME ) == 0x00 ) curmenu = menu;
-        }
-
-        if ( selObj ) {
-            if ( gui->engine_flags & VIEWVERTEX ) {
-                if ( selObj->type == G3DSPLINETYPE ) {
-                    if ( strcmp ( gtk_widget_get_name ( menu ), VERTEXMODESPLINEMENUNAME ) == 0x00 ) curmenu = menu;
-                }
-
-                if ( selObj->type == G3DMESHTYPE ) {
-                    if ( strcmp ( gtk_widget_get_name ( menu ), VERTEXMODEMESHMENUNAME ) == 0x00 ) curmenu = menu;
-                }
-
-                if ( selObj->type == G3DMORPHERTYPE ) {
-                    if ( strcmp ( gtk_widget_get_name ( menu ), VERTEXMODEMORPHERMENUNAME ) == 0x00 ) curmenu = menu;
-                }
-            }
-
-            if ( gui->engine_flags & VIEWEDGE ) {
-                if ( selObj->type == G3DMESHTYPE ) {
-                    if ( strcmp ( gtk_widget_get_name ( menu ), EDGEMODEMESHMENUNAME   ) == 0x00 ) curmenu = menu;
-                }
-            }
-
-            if ( gui->engine_flags & VIEWFACE ) {
-                if ( selObj->type == G3DMESHTYPE ) {
-                    if ( strcmp ( gtk_widget_get_name ( menu ), FACEMODEMESHMENUNAME   ) == 0x00 ) curmenu = menu;
-                }
-            }
-
-            if ( gui->engine_flags & VIEWSCULPT ) {
-                if ( selObj->type == G3DSUBDIVIDERTYPE ) {
-                    if ( strcmp ( gtk_widget_get_name ( menu ), SCULPTMODEMESHMENUNAME   ) == 0x00 ) curmenu = menu;
-                }
-            }
-        } 
-
-        ltmpmenu = ltmpmenu->next;
-    }
-
-    if ( curmenu ) {
-        /*gtk_menu_popup_for_device ( GTK_MENU ( curmenu ), bev->device, 
-                                                          NULL, 
-                                                          NULL, 
-                                                          NULL, 
-                                                          NULL,
-                                                          NULL,
-                                                          bev->button,
-                                                          gdk_event_get_time( ( GdkEvent * ) event ) );*/
-        gtk_menu_popup ( GTK_MENU ( curmenu ), NULL, 
-                                               NULL,
-                                               SetMenuPosition,
-                                               bev,
-                                               bev->button,
-                                               gdk_event_get_time( ( GdkEvent * ) event ) );
-    }
-}
-
-
-/******************************************************************************/
-GtkWidget *createView ( GtkWidget *parent, G3DUI *gui,
-                                           char *name,
-                                           G3DCAMERA *cam,
-                                           gint width,
-                                           gint height ) {
-    GdkRectangle gdkrec = { 0x00, 0x00, width, height };
-    GtkView *gvw = gtk_view_new ( cam, gui );
-    GtkWidget *area/* = gtk_view_getGLArea ( gvw )*/;
-    G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
-
-    gtk_widget_set_name ( gvw, name );
-
-    gtk_widget_size_allocate ( gvw, &gdkrec );
-
-    /*** the OpenGL Window ***/
-    area = gtk_drawing_area_new ( );
-
-    ggt->curogl = area;
-
-    gtk_widget_set_double_buffered (area, FALSE );
-
-    /*** For keyboard inputs ***/
-    gtk_widget_set_can_focus ( area, TRUE );
-
-    /*** Drawing area does not receive mous events by defaults ***/
-    gtk_widget_set_events ( area, gtk_widget_get_events ( area ) |
-                                  GDK_KEY_PRESS_MASK             |
-			                      GDK_KEY_RELEASE_MASK           |
-                                  GDK_BUTTON_PRESS_MASK          |
-                                  GDK_BUTTON_RELEASE_MASK        |
-                                  GDK_POINTER_MOTION_MASK        |
-                                  GDK_POINTER_MOTION_HINT_MASK );
-/*
-    gdk_window_add_filter ( gtk_widget_get_window ( area ), gdkevent_to_g3devent, view->xevent );
-*/
-
-    gtk_layout_put ( GTK_FIXED(gvw), area, 0x00, BUTTONSIZE );
-
-    g_signal_connect ( G_OBJECT (gvw), "motion_notify_event" , G_CALLBACK (gtk_view_event), gui );
-    g_signal_connect ( G_OBJECT (gvw), "button_press_event"  , G_CALLBACK (gtk_view_event), gui );
-    g_signal_connect ( G_OBJECT (gvw), "button_release_event", G_CALLBACK (gtk_view_event), gui );
-    /*g_signal_connect ( G_OBJECT (gvw), "configure-event", G_CALLBACK (gtk_view_configure), gui );*/
-
-    /*gdk_window_add_filter ( gtk_widget_get_window ( area ), gtk_area_filter, gui );*/
-
-    createObjectMenu            ( area, gui );
-    createVertexModeSplineMenu  ( area, gui );
-    createVertexModeMorpherMenu ( area, gui );
-    createVertexModeMeshMenu    ( area, gui );
-    createEdgeModeMeshMenu      ( area, gui );
-    createFaceModeMeshMenu      ( area, gui );
-    createSculptModeMeshMenu    ( area, gui );
-
-    g_signal_connect ( G_OBJECT (area), "size-allocate"       , G_CALLBACK (gtk3_sizeGL ), gui );
-    g_signal_connect ( G_OBJECT (area), "realize"             , G_CALLBACK (gtk3_initGL ), gui );
-    g_signal_connect ( G_OBJECT (area), "draw"                , G_CALLBACK (gtk3_showGL ), gui );
-
-    g_signal_connect ( G_OBJECT (area), "motion_notify_event" , G_CALLBACK (gtk3_inputGL), gui );
-    g_signal_connect ( G_OBJECT (area), "key_press_event"     , G_CALLBACK (gtk3_inputGL), gui );
-    g_signal_connect ( G_OBJECT (area), "key_release_event"   , G_CALLBACK (gtk3_inputGL), gui );
-    g_signal_connect ( G_OBJECT (area), "button_press_event"  , G_CALLBACK (gtk3_inputGL), gui );
-    g_signal_connect ( G_OBJECT (area), "button_release_event", G_CALLBACK (gtk3_inputGL), gui );
-
-    /*** Add the widget to the list of opengl views, allowing us to ***/
-    /*** refresh all of them when an action was done.               ***/
-    list_insert ( &gui->lglview,  gvw );
-    list_insert ( &gui->lview  , &((GtkView*)gvw)->view );
-
-    gtk_widget_show ( area );
-
-    createOptionMenu       ( gvw, gvw, OPTIONMENUNAME , 0, 0,  60, BUTTONSIZE );
-    createShadingSelection ( gvw, gui, SHADINGMENUNAME, 96,  0, 112, BUTTONSIZE );
-
-    gtk_widget_show ( gvw );
-
-
-    return gvw;
-}
-
-/******************************************************************************/
-void gdkevent_to_g3devent ( GdkEvent *gdkev, G3DEvent *g3dev ) {
-    memset ( g3dev, 0x00, sizeof ( G3DEvent ) );
-
-    switch ( gdkev->type ) {
-        case GDK_BUTTON_PRESS : {
-            GdkEventButton *gdkbev = ( GdkEventButton * ) gdkev;
-            G3DButtonEvent *g3dbev = ( G3DButtonEvent * ) g3dev;
-
-            g3dbev->type  = G3DButtonPress;
-            g3dbev->x     = gdkbev->x;
-            g3dbev->y     = gdkbev->y;
-
-            g3dbev->button = gdkbev->button;
-
-            if ( gdkbev->state & GDK_CONTROL_MASK ) g3dbev->state |= G3DControlMask;
-            if ( gdkbev->state & GDK_SHIFT_MASK   ) g3dbev->state |= G3DShiftMask;
-
-            /*if ( gdkbev->state & GDK_BUTTON1_MASK ) g3dbev->state |= G3DButton1Mask;
-            if ( gdkbev->state & GDK_BUTTON2_MASK ) g3dbev->state |= G3DButton2Mask;
-            if ( gdkbev->state & GDK_BUTTON3_MASK ) g3dbev->state |= G3DButton3Mask;*/
-
-        } break;
-
-        case GDK_BUTTON_RELEASE : {
-            GdkEventButton *gdkbev = ( GdkEventButton * ) gdkev;
-            G3DButtonEvent *g3dbev = ( G3DButtonEvent * ) g3dev;
-
-            g3dbev->type = G3DButtonRelease;
-            g3dbev->x    = gdkbev->x;
-            g3dbev->y    = gdkbev->y;
-
-            g3dbev->button = gdkbev->button;
-
-            if ( gdkbev->state & GDK_CONTROL_MASK ) g3dbev->state |= G3DControlMask;
-            if ( gdkbev->state & GDK_SHIFT_MASK   ) g3dbev->state |= G3DShiftMask;
-            /*if ( gdkbev->state & GDK_BUTTON1_MASK ) g3dbev->state |= G3DButton1Mask;
-            if ( gdkbev->state & GDK_BUTTON2_MASK ) g3dbev->state |= G3DButton2Mask;
-            if ( gdkbev->state & GDK_BUTTON3_MASK ) g3dbev->state |= G3DButton3Mask;*/
-        } break;
-
-        case GDK_MOTION_NOTIFY : {
-            GdkEventMotion *gdkmev = ( GdkEventMotion * ) gdkev;
-            G3DMotionEvent *g3dmev = ( G3DMotionEvent * ) g3dev;
-
-            g3dmev->type = G3DMotionNotify;
-            g3dmev->x    = gdkmev->x;
-            g3dmev->y    = gdkmev->y;
-
-            if ( gdkmev->state & GDK_CONTROL_MASK ) g3dmev->state |= G3DControlMask;
-            if ( gdkmev->state & GDK_SHIFT_MASK   ) g3dmev->state |= G3DShiftMask;
-            if ( gdkmev->state & GDK_BUTTON1_MASK ) g3dmev->state |= G3DButton1Mask;
-            if ( gdkmev->state & GDK_BUTTON2_MASK ) g3dmev->state |= G3DButton2Mask;
-            if ( gdkmev->state & GDK_BUTTON3_MASK ) g3dmev->state |= G3DButton3Mask;
-        } break;
-    }
-}
-
-/******************************************************************************/
-gboolean gtk3_inputGL ( GtkWidget *widget, 
-                               GdkEvent *gdkev, 
-                               gpointer user_data ) {
-    G3DUI          *gui    = ( G3DUI * ) user_data;
-    GdkEventButton *bev    = ( GdkEventButton * ) gdkev;
-    GtkView        *gvw    = ( GtkView * ) gtk_widget_get_parent ( widget );
-    G3DUIVIEW      *view   = &gvw->view;
-    G3DUIGTK3      *ggt    = ( G3DUIGTK3 * ) gui->toolkit_data;
-    GdkDisplay     *gdkdpy = gtk_widget_get_display ( widget );
-    GdkWindow      *gdkwin = gtk_widget_get_window  ( widget );
-#ifdef __linux__
-    Display    *dpy    = gdk_x11_display_get_xdisplay ( gdkdpy );
-    Window      win    = gdk_x11_window_get_xid       ( gdkwin );
-
-    glXMakeCurrent ( dpy, win, view->glctx );
-#endif
-
-#ifdef __MINGW32__
-    HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
-    HDC dc = GetDC ( hWnd );
-
-    wglMakeCurrent ( dc, view->glctx );
-
-    ReleaseDC ( hWnd, dc );
-#endif
-
-    ggt->curogl = widget;
-
-    if ( ( gdkev->type == GDK_BUTTON_PRESS ) &&
-         ( bev->button == 3 ) ) {
-        PostMenu ( widget, gdkev, user_data );
-
-        return TRUE;
-    }
-
-    switch ( gdkev->type ) {
-        case GDK_KEY_PRESS : {
-            GdkEventKey *kev = ( GdkEventKey * ) gdkev;
-
-            switch ( kev->keyval ) {
-                case GDK_KEY_Delete: {
-                    if ( common_g3dui_deleteSelectionCbk ( gui ) == G3DERROR_OBJECT_REFERRED ) {
-                        GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
-                        GtkMessageDialog *dialog;
-
-                        dialog = gtk_message_dialog_new ( NULL,
-                                                          flags,
-                                                          GTK_MESSAGE_ERROR,
-                                                          GTK_BUTTONS_CLOSE,
-                                                          "Could not remove referred object" );
-                        gtk_dialog_run ( GTK_DIALOG ( dialog ) );
-                        gtk_widget_destroy ( dialog );
-                    }
-                } break;
-
-                case GDK_KEY_z: {
-                    /*** undo ***/
-                    if ( kev->state & GDK_CONTROL_MASK ) {
-                        common_g3dui_undoCbk ( gui );
-                    }
-                } break;
-
-                case GDK_KEY_y: {
-                    /*** redo ***/
-                    if ( kev->state & GDK_CONTROL_MASK ) {
-                        common_g3dui_redoCbk ( gui );
-                    }
-                } break;
-
-                case GDK_KEY_c: {
-                    if ( kev->state & GDK_CONTROL_MASK ) {
-                        common_g3dui_copySelectionCbk ( gui );
-                    }
-                } break;
-
-                case GDK_KEY_v: {
-                    if ( kev->state & GDK_CONTROL_MASK ) {
-                        common_g3dui_pasteSelectionCbk ( gui );
-                    }
-                } break;
-
-                case GDK_KEY_s: {
-                    if ( kev->state & GDK_CONTROL_MASK ) {
-                        g3dui_savefilecbk ( widget, gui );
-                    }
-                } break;
-
-                case GDK_KEY_a: {
-                    if ( kev->state & GDK_CONTROL_MASK ) {
-                        common_g3dui_selectAllCbk ( gui );
-                    }
-                } break;
-            }
-        } break;
-
-        case GDK_BUTTON_PRESS : {
-            G3DUIRENDERPROCESS *rps = common_g3dui_getRenderProcessByID ( gui, ( uint64_t ) widget );
-            /*** If there was a running render, cancel it and dont go further ***/
-            if ( rps ) {
-                q3djob_end ( rps->qjob );
-
-                pthread_join ( rps->tid, NULL );
-
-                return TRUE;
-            }
-
-            /*** For keyboard inputs ***/
-            gtk_widget_grab_focus ( widget );
-        } break;
-
-        default :
-        break;
-    }
-
-    if ( gui->curmou ) {
-        /*** Call the mousetool callback and redraw if return value is > 0 ***/
-        G3DEvent g3dev;
-
-        gdkevent_to_g3devent ( gdkev, &g3dev );
-
-        if ( gui->curmou->tool->event ) {
-            uint32_t msk = gui->curmou->tool->event ( gui->curmou->tool, 
-                                                   gui->sce,
-                                                   view->cam, 
-                                                   gui->urm,
-                                                   gui->engine_flags, &g3dev );
-
-            gtk3_interpretUIReturnFlags ( gui, msk );
-
-            if ( gdkev->type == GDK_BUTTON_RELEASE ) {
-                g3dcursor_reset ( &gui->sce->csr );
-            }
-        }
-    }
-
-    return TRUE;
-}
-
-#endif

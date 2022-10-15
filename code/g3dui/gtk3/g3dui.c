@@ -91,6 +91,20 @@ GtkComboBoxText *ui_gtk_combo_box_text_new ( char *class ) {
     return GTK_COMBO_BOX_TEXT(cmb);
 }
 
+
+/******************************************************************************/
+GtkCheckButton *ui_gtk_check_button_new_with_label ( char *class,
+                                                     char *label ) {
+    GtkWidget *btn = gtk_check_button_new_with_label ( label );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( btn );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_CHECK_BUTTON(btn);
+}
+
 /******************************************************************************/
 GtkCheckButton *ui_gtk_check_button_new ( char *class ) {
     GtkWidget *btn = gtk_check_button_new ( );
@@ -771,6 +785,37 @@ GtkEntry *ui_createCharText ( GtkWidget *parent,
     gtk_widget_show ( ent );
 
     return ent;
+}
+
+/******************************************************************************/
+GtkComboBoxText *ui_createProjectionSelector ( GtkFixed *parent,
+                                               void     *data, 
+                                               char     *name,
+                                               char     *class,
+                                               gint     x,
+                                               gint     y,
+                                               gint     labwidth,
+                                               gint     txtwidth,
+                                               gint     txtheight,
+                                               void   (*cbk)( GtkWidget *, 
+                                                              gpointer ) ) {
+    GtkComboBoxText *cmb = ui_createSelector ( parent,
+                                               data,
+                                               name,
+                                               class,
+                                               x,
+                                               y,
+                                               labwidth,
+                                               txtwidth,
+                                               txtheight,
+                                               cbk );
+
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, FLATPROJECTION        );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, SPHERICALPROJECTION   );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, CYLINDRICALPROJECTION );
+    gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(cmb), NULL, BACKGROUNDPROJECTION );
+
+    return cmb;
 }
 
 /******************************************************************************/
@@ -1645,12 +1690,14 @@ static void gtk3_redrawGLViews ( GTK3G3DUI *gtk3gui ) {
     while ( ltmpview ) {
         GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) ltmpview->data;
         GdkWindow *window = gtk_widget_get_window ( gtk3view->glarea );
-        GdkRectangle arec;
+        /*GdkRectangle arec;
 
         arec.x = arec.y = 0x00;
-        arec.width = arec.height = 1;
+        arec.width = arec.height = 1;*/
 
-        gdk_window_invalidate_rect ( window, &arec, FALSE );
+        /*gtk_widget_queue_draw ( gtk3view->glarea );*/
+
+        gdk_window_invalidate_rect ( window, NULL, FALSE );
 
 
         ltmpview = ltmpview->next;

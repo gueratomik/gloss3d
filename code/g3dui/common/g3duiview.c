@@ -626,6 +626,9 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
 
 #ifdef __linux__
     } glXSwapBuffers ( view->dpy, view->win);
+
+    XFlush ( view->dpy );
+    XSync ( view->dpy, False );
 #endif
 #ifdef __MINGW32__
     } SwapBuffers ( dc );

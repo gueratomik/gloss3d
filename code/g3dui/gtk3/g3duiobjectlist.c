@@ -228,31 +228,47 @@ static void Input ( GtkWidget *widget,
                                    gui->engine_flags );
 
             if ( pob && ( pob->picked == TEXTURERECTHIT ) ) {
-                GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
-#ifdef TODO
-                createTextureEdit ( dial,
-                                    gui,
-                                    "TEXTUREEDIT",
-                                    0,
-                                    0,
-                                    264,
-                                    48 );
-#endif
-                gtk_widget_show ( dial );
+                GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
+                GtkWidget *box = gtk_dialog_get_content_area ( dial );
+                GTK3G3DUITEXTUREEDIT *tedit =
+                                  gtk3_g3duitextureedit_create ( dial,
+                                                                 gtk3gui,
+                                                                 "TEXTUREEDIT",
+                                                                 0,
+                                                                 0,
+                                                                 264,
+                                                                 48 );
+
+                gtk_container_add ( GTK_CONTAINER(box), tedit->fixed );
+
+                g_signal_connect_swapped ( dial,
+                                           "response",
+                                           G_CALLBACK (gtk_widget_destroy),
+                                           dial);
+
+                gtk_dialog_run ( dial );
             }
 
             if ( pob && ( pob->picked == UVMAPRECTHIT ) ) {
-                GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
-#ifdef TODO
-                createUVMapEdit ( dial,
-                                  gui,
-                                  "UVMAPEDIT",
-                                  0,
-                                  0,
-                                  264,
-                                  48 );
-#endif
-                gtk_widget_show ( dial );
+                GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
+                GtkWidget *box = gtk_dialog_get_content_area ( dial );
+                GTK3G3DUIUVMAPEDIT *uvmedit =
+                                  gtk3_g3duiuvmapedit_create ( dial,
+                                                               gtk3gui,
+                                                               "UVMAPEDIT",
+                                                               0,
+                                                               0,
+                                                               264,
+                                                               48 );
+
+                gtk_container_add ( GTK_CONTAINER(box), uvmedit->fixed );
+
+                g_signal_connect_swapped ( dial,
+                                           "response",
+                                           G_CALLBACK (gtk_widget_destroy),
+                                           dial);
+
+                gtk_dialog_run ( dial );
             }
 
             if ( pob && ( pob->picked == TAGRECTHIT ) ) {

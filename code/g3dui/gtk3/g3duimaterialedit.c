@@ -157,15 +157,15 @@ static void channelProceduralSettingsCbk ( GtkWidget *widget,
                         gtk_container_add ( GTK_CONTAINER(box), cedit->fixed );
                     } break;
 
-                    case PROCEDURALNOISE :
-#ifdef TODO
-                        createProceduralNoiseEdit ( box,
-                                                    gui,
-                                                    cha->proc, 
-                                                    "Procedural Noise",
-                                                    0, 0, 350, 35, 0x01 );
-#endif
-                    break;
+                    case PROCEDURALNOISE : {
+                        GTK3G3DUIPROCEDURALNOISEEDIT *nedit =
+                        gtk3_g3duiproceduralnoiseedit_create ( box,
+                                                               gui,
+                                                               cha->proc, 
+                                                               "Procedural Noise",
+                                                               0, 0, 350, 35, 0x01 );
+                        gtk_container_add ( GTK_CONTAINER(box), nedit->fixed );
+                    } break;
 
                     case PROCEDURALGRADIENT : {
                         GTK3G3DUIPROCEDURALGRADIENTEDIT *gedit =
@@ -881,9 +881,13 @@ static void updateDisplacementPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
 /******************************************************************************/
 static void displacementStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3med->core.gui;
     float val = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    uint64_t ret;
 
-    g3duimaterialedit_setDisplacementStrength ( gtk3med, val );
+    ret = g3duimaterialedit_setDisplacementStrength ( gtk3med, val );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
 }
 
 /******************************************************************************/
