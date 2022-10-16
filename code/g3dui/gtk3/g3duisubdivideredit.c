@@ -233,7 +233,7 @@ static void createGeneralPanel ( GTK3G3DUISUBDIVIDEREDIT *gtk3sed,
                                                    gtk3sed,
                                                    EDITSUBDIVIDERPREVIEW,
                                                    CLASS_MAIN,
-                                                   0,  9,
+                                                   1,  9,
                                                    0, 0, 96, 96, 20,
                                                    subdivPreviewCbk );
 
@@ -241,7 +241,7 @@ static void createGeneralPanel ( GTK3G3DUISUBDIVIDEREDIT *gtk3sed,
                                                    gtk3sed,
                                                    EDITSUBDIVIDERRENDER,
                                                    CLASS_MAIN,
-                                                   0,  9,
+                                                   1,  9,
                                                    0, 24, 96, 96, 20,
                                                    subdivRenderCbk );
 

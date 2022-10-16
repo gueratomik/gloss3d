@@ -103,12 +103,15 @@ if HAVE_GTK3
                             gtk3/g3duirenderedit.c \
                             gtk3/g3duirenderwindow.c \
                             gtk3/g3duisphereedit.c \
+                            gtk3/g3duisplinerevolveredit.c \
                             gtk3/g3duisubdivideredit.c \
+                            gtk3/g3duisymmetryedit.c \
                             gtk3/g3duitextureedit.c \
                             gtk3/g3duitimeboard.c \
                             gtk3/g3duitimeline.c \
                             gtk3/g3duitoolbar.c \
                             gtk3/g3duitorusedit.c \
+                            gtk3/g3duitrackertagedit.c \
                             gtk3/g3duitubeedit.c \
                             gtk3/g3duiuvmapedit.c \
                             gtk3/g3duiview.c \

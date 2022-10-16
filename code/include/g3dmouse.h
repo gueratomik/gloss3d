@@ -123,6 +123,10 @@
 #define UPDATEMATERIALLIST           ( 1 << 14 )
 #define NOBUFFEREDSUBDIVISION        ( 1 << 15 )
 #define BUFFEREDSUBDIVISIONOK        ( 1 << 16 )
+#define RESIZERENDERWINDOW           ( 1 << 17 )
+#define UPDATERENDERWINDOWMENU       ( 1 << 18 )
+#define CREATERENDEREDIT             ( 1 << 19 )
+#define UPDATEOBJECTBOARDMENU        ( 1 << 20 )
 #define UPDATEANDREDRAWALL           ( REDRAWVIEW                    | \
                                        UPDATEVIEWMENU                | \
                                        REDRAWOBJECTLIST              | \
@@ -136,11 +140,10 @@
                                        UPDATECURRENTMATERIALPREVIEW  | \
                                        REDRAWTIMELINE                | \
                                        REDRAWMATERIALLIST            | \
-                                       UPDATEMATERIALLIST            )
+                                       UPDATEMATERIALLIST            | \
+                                       UPDATEOBJECTBOARDMENU )
 
-#define RESIZERENDERWINDOW           ( 1 << 17 )
-#define UPDATERENDERWINDOWMENU       ( 1 << 18 )
-#define CREATERENDEREDIT             ( 1 << 19 )
+
 
 #define PICKMINRADIUS 0x10
 

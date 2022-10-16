@@ -98,13 +98,13 @@ void gtk3_g3duimaterialboard_resize ( GTK3G3DUIMATERIALBOARD *gtk3matboard,
         g3duirectangle_toGdkRectangle ( &gtk3matboard->core.editrec, &gdkrec );
 
         gtk_layout_move ( gtk3matboard->layout,
-                          gtk3matedit->scrolled,
+                          gtk3matedit->fixed,
                           gdkrec.x,
                           gdkrec.y );
 
-        gtk_widget_set_size_request ( gtk3matedit->scrolled,
-                                      gdkrec.width,
-                                      gdkrec.height );
+        gtk3_g3duimaterialedit_resize ( gtk3matedit,
+                                        gdkrec.width,
+                                        gdkrec.height );
 
     }
 }
@@ -151,7 +151,7 @@ static void createMaterialEdit ( GTK3G3DUIMATERIALBOARD *gtk3matboard ) {
                                   ( GTK3G3DUI * ) gtk3matboard->core.gui,
                                                   "Material edit" );
 
-    gtk_layout_put ( GTK_LAYOUT(gtk3matboard->layout), gtk3matedit->scrolled, 0, 0 );
+    gtk_layout_put ( GTK_LAYOUT(gtk3matboard->layout), gtk3matedit->fixed, 0, 0 );
 
     gtk3matboard->core.matedit = ( GTK3G3DUIMATERIALEDIT * ) gtk3matedit;
 }

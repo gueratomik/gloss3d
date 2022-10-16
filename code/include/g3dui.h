@@ -294,10 +294,6 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITCAMERADOFFARBLUR  "Far blur"
 #define EDITCAMERADOFRADIUS   "Radius"
 
-#define EDITSYMMETRY      "Symmetry"
-#define EDITSYMMETRYPLANE "Symmetry Plane"
-#define EDITSYMMETRYLIMIT "Merge limit"
-
 #define EDITWEIGHTGROUPNAME "Group name"
 #define EDITWEIGHTGROUPLIST "Group list"
 
@@ -335,9 +331,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 
 #define EDITSUBDIVIDER         "Subdivider"
 
-#define EDITSPLINEREVOLVER      "Spline Revolver"
-#define EDITSPLINEREVOLVERSTEPS "Steps"
-#define EDITSPLINEREVOLVERDIVIS "Divisions"
+
 
 #define EDITTEXT               "Text Editor"
 #define EDITTEXTTEXT           "Text"
@@ -981,7 +975,7 @@ typedef struct _G3DUIOBJECTEDIT {
     G3DUIPLANEEDIT           *plnedit;
     G3DUITEXTEDIT            *txtedit;
     G3DUIINSTANCEEDIT        *insedit;
-    G3DUISPLINEREVOLVEREDIT  *spredit;
+    G3DUISPLINEREVOLVEREDIT  *srvedit;
     G3DUISUBDIVIDEREDIT      *sdredit;
     G3DUISYMMETRYEDIT        *symedit;
     G3DUIPARTICLEEMITTEREDIT *pemedit;
@@ -2160,7 +2154,7 @@ uint64_t g3duitorusedit_orientation ( G3DUITORUSEDIT *toredit,
 uint64_t g3duitrackertagedit_orientation ( G3DUITRACKERTAGEDIT *ttedit, 
                                               char                *str );
 uint64_t g3duitrackertagedit_setTarget ( G3DUITRACKERTAGEDIT *ttedit, 
-                                            uint32_t             rank );
+                                         G3DOBJECT           *target );
 
 /******************************** g3duitubeedit.c *****************************/
 

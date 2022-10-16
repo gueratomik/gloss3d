@@ -272,17 +272,25 @@ static void Input ( GtkWidget *widget,
             }
 
             if ( pob && ( pob->picked == TAGRECTHIT ) ) {
-                GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
-#ifdef TODO
-                createTrackerTagEdit ( dial,
-                                       gui,
-                                       "TrackerTag Edit",
-                                       0,
-                                       0,
-                                       264,
-                                       48 );
-#endif
-                gtk_widget_show ( dial );
+                GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
+                GtkWidget *box = gtk_dialog_get_content_area ( dial );
+                GTK3G3DUITRACKERTAGEDIT *ttedit =
+                                  gtk3_g3duitrackertagedit_create ( dial,
+                                                                    gtk3gui,
+                                                                    "TRACKERTAGEDIT",
+                                                                    0,
+                                                                    0,
+                                                                    264,
+                                                                    48 );
+
+                gtk_container_add ( GTK_CONTAINER(box), ttedit->fixed );
+
+                g_signal_connect_swapped ( dial,
+                                           "response",
+                                           G_CALLBACK (gtk_widget_destroy),
+                                           dial);
+
+                gtk_dialog_run ( dial );
             }
         } break;
 
@@ -471,9 +479,10 @@ static void Input ( GtkWidget *widget,
             gtk3_interpretUIReturnFlags ( gtk3gui, 
                                           REDRAWVIEW       |
                                           UPDATECOORDS     |
-                                          REDRAWOBJECTLIST       |
+                                          REDRAWOBJECTLIST |
                                           REDRAWTIMELINE   |
-                                          UPDATEMAINMENU );
+                                          UPDATEMAINMENU   |
+                                          UPDATEOBJECTBOARDMENU );
 
             obj = dst = NULL;
         } break;

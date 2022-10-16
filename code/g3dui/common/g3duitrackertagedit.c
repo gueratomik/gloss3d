@@ -31,7 +31,7 @@
 
 /******************************************************************************/
 uint64_t g3duitrackertagedit_orientation ( G3DUITRACKERTAGEDIT *ttedit, 
-                                              char                *str ) {
+                                           char                *str ) {
     G3DUI *gui = ttedit->gui;
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
@@ -71,7 +71,7 @@ uint64_t g3duitrackertagedit_orientation ( G3DUITRACKERTAGEDIT *ttedit,
 
 /******************************************************************************/
 uint64_t g3duitrackertagedit_setTarget ( G3DUITRACKERTAGEDIT *ttedit, 
-                                            uint32_t             rank ) {
+                                         G3DOBJECT           *target ) {
     G3DUI *gui = ttedit->gui;
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
@@ -84,30 +84,11 @@ uint64_t g3duitrackertagedit_setTarget ( G3DUITRACKERTAGEDIT *ttedit,
         if ( tag ) {
             if ( tag->type & G3DTAGTRACKERTYPE ) {
                 G3DTRACKERTAG *ttag = ( G3DTRACKERTAG * ) tag;
-                LIST *ltmpobj, *lobj = NULL;
-                uint32_t objRank = 0x00;
 
-                /*** flatten the object tree ***/
-                g3dobject_treeToList_r ( ( G3DOBJECT * ) sce, &lobj );
-
-                ltmpobj = lobj;
-
-                while ( ltmpobj ) {
-                    G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
-
-                    if ( objRank == rank ) {
-                        g3dtrackertag_setTarget ( ttag, 
-                                                  sel, 
-                                                  obj,
-                                                  gui->engine_flags );
-                    }
-
-                    objRank++;
-
-                    ltmpobj = ltmpobj->next;
-                }
-
-                list_free ( &lobj, NULL );
+                g3dtrackertag_setTarget ( ttag, 
+                                          sel, 
+                                          target,
+                                          gui->engine_flags );
             }
         }
     }

@@ -182,10 +182,12 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duiproceduralgradientedit.c \
 	gtk3/g3duiproceduralnoiseedit.c gtk3/g3duiquad.c \
 	gtk3/g3duirenderedit.c gtk3/g3duirenderwindow.c \
-	gtk3/g3duisphereedit.c gtk3/g3duisubdivideredit.c \
+	gtk3/g3duisphereedit.c gtk3/g3duisplinerevolveredit.c \
+	gtk3/g3duisubdivideredit.c gtk3/g3duisymmetryedit.c \
 	gtk3/g3duitextureedit.c gtk3/g3duitimeboard.c \
 	gtk3/g3duitimeline.c gtk3/g3duitoolbar.c gtk3/g3duitorusedit.c \
-	gtk3/g3duitubeedit.c gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
+	gtk3/g3duitrackertagedit.c gtk3/g3duitubeedit.c \
+	gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
 	gtk3/g3duiwireframeedit.c gtk3/q3dfilters.c gtk3/css/default.c
 am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@am__objects_1 = common/g3dui.lo common/g3duiboard.lo \
@@ -268,10 +270,13 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/g3duiquad.lo gtk3/g3duirenderedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duirenderwindow.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duisphereedit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duisplinerevolveredit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duisubdivideredit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duisymmetryedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duitextureedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duitimeboard.lo gtk3/g3duitimeline.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duitoolbar.lo gtk3/g3duitorusedit.lo \
+@HAVE_GTK3_TRUE@	gtk3/g3duitrackertagedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duitubeedit.lo gtk3/g3duiuvmapedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiview.lo gtk3/g3duiwireframeedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/q3dfilters.lo gtk3/css/default.lo
@@ -389,12 +394,15 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	gtk3/$(DEPDIR)/g3duirenderedit.Plo \
 	gtk3/$(DEPDIR)/g3duirenderwindow.Plo \
 	gtk3/$(DEPDIR)/g3duisphereedit.Plo \
+	gtk3/$(DEPDIR)/g3duisplinerevolveredit.Plo \
 	gtk3/$(DEPDIR)/g3duisubdivideredit.Plo \
+	gtk3/$(DEPDIR)/g3duisymmetryedit.Plo \
 	gtk3/$(DEPDIR)/g3duitextureedit.Plo \
 	gtk3/$(DEPDIR)/g3duitimeboard.Plo \
 	gtk3/$(DEPDIR)/g3duitimeline.Plo \
 	gtk3/$(DEPDIR)/g3duitoolbar.Plo \
 	gtk3/$(DEPDIR)/g3duitorusedit.Plo \
+	gtk3/$(DEPDIR)/g3duitrackertagedit.Plo \
 	gtk3/$(DEPDIR)/g3duitubeedit.Plo \
 	gtk3/$(DEPDIR)/g3duiuvmapedit.Plo gtk3/$(DEPDIR)/g3duiview.Plo \
 	gtk3/$(DEPDIR)/g3duiwireframeedit.Plo \
@@ -672,12 +680,15 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duirenderedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duirenderwindow.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duisphereedit.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duisplinerevolveredit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duisubdivideredit.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duisymmetryedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitextureedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitimeboard.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitimeline.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitoolbar.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitorusedit.c \
+@HAVE_GTK3_TRUE@                            gtk3/g3duitrackertagedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duitubeedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiuvmapedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiview.c \
@@ -968,7 +979,11 @@ gtk3/g3duirenderwindow.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duisphereedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duisplinerevolveredit.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duisubdivideredit.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duisymmetryedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duitextureedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
@@ -979,6 +994,8 @@ gtk3/g3duitimeline.lo: gtk3/$(am__dirstamp) \
 gtk3/g3duitoolbar.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duitorusedit.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/g3duitrackertagedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/g3duitubeedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
@@ -1112,12 +1129,15 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duirenderedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duirenderwindow.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duisphereedit.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duisplinerevolveredit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duisubdivideredit.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duisymmetryedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitextureedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitimeboard.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitimeline.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitoolbar.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitorusedit.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitrackertagedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duitubeedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiuvmapedit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/g3duiview.Plo@am__quote@ # am--include-marker
@@ -1399,12 +1419,15 @@ distclean: distclean-am
 	-rm -f gtk3/$(DEPDIR)/g3duirenderedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duirenderwindow.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duisphereedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duisplinerevolveredit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duisubdivideredit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duisymmetryedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitextureedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitimeboard.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitimeline.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitoolbar.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitorusedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duitrackertagedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitubeedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiuvmapedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiview.Plo
@@ -1551,12 +1574,15 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gtk3/$(DEPDIR)/g3duirenderedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duirenderwindow.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duisphereedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duisplinerevolveredit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duisubdivideredit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duisymmetryedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitextureedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitimeboard.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitimeline.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitoolbar.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitorusedit.Plo
+	-rm -f gtk3/$(DEPDIR)/g3duitrackertagedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duitubeedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiuvmapedit.Plo
 	-rm -f gtk3/$(DEPDIR)/g3duiview.Plo

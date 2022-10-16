@@ -103,15 +103,11 @@ void gtk3_g3duiobjectboard_resize ( GTK3G3DUIOBJECTBOARD *gtk3objboard,
         g3duirectangle_toGdkRectangle ( &gtk3objboard->core.editrec, &gdkrec );
 
         gtk_layout_move ( gtk3objboard->layout,
-                          objedit->scrolled,
+                          objedit->fixed,
                           gdkrec.x,
                           gdkrec.y );
 
-        gtk_widget_set_size_request ( objedit->scrolled,
-                                      gdkrec.width,
-                                      gdkrec.height );
-
-        /*gtk_widget_size_allocate ( objedit->scrolled, &gdkrec );*/
+        gtk3_g3duiobjectedit_resize ( objedit, gdkrec.width, gdkrec.height );
     }
 }
 
@@ -156,7 +152,7 @@ static void createObjectEdit ( GTK3G3DUIOBJECTBOARD *gtk3objboard ) {
                                 ( GTK3G3DUI * ) gtk3objboard->core.gui,
                                                 "Current object" );
 
-    gtk_layout_put ( GTK_LAYOUT(gtk3objboard->layout), gtk3objedit->scrolled, 0, 0 );
+    gtk_layout_put ( GTK_LAYOUT(gtk3objboard->layout), gtk3objedit->fixed, 0, 0 );
 
     gtk3objboard->core.objedit = ( G3DUIOBJECTEDIT * ) gtk3objedit;
 }

@@ -253,6 +253,8 @@ typedef struct _GTK3G3DUIMATERIALLIST {
 typedef struct _GTK3G3DUIMATERIALEDIT {
     G3DUIMATERIALEDIT core;
 
+    GtkNotebook      *fixed;
+    GtkEntry         *nameEntry;
     GtkNotebook      *scrolled;
     GtkNotebook      *notebook;
 
@@ -326,9 +328,11 @@ typedef struct _GTK3G3DUIMATERIALEDIT {
 
 /******************************************************************************/
 typedef struct _GTK3G3DUIOBJECTEDIT {
-    G3DUIOBJECTEDIT core;
-    GtkWidget      *fixed;
-    GtkWidget      *scrolled;
+    G3DUIOBJECTEDIT    core;
+    GtkFixed          *fixed;
+    GtkEntry          *nameEntry;
+    GtkScrolledWindow *scrolled;
+    GtkFixed          *objectFixed;
 } GTK3G3DUIOBJECTEDIT;
 
 /******************************************************************************/
@@ -709,6 +713,30 @@ typedef struct _GTK3G3DUIUVMAPEDIT {
 } GTK3G3DUIUVMAPEDIT;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUISYMMETRYEDIT {
+    G3DUISYMMETRYEDIT core;
+    GtkNotebook      *notebook;    
+    GtkSpinButton    *limitEntry;
+    GtkComboBoxText  *orientationCombo;
+} GTK3G3DUISYMMETRYEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUISPLINEREVOLVEREDIT {
+    G3DUISPLINEREVOLVEREDIT core;
+    GtkNotebook            *notebook;    
+    GtkSpinButton          *stepsEntry;
+    GtkSpinButton          *divisionsEntry;
+} GTK3G3DUISPLINEREVOLVEREDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUITRACKERTAGEDIT {
+    G3DUITRACKERTAGEDIT core;
+    GtkFixed           *fixed;
+    GtkToggleButton    *objectCombo;
+    GtkComboBoxText    *orientationCombo;
+} GTK3G3DUITRACKERTAGEDIT;
+
+/******************************************************************************/
 /************************** GTK PatternList Widget ***************************/
 typedef struct _GTK3PATTERNPREVIEW {
     GdkPixbuf     *img;
@@ -1057,6 +1085,9 @@ void gtk3_g3duimaterialedit_update ( GTK3G3DUIMATERIALEDIT *gtk3med );
 GTK3G3DUIMATERIALEDIT *gtk3_g3duimaterialedit_create ( GtkWidget *parent,
                                                        GTK3G3DUI *gtk3gui,
                                                        char      *name );
+void gtk3_g3duimaterialedit_resize ( GTK3G3DUIMATERIALEDIT *gtk3med,
+                                     uint32_t               width,
+                                     uint32_t               height );
 
 /**************************** g3duimateriallist.c *****************************/
 GTK3G3DUIMAIN *gtk3_g3duimain_create ( GtkWidget *parent,
@@ -1083,11 +1114,6 @@ void gtk3_g3duimateriallist_removeMaterial ( GTK3G3DUIMATERIALLIST *gtk3matlist,
 GTK3G3DUIMATERIALLIST *gtk3_g3duimateriallist_create ( GtkWidget *parent,
                                                        GTK3G3DUI *gtk3gui,
                                                        char      *name );
-
-/**************************** g3duiobjectlist.c *******************************/
-GTK3G3DUIOBJECTLIST *gtk3_g3duiobjectlist_create ( GtkWidget *parent,
-                                                   GTK3G3DUI *gtk3gui,
-                                                   char      *name );
 
 /************************ g3duiparticleemitter.c ******************************/
 void gtk3_g3duiparticleemitteredit_update ( GTK3G3DUIPARTICLEEMITTEREDIT *gtk3ped );
@@ -1163,11 +1189,23 @@ void gtk3_g3duirenderwindow_resize ( GTK3G3DUIRENDERWINDOW *gtk3rwin,
                                      uint32_t               height );
 void gtk3_g3duirenderwindow_updateMenuBar ( GTK3G3DUIRENDERWINDOW *gtk3rwin );
 
+/************************* g3duisplinerevolveredit.c **************************/
+GTK3G3DUISPLINEREVOLVEREDIT *gtk3_g3duisplinerevolveredit_create ( GtkWidget *parent,
+                                                                   GTK3G3DUI *gtk3gui,
+                                                                   char      *name );
+void gtk3_g3duisplinerevolveredit_update ( GTK3G3DUISPLINEREVOLVEREDIT *gtk3sed );
+
 /*************************** g3duisubdivideredit.c ****************************/
 void gtk3_g3duisubdivideredit_update ( GTK3G3DUISUBDIVIDEREDIT *gtk3sed );
 GTK3G3DUISUBDIVIDEREDIT *gtk3_g3duisubdivideredit_create ( GtkWidget *parent,
                                                            GTK3G3DUI *gtk3gui,
                                                            char      *name );
+
+/*************************** g3duisymmetryedit.c ****************************/
+GTK3G3DUISYMMETRYEDIT *gtk3_g3duisymmetryedit_create ( GtkWidget *parent,
+                                                       GTK3G3DUI *gtk3gui,
+                                                       char      *name );
+void gtk3_g3duisymmetryedit_update ( GTK3G3DUISYMMETRYEDIT *gtk3sed );
 
 /**************************** g3duitextureedit.c ******************************/
 GTK3G3DUITEXTUREEDIT* gtk3_g3duitextureedit_create ( GtkWidget *parent,
@@ -1205,6 +1243,16 @@ GTK3G3DUITORUSEDIT *gtk3_g3duitorusedit_create ( GtkWidget *parent,
                                                  GTK3G3DUI *gtk3gui,
                                                  char      *name );
 
+/**************************** g3duitrackertagedit.c ***************************/
+GTK3G3DUITRACKERTAGEDIT* gtk3_g3duitrackertagedit_create ( GtkWidget *parent,
+                                                           GTK3G3DUI *gtk3gui,
+                                                           char      *name,
+                                                           gint       x,
+                                                           gint       y,
+                                                           gint       width,
+                                                           gint       height );
+
+
 /***************************** g3duitubeedit.c ********************************/
 void gtk3_g3duitubeedit_update ( GTK3G3DUITUBEEDIT *gtk3ted );
 GTK3G3DUITUBEEDIT *gtk3_g3duitubeedit_create ( GtkWidget *parent,
@@ -1234,6 +1282,14 @@ void gtk3_g3duiobjectboard_resize ( GTK3G3DUIOBJECTBOARD *gtk3objboard,
 /************************** g3duiobjectedit.c ********************************/
 void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit );
 GTK3G3DUIOBJECTEDIT *gtk3_g3duiobjectedit_create ( GtkWidget *parent, 
+                                                   GTK3G3DUI *gtk3gui,
+                                                   char      *name );
+void gtk3_g3duiobjectedit_resize ( GTK3G3DUIOBJECTEDIT *gtk3objedit,
+                                   uint32_t             width,
+                                   uint32_t             height );
+
+/**************************** g3duiobjectlist.c *******************************/
+GTK3G3DUIOBJECTLIST *gtk3_g3duiobjectlist_create ( GtkWidget *parent,
                                                    GTK3G3DUI *gtk3gui,
                                                    char      *name );
 

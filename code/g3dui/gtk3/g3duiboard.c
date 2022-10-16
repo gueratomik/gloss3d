@@ -72,8 +72,8 @@ static void Realize ( GtkWidget *widget,
 /******************************************************************************/
 static void gtk3_g3duiboard_createBoards ( GTK3G3DUIBOARD *gtk3board ) {
     GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
-    GtkWidget *objlab = gtk_label_new ( "Objects" );
-    GtkWidget *matlab = gtk_label_new ( "Materials" );
+    GtkWidget *objlab = ui_gtk_label_new ( CLASS_MAIN, "Objects" );
+    GtkWidget *matlab = ui_gtk_label_new ( CLASS_MAIN, "Materials" );
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3board->core.gui;
     GTK3G3DUIMATERIALBOARD *gtk3matboard;
     GTK3G3DUIOBJECTBOARD *gtk3objboard;

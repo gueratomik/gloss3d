@@ -408,6 +408,9 @@ static void refractionStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
     float val = ( float ) gtk_range_get_value ( GTK_RANGE(widget) );
 
+    /*** prevents a loop ***/
+    if ( gtk3med->core.gui->lock ) return;
+
     g3duimaterialedit_setRefractionStrength ( gtk3med, val / 100.0f );
 }
 
@@ -575,6 +578,9 @@ static void reflectionStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
     float val = ( float ) gtk_range_get_value ( GTK_RANGE(widget) );
 
+    /*** prevents a loop ***/
+    if ( gtk3med->core.gui->lock ) return;
+
     g3duimaterialedit_setReflectionStrength ( gtk3med, val  / 100.0f );
 }
 
@@ -732,6 +738,9 @@ static void alphaStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
     float val = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
 
+    /*** prevents a loop ***/
+    if ( gtk3med->core.gui->lock ) return;
+
     g3duimaterialedit_setAlphaStrength ( gtk3med, val / 100.0f );
 }
 
@@ -885,6 +894,9 @@ static void displacementStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     float val = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     uint64_t ret;
 
+    /*** prevents a loop ***/
+    if ( gtk3med->core.gui->lock ) return;
+
     ret = g3duimaterialedit_setDisplacementStrength ( gtk3med, val );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, ret );
@@ -1037,6 +1049,9 @@ static void updateBumpPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
 static void bumpStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
     float val = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+
+    /*** prevents a loop ***/
+    if ( gtk3med->core.gui->lock ) return;
 
     g3duimaterialedit_setBumpStrength ( gtk3med, val );
 }
@@ -1204,6 +1219,9 @@ static void specularLevelCbk ( GtkWidget *widget, gpointer user_data ) {
     uint64_t ret = 0x00;
     float val = ( float ) gtk_range_get_value ( GTK_RANGE(widget) );
 
+    /*** prevents a loop ***/
+    if ( gtk3med->core.gui->lock ) return;
+
     ret = g3duimaterialedit_setSpecularLevel ( gtk3med, val / 255.0f );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, ret ); 
@@ -1216,6 +1234,9 @@ static void specularShininessCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     uint64_t ret = 0x00;
     float val = ( float ) gtk_range_get_value ( GTK_RANGE(widget) );
+
+    /*** prevents a loop ***/
+    if ( gtk3med->core.gui->lock ) return;
 
     ret = g3duimaterialedit_setSpecularShininess ( gtk3med, val );
 
@@ -1493,6 +1514,11 @@ void gtk3_g3duimaterialedit_update ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
 
         if ( gui->lselmat ) {
             gtk3med->core.editedMaterial = ( G3DMATERIAL * ) gui->lselmat->data;
+            G3DMATERIAL *mat = gtk3med->core.editedMaterial;
+
+            if ( gtk3med->nameEntry ) {
+                gtk_entry_set_text ( gtk3med->nameEntry, mat->name );
+            }
 
             gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->notebook), TRUE );
 
@@ -1514,6 +1540,19 @@ void gtk3_g3duimaterialedit_update ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
     gui->lock = 0x00;
 }
 
+/******************************************************************************/
+static void nameMaterialCbk ( GtkWidget *widget, 
+                              GdkEvent  *event,
+                              gpointer   user_data ) {
+    GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3med->core.gui;
+    const char *name = gtk_entry_get_text ( GTK_ENTRY(widget) );
+    uint64_t ret;
+
+    ret = g3duimaterialedit_setName ( &gtk3med->core, name );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret ); 
+}
 
 /******************************************************************************/
 static void Destroy ( GtkWidget *widget,
@@ -1532,15 +1571,37 @@ static void Realize ( GtkWidget *widget,
 }
 
 /******************************************************************************/
+void gtk3_g3duimaterialedit_resize ( GTK3G3DUIMATERIALEDIT *gtk3med,
+                                     uint32_t               width,
+                                     uint32_t               height ) {
+    if ( gtk3med->scrolled ) {
+        gtk_widget_set_size_request ( gtk3med->scrolled,
+                                      width,
+                                      height - 20 );
+    }
+}
+
+/******************************************************************************/
 GTK3G3DUIMATERIALEDIT *gtk3_g3duimaterialedit_create ( GtkWidget *parent,
                                                        GTK3G3DUI *gtk3gui,
                                                        char      *name ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = gtk3_g3duimaterialedit_new ( gtk3gui );
     GtkWidget *scrolled = ui_gtk_scrolled_window_new ( CLASS_MAIN, NULL, NULL );
     GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
+    GtkWidget *fixed    = ui_gtk_fixed_new ( CLASS_MAIN );
 
-    gtk3med->scrolled = scrolled;
-    gtk3med->notebook = GTK_NOTEBOOK(notebook);
+
+    gtk3med->fixed     = fixed;
+    gtk3med->scrolled  = scrolled;
+    gtk3med->notebook  = GTK_NOTEBOOK(notebook);
+    gtk3med->nameEntry = ui_createCharText ( gtk3med->fixed,
+                                             gtk3med,
+                                             EDITMATERIALNAME,
+                                             CLASS_ENTRY,
+                                             0,  0, 96, 96, 20,
+                                             nameMaterialCbk  );
+
+    gtk_fixed_put ( gtk3med->fixed, gtk3med->scrolled  , 0, 20 );
 
     gtk_notebook_set_scrollable ( GTK_NOTEBOOK(notebook), TRUE );
 
@@ -1552,8 +1613,8 @@ GTK3G3DUIMATERIALEDIT *gtk3_g3duimaterialedit_create ( GtkWidget *parent,
     gtk_scrolled_window_add_with_viewport ( GTK_SCROLLED_WINDOW(scrolled), notebook );
 #endif
 
-    g_signal_connect ( G_OBJECT (notebook), "realize", G_CALLBACK (Realize), gtk3med );
-    g_signal_connect ( G_OBJECT (notebook), "destroy", G_CALLBACK (Destroy), gtk3med );
+    g_signal_connect ( G_OBJECT (fixed), "realize", G_CALLBACK (Realize), gtk3med );
+    g_signal_connect ( G_OBJECT (fixed), "destroy", G_CALLBACK (Destroy), gtk3med );
 
     createDiffusePanel      ( gtk3med, 0, 0, 310, 250 );
     createSpecularPanel     ( gtk3med, 0, 0, 310, 250 );
@@ -1563,8 +1624,7 @@ GTK3G3DUIMATERIALEDIT *gtk3_g3duimaterialedit_create ( GtkWidget *parent,
     createReflectionPanel   ( gtk3med, 0, 0, 310, 250 );
     createRefractionPanel   ( gtk3med, 0, 0, 310, 250 );
 
-    gtk_widget_show ( notebook );
-    gtk_widget_show ( scrolled );
+    gtk_widget_show_all ( fixed );
 
     return gtk3med;
 }

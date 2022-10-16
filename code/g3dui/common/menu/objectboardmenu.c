@@ -95,7 +95,7 @@ static G3DUIMENU *objrootchildren[] = { &tags_menu,
 
 static G3DUIMENU objrootnode = { NULL,
                                  "Bar",
-                                 NULL,
+                                 MENU_CLASS_MAIN,
                                  G3DUIMENUTYPE_MENUBAR,
                                  NULL,
                                  NULL,

@@ -335,10 +335,10 @@ void g3dtrackertag_setTarget ( G3DTRACKERTAG *ttag,
                                                       tracker ) );
 
         g3dtrackertag_transform ( ttag, tracker, engine_flags );
-    }
 
-    g3dscene_addReferredObject ( ttag->sce, target  );
-    g3dscene_addReferredObject ( ttag->sce, tracker );
+        g3dscene_addReferredObject ( ttag->sce, target  );
+        g3dscene_addReferredObject ( ttag->sce, tracker );
+    }
 }
 
 /******************************************************************************/

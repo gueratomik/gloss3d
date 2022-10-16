@@ -31,7 +31,7 @@
 
 /******************************************************************************/
 uint64_t g3duiobjectedit_name ( G3DUIOBJECTEDIT *objedit,
-                                   const char      *name ) {
+                                const char      *name ) {
     G3DUI *gui = objedit->gui;
     G3DSCENE *sce = gui->sce;
     LIST *ltmpselobj = sce->lsel;

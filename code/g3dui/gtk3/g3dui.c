@@ -76,7 +76,7 @@ GtkEntry *ui_gtk_entry_new ( char *class ) {
         gtk_style_context_add_class ( context, class );
     }
 
-    return GTK_COMBO_BOX_TEXT(ent);
+    return GTK_ENTRY(ent);
 }
 
 /******************************************************************************/
@@ -1537,6 +1537,23 @@ static void gtk3_updateObjectEdit ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
+static void gtk3_updateObjectBoardMenu ( GTK3G3DUI *gtk3gui ) {
+    if (  gtk3gui->core.main ) {
+        G3DUIMAIN *main = ( G3DUIMAIN * ) gtk3gui->core.main;
+
+        if (  main ) {
+            G3DUIBOARD *board = main->board;
+
+            if ( board ) {
+                G3DUIOBJECTBOARD *objboard = board->objboard;
+
+                gtk3_g3duiobjectboard_updateMenuBar ( objboard );
+            }
+        }
+    }
+}
+
+/******************************************************************************/
 static void gtk3_redrawObjectList ( GTK3G3DUI *gtk3gui ) {
     if (  gtk3gui->core.main ) {
         G3DUIMAIN *main = ( G3DUIMAIN * ) gtk3gui->core.main;
@@ -1822,7 +1839,6 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
     }
 
     if ( msk & UPDATEVIEWMENU ) {
-
         gtk3_updateGLViewsMenu ( gtk3gui );
     }
 
@@ -1832,6 +1848,10 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
 
     if ( msk & UPDATERENDERWINDOWMENU ) {
         gtk3_redrawRenderWindowMenu ( gtk3gui );
+    }
+
+    if ( msk & UPDATEOBJECTBOARDMENU ) {
+        gtk3_updateObjectBoardMenu ( gtk3gui );
     }
 
     if ( msk & UPDATEMATERIALLIST ) {
