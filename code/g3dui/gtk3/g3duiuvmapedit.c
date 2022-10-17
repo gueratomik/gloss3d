@@ -166,7 +166,7 @@ GTK3G3DUIUVMAPEDIT* gtk3_g3duiuvmapedit_create ( GtkWidget *parent,
 
     gtk_widget_set_size_request ( fixed, width, height );
 
-    gtk3uvmed->nameEntry       = ui_createCharText           ( fixed, gtk3uvmed, EDITUVMAPNAME      , CLASS_ENTRY, 0,  0, 96, 96, 20, nameUVMapCbk  );
+    gtk3uvmed->nameEntry       = ui_createCharText           ( fixed, gtk3uvmed, EDITUVMAPNAME      , CLASS_MAIN, 0,  0, 96, 96, 20, nameUVMapCbk  );
     gtk3uvmed->projectionCombo = ui_createProjectionSelector ( fixed, gtk3uvmed, EDITUVMAPPROJECTION, CLASS_MAIN, 0, 24, 96, 96, 20, projectionCbk );
     gtk3uvmed->fixedToggle     = ui_createToggleLabel        ( fixed, gtk3uvmed, EDITUVMAPFIXED     , CLASS_MAIN, 0, 48, 96, 20, 20, lockUVMapCbk  );
 

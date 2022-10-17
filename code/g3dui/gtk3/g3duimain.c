@@ -432,7 +432,7 @@ GTK3G3DUIMAIN *gtk3_g3duimain_create ( GtkWidget *parent,
                                        char      *filename ) {
     G3DUI *gui = &gtk3gui->core;
     GTK3G3DUIMAIN *gtk3main = g3tk_g3duimain_new ( gtk3gui );
-    GtkWidget    *layout  = gtk_layout_new ( NULL, NULL );
+    GtkWidget    *layout  = ui_gtk_layout_new ( CLASS_MAIN, NULL, NULL );
 
     gtk_widget_set_name ( layout, name );
 

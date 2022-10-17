@@ -257,7 +257,7 @@ GTK3G3DUIPLANEEDIT *gtk3_g3duiplaneedit_create ( GtkWidget *parent,
                                                  GTK3G3DUI *gtk3gui,
                                                  char      *name ) {
     GTK3G3DUIPLANEEDIT *gtk3ped = gtk3_g3duiplaneedit_new ( gtk3gui );
-    GtkWidget *notebook = gtk_notebook_new ( );
+    GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
 
     gtk3ped->notebook = GTK_NOTEBOOK(notebook);
 

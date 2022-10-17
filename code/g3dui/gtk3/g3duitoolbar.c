@@ -268,7 +268,7 @@ GtkWidget *addToolBarToggleButton ( GtkWidget   *bar,
                                     void       (*cbk) ( GtkWidget *, 
                                                         gpointer ) ) {
     /*GtkIconTheme *icon_theme = gtk_icon_theme_get_default ( );*/
-    GtkWidget *btn = (GtkWidget*) gtk_toggle_tool_button_new ( );
+    GtkWidget *btn = (GtkWidget*) ui_gtk_toggle_tool_button_new ( CLASS_MAIN );
 
     gtk_widget_set_name ( btn, name );
 
@@ -314,7 +314,7 @@ GtkWidget *addToolBarPushButton ( GtkWidget   *bar,
                                   void       (*cbk) ( GtkWidget *,
                                                       gpointer ) ) {
     /*GtkIconTheme *icon_theme = gtk_icon_theme_get_default ( );*/
-    GtkWidget *btn = (GtkWidget*) gtk_tool_button_new ( NULL, NULL );
+    GtkWidget *btn = (GtkWidget*) ui_gtk_tool_button_new ( CLASS_MAIN, NULL, NULL );
 
     gtk_widget_set_name ( btn, /*name*/"TB" );
 

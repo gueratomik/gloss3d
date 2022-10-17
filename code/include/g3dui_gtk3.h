@@ -990,6 +990,10 @@ GtkScale *ui_gtk_scale_new_with_range ( char *class,
 GtkEntry *ui_gtk_entry_new ( char *class );
 GtkFrame *ui_gtk_frame_new ( char       *class,
                              const char *label );
+GtkToggleToolButton *ui_gtk_toggle_tool_button_new ( char *class );
+GtkToolItem *ui_gtk_tool_button_new ( char        *class,
+                                      GtkWidget   *icon_widget,
+                                      const gchar *label );
 GtkDialog *ui_gtk_dialog_new ( char *class );
 GtkScrolledWindow *ui_gtk_scrolled_window_new ( char          *class,
                                                 GtkAdjustment *hadjustment,

@@ -482,7 +482,7 @@ static void createObjectEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
 
     gtk3objedit->scrolled    = ui_gtk_scrolled_window_new ( CLASS_MAIN, NULL, NULL );
     gtk3objedit->objectFixed = ui_gtk_fixed_new ( CLASS_MAIN );
-    gtk3objedit->nameEntry   = ui_createCharText ( gtk3objedit->fixed, gtk3objedit, EDITOBJECTNAME, CLASS_ENTRY, 0,  0, 96, 96, 20, nameObjectCbk  );
+    gtk3objedit->nameEntry   = ui_createCharText ( gtk3objedit->fixed, gtk3objedit, EDITOBJECTNAME, CLASS_MAIN, 0,  0, 96, 96, 20, nameObjectCbk  );
 
 #if GTK_CHECK_VERSION(3,8,0)
     gtk_container_add ( GTK_CONTAINER(gtk3objedit->scrolled), gtk3objedit->objectFixed );

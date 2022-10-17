@@ -220,6 +220,32 @@ GtkWindow *ui_gtk_window_new ( char         *class,
 }
 
 /******************************************************************************/
+GtkToggleToolButton *ui_gtk_toggle_tool_button_new ( char *class ) {
+    GtkWidget *btn = gtk_toggle_tool_button_new ( );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( btn );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_TOGGLE_TOOL_BUTTON(btn);
+}
+
+/******************************************************************************/
+GtkToolItem *ui_gtk_tool_button_new ( char        *class,
+                                      GtkWidget   *icon_widget,
+                                      const gchar *label ) {
+    GtkWidget *btn = gtk_tool_button_new ( icon_widget, label );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( btn );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_TOOL_ITEM(btn);
+}
+
+/******************************************************************************/
 GtkFixed *ui_gtk_fixed_new ( char *class ) {
     GtkWidget *fixed = gtk_fixed_new ( );
 
@@ -584,7 +610,7 @@ GtkSpinButton *ui_createNumericText ( GtkFixed      *parent,
                                       gint           txtheight,
                                       void (*cbk)( GtkWidget *, 
                                                    gpointer ) ) {
-    GtkSpinButton *btn  = ui_gtk_spin_button_new ( CLASS_ENTRY, adj, 1.0, 0 );
+    GtkSpinButton *btn  = ui_gtk_spin_button_new ( class, adj, 1.0, 0 );
     uint32_t charwidth;
 
     gtk_entry_set_width_chars   ( GTK_ENTRY(btn), 0 );
@@ -767,7 +793,7 @@ GtkEntry *ui_createCharText ( GtkWidget *parent,
     gtk_fixed_put ( GTK_FIXED(parent), ent, x + labwidth, y );
 
     if ( labwidth ) {
-        GtkWidget   *lab  = gtk_label_new ( name );
+        GtkWidget   *lab  = ui_gtk_label_new ( class, name );
 
         gtk_widget_set_name ( lab, name );
 

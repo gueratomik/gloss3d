@@ -1590,14 +1590,13 @@ GTK3G3DUIMATERIALEDIT *gtk3_g3duimaterialedit_create ( GtkWidget *parent,
     GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
     GtkWidget *fixed    = ui_gtk_fixed_new ( CLASS_MAIN );
 
-
     gtk3med->fixed     = fixed;
     gtk3med->scrolled  = scrolled;
     gtk3med->notebook  = GTK_NOTEBOOK(notebook);
     gtk3med->nameEntry = ui_createCharText ( gtk3med->fixed,
                                              gtk3med,
                                              EDITMATERIALNAME,
-                                             CLASS_ENTRY,
+                                             CLASS_MAIN,
                                              0,  0, 96, 96, 20,
                                              nameMaterialCbk  );
 

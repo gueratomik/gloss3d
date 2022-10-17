@@ -33,7 +33,7 @@
 #define EDITSPHERECAPS    "Caps"
 #define EDITSPHERESLICES  "Slices"
 #define EDITSPHERERADIUS  "Radius"
-#define EDITSPHEREPERFECT "Render Perfect"
+#define EDITSPHEREPERFECT "Render Perf."
 
 /******************************************************************************/
 static GTK3G3DUISPHEREEDIT *gtk3_g3duisphereedit_new ( GTK3G3DUI *gtk3gui ) {
@@ -236,7 +236,7 @@ GTK3G3DUISPHEREEDIT *gtk3_g3duisphereedit_create ( GtkWidget *parent,
                                                  GTK3G3DUI *gtk3gui,
                                                  char      *name ) {
     GTK3G3DUISPHEREEDIT *gtk3sed = gtk3_g3duisphereedit_new ( gtk3gui );
-    GtkWidget *notebook = gtk_notebook_new ( );
+    GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
 
     gtk3sed->notebook = GTK_NOTEBOOK(notebook);
 
