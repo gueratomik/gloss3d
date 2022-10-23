@@ -704,6 +704,28 @@ typedef struct _GTK3G3DUITEXTUREEDIT {
 } GTK3G3DUITEXTUREEDIT ;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUICAMERAEDIT {
+    G3DUICAMERAEDIT  core;
+    GtkNotebook     *notebook;
+    GtkToggleButton *dofEnableToggle;
+    GtkSpinButton   *dofNearBlurEntry;
+    GtkSpinButton   *dofNoBlurEntry;
+    GtkSpinButton   *dofFarBlurEntry;
+    GtkSpinButton   *dofRadiusEntry;
+} GTK3G3DUICAMERAEDIT ;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUITEXTEDIT {
+    G3DUITEXTEDIT  core;
+    GtkNotebook     *notebook;
+    GtkButton       *fontFaceButton;
+    GtkSpinButton   *fontSizeEntry;
+    GtkSpinButton   *fontRoundnessEntry;
+    GtkSpinButton   *fontThicknessEntry;
+    GtkTextView     *textText;
+} GTK3G3DUITEXTEDIT ;
+
+/******************************************************************************/
 typedef struct _GTK3G3DUIUVMAPEDIT {
     G3DUIUVMAPEDIT   core;
     GtkFixed        *fixed;
@@ -910,6 +932,18 @@ GtkComboBoxText *ui_createSelector ( GtkFixed *parent,
                                      gint       txtheight,
                                      void       (*cbk)( GtkWidget *, 
                                                         gpointer ) );
+
+GtkTextView *ui_createTextView ( GtkWidget *parent, 
+                                 void      *data,
+                                 char      *name,
+                                 char      *class,
+                                 gint       x, 
+                                 gint       y,
+                                 gint       width,
+                                 gint       height,
+                                 void     (*cbk)( GtkTextBuffer *,
+                                                  gpointer ) );
+
 GtkComboBoxText *ui_createPlaneSelector ( GtkFixed *parent,
                                           void     *data, 
                                           char     *name,
@@ -1005,6 +1039,7 @@ GtkCheckMenuItem *ui_gtk_check_menu_item_new_with_mnemonic ( char *class,
 GtkFixed *ui_gtk_fixed_new ( char *class );
 GtkLabel *ui_gtk_label_new ( char *class,
                               char *name );
+GtkTextView *ui_gtk_text_view_new ( char *class );
 GtkScale *ui_gtk_scale_new_with_range ( char *class,
                                         GtkOrientation orientation,
                                         double         min,
@@ -1058,6 +1093,12 @@ GTK3G3DUIBONEEDIT *gtk3_g3duiboneedit_create ( GtkWidget *parent,
                                                GTK3G3DUI *gtk3gui,
                                                char      *name );
 void gtk3_g3duiboneedit_update ( GTK3G3DUIBONEEDIT *gtk3bed );
+
+/*************************** g3duicameraedit.c ********************************/
+GTK3G3DUICAMERAEDIT *gtk3_g3duicameraedit_create ( GtkWidget *parent,
+                                                   GTK3G3DUI *gtk3gui,
+                                                   char      *name );
+void gtk3_g3duicameraedit_update ( GTK3G3DUICAMERAEDIT *gtk3ced );
 
 /******************************** g3duicom.c **********************************/
 Q3DFILTER *q3dfilter_gotoframe_new ( GTK3G3DUI *gtk3gui );
@@ -1246,6 +1287,12 @@ GTK3G3DUISYMMETRYEDIT *gtk3_g3duisymmetryedit_create ( GtkWidget *parent,
                                                        GTK3G3DUI *gtk3gui,
                                                        char      *name );
 void gtk3_g3duisymmetryedit_update ( GTK3G3DUISYMMETRYEDIT *gtk3sed );
+
+/****************************** g3duitextedit.c *******************************/
+GTK3G3DUITEXTEDIT *gtk3_g3duitextedit_create ( GtkWidget *parent,
+                                               GTK3G3DUI *gtk3gui,
+                                               char      *name );
+void gtk3_g3duitextedit_update ( GTK3G3DUITEXTEDIT *gtk3ted );
 
 /**************************** g3duitextureedit.c ******************************/
 GTK3G3DUITEXTUREEDIT* gtk3_g3duitextureedit_create ( GtkWidget *parent,

@@ -276,14 +276,6 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITBONE            "Bone"
 #define EDITBONEVERTEXGROUP "Vertex Groups (Double-Click to link)"
 
-#define EDITCAMERA            "Camera"
-#define EDITCAMERADOF         "Depth of field"
-#define EDITCAMERADOFENABLE   "Enable"
-#define EDITCAMERADOFNEARBLUR "Near blur"
-#define EDITCAMERADOFNOBLUR   "No blur"
-#define EDITCAMERADOFFARBLUR  "Far blur"
-#define EDITCAMERADOFRADIUS   "Radius"
-
 #define EDITWEIGHTGROUPNAME "Group name"
 #define EDITWEIGHTGROUPLIST "Group list"
 
@@ -980,6 +972,7 @@ typedef struct _G3DUIOBJECTEDIT {
     G3DUIWIREFRAMEEDIT       *wiredit;
     G3DUIMESHEDIT            *mesedit;
     G3DUIBONEEDIT            *bonedit;
+    G3DUICAMERAEDIT          *camedit;
 } G3DUIOBJECTEDIT;
 
 /******************************************************************************/

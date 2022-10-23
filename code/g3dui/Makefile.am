@@ -79,6 +79,7 @@ if HAVE_GTK3
                             gtk3/g3dui.c \
                             gtk3/g3duiboard.c \
                             gtk3/g3duiboneedit.c \
+                            gtk3/g3duicameraedit.c \
                             gtk3/g3duicom.c \
                             gtk3/g3duicubeedit.c \
                             gtk3/g3duicylinderedit.c \
@@ -108,6 +109,7 @@ if HAVE_GTK3
                             gtk3/g3duisplinerevolveredit.c \
                             gtk3/g3duisubdivideredit.c \
                             gtk3/g3duisymmetryedit.c \
+                            gtk3/g3duitextedit.c \
                             gtk3/g3duitextureedit.c \
                             gtk3/g3duitimeboard.c \
                             gtk3/g3duitimeline.c \

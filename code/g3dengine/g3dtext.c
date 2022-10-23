@@ -1005,6 +1005,15 @@ void g3dtext_configure ( G3DTEXT *txt,
 }
 
 /******************************************************************************/
+static uint32_t g3dtext_draw ( G3DOBJECT *obj, 
+                               G3DCAMERA *curcam, 
+                               uint64_t engine_flags ) {
+    g3dmesh_draw ( obj, curcam, engine_flags & (~VIEWVERTEX)
+                                             & (~VIEWFACE)
+                                             & (~VIEWEDGE) );
+}
+
+/******************************************************************************/
 void g3dtext_init ( G3DTEXT *txt, 
                     uint32_t id, 
                     char    *name,
@@ -1016,7 +1025,7 @@ void g3dtext_init ( G3DTEXT *txt,
     g3dmesh_init ( ( G3DMESH * ) txt, id, name, engine_flags );
 
     g3dobject_init ( obj, G3DTEXTTYPE, id, name, 0x00,
-                                     DRAW_CALLBACK(g3dmesh_draw),
+                                     DRAW_CALLBACK(g3dtext_draw),
                                      FREE_CALLBACK(g3dtext_free),
                                      PICK_CALLBACK(g3dmesh_pick),
                                                    NULL,

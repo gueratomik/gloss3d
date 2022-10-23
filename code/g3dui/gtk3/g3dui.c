@@ -309,6 +309,18 @@ GtkButton *ui_gtk_button_new ( char *class ) {
 }
 
 /******************************************************************************/
+GtkTextView *ui_gtk_text_view_new ( char *class ) {
+    GtkWidget *txt = gtk_text_view_new ( );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( txt );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_TEXT_VIEW(txt);
+}
+
+/******************************************************************************/
 GtkMenu *ui_gtk_menu_new ( char *class ) {
     GtkWidget *menu = gtk_menu_new ( );
 
@@ -459,7 +471,7 @@ GtkToggleButton *ui_createToggleLabel ( GtkFixed *parent,
     GtkCheckButton *btn = ui_gtk_check_button_new ( class );
     GtkLabel       *lab = ui_gtk_label_new ( class, name );
 
-    gtk_widget_set_halign ( GTK_WIDGET(lab), GTK_ALIGN_END );
+    gtk_label_set_xalign ( lab, 0.9f );
 
     gtk_widget_set_name ( GTK_WIDGET(lab), name );
     gtk_widget_set_name ( GTK_WIDGET(btn), name );
@@ -481,6 +493,37 @@ GtkToggleButton *ui_createToggleLabel ( GtkFixed *parent,
 
 
     return btn;
+}
+
+/********* https://developer.gnome.org/gtk3/stable/GtkSpinButton.html *********/
+GtkTextView *ui_createTextView ( GtkWidget *parent, 
+                                 void      *data,
+                                 char      *name,
+                                 char      *class,
+                                 gint       x, 
+                                 gint       y,
+                                 gint       width,
+                                 gint       height,
+                                 void     (*cbk)( GtkTextBuffer *,
+                                                  gpointer ) ) {
+    GtkWidget     *win = ui_gtk_scrolled_window_new ( class, NULL, NULL );
+    GtkWidget     *txt = ui_gtk_text_view_new ( class );
+    GtkTextBuffer *buf = gtk_text_view_get_buffer( txt );
+
+    gtk_container_add( GTK_CONTAINER( win ), txt );
+
+    gtk_widget_set_size_request ( win, width, height );
+
+    gtk_fixed_put ( GTK_FIXED( parent ), win, x, y );
+
+    if ( cbk ) {
+        g_signal_connect ( buf, "changed", G_CALLBACK(cbk), data );
+    }
+
+    gtk_widget_show ( win );
+
+
+    return txt;
 }
 
 /******************************************************************************/
@@ -541,6 +584,8 @@ GtkScale *ui_createHorizontalScale ( GtkWidget *parent,
         GdkRectangle lrec = { 0x00, 0x00, labwidth, height };
         GtkLabel   *lab  = ui_gtk_label_new ( class, name );
 
+        gtk_label_set_xalign ( lab, 0.9f );
+
         gtk_widget_set_name ( GTK_WIDGET(lab), name );
 
         gtk_widget_set_size_request ( GTK_WIDGET(lab), lrec.width, lrec.height );
@@ -583,6 +628,8 @@ GtkColorButton *ui_createColorButton ( GtkFixed *parent,
     if ( labwidth ) {
         GdkRectangle lrec = { 0x00, 0x00, labwidth, btnheight };
         GtkLabel   *lab  = ui_gtk_label_new ( class, name );
+
+        gtk_label_set_xalign ( lab, 0.9f );
 
         gtk_widget_set_name ( GTK_WIDGET(lab), name );
 
@@ -636,6 +683,8 @@ GtkSpinButton *ui_createNumericText ( GtkFixed      *parent,
 
     if ( labwidth ) {
         GtkLabel *lab  = ui_gtk_label_new ( class, name );
+
+        gtk_label_set_xalign ( lab, 0.9f );
 
         gtk_widget_set_name         ( GTK_WIDGET(lab), name );
         gtk_widget_set_size_request ( GTK_WIDGET(lab), labwidth, txtheight );
@@ -763,6 +812,8 @@ GtkComboBoxText *ui_createSelector ( GtkFixed  *parent,
         GdkRectangle lrec = { 0x00, 0x00, labwidth, 0x12 };
         GtkLabel    *lab  = ui_gtk_label_new ( class, name );
 
+        gtk_label_set_xalign ( lab, 0.9f );
+
         gtk_widget_set_name ( GTK_WIDGET(lab), name );
 
         gtk_widget_set_size_request ( GTK_WIDGET(lab), lrec.width, lrec.height );
@@ -807,6 +858,8 @@ GtkEntry *ui_createCharText ( GtkWidget *parent,
 
     if ( labwidth ) {
         GtkWidget   *lab  = ui_gtk_label_new ( class, name );
+
+        gtk_label_set_xalign ( lab, 0.9f );
 
         gtk_widget_set_name ( lab, name );
 

@@ -78,7 +78,7 @@
 #define EDITRENDERWIREFRAMECOLOR     "Color"
 
 #define EDITRENDERFOGFRAME             "Fog Settings"
-#define EDITRENDERFOGAFFECTSBACKGROUND "Affects background"
+#define EDITRENDERFOGAFFECTSBACKGROUND "Affects backgr."
 #define EDITRENDERFOG                  "Enabled"
 #define EDITRENDERFOGNEAR              "Near distance"
 #define EDITRENDERFOGFAR               "Far distance"
@@ -86,7 +86,7 @@
 #define EDITRENDERFOGSTRENGTH          "Strength"
 
 #define EDITRENDERTEXTURINGFRAME       "Texturing"
-#define EDITRENDERTEXTURINGCOLOR       "Mesh default color"
+#define EDITRENDERTEXTURINGCOLOR       "Mesh color"
 #define EDITRENDERTEXTURING            "Disable"
 
 #define WINWIDTH 320

@@ -29,7 +29,8 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-#define FTCOL "0"
+#define FTCOL   "0"
+#define FTCOL2  "96"
 #define GRAY0 "208"
 #define GRAY1 "224"
 #define GRAY2 "240"
@@ -45,6 +46,9 @@
 #define GRAY5 "26"
 */
 static const gchar *myCSS = {
+"frame.g3dmain {      \n"
+"    color            : rgba("FTCOL2", "FTCOL2", "FTCOL2", 1); \n"
+"}                           \n"
 ".g3dhighlighted {      \n"
 "    background       : rgba("GRAY5", "GRAY5", "GRAY5", 1); \n"
 "}                           \n"
@@ -94,7 +98,6 @@ static const gchar *myCSS = {
 "    padding-left     : 4px; \n"
 "}                           \n"
 "notebook.g3dmain  {         \n"
-"    show-border      : false;\n"
 "}                           \n"
 "notebook.g3dmain > stack {                      \n"
 "    background-color : rgba("GRAY0", "GRAY0", "GRAY0", 1);\n"

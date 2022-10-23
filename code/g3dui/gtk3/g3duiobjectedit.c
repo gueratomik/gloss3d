@@ -64,6 +64,8 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
     GTK3G3DUISPLINEREVOLVEREDIT  *srvedit = ( GTK3G3DUISPLINEREVOLVEREDIT  * ) gtk3objedit->core.srvedit;
     GTK3G3DUIMESHEDIT            *mesedit = ( GTK3G3DUIMESHEDIT            * ) gtk3objedit->core.mesedit;
     GTK3G3DUIBONEEDIT            *bonedit = ( GTK3G3DUIBONEEDIT            * ) gtk3objedit->core.bonedit;
+    GTK3G3DUICAMERAEDIT          *camedit = ( GTK3G3DUICAMERAEDIT          * ) gtk3objedit->core.camedit;
+    GTK3G3DUITEXTEDIT            *txtedit = ( GTK3G3DUITEXTEDIT            * ) gtk3objedit->core.txtedit;
 
     G3DUI *gui = gtk3objedit->core.gui;
 
@@ -85,6 +87,8 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
     if ( srvedit ) gtk_widget_hide ( srvedit->notebook );
     if ( mesedit ) gtk_widget_hide ( mesedit->notebook );
     if ( bonedit ) gtk_widget_hide ( bonedit->notebook );
+    if ( camedit ) gtk_widget_hide ( camedit->notebook );
+    if ( txtedit ) gtk_widget_hide ( txtedit->notebook );
 
     gtk_widget_set_sensitive ( gtk3objedit->nameEntry, FALSE );
 
@@ -120,10 +124,22 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
                     gtk_widget_show ( tubedit->notebook );
                 }
 
+                if ( obj->type == G3DTEXTTYPE ) {
+                    gtk3_g3duitextedit_update ( txtedit );
+
+                    gtk_widget_show ( txtedit->notebook );
+                }
+
                 if ( obj->type == G3DTORUSTYPE ) {
                     gtk3_g3duitorusedit_update ( toredit );
 
                     gtk_widget_show ( toredit->notebook );
+                }
+
+                if ( obj->type == G3DCAMERATYPE ) {
+                    gtk3_g3duicameraedit_update ( camedit );
+
+                    gtk_widget_show ( camedit->notebook );
                 }
 
                 if ( obj->type == G3DMESHTYPE ) {
@@ -505,6 +521,34 @@ static void createParticleEmitterEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
 }
 
 /******************************************************************************/
+static void createCameraEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3objedit->core.gui;
+    GTK3G3DUICAMERAEDIT *gtk3camedit;
+
+    gtk3camedit = gtk3_g3duicameraedit_create ( gtk3objedit->objectFixed,
+                                                gtk3gui,
+                                                "Edit Camera" );
+
+    gtk_fixed_put ( GTK_FIXED(gtk3objedit->objectFixed), gtk3camedit->notebook, 0, 0 );
+
+    gtk3objedit->core.camedit = ( GTK3G3DUICAMERAEDIT * ) gtk3camedit;
+}
+
+/******************************************************************************/
+static void createTextEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3objedit->core.gui;
+    GTK3G3DUITEXTEDIT *gtk3txtedit;
+
+    gtk3txtedit = gtk3_g3duitextedit_create ( gtk3objedit->objectFixed,
+                                              gtk3gui,
+                                              "Edit Text" );
+
+    gtk_fixed_put ( GTK_FIXED(gtk3objedit->objectFixed), gtk3txtedit->notebook, 0, 0 );
+
+    gtk3objedit->core.txtedit = ( GTK3G3DUITEXTEDIT * ) gtk3txtedit;
+}
+
+/******************************************************************************/
 static void nameObjectCbk ( GtkWidget *widget, 
                             GdkEvent  *event,
                             gpointer   user_data ) {
@@ -553,6 +597,8 @@ static void createObjectEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
     createSplineRevolverEdit  ( gtk3objedit );
     createMeshEdit            ( gtk3objedit );
     createBoneEdit            ( gtk3objedit );
+    createCameraEdit          ( gtk3objedit );
+    createTextEdit            ( gtk3objedit );
 }
 
 /******************************************************************************/
@@ -595,16 +641,10 @@ GTK3G3DUIOBJECTEDIT *gtk3_g3duiobjectedit_create ( GtkWidget *parent,
 
     /*** This is type dependent: hidden if not of ***/
     /*** selected object type showed otherwise.   ***/
-/*
-    createMeshEdit            ( frm, gui, EDITMESH           , 0, 32, 320, 320 );
-    createBoneEdit            ( frm, gui, EDITBONE           , 0, 32, 296, 320 );
-*/
 
     createObjectEdit ( gtk3objedit );
 
 /*
-    createTextEdit            ( frm, gui, EDITTEXT           , 0, 32, 296,  96 );
-    createCameraEdit          ( frm, gui, EDITCAMERA         , 0, 32, 296,  96 );
     createMorpherEdit         ( frm, gui, EDITMORPHER        , 0, 32, 296,  96 );
 */
 
