@@ -67,7 +67,7 @@ END_FOR
 
 /******************************************************************************/
 uint64_t g3duimeshedit_gouraud ( G3DUIMESHEDIT *mesedit,
-                                    float          scalarLimit ) {
+                                 float          scalarLimit ) {
 FOR_EACH_SELECTED_MESH
     mes->gouraudScalarLimit = cos ( scalarLimit );
 END_FOR

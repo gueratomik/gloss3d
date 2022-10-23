@@ -1960,13 +1960,13 @@ void g3dui_addMouseTool ( G3DUI          *gui,
 uint32_t g3dui_setMouseTool ( G3DUI          *gui, 
                               G3DCAMERA      *cam, 
                               G3DUIMOUSETOOL *mou ) {
-    uint32_t msk = 0x00;
+    uint64_t ret = 0x00;
 
     /*** Call the mouse tool initialization function once. This ***/
     /*** can be used by this function to initialize some values ***/
     if ( mou ) {
         if ( mou->tool->init ) {
-            msk = mou->tool->init ( mou->tool, 
+            ret = mou->tool->init ( mou->tool, 
                                     gui->sce, 
                                     cam, 
                                     gui->urm,
@@ -1980,7 +1980,7 @@ uint32_t g3dui_setMouseTool ( G3DUI          *gui,
         gui->curmou = NULL;
     }
 
-    return msk;
+    return ret;
 }
 
 /******************************************************************************/
@@ -2042,11 +2042,9 @@ void g3dui_resetDefaultCameras ( G3DUI *gui ) {
 /******************************************************************************/
 static uint64_t setMouseToolCbk ( G3DUIMENU *menu, 
                                   void      *data ) {
-    g3dui_setMouseTool ( menu->gui, 
-                         menu->gui->currentView->cam, 
-                         g3dui_getMouseTool ( menu->gui, menu->name ) );
-
-    return 0x00;
+    return g3dui_setMouseTool ( menu->gui, 
+                                menu->gui->currentView->cam, 
+                                g3dui_getMouseTool ( menu->gui, menu->name ) );
 }
 
 /******************************************************************************/

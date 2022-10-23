@@ -828,7 +828,7 @@ static int weight_tool ( G3DMOUSETOOL *mou,
                 	    G3DWEIGHTGROUP *grp;
                 	    char buf[0x20];
 
-                	    snprintf ( buf, 0x20, "VertexWeightGroup%02i", mes->nbweigrp );
+                	    snprintf ( buf, 0x20, "WeightGroup%02i", mes->nbweigrp );
 
                 	    grp = g3dweightgroup_new ( mes, buf );
 

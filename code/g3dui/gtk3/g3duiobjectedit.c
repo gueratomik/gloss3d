@@ -62,6 +62,8 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
     GTK3G3DUISUBDIVIDEREDIT      *sdredit = ( GTK3G3DUISUBDIVIDEREDIT      * ) gtk3objedit->core.sdredit;
     GTK3G3DUISYMMETRYEDIT        *symedit = ( GTK3G3DUISYMMETRYEDIT        * ) gtk3objedit->core.symedit;
     GTK3G3DUISPLINEREVOLVEREDIT  *srvedit = ( GTK3G3DUISPLINEREVOLVEREDIT  * ) gtk3objedit->core.srvedit;
+    GTK3G3DUIMESHEDIT            *mesedit = ( GTK3G3DUIMESHEDIT            * ) gtk3objedit->core.mesedit;
+    GTK3G3DUIBONEEDIT            *bonedit = ( GTK3G3DUIBONEEDIT            * ) gtk3objedit->core.bonedit;
 
     G3DUI *gui = gtk3objedit->core.gui;
 
@@ -81,6 +83,8 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
     if ( sdredit ) gtk_widget_hide ( sdredit->notebook );
     if ( symedit ) gtk_widget_hide ( symedit->notebook );
     if ( srvedit ) gtk_widget_hide ( srvedit->notebook );
+    if ( mesedit ) gtk_widget_hide ( mesedit->notebook );
+    if ( bonedit ) gtk_widget_hide ( bonedit->notebook );
 
     gtk_widget_set_sensitive ( gtk3objedit->nameEntry, FALSE );
 
@@ -122,10 +126,22 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
                     gtk_widget_show ( toredit->notebook );
                 }
 
+                if ( obj->type == G3DMESHTYPE ) {
+                    gtk3_g3duimeshedit_update ( mesedit );
+
+                    gtk_widget_show ( mesedit->notebook );
+                }
+
                 if ( obj->type == G3DSPHERETYPE ) {
                     gtk3_g3duisphereedit_update ( sphedit );
 
                     gtk_widget_show ( sphedit->notebook );
+                }
+
+                if ( obj->type == G3DBONETYPE ) {
+                    gtk3_g3duiboneedit_update ( bonedit );
+
+                    gtk_widget_show ( bonedit->notebook );
                 }
 
                 if ( obj->type == G3DSUBDIVIDERTYPE ) {
@@ -419,6 +435,34 @@ static void createSubdividerEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
 }
 
 /******************************************************************************/
+static void createBoneEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3objedit->core.gui;
+    GTK3G3DUIBONEEDIT *gtk3bonedit;
+
+    gtk3bonedit = gtk3_g3duiboneedit_create ( gtk3objedit->objectFixed,
+                                              gtk3gui,
+                                              "Edit Bone" );
+
+    gtk_fixed_put ( GTK_FIXED(gtk3objedit->objectFixed), gtk3bonedit->notebook, 0, 0 );
+
+    gtk3objedit->core.bonedit = ( GTK3G3DUIBONEEDIT * ) gtk3bonedit;
+}
+
+/******************************************************************************/
+static void createMeshEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3objedit->core.gui;
+    GTK3G3DUIMESHEDIT *gtk3mesedit;
+
+    gtk3mesedit = gtk3_g3duimeshedit_create ( gtk3objedit->objectFixed,
+                                              gtk3gui,
+                                              "Edit Mesh" );
+
+    gtk_fixed_put ( GTK_FIXED(gtk3objedit->objectFixed), gtk3mesedit->notebook, 0, 0 );
+
+    gtk3objedit->core.mesedit = ( GTK3G3DUIMESHEDIT * ) gtk3mesedit;
+}
+
+/******************************************************************************/
 static void createSymmetryEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3objedit->core.gui;
     GTK3G3DUISYMMETRYEDIT *gtk3symedit;
@@ -507,6 +551,8 @@ static void createObjectEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
     createSubdividerEdit      ( gtk3objedit );
     createSymmetryEdit        ( gtk3objedit );
     createSplineRevolverEdit  ( gtk3objedit );
+    createMeshEdit            ( gtk3objedit );
+    createBoneEdit            ( gtk3objedit );
 }
 
 /******************************************************************************/

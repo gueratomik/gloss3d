@@ -78,6 +78,7 @@ if HAVE_GTK3
                             common/m3dui.c \
                             gtk3/g3dui.c \
                             gtk3/g3duiboard.c \
+                            gtk3/g3duiboneedit.c \
                             gtk3/g3duicom.c \
                             gtk3/g3duicubeedit.c \
                             gtk3/g3duicylinderedit.c \
@@ -89,6 +90,7 @@ if HAVE_GTK3
                             gtk3/g3duimaterialedit.c \
                             gtk3/g3duimaterialboard.c \
                             gtk3/g3duimenubar.c \
+                            gtk3/g3duimeshedit.c \
                             gtk3/g3duimodebar.c \
                             gtk3/g3duiobjectboard.c \
                             gtk3/g3duiobjectedit.c \

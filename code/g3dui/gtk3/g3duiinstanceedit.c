@@ -261,7 +261,7 @@ GTK3G3DUIINSTANCEEDIT *gtk3_g3duiinstanceedit_create ( GtkWidget *parent,
                                                        GTK3G3DUI *gtk3gui,
                                                        char      *name ) {
     GTK3G3DUIINSTANCEEDIT *gtk3ied = gtk3_g3duiinstanceedit_new ( gtk3gui );
-    GtkWidget *notebook = gtk_notebook_new ( );
+    GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
 
     gtk3ied->notebook = GTK_NOTEBOOK(notebook);
 

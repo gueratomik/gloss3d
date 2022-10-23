@@ -737,6 +737,29 @@ typedef struct _GTK3G3DUITRACKERTAGEDIT {
 } GTK3G3DUITRACKERTAGEDIT;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUIBONEEDIT {
+    G3DUIBONEEDIT  core;
+    GtkNotebook   *notebook;
+    GtkSpinButton *lengthEntry;
+    GtkFixed      *weightgroupFixed;
+} GTK3G3DUIBONEEDIT ;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIMESHEDIT {
+    G3DUIMESHEDIT    core;
+    GtkNotebook     *notebook;
+    GtkToggleButton *shadingToggle;
+    GtkSpinButton   *gouraudEntry;
+    GtkEntry        *fgNameEntry;
+    GtkFixed        *fgListFixed;
+    GtkFixed        *fgPanelFixed;
+
+    GtkEntry        *wgNameEntry;
+    GtkFixed        *wgListFixed;
+    GtkFixed        *wgPanelFixed;
+} GTK3G3DUIMESHEDIT;
+
+/******************************************************************************/
 /************************** GTK PatternList Widget ***************************/
 typedef struct _GTK3PATTERNPREVIEW {
     GdkPixbuf     *img;
@@ -988,6 +1011,7 @@ GtkScale *ui_gtk_scale_new_with_range ( char *class,
                                         double         max,
                                         double         step );
 GtkEntry *ui_gtk_entry_new ( char *class );
+GtkEventBox *ui_gtk_event_box_new ( char *class );
 GtkFrame *ui_gtk_frame_new ( char       *class,
                              const char *label );
 GtkToggleToolButton *ui_gtk_toggle_tool_button_new ( char *class );
@@ -1028,6 +1052,12 @@ GTK3G3DUIBOARD *gtk3_g3duiboard_create ( GtkWidget *parent,
 void gtk3_g3duiboard_resize ( GTK3G3DUIBOARD *gtk3board,
                               uint32_t        width,
                               uint32_t        height );
+
+/****************************** g3duiboneedit.c *******************************/
+GTK3G3DUIBONEEDIT *gtk3_g3duiboneedit_create ( GtkWidget *parent,
+                                               GTK3G3DUI *gtk3gui,
+                                               char      *name );
+void gtk3_g3duiboneedit_update ( GTK3G3DUIBONEEDIT *gtk3bed );
 
 /******************************** g3duicom.c **********************************/
 Q3DFILTER *q3dfilter_gotoframe_new ( GTK3G3DUI *gtk3gui );
@@ -1075,6 +1105,12 @@ GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
                                         G3DUI     *gui,
                                         void      *data );
 void gtk3_g3duimenu_update_r ( GTK3G3DUIMENU *gtk3node );
+
+/***************************** g3duimeshedit.c ********************************/
+GTK3G3DUIMESHEDIT *gtk3_g3duimeshedit_create ( GtkWidget *parent,
+                                               GTK3G3DUI *gtk3gui,
+                                               char      *name );
+void gtk3_g3duimeshedit_update ( GTK3G3DUIMESHEDIT *gtk3med );
 
 /**************************** g3duimaterialboard.c ****************************/
 GTK3G3DUIMATERIALBOARD *gtk3_g3duimaterialboard_create ( GtkWidget *parent,

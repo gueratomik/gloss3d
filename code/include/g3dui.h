@@ -272,16 +272,6 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 /**** Widget names for Cut Mesh Tool widget ***/
 #define EDITCUTMESHTOOLRESTRICT    "Restrict to selection"
 
-/**** Widget names for MeshEdit TextField widget ***/
-#define EDITMESH             "Mesh"
-#define EDITMESHGENERAL      "General"
-#define EDITMESHWEIGHTGROUPS "Weight Groups"
-#define EDITMESHFACEGROUPS   "Face Groups"
-#define EDITMESHPOSE         "Poses"
-#define EDITMESHGOURAUDLIMIT "Gouraud Shading limit"
-#define EDITMESHISOLINES     "Use isoparms (Slower)"
-#define EDITMESHSHADING      "Disable shading"
-
 /**** Widget names for BoneEdit TextField widget ***/
 #define EDITBONE            "Bone"
 #define EDITBONEVERTEXGROUP "Vertex Groups (Double-Click to link)"
@@ -656,6 +646,7 @@ typedef struct _G3DUI {
 #define MENU_CONDITION_ACTIVE    ( 1 << 1 )
 
 #define CLASS_MAIN              "g3dmain"
+#define CLASS_HIGHLIGHTED       "g3dhighlighted"
 #define CLASS_ENTRY             "g3dentry"
 #define MENU_CLASS_MAIN         CLASS_MAIN
 #define CLASS_VIEW_MENU_BAR     "view_menu_bar"
@@ -842,6 +833,13 @@ typedef struct _G3DUISPHEREEDIT {
 } G3DUISPHEREEDIT;
 
 /******************************************************************************/
+typedef struct _G3DUIBONEEDIT {
+    G3DUI   *gui;
+    uint32_t multi;
+    G3DBONE *editedBone;
+} G3DUIBONEEDIT;
+
+/******************************************************************************/
 typedef struct _G3DUIMESHEEDIT {
     G3DUI    *gui;
     uint32_t  multi;
@@ -980,6 +978,8 @@ typedef struct _G3DUIOBJECTEDIT {
     G3DUISYMMETRYEDIT        *symedit;
     G3DUIPARTICLEEMITTEREDIT *pemedit;
     G3DUIWIREFRAMEEDIT       *wiredit;
+    G3DUIMESHEDIT            *mesedit;
+    G3DUIBONEEDIT            *bonedit;
 } G3DUIOBJECTEDIT;
 
 /******************************************************************************/
@@ -1495,7 +1495,7 @@ void g3duiboard_resize ( G3DUIBOARD *board,
                          uint32_t    height );
 
 /******************************* g3duiboneedit.c ******************************/
-
+uint64_t g3duiboneedit_setLength ( G3DUIBONEEDIT *bonedit, float length );
 
 /***************************** g3duibonelinker.c ******************************/
 

@@ -29,247 +29,547 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-/******************************************************************************/
-void updateWeightgroupsPanel ( GtkWidget *widget, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+/**** Widget names for MeshEdit TextField widget ***/
+#define EDITMESH              "Mesh"
+#define EDITMESHGENERAL       "General"
+#define EDITMESHWEIGHTGROUP   "Weight Groups"
 
-    gui->lock = 0x01;
+#define EDITMESHFACEGROUP     "Face Groups"
+#define EDITMESHFACEGROUPLIST "Facegroup list"
+#define EDITMESHFACEADD       "Add"
+#define EDITMESHFACEREMOVE    "Remove"
+#define EDITMESHFACEUPDATE    "Set"
+#define EDITMESHFACEGROUPNAME "Name"
 
-    if ( obj && ( obj->type == G3DMESHTYPE ) ) {
-        G3DMESH *mes = ( G3DMESH * ) obj;
+#define EDITMESHWEIGHTGROUP     "Weight Groups"
+#define EDITMESHWEIGHTGROUPLIST "Weightgroup list"
+#define EDITMESHWEIGHTADD       "Add"
+#define EDITMESHWEIGHTREMOVE    "Remove"
+#define EDITMESHWEIGHTUPDATE    "Set"
+#define EDITMESHWEIGHTGROUPNAME "Name"
 
-        while ( children ) {
-            GtkWidget *child = ( GtkWidget * ) children->data;
-            const char *child_name = gtk_widget_get_name ( child );
-
-            if ( GTK_IS_ENTRY(child) ) {
-                GtkEntry *ent = GTK_ENTRY(child);
-
-                if ( strcmp ( child_name, EDITWEIGHTGROUPNAME ) == 0x00 ) {
-                    if ( mes->curgrp ) {
-                        gtk_entry_set_text ( ent, mes->curgrp->name );
-                    }
-                }
-            }
-
-            children =  g_list_next ( children );
-        }
-    }
-
-    /*** It's not the best place for that but I don't ***/
-    /*** have time to figure out a better solution. ***/
-    g3dui_redrawAllWeightGroupList ( gui );
-
-    gui->lock = 0x00;
-}
+#define EDITMESHGOURAUDLIMIT  "Shading limit"
+#define EDITMESHISOLINES      "Use isoparms (Slower)"
+#define EDITMESHSHADING       "No shading"
 
 /******************************************************************************/
-static void deleteWeightGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+static GTK3G3DUIMESHEDIT *gtk3_g3duimeshedit_new ( GTK3G3DUI *gtk3gui ) {
+    GTK3G3DUIMESHEDIT *gtk3med = calloc ( 0x01, sizeof ( GTK3G3DUIMESHEDIT ) );
 
-    common_g3duiweightgrouplist_deleteWeightGroupCbk ( gui );
-}
-
-/******************************************************************************/
-static void addWeightGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3duiweightgrouplist_addWeightGroupCbk ( gui );
-}
-
-/******************************************************************************/
-static void deleteMeshPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3duimeshposelist_deleteSelectedPoseCbk ( gui );
-}
-
-/******************************************************************************/
-static void addMeshPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3duimeshposelist_createPoseCbk ( gui );
-}
-
-
-
-/******************************************************************************/
-static void nameWeightGroupCbk  ( GtkWidget *widget, 
-                                  GdkEvent  *event, 
-                                  gpointer   user_data ) {
-    const char *grpname = gtk_entry_get_text ( GTK_ENTRY(widget) );
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3duiweightgrouplist_nameCbk ( gui, grpname );
-}
-
-/******************************************************************************/
-static void nameMeshPoseCbk  ( GtkWidget *widget, 
-                               GdkEvent  *event, 
-                               gpointer   user_data ) {
-    const char *grpname = gtk_entry_get_text ( GTK_ENTRY(widget) );
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3duimeshposelist_renameCurrentPoseCbk ( gui, grpname );
-}
-
-/******************************************************************************/
-static void useIsoLinesCbk  ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
-
-    common_g3duimeshedit_useIsoLinesCbk ( gui );
-}
-
-/******************************************************************************/
-static void createWeightgroupsPanel ( GtkWidget *parent, 
-                                      G3DUI     *gui,
-                                      gint       x,
-                                      gint       y,
-                                      gint       width,
-                                      gint       height ) {
-    GtkWidget *pan;
-
-    pan = createPanel ( parent, gui, EDITMESHWEIGHTGROUPS, x, y, width, height );
-
-    createCharText ( pan, gui, EDITWEIGHTGROUPNAME, 0, 0, 96, 132, nameWeightGroupCbk );
-
-    createWeightgroupList ( pan, gui, EDITWEIGHTGROUPLIST,  0, 36, 218, 128 );
-
-    createPushButton ( pan, gui, "+", 246,  36, 32, 24, addWeightGroupCbk    );
-    createPushButton ( pan, gui, "-", 246,  60, 32, 24, deleteWeightGroupCbk );
-}
-
-/******************************************************************************/
-#define EDITFACEGROUP     "Facegroups"
-#define EDITFACEGROUPNAME "Facegroup Name"
-#define EDITFACEGROUPLIST "Facegroup list"
-
-/******************************************************************************/
-typedef struct _FACEGROUPPANELDATA {
-    G3DUI     *gui;
-    GtkWidget *panelWidget;
-    GtkWidget *listWidget;
-    GtkWidget *nameWidget;
-} FACEGROUPPANELDATA;
-
-/******************************************************************************/
-static FACEGROUPPANELDATA* facegrouppaneldata_new ( G3DUI     *gui, 
-                                                    GtkWidget *panel ) {
-    void *memarea = calloc ( 0x01, sizeof ( FACEGROUPPANELDATA ) );
-    FACEGROUPPANELDATA *fpd = ( FACEGROUPPANELDATA *  ) memarea;
-
-    if ( fpd == NULL ) {
-        printf ( stderr, "%s: memory allocation failed\n");
-
-        return NULL;
-    }
-
-    fpd->gui         = gui;
-    fpd->panelWidget = panel;
-
-    return fpd;
-}
-
-/******************************************************************************/
-typedef struct _FACEGROUPDATA {
-    G3DMESH            *mes;
-    G3DFACEGROUP       *facgrp;
-    FACEGROUPPANELDATA *fpd;
-} FACEGROUPDATA;
-
-/******************************************************************************/
-static FACEGROUPDATA *facegroupdata_new ( FACEGROUPPANELDATA *fpd,
-                                          G3DMESH            *mes, 
-                                          G3DFACEGROUP       *facgrp ) {
-    FACEGROUPDATA *fgd = calloc ( 0x01, sizeof ( FACEGROUPDATA ) );
-
-    if ( fgd == NULL ) {
+    if ( gtk3med == NULL ) {
         fprintf ( stderr, "%s: calloc failed\n", __func__ );
 
         return NULL;
     }
 
-    fgd->mes    = mes;
-    fgd->facgrp = facgrp;
-    fgd->fpd    = fpd;
+    gtk3med->core.gui = ( G3DUI * ) gtk3gui;
 
-
-    return fgd;
+    return gtk3med; 
 }
 
 /******************************************************************************/
-static void createFaceGroupCbk  ( GtkWidget *widget, gpointer user_data );
-static void selectFaceGroupCbk  ( GtkWidget *widget, gpointer user_data );
-static void updateFaceGroupCbk  ( GtkWidget *widget, gpointer user_data );
-static void deleteFaceGroupCbk  ( GtkWidget *widget, gpointer user_data );
-static void populateFacegroupsList ( FACEGROUPPANELDATA *fpd );
-static void updateFacegroupsList   ( FACEGROUPPANELDATA *fpd );
-static void createFacegroupsList   ( GtkWidget          *frm, 
-                                     FACEGROUPPANELDATA *fpd,
-                                     gint                x,
-                                     gint                y,
-                                     gint                width,
-                                     gint                height );
+static void updateWeightgroupName ( GTK3G3DUIMESHEDIT *gtk3med ) {
+    gtk3med->core.gui->lock = 0x01;
+
+    if ( gtk3med->core.editedMesh ) {
+        G3DWEIGHTGROUP *weigrp = gtk3med->core.editedMesh->curgrp;
+
+        if ( weigrp ) {
+            gtk_entry_set_text ( gtk3med->wgNameEntry, weigrp->name );
+        }
+    }
+
+    gtk3med->core.gui->lock = 0x00;
+}
 
 /******************************************************************************/
-static void updateFacegroupsName ( FACEGROUPPANELDATA *fpd ) {
-    G3DOBJECT *obj = g3dscene_getLastSelected ( fpd->gui->sce );
+static void setWGLabelClass ( GtkWidget *label, G3DWEIGHTGROUP *weigrp ) {
+    GtkStyleContext *context = gtk_widget_get_style_context ( label );
 
-    fpd->gui->lock = 0x01;
+    if ( weigrp->flags & WEIGHTGROUPSELECTED ) {
+        gtk_style_context_add_class    ( context, CLASS_HIGHLIGHTED );
+        gtk_style_context_remove_class ( context, CLASS_MAIN );
+    } else {
+        gtk_style_context_add_class ( context, CLASS_MAIN );
+        gtk_style_context_remove_class ( context, CLASS_HIGHLIGHTED );
+    }
+}
+
+/******************************************************************************/
+static void seekWGLabelAndSelect ( GtkWidget    *eventBox, 
+                                   void         *unused ) {
+    G3DWEIGHTGROUP *weigrp = g_object_get_data ( G_OBJECT(eventBox), "private" );
+
+    gtk_container_forall ( eventBox,
+                           setWGLabelClass,
+                           weigrp );
+}
+
+/******************************************************************************/
+static void seekWGLabelAndUpdate ( GtkWidget    *eventBox, 
+                                   G3DWEIGHTGROUP *weigrp ) {
+    G3DWEIGHTGROUP *cmpgrp = g_object_get_data ( G_OBJECT(eventBox), "private" );
+
+    if ( weigrp == cmpgrp ) {
+        gtk_container_forall ( eventBox,
+                               gtk_label_set_text,
+                               weigrp->name );
+    }
+}
+
+/******************************************************************************/
+static gboolean selectWeightgroupCbk ( GtkWidget *widget,
+                                     GdkEvent  *event,
+                                     gpointer   user_data ) {
+    GTK3G3DUIMESHEDIT *gtk3med = ( GTK3G3DUIMESHEDIT * ) user_data;
+    G3DUI *gui = gtk3med->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    G3DWEIGHTGROUP *weigrp = g_object_get_data ( G_OBJECT(widget), "private" );
+
+    if ( gtk3med->core.gui->lock ) return 0;
+
+    if ( gtk3med->core.editedMesh ) {
+       G3DMESH *mes = gtk3med->core.editedMesh;
+
+        switch ( event->type ) {
+            case GDK_BUTTON_PRESS :
+                g3dmesh_selectWeightGroup ( mes, weigrp );
+
+                gtk_container_forall ( gtk3med->wgListFixed,
+                                       seekWGLabelAndSelect,
+                                       NULL );
+            break;
+
+            default :
+            break;
+        }
+
+        gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW ); 
+
+        updateWeightgroupName ( gtk3med );
+    }
+
+    return TRUE;
+}
+
+/******************************************************************************/
+static void updateWeightgroupList ( GTK3G3DUIMESHEDIT *gtk3med ) {
+    gtk3med->core.gui->lock = 0x01;
+
+    gtk_container_foreach ( GTK_CONTAINER ( gtk3med->wgListFixed ),
+                 ( void * ) gtk_widget_destroy,
+                            NULL );
+
+    if ( gtk3med->core.editedMesh ) {
+        if ( gtk3med->core.editedMesh->obj.type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) gtk3med->core.editedMesh;
+            LIST *ltmpweigrp = mes->lweigrp;
+            uint32_t y = 0x00;
+
+            while ( ltmpweigrp ) {
+                G3DWEIGHTGROUP *weigrp = ( G3DWEIGHTGROUP * ) ltmpweigrp->data;
+                GtkWidget *label = ui_gtk_label_new ( CLASS_MAIN, weigrp->name );
+                GtkEventBox *eventBox = ui_gtk_event_box_new ( CLASS_MAIN );
+
+                gtk_label_set_justify ( label, GTK_JUSTIFY_LEFT );
+
+                g_object_set_data ( G_OBJECT(eventBox), "private", (gpointer) weigrp );
+
+                gtk_container_add ( GTK_CONTAINER( eventBox ), label );
+
+                gtk_fixed_put ( gtk3med->wgListFixed, eventBox, 0, y );
+
+                gtk_widget_set_size_request ( eventBox, 308, 24 );
+                gtk_widget_set_size_request ( label   , 308, 24  );
+
+                gtk_widget_add_events ( eventBox, GDK_BUTTON_PRESS_MASK   |
+                                                  GDK_BUTTON_RELEASE_MASK |
+                                                  GDK_DESTROY );
+
+                g_signal_connect ( eventBox, "button-press-event", G_CALLBACK( selectWeightgroupCbk  ), gtk3med );
+
+                gtk_widget_show_all ( eventBox );
+
+                y += 24;
+
+                ltmpweigrp = ltmpweigrp->next;
+            }
+			
+            if ( y ) {
+                gtk_widget_set_size_request ( gtk3med->wgListFixed, 300, y );
+			}
+
+            gtk_container_forall ( gtk3med->wgListFixed,
+                                   seekWGLabelAndSelect,
+                                   NULL );
+        }
+    }
+
+    gtk3med->core.gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void updateWeightgroupPanel ( GTK3G3DUIMESHEDIT *gtk3med ) {
+    updateWeightgroupName ( gtk3med );
+    updateWeightgroupList ( gtk3med );
+}
+
+/******************************************************************************/
+static void nameWeightgroupCbk  ( GtkWidget *widget, 
+                                GdkEvent  *event, 
+                                gpointer   user_data ) {
+    const char *grpname = gtk_entry_get_text ( GTK_ENTRY(widget) );
+    GTK3G3DUIMESHEDIT *gtk3med = ( GTK3G3DUIMESHEDIT * ) user_data;
+    G3DUI *gui = gtk3med->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+
+    if ( gui->lock ) return;
+
+    if ( strlen ( grpname ) ) {
+        if ( obj ) {
+            if ( obj->type == G3DMESHTYPE ) {
+                G3DMESH *mes = ( G3DMESH * ) obj;
+                G3DWEIGHTGROUP *weigrp = mes->curgrp;
+
+                if ( weigrp ) {
+                    if ( weigrp->name ) free ( weigrp->name );
+
+                    weigrp->name = strdup ( grpname );
+
+                    gtk_container_forall ( gtk3med->wgListFixed,
+                                           seekWGLabelAndUpdate,
+                                           weigrp );
+                }
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+static void createWeightgroupList ( GTK3G3DUIMESHEDIT *gtk3med,
+                                   gint               x,
+                                   gint               y,
+                                   gint               width,
+                                   gint               height ) {
+    GtkWidget *scrolled = ui_gtk_scrolled_window_new ( CLASS_MAIN, NULL, NULL );
+    GtkWidget *fixed = ui_gtk_fixed_new ( CLASS_MAIN ) ;
+    GtkWidget *frame = ui_gtk_frame_new ( CLASS_MAIN, EDITMESHWEIGHTGROUPLIST );
+
+    gtk_container_add( GTK_CONTAINER( frame    ), scrolled );
+    gtk_container_add( GTK_CONTAINER( scrolled ), fixed    );
+
+    gtk_widget_set_size_request ( frame, width, height );
+
+    gtk_fixed_put ( gtk3med->wgPanelFixed, frame, x, y );
+
+    gtk3med->wgListFixed = fixed;
+
+    gtk_widget_show_all ( frame );
+}
+
+/******************************************************************************/
+static void removeWeightGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUIMESHEDIT *gtk3med = ( GTK3G3DUIMESHEDIT * ) user_data;
+    G3DUI *gui = gtk3med->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+
+    if ( gui->lock ) return;
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
-            G3DFACEGROUP *facgrp = g3dmesh_getLastSelectedFacegroup ( mes );
+            G3DWEIGHTGROUP *weigrp = mes->curgrp;
 
-            if ( facgrp ) {
-                gtk_entry_set_text ( fpd->nameWidget, facgrp->name );
+            if ( weigrp ) {
+                g3dmesh_removeWeightGroup ( mes, weigrp );
             }
         }
     }
 
-    fpd->gui->lock = 0x00;
+    updateWeightgroupList ( gtk3med );
 }
 
 /******************************************************************************/
-static void updateFacegroupsPanel ( GtkWidget *fixed, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(fixed) );
+static void addWeightGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUIMESHEDIT *gtk3med = ( GTK3G3DUIMESHEDIT * ) user_data;
+    G3DUI *gui = gtk3med->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
     G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
-    FACEGROUPPANELDATA *fpd = g_object_get_data ( G_OBJECT ( fixed ), 
-                                                  EDITMESHFACEGROUPS );
 
-
-    updateFacegroupsName ( fpd );
-    updateFacegroupsList ( fpd );
-}
-
-/******************************************************************************/
-static void createFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
-    FACEGROUPPANELDATA *fpd = ( FACEGROUPPANELDATA * ) user_data;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( fpd->gui->sce );
-
-    if ( fpd->gui->lock ) return;
+    if ( gui->lock ) return;
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
-            G3DFACEGROUP *facgrp = g3dfacegroup_new ( "FaceGroup", mes->lselfac );
+            char buf[0x20];
 
-            g3dmesh_addFacegroup ( mes, facgrp );
+            snprintf ( buf, 0x20, "WeightGroup%02i", mes->nbweigrp );
+
+            G3DWEIGHTGROUP *weigrp = g3dweightgroup_new ( mes, buf );
+
+            g3dmesh_addWeightGroup ( mes, weigrp );
         }
     }
 
-    updateFacegroupsList ( fpd );
+    updateWeightgroupList ( gtk3med );
+}
+
+/******************************************************************************/
+static void createWeightgroupPanel ( GTK3G3DUIMESHEDIT *gtk3med,
+                                    gint                   x,
+                                    gint                   y,
+                                    gint                   width,
+                                    gint                   height ) {
+    GtkFixed *pan = ui_createTab ( gtk3med->notebook,
+                                   gtk3med,
+                                   EDITMESHWEIGHTGROUP,
+                                   CLASS_MAIN,
+                                   x,
+                                   y,
+                                   width,
+                                   height );
+
+    gtk3med->wgPanelFixed = pan;
+
+    gtk3med->wgNameEntry = ui_createCharText ( pan, 
+                                               gtk3med,
+                                               EDITMESHWEIGHTGROUPNAME,
+                                               CLASS_MAIN,
+                                               0, 0, 96, 96, 20,
+                                               nameWeightgroupCbk );
+
+    createWeightgroupList ( gtk3med, 0, 24, width, 100 );
+
+    ui_createPushButton ( pan, 
+                          gtk3med,
+                          EDITMESHWEIGHTADD,
+                          CLASS_MAIN,
+                          6, 126, 96, 20,
+                          addWeightGroupCbk );
+
+    ui_createPushButton ( pan, 
+                          gtk3med,
+                          EDITMESHWEIGHTREMOVE,
+                          CLASS_MAIN,
+                          106, 126, 96, 20,
+                          removeWeightGroupCbk );
+}
+
+/******************************************************************************/
+static void updateFacegroupName ( GTK3G3DUIMESHEDIT *gtk3med ) {
+    gtk3med->core.gui->lock = 0x01;
+
+    if ( gtk3med->core.editedMesh ) {
+        G3DFACEGROUP *facgrp = g3dmesh_getLastSelectedFacegroup ( gtk3med->core.editedMesh );
+
+        if ( facgrp ) {
+            gtk_entry_set_text ( gtk3med->fgNameEntry, facgrp->name );
+        }
+    }
+
+    gtk3med->core.gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void setFGLabelClass ( GtkWidget *label, G3DFACEGROUP *facgrp ) {
+    GtkStyleContext *context = gtk_widget_get_style_context ( label );
+
+    if ( facgrp->flags & FACEGROUPSELECTED ) {
+        gtk_style_context_add_class    ( context, CLASS_HIGHLIGHTED );
+        gtk_style_context_remove_class ( context, CLASS_MAIN );
+    } else {
+        gtk_style_context_add_class ( context, CLASS_MAIN );
+        gtk_style_context_remove_class ( context, CLASS_HIGHLIGHTED );
+    }
+}
+
+/******************************************************************************/
+static void seekFGLabelAndSelect ( GtkWidget    *eventBox, 
+                                   void         *unused ) {
+    G3DFACEGROUP *facgrp = g_object_get_data ( G_OBJECT(eventBox), "private" );
+
+    gtk_container_forall ( eventBox,
+                           setFGLabelClass,
+                           facgrp );
+}
+
+/******************************************************************************/
+static void seekFGLabelAndUpdate ( GtkWidget    *eventBox, 
+                                   G3DFACEGROUP *facgrp ) {
+    G3DFACEGROUP *cmpgrp = g_object_get_data ( G_OBJECT(eventBox), "private" );
+
+    if ( facgrp == cmpgrp ) {
+        gtk_container_forall ( eventBox,
+                               gtk_label_set_text,
+                               facgrp->name );
+    }
+}
+
+/******************************************************************************/
+static gboolean selectFacegroupCbk ( GtkWidget *widget,
+                                     GdkEvent  *event,
+                                     gpointer   user_data ) {
+    GTK3G3DUIMESHEDIT *gtk3med = ( GTK3G3DUIMESHEDIT * ) user_data;
+    G3DUI *gui = gtk3med->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    G3DFACEGROUP *facgrp = g_object_get_data ( G_OBJECT(widget), "private" );
+
+    if ( gtk3med->core.gui->lock ) return 0;
+
+    if ( gtk3med->core.editedMesh ) {
+       G3DMESH *mes = gtk3med->core.editedMesh;
+
+        g3dmesh_unselectAllFacegroups ( mes );
+
+        switch ( event->type ) {
+            case GDK_BUTTON_PRESS :
+                g3dmesh_selectFacegroup ( mes, facgrp );
+
+                g3dmesh_selectFacesFromSelectedFacegroups ( mes );
+
+                gtk_container_forall ( gtk3med->fgListFixed,
+                                       seekFGLabelAndSelect,
+                                       NULL );
+            break;
+
+            default :
+            break;
+        }
+
+        gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW ); 
+
+        updateFacegroupName ( gtk3med );
+    }
+
+    return TRUE;
+}
+
+/******************************************************************************/
+static void updateFacegroupList ( GTK3G3DUIMESHEDIT *gtk3med ) {
+    gtk3med->core.gui->lock = 0x01;
+
+    gtk_container_foreach ( GTK_CONTAINER ( gtk3med->fgListFixed ),
+                 ( void * ) gtk_widget_destroy,
+                            NULL );
+
+    if ( gtk3med->core.editedMesh ) {
+        if ( gtk3med->core.editedMesh->obj.type == G3DMESHTYPE ) {
+            G3DMESH *mes = ( G3DMESH * ) gtk3med->core.editedMesh;
+            LIST *ltmpfacgrp = mes->lfacgrp;
+            uint32_t y = 0x00;
+
+            while ( ltmpfacgrp ) {
+                G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) ltmpfacgrp->data;
+                GtkWidget *label = ui_gtk_label_new ( CLASS_MAIN, facgrp->name );
+                GtkEventBox *eventBox = ui_gtk_event_box_new ( CLASS_MAIN );
+
+                gtk_label_set_justify ( label, GTK_JUSTIFY_LEFT );
+
+                g_object_set_data ( G_OBJECT(eventBox), "private", (gpointer) facgrp );
+
+                gtk_container_add ( GTK_CONTAINER( eventBox ), label );
+
+                gtk_fixed_put ( gtk3med->fgListFixed, eventBox, 0, y );
+
+                gtk_widget_set_size_request ( eventBox, 308, 24 );
+                gtk_widget_set_size_request ( label   , 308, 24  );
+
+                gtk_widget_add_events ( eventBox, GDK_BUTTON_PRESS_MASK   |
+                                                  GDK_BUTTON_RELEASE_MASK |
+                                                  GDK_DESTROY );
+
+                g_signal_connect ( eventBox, "button-press-event", G_CALLBACK( selectFacegroupCbk  ), gtk3med );
+
+                gtk_widget_show_all ( eventBox );
+
+                y += 24;
+
+                ltmpfacgrp = ltmpfacgrp->next;
+            }
+			
+            if ( y ) {
+                gtk_widget_set_size_request ( gtk3med->fgListFixed, 300, y );
+			}
+
+            gtk_container_forall ( gtk3med->fgListFixed,
+                                   seekFGLabelAndSelect,
+                                   NULL );
+        }
+    }
+
+    gtk3med->core.gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void updateFacegroupPanel ( GTK3G3DUIMESHEDIT *gtk3med ) {
+    updateFacegroupName ( gtk3med );
+    updateFacegroupList ( gtk3med );
+}
+
+/******************************************************************************/
+static void nameFacegroupCbk  ( GtkWidget *widget, 
+                                GdkEvent  *event, 
+                                gpointer   user_data ) {
+    const char *grpname = gtk_entry_get_text ( GTK_ENTRY(widget) );
+    GTK3G3DUIMESHEDIT *gtk3med = ( GTK3G3DUIMESHEDIT * ) user_data;
+    G3DUI *gui = gtk3med->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+
+    if ( gui->lock ) return;
+
+    if ( strlen ( grpname ) ) {
+        if ( obj ) {
+            if ( obj->type == G3DMESHTYPE ) {
+                G3DMESH *mes = ( G3DMESH * ) obj;
+                G3DFACEGROUP *facgrp = g3dmesh_getLastSelectedFacegroup ( mes );
+
+                if ( facgrp ) {
+                    if ( facgrp->name ) free ( facgrp->name );
+
+                    facgrp->name = strdup ( grpname );
+
+                    gtk_container_forall ( gtk3med->fgListFixed,
+                                           seekFGLabelAndUpdate,
+                                           facgrp );
+                }
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+static void createFacegroupList ( GTK3G3DUIMESHEDIT *gtk3med,
+                                   gint               x,
+                                   gint               y,
+                                   gint               width,
+                                   gint               height ) {
+    GtkWidget *scrolled = ui_gtk_scrolled_window_new ( CLASS_MAIN, NULL, NULL );
+    GtkWidget *fixed = ui_gtk_fixed_new ( CLASS_MAIN ) ;
+    GtkWidget *frame = ui_gtk_frame_new ( CLASS_MAIN, EDITMESHFACEGROUPLIST );
+
+    gtk_container_add( GTK_CONTAINER( frame    ), scrolled );
+    gtk_container_add( GTK_CONTAINER( scrolled ), fixed    );
+
+    gtk_widget_set_size_request ( frame, width, height );
+
+    gtk_fixed_put ( gtk3med->fgPanelFixed, frame, x, y );
+
+    gtk3med->fgListFixed = fixed;
+
+    gtk_widget_show_all ( frame );
 }
 
 /******************************************************************************/
 static void updateFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
-    FACEGROUPPANELDATA *fpd = ( FACEGROUPPANELDATA * ) user_data;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( fpd->gui->sce );
+    GTK3G3DUIMESHEDIT *gtk3med = ( GTK3G3DUIMESHEDIT * ) user_data;
+    G3DUI *gui = gtk3med->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
 
-    if ( fpd->gui->lock ) return;
+    if ( gui->lock ) return;
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
@@ -294,11 +594,13 @@ static void updateFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static void deleteFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
-    FACEGROUPPANELDATA *fpd = ( FACEGROUPPANELDATA * ) user_data;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( fpd->gui->sce );
+static void removeFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUIMESHEDIT *gtk3med = ( GTK3G3DUIMESHEDIT * ) user_data;
+    G3DUI *gui = gtk3med->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
 
-    if ( fpd->gui->lock ) return;
+    if ( gui->lock ) return;
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
@@ -311,393 +613,238 @@ static void deleteFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
         }
     }
 
-    updateFacegroupsList ( fpd );
+    updateFacegroupList ( gtk3med );
 }
 
 /******************************************************************************/
-static void setFacegroupLabel ( GtkWidget    *label, 
-                                G3DFACEGROUP *facgrp ) {
-    char text[0x100] = { 0x00 };
-
-    if ( facgrp->flags & FACEGROUPSELECTED ) snprintf ( text, 0x100, "<span foreground=\"red\">%s</span>", facgrp->name );
-    else                                     snprintf ( text, 0x100, "<span foreground=\"black\">%s</span>", facgrp->name );
-
-    gtk_label_set_text ( label, text );
-    gtk_label_set_use_markup ( label, TRUE );
-}
-
-/******************************************************************************/
-static gboolean selectFacegroupCbk ( GtkWidget *widget,
-                                     GdkEvent  *event,
-                                     gpointer   user_data ) {
-    FACEGROUPDATA *fgd = ( FACEGROUPDATA * ) user_data;
-
-    if ( fgd->fpd->gui->lock ) return 0;
-
-    g3dmesh_unselectAllFacegroups ( fgd->mes );
-
-    switch ( event->type ) {
-        case GDK_BUTTON_PRESS :
-            g3dmesh_selectFacegroup ( fgd->mes, 
-                                      fgd->facgrp );
-
-            g3dmesh_selectFacesFromSelectedFacegroups ( fgd->mes );
-        break;
-
-/* can't get it to work :(
-        case GDK_2BUTTON_PRESS :
-            g3dmesh_selectFacesFromSelectedFacegroups ( fgd->mes );
-        break;
-*/
-
-        default :
-        break;
-    }
-
-    g3dui_redrawGLViews ( fgd->fpd->gui );
-
-    updateFacegroupsList ( fgd->fpd );
-    updateFacegroupsName ( fgd->fpd );
-
-    return TRUE;
-}
-
-/******************************************************************************/
-static void destroyFacegroupCbk ( GtkWidget *widget,
-                                  gpointer   user_data ) {
-    FACEGROUPDATA *fgd = ( FACEGROUPDATA * ) user_data;
-
-    if ( fgd->fpd->gui->lock ) return;
-
-    updateFacegroupsList ( fgd->fpd );
-
-    free ( fgd );
-}
-
-/******************************************************************************/
-static void nameFacegroupCbk  ( GtkWidget *widget, 
-                                GdkEvent  *event, 
-                                gpointer   user_data ) {
-    const char *grpname = gtk_entry_get_text ( GTK_ENTRY(widget) );
-    FACEGROUPPANELDATA *fpd = ( G3DUI * ) user_data;
-    G3DUI *gui = fpd->gui;
+static void addFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUIMESHEDIT *gtk3med = ( GTK3G3DUIMESHEDIT * ) user_data;
+    G3DUI *gui = gtk3med->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
     G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
 
     if ( gui->lock ) return;
 
- /** string should not be empty, or else the user wont be able to click ***/
-    if ( strlen ( grpname ) ) {
-        if ( obj ) {
-            if ( obj->type == G3DMESHTYPE ) {
-                G3DMESH *mes = ( G3DMESH * ) obj;
-                G3DFACEGROUP *facgrp = g3dmesh_getLastSelectedFacegroup ( mes );
-
-                if ( facgrp ) {
-                    if ( facgrp->name ) free ( facgrp->name );
-
-                    facgrp->name = strdup ( grpname );
-                }
-            }
-        }
-    }
-
-    updateFacegroupsPanel ( fpd->panelWidget, fpd->gui );
-}
-
-/******************************************************************************/
-static void populateFacegroupsList ( FACEGROUPPANELDATA *fpd ) {
-    G3DOBJECT *obj = g3dscene_getLastSelected ( fpd->gui->sce );
-
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
-            GdkRectangle frec = { 0x00, 0x00, 0x00, 0x00 };
             G3DMESH *mes = ( G3DMESH * ) obj;
-            LIST *ltmpfacgrp = mes->lfacgrp;
-            uint32_t maxWidth = 0x00;
-            uint32_t y = 0x00;
+            char buf[0x20];
 
-            while ( ltmpfacgrp ) {
-                G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) ltmpfacgrp->data;
-                GtkWidget *label = gtk_label_new ( facgrp->name );
-                GtkEventBox *eventBox = gtk_event_box_new ();
-                GdkRectangle lrec = { 0x00, 0x00, 0x100, 0x10 };
-                FACEGROUPDATA *fgd = facegroupdata_new ( fpd, mes, facgrp );
+            snprintf ( buf, 0x20, "FaceGroup%02i", mes->nbfacgrp );
 
-                setFacegroupLabel ( label, facgrp );
+            G3DFACEGROUP *facgrp = g3dfacegroup_new ( buf, mes->lselfac );
 
-                gtk_container_add (GTK_CONTAINER(eventBox), label );
-
-                gtk_fixed_put ( fpd->listWidget, eventBox, 0, y );
-
-                gtk_widget_size_allocate ( eventBox, &lrec );
-                gtk_widget_size_allocate ( label   , &lrec );
-
-                gtk_widget_add_events ( eventBox, GDK_BUTTON_PRESS_MASK   |
-                                                  GDK_BUTTON_RELEASE_MASK |
-                                                  GDK_DESTROY );
-
-                g_signal_connect ( eventBox, "button-press-event", G_CALLBACK(selectFacegroupCbk) , fgd );
-                g_signal_connect ( eventBox, "destroy"           , G_CALLBACK(destroyFacegroupCbk), fgd );
-
-                y += lrec.height;
-
-                ltmpfacgrp = ltmpfacgrp->next;
-            }
-
-            frec.width  = 100;
-            frec.height = y;
-			
-            if ( frec.height ) {
-                gtk_widget_set_size_request ( fpd->listWidget, frec.width, frec.height );
-			}
+            g3dmesh_addFacegroup ( mes, facgrp );
         }
     }
 
-    gtk_widget_show_all ( fpd->listWidget );
+    updateFacegroupList ( gtk3med );
 }
 
 /******************************************************************************/
-static void updateFacegroupsList ( FACEGROUPPANELDATA *fpd ) {
-    GList *children = gtk_container_get_children ( fpd->listWidget );
-
-    fpd->gui->lock = 0x01;
-
-    while ( children ) {
-        GtkWidget *child = ( GtkWidget * ) children->data;
-
-        gtk_widget_destroy ( child );
-
-        children =  g_list_next ( children );
-    }
-
-    populateFacegroupsList ( fpd );
-
-    fpd->gui->lock = 0x00;
-}
-
-/******************************************************************************/
-static void createFacegroupsList ( GtkWidget          *frm, 
-                                   FACEGROUPPANELDATA *fpd,
-                                   gint                x,
-                                   gint                y,
-                                   gint                width,
-                                   gint                height ) {
-    GtkWidget *scrolled = gtk_scrolled_window_new ( NULL, NULL );
-    GdkRectangle srec = { 0x00, 0x00, width, height };
-    GtkWidget *fixed = gtk_fixed_new ( );
-
-    gtk_container_add( GTK_CONTAINER(scrolled), fixed );
-    gtk_container_add( GTK_CONTAINER(frm)     , fixed );
-
-    gtk_widget_set_size_request ( scrolled, width, height );
-
-    gtk_widget_size_allocate ( scrolled, &srec );
-
-    gtk_fixed_put ( frm, scrolled, x, y );
-
-    gtk_widget_set_name ( scrolled, EDITFACEGROUPLIST );
-    gtk_widget_set_name ( fixed   , EDITFACEGROUPLIST );
-
-    gtk_widget_show_all ( scrolled );
-
-    fpd->listWidget = fixed;
-}
-
-/******************************************************************************/
-static void createFacegroupsPanel ( GtkWidget *parent, 
-                                    G3DUI     *gui,
-                                    gint       x,
-                                    gint       y,
-                                    gint       width,
-                                    gint       height ) {
-    GtkWidget *pan = createPanel ( parent, 
-                                   gui, 
-                                   EDITMESHFACEGROUPS, 
-                                   x, 
-                                   y, 
-                                   width, 
+static void createFacegroupPanel ( GTK3G3DUIMESHEDIT *gtk3med,
+                                    gint                   x,
+                                    gint                   y,
+                                    gint                   width,
+                                    gint                   height ) {
+    GtkFixed *pan = ui_createTab ( gtk3med->notebook,
+                                   gtk3med,
+                                   EDITMESHFACEGROUP,
+                                   CLASS_MAIN,
+                                   x,
+                                   y,
+                                   width,
                                    height );
 
-    FACEGROUPPANELDATA *fpd = facegrouppaneldata_new ( gui, pan );
+    gtk3med->fgPanelFixed = pan;
 
-    g_object_set_data ( G_OBJECT ( pan ),
-                        EDITMESHFACEGROUPS, 
-                        fpd );
+    gtk3med->fgNameEntry = ui_createCharText ( pan, 
+                                               gtk3med,
+                                               EDITMESHFACEGROUPNAME,
+                                               CLASS_MAIN,
+                                               0, 0, 96, 96, 20,
+                                               nameFacegroupCbk );
 
-    fpd->nameWidget = createCharText ( pan, 
-                                       fpd, 
-                                       EDITFACEGROUPNAME, 
-                                       0, 
-                                       0, 
-                                       96, 
-                                       132, 
-                                       nameFacegroupCbk );
+    createFacegroupList ( gtk3med, 0, 24, width, 100 );
 
-    createFacegroupsList ( pan, fpd, 0, 36, 212, 128 );
+    ui_createPushButton ( pan, 
+                          gtk3med,
+                          EDITMESHFACEADD,
+                          CLASS_MAIN,
+                          6, 126, 96, 20,
+                          addFaceGroupCbk );
 
-    createPushButton ( pan, fpd, "Create", 216,  36, 64, 18, createFaceGroupCbk );
-    createPushButton ( pan, fpd, "Update", 216,  60, 64, 18, updateFaceGroupCbk );
-    createPushButton ( pan, fpd, "Delete", 216,  84, 64, 18, deleteFaceGroupCbk );
-   /* createPushButton ( pan, gui, "Select", 216, 108, 64, 18, selectFaceGroupCbk ); */
+    ui_createPushButton ( pan, 
+                          gtk3med,
+                          EDITMESHFACEREMOVE,
+                          CLASS_MAIN,
+                          106, 126, 96, 20,
+                          removeFaceGroupCbk );
+
+    ui_createPushButton ( pan, 
+                          gtk3med,
+                          EDITMESHFACEUPDATE,
+                          CLASS_MAIN,
+                          206, 126, 96, 20,
+                          updateFaceGroupCbk );
 }
 
 /******************************************************************************/
-static void updateGeneralPanel ( GtkWidget *widget, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+static void updateGeneralPanel ( GTK3G3DUIMESHEDIT *gtk3med ) {
+    gtk3med->core.gui->lock = 0x01;
 
-    /*** prevent a loop ***/
-    gui->lock = 0x01;
+    if ( gtk3med->core.editedMesh ) {
+        double angle = acos ( gtk3med->core.editedMesh->gouraudScalarLimit );
 
-    if ( obj && ( obj->type == G3DMESHTYPE ) ) {
-        G3DMESH *mes = ( G3DMESH * ) obj;
-
-        while ( children ) {
-            GtkWidget *child = ( GtkWidget * ) children->data;
-            const char *child_name = gtk_widget_get_name ( child );
-
-            if ( GTK_IS_CHECK_BUTTON ( child ) ) {
-                GtkToggleButton *tbn = GTK_TOGGLE_BUTTON(child);
-
-                if ( strcmp ( child_name, EDITMESHSHADING ) == 0x00 ) {
-                    if ( obj->flags & OBJECTNOSHADING ) {
-                        gtk_toggle_button_set_active ( tbn, TRUE  );
-                    } else {
-                        gtk_toggle_button_set_active ( tbn, FALSE );
-                    }
-                }
-            }
-
-            if ( GTK_IS_SPIN_BUTTON ( child ) ) {
-                GtkSpinButton *spb = GTK_SPIN_BUTTON ( child );
-
-                if ( strcmp ( child_name, EDITMESHGOURAUDLIMIT ) == 0x00 ) {
-                    double angle = acos ( mes->gouraudScalarLimit );
-
-                    gtk_spin_button_set_value ( child, angle * 180 / M_PI );
-                }
-            }
-
-            children =  g_list_next ( children );
+        if ( gtk3med->core.editedMesh->obj.flags & OBJECTNOSHADING ) {
+            gtk_toggle_button_set_active ( gtk3med->shadingToggle, TRUE  );
+        } else {
+            gtk_toggle_button_set_active ( gtk3med->shadingToggle, FALSE );
         }
+
+        gtk_spin_button_set_value ( gtk3med->gouraudEntry, angle * 180 / M_PI );
     }
 
-
-    gui->lock = 0x00;
+    gtk3med->core.gui->lock = 0x00;
 }
 
 /******************************************************************************/
 static void gouraudCbk ( GtkWidget *widget,
                          gpointer   user_data ) {
     float gouraud = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
-    GtkWidget *parent = gtk_widget_get_parent ( widget );
-    G3DUI *gui = ( G3DUI * ) user_data;
+    GTK3G3DUIMESHEDIT *gtk3med = ( GTK3G3DUIMESHEDIT * ) user_data;
+    G3DUI *gui = gtk3med->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    uint64_t ret;
+
+    if ( gtk3med->core.gui->lock ) return;
 
     if ( ( gouraud >= 0.0f ) && ( gouraud <= 90.0f ) ) {
-        common_g3duimeshedit_gouraudCbk ( gui, gouraud * M_PI / 180 );
+        ret = g3duimeshedit_gouraud ( gtk3med, gouraud * M_PI / 180 );
     } else {
-        updateMeshEdit ( parent, gui );
+        updateGeneralPanel ( gtk3med );
     }
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
 } 
 
 /******************************************************************************/
 void toggleShadingCbk ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+    GTK3G3DUIMESHEDIT *gtk3med = ( GTK3G3DUIMESHEDIT * ) user_data;
+    G3DUI *gui = gtk3med->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    uint64_t ret;
 
-    common_g3duimeshedit_toggleShadingCbk ( gui );
+    if ( gtk3med->core.gui->lock ) return;
+
+    ret = g3duimeshedit_toggleShading ( gtk3med );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
 }
 
 /******************************************************************************/
-static GtkWidget *createGeneralPanel ( GtkWidget *parent, 
-                                       G3DUI     *gui,
-                                       gint       x,
-                                       gint       y,
-                                       gint       width,
-                                       gint       height ) {
-    GtkWidget *pan;
+static void createGeneralPanel ( GTK3G3DUIMESHEDIT *gtk3med,
+                                 gint               x,
+                                 gint               y,
+                                 gint               width,
+                                 gint               height ) {
+    GtkFixed *pan = ui_createTab ( gtk3med->notebook,
+                                   gtk3med,
+                                   EDITMESHGENERAL,
+                                   CLASS_MAIN,
+                                   x,
+                                   y,
+                                   width,
+                                   height );
 
-    pan = createPanel ( parent, gui, EDITMESHGENERAL, x, y, width, height );
+    gtk3med->gouraudEntry = ui_createFloatText    ( pan,
+                                                    gtk3med,
+                                                    EDITMESHGOURAUDLIMIT,
+                                                    CLASS_MAIN,
+                                                    0.0f, 90.0f,
+                                                    0,  0, 96, 96, 20,
+                                                    gouraudCbk );
 
-
-    createFloatText   ( pan, gui, EDITMESHGOURAUDLIMIT, 0.0f, 90.0f,
-                                                        0,  0,
-                                                      160, 64, gouraudCbk );
-
-    createToggleLabel ( pan, gui, EDITMESHSHADING, 0, 24, 64, 24, toggleShadingCbk );
-
-
-    return pan;
+    gtk3med->shadingToggle = ui_createToggleLabel ( pan,
+                                                    gtk3med,
+                                                    EDITMESHSHADING,
+                                                    CLASS_MAIN,
+                                                    0,  24, 96, 20, 20,
+                                                    toggleShadingCbk );
 }
 
 /******************************************************************************/
-void updateMeshEdit ( GtkWidget *widget, G3DUI *gui ) {
-    GList *children = gtk_container_get_children ( GTK_CONTAINER(widget) );
-    G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+void gtk3_g3duimeshedit_update ( GTK3G3DUIMESHEDIT *gtk3med ) {
+    G3DUI *gui = gtk3med->core.gui;
 
-    /*** prevent a loop ***/
     gui->lock = 0x01;
 
-    while ( children ) {
-        GtkWidget *child = ( GtkWidget * ) children->data;
-        const char *child_name = gtk_widget_get_name ( child );
+    if ( gui->sce ) {
+        G3DSCENE *sce = gui->sce;
+        uint32_t nbsel = list_count ( sce->lsel );
 
-        if ( strcmp ( child_name, EDITMESHGENERAL      ) == 0x00 ) {
-            updateGeneralPanel ( child, gui );
+        if ( nbsel ) {
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->notebook), TRUE );
+
+            if ( g3dobjectlist_checkType ( sce->lsel, G3DMESHTYPE ) ) {
+                gtk3med->core.multi = ( nbsel > 0x01 ) ? 0x01 : 0x00;
+
+                gtk3med->core.editedMesh = ( G3DMESH * ) g3dscene_getLastSelected ( sce );
+
+                if ( gtk3med->core.editedMesh ) {
+                    updateGeneralPanel ( gtk3med );
+                    updateFacegroupPanel ( gtk3med );
+                    updateWeightgroupPanel ( gtk3med );
+                }
+            }
+        } else {
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->notebook), FALSE );
         }
-
-        if ( strcmp ( child_name, EDITMESHWEIGHTGROUPS ) == 0x00 ) {
-            updateWeightgroupsPanel ( child, gui );
-        }
-
-        if ( strcmp ( child_name, EDITMESHFACEGROUPS ) == 0x00 ) {
-            updateFacegroupsPanel ( child, gui );
-        }
-
-        children =  g_list_next ( children );
     }
-
 
     gui->lock = 0x00;
 }
 
 /******************************************************************************/
-static void Realize ( GtkWidget *widget, gpointer user_data ) {
-    G3DUI *gui = ( G3DUI * ) user_data;
+static void Destroy ( GtkWidget *widget,
+                      gpointer   user_data ) {
+    GTK3G3DUIMESHEDIT *gtk3med = ( GTK3G3DUIMESHEDIT * ) user_data;
 
-    updateMeshEdit ( widget, gui );
+    free ( gtk3med );
 }
 
 /******************************************************************************/
-GtkWidget *createMeshEdit ( GtkWidget *parent, G3DUI *gui,
-                                               char *name,
-                                               gint x,
-                                               gint y,
-                                               gint width,
-                                               gint height ) {
-    GdkRectangle gdkrec = { x, y, width, height };
-    GtkWidget *tab;
+static void Realize ( GtkWidget *widget,
+                      gpointer   user_data ) {
+    GTK3G3DUIMESHEDIT *gtk3med = ( GTK3G3DUIMESHEDIT * ) user_data;
 
-    /********************/
-    tab = gtk_notebook_new ( );
+    gtk3_g3duimeshedit_update ( gtk3med );
+}
 
-    gtk_notebook_set_scrollable ( GTK_NOTEBOOK(tab), TRUE );
+/******************************************************************************/
+GTK3G3DUIMESHEDIT *gtk3_g3duimeshedit_create ( GtkWidget *parent,
+                                               GTK3G3DUI *gtk3gui,
+                                               char      *name ) {
+    GTK3G3DUIMESHEDIT *gtk3med = gtk3_g3duimeshedit_new ( gtk3gui );
+    GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
 
-    gtk_widget_set_name ( tab, name );
+    gtk3med->notebook = GTK_NOTEBOOK(notebook);
 
-    gtk_widget_size_allocate ( tab, &gdkrec );
+    gtk_notebook_set_scrollable ( GTK_NOTEBOOK(notebook), TRUE );
 
-    gtk_fixed_put ( GTK_FIXED(parent), tab, gdkrec.x, gdkrec.y );
+    gtk_widget_set_name ( notebook, name );
 
-    g_signal_connect ( G_OBJECT (tab), "realize", G_CALLBACK (Realize), gui );
+    /*gtk_widget_set_size_request ( tab, width, height );*/
 
-    createGeneralPanel      ( tab, gui, 0, 0, width, height );
-    createWeightgroupsPanel ( tab, gui, 0, 0, width, height );
-    createFacegroupsPanel   ( tab, gui, 0, 0, width, height );
+    g_signal_connect ( G_OBJECT (notebook), "realize", G_CALLBACK (Realize), gtk3med );
+    g_signal_connect ( G_OBJECT (notebook), "destroy", G_CALLBACK (Destroy), gtk3med );
 
-    gtk_widget_show ( tab );
+    createGeneralPanel   ( gtk3med, 0, 0, 310, 150 );
+    createFacegroupPanel ( gtk3med, 0, 0, 310, 150 );
+    createWeightgroupPanel ( gtk3med, 0, 0, 310, 150 );
+
+    gtk_widget_show ( notebook );
 
 
-    return tab;
+    return gtk3med;
 }

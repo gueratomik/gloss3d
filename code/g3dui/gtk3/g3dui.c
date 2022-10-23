@@ -232,6 +232,18 @@ GtkToggleToolButton *ui_gtk_toggle_tool_button_new ( char *class ) {
 }
 
 /******************************************************************************/
+GtkEventBox *ui_gtk_event_box_new ( char *class ) {
+    GtkWidget *box = gtk_event_box_new ( );
+
+    if ( class ) {
+        GtkStyleContext *context = gtk_widget_get_style_context ( box );
+        gtk_style_context_add_class ( context, class );
+    }
+
+    return GTK_EVENT_BOX(box);
+}
+
+/******************************************************************************/
 GtkToolItem *ui_gtk_tool_button_new ( char        *class,
                                       GtkWidget   *icon_widget,
                                       const gchar *label ) {
@@ -559,6 +571,7 @@ GtkColorButton *ui_createColorButton ( GtkFixed *parent,
     GtkWidget *btn = gtk_color_button_new ( );
 
     gtk_widget_set_name ( btn, name );
+
     gtk_widget_set_size_request ( btn, btnwidth, btnheight );
 
     if ( cbk ) {

@@ -36,7 +36,7 @@ void g3dfacegroup_free ( G3DFACEGROUP *facgrp ) {
 
 /******************************************************************************/
 void g3dfacegroup_unsetSelected ( G3DFACEGROUP *facgrp ) {
-    facgrp->flags &= ~(FACEGROUPSELECTED);
+    facgrp->flags &= (~FACEGROUPSELECTED);
 }
 
 /******************************************************************************/

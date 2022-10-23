@@ -305,7 +305,7 @@ GTK3G3DUISUBDIVIDEREDIT *gtk3_g3duisubdivideredit_create ( GtkWidget *parent,
                                                            GTK3G3DUI *gtk3gui,
                                                            char      *name ) {
     GTK3G3DUISUBDIVIDEREDIT *gtk3sed = gtk3_g3duisubdivideredit_new ( gtk3gui );
-    GtkWidget *notebook = gtk_notebook_new ( );
+    GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
 
     gtk3sed->notebook = GTK_NOTEBOOK(notebook);
 

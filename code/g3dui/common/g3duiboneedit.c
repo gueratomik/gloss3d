@@ -28,3 +28,10 @@
 /******************************************************************************/
 #include <config.h>
 #include <g3dui.h>
+
+/******************************************************************************/
+uint64_t g3duiboneedit_setLength ( G3DUIBONEEDIT *bonedit, float length ) {
+    bonedit->editedBone->len = length;
+
+    return REDRAWVIEW;
+}
