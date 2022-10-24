@@ -66,6 +66,7 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
     GTK3G3DUIBONEEDIT            *bonedit = ( GTK3G3DUIBONEEDIT            * ) gtk3objedit->core.bonedit;
     GTK3G3DUICAMERAEDIT          *camedit = ( GTK3G3DUICAMERAEDIT          * ) gtk3objedit->core.camedit;
     GTK3G3DUITEXTEDIT            *txtedit = ( GTK3G3DUITEXTEDIT            * ) gtk3objedit->core.txtedit;
+    GTK3G3DUIMORPHEREDIT         *mpredit = ( GTK3G3DUIMORPHEREDIT         * ) gtk3objedit->core.mpredit;
 
     G3DUI *gui = gtk3objedit->core.gui;
 
@@ -89,6 +90,7 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
     if ( bonedit ) gtk_widget_hide ( bonedit->notebook );
     if ( camedit ) gtk_widget_hide ( camedit->notebook );
     if ( txtedit ) gtk_widget_hide ( txtedit->notebook );
+    if ( mpredit ) gtk_widget_hide ( mpredit->notebook );
 
     gtk_widget_set_sensitive ( gtk3objedit->nameEntry, FALSE );
 
@@ -146,6 +148,12 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
                     gtk3_g3duimeshedit_update ( mesedit );
 
                     gtk_widget_show ( mesedit->notebook );
+                }
+
+                if ( obj->type == G3DMORPHERTYPE ) {
+                    gtk3_g3duimorpheredit_update ( mpredit );
+
+                    gtk_widget_show ( mpredit->notebook );
                 }
 
                 if ( obj->type == G3DSPHERETYPE ) {
@@ -549,6 +557,20 @@ static void createTextEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
 }
 
 /******************************************************************************/
+static void createMorpherEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3objedit->core.gui;
+    GTK3G3DUIMORPHEREDIT *gtk3mpredit;
+
+    gtk3mpredit = gtk3_g3duimorpheredit_create ( gtk3objedit->objectFixed,
+                                                 gtk3gui,
+                                                 "Edit Morpher" );
+
+    gtk_fixed_put ( GTK_FIXED(gtk3objedit->objectFixed), gtk3mpredit->notebook, 0, 0 );
+
+    gtk3objedit->core.mpredit = ( GTK3G3DUIMORPHEREDIT * ) gtk3mpredit;
+}
+
+/******************************************************************************/
 static void nameObjectCbk ( GtkWidget *widget, 
                             GdkEvent  *event,
                             gpointer   user_data ) {
@@ -599,6 +621,7 @@ static void createObjectEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
     createBoneEdit            ( gtk3objedit );
     createCameraEdit          ( gtk3objedit );
     createTextEdit            ( gtk3objedit );
+    createMorpherEdit         ( gtk3objedit );
 }
 
 /******************************************************************************/

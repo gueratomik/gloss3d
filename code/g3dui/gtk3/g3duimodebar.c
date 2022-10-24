@@ -31,18 +31,18 @@
 
 /******************************************************************************/
 #include <xpm/objectmode.xpm>
-#include <xpm/objectmode_test.xpm>
+#include <xpm/objectmode_test2.xpm>
 #include <xpm/facemode.xpm>
-#include <xpm/facemode_test.xpm>
+#include <xpm/facemode_test2.xpm>
 #include <xpm/vertexmode.xpm>
-#include <xpm/vertexmode_test.xpm>
+#include <xpm/vertexmode_test2.xpm>
 #include <xpm/edgemode.xpm>
-#include <xpm/edgemode_test.xpm>
+#include <xpm/edgemode_test2.xpm>
 #include <xpm/skinmode.xpm>
 #include <xpm/skinmode_test.xpm>
 #include <xpm/uvwmapmode.xpm>
 #include <xpm/uvwmapmode_test.xpm>
-#include <xpm/sculptmode.xpm>
+#include <xpm/sculptmode2.xpm>
 #include <xpm/axismode.xpm>
 #include <xpm/axismode_test.xpm>
 #include <xpm/pathmode.xpm>

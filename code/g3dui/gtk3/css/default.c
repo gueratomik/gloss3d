@@ -36,16 +36,24 @@
 #define GRAY2 "240"
 #define GRAY3 "255"
 #define GRAY5 "176"
+#define GRAY6 "160"
 
 /*
 #define FTCOL "240"
-#define GRAY0 "58"
-#define GRAY1 "74"
+#define FTCOL2 "224"
+#define GRAY0 "88"
+#define GRAY1 "72"
 #define GRAY2 "90"
 #define GRAY3 "105"
 #define GRAY5 "26"
 */
+
+/* nice green : 1c2f31 */
+
 static const gchar *myCSS = {
+"button:hover, button:checked {      \n"
+"    background       : rgba("GRAY6", "GRAY6", "GRAY6", 1); \n"
+"}                           \n"
 "frame.g3dmain {      \n"
 "    color            : rgba("FTCOL2", "FTCOL2", "FTCOL2", 1); \n"
 "}                           \n"

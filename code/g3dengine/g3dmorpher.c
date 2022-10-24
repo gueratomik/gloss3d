@@ -658,19 +658,33 @@ void g3dmorpher_selectMeshVerticesFromPose ( G3DMORPHER         *mpr,
 }
 
 /******************************************************************************/
+void g3dmorphermeshpose_setSelected ( G3DMORPHERMESHPOSE *mpose ) {
+    mpose->flags |= MESHPOSESELECTED;
+}
+
+/******************************************************************************/
+void g3dmorphermeshpose_unsetSelected ( G3DMORPHERMESHPOSE *mpose ) {
+    mpose->flags &= (~MESHPOSESELECTED);
+}
+
+/******************************************************************************/
 void g3dmorpher_selectMeshPoseByRank ( G3DMORPHER *mpr,
                                        uint32_t    rank ) {
     G3DMORPHERMESHPOSE *mpose = g3dmorpher_getMeshPoseByRank ( mpr, rank );
 
     if ( mpose ) {
-        mpr->selmpose = mpose;
+        g3dmorpher_selectMeshPose ( mpr, mpose );
     }
 }
 
 /******************************************************************************/
 void g3dmorpher_selectMeshPose ( G3DMORPHER         *mpr,
                                  G3DMORPHERMESHPOSE *mpose ) {
+    if ( mpr->selmpose ) g3dmorphermeshpose_unsetSelected ( mpr->selmpose );
+
     mpr->selmpose = mpose;
+
+    if ( mpose ) g3dmorphermeshpose_setSelected ( mpose );
 }
 
 /******************************************************************************/

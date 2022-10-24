@@ -42,6 +42,8 @@ extern "C" {
 
 #define MAXMESHPOSESLOT 64 /*** uint64_t bitfield ***/
 
+#define MESHPOSESELECTED ( 1      )
+
 /******************************************************************************/
 typedef struct _G3DMORPHERVERTEXPOSE {
     G3DVECTOR pos;
@@ -51,6 +53,7 @@ typedef struct _G3DMORPHERVERTEXPOSE {
 
 /******************************************************************************/
 typedef struct _G3DMORPHERMESHPOSE {
+    uint32_t              flags;
     uint32_t              id;
     char                 *name;
     G3DMORPHERVERTEXPOSE *vpose;
@@ -97,6 +100,8 @@ G3DMORPHERMESHPOSE *g3dmorpher_getMeshPoseByRank ( G3DMORPHER *mpr,
                                                    uint32_t    rank );
 void g3dmorpher_selectMeshPose ( G3DMORPHER         *mpr,
                                  G3DMORPHERMESHPOSE *mpose );
+void g3dmorphermeshpose_unsetSelected ( G3DMORPHERMESHPOSE *mpose );
+void g3dmorphermeshpose_setSelected ( G3DMORPHERMESHPOSE *mpose );
 void g3dmorpher_addVertexPose ( G3DMORPHER         *mpr,
                                 G3DVERTEX          *ver,
                                 G3DMORPHERMESHPOSE *mpose,

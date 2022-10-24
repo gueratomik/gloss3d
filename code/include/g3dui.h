@@ -780,6 +780,13 @@ typedef struct _G3DUITEXTEDIT {
 } G3DUITEXTEDIT;
 
 /******************************************************************************/
+typedef struct _G3DUIMORPHEREDIT {
+    G3DUI   *gui;
+    uint32_t multi;
+    G3DMORPHER *editedMorpher;
+} G3DUIMORPHEREDIT;
+
+/******************************************************************************/
 typedef struct _G3DUISUBDIVIDEREDIT {
     G3DUI         *gui;
     uint32_t       multi;
@@ -973,6 +980,7 @@ typedef struct _G3DUIOBJECTEDIT {
     G3DUIMESHEDIT            *mesedit;
     G3DUIBONEEDIT            *bonedit;
     G3DUICAMERAEDIT          *camedit;
+    G3DUIMORPHEREDIT         *mpredit;
 } G3DUIOBJECTEDIT;
 
 /******************************************************************************/

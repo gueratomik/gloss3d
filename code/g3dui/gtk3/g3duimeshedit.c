@@ -729,7 +729,7 @@ static void gouraudCbk ( GtkWidget *widget,
 } 
 
 /******************************************************************************/
-void toggleShadingCbk ( GtkWidget *widget, gpointer user_data ) {
+static void toggleShadingCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIMESHEDIT *gtk3med = ( GTK3G3DUIMESHEDIT * ) user_data;
     G3DUI *gui = gtk3med->core.gui;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;

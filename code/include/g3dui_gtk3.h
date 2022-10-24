@@ -782,6 +782,15 @@ typedef struct _GTK3G3DUIMESHEDIT {
 } GTK3G3DUIMESHEDIT;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUIMORPHEREDIT {
+    G3DUIMORPHEREDIT core;
+    GtkNotebook     *notebook;
+    GtkEntry        *poseNameEntry;
+    GtkFixed        *poseListFixed;
+    GtkFixed        *posePanelFixed;
+} GTK3G3DUIMORPHEREDIT;
+
+/******************************************************************************/
 /************************** GTK PatternList Widget ***************************/
 typedef struct _GTK3PATTERNPREVIEW {
     GdkPixbuf     *img;
@@ -1195,6 +1204,12 @@ void gtk3_g3duimateriallist_removeMaterial ( GTK3G3DUIMATERIALLIST *gtk3matlist,
 GTK3G3DUIMATERIALLIST *gtk3_g3duimateriallist_create ( GtkWidget *parent,
                                                        GTK3G3DUI *gtk3gui,
                                                        char      *name );
+
+/**************************** g3duimorpheredit.c ******************************/
+GTK3G3DUIMORPHEREDIT *gtk3_g3duimorpheredit_create ( GtkWidget *parent,
+                                                     GTK3G3DUI *gtk3gui,
+                                                     char      *name );
+void gtk3_g3duimorpheredit_update ( GTK3G3DUIMORPHEREDIT *gtk3med );
 
 /************************ g3duiparticleemitter.c ******************************/
 void gtk3_g3duiparticleemitteredit_update ( GTK3G3DUIPARTICLEEMITTEREDIT *gtk3ped );
