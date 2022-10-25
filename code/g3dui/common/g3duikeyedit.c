@@ -143,8 +143,8 @@ uint64_t g3duikeyedit_loop ( G3DUIKEYEDIT *keyedit,
 
 /******************************************************************************/
 uint64_t g3duikeyedit_key ( G3DUIKEYEDIT *keyedit,
-                               const char   *field,
-                               float         val ) {
+                            const char   *field,
+                            float         val ) {
     G3DUI *gui = keyedit->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
@@ -155,9 +155,9 @@ uint64_t g3duikeyedit_key ( G3DUIKEYEDIT *keyedit,
         while ( ltmpkey ) {
             G3DKEY *key = ltmpkey->data;
 
-            if ( strcmp ( field, EDITKEYXPOSITION ) == 0x00 ) key->pos.x = val;
-            if ( strcmp ( field, EDITKEYYPOSITION ) == 0x00 ) key->pos.y = val;
-            if ( strcmp ( field, EDITKEYZPOSITION ) == 0x00 ) key->pos.z = val;
+            if ( strcmp ( field, EDITKEYXTRANSLATION ) == 0x00 ) key->pos.x = val;
+            if ( strcmp ( field, EDITKEYYTRANSLATION ) == 0x00 ) key->pos.y = val;
+            if ( strcmp ( field, EDITKEYZTRANSLATION ) == 0x00 ) key->pos.z = val;
 
             if ( strcmp ( field, EDITKEYXROTATION ) == 0x00 ) key->rot.x = val;
             if ( strcmp ( field, EDITKEYYROTATION ) == 0x00 ) key->rot.y = val;

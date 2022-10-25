@@ -782,6 +782,28 @@ typedef struct _GTK3G3DUIMESHEDIT {
 } GTK3G3DUIMESHEDIT;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUIKEYEDIT {
+    G3DUIKEYEDIT    core;
+    GtkFixed        *fixed;
+    GtkToggleButton *translationToggle;
+    GtkToggleButton *rotationToggle;
+    GtkToggleButton *scalingToggle;
+    GtkSpinButton   *XTranslationEntry;
+    GtkSpinButton   *YTranslationEntry;
+    GtkSpinButton   *ZTranslationEntry;
+    GtkSpinButton   *XRotationEntry;
+    GtkSpinButton   *YRotationEntry;
+    GtkSpinButton   *ZRotationEntry;
+    GtkSpinButton   *XScalingEntry;
+    GtkSpinButton   *YScalingEntry;
+    GtkSpinButton   *ZScalingEntry;
+    GtkToggleButton *loopToggle;
+    GtkSpinButton   *loopFrameEntry;
+    GtkToggleButton *keyDataToggle;
+    GtkButton       *keyDataButton;
+} GTK3G3DUIKEYEDIT;
+
+/******************************************************************************/
 typedef struct _GTK3G3DUIMORPHEREDIT {
     G3DUIMORPHEREDIT core;
     GtkNotebook     *notebook;
@@ -1143,6 +1165,12 @@ void gtk3_g3duiinstanceedit_update ( GTK3G3DUIINSTANCEEDIT *gtk3ied );
 GTK3G3DUIINSTANCEEDIT *gtk3_g3duiinstanceedit_create ( GtkWidget *parent,
                                                        GTK3G3DUI *gtk3gui,
                                                        char      *name );
+
+/******************************* g3duikeyedit.c *******************************/
+GTK3G3DUIKEYEDIT *gtk3_g3duikeyedit_create ( GtkWidget *parent,
+                                             GTK3G3DUI *gtk3gui,
+                                             char      *name );
+void gtk3_g3duikeyedit_update ( GTK3G3DUIKEYEDIT *gtk3ked );
 
 /***************************** g3duilightedit.c *******************************/
 void gtk3_g3duilightedit_update ( GTK3G3DUILIGHTEDIT *gtk3led );

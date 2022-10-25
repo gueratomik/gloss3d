@@ -453,11 +453,25 @@ static gboolean panToolInput ( GtkWidget *widget,
                                                width );
 
             if ( onkey ) {
-                GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
-#ifdef TODO
-                createKeyEdit ( dial, gui, "KEYEDIT", 0, 0, 416, 192 );
-#endif
+                GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
+                GtkWidget *box = gtk_dialog_get_content_area ( dial );
+
+                GTK3G3DUIKEYEDIT *kedit = gtk3_g3duikeyedit_create ( dial,
+                                                                     gtk3gui,
+                                                                     "KEYEDIT" );
+
+                gtk_container_add ( GTK_CONTAINER(box), kedit->fixed );
+
+                g_signal_connect_swapped ( dial,
+                                           "response",
+                                           G_CALLBACK (gtk_widget_destroy),
+                                           dial);
+
                 gtk_widget_show ( dial );
+
+                /* We cannot use gtk_dialog_run because of the mouse grabbing
+                   in GDK_BUTTON_PRESS event. It creates issues */
+                /*gtk_dialog_run ( dial );*/
             }
         } break;
 

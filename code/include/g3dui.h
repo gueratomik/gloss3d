@@ -227,23 +227,25 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITABSOLUTE  "Absolute"
 
 /*************************** Key Edit Widget constants ************************/
-#define EDITKEYPOSITION  "Position"
-#define EDITKEYXPOSITION "EDITKEYXPOSITION"
-#define EDITKEYYPOSITION "EDITKEYYPOSITION"
-#define EDITKEYZPOSITION "EDITKEYZPOSITION"
 
-#define EDITKEYROTATION  "Rotation"
-#define EDITKEYXROTATION "EDITKEYXROTATION"
-#define EDITKEYYROTATION "EDITKEYYROTATION"
-#define EDITKEYZROTATION "EDITKEYZROTATION"
+#define EDITKEYTRANSLATION  "Translation"
+#define EDITKEYXTRANSLATION "EDITKEYXTRANSLATION"
+#define EDITKEYYTRANSLATION "EDITKEYYTRANSLATION"
+#define EDITKEYZTRANSLATION "EDITKEYZTRANSLATION"
 
-#define EDITKEYSCALING   "Scaling"
-#define EDITKEYXSCALING  "EDITKEYXSCALING"
-#define EDITKEYYSCALING  "EDITKEYYSCALING"
-#define EDITKEYZSCALING  "EDITKEYZSCALING"
+#define EDITKEYROTATION     "Rotation"
+#define EDITKEYXROTATION    "EDITKEYXROTATION"
+#define EDITKEYYROTATION    "EDITKEYYROTATION"
+#define EDITKEYZROTATION    "EDITKEYZROTATION"
 
-#define EDITKEYLOOP      "Loop from frame"
-#define EDITKEYLOOPFRAME "EDITKEYLOOPFRAME"
+#define EDITKEYSCALING      "Scaling"
+#define EDITKEYXSCALING     "EDITKEYXSCALING"
+#define EDITKEYYSCALING     "EDITKEYYSCALING"
+#define EDITKEYZSCALING     "EDITKEYZSCALING"
+
+#define EDITKEYLOOP         "Loop from frame"
+#define EDITKEYLOOPFRAME    "EDITKEYLOOPFRAME"
+#define EDITKEYENABLEDATA   "Enable data"
 
 /******************************************************************************/
 
@@ -883,8 +885,6 @@ typedef struct _G3DUIPLANEEDIT {
 /******************************************************************************/
 typedef struct _G3DUIKEYEDIT {
     G3DUI   *gui;
-    uint32_t multi;
-    G3DKEY  *editedKey;
 } G3DUIKEYEDIT;
 
 /******************************************************************************/

@@ -52,7 +52,7 @@
 
 static const gchar *myCSS = {
 "button:hover, button:checked {      \n"
-"    background       : rgba("GRAY6", "GRAY6", "GRAY6", 1); \n"
+"    background       : #708090; \n"
 "}                           \n"
 "frame.g3dmain {      \n"
 "    color            : rgba("FTCOL2", "FTCOL2", "FTCOL2", 1); \n"

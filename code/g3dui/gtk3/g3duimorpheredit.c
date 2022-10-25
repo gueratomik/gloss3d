@@ -36,6 +36,9 @@
 #define EDITMORPHERPOSEADD    "Add pose"
 #define EDITMORPHERPOSEREMOVE "Remove pose"
 #define EDITMORPHERPOSELIST   "Pose list"
+#define EDITMORPHERPOSECOPY   "Duplicate pose"
+#define EDITMORPHERPOSESELECT "Select vertices"
+#define EDITMORPHEROPTIMIZE   "Optimize"
 
 /******************************************************************************/
 static GTK3G3DUIMORPHEREDIT *gtk3_g3duimorpheredit_new ( GTK3G3DUI *gtk3gui ) {
@@ -254,6 +257,61 @@ static void createPoseList ( GTK3G3DUIMORPHEREDIT *gtk3med,
     gtk_widget_show_all ( frame );
 }
 
+
+/******************************************************************************/
+static void selectMeshPoseVerticesCbk  ( GtkWidget *widget, 
+                                         gpointer   user_data ) {
+    GTK3G3DUIMORPHEREDIT *gtk3med = ( GTK3G3DUIMORPHEREDIT * ) user_data;
+    G3DUI *gui = gtk3med->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+
+    if ( gui->lock ) return;
+
+    if ( obj ) {
+        if ( obj->type == G3DMORPHERTYPE ) {
+            G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
+
+            if ( mpr->selmpose ) {
+                g3dmorpher_selectMeshVerticesFromPose ( mpr, mpr->selmpose );
+
+                g3dscene_updatePivot ( gui->sce, 
+                                       gui->engine_flags );
+            }
+        }
+    }
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
+}
+
+/******************************************************************************/
+static void copyMeshPoseCbk  ( GtkWidget *widget,
+                               gpointer   user_data ) {
+    GTK3G3DUIMORPHEREDIT *gtk3med = ( GTK3G3DUIMORPHEREDIT * ) user_data;
+    G3DUI *gui = gtk3med->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+
+    if ( gui->lock ) return;
+
+    if ( obj ) {
+        if ( obj->type == G3DMORPHERTYPE ) {
+            G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
+
+            if ( mpr->selmpose ) {
+                G3DMORPHERMESHPOSE *mpose = g3dmorpher_copyMeshPose ( mpr, 
+                                                                      mpr->selmpose );
+
+                g3dmorpher_selectMeshPose ( mpr, mpose );
+            }
+        }
+    }
+
+    updatePoseList ( gtk3med );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
+}
+
 /******************************************************************************/
 static void removePoseCbk  ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIMORPHEREDIT *gtk3med = ( GTK3G3DUIMORPHEREDIT * ) user_data;
@@ -275,6 +333,8 @@ static void removePoseCbk  ( GtkWidget *widget, gpointer user_data ) {
     }
 
     updatePoseList ( gtk3med );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
 
 /******************************************************************************/
@@ -299,6 +359,8 @@ static void addPoseCbk  ( GtkWidget *widget, gpointer user_data ) {
     }
 
     updatePoseList ( gtk3med );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW );
 }
 
 /******************************************************************************/
@@ -331,15 +393,29 @@ static void createPosesPanel ( GTK3G3DUIMORPHEREDIT *gtk3med,
                           gtk3med,
                           EDITMORPHERPOSEADD,
                           CLASS_MAIN,
-                          6, 126, 96, 20,
+                            6, 126, 146, 20,
                           addPoseCbk );
 
     ui_createPushButton ( pan, 
                           gtk3med,
                           EDITMORPHERPOSEREMOVE,
                           CLASS_MAIN,
-                          106, 126, 96, 20,
+                          154, 126, 146, 20,
                           removePoseCbk );
+
+    ui_createPushButton ( pan, 
+                          gtk3med,
+                          EDITMORPHERPOSECOPY,
+                          CLASS_MAIN,
+                            6, 150, 146, 20,
+                          copyMeshPoseCbk );
+
+    ui_createPushButton ( pan, 
+                          gtk3med,
+                          EDITMORPHERPOSESELECT,
+                          CLASS_MAIN,
+                          154, 150, 146, 20,
+                          selectMeshPoseVerticesCbk );
 }
 
 /******************************************************************************/
@@ -388,6 +464,25 @@ static void toggleShadingCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
+static void optimizeCbk ( GtkWidget *widget,
+                          gpointer   user_data ) {
+    GTK3G3DUIMORPHEREDIT *gtk3med = ( GTK3G3DUIMORPHEREDIT * ) user_data;
+    G3DUI *gui = gtk3med->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+
+    if ( gui->lock ) return;
+
+    if ( obj ) {
+        if ( obj->type == G3DMORPHERTYPE ) {
+            G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
+
+            g3dmorpher_optimize ( mpr );
+        }
+    }
+}
+
+/******************************************************************************/
 static void createFunctionsPanel ( GTK3G3DUIMORPHEREDIT *gtk3med,
                                  gint               x,
                                  gint               y,
@@ -402,20 +497,12 @@ static void createFunctionsPanel ( GTK3G3DUIMORPHEREDIT *gtk3med,
                                    width,
                                    height );
 
-    /*gtk3med->gouraudEntry = ui_createFloatText    ( pan,
-                                                    gtk3med,
-                                                    EDITMORPHERGOURAUDLIMIT,
-                                                    CLASS_MAIN,
-                                                    0.0f, 90.0f,
-                                                    0,  0, 96, 96, 20,
-                                                    gouraudCbk );
-
-    gtk3med->shadingToggle = ui_createToggleLabel ( pan,
-                                                    gtk3med,
-                                                    EDITMORPHERSHADING,
-                                                    CLASS_MAIN,
-                                                    0,  24, 96, 20, 20,
-                                                    toggleShadingCbk );*/
+    ui_createPushButton ( pan, 
+                          gtk3med,
+                          EDITMORPHEROPTIMIZE,
+                          CLASS_MAIN,
+                          0, 0, 96, 20,
+                          optimizeCbk );
 }
 
 /******************************************************************************/
