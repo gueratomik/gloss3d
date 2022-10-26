@@ -109,7 +109,7 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
 
             if ( same ) {
                 if ( obj->type == G3DLIGHTTYPE ) {
-                    gtk3_g3duilightedit_update ( ligedit );
+                    gtk3_g3duilightedit_update ( ligedit, NULL );
 
                     gtk_widget_show ( ligedit->notebook );
                 }
@@ -218,7 +218,7 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
                 }
 
                 if ( obj->type == G3DPARTICLEEMITTERTYPE ) {
-                    gtk3_g3duiinstanceedit_update ( pemedit );
+                    gtk3_g3duiparticleemitteredit_update ( pemedit, NULL );
 
                     gtk_widget_show ( pemedit->notebook );
                 }
@@ -311,7 +311,8 @@ static void createLightEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
 
     gtk3ligedit = gtk3_g3duilightedit_create ( gtk3objedit->objectFixed,
                                                gtk3gui,
-                                               "Edit Light" );
+                                               "Edit Light",
+                                               0x00 );
 
     gtk_fixed_put ( GTK_FIXED(gtk3objedit->objectFixed), gtk3ligedit->notebook, 0, 0 );
 
@@ -521,7 +522,8 @@ static void createParticleEmitterEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
 
     gtk3pemedit = gtk3_g3duiparticleemitteredit_create ( gtk3objedit->objectFixed,
                                                          gtk3gui,
-                                                         "Edit Particle Emitter" );
+                                                         "Edit Particle Emitter",
+                                                         0x00 );
 
     gtk_fixed_put ( GTK_FIXED(gtk3objedit->objectFixed), gtk3pemedit->notebook, 0, 0 );
 
@@ -602,7 +604,6 @@ static void createObjectEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
 
     gtk_fixed_put ( gtk3objedit->fixed, gtk3objedit->scrolled , 0, 20 );
 
-
     createLightEdit           ( gtk3objedit );
     createCubeEdit            ( gtk3objedit );
     createTubeEdit            ( gtk3objedit );
@@ -631,7 +632,7 @@ void gtk3_g3duiobjectedit_resize ( GTK3G3DUIOBJECTEDIT *gtk3objedit,
     if ( gtk3objedit->scrolled ) {
         gtk_widget_set_size_request ( gtk3objedit->scrolled,
                                       width,
-                                      height - 20 );
+                                      height - 40 );
     }
 }
 

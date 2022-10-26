@@ -39,12 +39,82 @@ static GTK3G3DUIKEYEDIT *gtk3_g3duikeyedit_new ( GTK3G3DUI *gtk3gui ) {
         return NULL;
     }
 
-    gtk3ked->core.gui = ( G3DUI * ) gtk3gui;
+    gtk3ked->core.gui    = ( G3DUI * ) gtk3gui;
 
 
     return gtk3ked; 
 }
 
+/******************************************************************************/
+static void editKeyDataCbk ( GtkWidget *widget,
+                             gpointer   user_data ) {
+    GTK3G3DUIKEYEDIT *gtk3ked = ( GTK3G3DUIKEYEDIT * ) user_data;
+    G3DUI *gui = gtk3ked->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
+
+    if ( obj ) {
+        if ( obj->type == G3DLIGHTTYPE ) {
+            G3DLIGHT *lig = ( G3DLIGHT * ) obj;
+
+            if ( obj->lselkey ) {
+                GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
+                GtkWidget *box = gtk_dialog_get_content_area ( dial );
+                G3DKEY *key = obj->lselkey->data;
+                G3DLIGHT *keylig = key->data.ptr;
+
+                GTK3G3DUILIGHTEDIT *ledit = gtk3_g3duilightedit_create ( dial,
+                                                                         gtk3gui,
+                                                                         "LIGHTEDIT", 
+                                                                         0x01 );
+
+                gtk_container_add ( GTK_CONTAINER(box), ledit->notebook );
+
+                gtk_widget_set_size_request ( ledit->notebook, 400, 200 );
+
+                g_signal_connect_swapped ( dial,
+                                           "response",
+                                           G_CALLBACK (gtk_widget_destroy),
+                                           dial);
+
+                gtk_widget_show ( dial );
+
+                /* must be called after the realization of the widget */
+                gtk3_g3duilightedit_update ( ledit, keylig );
+            }
+        }
+
+        if ( obj->type == G3DPARTICLEEMITTERTYPE ) {
+            G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) obj;
+
+            if ( obj->lselkey ) {
+                GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
+                GtkWidget *box = gtk_dialog_get_content_area ( dial );
+                G3DKEY *key = obj->lselkey->data;
+                G3DLIGHT *keypem = key->data.ptr;
+
+                GTK3G3DUILIGHTEDIT *pedit = gtk3_g3duiparticleemitteredit_create ( dial,
+                                                                                   gtk3gui,
+                                                                                   "PARTICLEEMITTEREDIT", 
+                                                                                   0x01 );
+
+                gtk_container_add ( GTK_CONTAINER(box), pedit->notebook );
+
+                gtk_widget_set_size_request ( pedit->notebook, 400, 200 );
+
+                g_signal_connect_swapped ( dial,
+                                           "response",
+                                           G_CALLBACK (gtk_widget_destroy),
+                                           dial);
+
+                gtk_widget_show ( dial );
+
+                /* must be called after the realization of the widget */
+                gtk3_g3duiparticleemitteredit_update ( pedit, keypem );
+            }
+        }
+    }
+}
 
 /******************************************************************************/
 static void useTrsCbk ( GtkWidget *widget, gpointer user_data ) {
@@ -377,12 +447,12 @@ GTK3G3DUIKEYEDIT *gtk3_g3duikeyedit_create ( GtkWidget *parent,
                                                          8, 128, 128, 20, 20,
                                                          useDatCbk );
 
-    /*gtk3ked->keyDataButton     = ui_createPushButton   ( fixed,
+    gtk3ked->keyDataButton     = ui_createPushButton   ( fixed,
                                                          gtk3ked,
                                                          EDITKEYDATA,
                                                          CLASS_MAIN,
-                                                         160, 24, 96, 20,
-                                                         editKeyDataCbk );*/
+                                                         160, 128, 96, 20,
+                                                         editKeyDataCbk );
 
     gtk_widget_show_all ( fixed );
 

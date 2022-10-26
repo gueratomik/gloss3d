@@ -408,7 +408,7 @@ static uint64_t addSymmetryCbk ( G3DUIMENU *menu,
     g3dui_addSymmetry ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -417,7 +417,7 @@ static uint64_t addInstanceCbk ( G3DUIMENU *menu,
     g3dui_addInstance ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -426,7 +426,7 @@ static uint64_t addEmitterCbk ( G3DUIMENU *menu,
     g3dui_addEmitter ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -476,7 +476,7 @@ static uint64_t addWireframeCbk ( G3DUIMENU *menu,
     g3dui_addWireframe ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -485,7 +485,7 @@ static uint64_t addSubdividerCbk ( G3DUIMENU *menu,
     g3dui_addSubdivider ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -494,7 +494,7 @@ static uint64_t addSplineRevolverCbk ( G3DUIMENU *menu,
     g3dui_addSplineRevolver ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -503,7 +503,7 @@ static uint64_t addFFDBoxCbk ( G3DUIMENU *menu,
     g3dui_addFFDBox ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -512,7 +512,7 @@ static uint64_t addMorpherCbk ( G3DUIMENU *menu,
     g3dui_addMorpher ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -521,7 +521,7 @@ static uint64_t addSkinCbk ( G3DUIMENU *menu,
     g3dui_addSkin ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -530,7 +530,7 @@ static uint64_t addBoneCbk ( G3DUIMENU *menu,
     g3dui_addBone ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -670,7 +670,7 @@ static uint64_t addPlaneCbk ( G3DUIMENU *menu,
     g3dui_addPlane ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -679,7 +679,7 @@ static uint64_t addCubeCbk ( G3DUIMENU *menu,
     g3dui_addCube ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -688,7 +688,7 @@ static uint64_t addSphereCbk ( G3DUIMENU *menu,
     g3dui_addSphere ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -697,7 +697,7 @@ static uint64_t addTorusCbk ( G3DUIMENU *menu,
     g3dui_addTorus ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -706,7 +706,7 @@ static uint64_t addCylinderCbk ( G3DUIMENU *menu,
     g3dui_addCylinder ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -715,7 +715,7 @@ static uint64_t addTubeCbk ( G3DUIMENU *menu,
     g3dui_addTube ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -724,7 +724,7 @@ static uint64_t addLightCbk ( G3DUIMENU *menu,
     g3dui_addLight ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -733,7 +733,7 @@ static uint64_t addCameraCbk ( G3DUIMENU *menu,
     g3dui_addCamera ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -742,7 +742,7 @@ static uint64_t addEmptyMeshCbk  ( G3DUIMENU *menu,
     g3dui_addEmptyMesh ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -751,7 +751,7 @@ static uint64_t addSplineCbk ( G3DUIMENU *menu,
     g3dui_addSpline ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -760,7 +760,7 @@ static uint64_t addTextCbk ( G3DUIMENU *menu,
     g3dui_addText ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -769,7 +769,7 @@ static uint64_t addNullCbk ( G3DUIMENU *menu,
     g3dui_addNull ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -948,7 +948,7 @@ static uint64_t selectAllCbk ( G3DUIMENU *menu,
     g3dui_selectAll ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -957,7 +957,7 @@ static uint64_t invertSelectionCbk ( G3DUIMENU *menu,
     g3dui_invertSelection ( menu->gui );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/
@@ -992,7 +992,7 @@ static uint64_t selectTreeCbk ( G3DUIMENU *menu,
     g3dui_selectTree ( menu->gui, menu->name );
 
 
-    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT;
+    return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECURRENTOBJECT | REDRAWTIMELINE;
 }
 
 /******************************************************************************/

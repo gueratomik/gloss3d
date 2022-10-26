@@ -47,7 +47,8 @@
 #define EDITLIGHTSPECULAR          "Specular"
 
 /******************************************************************************/
-static GTK3G3DUILIGHTEDIT *gtk3_g3duilightedit_new ( GTK3G3DUI *gtk3gui ) {
+static GTK3G3DUILIGHTEDIT *gtk3_g3duilightedit_new ( GTK3G3DUI *gtk3gui,
+                                                     uint32_t   forKey ) {
     GTK3G3DUILIGHTEDIT *gtk3led = calloc ( 0x01, sizeof ( GTK3G3DUILIGHTEDIT ) );
 
     if ( gtk3led == NULL ) {
@@ -56,6 +57,7 @@ static GTK3G3DUILIGHTEDIT *gtk3_g3duilightedit_new ( GTK3G3DUI *gtk3gui ) {
         return NULL;
     }
 
+    gtk3led->core.forKey = forKey;
     gtk3led->core.gui = ( G3DUI * ) gtk3gui;
 
 
@@ -547,33 +549,40 @@ static void createLightGeneralPanel ( GTK3G3DUILIGHTEDIT *gtk3led,
 }
 
 /******************************************************************************/
-void gtk3_g3duilightedit_update ( GTK3G3DUILIGHTEDIT *gtk3led ) {
+void gtk3_g3duilightedit_update ( GTK3G3DUILIGHTEDIT *gtk3led,
+                                  G3DLIGHT           *lig ) {
     G3DUI *gui = gtk3led->core.gui;
 
     gui->lock = 0x01;
 
-    if ( gui->sce ) {
-        G3DSCENE *sce = gui->sce;
-        uint32_t nbsel = list_count ( sce->lsel );
+    gtk3led->core.editedLight = lig;
 
-        if ( nbsel ) {
-            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3led->notebook), TRUE );
+    if ( gtk3led->core.editedLight == NULL ) {
+        if ( gui->sce ) {
+            G3DSCENE *sce = gui->sce;
+            uint32_t nbsel = list_count ( sce->lsel );
 
-            if ( g3dobjectlist_checkType ( sce->lsel, G3DLIGHTTYPE ) ) {
-                gtk3led->core.multi = ( nbsel > 0x01 ) ? 0x01 : 0x00;
+            if ( nbsel ) {
+                gtk_widget_set_sensitive ( GTK_WIDGET(gtk3led->notebook), TRUE );
 
-                gtk3led->core.editedLight = ( G3DLIGHT * ) g3dscene_getLastSelected ( sce );
+                if ( g3dobjectlist_checkType ( sce->lsel, G3DLIGHTTYPE ) ) {
+                    gtk3led->core.multi = ( nbsel > 0x01 ) ? 0x01 : 0x00;
 
-                if ( gtk3led->core.editedLight ) {
-                    updateSpecularityPanel  ( gtk3led );
-                    updateDiffuseColorPanel ( gtk3led );
-                    updateLightGeneralPanel ( gtk3led );
-                    updateShadowsPanel      ( gtk3led );
+                    gtk3led->core.editedLight = ( G3DLIGHT * ) g3dscene_getLastSelected ( sce );
+
+
                 }
             }
-        } else {
-            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3led->notebook), FALSE );
         }
+    }
+
+    if ( gtk3led->core.editedLight ) {
+        updateSpecularityPanel  ( gtk3led );
+        updateDiffuseColorPanel ( gtk3led );
+        updateLightGeneralPanel ( gtk3led );
+        updateShadowsPanel      ( gtk3led );
+    } else {
+        gtk_widget_set_sensitive ( GTK_WIDGET(gtk3led->notebook), FALSE );
     }
 
     gui->lock = 0x00;
@@ -592,14 +601,15 @@ static void Realize ( GtkWidget *widget,
                       gpointer   user_data ) {
     GTK3G3DUILIGHTEDIT *gtk3led = ( GTK3G3DUILIGHTEDIT * ) user_data;
 
-    gtk3_g3duilightedit_update ( gtk3led );
+    gtk3_g3duilightedit_update ( gtk3led, NULL );
 }
 
 /******************************************************************************/
 GTK3G3DUILIGHTEDIT *gtk3_g3duilightedit_create ( GtkWidget *parent,
                                                  GTK3G3DUI *gtk3gui,
-                                                 char      *name ) {
-    GTK3G3DUILIGHTEDIT *gtk3led = gtk3_g3duilightedit_new ( gtk3gui );
+                                                 char      *name,
+                                                 uint32_t   forKey ) {
+    GTK3G3DUILIGHTEDIT *gtk3led = gtk3_g3duilightedit_new ( gtk3gui, forKey );
     GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
 
     gtk3led->notebook = GTK_NOTEBOOK(notebook);

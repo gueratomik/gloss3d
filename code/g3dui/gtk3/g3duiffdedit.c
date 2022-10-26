@@ -305,7 +305,7 @@ GTK3G3DUIFFDEDIT *gtk3_g3duiffdedit_create ( GtkWidget *parent,
                                              GTK3G3DUI *gtk3gui,
                                              char      *name ) {
     GTK3G3DUIFFDEDIT *gtk3fed = gtk3_g3duiffdedit_new ( gtk3gui );
-    GtkWidget *notebook = gtk_notebook_new ( );
+    GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
 
     gtk3fed->notebook = GTK_NOTEBOOK(notebook);
 

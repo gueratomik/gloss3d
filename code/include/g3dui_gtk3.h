@@ -1173,10 +1173,12 @@ GTK3G3DUIKEYEDIT *gtk3_g3duikeyedit_create ( GtkWidget *parent,
 void gtk3_g3duikeyedit_update ( GTK3G3DUIKEYEDIT *gtk3ked );
 
 /***************************** g3duilightedit.c *******************************/
-void gtk3_g3duilightedit_update ( GTK3G3DUILIGHTEDIT *gtk3led );
+void gtk3_g3duilightedit_update ( GTK3G3DUILIGHTEDIT *gtk3led,
+                                  G3DLIGHT           *lig );
 GTK3G3DUILIGHTEDIT *gtk3_g3duilightedit_create ( GtkWidget *parent,
                                                  GTK3G3DUI *gtk3gui,
-                                                 char      *name );
+                                                 char      *name,
+                                                 uint32_t   forKey );
 
 /******************************* g3duimenu.c **********************************/
 GTK3G3DUIMENU *gtk3_g3duimenu_parse_r ( G3DUIMENU *node,
@@ -1240,10 +1242,12 @@ GTK3G3DUIMORPHEREDIT *gtk3_g3duimorpheredit_create ( GtkWidget *parent,
 void gtk3_g3duimorpheredit_update ( GTK3G3DUIMORPHEREDIT *gtk3med );
 
 /************************ g3duiparticleemitter.c ******************************/
-void gtk3_g3duiparticleemitteredit_update ( GTK3G3DUIPARTICLEEMITTEREDIT *gtk3ped );
+void gtk3_g3duiparticleemitteredit_update ( GTK3G3DUIPARTICLEEMITTEREDIT *gtk3ped,
+                                            G3DPARTICLEEMITTER           *pemitter );
 GTK3G3DUIPARTICLEEMITTEREDIT *gtk3_g3duiparticleemitteredit_create ( GtkWidget *parent,
                                                                      GTK3G3DUI *gtk3gui,
-                                                                     char      *name );
+                                                                     char      *name,
+                                                                     uint32_t   forKey );
 /**************************** g3duiplaneedit.c ********************************/
 void gtk3_g3duiplaneedit_update ( GTK3G3DUIPLANEEDIT *gtk3ped );
 GTK3G3DUIPLANEEDIT *gtk3_g3duiplaneedit_create ( GtkWidget *parent,

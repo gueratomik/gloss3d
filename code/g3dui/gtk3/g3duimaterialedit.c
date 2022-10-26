@@ -118,7 +118,9 @@ static void channelProceduralSettingsCbk ( GtkWidget *widget,
     char *wname = gtk_widget_get_name ( parent );
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3med->core.gui;
     G3DUI *gui = ( G3DUI * ) gtk3gui;
-    uint32_t channelID = getChannelID ( gtk_widget_get_parent ( widget ) );
+    gint pageID = gtk_notebook_get_current_page ( gtk3med->notebook );
+    GtkWidget *currentPan = gtk_notebook_get_nth_page ( gtk3med->notebook, pageID );
+    uint32_t channelID = getChannelID ( currentPan );
 
     if ( gtk3med->core.gui->lock ) return;
 
@@ -204,7 +206,9 @@ static void channelImageChooseCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3med->core.gui;
     G3DUI *gui = ( G3DUI * ) gtk3gui;
-    uint32_t channelID = getChannelID ( gtk_widget_get_parent ( widget ) );
+    gint pageID = gtk_notebook_get_current_page ( gtk3med->notebook );
+    GtkWidget *currentPan = gtk_notebook_get_nth_page ( gtk3med->notebook, pageID );
+    uint32_t channelID = getChannelID ( currentPan );
     uint64_t ret = 0x00;
 
     if ( gtk3med->core.gui->lock ) return;
@@ -215,26 +219,25 @@ static void channelImageChooseCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static void channelProceduralCbk ( GtkWidget *widget, gpointer user_data ) {
+static void channelProceduralTypeCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3med->core.gui;
     G3DUI *gui = ( G3DUI * ) gtk3gui;
-    gchar *procType = gtk_combo_box_text_get_active_text ( gtk3med->diffuseProcTypeCombo ),
+    gchar *procType = gtk_combo_box_text_get_active_text ( widget ),
           *procRes  = PROCRES512/*gtk_combo_box_text_get_active_text ( gtk3med->diffuseProcResCombo  )*/;
-    uint32_t channelID = getChannelID ( gtk_widget_get_parent ( widget ) );
+    gint pageID = gtk_notebook_get_current_page ( gtk3med->notebook );
+    GtkWidget *currentPan = gtk_notebook_get_nth_page ( gtk3med->notebook, pageID );
+    uint32_t channelID = getChannelID ( currentPan );
     uint64_t ret = 0x00;
 
     if ( gtk3med->core.gui->lock ) return;
 
-     if ( procType ) {
-        ret = g3duimaterialedit_enableProcedural ( &gtk3med->core,
-                                                    channelID );
-
-	    g3duimaterialedit_chooseProcedural ( &gtk3med->core,
-                                              channelID,
-                                              procType, 
-                                              procRes,
-                                              0x01 );
+    if ( procType ) {
+	    ret = g3duimaterialedit_chooseProcedural ( &gtk3med->core,
+                                                    channelID,
+                                                    procType, 
+                                                    procRes,
+                                                    0x01 );
 
         g_free ( procType );
         /*g_free ( procRes  );*/
@@ -250,7 +253,9 @@ static void channelColorCbk ( GtkWidget *widget,  gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     GtkColorChooser *ccr = GTK_COLOR_CHOOSER(widget);
     GdkRGBA color;
-    uint32_t channelID = getChannelID ( gtk_widget_get_parent ( widget ) );
+    gint pageID = gtk_notebook_get_current_page ( gtk3med->notebook );
+    GtkWidget *currentPan = gtk_notebook_get_nth_page ( gtk3med->notebook, pageID );
+    uint32_t channelID = getChannelID ( currentPan );
     uint64_t ret;
 
     /*** prevents a loop ***/
@@ -275,7 +280,9 @@ static void channelEnabledCbk ( GtkWidget *widget,
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3med->core.gui;
     G3DUI *gui = ( G3DUI * ) gtk3gui;
-    uint32_t channelID = getChannelID ( gtk_widget_get_parent ( widget ) );
+    gint pageID = gtk_notebook_get_current_page ( gtk3med->notebook );
+    GtkWidget *currentPan = gtk_notebook_get_nth_page ( gtk3med->notebook, pageID );
+    uint32_t channelID = getChannelID ( currentPan );
     uint64_t ret;
 
     /*** prevents a loop ***/
@@ -292,7 +299,9 @@ static void channelImageCbk ( GtkWidget *widget,
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3med->core.gui;
     G3DUI *gui = ( G3DUI * ) gtk3gui;
-    uint32_t channelID = getChannelID ( gtk_widget_get_parent ( widget ) );
+    gint pageID = gtk_notebook_get_current_page ( gtk3med->notebook );
+    GtkWidget *currentPan = gtk_notebook_get_nth_page ( gtk3med->notebook, pageID );
+    uint32_t channelID = getChannelID ( currentPan );
     uint64_t ret;
 
     /*** prevents a loop ***/
@@ -308,7 +317,9 @@ static void channelSolidCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3med->core.gui;
     G3DUI *gui = ( G3DUI * ) gtk3gui;
-    uint32_t channelID = getChannelID ( gtk_widget_get_parent ( widget ) );
+    gint pageID = gtk_notebook_get_current_page ( gtk3med->notebook );
+    GtkWidget *currentPan = gtk_notebook_get_nth_page ( gtk3med->notebook, pageID );
+    uint32_t channelID = getChannelID ( currentPan );
     uint64_t ret;
 
     /*** prevents a loop ***/
@@ -320,13 +331,27 @@ static void channelSolidCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-static void channelProceduralTypeCbk ( GtkWidget *widget, gpointer user_data ) {
-    channelProceduralCbk ( widget, user_data );
+static void channelProceduralCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3med->core.gui;
+    G3DUI *gui = ( G3DUI * ) gtk3gui;
+    gint pageID = gtk_notebook_get_current_page ( gtk3med->notebook );
+    GtkWidget *currentPan = gtk_notebook_get_nth_page ( gtk3med->notebook, pageID );
+    uint32_t channelID = getChannelID ( currentPan );
+    uint64_t ret;
+
+    /*** prevents a loop ***/
+    if ( gtk3med->core.gui->lock ) return;
+
+    ret = g3duimaterialedit_enableProcedural ( &gtk3med->core,
+                                                channelID );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret | UPDATECURRENTMATERIAL );
 }
 
 /******************************************************************************/
 static void channelProceduralResCbk  ( GtkWidget *widget, gpointer user_data ) {
-    channelProceduralCbk ( widget, user_data );
+
 }
 
 /******************************************************************************/
@@ -549,7 +574,7 @@ static void updateReflectionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
             gtk_combo_box_set_active ( gtk3med->reflectionProcTypeCombo, proc->type );
         }
 
-        gtk_range_set_value ( gtk3med->reflectionStrengthScale, mat->reflection.solid.a );
+        gtk_range_set_value ( gtk3med->reflectionStrengthScale, mat->reflection.solid.a * 100.0f );
 
         if ( mat->reflection.image ) {
             if ( mat->reflection.image->filename ) {

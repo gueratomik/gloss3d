@@ -90,17 +90,23 @@ static void destroyWeightgroupCbk ( GtkWidget *widget,
 static void updateRiggingPanel ( GTK3G3DUIBONEEDIT *gtk3bed ) {
     gtk3bed->core.gui->lock = 0x01;
 
+    gtk_container_foreach ( GTK_CONTAINER ( gtk3bed->weightgroupFixed ),
+                 ( void * ) gtk_widget_destroy,
+                            NULL );
+
     if ( gtk3bed->core.editedBone ) {
         if ( gtk3bed->core.editedBone->obj.type == G3DBONETYPE ) {
             G3DBONE *bon = ( G3DBONE * ) gtk3bed->core.editedBone;
             G3DOBJECT *parent = ((G3DOBJECT*)bon)->parent;
             uint32_t y = 0x00;
 
+            /*** go through every parent mesh ***/
             while ( parent ) {
                 if ( parent->type == G3DMESHTYPE ) {
                     G3DMESH *mes =( G3DMESH * ) parent;
                     G3DSKIN *skn = g3dobject_getChildByType ( mes, 
                                                               G3DSKINTYPE );
+
                     if ( skn ) {
                         LIST *ltmpgrp = mes->lweigrp;
 
@@ -138,10 +144,24 @@ static void updateRiggingPanel ( GTK3G3DUIBONEEDIT *gtk3bed ) {
 
                             y += 24;
 
-
                             ltmpgrp = ltmpgrp->next;
                         }
+                    } else {
+                        char buf[0x100];
+
+                        snprintf ( buf, 0x100, "%s - no Skin modifier found!", mes->obj.name );
+
+                        GtkWidget *lab = ui_createSimpleLabel ( gtk3bed->weightgroupFixed,
+                                                                NULL,
+                                                                buf,
+                                                                CLASS_WARNING,
+                                                                0, 
+                                                                y,
+                                                                308,
+                                                                24 );
+                        y += 24;
                     }
+
                 }
 
                 parent = parent->parent;

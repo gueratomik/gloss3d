@@ -60,8 +60,12 @@ static const gchar *myCSS = {
 ".g3dhighlighted {      \n"
 "    background       : rgba("GRAY5", "GRAY5", "GRAY5", 1); \n"
 "}                           \n"
+".g3dwarning {      \n"
+"    color            : rgba( 255, 0, 0, 1); \n"
+"    background       : rgba("GRAY0", "GRAY0", "GRAY0", 1); \n"
+"}                           \n"
 ".g3dmain, .g3dheader {      \n"
-"    font-weight      : 500; \n"
+
 "    min-height       : 0px; \n"
 "    border-width     : 1px; \n"
 "    border-color     : rgba("GRAY5", "GRAY5", "GRAY5", 1);"

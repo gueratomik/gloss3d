@@ -423,18 +423,21 @@ static gboolean panToolInput ( GtkWidget *widget,
     switch ( gdkev->type ) {
         case GDK_KEY_PRESS : {
             GdkEventKey *kev = ( GdkEventKey * ) gdkev;
+            uint32_t ret = 0x00;
 
             switch ( kev->keyval ) {
                 case GDK_KEY_Delete: {
-                    g3duitimeline_deleteSelectedKeys ( &gtk3tim->core );
+                    ret = g3duitimeline_deleteSelectedKeys ( &gtk3tim->core );
                 } break;
 
                 case GDK_KEY_a: {
                     if ( kev->state & GDK_CONTROL_MASK ) {
-                        g3duitimeline_selectAllKeys ( &gtk3tim->core );
+                        ret = g3duitimeline_selectAllKeys ( &gtk3tim->core );
                     }
                 } break;
             }
+
+            gtk3_interpretUIReturnFlags ( gtk3gui, ret );
         } break;
 
         case GDK_2BUTTON_PRESS : {

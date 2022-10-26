@@ -53,123 +53,184 @@ uint64_t g3duilightedit_setSpecularity ( G3DUILIGHTEDIT *ligedit,
                                             uint32_t        red,
                                             uint32_t        green,
                                             uint32_t        blue ) {
+    if ( ligedit->forKey ) {
+        ligedit->editedLight->specularColor.r = red;
+        ligedit->editedLight->specularColor.g = green;
+        ligedit->editedLight->specularColor.b = blue;
+    } else {
 FOR_EACH_SELECTED_LIGHT
-    lig->specularColor.r = red;
-    lig->specularColor.g = green;
-    lig->specularColor.b = blue;
+        lig->specularColor.r = red;
+        lig->specularColor.g = green;
+        lig->specularColor.b = blue;
 END_FOR
+    }
 
     return REDRAWVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duilightedit_unsetSpot ( G3DUILIGHTEDIT *ligedit ) {
+    if ( ligedit->forKey ) {
+        g3dlight_unsetSpot ( ligedit->editedLight );
+    } else {
 FOR_EACH_SELECTED_LIGHT
-    g3dlight_unsetSpot ( lig );
+        g3dlight_unsetSpot ( lig );
 END_FOR
+    }
 
     return REDRAWVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duilightedit_setSpot ( G3DUILIGHTEDIT *ligedit ) {
+    if ( ligedit->forKey ) {
+        g3dlight_setSpot ( ligedit->editedLight );
+    } else {
 FOR_EACH_SELECTED_LIGHT
-    g3dlight_setSpot ( lig );
+        g3dlight_setSpot ( lig );
 END_FOR
+    }
 
     return REDRAWVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duilightedit_setSpotAngle ( G3DUILIGHTEDIT *ligedit,
-                                          float           spotAngle ) {
+                                       float           spotAngle ) {
+    if ( ligedit->forKey ) {
+        g3dlight_setSpotAngle ( ligedit->editedLight, spotAngle );
+    } else {
 FOR_EACH_SELECTED_LIGHT
-    g3dlight_setSpotAngle ( lig, spotAngle );
+        g3dlight_setSpotAngle ( lig, spotAngle );
 END_FOR
+    }
 
     return REDRAWVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duilightedit_setSpotFadeAngle ( G3DUILIGHTEDIT *ligedit,
-                                              float           spotFadeAngle ) {
+                                           float           spotFadeAngle ) {
+    if ( ligedit->forKey ) {
+        g3dlight_setSpotFadeAngle ( ligedit->editedLight, spotFadeAngle );
+    } else {
 FOR_EACH_SELECTED_LIGHT
-    g3dlight_setSpotFadeAngle ( lig, spotFadeAngle );
+        g3dlight_setSpotFadeAngle ( lig, spotFadeAngle );
 END_FOR
+    }
 
     return REDRAWVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duilightedit_setSpotLength ( G3DUILIGHTEDIT *ligedit,
-                                           float           spotLength ) {
+                                        float           spotLength ) {
+    if ( ligedit->forKey ) {
+        g3dlight_setSpotLength ( ligedit->editedLight, spotLength );
+    } else {
 FOR_EACH_SELECTED_LIGHT
-    g3dlight_setSpotLength ( lig, spotLength );
+        g3dlight_setSpotLength ( lig, spotLength );
 END_FOR
+    }
 
     return REDRAWVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duilightedit_castShadows ( G3DUILIGHTEDIT *ligedit ) {
-FOR_EACH_SELECTED_LIGHT
-    if ( lig->obj.flags & LIGHTCASTSHADOWS ) {
-        lig->obj.flags &= (~LIGHTCASTSHADOWS);
+    if ( ligedit->forKey ) {
+        if ( ligedit->editedLight->obj.flags & LIGHTCASTSHADOWS ) {
+            ligedit->editedLight->obj.flags &= (~LIGHTCASTSHADOWS);
+        } else {
+            ligedit->editedLight->obj.flags |= LIGHTCASTSHADOWS;
+        }
     } else {
-        lig->obj.flags |= LIGHTCASTSHADOWS;
-    }
+FOR_EACH_SELECTED_LIGHT
+        if ( lig->obj.flags & LIGHTCASTSHADOWS ) {
+            lig->obj.flags &= (~LIGHTCASTSHADOWS);
+        } else {
+            lig->obj.flags |= LIGHTCASTSHADOWS;
+        }
 END_FOR
+    }
 
     return REDRAWVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duilightedit_setSoftShadows ( G3DUILIGHTEDIT *ligedit ) {
-FOR_EACH_SELECTED_LIGHT
-    if ( lig->obj.flags & LIGHTHARDSHADOWS ) {
-        lig->obj.flags &= (~LIGHTHARDSHADOWS);
+    if ( ligedit->forKey ) {
+        if ( ligedit->editedLight->obj.flags & LIGHTHARDSHADOWS ) {
+            ligedit->editedLight->obj.flags &= (~LIGHTHARDSHADOWS);
 
-        lig->obj.flags |= LIGHTSOFTSHADOWS;
+            ligedit->editedLight->obj.flags |= LIGHTSOFTSHADOWS;
+        } else {
+            ligedit->editedLight->obj.flags &= (~LIGHTSOFTSHADOWS);
+
+            ligedit->editedLight->obj.flags |= LIGHTHARDSHADOWS;
+        }
     } else {
-        lig->obj.flags &= (~LIGHTSOFTSHADOWS);
+FOR_EACH_SELECTED_LIGHT
+        if ( lig->obj.flags & LIGHTHARDSHADOWS ) {
+            lig->obj.flags &= (~LIGHTHARDSHADOWS);
 
-        lig->obj.flags |= LIGHTHARDSHADOWS;
-    }
+            lig->obj.flags |= LIGHTSOFTSHADOWS;
+        } else {
+            lig->obj.flags &= (~LIGHTSOFTSHADOWS);
+
+            lig->obj.flags |= LIGHTHARDSHADOWS;
+        }
 END_FOR
+    }
 
     return REDRAWVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duilightedit_shadowRadius ( G3DUILIGHTEDIT *ligedit,
-                                          float           shadowRadius ) {
+                                       float           shadowRadius ) {
+    if ( ligedit->forKey ) {
+        ligedit->editedLight->shadowRadius = shadowRadius;
+    } else {
 FOR_EACH_SELECTED_LIGHT
-    lig->shadowRadius = shadowRadius;
+        lig->shadowRadius = shadowRadius;
 END_FOR
+    }
 
     return REDRAWVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duilightedit_shadowSample ( G3DUILIGHTEDIT *ligedit,
-                                          uint32_t        shadowSample ) {
+                                       uint32_t        shadowSample ) {
+    if ( ligedit->forKey ) {
+        ligedit->editedLight->shadowSample = shadowSample;
+    } else {
 FOR_EACH_SELECTED_LIGHT
-    lig->shadowSample = shadowSample;
+        lig->shadowSample = shadowSample;
 END_FOR
+    }
 
     return REDRAWVIEW;
 }
 
 /******************************************************************************/
 uint64_t g3duilightedit_setDiffuse ( G3DUILIGHTEDIT *ligedit,
-                                        uint32_t        red,
-                                        uint32_t        green,
-                                        uint32_t        blue ) {
+                                     uint32_t        red,
+                                     uint32_t        green,
+                                     uint32_t        blue ) {
+    if ( ligedit->forKey ) {
+        ligedit->editedLight->diffuseColor.r = red;
+        ligedit->editedLight->diffuseColor.g = green;
+        ligedit->editedLight->diffuseColor.b = blue;
+
+    } else {
 FOR_EACH_SELECTED_LIGHT
-    lig->diffuseColor.r = red;
-    lig->diffuseColor.g = green;
-    lig->diffuseColor.b = blue;
+        lig->diffuseColor.r = red;
+        lig->diffuseColor.g = green;
+        lig->diffuseColor.b = blue;
 END_FOR
+    }
 
     return REDRAWVIEW;
 }

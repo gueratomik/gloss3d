@@ -181,7 +181,7 @@ GTK3G3DUISPLINEREVOLVEREDIT *gtk3_g3duisplinerevolveredit_create ( GtkWidget *pa
                                                                    GTK3G3DUI *gtk3gui,
                                                                    char      *name ) {
     GTK3G3DUISPLINEREVOLVEREDIT *gtk3sed = gtk3_g3duisplinerevolveredit_new ( gtk3gui );
-    GtkWidget *notebook = gtk_notebook_new ( );
+    GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
 
     gtk3sed->notebook = GTK_NOTEBOOK(notebook);
 

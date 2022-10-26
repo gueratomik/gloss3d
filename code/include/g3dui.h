@@ -246,6 +246,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITKEYLOOP         "Loop from frame"
 #define EDITKEYLOOPFRAME    "EDITKEYLOOPFRAME"
 #define EDITKEYENABLEDATA   "Enable data"
+#define EDITKEYDATA         "Data"
 
 /******************************************************************************/
 
@@ -642,6 +643,7 @@ typedef struct _G3DUI {
 #define CLASS_MAIN              "g3dmain"
 #define CLASS_HIGHLIGHTED       "g3dhighlighted"
 #define CLASS_ENTRY             "g3dentry"
+#define CLASS_WARNING           "g3dwarning"
 #define MENU_CLASS_MAIN         CLASS_MAIN
 #define CLASS_VIEW_MENU_BAR     "view_menu_bar"
 #define CLASS_VIEW_MENU_DEFAULT "view_menu_default"
@@ -736,6 +738,7 @@ typedef struct _G3DUIRENDERWINDOW {
 typedef struct _G3DUILIGHTEDIT {
     G3DUI    *gui;
     uint32_t  multi;
+    uint32_t  forKey;
     G3DLIGHT *editedLight;
 } G3DUILIGHTEDIT;
 
@@ -891,6 +894,7 @@ typedef struct _G3DUIKEYEDIT {
 typedef struct _G3DUIPARTICLEEMITTEREDIT {
     G3DUI              *gui;
     uint32_t            multi;
+    uint32_t            forKey;
     G3DPARTICLEEMITTER *editedPEmitter;
 } G3DUIPARTICLEEMITTEREDIT;
 

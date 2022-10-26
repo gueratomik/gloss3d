@@ -47,7 +47,7 @@
 #define EDITPEMITTERPARTICLELIFETIME       "Lifetime"
 #define EDITPEMITTERPARTICLELIFETIMEVAR    "Lifetime variation"
 #define EDITPEMITTERPARTICLESPERFRAME      "Particles per frame"
-#define EDITPEMITTERMAXPREVIEWS            "Max particles preview"
+#define EDITPEMITTERMAXPREVIEWS            "Max Part. preview"
 #define EDITPEMITTERDISPLAYPARTICULES      "Display particles"
 
 #define EDITPEMITTERACCELX           "Accel. X"
@@ -87,7 +87,8 @@
 #define EDITPEMITTERFINALTRANSPARENCY      "Final transparency"
 
 /******************************************************************************/
-static GTK3G3DUIPARTICLEEMITTEREDIT *gtk3_g3duiparticleemitteredit_new ( GTK3G3DUI *gtk3gui ) {
+static GTK3G3DUIPARTICLEEMITTEREDIT *gtk3_g3duiparticleemitteredit_new ( GTK3G3DUI *gtk3gui,
+                                                                         uint32_t forKey ) {
     GTK3G3DUIPARTICLEEMITTEREDIT *gtk3ped = calloc ( 0x01, sizeof ( GTK3G3DUIPARTICLEEMITTEREDIT ) );
 
     if ( gtk3ped == NULL ) {
@@ -96,8 +97,8 @@ static GTK3G3DUIPARTICLEEMITTEREDIT *gtk3_g3duiparticleemitteredit_new ( GTK3G3D
         return NULL;
     }
 
+    gtk3ped->core.forKey = forKey;
     gtk3ped->core.gui = ( G3DUI * ) gtk3gui;
-
 
 
     return gtk3ped; 
@@ -1014,33 +1015,40 @@ static void updateGeneralPanel ( GTK3G3DUIPARTICLEEMITTEREDIT *gtk3ped ) {
 }
 
 /******************************************************************************/
-void gtk3_g3duiparticleemitteredit_update ( GTK3G3DUIPARTICLEEMITTEREDIT *gtk3ped ) {
+void gtk3_g3duiparticleemitteredit_update ( GTK3G3DUIPARTICLEEMITTEREDIT *gtk3ped,
+                                            G3DPARTICLEEMITTER           *pemitter ) {
     G3DUI *gui = gtk3ped->core.gui;
 
     gui->lock = 0x01;
 
-    if ( gui->sce ) {
-        G3DSCENE *sce = gui->sce;
-        uint32_t nbsel = list_count ( sce->lsel );
+    gtk3ped->core.editedPEmitter = pemitter;
 
-        if ( nbsel ) {
-            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3ped->notebook), TRUE );
+    if ( gtk3ped->core.editedPEmitter == NULL ) {
+         if ( gui->sce ) {
+             G3DSCENE *sce = gui->sce;
+             uint32_t nbsel = list_count ( sce->lsel );
 
-            if ( g3dobjectlist_checkType ( sce->lsel, G3DPARTICLEEMITTERTYPE ) ) {
-                gtk3ped->core.multi = ( nbsel > 0x01 ) ? 0x01 : 0x00;
+             if ( nbsel ) {
+                 gtk_widget_set_sensitive ( GTK_WIDGET(gtk3ped->notebook), TRUE );
 
-                gtk3ped->core.editedPEmitter = ( G3DPARTICLEEMITTER * ) g3dscene_getLastSelected ( sce );
+                 if ( g3dobjectlist_checkType ( sce->lsel, G3DPARTICLEEMITTERTYPE ) ) {
+                     gtk3ped->core.multi = ( nbsel > 0x01 ) ? 0x01 : 0x00;
 
-                if ( gtk3ped->core.editedPEmitter ) {
-                    updateGeneralPanel  ( gtk3ped );
-                    updateInitialPanel  ( gtk3ped );
-                    updateFinalPanel    ( gtk3ped );
-                    updateForcesPanel   ( gtk3ped );
-                }
-            }
-        } else {
-            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3ped->notebook), FALSE );
-        }
+                     gtk3ped->core.editedPEmitter = ( G3DPARTICLEEMITTER * ) g3dscene_getLastSelected ( sce );
+                 }
+             } else {
+                 gtk_widget_set_sensitive ( GTK_WIDGET(gtk3ped->notebook), FALSE );
+             }
+         }
+    }
+
+    if ( gtk3ped->core.editedPEmitter ) {
+         updateGeneralPanel  ( gtk3ped );
+         updateInitialPanel  ( gtk3ped );
+         updateFinalPanel    ( gtk3ped );
+         updateForcesPanel   ( gtk3ped );
+    } else {
+        gtk_widget_set_sensitive ( GTK_WIDGET(gtk3ped->notebook), FALSE );
     }
 
     gui->lock = 0x00;
@@ -1251,15 +1259,16 @@ static void Realize ( GtkWidget *widget,
                       gpointer   user_data ) {
     GTK3G3DUIPARTICLEEMITTEREDIT *gtk3ped = ( GTK3G3DUIPARTICLEEMITTEREDIT * ) user_data;
 
-    gtk3_g3duiparticleemitteredit_update ( gtk3ped );
+    gtk3_g3duiparticleemitteredit_update ( gtk3ped, NULL );
 }
 
 /******************************************************************************/
 GTK3G3DUIPARTICLEEMITTEREDIT *gtk3_g3duiparticleemitteredit_create ( GtkWidget *parent,
                                                                      GTK3G3DUI *gtk3gui,
-                                                                     char      *name ) {
-    GTK3G3DUIPARTICLEEMITTEREDIT *gtk3ped = gtk3_g3duiparticleemitteredit_new ( gtk3gui );
-    GtkWidget *notebook = gtk_notebook_new ( );
+                                                                     char      *name,
+                                                                     uint32_t   forKey ) {
+    GTK3G3DUIPARTICLEEMITTEREDIT *gtk3ped = gtk3_g3duiparticleemitteredit_new ( gtk3gui, forKey );
+    GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
 
     gtk3ped->notebook = GTK_NOTEBOOK(notebook);
 
