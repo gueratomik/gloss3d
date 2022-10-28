@@ -759,6 +759,12 @@ typedef struct _G3DUIFFDEDIT {
 } G3DUIFFDEDIT;
 
 /******************************************************************************/
+typedef struct _G3DUIMORPHERKEYEDIT {
+    G3DUI  *gui;
+    G3DKEY *key;
+} G3DUIMORPHERKEYEDIT;
+
+/******************************************************************************/
 typedef struct _G3DUICOORDINATESEDIT {
     G3DUI *gui;
 } G3DUICOORDINATESEDIT;

@@ -202,6 +202,7 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
                                      sdt->subdiv_level,
                                      SUBDIVISIONCOMPUTE,
                                      sdt->engine_flags );
+
     }
 
     if ( sdt->engine_flags & G3DMULTITHREADING ) {

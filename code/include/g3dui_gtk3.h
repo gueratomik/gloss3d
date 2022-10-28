@@ -490,12 +490,20 @@ typedef struct _GTK3G3DUISPHEREEDIT {
 } GTK3G3DUISPHEREEDIT;
 
 /******************************************************************************/
-typedef struct GTK3G3DUIWIREFRAMEEDIT {
+typedef struct _GTK3G3DUIWIREFRAMEEDIT {
     G3DUIWIREFRAMEEDIT core;
 
     GtkNotebook       *notebook;
     GtkSpinButton     *thicknessEntry;
 } GTK3G3DUIWIREFRAMEEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIMORPHERKEYEDIT {
+    G3DUIMORPHERKEYEDIT core;
+
+    GtkFixed           *fixed;
+    GtkFixed           *poseList;
+} GTK3G3DUIMORPHERKEYEDIT;
 
 /******************************************************************************/
 typedef struct _GTK3G3DUICYLINDEREDIT {
@@ -1240,6 +1248,12 @@ GTK3G3DUIMORPHEREDIT *gtk3_g3duimorpheredit_create ( GtkWidget *parent,
                                                      GTK3G3DUI *gtk3gui,
                                                      char      *name );
 void gtk3_g3duimorpheredit_update ( GTK3G3DUIMORPHEREDIT *gtk3med );
+
+/*************************** g3duimorpherkeyedit.c ****************************/
+GTK3G3DUIMORPHERKEYEDIT *gtk3_g3duimorpherkeyedit_create ( GtkWidget *parent,
+                                                           GTK3G3DUI *gtk3gui,
+                                                           char      *name,
+                                                           G3DKEY    *key );
 
 /************************ g3duiparticleemitter.c ******************************/
 void gtk3_g3duiparticleemitteredit_update ( GTK3G3DUIPARTICLEEMITTEREDIT *gtk3ped,

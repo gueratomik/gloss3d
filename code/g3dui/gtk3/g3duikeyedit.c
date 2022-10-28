@@ -77,7 +77,7 @@ static void editKeyDataCbk ( GtkWidget *widget,
                                            G_CALLBACK (gtk_widget_destroy),
                                            dial);
 
-                gtk_widget_show ( dial );
+                gtk_dialog_run ( dial );
 
                 /* must be called after the realization of the widget */
                 gtk3_g3duilightedit_update ( ledit, keylig );
@@ -107,10 +107,36 @@ static void editKeyDataCbk ( GtkWidget *widget,
                                            G_CALLBACK (gtk_widget_destroy),
                                            dial);
 
-                gtk_widget_show ( dial );
+                gtk_dialog_run ( dial );
 
                 /* must be called after the realization of the widget */
                 gtk3_g3duiparticleemitteredit_update ( pedit, keypem );
+            }
+        }
+
+        if ( obj->type == G3DMORPHERTYPE ) {
+            G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
+
+            if ( obj->lselkey ) {
+                GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
+                GtkWidget *box = gtk_dialog_get_content_area ( dial );
+                G3DKEY *key = obj->lselkey->data;
+
+                GTK3G3DUIMORPHERKEYEDIT *kedit = gtk3_g3duimorpherkeyedit_create ( dial,
+                                                                                   gtk3gui,
+                                                                                   "MORPHERKEYEDIT", 
+                                                                                   key );
+
+                gtk_container_add ( GTK_CONTAINER(box), kedit->fixed );
+
+                gtk_widget_set_size_request ( kedit->fixed, 400, 200 );
+
+                g_signal_connect_swapped ( dial,
+                                           "response",
+                                           G_CALLBACK (gtk_widget_destroy),
+                                           dial);
+
+                gtk_dialog_run ( dial );
             }
         }
     }

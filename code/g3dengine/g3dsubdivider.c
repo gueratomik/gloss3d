@@ -1101,12 +1101,15 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
             sdr->nbrtver = ( mes->nbtri * sdr->nbVerticesPerTriangle ) +
                            ( mes->nbqua * sdr->nbVerticesPerQuad     );
 
-            sdr->nbrtuv  = ( mes->nbtri * sdr->nbVerticesPerTriangle ) +
-                           ( mes->nbqua * sdr->nbVerticesPerQuad     )  * nbuvmap;
+            sdr->nbrtuv  = ( ( mes->nbtri * sdr->nbVerticesPerTriangle ) +
+                             ( mes->nbqua * sdr->nbVerticesPerQuad     ) )  * nbuvmap;
 
             sdr->rtquamem = realloc ( sdr->rtquamem, ( sdr->nbrtfac * sizeof ( G3DRTQUAD   ) ) );
+
             sdr->rtedgmem = realloc ( sdr->rtedgmem, ( sdr->nbrtedg * sizeof ( G3DRTEDGE   ) ) );
+
             sdr->rtvermem = realloc ( sdr->rtvermem, ( sdr->nbrtver * sizeof ( G3DRTVERTEX ) ) );
+
             sdr->rtluim   = realloc ( sdr->rtluim  , ( sdr->nbrtuv  * sizeof ( G3DRTUV     ) ) );
 
             ((G3DMESH*)sdr)->nbuvmap = mes->nbuvmap;
@@ -1124,30 +1127,6 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
 
             g3dsubdivider_setSculptResolution ( sdr,
                                                 sdr->subdiv_preview );
-
-        /*while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-
-            fac->rtquamem = rtquamem;
-            fac->rtedgmem = rtedgmem;
-            fac->rtvermem = rtvermem;
-
-            if ( fac->nbver == 0x04 ) {
-                rtquamem += quaFaces;
-                rtedgmem += quaEdges;
-                rtvermem += quaVertices;
-
-                if ( fac->nbuvs ) fac->rtluim = ( G3DRTUV * ) realloc ( fac->rtluim, quaVertices * fac->nbuvs * sizeof ( G3DRTUV ) );
-            } else {
-                rtquamem += triFaces;
-                rtedgmem += triEdges;
-                rtvermem += triVertices;
-
-                if ( fac->nbuvs ) fac->rtluim = ( G3DRTUV * ) realloc ( fac->rtluim, triVertices * fac->nbuvs * sizeof ( G3DRTUV ) );
-            }
-
-            ltmpfac = ltmpfac->next;
-        }*/
         }
     }
 }
@@ -1208,6 +1187,16 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
             }
 
             if ( op == G3DMODIFYOP_UPDATE ) {
+                /* Note: we alloc buffers here because even though ***/
+                /** the geometry wasnt modified, we may be in a running ***/
+                /** animation where subdiv is forced to 1, hence the need to***/
+                /*** realloc correctly. However it slows everything a bit ***/
+                /*** because of the array traversal (facTab ). ***/
+                /*** TODO: improve or see how to properly get rid of that call*/
+                /*** knowing that the buffers should be large enough as the
+                subdiv level is smaller when playing the animation ***/
+                g3dsubdivider_allocBuffers ( sdr, engine_flags );
+
                 g3dsubdivider_fillBuffers  ( sdr,
                                              sdr->lsubfac, 
                                              engine_flags );

@@ -30,182 +30,302 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-#define LISTLOOP(gpeedit,var,val)                                   \
-    G3DUI *gui = gpeedit->gui;                                      \
-    G3DSCENE *sce = gui->sce;                                       \
-    LIST *ltmpselobj = sce->lsel;                                   \
-                                                                    \
-    while ( ltmpselobj ) {                                          \
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;          \
-                                                                    \
-        if ( sel->type == G3DPARTICLEEMITTERTYPE ) {                \
-            G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) sel; \
-                                                                    \
-            pem->var = val;                                         \
-        }                                                           \
-                                                                    \
-        ltmpselobj = ltmpselobj->next;                              \
+#define FOR_EACH_SELECTED_PARTICLEEMITTER                 \
+    G3DUI *gui = gpeedit->gui;                             \
+    G3DSCENE *sce = gui->sce;                              \
+    LIST *ltmpselobj = sce->lsel;                          \
+                                                           \
+    while ( ltmpselobj ) {                                 \
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data; \
+                                                           \
+        if ( sel->type == G3DPARTICLEEMITTERTYPE ) {                 \
+            G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) sel;            \
+
+
+#define END_FOR                                            \
+        }                                                  \
+                                                           \
+        ltmpselobj = ltmpselobj->next;                     \
     }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_gravityForceX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                     float                     g ) {
+                                                  float                     g ) {
 
-    LISTLOOP(gpeedit, gravity.x, g);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->gravity.x = g;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->gravity.x = g;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_gravityForceY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                     float                     g ) {
-    LISTLOOP(gpeedit, gravity.y, g);
+                                                  float                     g ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->gravity.y = g;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->gravity.y = g;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_gravityForceZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                     float                     g ) {
-
-    LISTLOOP(gpeedit, gravity.z, g);
+                                                  float                     g ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->gravity.z = g;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->gravity.z = g;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialVarTransp ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                        float                     initialVarTransp ) {
-    LISTLOOP(gpeedit, initialVarTransparency, initialVarTransp);
+                                                     float                     initialVarTransp ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialVarTransparency = initialVarTransp;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialVarTransparency = initialVarTransp;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialVarRotX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                      float                     initialVarRotX ) {
-    LISTLOOP(gpeedit, initialVarRotation.x, initialVarRotX);
+                                                   float                     initialVarRotX ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialVarRotation.x = initialVarRotX;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialVarRotation.x = initialVarRotX;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialVarRotY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                      float                     initialVarRotY ) {
-    LISTLOOP(gpeedit, initialVarRotation.y, initialVarRotY);
+                                                   float                     initialVarRotY ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialVarRotation.y = initialVarRotY;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialVarRotation.y = initialVarRotY;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialVarRotZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                      float                     initialVarRotZ ) {
-    LISTLOOP(gpeedit, initialVarRotation.z, initialVarRotZ);
+                                                   float                     initialVarRotZ ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialVarRotation.z = initialVarRotZ;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialVarRotation.z = initialVarRotZ;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialVarScaX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                      float                     initialVarScaX ) {
+                                                   float                     initialVarScaX ) {
 
-    LISTLOOP(gpeedit, initialVarScaling.x, initialVarScaX);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialVarScaling.x = initialVarScaX;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialVarScaling.x = initialVarScaX;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialVarScaY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                      float                     initialVarScaY ) {
-    LISTLOOP(gpeedit, initialVarScaling.y, initialVarScaY);
+                                                   float                     initialVarScaY ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialVarScaling.y = initialVarScaY;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialVarScaling.y = initialVarScaY;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialVarScaZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                      float                     initialVarScaZ ) {
-    LISTLOOP(gpeedit, initialVarScaling.z, initialVarScaZ);
+                                                   float                     initialVarScaZ ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialVarScaling.z = initialVarScaZ;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialVarScaling.z = initialVarScaZ;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialVarSpeedX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                        float                     initialVarSpeedX ) {
-    LISTLOOP(gpeedit, initialVarSpeed.x, initialVarSpeedX);
+                                                     float                     initialVarSpeedX ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialVarSpeed.x = initialVarSpeedX;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialVarSpeed.x = initialVarSpeedX;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialVarSpeedY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                        float                     initialVarSpeedY ) {
-    LISTLOOP(gpeedit, initialVarSpeed.y, initialVarSpeedY);
+                                                     float                     initialVarSpeedY ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialVarSpeed.y = initialVarSpeedY;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialVarSpeed.y = initialVarSpeedY;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialVarSpeedZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                        float                     initialVarSpeedZ ) {
-    LISTLOOP(gpeedit, initialVarSpeed.z, initialVarSpeedZ);
+                                                     float                     initialVarSpeedZ ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialVarSpeed.z = initialVarSpeedZ;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialVarSpeed.z = initialVarSpeedZ;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialVarAccelX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                        float                     initialVarAccelX ) {
-    LISTLOOP(gpeedit, initialVarAccel.x, initialVarAccelX);
+                                                     float                     initialVarAccelX ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialVarAccel.x = initialVarAccelX;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialVarAccel.x = initialVarAccelX;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialVarAccelY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                        float                     initialVarAccelY ) {
-    LISTLOOP(gpeedit, initialVarAccel.y, initialVarAccelY);
+                                                     float                     initialVarAccelY ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialVarAccel.y = initialVarAccelY;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialVarAccel.y = initialVarAccelY;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialVarAccelZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                        float                     initialVarAccelZ ) {
-    LISTLOOP(gpeedit, initialVarAccel.z, initialVarAccelZ);
+                                                     float                     initialVarAccelZ ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialVarAccel.z = initialVarAccelZ;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialVarAccel.z = initialVarAccelZ;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_finalTransp ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                   float                     finalTransp ) {
-    LISTLOOP(gpeedit, finalTransparency, finalTransp);
+                                                float                     finalTransp ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->finalTransparency = finalTransp;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->finalTransparency = finalTransp;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_finalRotX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                 float                     finalRotX ) {
-    LISTLOOP(gpeedit, finalRotation.x, finalRotX);
+                                              float                     finalRotX ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->finalRotation.x = finalRotX;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->finalRotation.x = finalRotX;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_finalRotY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                 float                     finalRotY ) {
-    LISTLOOP(gpeedit, finalRotation.y, finalRotY);
+                                              float                     finalRotY ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->finalRotation.y = finalRotY;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->finalRotation.y = finalRotY;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_finalRotZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                 float                     finalRotZ ) {
-    LISTLOOP(gpeedit, finalRotation.z, finalRotZ);
+                                              float                     finalRotZ ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->finalRotation.z = finalRotZ;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->finalRotation.z = finalRotZ;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -213,7 +333,13 @@ uint64_t g3duiparticleemitteredit_finalRotZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_finalScaX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                  float                     finalScaX ) {
-    LISTLOOP(gpeedit, finalScaling.x, finalScaX);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->finalScaling.x = finalScaX;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->finalScaling.x = finalScaX;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -221,7 +347,13 @@ uint64_t g3duiparticleemitteredit_finalScaX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_finalScaY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                  float                     finalScaY ) {
-    LISTLOOP(gpeedit, finalScaling.y, finalScaY);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->finalScaling.y = finalScaY;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->finalScaling.y = finalScaY;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -229,7 +361,13 @@ uint64_t g3duiparticleemitteredit_finalScaY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_finalScaZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                  float                     finalScaZ ) {
-    LISTLOOP(gpeedit, finalScaling.z, finalScaZ);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->finalScaling.z = finalScaZ;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->finalScaling.z = finalScaZ;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -237,7 +375,13 @@ uint64_t g3duiparticleemitteredit_finalScaZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_finalSpeedX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalSpeedX ) {
-    LISTLOOP(gpeedit, finalSpeed.x, finalSpeedX);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->finalSpeed.x = finalSpeedX;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->finalSpeed.x = finalSpeedX;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -245,7 +389,13 @@ uint64_t g3duiparticleemitteredit_finalSpeedX ( G3DUIPARTICLEEMITTEREDIT *gpeedi
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_finalSpeedY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalSpeedY ) {
-    LISTLOOP(gpeedit, finalSpeed.y, finalSpeedY);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->finalSpeed.y = finalSpeedY;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->finalSpeed.y = finalSpeedY;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -253,7 +403,13 @@ uint64_t g3duiparticleemitteredit_finalSpeedY ( G3DUIPARTICLEEMITTEREDIT *gpeedi
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_finalSpeedZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalSpeedZ ) {
-    LISTLOOP(gpeedit, finalSpeed.z, finalSpeedZ);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->finalSpeed.z = finalSpeedZ;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->finalSpeed.z = finalSpeedZ;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -261,7 +417,13 @@ uint64_t g3duiparticleemitteredit_finalSpeedZ ( G3DUIPARTICLEEMITTEREDIT *gpeedi
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_finalAccelX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalAccelX ) {
-    LISTLOOP(gpeedit, finalAccel.x, finalAccelX);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->finalAccel.x = finalAccelX;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->finalAccel.x = finalAccelX;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -269,7 +431,13 @@ uint64_t g3duiparticleemitteredit_finalAccelX ( G3DUIPARTICLEEMITTEREDIT *gpeedi
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_finalAccelY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalAccelY ) {
-    LISTLOOP(gpeedit, finalAccel.y, finalAccelY);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->finalAccel.y = finalAccelY;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->finalAccel.y = finalAccelY;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -277,7 +445,13 @@ uint64_t g3duiparticleemitteredit_finalAccelY ( G3DUIPARTICLEEMITTEREDIT *gpeedi
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_finalAccelZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     finalAccelZ ) {
-    LISTLOOP(gpeedit, finalAccel.z, finalAccelZ);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->finalAccel.z = finalAccelZ;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->finalAccel.z = finalAccelZ;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -285,7 +459,13 @@ uint64_t g3duiparticleemitteredit_finalAccelZ ( G3DUIPARTICLEEMITTEREDIT *gpeedi
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialTransp ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialTransp ) {
-    LISTLOOP(gpeedit, initialTransparency, initialTransp);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialTransparency = initialTransp;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialTransparency = initialTransp;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -293,7 +473,13 @@ uint64_t g3duiparticleemitteredit_initialTransp ( G3DUIPARTICLEEMITTEREDIT *gpee
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialRotX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialRotX ) {
-    LISTLOOP(gpeedit, initialRotation.x, initialRotX);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialRotation.x = initialRotX;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialRotation.x = initialRotX;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -301,7 +487,13 @@ uint64_t g3duiparticleemitteredit_initialRotX ( G3DUIPARTICLEEMITTEREDIT *gpeedi
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialRotY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialRotY ) {
-    LISTLOOP(gpeedit, initialRotation.y, initialRotY);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialRotation.y = initialRotY;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialRotation.y = initialRotY;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -309,7 +501,13 @@ uint64_t g3duiparticleemitteredit_initialRotY ( G3DUIPARTICLEEMITTEREDIT *gpeedi
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialRotZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialRotZ ) {
-    LISTLOOP(gpeedit, initialRotation.z, initialRotZ);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialRotation.z = initialRotZ;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialRotation.z = initialRotZ;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -317,7 +515,13 @@ uint64_t g3duiparticleemitteredit_initialRotZ ( G3DUIPARTICLEEMITTEREDIT *gpeedi
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialScaX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialScaX ) {
-    LISTLOOP(gpeedit, initialScaling.x, initialScaX);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialScaling.x = initialScaX;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialScaling.x = initialScaX;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -325,13 +529,27 @@ uint64_t g3duiparticleemitteredit_initialScaX ( G3DUIPARTICLEEMITTEREDIT *gpeedi
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialScaY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialScaY ) {
-    LISTLOOP(gpeedit, initialScaling.y, initialScaY);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialScaling.y = initialScaY;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialScaling.y = initialScaY;
+END_FOR
+    }
+
+    return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialScaZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    float                     initialScaZ ) {
-    LISTLOOP(gpeedit, initialScaling.z, initialScaZ);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialScaling.z = initialScaZ;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialScaling.z = initialScaZ;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -339,7 +557,13 @@ uint64_t g3duiparticleemitteredit_initialScaZ ( G3DUIPARTICLEEMITTEREDIT *gpeedi
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialSpeedX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialSpeedX ) {
-    LISTLOOP(gpeedit, initialSpeed.x, initialSpeedX);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialSpeed.x = initialSpeedX;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialSpeed.x = initialSpeedX;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -347,7 +571,13 @@ uint64_t g3duiparticleemitteredit_initialSpeedX ( G3DUIPARTICLEEMITTEREDIT *gpee
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialSpeedY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialSpeedY ) {
-    LISTLOOP(gpeedit, initialSpeed.y, initialSpeedY);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialSpeed.y = initialSpeedY;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialSpeed.y = initialSpeedY;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -355,7 +585,13 @@ uint64_t g3duiparticleemitteredit_initialSpeedY ( G3DUIPARTICLEEMITTEREDIT *gpee
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialSpeedZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialSpeedZ ) {
-    LISTLOOP(gpeedit, initialSpeed.z, initialSpeedZ);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialSpeed.z = initialSpeedZ;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialSpeed.z = initialSpeedZ;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -363,7 +599,13 @@ uint64_t g3duiparticleemitteredit_initialSpeedZ ( G3DUIPARTICLEEMITTEREDIT *gpee
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialAccelX ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialAccelX ) {
-    LISTLOOP(gpeedit, initialAccel.x, initialAccelX);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialAccel.x = initialAccelX;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialAccel.x = initialAccelX;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -371,7 +613,13 @@ uint64_t g3duiparticleemitteredit_initialAccelX ( G3DUIPARTICLEEMITTEREDIT *gpee
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialAccelY ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialAccelY ) {
-    LISTLOOP(gpeedit, initialAccel.y, initialAccelY);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialAccel.y = initialAccelY;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialAccel.y = initialAccelY;
+END_FOR
+    }
 
     return 0x00;
 }
@@ -379,55 +627,55 @@ uint64_t g3duiparticleemitteredit_initialAccelY ( G3DUIPARTICLEEMITTEREDIT *gpee
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_initialAccelZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialAccelZ ) {
-    LISTLOOP(gpeedit, initialAccel.z, initialAccelZ);
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->initialAccel.z = initialAccelZ;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->initialAccel.z = initialAccelZ;
+END_FOR
+    }
 
     return 0x00;
 }
 
-
-
-
-
-
-
-
-
-
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_startAtFrame ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                    uint32_t                  startAtFrame ) {
-    LISTLOOP(gpeedit, startAtFrame, startAtFrame);
+                                                 uint32_t                  startAtFrame ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->startAtFrame = startAtFrame;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->startAtFrame = startAtFrame;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_endAtFrame ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                                  uint32_t                  endAtFrame ) {
-    LISTLOOP(gpeedit, endAtFrame, endAtFrame);
+                                               uint32_t                  endAtFrame ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->endAtFrame = endAtFrame;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->endAtFrame = endAtFrame;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_radius ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
-                                              float                     radius ) {
-    G3DUI *gui = gpeedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
-
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
-
-        if ( sel->type == G3DPARTICLEEMITTERTYPE ) {
-            G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) sel;
-
-            pem->radius = radius;
-        }
-
-        ltmpselobj = ltmpselobj->next;
+                                           float                     radius ) {
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->radius = radius;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->radius = radius;
+END_FOR
     }
-
 
     return 0x00;
 }
@@ -435,24 +683,17 @@ uint64_t g3duiparticleemitteredit_radius ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_lifetime ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                 uint32_t                  lifetime ) {
-    G3DUI *gui = gpeedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->particleLifetime = lifetime;
 
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+        g3dparticleemitter_reset ( gpeedit->editedPEmitter );
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->particleLifetime = lifetime;
 
-        if ( sel->type == G3DPARTICLEEMITTERTYPE ) {
-            G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) sel;
-
-            pem->particleLifetime = lifetime;
-
-            g3dparticleemitter_reset ( pem );
-        }
-
-        ltmpselobj = ltmpselobj->next;
+        g3dparticleemitter_reset ( pem );
+END_FOR
     }
-
 
     return 0x00;
 }
@@ -460,24 +701,17 @@ uint64_t g3duiparticleemitteredit_lifetime ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_ppf ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                            float                     ppf ) {
-    G3DUI *gui = gpeedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->particlesPerFrame = ppf;
 
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
+        g3dparticleemitter_reset ( gpeedit->editedPEmitter );
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->particlesPerFrame = ppf;
 
-        if ( sel->type == G3DPARTICLEEMITTERTYPE ) {
-            G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) sel;
-
-            pem->particlesPerFrame = ppf;
-
-            g3dparticleemitter_reset ( pem );
-        }
-
-        ltmpselobj = ltmpselobj->next;
+        g3dparticleemitter_reset ( pem );
+END_FOR
     }
-
 
     return 0x00;
 }
@@ -485,34 +719,34 @@ uint64_t g3duiparticleemitteredit_ppf ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_maxPreviews ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                    uint32_t                  maxPreviews ) {
-    LISTLOOP(gpeedit, maxPreviewsPerFrame, maxPreviews);
-
+    if ( gpeedit->forKey ) {
+        gpeedit->editedPEmitter->maxPreviewsPerFrame = maxPreviews;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        pem->maxPreviewsPerFrame = maxPreviews;
+END_FOR
+    }
 
     return 0x00;
 }
 
 /******************************************************************************/
 uint64_t g3duiparticleemitteredit_displayPart ( G3DUIPARTICLEEMITTEREDIT *gpeedit ) {
-    G3DUI *gui = gpeedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
-
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
-
-        if ( sel->type == G3DPARTICLEEMITTERTYPE ) {
-            G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) sel;
-
-            if ( pem->obj.flags & DISPLAYPARTICLES ) {
-                pem->obj.flags &= (~DISPLAYPARTICLES);
-            } else {
-                pem->obj.flags |= DISPLAYPARTICLES;
-            }
+    if ( gpeedit->forKey ) {
+        if ( gpeedit->editedPEmitter->obj.flags & DISPLAYPARTICLES ) {
+            gpeedit->editedPEmitter->obj.flags &= (~DISPLAYPARTICLES);
+        } else {
+            gpeedit->editedPEmitter->obj.flags |= DISPLAYPARTICLES;
         }
-
-        ltmpselobj = ltmpselobj->next;
+    } else {
+FOR_EACH_SELECTED_PARTICLEEMITTER
+        if ( pem->obj.flags & DISPLAYPARTICLES ) {
+            pem->obj.flags &= (~DISPLAYPARTICLES);
+        } else {
+            pem->obj.flags |= DISPLAYPARTICLES;
+        }
+END_FOR
     }
-
 
     return REDRAWVIEW;
 }
