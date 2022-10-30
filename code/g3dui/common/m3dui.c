@@ -29,7 +29,12 @@
 #include <config.h>
 #include <g3dui.h>
 
-#define CLEARCOLOR 100
+
+/******************************************************************************/
+void m3dui_init ( M3DUI *mui, G3DUI *gui )  {
+    mui->gui          = gui;
+    mui->engine_flags = VIEWVERTEXUV;
+}
 
 /******************************************************************************/
 G3DCHANNEL *m3dui_getWorkingChannel ( M3DUI *mui ) {
@@ -90,16 +95,16 @@ uint64_t m3dui_setUVMouseTool ( M3DUI          *mui,
         if ( mou->tool->init ) {
             msk = mou->tool->init ( mou->tool, 
                                     gui->sce,
-                                   &mui->cam,
+                                    cam,
                                     gui->urm, 
                                     mui->engine_flags );
         }
 
         if ( ( mou->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
-            gui->curuvmou = mou;
+            mui->curmou = mou;
         }
     } else {
-        gui->curuvmou = NULL;
+        mui->curmou = NULL;
     }
 
 
@@ -404,289 +409,4 @@ uint64_t m3dui_undo ( M3DUI *mui ) {
 /******************************************************************************/
 uint64_t m3dui_redo ( M3DUI *mui ) {
     return g3durmanager_redo ( mui->gui->urm, mui->engine_flags );
-}
-
-/******************************************************************************/
-void m3dui_moveSideward ( M3DUI  *mui, 
-                          int32_t x, 
-                          int32_t y, 
-                          int32_t xold, 
-                          int32_t yold ) {
-    mui->cam.obj.pos.x -= ( ( float ) ( x - xold ) * 0.005f );
-    mui->cam.obj.pos.y += ( ( float ) ( y - yold ) * 0.005f );
-
-    g3dobject_updateMatrix ( ( G3DOBJECT * ) &mui->cam, mui->gui->engine_flags );
-
-    m3dui_setCanevas ( mui );
-}
-
-
-/******************************************************************************/
-void m3dui_moveForward ( M3DUI  *mui, 
-                         int32_t x, 
-                         int32_t xold ) {
-    mui->cam.ortho.z -= ( ( float ) ( x - xold ) * 0.000005f );
-
-    if ( mui->cam.ortho.z < 0.00001f ) mui->cam.ortho.z = 0.00001f;
-
-    mui->cam.ortho.x = mui->cam.ortho.z;
-    mui->cam.ortho.y = mui->cam.ortho.z;
-
-    g3dobject_updateMatrix ( ( G3DOBJECT * ) &mui->cam, mui->gui->engine_flags );
-
-    m3dui_setCanevas ( mui );
-}
-
-/******************************************************************************/
-void m3dui_setCanevas ( M3DUI *mui ) {
-
-}
-
-
-
-/******************************************************************************/
-/* Find the current button ID according to x and y coordinates. This helsp us */
-/* determine which button we are on. We don't use Motif button here because   */
-/* we need to track the mouse after a click, something I think, will be easier*/
-/* to achieve that way. I might be wrong though :-/.                          */
-/******************************************************************************/
-int m3dui_getCurrentButton ( M3DUI *mui,
-                             int x,
-                             int y ) {
-    int i;
-
-    for ( i = 0x00; i < NBUVMAPBUTTON; i++ ) {
-        G3DUIRECTANGLE *rec = &mui->rec[i];
-
-        if ( ( ( x >= rec->x ) && ( x <= ( rec->x + rec->width  ) ) ) &&
-             ( ( y >= rec->y ) && ( y <= ( rec->y + rec->height ) ) ) ) {
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-/******************************************************************************/
-void m3duiview_destroyGL ( M3DUI *mui ) {
-
-}
-
-/******************************************************************************/
-void m3duiview_init ( M3DUI   *mui, 
-                      uint32_t width,
-                      uint32_t height ) {
-    mui->buttonID = -1;
-
-    /*** as we use an identity projection matrix, the coorinates system will ***/
-    /*** be from -1.0f to 1.0f. So we have to move our UVMAP to the center ***/
-    /*** of this coordinates system by shifting it by 0.5f ***/
-    mui->cam.obj.pos.x =  0.5f;
-    mui->cam.obj.pos.y =  0.5f;
-    mui->cam.obj.pos.z =  0.0f;
-
-    mui->cam.obj.rot.x = 0.0f;
-    mui->cam.obj.rot.y = 0.0f;
-    mui->cam.obj.rot.z = 0.0f;
-
-    mui->cam.obj.sca.x = 1.0f;
-    mui->cam.obj.sca.y = 1.0f;
-    mui->cam.obj.sca.z = 1.0f;
-
-    mui->cam.obj.flags |= CAMERAORTHOGRAPHIC;
-	mui->cam.ortho.x = 0.0f;
-    mui->cam.ortho.y = 0.0f;
-    mui->cam.ortho.z = 0.001f;
-    mui->cam.znear   = -1000.0f;
-    mui->cam.zfar    = 1000.0f;
-	
-	mui->cam.obj.name = "UVMapEditor Camera";
-	
-    /*mui->uvurm = g3durmanager_new ( mui->gui->conf.undolevel );*/
-
-    mui->engine_flags = VIEWVERTEXUV;
-
-    g3dobject_updateMatrix ( ( G3DOBJECT * ) &mui->cam, mui->gui->engine_flags );
-
-    /*** projection matrix will never change ***/
-    g3dcore_identityMatrix ( mui->cam.pmatrix );
-}
-
-/******************************************************************************/
-void m3duiview_resize ( M3DUI   *mui, 
-                        uint32_t width, 
-                        uint32_t height ) {
-    int i, xpos = ( width - BUTTONSIZE - M3DPATTERNBOARDWIDTH ), brd = 0x02;
-
-    /*** set rectangle position for each button ***/
-    for ( i = 0x00; i < NBUVMAPBUTTON; i++, xpos = ( xpos - BUTTONSIZE - brd ) ) {
-        mui->rec[i].x      = xpos;
-        mui->rec[i].y      = TOOLBARBUTTONSIZE + 0x20;
-        mui->rec[i].width  = BUTTONSIZE;
-        mui->rec[i].height = BUTTONSIZE - TOOLBARBUTTONSIZE - 0x20;
-    }
-
-    mui->arearec.x      = MODEBARBUTTONSIZE;
-    mui->arearec.y      = M3DMENUBARHEIGHT + M3DTOOLBARHEIGHT + BUTTONSIZE;
-    mui->arearec.width  = width - MODEBARBUTTONSIZE - M3DBOARDWIDTH;
-    mui->arearec.height = height - mui->arearec.y;
-
-    mui->patternrec.x      = mui->arearec.x + mui->arearec.width;
-    mui->patternrec.y      = M3DMENUBARHEIGHT + M3DTOOLBARHEIGHT;
-    mui->patternrec.width  = M3DBOARDWIDTH;
-    mui->patternrec.height = M3DPATTERNBOARDHEIGHT;
-
-
-    mui->fgbgrec.x      = mui->arearec.x + mui->arearec.width + ( M3DPATTERNBOARDWIDTH / 0x02 ) - 0x18;
-    mui->fgbgrec.y      = mui->patternrec.y + mui->patternrec.height;
-    mui->fgbgrec.width  = 0x30;
-    mui->fgbgrec.height = 0x30;
-
-    mui->toolrec.x      = mui->patternrec.x;
-    mui->toolrec.y      = mui->patternrec.y + mui->patternrec.height + 0x30;
-    mui->toolrec.width  = M3DPATTERNBOARDWIDTH;
-    mui->toolrec.height = height - BUTTONSIZE - 0x20 - TOOLBARBUTTONSIZE - M3DPATTERNBOARDHEIGHT - 0x30;
-
-    m3dui_setCanevas ( mui );
-}
-
-/******************************************************************************/
-void m3duiview_showGL ( M3DUI        *mui,
-                        M3DMOUSETOOL *mou,
-                        uint64_t      engine_flags ) {
-    G3DUI *gui = mui->gui;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
-    M3DMOUSETOOL *seltool = ( M3DMOUSETOOL * ) g3dui_getMouseTool ( gui,
-                                                                    SELECTTOOL );
-
-    glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-    if ( obj && ( obj->type & MESH ) ) {
-        G3DMESH *mes = ( G3DMESH * ) obj;
-        G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
-
-        /*** try the first texture in case no texture is selected ***/
-        if ( tex == NULL ) tex = g3dmesh_getDefaultTexture ( mes );
-
-        if ( tex ) {
-            G3DMATERIAL *mat = tex->mat;
-
-            if ( mat ) {
-                uint32_t channelID = GETCHANNEL(engine_flags);
-                G3DCHANNEL *chn = g3dmaterial_getChannelByID(mat,channelID);
-
-                if ( chn ) {
-                    float whRatio = 1.0f;
-
-                    glEnable ( GL_TEXTURE_2D );
-
-                    if ( chn->flags & USEIMAGECOLOR ) {
-                        if ( chn->image ) {
-                            glBindTexture ( GL_TEXTURE_2D, chn->image->id );
-
-                            if ( chn->image->height ) {
-                                whRatio = ( float )  chn->image->width / 
-                                                     chn->image->height;
-                            }
-
-                            /*** disable bilinear filtering ***/
-                            glTexParameteri ( GL_TEXTURE_2D, 
-                                              GL_TEXTURE_MIN_FILTER, 
-                                              GL_NEAREST );
-                            glTexParameteri( GL_TEXTURE_2D, 
-                                             GL_TEXTURE_MAG_FILTER, 
-                                             GL_NEAREST );
-
-                            glMatrixMode(GL_PROJECTION);
-                            glLoadIdentity();
-                            g3dcamera_project ( &mui->cam, 0x00  );
-
-                            glMatrixMode ( GL_MODELVIEW );
-                            glLoadIdentity ( );
-
-                            /*** preserve image aspect ratio ***/
-                            mui->cam.obj.sca.y = whRatio;
-
-                            g3dobject_updateMatrix ( &mui->cam.obj, mui->gui->engine_flags );
-
-                            g3dcamera_view ( &mui->cam, 0x00  );
-
-                            glEnable ( GL_COLOR_MATERIAL );
-                            glColor3ub ( 0xFF, 0xFF, 0xFF );
-
-                            glBegin ( GL_QUADS );
-                            glTexCoord2f ( 0.0f, 0.0f );
-                            glVertex3f   ( 0.0f, 0.0f, 0.0f );
-                            glTexCoord2f ( 1.0f, 0.0f );
-                            glVertex3f   ( 1.0f, 0.0f, 0.0f );
-                            glTexCoord2f ( 1.0f, 1.0f );
-                            glVertex3f   ( 1.0f, 1.0f, 0.0f );
-                            glTexCoord2f ( 0.0f, 1.0f );
-                            glVertex3f   ( 0.0f, 1.0f, 0.0f );
-                            glEnd ( );
-
-                            /*** reenable bilinear filtering ***/
-                            glTexParameteri ( GL_TEXTURE_2D, 
-                                              GL_TEXTURE_MIN_FILTER, 
-                                              GL_NEAREST_MIPMAP_LINEAR );
-                            glTexParameteri( GL_TEXTURE_2D, 
-                                             GL_TEXTURE_MAG_FILTER, 
-                                             GL_LINEAR );
-
-                            glDisable ( GL_TEXTURE_2D );
-
-                            /*glBegin ( GL_LINE_LOOP );
-                            glVertex3f   ( 0.0f, 0.0f, 0.0f );
-                            glVertex3f   ( 1.0f, 0.0f, 0.0f );
-                            glVertex3f   ( 1.0f, 1.0f, 0.0f );
-                            glVertex3f   ( 0.0f, 1.0f, 0.0f );
-                            glEnd ( );*/
-
-                            if ( engine_flags & VIEWVERTEXUV ) g3dmesh_drawVertexUVs ( mes, engine_flags );
-                            if ( engine_flags & VIEWFACEUV   ) g3dmesh_drawFaceUVs   ( mes, engine_flags );
-                        }
-                    }
-
-
-                }
-            }
-        }
-    }
-
-    if ( seltool && ( seltool != mou ) && seltool->gtool.draw ) {
-        seltool->gtool.draw ( seltool, gui->sce, engine_flags );
-    }
-
-    if ( mou && mou->gtool.draw ) {
-        mou->gtool.draw ( mou, gui->sce, engine_flags );
-    }
-}
-
-/******************************************************************************/
-void m3dui_sizeGL ( M3DUI   *mui, 
-                    uint32_t width, 
-                    uint32_t height ) {
-    glViewport ( 0, 0, width, height );
-
-    mui->arearec.width   = width;
-    mui->arearec.height  = height;
-}
-
-/******************************************************************************/
-void m3dui_initGL ( M3DUI *mui ) {
-    float clearColorf = ( float ) CLEARCOLOR / 255.0f;
-
-    /*** Set clear color for the OpenGL Window ***/
-    glClearColor ( clearColorf, clearColorf, clearColorf, 1.0f );
-
-    glDisable ( GL_LIGHTING   );
-    glEnable  ( GL_DEPTH_TEST );
-
-    /*** I still have to understand this below ***/
-    /*** I got it from the almighty Internet for avoiding Z-Fighting ***/
-    glPolygonOffset ( 1.0f, 1.0f );
-    glEnable ( GL_POLYGON_OFFSET_FILL );
-
-    glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL );
-    /*glLightModeli ( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );*/
 }

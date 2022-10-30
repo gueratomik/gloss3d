@@ -32,8 +32,8 @@
 /******************************************************************************/
 uint64_t m3duipentooledit_setIncrementalCbk ( M3DUIPENTOOLEDIT *ptedit, 
                                               uint32_t inc ) {
-    M3DUI *mui = ptedit->mui;
-    M3DMOUSETOOLPEN *pen = ( M3DMOUSETOOL * ) g3dui_getMouseTool ( mui->gui,
+    G3DUI *gui = ptedit->mui->gui;
+    M3DMOUSETOOLPEN *pen = ( M3DMOUSETOOL * ) g3dui_getMouseTool ( gui,
                                                                    PENTOOL );
 
     if ( pen ) {
@@ -44,7 +44,7 @@ uint64_t m3duipentooledit_setIncrementalCbk ( M3DUIPENTOOLEDIT *ptedit,
 /******************************************************************************/
 uint64_t m3duipentooledit_setRadiusCbk ( M3DUIPENTOOLEDIT *ptedit, 
                                          float             radius ) {
-    M3DUI *mui = ptedit->mui;
+    G3DUI *gui = ptedit->mui->gui;
     M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
 
     m3dpattern_resize ( sysinfo->pattern, radius );
@@ -53,8 +53,8 @@ uint64_t m3duipentooledit_setRadiusCbk ( M3DUIPENTOOLEDIT *ptedit,
 /******************************************************************************/
 uint64_t m3duipentooledit_setPressureCbk ( M3DUIPENTOOLEDIT *ptedit, 
                                            float             pressure ) {
-    M3DUI *mui = ptedit->mui;
-    M3DMOUSETOOL *mou = ( M3DMOUSETOOL * ) g3dui_getMouseTool ( mui->gui, 
+    G3DUI *gui = ptedit->mui->gui;
+    M3DMOUSETOOL *mou = ( M3DMOUSETOOL * ) g3dui_getMouseTool ( gui, 
                                                                 PENTOOL );
 
     if ( mou ) {

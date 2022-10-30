@@ -68,11 +68,14 @@ if HAVE_GTK3
                             common/mousetool/g3duipicktooledit.c \
                             common/mousetool/g3duisculpttooledit.c \
                             common/m3dui.c \
+                            common/m3duimain.c \
+                            common/m3duiview.c \
                             gtk3/g3dui.c \
                             gtk3/g3duiboard.c \
                             gtk3/g3duiboneedit.c \
                             gtk3/g3duicameraedit.c \
                             gtk3/g3duicom.c \
+                            gtk3/g3duicoordinatesedit.c \
                             gtk3/g3duicubeedit.c \
                             gtk3/g3duicylinderedit.c \
                             gtk3/g3duiffdedit.c \
@@ -128,6 +131,9 @@ if HAVE_GTK3
                             gtk3/mousetool/g3duicutmeshtooledit.c \
                             gtk3/mousetool/g3duipicktooledit.c \
                             gtk3/mousetool/g3duisculpttooledit.c \
+                            gtk3/m3dui.c \
+                            gtk3/m3duimain.c \
+                            gtk3/m3duiview.c \
                             gtk3/css/default.c
 endif
 

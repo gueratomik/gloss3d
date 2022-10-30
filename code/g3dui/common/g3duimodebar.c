@@ -38,6 +38,7 @@
 #include <xpm/uvwmapmode.xpm>
 #include <xpm/sculptmode.xpm>
 
+#ifdef unused
 /******************************************************************************/
 uint64_t m3duimodebar_setMode ( M3DUIMODEBAR *mmb, 
                                    const char   *modename ) {
@@ -50,6 +51,7 @@ uint64_t m3duimodebar_setMode ( M3DUIMODEBAR *mmb,
 
     mui->engine_flags = ( curflags | newmode );
 }
+#endif
 
 /******************************************************************************/
 uint64_t g3duimodebar_setMode ( G3DUIMODEBAR *gmb,

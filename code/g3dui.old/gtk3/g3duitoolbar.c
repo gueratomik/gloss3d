@@ -475,7 +475,7 @@ GtkWidget *createToolBar ( GtkWidget *parent, G3DUI *gui,
 
     addToolbarAxis ( bar, gui );
 
-    gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(bar), 0 );
+    gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(bar), TRUE );
 
     gtk_fixed_put ( GTK_FIXED(parent), bar, x, y );
 

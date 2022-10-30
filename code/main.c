@@ -157,7 +157,7 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 #ifdef WITH_GTK3
     GtkWidget *window, *glossui;
     GtkWidget *button;
-    GTK3G3DUI gtk3gui;
+    GTK3G3DUI gtk3gui; /**** Gloss3D ****/
     GTK3G3DUIMAIN *gtk3main;
 
     memset ( &gtk3gui, 0x00, sizeof ( GTK3G3DUI ) );
@@ -169,7 +169,7 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     gtk_init ( &argc, &argv );
 
-    window  = ui_gtk_window_new ( CLASS_MAIN, GTK_WINDOW_TOPLEVEL);
+    window  = ui_gtk_window_new ( CLASS_MAIN, GTK_WINDOW_TOPLEVEL );
 
     /*** Drawing area does not receive mous events by defaults ***/
     /*gtk_widget_set_events ( window, 

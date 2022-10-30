@@ -169,10 +169,15 @@ static void runLIPS3DCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUITEXTUREEDIT *gtk3ted = ( GTK3G3DUITEXTUREEDIT * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3ted->core.gui;
     GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
-#ifdef TODO
-    createUVMapEditor ( dial, gui, "LIPS3D", 1024, 576 );
-#endif
-    gtk_widget_show ( dial );
+    /**** MakeUP 3D. Declared static on purpose ***/
+
+    if ( gtk3gui->core.mui == NULL ) {
+        gtk3gui->core.mui = gtk3_m3dui_create ( gtk3gui );
+    }
+
+
+    gtk3_m3dui_display ( gtk3gui->core.mui );
+
     gtk_widget_destroy ( gtk_widget_get_toplevel ( widget ) );
 }
 

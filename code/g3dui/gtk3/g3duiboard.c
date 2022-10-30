@@ -72,11 +72,23 @@ static void gtk3_g3duiboard_createToolBook ( GTK3G3DUIBOARD *gtk3board ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3board->core.gui;
     GtkNotebook  *toolbook = ui_gtk_notebook_new ( CLASS_MAIN );
     GtkWidget *moulab = ui_gtk_label_new ( CLASS_MAIN, "Mouse Tool" );
+    GtkWidget *coordslab = ui_gtk_label_new ( CLASS_MAIN, "Coordinates" );
     GTK3G3DUIMOUSETOOLEDIT *gtk3mtledit;
+    GTK3G3DUICOORDINATESEDIT *gtk3coordsedit;
 
     gtk_layout_put ( GTK_LAYOUT(gtk3board->layout), toolbook, 0, 0 );
 
     gtk3board->toolbook = toolbook;
+
+    /*************** Coordinates *****************/
+    gtk3coordsedit = gtk3_g3duicoordinatesedit_create ( toolbook, 
+                                                        gtk3gui,
+                                                        "Coordinates" );
+
+    gtk_notebook_append_page ( GTK_NOTEBOOK(toolbook), gtk3coordsedit->fixed, coordslab );
+
+    gtk3board->core.coordsedit = gtk3coordsedit;
+
 
     /**************** Mouse tool **************/
     gtk3mtledit = gtk3_g3duimousetooledit_create ( toolbook, 
@@ -86,6 +98,7 @@ static void gtk3_g3duiboard_createToolBook ( GTK3G3DUIBOARD *gtk3board ) {
     gtk_notebook_append_page ( GTK_NOTEBOOK(toolbook), gtk3mtledit->scrolled, moulab );
 
     gtk3board->core.mtledit = gtk3mtledit;
+
 
 
     gtk_widget_show ( toolbook );

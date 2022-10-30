@@ -215,17 +215,6 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define EDITOBJECT     "Edit Object"
 #define EDITOBJECTNAME "Object Name"
 
-#define EDITXPOSITION "EDITXPOSITION"
-#define EDITYPOSITION "EDITYPOSITION"
-#define EDITZPOSITION "EDITZPOSITION"
-#define EDITXROTATION "EDITXROTATION"
-#define EDITYROTATION "EDITYROTATION"
-#define EDITZROTATION "EDITZROTATION"
-#define EDITXSCALING  "EDITXSCALING"
-#define EDITYSCALING  "EDITYSCALING"
-#define EDITZSCALING  "EDITZSCALING"
-#define EDITABSOLUTE  "Absolute"
-
 /*************************** Key Edit Widget constants ************************/
 
 #define EDITKEYTRANSLATION  "Translation"
@@ -261,16 +250,6 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 
 /**** Widget names for LightEdit TextField widget ***/
 #define EDITLIGHT                  "Light"
-
-
-
-
-
-/**** Widget names for Pick Tool widget ***/
-
-
-/**** Widget names for Cut Mesh Tool widget ***/
-
 
 /**** Widget names for BoneEdit TextField widget ***/
 #define EDITBONE            "Bone"
@@ -457,8 +436,8 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define RWMENU_SAVEPNG           "Save as PNG"
 #define RWMENU_CLOSE             "Close window"
 
-#define RWMENU_VIEW_FIT  "Fit to window"
-#define RWMENU_VIEW_FULL "Full size"
+#define RWMENU_VIEW_FIT          "Fit to window"
+#define RWMENU_VIEW_FULL         "Full size"
 
 #define VIEWMENU_LIGHTING        "Lights on"
 #define VIEWMENU_BACKGROUND      "Show background"
@@ -488,6 +467,7 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define CLIPBOARDCOPYFACESCULPT 0x03
 
 /******************************************************************************/
+typedef struct _G3DUI G3DUI;
 typedef struct _M3DUI M3DUI;
 typedef struct _G3DUIRENDERPROCESS G3DUIRENDERPROCESS;
 typedef struct _G3DUIRENDERBUFFER G3DUIRENDERBUFFER;
@@ -543,88 +523,174 @@ typedef struct _G3DUISEGMENT {
 typedef struct _G3DUIMENU         G3DUIMENU;
 typedef struct _G3DUIVIEW         G3DUIVIEW;
 typedef struct _G3DUIMODEBAR      G3DUIMODEBAR;
+typedef struct _G3DUITOOLBAR      G3DUITOOLBAR;
 typedef struct _G3DUIQUAD         G3DUIQUAD;
 typedef struct _G3DUIMAIN         G3DUIMAIN;
 typedef struct _G3DUIBOARD        G3DUIBOARD;
 typedef struct _G3DUIRENDERWINDOW G3DUIRENDERWINDOW;
 typedef struct _G3DUIMOUSETOOL    G3DUIMOUSETOOL;
 
-/********************************* G3DUI **************************************/
-typedef struct _G3DUI {
-    G3DUIMOUSETOOL *curmou; /*** current mouse tool ***/
-    G3DUIMOUSETOOL *curuvmou; /*** current mouse tool for UV editor ***/
-    G3DUICLIPBOARD *cli;
-    G3DSCENE     *sce;
-    G3DUICONF     conf;
-    uint64_t      engine_flags;
+typedef struct _M3DUIMODEBAR      M3DUIMODEBAR;
+typedef struct _M3DUITOOLBAR      M3DUITOOLBAR;
+typedef struct _M3DUIBOARD        M3DUIBOARD;
 
-    /* context menus for all objects */
-    LIST         *lObjectModeMenu;
-    /* context menus for meshes */
-    LIST         *lVertexModeMeshMenu;
-    LIST         *lEdgeModeMeshMenu;
-    LIST         *lFaceModeMeshMenu;
-    LIST         *lSculptModeMeshMenu;
-    /* context menu for splines */
-    LIST         *lVertexModeSplineMenu;
-    /* context menu for morphers */
-    LIST         *lVertexModeMorpherMenu;
+#define NBVIEWBUTTON 0x04
 
-    G3DUIMENU *objectModeMenu;
-    G3DUIMENU *vertexModeMeshMenu;
-    G3DUIMENU *edgeModeMeshMenu;
-    G3DUIMENU *faceModeMeshMenu;
-    G3DUIMENU *sculptModeMeshMenu;
-    G3DUIMENU *vertexModeSplineMenu;
-    G3DUIMENU *vertexModeMorpherMenu;
+/******************************************************************************/
+typedef struct _M3DUIVIEW {
+    M3DUI          *mui;
+    G3DUIRECTANGLE pixrec[NBVIEWBUTTON];       /*** pixmaps position ***/
+    G3DUIRECTANGLE glrec;
+    G3DUIRECTANGLE optrec;
+    G3DUIRECTANGLE shdrec;
+    G3DUIRECTANGLE navrec;
+    G3DUIRECTANGLE menurec;
+    int32_t        pressedButtonID; /**** Currently clicked button = -1 if none ***/
+    G3DCAMERA      cam;
+    G3DVECTOR      defcampos; /*** Default camera position ***/
+    G3DVECTOR      defcamrot; /*** Default camera rotation ***/
+    G3DVECTOR      defcamsca; /*** Default camera scaling  ***/
+    float          defcamfoc; /*** Default camera focal    ***/
 
+    void         (*grid)( uint64_t );
+#ifdef __linux__
+    Display       *dpy;
+    Window         win;
+    GLXContext     glctx;
+    pthread_t      render_tid; /*** current rendering thread - Used for canceling***/
+#endif
+#ifdef __MINGW32__
+    HWND           hWnd
+    HGLRC          glctx;
+    HANDLE         render_tid;
+#endif
+    G3DUIMENU        *menuBar;
+} M3DUIVIEW;
 
-    LIST         *limg; /*** List of images (among them are textures) ***/
-    LIST         *lrps; /*** list of render process ***/
-    LIST         *lmou; /*** list of mousetools ***/
-    LIST         *lselmat;
-    /*G3DMATERIAL   *selmat;*/
-    G3DURMANAGER  *urm;
-    /*R3DNETSERVER  *srv;
-    R3DNETCLIENT  *clt;*/
+/******************************************************************************/
+typedef struct _M3DUITOOLBAR {
+    M3DUI          *mui;
+} M3DUITOOLBAR;
+
+/******************************************************************************/
+typedef struct _M3DUIMODEBAR {
+    M3DUI          *mui;
+} M3DUIMODEBAR;
+
+/******************************************************************************/
+typedef struct _M3DUIBOARD {
+    M3DUI          *mui;
+} M3DUIBOARD;
+
+/******************************************************************************/
+typedef struct _M3DUIMAIN {
+    M3DUI          *mui;
+
+    G3DUIMENU      *menuBar;
+
+    M3DUIMODEBAR   *modeBar;
+    M3DUITOOLBAR   *toolBar;
+    M3DUIVIEW      *view;
+    M3DUIBOARD     *board;
+
     G3DUIRECTANGLE  menurec;
     G3DUIRECTANGLE  tbarrec;
     G3DUIRECTANGLE  mbarrec;
     G3DUIRECTANGLE  mbrdrec;
     G3DUIRECTANGLE  proprec;
-    G3DUIRECTANGLE  quadrec;
-    G3DUIRECTANGLE  timerec;
-    G3DUIRECTANGLE  inforec;
-    G3DCAMERA     **defaultCameras;
+    G3DUIRECTANGLE  viewrec;
+
+    uint32_t        inited;
+} M3DUIMAIN;
+
+/******************************************************************************/
+typedef struct _M3DUI {
+    G3DUI          *gui;
+    uint32_t        mode;
+    char           *mask;
+    char           *zbuffer;
+    M3DPATTERN     *selpat;
+    G3DUIMOUSETOOL *curmou; /*** current mouse tool for UV editor ***/
+    uint64_t        engine_flags;
+
+    M3DUIMAIN      *main;
+} M3DUI;
+
+/********************************* G3DUI **************************************/
+typedef struct _G3DUI {
+    G3DUIMOUSETOOL    *curmou; /*** current mouse tool ***/
+
+    G3DUICLIPBOARD    *cli;
+    G3DSCENE          *sce;
+    G3DUICONF          conf;
+    uint64_t           engine_flags;
+
+    /* context menus for all objects */
+    LIST              *lObjectModeMenu;
+    /* context menus for meshes */
+    LIST              *lVertexModeMeshMenu;
+    LIST              *lEdgeModeMeshMenu;
+    LIST              *lFaceModeMeshMenu;
+    LIST              *lSculptModeMeshMenu;
+    /* context menu for splines */
+    LIST              *lVertexModeSplineMenu;
+    /* context menu for morphers */
+    LIST             *lVertexModeMorpherMenu;
+
+    G3DUIMENU         *objectModeMenu;
+    G3DUIMENU         *vertexModeMeshMenu;
+    G3DUIMENU         *edgeModeMeshMenu;
+    G3DUIMENU         *faceModeMeshMenu;
+    G3DUIMENU         *sculptModeMeshMenu;
+    G3DUIMENU         *vertexModeSplineMenu;
+    G3DUIMENU         *vertexModeMorpherMenu;
+
+
+    LIST              *limg; /*** List of images (among them are textures) ***/
+    LIST              *lrps; /*** list of render process ***/
+    LIST              *lmou; /*** list of mousetools ***/
+    LIST              *lselmat;
+
+    G3DURMANAGER      *urm;
+    G3DUIRECTANGLE     menurec;
+    G3DUIRECTANGLE     tbarrec;
+    G3DUIRECTANGLE     mbarrec;
+    G3DUIRECTANGLE     mbrdrec;
+    G3DUIRECTANGLE     proprec;
+    G3DUIRECTANGLE     quadrec;
+    G3DUIRECTANGLE     timerec;
+    G3DUIRECTANGLE     inforec;
+    G3DCAMERA        **defaultCameras;
 #ifdef __linux__
-    GLXContext     sharedCtx; /* shared context for textures */
-    pthread_t      playthreadid;
+    GLXContext         sharedCtx; /* shared context for textures */
+    pthread_t          playthreadid;
 #endif
 #ifdef __MINGW32__
-    HGLRC          sharedCtx; /* shared context for textures */
-    HANDLE         playthreadid;
-    COMPVARS       cvars;
+    HGLRC              sharedCtx; /* shared context for textures */
+    HANDLE             playthreadid;
+    COMPVARS           cvars;
 #endif
-    LIST *lrsg; /*** list of render settings ***/
-    Q3DSETTINGS *currsg; /*** current render settings ***/
-    char *filename;
-    int lock; /*** I use this for preventing loops on XmText fields ***/
-    char *loadFile;
-    void *toolkit_data; /*** Toolkit related data that cant be shared ***/
-    float startframe;
-    float curframe;   /*** used by g3duitimeboard.c/play_t() ***/
-    float endframe;
-    int32_t fps;
-    uint32_t playLock;
-    LIST *lexportExtensions; /* list of G3DEXPORTEXTENSION */
-    Q3DFILTER *toframe;
-    uint32_t   inited;
+    LIST              *lrsg; /*** list of render settings ***/
+    Q3DSETTINGS       *currsg; /*** current render settings ***/
+    char              *filename;
+    int                lock; /*** I use this for preventing loops on XmText fields ***/
+    char              *loadFile;
+    float              startframe;
+    float              curframe;   /*** used by g3duitimeboard.c/play_t() ***/
+    float              endframe;
+    int32_t            fps;
+    uint32_t           playLock;
+    LIST              *lexportExtensions; /* list of G3DEXPORTEXTENSION */
+    Q3DFILTER         *toframe;
+    uint32_t           inited;
 
-    /*** GUI toolkit extends the following data ***/
-    G3DUIVIEW    *currentView;
-    G3DUIMAIN    *main;
+    G3DUIVIEW         *currentView;
+    LIST              *lview;
+
+    G3DUIMAIN         *main;
     G3DUIRENDERWINDOW *renderWindow;
-    LIST         *lview;
+
+    M3DUI             *mui;
 } G3DUI;
 
 /******************************************************************************/
@@ -1033,12 +1099,13 @@ typedef struct _G3DUIMOUSETOOLEDIT {
 
 /******************************************************************************/
 typedef struct _G3DUIBOARD {
-    G3DUI              *gui;
-    G3DUIRECTANGLE      boardrec;
-    G3DUIRECTANGLE      toolrec;
-    G3DUIMATERIALBOARD *matboard;
-    G3DUIOBJECTBOARD   *objboard;
-    G3DUIMOUSETOOLEDIT *mtledit;
+    G3DUI                *gui;
+    G3DUIRECTANGLE        boardrec;
+    G3DUIRECTANGLE        toolrec;
+    G3DUIMATERIALBOARD   *matboard;
+    G3DUIOBJECTBOARD     *objboard;
+    G3DUIMOUSETOOLEDIT   *mtledit;
+    G3DUICOORDINATESEDIT *coordsedit;
 } G3DUIBOARD;
 
 /******************************************************************************/
@@ -1047,13 +1114,8 @@ typedef struct _G3DUIMODEBAR {
 } G3DUIMODEBAR;
 
 /******************************************************************************/
-typedef struct _M3DUIMODEBAR {
-    M3DUI *mui;
-} M3DUIMODEBAR;
-
-/******************************************************************************/
 typedef struct _M3DUIBUCKETTOOLEDIT {
-    M3DUI *mui;
+    G3DUI *gui;
 } M3DUIBUCKETTOOLEDIT;
 
 /******************************************************************************/
@@ -1218,7 +1280,7 @@ typedef struct _G3DUIQUAD {
 
 
 /************************** View Widget Structure *****************************/
-#define NBVIEWBUTTON    0x04
+
 #define BUTTONSIZE      0x10 /*** 16x16 ***/
 
 #define MAXIMIZEBUTTON  0x03
@@ -1274,6 +1336,7 @@ typedef struct _G3DUIVIEW {
 #define UVMAPTRANSLATEBUTTON 0x00
 #define UVMAPZOOMBUTTON      0x01
 
+#ifdef unused
 typedef struct _M3DUI {
     uint64_t       engine_flags;
     G3DUIRECTANGLE rec[NBUVMAPBUTTON];       /*** pixmaps position ***/
@@ -1300,6 +1363,7 @@ typedef struct _M3DUI {
     M3DPATTERN    *selpat;
     LIST         *lmtools; /*** list of mousetools widget ***/
 } M3DUI;
+#endif
 
 /*************************** List widget Structures ***************************/
 #define LISTINDENT 0x10
@@ -2284,19 +2348,36 @@ Q3DFILTER *q3dfilter_preview_new ( G3DUI *gui );
 
 
 /********************************* M3DUI **************************************/
-uint64_t m3dui_redo ( M3DUI *mui );
-uint64_t m3dui_undo ( M3DUI *mui );
-uint64_t m3dui_fillWithColor ( M3DUI   *mui, 
-                               uint32_t color );
-uint64_t m3dui_fac2uvset ( M3DUI *mui );
-uint64_t m3dui_uv2ver ( M3DUI *mui );
-uint64_t m3dui_ver2uv ( M3DUI *mui );
-uint64_t m3dui_uvset2fac ( M3DUI *mui );
-G3DCHANNEL *m3dui_getWorkingChannel ( M3DUI *mui );
-void m3dui_resizeBuffers ( M3DUI *mui );
-void m3dui_setCanevas ( M3DUI *mui );
-void m3duiview_showGL ( M3DUI        *mui,
-                        M3DMOUSETOOL *mou,
+void m3dui_init ( M3DUI *mui, G3DUI *gui );
+
+
+/******************************* m3duiview.c **********************************/
+void m3duiview_initGL ( M3DUIVIEW *view );
+void m3duiview_sizeGL ( M3DUIVIEW *view, 
+                        uint32_t   width, 
+                        uint32_t   height );
+void m3duiview_showGL ( M3DUIVIEW    *view,
                         uint64_t      engine_flags );
+
+void m3duiview_resize ( M3DUIVIEW *view, 
+                        uint32_t   width, 
+                        uint32_t   height,
+                        uint32_t   menuHeight );
+void m3duiview_init ( M3DUIVIEW *view, 
+                      uint32_t   width,
+                      uint32_t   height );
+void m3duiview_releaseButton ( M3DUIVIEW *view );
+void m3duiview_pressButton ( M3DUIVIEW *view, 
+                             int        x,
+                             int        y );
+void m3duiview_destroyGL ( M3DUIVIEW *view );
+void m3duiview_moveForward ( M3DUIVIEW *view, 
+                             int32_t    x, 
+                             int32_t    xold );
+void m3duiview_moveSideward ( M3DUIVIEW *view, 
+                              int32_t    x, 
+                              int32_t    y, 
+                              int32_t    xold, 
+                              int32_t    yold );
 
 #endif

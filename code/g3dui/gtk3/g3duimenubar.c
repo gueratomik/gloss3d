@@ -456,25 +456,6 @@ static void menuItemCallback ( GtkWidget *widget,
         gtk3_interpretUIReturnFlags ( gtk3gui, ret );
     }
 
-    /**** custom treatment ***/
-    /*if ( gtk3node->core.name ) {
-        if ( strcmp ( gtk3node->core.name, RWMENU_VIEW_FIT ) == 0x00 ) {
-            GTK3G3DUIRENDERWINDOW *gtk3rwin = ( GTK3G3DUIRENDERWINDOW * ) gtk3node->core.data;
-
-            gtk3_g3duirenderwindow_resize ( gtk3rwin,
-                                            gtk_widget_get_allocated_width  ( gtk3rwin->layout ),
-                                            gtk_widget_get_allocated_height ( gtk3rwin->layout ) );
-        }
-
-        if ( strcmp ( gtk3node->core.name, RWMENU_VIEW_FULL ) == 0x00 ) {
-            GTK3G3DUIRENDERWINDOW *gtk3rwin = ( GTK3G3DUIRENDERWINDOW * ) gtk3node->core.data;
-
-            gtk3_g3duirenderwindow_resize ( gtk3rwin,
-                                            gtk_widget_get_allocated_width  ( gtk3rwin->layout ),
-                                            gtk_widget_get_allocated_height ( gtk3rwin->layout ) );
-        }
-    }*/
-
     gtk3_unsetHourGlass ( gtk3gui );
 }
 

@@ -206,51 +206,6 @@ static void zAxisCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-GtkWidget *addToolBarRadioButton ( GtkWidget   *bar,
-                                   GtkWidget   *grp,
-                                   void        *data,
-                                   char        *name,
-                                   const char **xpm_data,
-                                   void      ( *cbk ) ( GtkWidget *, 
-                                                        gpointer ) ) {
-    /*GtkIconTheme *icon_theme = gtk_icon_theme_get_default ( );*/
-    GtkWidget *btn = (GtkWidget*) gtk_radio_tool_button_new_from_widget ( GTK_RADIO_TOOL_BUTTON(grp) );
-
-    gtk_widget_set_name ( btn, name );
-
-    gtk_widget_set_size_request ( btn, TOOLBARBUTTONSIZE, TOOLBARBUTTONSIZE );
-
-    if ( xpm_data ) {
-        GdkPixbuf *xpm_img = gdk_pixbuf_new_from_xpm_data ( xpm_data );
-
-        /*** Some trick so that the button fits exactly ***/
-        /*xpm_img = gdk_pixbuf_new_subpixbuf ( xpm_img, 0x03, 
-                                                      0x03, 
-                                                      TOOLBARBUTTONSIZE - 0x06, 
-                                                      TOOLBARBUTTONSIZE - 0x06 );*/
-
-        if ( xpm_img ) {
-            GtkWidget *xpm_wid = gtk_image_new_from_pixbuf ( xpm_img );
-
-            gtk_widget_show ( xpm_wid );
-
-            gtk_tool_button_set_icon_widget ( GTK_TOOL_BUTTON(btn), xpm_wid );
-        }
-    }
-
-    if ( cbk ) {
-        g_signal_connect ( btn, "toggled", G_CALLBACK (cbk), data );
-    }
-
-    gtk_toolbar_insert ( GTK_TOOLBAR(bar), GTK_TOOL_ITEM(btn), -1 );
-
-    gtk_widget_show ( btn );
-
-
-    return btn;
-}
-
-/******************************************************************************/
 GtkWidget *addToolBarToggleButton ( GtkWidget   *bar,
                                     void        *data,
                                     char        *name,

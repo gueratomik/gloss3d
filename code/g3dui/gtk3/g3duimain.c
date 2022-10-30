@@ -158,8 +158,6 @@ void gtk3_g3duimain_resize ( GTK3G3DUIMAIN *gtk3main,
         gtk_widget_set_size_request ( gtk3toolBar->bar,
                                       gdkrec.width,
                                       gdkrec.height );
-
-        /*gtk_widget_size_allocate ( gtk3toolBar->bar, &gdkrec );*/
     }
 
     if ( gtk3menuBar ) {
@@ -173,8 +171,6 @@ void gtk3_g3duimain_resize ( GTK3G3DUIMAIN *gtk3main,
         gtk_widget_set_size_request ( gtk3menuBar->menu,
                                       gdkrec.width,
                                       gdkrec.height );
-
-        /*gtk_widget_size_allocate ( gtk3menuBar->menu, &gdkrec );*/
     }
 
     if ( gtk3modeBar ) {
@@ -188,8 +184,6 @@ void gtk3_g3duimain_resize ( GTK3G3DUIMAIN *gtk3main,
         gtk_widget_set_size_request ( gtk3modeBar->bar,
                                       gdkrec.width,
                                       gdkrec.height );
-
-        /*gtk_widget_size_allocate ( gtk3modeBar->bar, &gdkrec );*/
     }
 
     if ( gtk3quad ) {
@@ -205,8 +199,6 @@ void gtk3_g3duimain_resize ( GTK3G3DUIMAIN *gtk3main,
         gtk_widget_set_size_request ( gtk3quad->layout,
                                       gdkrec.width,
                                       gdkrec.height );
-
-        /*gtk_widget_size_allocate ( gtk3quad->layout, &gdkrec );*/
     }
 
     if ( gtk3board ) {
@@ -245,122 +237,12 @@ void gtk3_g3duimain_resize ( GTK3G3DUIMAIN *gtk3main,
 }
 
 /******************************************************************************/
-/*static void SizeAllocate ( GtkWidget     *widget,
-                           GtkAllocation *allocation,
-                           gpointer       user_data ) {*/
-static gboolean SizeAllocate ( GtkWidget        *self,
-                               GdkEventConfigure event,
-                               gpointer          user_data ) {
-    GTK3G3DUIMAIN    *gtk3main    = ( GTK3G3DUIMAIN *    ) user_data;
-    GTK3G3DUITOOLBAR *gtk3toolBar = ( GTK3G3DUITOOLBAR * ) gtk3main->core.toolBar;
-    GTK3G3DUIMENU    *gtk3menuBar = ( GTK3G3DUIMENU    * ) gtk3main->core.menuBar;
-    GTK3G3DUIMODEBAR *gtk3modeBar = ( GTK3G3DUIMODEBAR * ) gtk3main->core.modeBar;
-    GTK3G3DUIQUAD    *gtk3quad    = ( GTK3G3DUIQUAD    * ) gtk3main->core.quad;
-    GTK3G3DUIBOARD   *gtk3board   = ( GTK3G3DUIBOARD   * ) gtk3main->core.board;
-
-    GdkRectangle gdkrec;
-
-/*printf("main %d %d\n", event.width, event.height );*/
-#ifdef unused
-    g3duimain_resize ( &gtk3main->core, 
-                        event.width, 
-                        event.height );
-
-
-
-    if ( gtk3toolBar ) {
-        g3duirectangle_toGdkRectangle ( &gtk3main->core.tbarrec, &gdkrec );
-
-        gtk_widget_size_allocate ( gtk3toolBar->bar, &gdkrec );
-    }
-
-    if ( gtk3menuBar ) {
-        g3duirectangle_toGdkRectangle ( &gtk3main->core.menurec, &gdkrec );
-
-        gtk_widget_size_allocate ( gtk3menuBar->menu, &gdkrec );
-    }
-
-    if ( gtk3modeBar ) {
-        g3duirectangle_toGdkRectangle ( &gtk3main->core.mbarrec, &gdkrec );
-
-        gtk_widget_size_allocate ( gtk3modeBar->bar, &gdkrec );
-    }
-
-    if ( gtk3quad ) {
-        g3duirectangle_toGdkRectangle ( &gtk3main->core.quadrec, &gdkrec );
-
-        gtk_widget_size_allocate ( gtk3quad->layout, &gdkrec );
-    }
-
-    if ( gtk3board ) {
-        g3duirectangle_toGdkRectangle ( &gtk3main->core.mbrdrec, &gdkrec );
-
-        gtk_widget_size_allocate ( gtk3board->layout, &gdkrec );
-    }
-#endif
-
-    return FALSE;
-}
-
-/******************************************************************************/
 static void Destroy ( GtkWidget *widget, 
                       gpointer   user_data ) {
     GTK3G3DUIMAIN *gtk3main = ( GTK3G3DUIMAIN * ) user_data;
 
     free ( gtk3main );
 }
-
-/******************************************************************************/
-static GdkFilterReturn
-event_filter (GdkXEvent *xevent, GdkEvent *event, gpointer data)
-{
-    XEvent *xevt = ( XEvent * ) xevent;
-
-printf("test %d\n", xevt->type );
-
-
-    switch ( xevt->type ) {
-        case ResizeRequest : {
-            XConfigureEvent *xcevt = ( XConfigureEvent * ) xevt;
-            GTK3G3DUIMAIN *gtk3main = ( GTK3G3DUIMAIN * ) data;
-            GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3main->core.gui;
-
-/*printf("%d\n", event->configure.width, event->configure.height);*/
-    if ( gtk_widget_get_realized ( GTK_WIDGET ( gtk3gui->topWin ) ) ) {
-
-        gtk3_g3duimain_resize ( &gtk3main->core, 
-                                 xcevt->width, 
-                                 xcevt->height );
-    }
-
-
-return GDK_FILTER_CONTINUE;
-        } break;
-
-        default :
-        break;
-    }
-
-  XClientMessageEvent *evt;
-  GdkAtom message_type;
-
-
-
-  /*if (((XEvent *)xevent)->type != ClientMessage)
-    return GDK_FILTER_CONTINUE;
-
-  evt = (XClientMessageEvent *)xevent;
-  message_type = XInternAtom (evt->display, "MANAGER", FALSE);
-
-  if (evt->message_type != message_type)
-    return GDK_FILTER_CONTINUE;*/
-
-
-  /* do something with evt ... */
-
-    return GDK_FILTER_CONTINUE;
-}
-
 
 /******************************************************************************/
 static void Realize ( GtkWidget *widget, 
@@ -381,10 +263,6 @@ static void Realize ( GtkWidget *widget,
     gtk_css_provider_load_from_data ( provider, myCSS, -1, NULL );
 
     g_object_unref ( provider );
-
-
-    /*gdk_window_add_filter ( gtk_widget_get_window ( gtk3gui->topWin ),
-                            event_filter, gtk3main );*/
 }
 
 /******************************************************************************/

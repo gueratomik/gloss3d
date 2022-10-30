@@ -30,16 +30,36 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t m3duibuckettooledit_setToleranceCbk ( M3DUIBUCKETTOOLEDIT *btedit, 
-                                               uint32_t             tolerance ) {
-    G3DUI *gui = btedit->gui;
-    M3DMOUSETOOL *tool = ( M3DMOUSETOOL * ) g3dui_getMouseTool ( gui,
-                                                                 BUCKETTOOL );
-    M3DMOUSETOOLBUCKET *mtb = ( M3DMOUSETOOLBUCKET * ) tool;
-    M3DBUCKET *bkt = mtb->ltool.obj;
+void m3duimain_resize ( M3DUIMAIN *mmn, 
+                        uint32_t   width, 
+                        uint32_t   height ) {
+    /*** Menu ***/
+    mmn->menurec.x      = 0x00;
+    mmn->menurec.y      = 0x00;
+    mmn->menurec.width  = width;
+    mmn->menurec.height = 0x20;
 
-    bkt->tolerance = tolerance;
+    /*** Tool Bar ***/
+    mmn->tbarrec.x      = 0x00;
+    mmn->tbarrec.y      = 0x20;
+    mmn->tbarrec.width  = width;
+    mmn->tbarrec.height = TOOLBARBUTTONSIZE;
 
+    /*** Mode Bar ***/
+    mmn->mbarrec.x      = 0x00;
+    mmn->mbarrec.y      = mmn->tbarrec.y + mmn->tbarrec.height;
+    mmn->mbarrec.width  = 0x30;
+    mmn->mbarrec.height = height - mmn->menurec.height - mmn->tbarrec.height;
 
-    return 0x00;
+    /*** Upper Right Panel ***/
+    mmn->mbrdrec.x      = width  - 0x140;
+    mmn->mbrdrec.y      = mmn->tbarrec.y + mmn->tbarrec.height;
+    mmn->mbrdrec.width  = 0x140;
+    mmn->mbrdrec.height = height - mmn->menurec.height - mmn->tbarrec.height;
+
+    /*** View Panel ***/
+    mmn->viewrec.x      = 0x30;
+    mmn->viewrec.y      = mmn->tbarrec.y + mmn->tbarrec.height;
+    mmn->viewrec.width  = width  - mmn->mbarrec.width  - mmn->mbrdrec.width;
+    mmn->viewrec.height = mmn->mbarrec.height - 0x2A;
 }

@@ -27,19 +27,37 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dui.h>
+#include <g3dui_gtk3.h>
 
 /******************************************************************************/
-uint64_t m3duibuckettooledit_setToleranceCbk ( M3DUIBUCKETTOOLEDIT *btedit, 
-                                               uint32_t             tolerance ) {
-    G3DUI *gui = btedit->gui;
-    M3DMOUSETOOL *tool = ( M3DMOUSETOOL * ) g3dui_getMouseTool ( gui,
-                                                                 BUCKETTOOL );
-    M3DMOUSETOOLBUCKET *mtb = ( M3DMOUSETOOLBUCKET * ) tool;
-    M3DBUCKET *bkt = mtb->ltool.obj;
+GTK3M3DUI *gtk3_m3dui_create ( GTK3G3DUI *gtk3gui ) {
+    GTK3M3DUI* gtk3mui = ( GTK3M3DUI * ) calloc ( 0x01, sizeof ( GTK3M3DUI ) );
 
-    bkt->tolerance = tolerance;
+    if ( gtk3mui == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__ );
+
+        return NULL;
+    }
+
+    m3dui_init ( &gtk3mui->core, &gtk3gui->core );
 
 
-    return 0x00;
+    return gtk3mui;
+}
+
+/******************************************************************************/
+void gtk3_m3dui_display ( GTK3M3DUI *gtk3mui ) {
+    GtkWidget *win = ui_gtk_window_new ( CLASS_MAIN, GTK_WINDOW_TOPLEVEL );
+    GTK3M3DUIMAIN *gtk3main = gtk3_m3duimain_create ( win,
+                                                      gtk3mui,
+                                                      "MakeUp\n" );
+    if ( gtk3mui->core.main == NULL ) {
+        gtk3mui->core.main = ( M3DUIMAIN * ) gtk3main;
+
+        gtk_container_add ( win, gtk3main->layout );
+
+        gtk_window_resize ( win, 1024, 576 );
+
+        gtk_widget_show ( win );
+    }
 }

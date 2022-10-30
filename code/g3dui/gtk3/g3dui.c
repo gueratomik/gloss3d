@@ -1520,54 +1520,21 @@ static void gtk3_updateMouseTool ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
-static void gtk3_updateSelectedMaterialPreview ( GTK3G3DUI *gtk3gui ) {
-    G3DUI *gui = ( G3DUI * ) gtk3gui;
-    LIST *ltmpmatlist = gtk3gui->lmatlist;
-    LIST *ltmpselmat = gui->lselmat;
+static void gtk3_updateCoords ( GTK3G3DUI *gtk3gui ) {
+    if (  gtk3gui->core.main ) {
+        G3DUIMAIN *main = ( G3DUIMAIN * ) gtk3gui->core.main;
 
-    while ( ltmpselmat ) {
-        G3DMATERIAL *mat = ( G3DMATERIAL * ) ltmpselmat->data;
+        if (  main ) {
+            G3DUIBOARD *board = main->board;
 
-        while ( ltmpmatlist ) {
-            GtkWidget *matlst = ( GtkWidget * ) ltmpmatlist->data;
+            if ( board ) {
+                G3DUICOORDINATESEDIT *coordsedit = board->coordsedit;
 
-            gtk3_g3duimateriallist_updatePreview ( matlst, mat );
-
-
-            ltmpmatlist = ltmpmatlist->next;
+                if ( coordsedit ) {
+                    gtk3_g3duicoordinatesedit_update ( coordsedit );
+                }
+            }
         }
-
-        ltmpselmat = ltmpselmat->next;
-    }
-}
-
-/******************************************************************************/
-static void gtk3_clearMaterials ( GTK3G3DUI *gtk3gui ) {
-    G3DUI *gui = ( G3DUI * ) gtk3gui;
-    LIST *ltmpmatlist = gtk3gui->lmatlist;
-
-    while ( ltmpmatlist ) {
-        GtkWidget *matlst = ( GtkWidget * ) ltmpmatlist->data;
-
-        g3duimateriallist_removeAllPreviews ( matlst );
-
-
-        ltmpmatlist = ltmpmatlist->next;
-    }
-}
-
-/******************************************************************************/
-static void gtk3_importMaterials ( GTK3G3DUI *gtk3gui ) {
-    G3DUI *gui = ( G3DUI * ) gtk3gui;
-    LIST *ltmpmatlist = gtk3gui->lmatlist;
-
-    while ( ltmpmatlist ) {
-        GtkWidget *matlst = ( GtkWidget * ) ltmpmatlist->data;
-
-        g3duimateriallist_importFromScene ( matlst, gui->sce );
-
-
-        ltmpmatlist = ltmpmatlist->next;
     }
 }
 
@@ -1985,6 +1952,10 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
 
     if ( msk & UPDATECURRENTMOUSETOOL ) {
         gtk3_updateMouseTool ( gtk3gui );
+    }
+
+    if ( msk & UPDATECOORDS ) {
+        gtk3_updateCoords ( gtk3gui );
     }
 
 #ifdef TODO

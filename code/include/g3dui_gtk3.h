@@ -121,28 +121,43 @@ typedef struct _G3DUIWIDGETGROUP {
 } G3DUIWIDGETGROUP;
 
 /******************************************************************************/
+typedef struct _GTK3M3DUIVIEW {
+    M3DUIVIEW core;
+} GTK3M3DUIVIEW;
+
+/******************************************************************************/
+typedef struct _GTK3M3DUITOOLBAR {
+    M3DUITOOLBAR core;
+} GTK3M3DUITOOLBAR;
+
+/******************************************************************************/
+typedef struct _GTK3M3DUIMODEBAR {
+    M3DUIMODEBAR core;
+} GTK3M3DUIMODEBAR;
+
+/******************************************************************************/
+typedef struct _GTK3M3DUIBOARD {
+    M3DUIBOARD core;
+} GTK3M3DUIBOARD;
+
+/******************************************************************************/
+typedef struct _GTK3M3DUI {
+    M3DUI core;
+} GTK3M3DUI;
+
+/******************************************************************************/
 typedef struct _GTK3G3DUI {
     G3DUI          core;
     LIST         *lmtools; /*** list of mousetools widget ***/
-    LIST         *lobjlist;
-    LIST         *lmatlist;
-    LIST         *lmatedit;
-    LIST         *lcoordedit; /*** list of Coordinates widget ***/
-    LIST         *lcuredit; /*** current object edit widget ***/
-    LIST         *ltimeline; /*** List of timelines ***/
-    LIST         *lkeyedit;
-    LIST         *ltexedit;
-    LIST         *lligedit;
-    LIST         *lweightgroup;
-    LIST         *lmeshpose;
-    LIST         *luvmapeditor;
+
     GdkWindow    *winAtPosition; /*** window at mouse position (for hourGlass)***/
 
-    GtkWidget *topWin;
-    GtkWidget *currentMouseToolButton; /*** store the current pressed toggle button      ***/
-    GtkWidget *curMaterialWidget; /*** current material ***/
-    GtkWidget *currentUVMouseToolButton;
-    GtkWidget *currentUVMapEditor;
+    GtkWidget    *topWin;
+    GtkWidget    *currentMouseToolButton; /*** store the current pressed toggle button      ***/
+    GtkWidget    *curMaterialWidget; /*** current material ***/
+
+    GtkWidget    *topUVWin;
+    GtkWidget    *currentUVMouseToolButton;
 } GTK3G3DUI;
 
 /******************************************************************************/
@@ -203,20 +218,13 @@ typedef struct _GTK3G3DUIQUAD {
 typedef struct _GTK3G3DUIMAIN {
     G3DUIMAIN         core;
     GtkWidget        *layout;
-    GtkWidget        *quad;
-    GtkWidget        *timeboard;
-    GtkWidget        *board;
-
-    GtkWidget        *top;
-    GtkWidget        *mainView; /*** Main OpenGL View ***/
-    GtkWidget        *curogl; /*** current OpenGL Widget - the one we used last ***/
-    GtkWidget        *curmou; /*** store the current pressed toggle button      ***/
-    GtkWidget        *curmat; /*** current material ***/
-    GtkWidget        *main;
-
-    GtkWidget        *currentUVMouseToolButton;
-    GtkWidget        *currentUVMapEditor;
 } GTK3G3DUIMAIN;
+
+/******************************************************************************/
+typedef struct _GTK3M3DUIMAIN {
+    M3DUIMAIN         core;
+    GtkLayout        *layout;
+} GTK3M3DUIMAIN;
 
 /******************************************************************************/
 typedef struct _GTK3G3DUIRENDERWINDOW {
@@ -334,6 +342,22 @@ typedef struct _GTK3G3DUIOBJECTEDIT {
     GtkScrolledWindow *scrolled;
     GtkFixed          *objectFixed;
 } GTK3G3DUIOBJECTEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUICOORDINATESEDIT {
+    G3DUICOORDINATESEDIT core;
+    GtkFixed            *fixed;
+    GtkSpinButton       *xTranslationEntry;
+    GtkSpinButton       *yTranslationEntry;
+    GtkSpinButton       *zTranslationEntry;
+    GtkSpinButton       *xRotationEntry;
+    GtkSpinButton       *yRotationEntry;
+    GtkSpinButton       *zRotationEntry;
+    GtkSpinButton       *xScalingEntry;
+    GtkSpinButton       *yScalingEntry;
+    GtkSpinButton       *zScalingEntry;
+    GtkToggleButton     *absoluteToggle;
+} GTK3G3DUICOORDINATESEDIT;
 
 /******************************************************************************/
 typedef struct _GTK3G3DUIOBJECTBOARD {
@@ -1182,6 +1206,12 @@ void gtk3_g3duicom_handleAction ( GtkWidget *widget,
 void gtk3_g3duicom_requestActionFromMainThread ( GTK3G3DUI   *gtk3gui,
                                                  G3DUIACTION *action );
 
+/**************************** g3duicoordinatesedit.c **************************/
+void gtk3_g3duicoordinatesedit_update ( GTK3G3DUICOORDINATESEDIT *gtk3cedit );
+GTK3G3DUICOORDINATESEDIT *gtk3_g3duicoordinatesedit_create ( GtkWidget *parent, 
+                                                             GTK3G3DUI *gtk3gui,
+                                                             char      *name );
+
 /******************************* g3duicubeedit.c ******************************/
 void gtk3_g3duicubeedit_update ( GTK3G3DUICUBEEDIT *gtk3ced );
 GTK3G3DUICUBEEDIT *gtk3_g3duicubeedit_create ( GtkWidget *parent,
@@ -1539,6 +1569,28 @@ GTK3G3DUIWIREFRAMEEDIT *gtk3_g3duiwireframeedit_create ( GtkWidget *parent,
 uint32_t q3dfilter_toStatusBar_getStatus ( Q3DFILTER *fil );
 Q3DFILTER *q3dfilter_toStatusBar_new ( GtkWidget *widget, 
                                        float      lastFrame );
+
+
+
+
+
+
+
+
+/******************************************************************************/
+/*********************************** MakeUP 3D ********************************/
+
+/*********************************** m3dui.c **********************************/
+GTK3M3DUI *gtk3_m3dui_create ( GTK3G3DUI *gtk3gui );
+void gtk3_m3dui_display ( GTK3M3DUI *gtk3mui );
+
+/********************************* m3duimain.c ********************************/
+void gtk3_m3duimain_resize ( GTK3M3DUIMAIN *gtk3main,
+                             uint32_t       width,
+                             uint32_t       height );
+GTK3M3DUIMAIN *gtk3_m3duimain_create ( GtkWidget *parent,
+                                       GTK3M3DUI *gtk3mui,
+                                       char      *name );
 
 
 
