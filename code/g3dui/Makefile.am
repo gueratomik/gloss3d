@@ -62,14 +62,6 @@ if HAVE_GTK3
                             common/g3duiviewexport.c \
                             common/g3duiweightgrouplist.c \
                             common/g3duiwireframeedit.c \
-                            common/menu/condition.c \
-                            common/menu/mainmenu.c \
-                            common/menu/materialboardmenu.c \
-                            common/menu/objectboardmenu.c \
-                            common/menu/renderwindowmenu.c \
-                            common/menu/timelinemenu.c \
-                            common/menu/uveditormenu.c \
-                            common/menu/viewmenu.c \
                             common/mousetool/m3duibuckettooledit.c \
                             common/mousetool/g3duicutmeshtooledit.c \
                             common/mousetool/m3duipentooledit.c \
@@ -124,6 +116,18 @@ if HAVE_GTK3
                             gtk3/g3duiview.c \
                             gtk3/g3duiwireframeedit.c \
                             gtk3/q3dfilters.c \
+                            gtk3/menu/condition.c \
+                            gtk3/menu/mainmenu.c \
+                            gtk3/menu/materialboardmenu.c \
+                            gtk3/menu/objectboardmenu.c \
+                            gtk3/menu/renderwindowmenu.c \
+                            gtk3/menu/timelinemenu.c \
+                            gtk3/menu/uveditormenu.c \
+                            gtk3/menu/viewmenu.c \
+                            gtk3/mousetool/g3duimousetooledit.c \
+                            gtk3/mousetool/g3duicutmeshtooledit.c \
+                            gtk3/mousetool/g3duipicktooledit.c \
+                            gtk3/mousetool/g3duisculpttooledit.c \
                             gtk3/css/default.c
 endif
 

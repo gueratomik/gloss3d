@@ -267,13 +267,10 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 
 
 /**** Widget names for Pick Tool widget ***/
-#define EDITPICKTOOLVISIBLE        "Only visible"
-#define EDITPICKTOOLWEIGHTFRAME    "Weight Painting"
-#define EDITPICKTOOLWEIGHTSTRENGTH "Strength"
-#define EDITPICKTOOLWEIGHTRADIUS   "Radius"
+
 
 /**** Widget names for Cut Mesh Tool widget ***/
-#define EDITCUTMESHTOOLRESTRICT    "Restrict to selection"
+
 
 /**** Widget names for BoneEdit TextField widget ***/
 #define EDITBONE            "Bone"
@@ -1012,8 +1009,26 @@ typedef struct _G3DUIOBJECTBOARD {
 } G3DUIOBJECTBOARD;
 
 /******************************************************************************/
+typedef struct _G3DUIPICKTOOLEDIT {
+    G3DUI             *gui;
+} G3DUIPICKTOOLEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUISCULPTTOOLEDIT {
+    G3DUI             *gui;
+} G3DUISCULPTTOOLEDIT;
+
+/******************************************************************************/
+typedef struct _G3DUICUTMESHTOOLEDIT {
+    G3DUI             *gui;
+} G3DUICUTMESHTOOLEDIT;
+
+/******************************************************************************/
 typedef struct _G3DUIMOUSETOOLEDIT {
-    G3DUI            *gui;
+    G3DUI                *gui;
+    G3DUIPICKTOOLEDIT    *pickedit;
+    G3DUICUTMESHTOOLEDIT *cutmeshedit;
+    G3DUISCULPTTOOLEDIT  *sculptedit;
 } G3DUIMOUSETOOLEDIT;
 
 /******************************************************************************/
@@ -1023,7 +1038,7 @@ typedef struct _G3DUIBOARD {
     G3DUIRECTANGLE      toolrec;
     G3DUIMATERIALBOARD *matboard;
     G3DUIOBJECTBOARD   *objboard;
-    G3DUIMOUSETOOLEDIT *tooledit;
+    G3DUIMOUSETOOLEDIT *mtledit;
 } G3DUIBOARD;
 
 /******************************************************************************/
@@ -1042,19 +1057,9 @@ typedef struct _M3DUIBUCKETTOOLEDIT {
 } M3DUIBUCKETTOOLEDIT;
 
 /******************************************************************************/
-typedef struct _G3DUICUTMESHTOOLEDIT {
-    G3DUI *gui;
-} G3DUICUTMESHTOOLEDIT;
-
-/******************************************************************************/
 typedef struct _M3DUIPENTOOLEDIT {
     M3DUI *mui;
 } M3DUIPENTOOLEDIT;
-
-/******************************************************************************/
-typedef struct _G3DUIPICKTOOLEDIT {
-    G3DUI *gui;
-} G3DUIPICKTOOLEDIT;
 
 /******************************************************************************/
 typedef struct _G3DUIRENDEREDIT {
@@ -1397,7 +1402,7 @@ void                g3dui_addMouseTool ( G3DUI          *gui,
                                          G3DUIMOUSETOOL *mou );
 G3DUIMOUSETOOL     *g3dui_getMouseTool ( G3DUI      *gui, 
                                          const char *name );
-uint32_t            g3dui_setMouseTool ( G3DUI          *gui, 
+uint64_t            g3dui_setMouseTool ( G3DUI          *gui, 
                                          G3DCAMERA      *cam, 
                                          G3DUIMOUSETOOL *mou );
 void                g3dui_setFileName ( G3DUI      *gui, 
@@ -2048,6 +2053,16 @@ void g3duirenderwindow_resize ( G3DUIRENDERWINDOW *rwin,
                                 uint32_t           width, 
                                 uint32_t           height );
 
+/****************************** g3duisculpttooledit.c *************************/
+uint64_t g3duisculpttooledit_setCircularCbk ( G3DUISCULPTTOOLEDIT *scedit );
+uint64_t g3duisculpttooledit_unsetCircularCbk ( G3DUISCULPTTOOLEDIT *scedit );
+uint64_t g3duisculpttooledit_setRadiusCbk ( G3DUISCULPTTOOLEDIT *scedit,
+                                            int                  radius );
+uint64_t g3duisculpttooledit_setPressureCbk ( G3DUISCULPTTOOLEDIT *scedit,
+                                              float                pressure );
+uint64_t g3duisculpttooledit_onlyVisibleCbk ( G3DUISCULPTTOOLEDIT *scedit,
+                                              int                  visible );
+
 /******************************* g3duisphereedit.c ****************************/
 
 uint64_t g3duisphereedit_togglePerfect ( G3DUISPHEREEDIT *sphedit );
@@ -2247,43 +2262,6 @@ uint64_t g3duiweightgrouplist_select ( G3DUIWEIGHTGROUPLIST *wgrplist,
 
 uint64_t g3duiwireframeedit_thickness ( G3DUIWIREFRAMEEDIT *wfmedit,
                                            float               thickness );
-
-/****************************** menu/condition.c ******************************/
-
-uint32_t objectModeOnly ( G3DUIMENU *menu, void *data );
-uint32_t vertexModeOnly ( G3DUIMENU *menu, void *data );
-uint32_t faceModeOnly ( G3DUIMENU *menu, void *data );
-uint32_t sculptModeOnly ( G3DUIMENU *menu, void *data );
-uint32_t edgeModeOnly ( G3DUIMENU *menu, void *data );
-uint32_t skinModeOnly ( G3DUIMENU *menu, void *data );
-uint32_t objectMode_skinSelected ( G3DUIMENU *menu, void *data );
-uint32_t objectMode_objectSelected ( G3DUIMENU *menu, void *data );
-uint32_t objectMode_boneSelected ( G3DUIMENU *menu, void *data );
-uint32_t objectMode_boneOrSkinSelected ( G3DUIMENU *menu, void *data );
-
-/**************************** menu/g3duimainmenu.c ****************************/
-G3DUIMENU *g3duimenu_getMainMenuNode ( );
-
-/************************ menu/g3duimaterialboardmenu.c ***********************/
-G3DUIMENU *g3duimenu_getMaterialBoardMenuNode ( );
-
-/************************* menu/g3duiobjectboardmenu.c ************************/
-G3DUIMENU *g3duimenu_getObjectBoardMenuNode ( );
-
-/************************* menu/g3duirenderwindowmenu.c ***********************/
-G3DUIMENU *g3duimenu_getRenderWindowMenuNode ( );
-
-/************************* menu/g3duirenderwindowmenu.c ***********************/
-G3DUIMENU *g3duimenu_getRenderWindowMenuNode ( );
-
-/************************** menu/g3duitimelinemenu.c **************************/
-G3DUIMENU *g3duimenu_getTimelineMenuNode ( );
-
-/************************** menu/g3duiuveditormenu.c **************************/
-G3DUIMENU *g3duimenu_getUVEditorMenuNode ( );
-
-/************************** menu/g3duiviewmenu.c **************************/
-G3DUIMENU *g3duimenu_getViewMenuNode ( );
 
 /******************************************************************************/
 Q3DFILTER *q3dfilter_preview_new ( G3DUI *gui );

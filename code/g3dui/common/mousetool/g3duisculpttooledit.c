@@ -30,59 +30,70 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-void common_g3duisculpttooledit_setCircularCbk ( G3DUI *gui ) {
-    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->curmou->tool;
-
-    if ( gui->lock ) return;
+uint64_t g3duisculpttooledit_setCircularCbk ( G3DUISCULPTTOOLEDIT *scedit ) {
+    G3DUI *gui = scedit->gui;
+    G3DMOUSETOOL *tool = gui->curmou->tool;
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) tool;
 
     if ( sc ) {
         sc->circular = 0x01;
     }
+
+    return 0x00;
 }
 
 /******************************************************************************/
-void common_g3duisculpttooledit_unsetCircularCbk ( G3DUI *gui ) {
-    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->curmou->tool;
-
-    if ( gui->lock ) return;
+uint64_t g3duisculpttooledit_unsetCircularCbk ( G3DUISCULPTTOOLEDIT *scedit ) {
+    G3DUI *gui = scedit->gui;
+    G3DMOUSETOOL *tool = gui->curmou->tool;
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) tool;
 
     if ( sc ) {
         sc->circular = 0x00;
     }
+
+    return 0x00;
 }
 
 /******************************************************************************/
-void common_g3duisculpttooledit_setRadiusCbk ( G3DUI *gui,
-                                               int    radius ) {
-    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->curmou->tool;
-
-    if ( gui->lock ) return;
+uint64_t g3duisculpttooledit_setRadiusCbk ( G3DUISCULPTTOOLEDIT *scedit,
+                                            int                  radius ) {
+    G3DUI *gui = scedit->gui;
+    G3DMOUSETOOL *tool = gui->curmou->tool;
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) tool;
 
     if ( sc ) {
         sc->radius = radius;
     }
+
+    return 0x00;
 }
 
 /******************************************************************************/
-void common_g3duisculpttooledit_setPressureCbk ( G3DUI *gui,
-                                                 float  pressure ) {
-    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->curmou->tool;
+uint64_t g3duisculpttooledit_setPressureCbk ( G3DUISCULPTTOOLEDIT *scedit,
+                                              float                pressure ) {
+    G3DUI *gui = scedit->gui;
+    G3DMOUSETOOL *tool = gui->curmou->tool;
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) tool;
 
-    if ( gui->lock ) return;
 
     if ( sc ) {
         sc->pressure = pressure;
     }
+
+    return 0x00;
 }
 
 /******************************************************************************/
-void common_g3duisculpttooledit_onlyVisibleCbk ( G3DUI *gui,
-                                                 int    visible ) {
-    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) gui->curmou->tool;
-
-    if ( gui->lock ) return;
+uint64_t g3duisculpttooledit_onlyVisibleCbk ( G3DUISCULPTTOOLEDIT *scedit,
+                                              int                  visible ) {
+    G3DUI *gui = scedit->gui;
+    G3DMOUSETOOL *tool = gui->curmou->tool;
+    G3DMOUSETOOLSCULPT *sc = ( G3DMOUSETOOLSCULPT * ) tool;
 
     if ( sc ) {
         sc->only_visible = visible;
     }
+
+    return 0x00;
 }

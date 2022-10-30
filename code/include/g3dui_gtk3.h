@@ -342,16 +342,11 @@ typedef struct _GTK3G3DUIOBJECTBOARD {
 } GTK3G3DUIOBJECTBOARD;
 
 /******************************************************************************/
-typedef struct _GTK3G3DUIMOUSETOOLEDIT {
-    G3DUIMOUSETOOLEDIT core;
-    GtkWidget         *layout;
-} GTK3G3DUIMOUSETOOLEDIT;
-
-/******************************************************************************/
 typedef struct _GTK3G3DUIBOARD {
     G3DUIBOARD   core;
     GtkWidget   *layout;
     GtkNotebook *notebook;
+    GtkNotebook *toolbook;
 } GTK3G3DUIBOARD;
 
 /******************************************************************************/
@@ -767,6 +762,41 @@ typedef struct _GTK3G3DUITRACKERTAGEDIT {
 } GTK3G3DUITRACKERTAGEDIT;
 
 /******************************************************************************/
+typedef struct _GTK3G3DUIPICKTOOLEDIT {
+    G3DUIPICKTOOLEDIT core;
+    GtkFixed         *fixed;
+    GtkWidget        *visibleToggle;
+    GtkWidget        *weightStrengthScale;
+    GtkWidget        *weightRadiusEntry;
+    GtkWidget        *weightFrame;
+} GTK3G3DUIPICKTOOLEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUISCULPTTOOLEDIT {
+    G3DUISCULPTTOOLEDIT core;
+    GtkFixed           *fixed;
+    GtkToggleButton   *visibleToggle;
+    GtkScale           *radiusScale;
+    GtkScale           *pressureScale;
+    GtkToggleButton    *circularToggle;
+    GtkToggleButton    *squaredToggle;
+} GTK3G3DUISCULPTTOOLEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUICUTMESHTOOLEDIT {
+    G3DUICUTMESHTOOLEDIT core;
+    GtkFixed           *fixed;
+    GtkWidget          *restrictToggle;
+} GTK3G3DUICUTMESHTOOLEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIMOUSETOOLEDIT {
+    G3DUIMOUSETOOLEDIT  core;
+    GtkScrolledWindow  *scrolled;
+    GtkFixed           *mousetoolFixed;
+} GTK3G3DUIMOUSETOOLEDIT;
+
+/******************************************************************************/
 typedef struct _GTK3G3DUIBONEEDIT {
     G3DUIBONEEDIT  core;
     GtkNotebook   *notebook;
@@ -851,7 +881,9 @@ gchar *gtk3_getDefaultCSS ( );
 
 void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in, 
                                      GdkRectangle   *out  );
-uint32_t gtk3_setMouseTool ( GTK3G3DUI *gtk3gui, char *name );
+uint64_t gtk3_setMouseTool ( GTK3G3DUI *gtk3gui, 
+                             GtkWidget *button, 
+                             char      *toolName );
 void gtk3_setHourGlass ( GTK3G3DUI *gtk3gui );
 void gtk3_unsetHourGlass ( GTK3G3DUI *gtk3gui );
 static void gtk3_updateAllCurrentMouseTools ( GTK3G3DUI *gtk3gui );
@@ -1156,6 +1188,12 @@ GTK3G3DUICUBEEDIT *gtk3_g3duicubeedit_create ( GtkWidget *parent,
                                                GTK3G3DUI *gtk3gui,
                                                char      *name );
 
+/***************************** g3duicutmeshtool.c *****************************/
+void gtk3_g3duicutmeshtooledit_update ( GTK3G3DUICUTMESHTOOLEDIT *gtk3cmedit );
+GTK3G3DUICUTMESHTOOLEDIT *gtk3_g3duicutmeshtooledit_create ( GtkWidget *parent, 
+                                                             GTK3G3DUI *gtk3gui,
+                                                             char      *name );
+
 /**************************** g3duicylinderedit.c *****************************/
 void gtk3_g3duicylinderedit_update ( GTK3G3DUICYLINDEREDIT *gtk3ced );
 GTK3G3DUICYLINDEREDIT *gtk3_g3duicylinderedit_create ( GtkWidget *parent,
@@ -1243,6 +1281,13 @@ GTK3G3DUIMATERIALLIST *gtk3_g3duimateriallist_create ( GtkWidget *parent,
                                                        GTK3G3DUI *gtk3gui,
                                                        char      *name );
 
+/*************************** g3duimousetooledit.c *****************************/
+void gtk3_g3duimousetooledit_update ( GTK3G3DUIMOUSETOOLEDIT *gtk3mtledit );
+GTK3G3DUIMOUSETOOLEDIT *gtk3_g3duimousetooledit_create ( GtkWidget *parent, 
+                                                         GTK3G3DUI *gtk3gui,
+                                                         char      *name );
+
+
 /**************************** g3duimorpheredit.c ******************************/
 GTK3G3DUIMORPHEREDIT *gtk3_g3duimorpheredit_create ( GtkWidget *parent,
                                                      GTK3G3DUI *gtk3gui,
@@ -1262,6 +1307,14 @@ GTK3G3DUIPARTICLEEMITTEREDIT *gtk3_g3duiparticleemitteredit_create ( GtkWidget *
                                                                      GTK3G3DUI *gtk3gui,
                                                                      char      *name,
                                                                      uint32_t   forKey );
+
+/**************************** g3duipicktooledit.c *****************************/
+
+GTK3G3DUIPICKTOOLEDIT *gtk3_g3duipicktooledit_create ( GtkWidget *parent, 
+                                                       GTK3G3DUI *gtk3gui,
+                                                       char      *name );
+void gtk3_g3duipicktooledit_update ( GTK3G3DUIPICKTOOLEDIT *gtk3pickedit );
+
 /**************************** g3duiplaneedit.c ********************************/
 void gtk3_g3duiplaneedit_update ( GTK3G3DUIPLANEEDIT *gtk3ped );
 GTK3G3DUIPLANEEDIT *gtk3_g3duiplaneedit_create ( GtkWidget *parent,
@@ -1451,6 +1504,12 @@ void gtk3_g3duiquad_resize ( GTK3G3DUIQUAD *gtk3quad,
                              uint32_t       width,
                              uint32_t       height );
 
+/************************** g3duisculpttooledit.c *****************************/
+void gtk3_g3duisculpttooledit_update ( GTK3G3DUISCULPTTOOLEDIT *gtk3sculptedit );
+GTK3G3DUISCULPTTOOLEDIT *gtk3_g3duisculpttooledit_create ( GtkWidget *parent, 
+                                                           GTK3G3DUI *gtk3gui,
+                                                           char      *name );
+
 /****************************** g3duiuvmapedit.c ******************************/
 void gtk3_g3duiuvmapedit_update ( GTK3G3DUIUVMAPEDIT *gtk3uvmed );
 GTK3G3DUIUVMAPEDIT* gtk3_g3duiuvmapedit_create ( GtkWidget *parent,
@@ -1480,5 +1539,55 @@ GTK3G3DUIWIREFRAMEEDIT *gtk3_g3duiwireframeedit_create ( GtkWidget *parent,
 uint32_t q3dfilter_toStatusBar_getStatus ( Q3DFILTER *fil );
 Q3DFILTER *q3dfilter_toStatusBar_new ( GtkWidget *widget, 
                                        float      lastFrame );
+
+
+
+
+
+
+
+
+
+/******************************************************************************/
+/********************************* MENUs **************************************/
+/*** this was supposed to be in the common code but I need some GTK calls ***/
+/*** so I'll figure out that later ***/
+/****************************** menu/condition.c ******************************/
+
+uint32_t objectModeOnly ( G3DUIMENU *menu, void *data );
+uint32_t vertexModeOnly ( G3DUIMENU *menu, void *data );
+uint32_t faceModeOnly ( G3DUIMENU *menu, void *data );
+uint32_t sculptModeOnly ( G3DUIMENU *menu, void *data );
+uint32_t edgeModeOnly ( G3DUIMENU *menu, void *data );
+uint32_t skinModeOnly ( G3DUIMENU *menu, void *data );
+uint32_t objectMode_skinSelected ( G3DUIMENU *menu, void *data );
+uint32_t objectMode_objectSelected ( G3DUIMENU *menu, void *data );
+uint32_t objectMode_boneSelected ( G3DUIMENU *menu, void *data );
+uint32_t objectMode_boneOrSkinSelected ( G3DUIMENU *menu, void *data );
+
+/**************************** menu/g3duimainmenu.c ****************************/
+G3DUIMENU *g3duimenu_getMainMenuNode ( );
+
+/************************ menu/g3duimaterialboardmenu.c ***********************/
+G3DUIMENU *g3duimenu_getMaterialBoardMenuNode ( );
+
+/************************* menu/g3duiobjectboardmenu.c ************************/
+G3DUIMENU *g3duimenu_getObjectBoardMenuNode ( );
+
+/************************* menu/g3duirenderwindowmenu.c ***********************/
+G3DUIMENU *g3duimenu_getRenderWindowMenuNode ( );
+
+/************************* menu/g3duirenderwindowmenu.c ***********************/
+G3DUIMENU *g3duimenu_getRenderWindowMenuNode ( );
+
+/************************** menu/g3duitimelinemenu.c **************************/
+G3DUIMENU *g3duimenu_getTimelineMenuNode ( );
+
+/************************** menu/g3duiuveditormenu.c **************************/
+G3DUIMENU *g3duimenu_getUVEditorMenuNode ( );
+
+/************************** menu/g3duiviewmenu.c **************************/
+G3DUIMENU *g3duimenu_getViewMenuNode ( );
+
 
 #endif

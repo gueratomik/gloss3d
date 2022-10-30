@@ -1195,7 +1195,9 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
                 /*** TODO: improve or see how to properly get rid of that call*/
                 /*** knowing that the buffers should be large enough as the
                 subdiv level is smaller when playing the animation ***/
+
                 g3dsubdivider_allocBuffers ( sdr, engine_flags );
+
 
                 g3dsubdivider_fillBuffers  ( sdr,
                                              sdr->lsubfac, 

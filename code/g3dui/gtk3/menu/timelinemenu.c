@@ -27,81 +27,98 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dui.h>
+#include <g3dui_gtk3.h>
 
 /******************************************************************************/
-/**************************** Tags MENU Callbacks *****************************/
+static uint64_t deleteKeysCbk ( G3DUIMENU *menu, 
+                                void      *data ) {
+    G3DUITIMELINE tim = { .gui = menu->gui };
 
-static uint64_t addVibratorTagCbk ( G3DUIMENU *menu, 
-                                    void      *data ) {
-    g3dui_addVibratorTag ( menu->gui );
+    g3duitimeline_deleteSelectedKeys ( &tim );
+
+
+    return REDRAWTIMELINE;
 }
 
 /******************************************************************************/
-static uint64_t addTrackerTagCbk ( G3DUIMENU *menu, 
-                                   void      *data ) {
-    g3dui_addTrackerTag ( menu->gui );
+static uint64_t scaleKeysDialogCbk ( G3DUIMENU *menu, 
+                                     void      *data ) {
+/***
+    G3DUITIMELINE *tim = ( G3DUITIMELINE * ) user_data;
+    GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+
+    createScaleKeysDialog ( dial,
+                            tim->grp.gui,
+                            "Scale Keys",
+                            0,
+                            0,
+                            150,
+                            96 );
+
+    gtk_widget_show ( dial );
+*/
+    return 0x00;
 }
 
-
 /******************************************************************************/
-static uint64_t removeSelectedTagCbk ( G3DUIMENU *menu, 
-                                       void      *data ) {
-    g3dui_removeSelectedTag ( menu->gui );
+static uint64_t scaleKeysCbk ( G3DUIMENU *menu, 
+                               void      *data ) {
+    G3DUITIMELINE *tim = ( G3DUITIMELINE * ) data;
+
+    tim->tool = TIME_SCALE_TOOL;
+
+
+    return 0x00;
 }
 
 /******************************************************************************/
-/******************************** Tags MENU ***********************************/
+static uint64_t selectKeysCbk ( G3DUIMENU *menu, 
+                                void      *data ) {
+    G3DUITIMELINE *tim = ( G3DUITIMELINE * ) data;
 
-static G3DUIMENU tags_menu_addVibrator     = { NULL,
-                                               MENU_ADDVIBRATORTAG,
-                                               MENU_CLASS_MAIN,
-                                               G3DUIMENUTYPE_PUSHBUTTON,
-                                               objectMode_objectSelected,
-                                               addVibratorTagCbk };
+    tim->tool = TIME_MOVE_TOOL;
 
-static G3DUIMENU tags_menu_addTrackerTag   = { NULL,
-                                               MENU_ADDTRACKERTAG,
-                                               MENU_CLASS_MAIN,
-                                               G3DUIMENUTYPE_PUSHBUTTON,
-                                               objectMode_objectSelected,
-                                               addTrackerTagCbk };
 
-static G3DUIMENU tags_menu_removeSelTag    = { NULL,
-                                               MENU_REMOVESELTAG,
-                                               MENU_CLASS_MAIN,
-                                               G3DUIMENUTYPE_PUSHBUTTON,
-                                               objectMode_objectSelected,
-                                               removeSelectedTagCbk };
+    return 0x00;
+}
 
 /******************************************************************************/
-static G3DUIMENU *tagschildren[] = { /*&tags_menu_addVibrator,*/
-                                         &tags_menu_addTrackerTag,
-                                         &tags_menu_removeSelTag,
+static G3DUIMENU time_menu_delete = { NULL,
+                                      TIMEMENU_DELETE,
+                                      MENU_CLASS_MAIN,
+                                      G3DUIMENUTYPE_PUSHBUTTON,
+                                      NULL,
+                                      deleteKeysCbk };
+
+static G3DUIMENU time_menu_scale = { NULL,
+                                     TIMEMENU_SCALE,
+                                     MENU_CLASS_MAIN,
+                                     G3DUIMENUTYPE_PUSHBUTTON,
+                                     NULL,
+                                     scaleKeysDialogCbk };
+
+static G3DUIMENU time_menu_select = { NULL,
+                                      TIMEMENU_SELECT,
+                                      MENU_CLASS_MAIN,
+                                      G3DUIMENUTYPE_PUSHBUTTON,
+                                      NULL,
+                                      selectKeysCbk };
+
+/******************************************************************************/
+static G3DUIMENU *timechildren[] = { /*&time_menu_select,*/
+                                         &time_menu_scale,
+                                         &time_menu_delete,
                                           NULL };
 
-static G3DUIMENU tags_menu = { NULL,
-                               "Tags",
+static G3DUIMENU time_menu = { NULL,
+                               "_Options",
                                MENU_CLASS_MAIN,
                                G3DUIMENUTYPE_SUBMENU,
                                NULL,
                                NULL,
-                              .nodes = tagschildren };
+                              .nodes = timechildren };
 
 /******************************************************************************/
-/******************************************************************************/
-static G3DUIMENU *objrootchildren[] = { &tags_menu,
-                                         NULL };
-
-static G3DUIMENU objrootnode = { NULL,
-                                 "Bar",
-                                 MENU_CLASS_MAIN,
-                                 G3DUIMENUTYPE_MENUBAR,
-                                 NULL,
-                                 NULL,
-                                .nodes = objrootchildren };
-
-/******************************************************************************/
-G3DUIMENU *g3duimenu_getObjectBoardMenuNode ( ) {
-    return &objrootnode;
+G3DUIMENU *g3duimenu_getTimelineMenuNode ( ) {
+    return &time_menu;
 }

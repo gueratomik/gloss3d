@@ -96,25 +96,15 @@ static void openFileCbk ( GtkWidget *widget, gpointer user_data ) {
 static void setMouseToolCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUITOOLBAR *gtk3toolbar = ( GTK3G3DUITOOLBAR * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3toolbar->core.gui;
+    uint64_t ret;
 
     if ( gtk3gui->core.lock ) return;
 
-    if ( widget != gtk3gui->currentMouseToolButton ) {
-        if ( gtk3_setMouseTool ( gtk3gui, gtk_widget_get_name ( widget ) ) ) {
-            /*** prevent callback to loop ***/
-            gtk3gui->core.lock = 0x01;
+    ret = gtk3_setMouseTool ( gtk3gui,
+                              widget,
+                              gtk_widget_get_name ( widget ) );
 
-            if ( GTK_IS_TOGGLE_TOOL_BUTTON ( gtk3gui->currentMouseToolButton ) ) {
-                GtkToggleToolButton *ttb = GTK_TOGGLE_TOOL_BUTTON(gtk3gui->currentMouseToolButton);
-
-                gtk_toggle_tool_button_set_active ( ttb, FALSE );
-            }
-
-            gtk3gui->currentMouseToolButton = widget;
-
-            gtk3gui->core.lock = 0x00;
-        }
-    }
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
 }
 
 /******************************************************************************/
