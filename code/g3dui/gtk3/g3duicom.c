@@ -83,11 +83,11 @@ void gtk3_g3duicom_handleAction ( GtkWidget *widget,
 
     switch ( action->type ) {
         case ACTION_GOTOFRAME :
-            gotoframe ( gui, action );
+            gotoframe ( gtk3gui, ( GOTOFRAME * ) action );
         break;
 
         case ACTION_DUMPSCREEN :
-            dumpscreen ( gui, action );
+            dumpscreen ( gtk3gui, ( DUMPSCREEN * ) action );
         break;
 
         default:
@@ -99,7 +99,7 @@ void gtk3_g3duicom_handleAction ( GtkWidget *widget,
 
 /******************************************************************************/
 static gboolean emitAction ( G3DUIACTION *action ) {
-    GTK3G3DUI *gtk3gui = action->gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) action->gui;
 
     g_signal_emit_by_name ( gtk3gui->topWin, "action", action );
 
@@ -152,7 +152,7 @@ uint32_t filtergotoframe_draw ( Q3DFILTER     *fil,
     gtf.frame              =  frameID;
     gtf.extra_engine_flags =  ONGOINGRENDERING;
 
-    gtk3_g3duicom_requestActionFromMainThread ( gtk3gui, &gtf );
+    gtk3_g3duicom_requestActionFromMainThread ( gtk3gui, ( G3DUIACTION * ) &gtf );
 
     return 0x00;
 }

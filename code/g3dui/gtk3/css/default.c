@@ -46,8 +46,8 @@
 #define GRAY2 "90"
 #define GRAY3 "105"
 #define GRAY5 "26"
+#define GRAY6 "64"
 */
-
 /* nice green : 1c2f31 */
 
 static const gchar *myCSS = {

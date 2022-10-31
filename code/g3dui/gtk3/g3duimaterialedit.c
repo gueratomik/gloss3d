@@ -76,7 +76,7 @@ static GTK3G3DUIMATERIALEDIT *gtk3_g3duimaterialedit_new ( GTK3G3DUI *gtk3gui ) 
 
 /******************************************************************************/
 uint32_t getChannelID ( GtkFixed *fixed ) {
-    char *wname = gtk_widget_get_name ( fixed );
+    char *wname = ( char * ) gtk_widget_get_name ( GTK_WIDGET(fixed) );
     uint32_t channelID = 0x00;
 
     if ( strcmp ( wname, EDITMATERIALDIFFUSE      ) == 0x00 ) {
@@ -115,12 +115,12 @@ static void channelProceduralSettingsCbk ( GtkWidget *widget,
                                            gpointer   user_data ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
     GtkWidget *parent = gtk_widget_get_parent ( widget );
-    char *wname = gtk_widget_get_name ( parent );
+    char *wname = ( char * ) gtk_widget_get_name ( parent );
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3med->core.gui;
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     gint pageID = gtk_notebook_get_current_page ( gtk3med->notebook );
     GtkWidget *currentPan = gtk_notebook_get_nth_page ( gtk3med->notebook, pageID );
-    uint32_t channelID = getChannelID ( currentPan );
+    uint32_t channelID = getChannelID ( GTK_FIXED(currentPan) );
 
     if ( gtk3med->core.gui->lock ) return;
 
@@ -130,7 +130,7 @@ static void channelProceduralSettingsCbk ( GtkWidget *widget,
 
         if ( cha ) {
             if (cha->proc ) {
-                GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
+                GtkDialog *dial = ui_gtk_dialog_new ( CLASS_MAIN );
                 GtkWidget *box = gtk_dialog_get_content_area ( dial );
                 G3DPROCEDURAL *proc = cha->proc;
 
@@ -139,44 +139,48 @@ static void channelProceduralSettingsCbk ( GtkWidget *widget,
                         GTK3G3DUIPROCEDURALBRICKEDIT *bedit =
                         gtk3_g3duiproceduralbrickedit_create ( box,
                                                                gtk3gui,
-                                                               cha->proc, 
+                                      ( G3DPROCEDURALBRICK * ) cha->proc, 
                                                                "Procedural Brick",
                                                                0, 0,
                                                                0, 0,
                                                                0x01 );
 
-                        gtk_container_add ( GTK_CONTAINER(box), bedit->fixed );
+                        gtk_container_add ( GTK_CONTAINER(box),
+                                            GTK_WIDGET(bedit->fixed) );
                     } break;
 
                     case PROCEDURALCHESS : {
                         GTK3G3DUIPROCEDURALCHESSEDIT *cedit =
                         gtk3_g3duiproceduralchessedit_create ( box,
                                                                gtk3gui,
-                                                               cha->proc, 
+                                      ( G3DPROCEDURALCHESS * ) cha->proc, 
                                                                "Procedural Chess",
                                                                0, 0, 350, 35, 0x01 );
 
-                        gtk_container_add ( GTK_CONTAINER(box), cedit->fixed );
+                        gtk_container_add ( GTK_CONTAINER(box),
+                                            GTK_WIDGET(cedit->fixed) );
                     } break;
 
                     case PROCEDURALNOISE : {
                         GTK3G3DUIPROCEDURALNOISEEDIT *nedit =
                         gtk3_g3duiproceduralnoiseedit_create ( box,
-                                                               gui,
-                                                               cha->proc, 
+                                                               gtk3gui,
+                                      ( G3DPROCEDURALNOISE * ) cha->proc, 
                                                                "Procedural Noise",
                                                                0, 0, 350, 35, 0x01 );
-                        gtk_container_add ( GTK_CONTAINER(box), nedit->fixed );
+                        gtk_container_add ( GTK_CONTAINER(box), 
+                                            GTK_WIDGET(nedit->fixed) );
                     } break;
 
                     case PROCEDURALGRADIENT : {
                         GTK3G3DUIPROCEDURALGRADIENTEDIT *gedit =
                         gtk3_g3duiproceduralgradientedit_create ( box,
-                                                                  gui,
-                                                                  cha->proc, 
+                                                                  gtk3gui,
+                                    ( G3DPROCEDURALGRADIENT * )   cha->proc, 
                                                                   "Procedural Gradient",
                                                                   0, 0, 350, 35, 0x01 );
-                        gtk_container_add ( GTK_CONTAINER(box), gedit->fixed );
+                        gtk_container_add ( GTK_CONTAINER(box),
+                                            GTK_WIDGET(gedit->fixed) );
                     } break;
 
                     default :
@@ -184,10 +188,10 @@ static void channelProceduralSettingsCbk ( GtkWidget *widget,
                 }
 
 
-                g_signal_connect_swapped ( dial,
+                g_signal_connect_swapped ( G_OBJECT(dial),
                                            "response",
                                            G_CALLBACK (gtk_widget_destroy),
-                                           dial);
+                                           dial );
 
                 gtk_dialog_run ( dial );
 
@@ -208,7 +212,7 @@ static void channelImageChooseCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     gint pageID = gtk_notebook_get_current_page ( gtk3med->notebook );
     GtkWidget *currentPan = gtk_notebook_get_nth_page ( gtk3med->notebook, pageID );
-    uint32_t channelID = getChannelID ( currentPan );
+    uint32_t channelID = getChannelID ( GTK_FIXED(currentPan) );
     uint64_t ret = 0x00;
 
     if ( gtk3med->core.gui->lock ) return;
@@ -223,11 +227,11 @@ static void channelProceduralTypeCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3med->core.gui;
     G3DUI *gui = ( G3DUI * ) gtk3gui;
-    gchar *procType = gtk_combo_box_text_get_active_text ( widget ),
+    gchar *procType = gtk_combo_box_text_get_active_text ( GTK_COMBO_BOX_TEXT(widget) ),
           *procRes  = PROCRES512/*gtk_combo_box_text_get_active_text ( gtk3med->diffuseProcResCombo  )*/;
     gint pageID = gtk_notebook_get_current_page ( gtk3med->notebook );
     GtkWidget *currentPan = gtk_notebook_get_nth_page ( gtk3med->notebook, pageID );
-    uint32_t channelID = getChannelID ( currentPan );
+    uint32_t channelID = getChannelID ( GTK_FIXED(currentPan) );
     uint64_t ret = 0x00;
 
     if ( gtk3med->core.gui->lock ) return;
@@ -255,7 +259,7 @@ static void channelColorCbk ( GtkWidget *widget,  gpointer user_data ) {
     GdkRGBA color;
     gint pageID = gtk_notebook_get_current_page ( gtk3med->notebook );
     GtkWidget *currentPan = gtk_notebook_get_nth_page ( gtk3med->notebook, pageID );
-    uint32_t channelID = getChannelID ( currentPan );
+    uint32_t channelID = getChannelID ( GTK_FIXED(currentPan) );
     uint64_t ret;
 
     /*** prevents a loop ***/
@@ -282,13 +286,13 @@ static void channelEnabledCbk ( GtkWidget *widget,
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     gint pageID = gtk_notebook_get_current_page ( gtk3med->notebook );
     GtkWidget *currentPan = gtk_notebook_get_nth_page ( gtk3med->notebook, pageID );
-    uint32_t channelID = getChannelID ( currentPan );
+    uint32_t channelID = getChannelID ( GTK_FIXED(currentPan) );
     uint64_t ret;
 
     /*** prevents a loop ***/
     if ( gtk3med->core.gui->lock ) return;
 
-    ret = g3duimaterialedit_toggleChannel ( gtk3med, channelID );
+    ret = g3duimaterialedit_toggleChannel ( &gtk3med->core, channelID );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, ret | UPDATECURRENTMATERIAL );
 }
@@ -301,13 +305,13 @@ static void channelImageCbk ( GtkWidget *widget,
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     gint pageID = gtk_notebook_get_current_page ( gtk3med->notebook );
     GtkWidget *currentPan = gtk_notebook_get_nth_page ( gtk3med->notebook, pageID );
-    uint32_t channelID = getChannelID ( currentPan );
+    uint32_t channelID = getChannelID ( GTK_FIXED(currentPan) );
     uint64_t ret;
 
     /*** prevents a loop ***/
     if ( gtk3med->core.gui->lock ) return;
 
-    ret = g3duimaterialedit_enableImage ( gtk3med, channelID );
+    ret = g3duimaterialedit_enableImage ( &gtk3med->core, channelID );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, ret | UPDATECURRENTMATERIAL );
 }
@@ -319,13 +323,13 @@ static void channelSolidCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     gint pageID = gtk_notebook_get_current_page ( gtk3med->notebook );
     GtkWidget *currentPan = gtk_notebook_get_nth_page ( gtk3med->notebook, pageID );
-    uint32_t channelID = getChannelID ( currentPan );
+    uint32_t channelID = getChannelID ( GTK_FIXED(currentPan) );
     uint64_t ret;
 
     /*** prevents a loop ***/
     if ( gtk3med->core.gui->lock ) return;
 
-    ret = g3duimaterialedit_enableSolidColor ( gtk3med, channelID );
+    ret = g3duimaterialedit_enableSolidColor ( &gtk3med->core, channelID );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, ret | UPDATECURRENTMATERIAL );
 }
@@ -337,7 +341,7 @@ static void channelProceduralCbk ( GtkWidget *widget, gpointer user_data ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
     gint pageID = gtk_notebook_get_current_page ( gtk3med->notebook );
     GtkWidget *currentPan = gtk_notebook_get_nth_page ( gtk3med->notebook, pageID );
-    uint32_t channelID = getChannelID ( currentPan );
+    uint32_t channelID = getChannelID ( GTK_FIXED(currentPan) );
     uint64_t ret;
 
     /*** prevents a loop ***/
@@ -358,10 +362,11 @@ static void channelProceduralResCbk  ( GtkWidget *widget, gpointer user_data ) {
 static void updateRefractionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
     gtk3med->core.gui->lock = 0x01;
 
-    gtk_widget_set_sensitive ( gtk3med->refractionImageButton       , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->refractionProcTypeCombo     , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->refractionProcSettingsButton, FALSE );
-    gtk_combo_box_set_active ( gtk3med->refractionProcTypeCombo     , 0x00 );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->refractionImageButton)       , FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->refractionProcTypeCombo)     , FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->refractionProcSettingsButton), FALSE );
+
+    gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3med->refractionProcTypeCombo), 0x00 );
 
     if ( gtk3med->core.editedMaterial ) {
         G3DMATERIAL *mat = gtk3med->core.editedMaterial;
@@ -372,39 +377,39 @@ static void updateRefractionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
                          .alpha = mat->refraction.solid.a };
 
         if ( mat->refraction.flags & USECHANNEL ) {
-            gtk_toggle_button_set_active ( gtk3med->refractionEnabledToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->refractionEnabledToggle), TRUE  );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->refractionEnabledToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->refractionEnabledToggle), FALSE );
         }
 
         if ( mat->refraction.flags & USESOLIDCOLOR ) {
-            gtk_toggle_button_set_active ( gtk3med->refractionSolidToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->refractionSolidToggle), TRUE  );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->refractionSolidToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->refractionSolidToggle), FALSE );
         }
 
         if ( mat->refraction.flags & USEIMAGECOLOR ) {
-            gtk_toggle_button_set_active ( gtk3med->refractionImageToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->refractionImageToggle), TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3med->refractionImageButton, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->refractionImageButton), TRUE );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->refractionImageToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->refractionImageToggle), FALSE );
         }
 
         if ( mat->refraction.flags & USEPROCEDURAL ) {
-            gtk_toggle_button_set_active ( gtk3med->refractionProcToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->refractionProcToggle), TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3med->refractionProcTypeCombo     , TRUE );
-            gtk_widget_set_sensitive ( gtk3med->refractionProcSettingsButton, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->refractionProcTypeCombo)     , TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->refractionProcSettingsButton), TRUE );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->refractionProcToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->refractionProcToggle), FALSE );
         }
 
         if ( proc ) {
-            gtk_combo_box_set_active ( gtk3med->refractionProcTypeCombo, proc->type );
+            gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3med->refractionProcTypeCombo), proc->type );
         }
 
-        gtk_range_set_value ( gtk3med->refractionStrengthScale, mat->refraction.solid.a );
+        gtk_range_set_value ( GTK_RANGE(gtk3med->refractionStrengthScale), mat->refraction.solid.a );
 
         if ( mat->refraction.image ) {
             if ( mat->refraction.image->filename ) {
@@ -436,15 +441,15 @@ static void refractionStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents a loop ***/
     if ( gtk3med->core.gui->lock ) return;
 
-    g3duimaterialedit_setRefractionStrength ( gtk3med, val / 100.0f );
+    g3duimaterialedit_setRefractionStrength ( &gtk3med->core, val / 100.0f );
 }
 
 /******************************************************************************/
-static GtkWidget *createRefractionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
-                                     uint32_t               x,
-                                     uint32_t               y,
-                                     uint32_t               width,
-                                     uint32_t               height ) {
+static GtkFixed *createRefractionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
+                                         uint32_t               x,
+                                         uint32_t               y,
+                                         uint32_t               width,
+                                         uint32_t               height ) {
     GtkFixed *pan = ui_createTab ( gtk3med->notebook,
                                    gtk3med,
                                    EDITMATERIALREFRACTION,
@@ -528,10 +533,11 @@ static GtkWidget *createRefractionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
 static void updateReflectionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
     gtk3med->core.gui->lock = 0x01;
 
-    gtk_widget_set_sensitive ( gtk3med->reflectionImageButton       , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->reflectionProcTypeCombo     , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->reflectionProcSettingsButton, FALSE );
-    gtk_combo_box_set_active ( gtk3med->reflectionProcTypeCombo     , 0x00 );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->reflectionImageButton)       , FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->reflectionProcTypeCombo)     , FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->reflectionProcSettingsButton), FALSE );
+
+    gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3med->reflectionProcTypeCombo), 0x00 );
 
     if ( gtk3med->core.editedMaterial ) {
         G3DMATERIAL *mat = gtk3med->core.editedMaterial;
@@ -542,39 +548,39 @@ static void updateReflectionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
                          .alpha = mat->reflection.solid.a };
 
         if ( mat->reflection.flags & USECHANNEL ) {
-            gtk_toggle_button_set_active ( gtk3med->reflectionEnabledToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->reflectionEnabledToggle), TRUE  );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->reflectionEnabledToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->reflectionEnabledToggle), FALSE );
         }
 
         if ( mat->reflection.flags & USESOLIDCOLOR ) {
-            gtk_toggle_button_set_active ( gtk3med->reflectionSolidToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->reflectionSolidToggle), TRUE  );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->reflectionSolidToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->reflectionSolidToggle), FALSE );
         }
 
         if ( mat->reflection.flags & USEIMAGECOLOR ) {
-            gtk_toggle_button_set_active ( gtk3med->reflectionImageToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->reflectionImageToggle), TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3med->reflectionImageButton, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->reflectionImageButton), TRUE );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->reflectionImageToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->reflectionImageToggle), FALSE );
         }
 
         if ( mat->reflection.flags & USEPROCEDURAL ) {
-            gtk_toggle_button_set_active ( gtk3med->reflectionProcToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->reflectionProcToggle), TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3med->reflectionProcTypeCombo     , TRUE );
-            gtk_widget_set_sensitive ( gtk3med->reflectionProcSettingsButton, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->reflectionProcTypeCombo)     , TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->reflectionProcSettingsButton), TRUE );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->reflectionProcToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->reflectionProcToggle), FALSE );
         }
 
         if ( proc ) {
-            gtk_combo_box_set_active ( gtk3med->reflectionProcTypeCombo, proc->type );
+            gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3med->reflectionProcTypeCombo), proc->type );
         }
 
-        gtk_range_set_value ( gtk3med->reflectionStrengthScale, mat->reflection.solid.a * 100.0f );
+        gtk_range_set_value ( GTK_RANGE(gtk3med->reflectionStrengthScale), mat->reflection.solid.a * 100.0f );
 
         if ( mat->reflection.image ) {
             if ( mat->reflection.image->filename ) {
@@ -606,15 +612,15 @@ static void reflectionStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents a loop ***/
     if ( gtk3med->core.gui->lock ) return;
 
-    g3duimaterialedit_setReflectionStrength ( gtk3med, val  / 100.0f );
+    g3duimaterialedit_setReflectionStrength ( &gtk3med->core, val  / 100.0f );
 }
 
 /******************************************************************************/
-static GtkWidget *createReflectionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
-                                     uint32_t               x,
-                                     uint32_t               y,
-                                     uint32_t               width,
-                                     uint32_t               height ) {
+static GtkFixed *createReflectionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
+                                         uint32_t               x,
+                                         uint32_t               y,
+                                         uint32_t               width,
+                                         uint32_t               height ) {
     GtkFixed *pan = ui_createTab ( gtk3med->notebook,
                                    gtk3med,
                                    EDITMATERIALREFLECTION,
@@ -697,42 +703,42 @@ static GtkWidget *createReflectionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
 static void updateAlphaPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
     gtk3med->core.gui->lock = 0x01;
 
-    gtk_widget_set_sensitive ( gtk3med->alphaImageButton  , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->alphaProcTypeCombo, FALSE );
-    gtk_widget_set_sensitive ( gtk3med->alphaStrengthEntry, FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->alphaImageButton)  , FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->alphaProcTypeCombo), FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->alphaStrengthEntry), FALSE );
 
     if ( gtk3med->core.editedMaterial ) {
         G3DMATERIAL *mat = gtk3med->core.editedMaterial;
         G3DPROCEDURAL *proc = mat->alpha.proc;
 
         if ( mat->alpha.flags & USECHANNEL ) {
-            gtk_toggle_button_set_active ( gtk3med->alphaEnabledToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->alphaEnabledToggle), TRUE  );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->alphaEnabledToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->alphaEnabledToggle), FALSE );
         }
 
         if ( mat->alpha.flags & USEIMAGECOLOR ) {
-            gtk_toggle_button_set_active ( gtk3med->alphaImageToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->alphaImageToggle), TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3med->alphaImageButton, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->alphaImageButton), TRUE );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->alphaImageToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->alphaImageToggle), FALSE );
         }
 
         if ( mat->alpha.flags & USEPROCEDURAL ) {
-            gtk_toggle_button_set_active ( gtk3med->alphaProcToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->alphaProcToggle), TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3med->alphaProcTypeCombo     , TRUE );
-            gtk_widget_set_sensitive ( gtk3med->alphaProcSettingsButton, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->alphaProcTypeCombo)     , TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->alphaProcSettingsButton), TRUE );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->alphaProcToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->alphaProcToggle), FALSE );
         }
 
         if ( proc ) {
-            gtk_combo_box_set_active ( gtk3med->alphaProcTypeCombo, proc->type );
+            gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3med->alphaProcTypeCombo), proc->type );
         }
 
-        gtk_widget_set_sensitive ( gtk3med->alphaStrengthEntry, TRUE );
+        gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->alphaStrengthEntry), TRUE );
 
         gtk_spin_button_set_value ( gtk3med->alphaStrengthEntry, mat->alphaOpacity * 100.0f );
 
@@ -766,15 +772,15 @@ static void alphaStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents a loop ***/
     if ( gtk3med->core.gui->lock ) return;
 
-    g3duimaterialedit_setAlphaStrength ( gtk3med, val / 100.0f );
+    g3duimaterialedit_setAlphaStrength ( &gtk3med->core, val / 100.0f );
 }
 
 /******************************************************************************/
-static GtkWidget *createAlphaPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
-                                     uint32_t               x,
-                                     uint32_t               y,
-                                     uint32_t               width,
-                                     uint32_t               height ) {
+static GtkFixed *createAlphaPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
+                                    uint32_t               x,
+                                    uint32_t               y,
+                                    uint32_t               width,
+                                    uint32_t               height ) {
     GtkFixed *pan = ui_createTab ( gtk3med->notebook,
                                    gtk3med,
                                    EDITMATERIALALPHA,
@@ -848,10 +854,11 @@ static GtkWidget *createAlphaPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
 static void updateDisplacementPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
     gtk3med->core.gui->lock = 0x01;
 
-    gtk_widget_set_sensitive ( gtk3med->displacementImageButton       , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->displacementProcTypeCombo     , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->displacementProcSettingsButton, FALSE );
-    gtk_combo_box_set_active ( gtk3med->displacementProcTypeCombo     , 0x00 );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->displacementImageButton)       , FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->displacementProcTypeCombo)     , FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->displacementProcSettingsButton), FALSE );
+
+    gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3med->displacementProcTypeCombo), 0x00 );
 
     if ( gtk3med->core.editedMaterial ) {
         G3DMATERIAL *mat = gtk3med->core.editedMaterial;
@@ -862,30 +869,30 @@ static void updateDisplacementPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
                          .alpha = mat->displacement.solid.a };
 
         if ( mat->displacement.flags & USECHANNEL ) {
-            gtk_toggle_button_set_active ( gtk3med->displacementEnabledToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->displacementEnabledToggle), TRUE  );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->displacementEnabledToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->displacementEnabledToggle), FALSE );
         }
 
         if ( mat->displacement.flags & USEIMAGECOLOR ) {
-            gtk_toggle_button_set_active ( gtk3med->displacementImageToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->displacementImageToggle), TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3med->displacementImageButton, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->displacementImageButton), TRUE );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->displacementImageToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->displacementImageToggle), FALSE );
         }
 
         if ( mat->displacement.flags & USEPROCEDURAL ) {
-            gtk_toggle_button_set_active ( gtk3med->displacementProcToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->displacementProcToggle), TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3med->displacementProcTypeCombo     , TRUE );
-            gtk_widget_set_sensitive ( gtk3med->displacementProcSettingsButton, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->displacementProcTypeCombo)     , TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->displacementProcSettingsButton), TRUE );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->displacementProcToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->displacementProcToggle), FALSE );
         }
 
         if ( proc ) {
-            gtk_combo_box_set_active ( gtk3med->displacementProcTypeCombo, proc->type );
+            gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3med->displacementProcTypeCombo), proc->type );
         }
 
         gtk_spin_button_set_value ( gtk3med->displacementStrengthEntry, mat->displacement.solid.a );
@@ -922,17 +929,17 @@ static void displacementStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents a loop ***/
     if ( gtk3med->core.gui->lock ) return;
 
-    ret = g3duimaterialedit_setDisplacementStrength ( gtk3med, val );
+    ret = g3duimaterialedit_setDisplacementStrength ( &gtk3med->core, val );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, ret );
 }
 
 /******************************************************************************/
-static GtkWidget *createDisplacementPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
-                                            uint32_t               x,
-                                            uint32_t               y,
-                                            uint32_t               width,
-                                            uint32_t               height ) {
+static GtkFixed *createDisplacementPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
+                                           uint32_t               x,
+                                           uint32_t               y,
+                                           uint32_t               width,
+                                           uint32_t               height ) {
     GtkFixed *pan = ui_createTab ( gtk3med->notebook,
                                    gtk3med,
                                    EDITMATERIALDISPLACEMENT,
@@ -1006,10 +1013,11 @@ static GtkWidget *createDisplacementPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
 static void updateBumpPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
     gtk3med->core.gui->lock = 0x01;
 
-    gtk_widget_set_sensitive ( gtk3med->bumpImageButton       , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->bumpProcTypeCombo     , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->bumpProcSettingsButton, FALSE );
-    gtk_combo_box_set_active ( gtk3med->bumpProcTypeCombo     , 0x00 );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->bumpImageButton)       , FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->bumpProcTypeCombo)     , FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->bumpProcSettingsButton), FALSE );
+
+    gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3med->bumpProcTypeCombo), 0x00 );
 
     if ( gtk3med->core.editedMaterial ) {
         G3DMATERIAL *mat = gtk3med->core.editedMaterial;
@@ -1020,30 +1028,30 @@ static void updateBumpPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
                          .alpha = mat->bump.solid.a };
 
         if ( mat->bump.flags & USECHANNEL ) {
-            gtk_toggle_button_set_active ( gtk3med->bumpEnabledToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->bumpEnabledToggle), TRUE  );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->bumpEnabledToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->bumpEnabledToggle), FALSE );
         }
 
         if ( mat->bump.flags & USEIMAGECOLOR ) {
-            gtk_toggle_button_set_active ( gtk3med->bumpImageToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->bumpImageToggle), TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3med->bumpImageButton, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->bumpImageButton), TRUE );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->bumpImageToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->bumpImageToggle), FALSE );
         }
 
         if ( mat->bump.flags & USEPROCEDURAL ) {
-            gtk_toggle_button_set_active ( gtk3med->bumpProcToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->bumpProcToggle), TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3med->bumpProcTypeCombo     , TRUE );
-            gtk_widget_set_sensitive ( gtk3med->bumpProcSettingsButton, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->bumpProcTypeCombo)     , TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->bumpProcSettingsButton), TRUE );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->bumpProcToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->bumpProcToggle), FALSE );
         }
 
         if ( proc ) {
-            gtk_combo_box_set_active ( gtk3med->bumpProcTypeCombo, proc->type );
+            gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3med->bumpProcTypeCombo), proc->type );
         }
 
         gtk_spin_button_set_value ( gtk3med->bumpStrengthEntry, mat->bump.solid.a );
@@ -1078,15 +1086,15 @@ static void bumpStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents a loop ***/
     if ( gtk3med->core.gui->lock ) return;
 
-    g3duimaterialedit_setBumpStrength ( gtk3med, val );
+    g3duimaterialedit_setBumpStrength ( &gtk3med->core, val );
 }
 
 /******************************************************************************/
-static GtkWidget *createBumpPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
-                                    uint32_t               x,
-                                    uint32_t               y,
-                                    uint32_t               width,
-                                    uint32_t               height ) {
+static GtkFixed *createBumpPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
+                                   uint32_t               x,
+                                   uint32_t               y,
+                                   uint32_t               width,
+                                   uint32_t               height ) {
     GtkFixed *pan = ui_createTab ( gtk3med->notebook,
                                    gtk3med,
                                    EDITMATERIALBUMP,
@@ -1160,11 +1168,12 @@ static GtkWidget *createBumpPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
 static void updateSpecularPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
     gtk3med->core.gui->lock = 0x01;
 
-    gtk_widget_set_sensitive ( gtk3med->specularColorButton       , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->specularImageButton       , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->specularProcTypeCombo     , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->specularProcSettingsButton, FALSE );
-    gtk_combo_box_set_active ( gtk3med->specularProcTypeCombo     , 0x00 );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->specularColorButton)       , FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->specularImageButton)       , FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->specularProcTypeCombo)     , FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->specularProcSettingsButton), FALSE );
+
+    gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3med->specularProcTypeCombo), 0x00 );
 
     if ( gtk3med->core.editedMaterial ) {
         G3DMATERIAL *mat = gtk3med->core.editedMaterial;
@@ -1175,44 +1184,44 @@ static void updateSpecularPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
                          .alpha = mat->specular.solid.a };
 
         if ( mat->specular.flags & USECHANNEL ) {
-            gtk_toggle_button_set_active ( gtk3med->specularEnabledToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->specularEnabledToggle), TRUE  );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->specularEnabledToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->specularEnabledToggle), FALSE );
         }
 
         if ( mat->specular.flags & USESOLIDCOLOR ) {
-            gtk_toggle_button_set_active ( gtk3med->specularSolidToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->specularSolidToggle), TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3med->specularColorButton, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->specularColorButton), TRUE );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->specularSolidToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->specularSolidToggle), FALSE );
         }
 
         if ( mat->specular.flags & USEIMAGECOLOR ) {
-            gtk_toggle_button_set_active ( gtk3med->specularImageToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->specularImageToggle), TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3med->specularImageButton, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->specularImageButton), TRUE );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->specularImageToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->specularImageToggle), FALSE );
         }
 
         if ( mat->specular.flags & USEPROCEDURAL ) {
-            gtk_toggle_button_set_active ( gtk3med->specularProcToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->specularProcToggle), TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3med->specularProcTypeCombo     , TRUE );
-            gtk_widget_set_sensitive ( gtk3med->specularProcSettingsButton, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->specularProcTypeCombo)     , TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->specularProcSettingsButton), TRUE );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->specularProcToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->specularProcToggle), FALSE );
         }
 
         if ( proc ) {
-            gtk_combo_box_set_active ( gtk3med->specularProcTypeCombo, proc->type );
+            gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3med->specularProcTypeCombo), proc->type );
         }
 
-        gtk_color_chooser_set_rgba ( gtk3med->specularColorButton, &rgba );
+        gtk_color_chooser_set_rgba ( GTK_COLOR_CHOOSER(gtk3med->specularColorButton), &rgba );
 
-        gtk_range_set_value ( gtk3med->specularShininessScale, mat->shininess );  
-        gtk_range_set_value ( gtk3med->specularLevelScale    , mat->specular_level * 255.0f );
+        gtk_range_set_value ( GTK_RANGE(gtk3med->specularShininessScale), mat->shininess );  
+        gtk_range_set_value ( GTK_RANGE(gtk3med->specularLevelScale)    , mat->specular_level * 255.0f );
 
         if ( mat->specular.image ) {
             if ( mat->specular.image->filename ) {
@@ -1247,7 +1256,7 @@ static void specularLevelCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents a loop ***/
     if ( gtk3med->core.gui->lock ) return;
 
-    ret = g3duimaterialedit_setSpecularLevel ( gtk3med, val / 255.0f );
+    ret = g3duimaterialedit_setSpecularLevel ( &gtk3med->core, val / 255.0f );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, ret ); 
 }
@@ -1263,18 +1272,18 @@ static void specularShininessCbk ( GtkWidget *widget, gpointer user_data ) {
     /*** prevents a loop ***/
     if ( gtk3med->core.gui->lock ) return;
 
-    ret = g3duimaterialedit_setSpecularShininess ( gtk3med, val );
+    ret = g3duimaterialedit_setSpecularShininess ( &gtk3med->core, val );
 
     gtk3_interpretUIReturnFlags ( gtk3gui, ret ); 
 }
 
 
 /******************************************************************************/
-static GtkWidget *createSpecularPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
-                                        uint32_t               x,
-                                        uint32_t               y,
-                                        uint32_t               width,
-                                        uint32_t               height ) {
+static GtkFixed *createSpecularPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
+                                       uint32_t               x,
+                                       uint32_t               y,
+                                       uint32_t               width,
+                                       uint32_t               height ) {
     GtkFixed *pan = ui_createTab ( gtk3med->notebook,
                                    gtk3med,
                                    EDITMATERIALSPECULAR,
@@ -1373,11 +1382,12 @@ static GtkWidget *createSpecularPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
 static void updateDiffusePanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
     gtk3med->core.gui->lock = 0x01;
 
-    gtk_widget_set_sensitive ( gtk3med->diffuseColorButton       , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->diffuseImageButton       , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->diffuseProcTypeCombo     , FALSE );
-    gtk_widget_set_sensitive ( gtk3med->diffuseProcSettingsButton, FALSE );
-    gtk_combo_box_set_active ( gtk3med->diffuseProcTypeCombo     , 0x00 );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->diffuseColorButton)       , FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->diffuseImageButton)       , FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->diffuseProcTypeCombo)     , FALSE );
+    gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->diffuseProcSettingsButton), FALSE );
+
+    gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3med->diffuseProcTypeCombo), 0x00 );
 
     if ( gtk3med->core.editedMaterial ) {
         G3DMATERIAL *mat = gtk3med->core.editedMaterial;
@@ -1388,41 +1398,41 @@ static void updateDiffusePanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
                          .alpha = mat->diffuse.solid.a };
 
         if ( mat->diffuse.flags & USECHANNEL ) {
-            gtk_toggle_button_set_active ( gtk3med->diffuseEnabledToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->diffuseEnabledToggle), TRUE  );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->diffuseEnabledToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->diffuseEnabledToggle), FALSE );
         }
 
         if ( mat->diffuse.flags & USESOLIDCOLOR ) {
-            gtk_toggle_button_set_active ( gtk3med->diffuseSolidToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->diffuseSolidToggle), TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3med->diffuseColorButton, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->diffuseColorButton), TRUE );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->diffuseSolidToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->diffuseSolidToggle), FALSE );
         }
 
         if ( mat->diffuse.flags & USEIMAGECOLOR ) {
-            gtk_toggle_button_set_active ( gtk3med->diffuseImageToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->diffuseImageToggle), TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3med->diffuseImageButton, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->diffuseImageButton), TRUE );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->diffuseImageToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->diffuseImageToggle), FALSE );
         }
 
         if ( mat->diffuse.flags & USEPROCEDURAL ) {
-            gtk_toggle_button_set_active ( gtk3med->diffuseProcToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->diffuseProcToggle), TRUE  );
 
-            gtk_widget_set_sensitive ( gtk3med->diffuseProcTypeCombo     , TRUE );
-            gtk_widget_set_sensitive ( gtk3med->diffuseProcSettingsButton, TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->diffuseProcTypeCombo)     , TRUE );
+            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3med->diffuseProcSettingsButton), TRUE );
         } else {
-            gtk_toggle_button_set_active ( gtk3med->diffuseProcToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3med->diffuseProcToggle), FALSE );
         }
 
         if ( proc ) {
-            gtk_combo_box_set_active ( gtk3med->diffuseProcTypeCombo, proc->type );
+            gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3med->diffuseProcTypeCombo), proc->type );
         }
 
-        gtk_color_chooser_set_rgba ( gtk3med->diffuseColorButton, &rgba );
+        gtk_color_chooser_set_rgba ( GTK_COLOR_CHOOSER(gtk3med->diffuseColorButton), &rgba );
 
         if ( mat->diffuse.image ) {
             if ( mat->diffuse.image->filename ) {
@@ -1447,11 +1457,11 @@ static void updateDiffusePanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
 }
 
 /******************************************************************************/
-static GtkWidget *createDiffusePanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
-                                       uint32_t               x,
-                                       uint32_t               y,
-                                       uint32_t               width,
-                                       uint32_t               height ) {
+static GtkFixed *createDiffusePanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
+                                      uint32_t               x,
+                                      uint32_t               y,
+                                      uint32_t               width,
+                                      uint32_t               height ) {
     GtkFixed *pan = ui_createTab ( gtk3med->notebook,
                                    gtk3med,
                                    EDITMATERIALDIFFUSE,
@@ -1600,7 +1610,7 @@ void gtk3_g3duimaterialedit_resize ( GTK3G3DUIMATERIALEDIT *gtk3med,
                                      uint32_t               width,
                                      uint32_t               height ) {
     if ( gtk3med->scrolled ) {
-        gtk_widget_set_size_request ( gtk3med->scrolled,
+        gtk_widget_set_size_request ( GTK_WIDGET(gtk3med->scrolled),
                                       width,
                                       height - 20 );
     }
@@ -1611,9 +1621,9 @@ GTK3G3DUIMATERIALEDIT *gtk3_g3duimaterialedit_create ( GtkWidget *parent,
                                                        GTK3G3DUI *gtk3gui,
                                                        char      *name ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = gtk3_g3duimaterialedit_new ( gtk3gui );
-    GtkWidget *scrolled = ui_gtk_scrolled_window_new ( CLASS_MAIN, NULL, NULL );
-    GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
-    GtkWidget *fixed    = ui_gtk_fixed_new ( CLASS_MAIN );
+    GtkScrolledWindow *scrolled = ui_gtk_scrolled_window_new ( CLASS_MAIN, NULL, NULL );
+    GtkNotebook *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
+    GtkFixed *fixed    = ui_gtk_fixed_new ( CLASS_MAIN );
 
     gtk3med->fixed     = fixed;
     gtk3med->scrolled  = scrolled;

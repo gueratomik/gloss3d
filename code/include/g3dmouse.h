@@ -347,7 +347,9 @@ typedef struct _G3DMESHFAC {
 typedef struct _M3DMOUSETOOL {
     G3DMOUSETOOL gtool;
     M3DOBJECT   *obj;
-} M3DMOUSETOOL, M3DMOUSETOOLSELECTEAREA, M3DMOUSETOOLSELECTOR;
+} M3DMOUSETOOL, 
+  M3DMOUSETOOLSELECTEAREA, 
+  M3DMOUSETOOLSELECTOR;
 
 /******************************************************************************/
 typedef struct _M3DMOUSETOOLPEN {
@@ -451,6 +453,7 @@ G3DMOUSETOOLCREATEFACEGROUP *g3dmousetoolcreatefacegroup_new ( );
 G3DMOUSETOOLMOVE *g3dmousetoolmove_new ( );
 G3DMOUSETOOLSCALE *g3dmousetoolscale_new ( );
 G3DMOUSETOOLROTATE *g3dmousetoolrotate_new ( );
+
 G3DMOUSETOOLPICKUV *g3dmousetoolpickUV_new ( );
 G3DMOUSETOOLMOVEUV *g3dmousetoolmoveUV_new ( );
 G3DMOUSETOOLSCALEUV *g3dmousetoolscaleUV_new ( );

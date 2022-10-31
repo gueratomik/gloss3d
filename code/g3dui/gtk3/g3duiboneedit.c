@@ -61,7 +61,7 @@ typedef struct _WEIGHTROUPDATA {
 static void selectWeightgroupCbk ( GtkWidget *widget,
                                    gpointer   user_data ) {
     WEIGHTROUPDATA *wgd = ( WEIGHTROUPDATA * ) user_data;
-    G3DSKIN *skn = g3dobject_getChildByType ( wgd->mes, G3DSKINTYPE );
+    G3DSKIN *skn = ( G3DSKIN * ) g3dobject_getChildByType ( ( G3DOBJECT * ) wgd->mes, G3DSKINTYPE );
 
     if ( skn ) {
         G3DRIG *rig = g3dbone_getRigBySkin ( wgd->bon, skn );
@@ -104,8 +104,8 @@ static void updateRiggingPanel ( GTK3G3DUIBONEEDIT *gtk3bed ) {
             while ( parent ) {
                 if ( parent->type == G3DMESHTYPE ) {
                     G3DMESH *mes =( G3DMESH * ) parent;
-                    G3DSKIN *skn = g3dobject_getChildByType ( mes, 
-                                                              G3DSKINTYPE );
+                    G3DSKIN *skn = ( G3DSKIN * ) g3dobject_getChildByType ( ( G3DOBJECT * ) mes, 
+                                                                            G3DSKINTYPE );
 
                     if ( skn ) {
                         LIST *ltmpgrp = mes->lweigrp;
@@ -117,30 +117,30 @@ static void updateRiggingPanel ( GTK3G3DUIBONEEDIT *gtk3bed ) {
 
                             snprintf ( buf, 0x100, "%s - %s", mes->obj.name, weigrp->name );
 
-                            GtkWidget *checkButton = ui_gtk_check_button_new_with_label ( CLASS_MAIN, buf );
+                            GtkCheckButton *checkButton = ui_gtk_check_button_new_with_label ( CLASS_MAIN, buf );
                             WEIGHTROUPDATA *wgd = calloc ( 0x01, sizeof ( WEIGHTROUPDATA ) );
 
                             wgd->bon    = bon;
                             wgd->mes    = mes;
                             wgd->weigrp = weigrp;
-                            wgd->bedit  = &gtk3bed->core;
+                            wgd->bedit  = gtk3bed;
 
                             if ( rig ) {
                                 if ( list_seek ( rig->lweightgroup, weigrp ) ) {
-                                    gtk_toggle_button_set_active ( checkButton, TRUE  );
+                                    gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(checkButton), TRUE  );
                                 } else {
-                                    gtk_toggle_button_set_active ( checkButton, FALSE );
+                                    gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(checkButton), FALSE );
                                 }
                             }
 
-                            gtk_fixed_put ( gtk3bed->weightgroupFixed, checkButton, 0, y );
+                            gtk_fixed_put ( gtk3bed->weightgroupFixed, GTK_WIDGET(checkButton), 0, y );
 
-                            gtk_widget_show ( checkButton );
+                            gtk_widget_show ( GTK_WIDGET(checkButton) );
 
-                            gtk_widget_set_size_request ( checkButton, 308, 24 );
+                            gtk_widget_set_size_request ( GTK_WIDGET(checkButton), 308, 24 );
 
-                            g_signal_connect ( checkButton, "toggled", G_CALLBACK( selectWeightgroupCbk  ), wgd );
-                            g_signal_connect ( checkButton, "destroy", G_CALLBACK( destroyWeightgroupCbk ), wgd );
+                            g_signal_connect ( G_OBJECT(checkButton), "toggled", G_CALLBACK( selectWeightgroupCbk  ), wgd );
+                            g_signal_connect ( G_OBJECT(checkButton), "destroy", G_CALLBACK( destroyWeightgroupCbk ), wgd );
 
                             y += 24;
 
@@ -151,14 +151,14 @@ static void updateRiggingPanel ( GTK3G3DUIBONEEDIT *gtk3bed ) {
 
                         snprintf ( buf, 0x100, "%s - no Skin modifier found!", mes->obj.name );
 
-                        GtkWidget *lab = ui_createSimpleLabel ( gtk3bed->weightgroupFixed,
-                                                                NULL,
-                                                                buf,
-                                                                CLASS_WARNING,
-                                                                0, 
-                                                                y,
-                                                                308,
-                                                                24 );
+                        GtkLabel *lab = ui_createSimpleLabel ( gtk3bed->weightgroupFixed,
+                                                               NULL,
+                                                               buf,
+                                                               CLASS_WARNING,
+                                                               0, 
+                                                               y,
+                                                               308,
+                                                               24 );
                         y += 24;
                     }
 
@@ -190,16 +190,16 @@ static void createRiggingPanel ( GTK3G3DUIBONEEDIT *gtk3bed,
     GtkScrolledWindow *scrolled = ui_gtk_scrolled_window_new ( CLASS_MAIN, NULL, NULL );
     GtkFixed *fixed = ui_gtk_fixed_new ( CLASS_MAIN );
 
-    gtk_container_add ( GTK_CONTAINER(scrolled), fixed    );
+    gtk_container_add ( GTK_CONTAINER(scrolled), GTK_WIDGET(fixed) );
 
-    gtk_widget_set_size_request ( scrolled, width, height );
-    gtk_widget_set_size_request ( fixed   , width, height );
+    gtk_widget_set_size_request ( GTK_WIDGET(scrolled), width, height );
+    gtk_widget_set_size_request ( GTK_WIDGET(fixed)   , width, height );
 
-    gtk_fixed_put ( pan, scrolled, x, y );
+    gtk_fixed_put ( pan, GTK_WIDGET(scrolled), x, y );
 
     gtk3bed->weightgroupFixed = fixed;
 
-    gtk_widget_show_all ( scrolled );
+    gtk_widget_show_all ( GTK_WIDGET(scrolled) );
 }
 
 /******************************************************************************/
@@ -301,13 +301,13 @@ GTK3G3DUIBONEEDIT *gtk3_g3duiboneedit_create ( GtkWidget *parent,
                                                GTK3G3DUI *gtk3gui,
                                                char      *name ) {
     GTK3G3DUIBONEEDIT *gtk3bed = gtk3_g3duiboneedit_new ( gtk3gui );
-    GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
+    GtkNotebook *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
 
-    gtk3bed->notebook = GTK_NOTEBOOK(notebook);
+    gtk3bed->notebook = notebook;
 
-    gtk_notebook_set_scrollable ( GTK_NOTEBOOK(notebook), TRUE );
+    gtk_notebook_set_scrollable ( notebook, TRUE );
 
-    gtk_widget_set_name ( notebook, name );
+    gtk_widget_set_name ( GTK_WIDGET(notebook), name );
 
     g_signal_connect ( G_OBJECT (notebook), "realize", G_CALLBACK (Realize), gtk3bed );
     g_signal_connect ( G_OBJECT (notebook), "destroy", G_CALLBACK (Destroy), gtk3bed );
@@ -315,7 +315,7 @@ GTK3G3DUIBONEEDIT *gtk3_g3duiboneedit_create ( GtkWidget *parent,
     createGeneralPanel ( gtk3bed, 0, 0, 310, 150 );
     createRiggingPanel ( gtk3bed, 0, 0, 310, 150 );
 
-    gtk_widget_show ( notebook );
+    gtk_widget_show ( GTK_WIDGET(notebook) );
 
 
     return gtk3bed;

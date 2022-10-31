@@ -71,79 +71,91 @@ static void Realize ( GtkWidget *widget,
 static void gtk3_g3duiboard_createToolBook ( GTK3G3DUIBOARD *gtk3board ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3board->core.gui;
     GtkNotebook  *toolbook = ui_gtk_notebook_new ( CLASS_MAIN );
-    GtkWidget *moulab = ui_gtk_label_new ( CLASS_MAIN, "Mouse Tool" );
-    GtkWidget *coordslab = ui_gtk_label_new ( CLASS_MAIN, "Coordinates" );
+    GtkLabel *moulab = ui_gtk_label_new ( CLASS_MAIN, "Mouse Tool" );
+    GtkLabel *coordslab = ui_gtk_label_new ( CLASS_MAIN, "Coordinates" );
     GTK3G3DUIMOUSETOOLEDIT *gtk3mtledit;
     GTK3G3DUICOORDINATESEDIT *gtk3coordsedit;
 
-    gtk_layout_put ( GTK_LAYOUT(gtk3board->layout), toolbook, 0, 0 );
+    gtk_layout_put ( GTK_LAYOUT(gtk3board->layout), GTK_WIDGET(toolbook), 0, 0 );
 
     gtk3board->toolbook = toolbook;
 
     /*************** Coordinates *****************/
-    gtk3coordsedit = gtk3_g3duicoordinatesedit_create ( toolbook, 
+    gtk3coordsedit = gtk3_g3duicoordinatesedit_create ( GTK_WIDGET(toolbook), 
                                                         gtk3gui,
                                                         "Coordinates" );
 
-    gtk_notebook_append_page ( GTK_NOTEBOOK(toolbook), gtk3coordsedit->fixed, coordslab );
+    gtk_notebook_append_page ( GTK_NOTEBOOK(toolbook),
+                               GTK_WIDGET(gtk3coordsedit->fixed),
+                               GTK_WIDGET(coordslab) );
 
-    gtk3board->core.coordsedit = gtk3coordsedit;
+    gtk3board->core.coordsedit = &gtk3coordsedit->core;
 
 
     /**************** Mouse tool **************/
-    gtk3mtledit = gtk3_g3duimousetooledit_create ( toolbook, 
+    gtk3mtledit = gtk3_g3duimousetooledit_create ( GTK_WIDGET(toolbook), 
                                                    gtk3gui,
                                                    "Mouse tools" );
 
-    gtk_notebook_append_page ( GTK_NOTEBOOK(toolbook), gtk3mtledit->scrolled, moulab );
+    gtk_notebook_append_page ( GTK_NOTEBOOK(toolbook),
+                               GTK_WIDGET(gtk3mtledit->scrolled),
+                               GTK_WIDGET(moulab) );
 
-    gtk3board->core.mtledit = gtk3mtledit;
+    gtk3board->core.mtledit = &gtk3mtledit->core;
 
 
 
-    gtk_widget_show ( toolbook );
+    gtk_widget_show ( GTK_WIDGET(toolbook) );
 }
 
 /******************************************************************************/
 static void gtk3_g3duiboard_createBoards ( GTK3G3DUIBOARD *gtk3board ) {
-    GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
-    GtkWidget *objlab = ui_gtk_label_new ( CLASS_MAIN, "Objects" );
-    GtkWidget *matlab = ui_gtk_label_new ( CLASS_MAIN, "Materials" );
+    GtkNotebook *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
+    GtkLabel *objlab = ui_gtk_label_new ( CLASS_MAIN, "Objects" );
+    GtkLabel *matlab = ui_gtk_label_new ( CLASS_MAIN, "Materials" );
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3board->core.gui;
     GTK3G3DUIMATERIALBOARD *gtk3matboard;
     GTK3G3DUIOBJECTBOARD *gtk3objboard;
 
-    gtk_layout_put ( GTK_LAYOUT(gtk3board->layout), notebook, 0, 0 );
+    gtk_layout_put ( GTK_LAYOUT(gtk3board->layout), 
+                     GTK_WIDGET(notebook), 0, 0 );
 
     gtk3board->notebook = notebook;
 
     /**************** Object board **************/
-    gtk3objboard = gtk3_g3duiobjectboard_create ( notebook,
+    gtk3objboard = gtk3_g3duiobjectboard_create ( GTK_WIDGET(notebook),
                                                   gtk3gui,
                                                   "Objects" );
 
-    gtk_notebook_append_page ( GTK_NOTEBOOK(notebook), gtk3objboard->layout, objlab );
+    gtk_notebook_append_page ( GTK_NOTEBOOK(notebook), 
+                               GTK_WIDGET(gtk3objboard->layout),
+                               GTK_WIDGET(objlab) );
 
     gtk3board->core.objboard = ( G3DUIOBJECTBOARD * ) gtk3objboard;
 
     /**************** Material board **************/
 
-    gtk3matboard = gtk3_g3duimaterialboard_create ( notebook,
+    gtk3matboard = gtk3_g3duimaterialboard_create ( GTK_WIDGET(notebook),
                                                     gtk3gui,
                                                     "Material" );
 
-    gtk_notebook_append_page ( GTK_NOTEBOOK(notebook), gtk3matboard->layout, matlab );
+    gtk_notebook_append_page ( GTK_NOTEBOOK(notebook), 
+                               GTK_WIDGET(gtk3matboard->layout),
+                               GTK_WIDGET(matlab) );
 
     gtk3board->core.matboard = ( G3DUIMATERIALBOARD * ) gtk3matboard;
 
 
-    gtk_widget_show ( notebook );
+    gtk_widget_show ( GTK_WIDGET(notebook) );
 }
 
 /******************************************************************************/
 void gtk3_g3duiboard_resize ( GTK3G3DUIBOARD *gtk3board,
                               uint32_t        width,
                               uint32_t        height ) {
+    GTK3G3DUIOBJECTBOARD   *gtk3objboard = ( GTK3G3DUIOBJECTBOARD   * ) gtk3board->core.objboard;
+    GTK3G3DUIMATERIALBOARD *gtk3matboard = ( GTK3G3DUIMATERIALBOARD * ) gtk3board->core.matboard;
+
     GdkRectangle gdkrec;
 
     g3duiboard_resize ( &gtk3board->core,
@@ -155,32 +167,32 @@ void gtk3_g3duiboard_resize ( GTK3G3DUIBOARD *gtk3board,
     g3duirectangle_toGdkRectangle ( &gtk3board->core.boardrec, &gdkrec );
 
     gtk_layout_move ( gtk3board->layout,
-                      gtk3board->notebook,
+                      GTK_WIDGET(gtk3board->notebook),
                       gdkrec.x,
                       gdkrec.y );
 
-    gtk_widget_set_size_request ( gtk3board->notebook,
+    gtk_widget_set_size_request ( GTK_WIDGET(gtk3board->notebook),
                                   gdkrec.width,
                                   gdkrec.height );
 
-    gtk3_g3duiobjectboard_resize ( gtk3board->core.objboard,
-                                   gdkrec.width,
-                                   gdkrec.height );
-
-    gtk3_g3duimaterialboard_resize ( gtk3board->core.matboard,
+    gtk3_g3duiobjectboard_resize   ( gtk3objboard,
                                      gdkrec.width,
-                                     gdkrec.height );
+                                     gdkrec.height - 20 );
+
+    gtk3_g3duimaterialboard_resize ( gtk3matboard,
+                                     gdkrec.width,
+                                     gdkrec.height - 20 );
 
     /*******************************/
 
     g3duirectangle_toGdkRectangle ( &gtk3board->core.toolrec, &gdkrec );
 
     gtk_layout_move ( gtk3board->layout,
-                      gtk3board->toolbook,
+                      GTK_WIDGET(gtk3board->toolbook),
                       gdkrec.x,
                       gdkrec.y );
 
-    gtk_widget_set_size_request ( gtk3board->toolbook,
+    gtk_widget_set_size_request ( GTK_WIDGET(gtk3board->toolbook),
                                   gdkrec.width,
                                   gdkrec.height );
 }
@@ -191,18 +203,17 @@ GTK3G3DUIBOARD *gtk3_g3duiboard_create ( GtkWidget *parent,
                                          GTK3G3DUI *gtk3gui,
                                          char      *name ) {
     GTK3G3DUIBOARD *gtk3board = gtk3_g3duiboard_new ( gtk3gui );
-    GtkWidget    *layout = ui_gtk_layout_new ( CLASS_MAIN, NULL, NULL );
+    GtkLayout    *layout = ui_gtk_layout_new ( CLASS_MAIN, NULL, NULL );
 
-    g_signal_connect ( G_OBJECT (layout), "realize"      , G_CALLBACK (Realize)     , gtk3board );
-    g_signal_connect ( G_OBJECT (layout), "destroy"      , G_CALLBACK (Destroy)     , gtk3board );
-
-    gtk_widget_show ( layout );
+    g_signal_connect ( G_OBJECT (layout), "realize", G_CALLBACK (Realize), gtk3board );
+    g_signal_connect ( G_OBJECT (layout), "destroy", G_CALLBACK (Destroy), gtk3board );
 
     gtk3board->layout = layout;
 
     gtk3_g3duiboard_createBoards ( gtk3board );
     gtk3_g3duiboard_createToolBook  ( gtk3board );
 
+    gtk_widget_show ( GTK_WIDGET(layout) );
 
     return gtk3board;
 }

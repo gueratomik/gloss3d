@@ -332,6 +332,9 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define MENU_SAVEIMAGE    "Save image"
 #define MENU_SAVEIMAGEAS  "Save image as"
 
+#define MENU_CREATEIMAGE  "Create Image"
+#define MENU_LOADIMAGE    "Load Image"
+
 #define MENU_UNDO                 "Undo"
 #define MENU_REDO                 "Redo"
 #define MENU_DELETE               "Delete"
@@ -534,9 +537,9 @@ typedef struct _M3DUIMODEBAR      M3DUIMODEBAR;
 typedef struct _M3DUITOOLBAR      M3DUITOOLBAR;
 typedef struct _M3DUIBOARD        M3DUIBOARD;
 
-#define NBVIEWBUTTON 0x04
 
 /******************************************************************************/
+#define NBVIEWBUTTON 0x04
 typedef struct _M3DUIVIEW {
     M3DUI          *mui;
     G3DUIRECTANGLE pixrec[NBVIEWBUTTON];       /*** pixmaps position ***/
@@ -1280,7 +1283,6 @@ typedef struct _G3DUIQUAD {
 
 
 /************************** View Widget Structure *****************************/
-
 #define BUTTONSIZE      0x10 /*** 16x16 ***/
 
 #define MAXIMIZEBUTTON  0x03
@@ -2349,7 +2351,28 @@ Q3DFILTER *q3dfilter_preview_new ( G3DUI *gui );
 
 /********************************* M3DUI **************************************/
 void m3dui_init ( M3DUI *mui, G3DUI *gui );
+uint64_t m3dui_redo ( M3DUI *mui );
+uint64_t m3dui_undo ( M3DUI *mui );
+uint64_t m3dui_ver2uv ( M3DUI *mui );
+uint64_t m3dui_uv2ver ( M3DUI *mui );
+uint64_t m3dui_fac2uvset ( M3DUI *mui );
+uint64_t m3dui_uvset2fac ( M3DUI *mui );
+void m3dui_resizeBuffers ( M3DUI *mui );
+uint64_t m3dui_fillWithColor ( M3DUI   *mui, 
+                               uint32_t color );
+uint64_t m3dui_setUVMouseTool ( M3DUI          *mui, 
+                                G3DCAMERA      *cam, 
+                                G3DUIMOUSETOOL *mou );
+G3DIMAGE *m3dui_getWorkingImage ( M3DUI *mui );
+G3DCHANNEL *m3dui_getWorkingChannel ( M3DUI *mui );
+uint64_t m3dui_setMouseTool ( M3DUI          *mui, 
+                              G3DCAMERA      *cam, 
+                              G3DUIMOUSETOOL *mou );
 
+/******************************* m3duimain.c **********************************/
+void m3duimain_resize ( M3DUIMAIN *mmn, 
+                        uint32_t   width, 
+                        uint32_t   height );
 
 /******************************* m3duiview.c **********************************/
 void m3duiview_initGL ( M3DUIVIEW *view );
@@ -2358,26 +2381,27 @@ void m3duiview_sizeGL ( M3DUIVIEW *view,
                         uint32_t   height );
 void m3duiview_showGL ( M3DUIVIEW    *view,
                         uint64_t      engine_flags );
+uint64_t m3duiview_inputGL ( M3DUIVIEW *view, G3DEvent *g3dev );
 
 void m3duiview_resize ( M3DUIVIEW *view, 
                         uint32_t   width, 
                         uint32_t   height,
                         uint32_t   menuHeight );
-void m3duiview_init ( M3DUIVIEW *view, 
-                      uint32_t   width,
-                      uint32_t   height );
+void m3duiview_init ( M3DUIVIEW *view );
 void m3duiview_releaseButton ( M3DUIVIEW *view );
 void m3duiview_pressButton ( M3DUIVIEW *view, 
                              int        x,
                              int        y );
 void m3duiview_destroyGL ( M3DUIVIEW *view );
 void m3duiview_moveForward ( M3DUIVIEW *view, 
-                             int32_t    x, 
-                             int32_t    xold );
+                             float    difx );
 void m3duiview_moveSideward ( M3DUIVIEW *view, 
-                              int32_t    x, 
-                              int32_t    y, 
-                              int32_t    xold, 
-                              int32_t    yold );
+                              float    difx,
+                              float    dify );
+
+/******************************* m3duimodebar.c *******************************/
+uint64_t m3duimodebar_setMode ( M3DUIMODEBAR *mmb, 
+                                const char   *modename );
+
 
 #endif

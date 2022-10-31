@@ -34,6 +34,36 @@
 void m3dui_init ( M3DUI *mui, G3DUI *gui )  {
     mui->gui          = gui;
     mui->engine_flags = VIEWVERTEXUV;
+
+    SHOWCHANNEL(mui->engine_flags,DIFFUSECHANNELID);
+}
+
+/******************************************************************************/
+uint64_t m3dui_setMouseTool ( M3DUI          *mui, 
+                              G3DCAMERA      *cam, 
+                              G3DUIMOUSETOOL *mou ) {
+    G3DUI        *gui = mui->gui;
+    uint64_t ret = 0x00;
+
+    /*** Call the mouse tool initialization function once. This ***/
+    /*** can be used by this function to initialize some values ***/
+    if ( mou ) {
+        if ( mou->tool->init ) {
+            ret = mou->tool->init ( mou->tool, 
+                                    gui->sce, 
+                                    cam, 
+                                    gui->urm,
+                                    mui->engine_flags );
+        }
+
+        if ( ( mou->tool->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
+            mui->curmou = ( G3DUIMOUSETOOL * ) mou;
+        }
+    } else {
+        mui->curmou = NULL;
+    }
+
+    return ret;
 }
 
 /******************************************************************************/
@@ -113,7 +143,7 @@ uint64_t m3dui_setUVMouseTool ( M3DUI          *mui,
 
 /******************************************************************************/
 uint64_t m3dui_fillWithColor ( M3DUI   *mui, 
-                                  uint32_t color ) {
+                               uint32_t color ) {
     G3DIMAGE *img = m3dui_getWorkingImage ( mui );
 
     if ( img ) {
@@ -154,19 +184,23 @@ uint64_t m3dui_fillWithColor ( M3DUI   *mui,
 /******************************************************************************/
 void m3dui_resizeBuffers ( M3DUI *mui ) {
     G3DIMAGE *img = m3dui_getWorkingImage ( mui );
-    M3DMOUSETOOL *seltool = g3dui_getMouseTool ( mui->gui,
-                                                 SELECTTOOL );
+    G3DUIMOUSETOOL *mou = g3dui_getMouseTool ( mui->gui,
+                                               SELECTTOOL );
 
-    seltool->obj->reset ( seltool->obj, mui->engine_flags );
+    if ( mou ) {
+        M3DMOUSETOOL *seltool = ( M3DMOUSETOOL * ) mou->tool;
 
-    if ( img ) {
-        if ( img->width && img->height ) {
-            uint32_t size = img->width *
-                            img->height;
-            mui->mask    = realloc ( mui->mask   , size );
-            mui->zbuffer = realloc ( mui->zbuffer, size );
+        seltool->obj->reset ( seltool->obj, mui->engine_flags );
 
-            memset ( mui->mask, 0xFF, size );
+        if ( img ) {
+            if ( img->width && img->height ) {
+                uint32_t size = img->width *
+                                img->height;
+                mui->mask    = realloc ( mui->mask   , size );
+                mui->zbuffer = realloc ( mui->zbuffer, size );
+
+                memset ( mui->mask, 0xFF, size );
+            }
         }
     }
 }

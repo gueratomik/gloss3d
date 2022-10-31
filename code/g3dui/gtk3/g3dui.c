@@ -26,8 +26,14 @@
 /*                         Keep It Simple Stupid !                            */
 /*                                                                            */
 /******************************************************************************/
+#define _GNU_SOURCE
+#include <string.h> /*** strcasestr() ***/
+
+
 #include <config.h>
 #include <g3dui_gtk3.h>
+
+
 
 static void gtk3_updateAllCurrentMouseTools ( );
 
@@ -43,7 +49,7 @@ void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in,
 /******************************************************************************/
 GtkFrame *ui_gtk_frame_new ( char       *class,
                              const char *label ) {
-    GtkFrame *frm = gtk_frame_new ( label );
+    GtkWidget *frm = gtk_frame_new ( label );
 
     if ( class ) {
         GtkStyleContext *context = gtk_widget_get_style_context ( frm );
@@ -69,7 +75,7 @@ GtkScrolledWindow *ui_gtk_scrolled_window_new ( char          *class,
 
 /******************************************************************************/
 GtkEntry *ui_gtk_entry_new ( char *class ) {
-    GtkEntry *ent = gtk_entry_new ( );
+    GtkWidget *ent = gtk_entry_new ( );
 
     if ( class ) {
         GtkStyleContext *context = gtk_widget_get_style_context ( ent );
@@ -146,7 +152,7 @@ GtkStatusbar *ui_gtk_statusbar_new ( char *class ) {
 
 /******************************************************************************/
 GtkDialog *ui_gtk_dialog_new ( char *class ) {
-    GtkDialog *dial = gtk_dialog_new ( );
+    GtkWidget *dial = gtk_dialog_new ( );
 
     if ( class ) {
         GtkStyleContext *context = gtk_widget_get_style_context ( dial );
@@ -221,7 +227,7 @@ GtkWindow *ui_gtk_window_new ( char         *class,
 
 /******************************************************************************/
 GtkToggleToolButton *ui_gtk_toggle_tool_button_new ( char *class ) {
-    GtkWidget *btn = gtk_toggle_tool_button_new ( );
+    GtkWidget *btn = ( GtkWidget * ) gtk_toggle_tool_button_new ( );
 
     if ( class ) {
         GtkStyleContext *context = gtk_widget_get_style_context ( btn );
@@ -247,7 +253,7 @@ GtkEventBox *ui_gtk_event_box_new ( char *class ) {
 GtkToolItem *ui_gtk_tool_button_new ( char        *class,
                                       GtkWidget   *icon_widget,
                                       const gchar *label ) {
-    GtkWidget *btn = gtk_tool_button_new ( icon_widget, label );
+    GtkWidget *btn = ( GtkWidget * ) gtk_tool_button_new ( icon_widget, label );
 
     if ( class ) {
         GtkStyleContext *context = gtk_widget_get_style_context ( btn );
@@ -411,19 +417,19 @@ GtkDrawingArea *ui_createDrawingArea ( GtkFixed *parent,
                                        void    (*cbk)( GtkWidget *, 
                                                        cairo_t   *cr,
                                                        gpointer ) ) {
-    GtkWidget *area = ui_gtk_drawing_area_new ( class );
+    GtkDrawingArea *area = ui_gtk_drawing_area_new ( class );
 
-    gtk_widget_set_name ( area, name );
+    gtk_widget_set_name ( GTK_WIDGET(area), name );
 
-    gtk_widget_set_size_request ( area, width, height );
+    gtk_widget_set_size_request ( GTK_WIDGET(area), width, height );
 
     if ( cbk ) {
-        g_signal_connect ( area, "draw", G_CALLBACK ( cbk ), data );
+        g_signal_connect ( G_OBJECT(area), "draw", G_CALLBACK (cbk), data );
     }
 
-    gtk_fixed_put ( GTK_FIXED(parent), area, x, y );
+    gtk_fixed_put ( parent, GTK_WIDGET(area), x, y );
 
-    gtk_widget_show ( area );
+    gtk_widget_show ( GTK_WIDGET(area) );
 
 
     return area;
@@ -447,7 +453,7 @@ GtkFixed *ui_createTab ( GtkNotebook *parent,
     gtk_widget_set_size_request ( GTK_WIDGET(pan), width, height );
 
     /*gtk_fixed_put ( parent, pan, x, y );*/
-    gtk_notebook_append_page ( parent, GTK_WIDGET(pan), lab );
+    gtk_notebook_append_page ( parent, GTK_WIDGET(pan), GTK_WIDGET(lab) );
 
     gtk_widget_show ( GTK_WIDGET(lab) );
     gtk_widget_show ( GTK_WIDGET(pan) );
@@ -457,17 +463,17 @@ GtkFixed *ui_createTab ( GtkNotebook *parent,
 }
 
 /******************************************************************************/
-GtkToggleButton *ui_createToggleLabel ( GtkFixed *parent, 
-                                        void     *data,
-                                        char     *name,
-                                        char     *class,
-                                        gint      x, 
-                                        gint      y,
-                                        gint      labwidth,
-                                        gint      btnwidth,
-                                        gint      height,
-                                        void    (*cbk)( GtkWidget *, 
-                                                        gpointer ) ) {
+GtkCheckButton *ui_createToggleLabel ( GtkFixed *parent, 
+                                       void     *data,
+                                       char     *name,
+                                       char     *class,
+                                       gint      x, 
+                                       gint      y,
+                                       gint      labwidth,
+                                       gint      btnwidth,
+                                       gint      height,
+                                       void    (*cbk)( GtkWidget *, 
+                                                       gpointer ) ) {
     GtkCheckButton *btn = ui_gtk_check_button_new ( class );
     GtkLabel       *lab = ui_gtk_label_new ( class, name );
 
@@ -506,21 +512,21 @@ GtkTextView *ui_createTextView ( GtkWidget *parent,
                                  gint       height,
                                  void     (*cbk)( GtkTextBuffer *,
                                                   gpointer ) ) {
-    GtkWidget     *win = ui_gtk_scrolled_window_new ( class, NULL, NULL );
-    GtkWidget     *txt = ui_gtk_text_view_new ( class );
-    GtkTextBuffer *buf = gtk_text_view_get_buffer( txt );
+    GtkScrolledWindow *win = ui_gtk_scrolled_window_new ( class, NULL, NULL );
+    GtkTextView       *txt = ui_gtk_text_view_new ( class );
+    GtkTextBuffer     *buf = gtk_text_view_get_buffer( txt );
 
-    gtk_container_add( GTK_CONTAINER( win ), txt );
+    gtk_container_add( GTK_CONTAINER(win), GTK_WIDGET(txt) );
 
-    gtk_widget_set_size_request ( win, width, height );
+    gtk_widget_set_size_request ( GTK_WIDGET(win), width, height );
 
-    gtk_fixed_put ( GTK_FIXED( parent ), win, x, y );
+    gtk_fixed_put ( GTK_FIXED(parent), GTK_WIDGET(win), x, y );
 
     if ( cbk ) {
-        g_signal_connect ( buf, "changed", G_CALLBACK(cbk), data );
+        g_signal_connect ( G_OBJECT(buf), "changed", G_CALLBACK(cbk), data );
     }
 
-    gtk_widget_show ( win );
+    gtk_widget_show ( GTK_WIDGET(win) );
 
 
     return txt;
@@ -548,7 +554,7 @@ GtkLabel *ui_createSimpleLabel ( GtkFixed *parent,
 }
 
 /******************************************************************************/
-GtkScale *ui_createHorizontalScale ( GtkWidget *parent,
+GtkScale *ui_createHorizontalScale ( GtkFixed  *parent,
                                      void      *data,
                                      char      *name,
                                      char      *class,
@@ -568,17 +574,17 @@ GtkScale *ui_createHorizontalScale ( GtkWidget *parent,
                                                   max,
                                                   step );
 
-    gtk_widget_set_name ( scl, name );
+    gtk_widget_set_name ( GTK_WIDGET(scl), name );
 
     gtk_scale_set_value_pos ( GTK_SCALE(scl), GTK_POS_RIGHT );
 
-    gtk_widget_set_size_request ( scl, width, height );
+    gtk_widget_set_size_request ( GTK_WIDGET(scl), width, height );
 
     if ( cbk ) {
-        g_signal_connect ( scl, "value-changed", G_CALLBACK ( cbk ), data );
+        g_signal_connect ( G_OBJECT(scl), "value-changed", G_CALLBACK ( cbk ), data );
     }
 
-    gtk_fixed_put ( GTK_FIXED(parent), scl, x + labwidth + 8, y );
+    gtk_fixed_put ( GTK_FIXED(parent), GTK_WIDGET(scl), x + labwidth + 8, y );
 
     if ( labwidth ) {
         GdkRectangle lrec = { 0x00, 0x00, labwidth, height };
@@ -595,7 +601,7 @@ GtkScale *ui_createHorizontalScale ( GtkWidget *parent,
         gtk_widget_show ( GTK_WIDGET(lab) );
     }
 
-    gtk_widget_show ( scl );
+    gtk_widget_show ( GTK_WIDGET(scl) );
 
 
     return scl;
@@ -643,7 +649,7 @@ GtkColorButton *ui_createColorButton ( GtkFixed *parent,
     gtk_widget_show ( btn );
 
 
-    return btn;
+    return GTK_COLOR_BUTTON(btn);
 }
 
 /******************************************************************************/
@@ -694,7 +700,7 @@ GtkSpinButton *ui_createNumericText ( GtkFixed      *parent,
         gtk_widget_show ( GTK_WIDGET(lab) );
     }
 
-    gtk_widget_show ( btn );
+    gtk_widget_show ( GTK_WIDGET(btn) );
 
     return GTK_SPIN_BUTTON(btn);
 }
@@ -824,10 +830,10 @@ GtkComboBoxText *ui_createSelector ( GtkFixed  *parent,
     }
 
     if ( cbk ) { 
-        g_signal_connect ( cmb, "changed", G_CALLBACK(cbk), data );
+        g_signal_connect ( G_OBJECT(cmb), "changed", G_CALLBACK(cbk), data );
     }
 
-    gtk_widget_show ( cmb );
+    gtk_widget_show ( GTK_WIDGET(cmb) );
 
 
     return cmb;
@@ -846,35 +852,35 @@ GtkEntry *ui_createCharText ( GtkWidget *parent,
                               void     (*cbk)( GtkWidget *,
                                                GdkEvent  *, 
                                                gpointer ) ) {
-    GtkWidget *ent = ui_gtk_entry_new ( class );
+    GtkEntry *ent = ui_gtk_entry_new ( class );
 
-    gtk_widget_set_name ( ent, name );
+    gtk_widget_set_name ( GTK_WIDGET(ent), name );
 
-    gtk_widget_set_size_request ( ent, txtwidth, txtheight );
+    gtk_widget_set_size_request ( GTK_WIDGET(ent), txtwidth, txtheight );
 
     /*gtk_entry_set_width_chars ( ent, 12 );*/
 
-    gtk_fixed_put ( GTK_FIXED(parent), ent, x + labwidth, y );
+    gtk_fixed_put ( GTK_FIXED(parent), GTK_WIDGET(ent), x + labwidth, y );
 
     if ( labwidth ) {
-        GtkWidget   *lab  = ui_gtk_label_new ( class, name );
+        GtkLabel *lab  = ui_gtk_label_new ( class, name );
 
         gtk_label_set_xalign ( lab, 0.9f );
 
-        gtk_widget_set_name ( lab, name );
+        gtk_widget_set_name ( GTK_WIDGET(lab), name );
 
-        gtk_widget_set_size_request ( lab, labwidth, txtheight );
+        gtk_widget_set_size_request ( GTK_WIDGET(lab), labwidth, txtheight );
 
-        gtk_fixed_put ( GTK_FIXED(parent), lab, x, y );
+        gtk_fixed_put ( GTK_FIXED(parent), GTK_WIDGET(lab), x, y );
 
-        gtk_widget_show ( lab );
+        gtk_widget_show ( GTK_WIDGET(lab) );
     }
 
     if ( cbk ) {
-        g_signal_connect ( ent, "key-release-event", G_CALLBACK(cbk), data );
+        g_signal_connect ( G_OBJECT(ent), "key-release-event", G_CALLBACK(cbk), data );
     }
 
-    gtk_widget_show ( ent );
+    gtk_widget_show ( GTK_WIDGET(ent) );
 
     return ent;
 }
@@ -1006,7 +1012,7 @@ static GtkButton *ui_createButton ( GtkFixed    *parent,
                                     void        *data, 
                                     char        *name,
                                     char        *class,
-                                    char       **xpm,
+                              const char       **xpm,
                                     gint         x, 
                                     gint         y,
                                     gint         width,
@@ -1074,7 +1080,7 @@ GtkButton *ui_createImageButton ( GtkFixed  *parent,
                                   void        *data, 
                                   char        *name,
                                   char        *class,
-                                  char       **xpm,
+                           const  char       **xpm,
                                   gint         x,
                                   gint         y,
                                   gint         width,
@@ -1126,7 +1132,7 @@ uint64_t gtk3_loadImageForChannel ( GTK3G3DUI  *gtk3gui,
 
     if ( res == GTK_RESPONSE_OK ) {
         GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
-        const char     *filename = gtk_file_chooser_get_filename ( chooser );
+        char *filename = gtk_file_chooser_get_filename ( chooser );
         G3DUIMATERIALEDIT matedit = { .gui = gui };
 
         g3duimaterialedit_channelChooseImage ( &matedit,
@@ -1312,7 +1318,7 @@ void gtk3_saveAs ( GTK3G3DUI *gtk3gui ) {
                    VERSION,
                    basename ( filenameext ) );
 
-        gtk_window_set_title ( gtk_widget_get_parent ( gtk3gui->topWin ), windowname );
+        gtk_window_set_title ( gtk3gui->topWin, windowname );
 
         g_free    ( ( gpointer ) filename );
     }
@@ -1371,7 +1377,7 @@ void gtk3_openFile ( GTK3G3DUI *gtk3gui ) {
                        VERSION,
                        basename ( filename ) );
 
-            gtk_window_set_title ( gtk_widget_get_parent ( gtk3gui->topWin ), windowname );
+            gtk_window_set_title ( gtk3gui->topWin, windowname );
 
             g_free    ( filename );
         }
@@ -1392,24 +1398,24 @@ void gtk3_runRender ( GTK3G3DUI *gtk3gui ) {
         G3DCAMERA *mainCamera = gui->main->quad->view[0x00]->cam;
 
         if ( mainCamera ) {
-            GtkWidget *dial = ui_gtk_window_new ( CLASS_MAIN, 
+            GtkWindow *dial = ui_gtk_window_new ( CLASS_MAIN, 
                                                   GTK_WINDOW_TOPLEVEL );
 
-            gtk3_g3duirenderwindow_create ( dial, 
+            gtk3_g3duirenderwindow_create ( GTK_WINDOW(dial), 
                                             gtk3gui, 
                                             "Rendering" );
 
-            gtk_window_set_position ( dial, GTK_WIN_POS_CENTER_ALWAYS );
-            gtk_widget_set_size_request ( dial, 800, 600 );
+            gtk_window_set_position ( GTK_WINDOW(dial), GTK_WIN_POS_CENTER_ALWAYS );
+            gtk_widget_set_size_request ( GTK_WIDGET(dial), 800, 600 );
 
-            gtk_widget_show ( dial );
+            gtk_widget_show ( GTK_WIDGET(dial) );
         }
     }
 }
 
 /******************************************************************************/
 uint64_t gtk3_setMouseTool ( GTK3G3DUI *gtk3gui, 
-                             GtkWidget *button, 
+                             GtkWidget *button,
                              char      *toolName ) {
     G3DUI * gui = ( G3DUI * ) gtk3gui;
     G3DUIMOUSETOOL *mou = g3dui_getMouseTool ( gui, toolName );
@@ -1509,10 +1515,10 @@ static void gtk3_updateMouseTool ( GTK3G3DUI *gtk3gui ) {
             G3DUIBOARD *board = main->board;
 
             if ( board ) {
-                G3DUIMOUSETOOLEDIT *mtledit = board->mtledit;
+                GTK3G3DUIMOUSETOOLEDIT *gtk3mtledit = ( GTK3G3DUIMOUSETOOLEDIT * ) board->mtledit;
 
-                if ( mtledit ) {
-                    gtk3_g3duimousetooledit_update ( mtledit );
+                if ( gtk3mtledit ) {
+                    gtk3_g3duimousetooledit_update ( gtk3mtledit );
                 }
             }
         }
@@ -1528,10 +1534,10 @@ static void gtk3_updateCoords ( GTK3G3DUI *gtk3gui ) {
             G3DUIBOARD *board = main->board;
 
             if ( board ) {
-                G3DUICOORDINATESEDIT *coordsedit = board->coordsedit;
+                GTK3G3DUICOORDINATESEDIT *gtk3coordsedit = ( GTK3G3DUICOORDINATESEDIT * ) board->coordsedit;
 
-                if ( coordsedit ) {
-                    gtk3_g3duicoordinatesedit_update ( coordsedit );
+                if ( gtk3coordsedit ) {
+                    gtk3_g3duicoordinatesedit_update ( gtk3coordsedit );
                 }
             }
         }
@@ -1539,41 +1545,24 @@ static void gtk3_updateCoords ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
-static void gtk3_resizeUVMapEditors ( GTK3G3DUI *gtk3gui ) {
-#ifdef TODO
-    G3DUI *gui = ( G3DUI * ) gtk3gui;
-    LIST *ltmp = gtk3gui->luvmapeditor;
+static void gtk3_redrawUVMapEditor ( GTK3G3DUI *gtk3gui ) {
+    if (  gtk3gui->core.mui ) {
+        M3DUI *mui = gtk3gui->core.mui;
 
-    while ( ltmp ) {
-        GtkUVMapEditor *guv = ( GtkUVMapEditor * ) ltmp->data;
+        if (  mui->main ) {
+            M3DUIMAIN *uvmain = mui->main;
 
-        /*** resize buffers ***/
-        m3dui_resizeBuffers ( &guv->mui );
+            if ( uvmain ) {
+                M3DUIVIEW *uvview = uvmain->view;
 
-        ltmp = ltmp->next;
+                if ( uvview ) {
+                    GTK3M3DUIVIEW *gtk3view = ( GTK3M3DUIVIEW * ) uvview;
+
+                    gtk_widget_queue_draw ( GTK_WIDGET(gtk3view->glarea) );
+                }
+            }
+        }
     }
-#endif
-}
-
-/******************************************************************************/
-static void gtk3_redrawUVMapEditors ( GTK3G3DUI *gtk3gui ) {
-#ifdef TODO
-    G3DUI *gui = ( G3DUI * ) gtk3gui;
-    LIST *ltmp = gtk3gui->luvmapeditor;
-
-    while ( ltmp ) {
-        GtkWidget *guv = ( GtkWidget * ) ltmp->data;
-        GtkWidget *area   = gtk_uvmapeditor_getGLArea ( guv );
-        GdkRectangle arec;
-
-        arec.x = arec.y = 0x00;
-        arec.width = arec.height = 0x01;
-
-        gdk_window_invalidate_rect ( gtk_widget_get_window ( area ), &arec, FALSE );
-
-        ltmp = ltmp->next;
-    }
-#endif
 }
 
 /******************************************************************************/
@@ -1588,10 +1577,10 @@ static void gtk3_updateObjectEdit ( GTK3G3DUI *gtk3gui ) {
                 G3DUIOBJECTBOARD *objboard = board->objboard;
 
                 if ( objboard ) {
-                    G3DUIOBJECTEDIT *objedit = objboard->objedit;
+                    GTK3G3DUIOBJECTEDIT *gtk3objedit = ( GTK3G3DUIOBJECTEDIT * ) objboard->objedit;
 
-                    if ( objedit ) {
-                        gtk3_g3duiobjectedit_update ( ( GTK3G3DUIOBJECTEDIT * ) objedit );
+                    if ( gtk3objedit ) {
+                        gtk3_g3duiobjectedit_update ( gtk3objedit );
                     }
                 }
             }
@@ -1608,9 +1597,11 @@ static void gtk3_updateObjectBoardMenu ( GTK3G3DUI *gtk3gui ) {
             G3DUIBOARD *board = main->board;
 
             if ( board ) {
-                G3DUIOBJECTBOARD *objboard = board->objboard;
+                GTK3G3DUIOBJECTBOARD *gtk3objboard = ( GTK3G3DUIOBJECTBOARD * ) board->objboard;
 
-                gtk3_g3duiobjectboard_updateMenuBar ( objboard );
+                if ( gtk3objboard ) {
+                    gtk3_g3duiobjectboard_updateMenuBar ( gtk3objboard );
+                }
             }
         }
     }
@@ -1750,16 +1741,20 @@ static void gtk3_updateGLViewsMenu ( GTK3G3DUI *gtk3gui ) {
 
 /******************************************************************************/
 static void gtk3_redrawRenderWindowMenu ( GTK3G3DUI *gtk3gui ) {
-    gtk3_g3duirenderwindow_updateMenuBar ( gtk3gui->core.renderWindow );
+    GTK3G3DUIRENDERWINDOW *gtk3rwin = ( GTK3G3DUIRENDERWINDOW * ) gtk3gui->core.renderWindow;
+
+    gtk3_g3duirenderwindow_updateMenuBar ( gtk3rwin );
 }
 
 /******************************************************************************/
 static void gtk3_resizeRenderWindow ( GTK3G3DUI *gtk3gui ) {
-    GTK3G3DUIRENDERWINDOW *gtk3rwin = gtk3gui->core.renderWindow;
+    GTK3G3DUIRENDERWINDOW *gtk3rwin = ( GTK3G3DUIRENDERWINDOW * ) gtk3gui->core.renderWindow;
+    uint32_t width = gtk_widget_get_allocated_width  ( GTK_WIDGET(gtk3rwin->layout) );
+    uint32_t height = gtk_widget_get_allocated_height  ( GTK_WIDGET(gtk3rwin->layout) );
 
     gtk3_g3duirenderwindow_resize ( gtk3rwin,
-                                    gtk_widget_get_allocated_width  ( gtk3rwin->layout ),
-                                    gtk_widget_get_allocated_height ( gtk3rwin->layout ) );
+                                    width,
+                                    height );
 }
 
 /******************************************************************************/
@@ -1769,13 +1764,7 @@ static void gtk3_redrawGLViews ( GTK3G3DUI *gtk3gui ) {
 
     while ( ltmpview ) {
         GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) ltmpview->data;
-        GdkWindow *window = gtk_widget_get_window ( gtk3view->glarea );
-        /*GdkRectangle arec;
-
-        arec.x = arec.y = 0x00;
-        arec.width = arec.height = 1;*/
-
-        /*gtk_widget_queue_draw ( gtk3view->glarea );*/
+        GdkWindow *window = gtk_widget_get_window ( GTK_WIDGET(gtk3view->glarea) );
 
         gdk_window_invalidate_rect ( window, NULL, FALSE );
 
@@ -1787,17 +1776,16 @@ static void gtk3_redrawGLViews ( GTK3G3DUI *gtk3gui ) {
 /******************************************************************************/
 static void gtk3_redrawTimeline ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) &gtk3gui->core;
-    GTK3G3DUIMAIN *gtk3main = gtk3gui->core.main;
+    GTK3G3DUIMAIN *gtk3main = ( GTK3G3DUIMAIN * ) gtk3gui->core.main;
 
     if ( gtk3main ) {
-        GTK3G3DUITIMEBOARD *gtk3timeboard = gtk3main->core.timeboard;
+        GTK3G3DUITIMEBOARD *gtk3timeboard = ( GTK3G3DUITIMEBOARD * ) gtk3main->core.timeboard;
 
         if ( gtk3timeboard ) {
-            GTK3G3DUITIMELINE *gtk3timeline = gtk3timeboard->core.timeline;
+            GTK3G3DUITIMELINE *gtk3timeline = ( GTK3G3DUITIMELINE * ) gtk3timeboard->core.timeline;
 
             if ( gtk3timeline ) {
-                gtk_widget_queue_draw ( gtk3timeline->area );
-                /*gdk_window_invalidate_rect ( window, &arec, FALSE );*/
+                gtk_widget_queue_draw ( GTK_WIDGET(gtk3timeline->area) );
             }
         }
     }
@@ -1848,48 +1836,272 @@ static void gtk3_buildContextMenus ( GTK3G3DUI *gtk3gui,
                                      void      *data ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
 
-    gui->objectModeMenu        = buildMenuFromList ( gui->lObjectModeMenu,
-                                                     gui, 
-                                                     data );
+    gui->objectModeMenu        = ( G3DUIMENU * ) buildMenuFromList ( gui->lObjectModeMenu,
+                                                                     gui, 
+                                                                     data );
 
-    gui->vertexModeMeshMenu    = buildMenuFromList ( gui->lVertexModeMeshMenu,
-                                                     gui,
-                                                     data );
+    gui->vertexModeMeshMenu    = ( G3DUIMENU * ) buildMenuFromList ( gui->lVertexModeMeshMenu,
+                                                                     gui,
+                                                                     data );
 
-    gui->edgeModeMeshMenu      = buildMenuFromList ( gui->lEdgeModeMeshMenu,
-                                                     gui,
-                                                     data );
+    gui->edgeModeMeshMenu      = ( G3DUIMENU * ) buildMenuFromList ( gui->lEdgeModeMeshMenu,
+                                                                     gui,
+                                                                     data );
 
-    gui->faceModeMeshMenu      = buildMenuFromList ( gui->lFaceModeMeshMenu,
-                                                     gui,
-                                                     data );
+    gui->faceModeMeshMenu      = ( G3DUIMENU * ) buildMenuFromList ( gui->lFaceModeMeshMenu,
+                                                                     gui,
+                                                                     data );
 
-    gui->sculptModeMeshMenu    = buildMenuFromList ( gui->lSculptModeMeshMenu,
-                                                     gui,
-                                                     data );
+    gui->sculptModeMeshMenu    = ( G3DUIMENU * ) buildMenuFromList ( gui->lSculptModeMeshMenu,
+                                                                     gui,
+                                                                     data );
 
-    gui->vertexModeSplineMenu  = buildMenuFromList ( gui->lVertexModeSplineMenu,
-                                                     gui,
-                                                     data );
+    gui->vertexModeSplineMenu  = ( G3DUIMENU * ) buildMenuFromList ( gui->lVertexModeSplineMenu,
+                                                                     gui,
+                                                                     data );
 
-    gui->vertexModeMorpherMenu = buildMenuFromList ( gui->lVertexModeMorpherMenu,
-                                                     gui,
-                                                     data );
+    gui->vertexModeMorpherMenu = ( G3DUIMENU * ) buildMenuFromList ( gui->lVertexModeMorpherMenu,
+                                                                     gui,
+                                                                     data );
 }
 
 /******************************************************************************/
 void gtk3_createRenderEdit ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
-    GtkWidget *dial = ui_gtk_window_new ( CLASS_MAIN, GTK_WINDOW_TOPLEVEL );
+    GtkWindow *dial = ui_gtk_window_new ( CLASS_MAIN, GTK_WINDOW_TOPLEVEL );
     GTK3G3DUIRENDEREDIT *gtk3redit = 
                             gtk3_g3duirenderedit_create ( NULL, 
                                                           gtk3gui,
                                                           "Render edit",
                                                           gtk3gui->core.currsg );
 
-    gtk_container_add ( dial, gtk3redit->fixed );
+    gtk_container_add ( GTK_CONTAINER(dial), GTK_WIDGET(gtk3redit->fixed) );
 
-    gtk_widget_show ( dial );
+    gtk_widget_show ( GTK_WIDGET(dial) );
+}
+
+/******************************************************************************/
+uint32_t gtk3_g3dui_saveChannelImageAs ( GTK3G3DUI  *gtk3gui,
+                                         G3DIMAGE   *img ) {
+    GtkWidget *dialog;
+    gint       res;
+
+    dialog = gtk_file_chooser_dialog_new ( "Save file as ...",
+                                           GTK_WINDOW(gtk3gui->topWin),
+                        /*** from ristretto-0.3.5/src/main_window.c ***/
+                                           GTK_FILE_CHOOSER_ACTION_SAVE,
+                                           "_Cancel", 
+                                           GTK_RESPONSE_CANCEL,
+                                           "_Open", 
+                                           GTK_RESPONSE_OK,
+                                           NULL );
+
+    gtk_file_chooser_set_do_overwrite_confirmation ( GTK_FILE_CHOOSER(dialog), TRUE );
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_OK ) {
+        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
+        char           *filename = gtk_file_chooser_get_filename ( chooser );
+        static char     filenameext[0x400] = { 0x00 };
+
+        /*** default to JPG ***/
+    #ifdef __linux__
+        if ( ( strcasestr ( filename, ".jpg"  ) == NULL ) &&
+             ( strcasestr ( filename, ".jpeg" ) == NULL ) &&
+             ( strcasestr ( filename, ".png"  ) == NULL ) ) {
+    #endif
+    #ifdef __MINGW32__
+        if ( ( StrStrIA ( filename, ".jpg"  ) == NULL ) &&
+             ( StrStrIA ( filename, ".jpeg" ) == NULL ) &&
+             ( StrStrIA ( filename, ".png"  ) == NULL ) ) {
+    #endif
+            snprintf ( filenameext, sizeof ( filenameext ), "%s.jpg", filename );
+
+            g3dimage_setFileName ( img, filenameext );
+
+            img->flags |= JPGIMAGE;
+        } else {
+    #ifdef __linux__
+            if ( strcasestr ( filename, ".jpg"  ) ||
+                 strcasestr ( filename, ".jpeg" ) ) {
+    #endif
+    #ifdef __MINGW32__
+            if ( StrStrIA ( filename, ".jpg"  ) ||
+                 StrStrIA ( filename, ".jpeg" ) ) {
+    #endif
+                img->flags |= JPGIMAGE;
+            }
+    #ifdef __linux__
+            if ( strcasestr ( filename, ".png" ) ) {
+    #endif
+    #ifdef __MINGW32__
+            if ( StrStrIA ( filename, ".png" ) ) {
+    #endif
+                img->flags |= PNGIMAGE;
+            }
+
+            g3dimage_setFileName ( img, filename );
+        }
+
+        g3dimage_writeToDisk ( img );
+
+        g_free    ( ( gpointer ) filename );
+    }
+
+    gtk_widget_destroy ( dialog );
+
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t gtk3_g3dui_saveChannelAlteredImage ( GTK3G3DUI  *gtk3gui,
+                                              char       *materialName,
+                                              G3DCHANNEL *chn,
+                                              uint32_t    ask,
+                                              uint32_t    rename ) {
+
+    if ( chn->image ) {
+        G3DIMAGE *img = chn->image;
+        uint32_t doSave = 0x00;
+
+        if ( rename == 0x00 ) {
+            if ( ( img->flags & ALTEREDIMAGE ) ||
+                 ( img->filename == NULL     ) ) {
+                char *imageName = ( img->filename ) ? img->filename : 
+                                                      "Untitled";
+                char str[0x400];
+
+                snprintf ( str, 
+                           sizeof ( str ),
+                           "Save image \"%s\" for channel \"%s:%s\" ?",
+                           imageName,
+                           materialName,
+                           chn->name );
+
+                if ( ask ) {
+                    gint response;
+                    GtkWidget *dial;
+                    dial = gtk_message_dialog_new ( NULL,
+                                                    GTK_DIALOG_MODAL | 
+                                                    GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                    GTK_MESSAGE_QUESTION,
+                                                    GTK_BUTTONS_NONE,
+                                                    str );
+
+                    gtk_dialog_add_buttons ( dial,
+                                             GTK_STOCK_YES,
+                                             GTK_RESPONSE_YES,
+                                             GTK_STOCK_NO,
+                                             GTK_RESPONSE_NO,
+                                             GTK_STOCK_CANCEL,
+                                             GTK_RESPONSE_CANCEL,
+                                             NULL );
+
+                    gtk_window_set_title ( GTK_WINDOW ( dial ), "Save image ?" );
+
+                    response = gtk_dialog_run ( GTK_DIALOG ( dial ) );
+
+                    switch ( response ) {
+                        case GTK_RESPONSE_YES:
+                            doSave = 0x01;
+                        break;
+
+                        case GTK_RESPONSE_NO:
+                        break;
+
+                        case GTK_RESPONSE_CANCEL:
+                            gtk_widget_destroy ( dial );
+
+                            return 0x01;
+                        break;
+
+                        default : 
+                        break;
+                    }
+
+                    gtk_widget_destroy ( dial );
+                } else {
+                    doSave = 0x01;
+                }
+
+                if ( doSave ) {
+                    if ( img->filename ) {
+                        g3dimage_writeToDisk ( img );
+                    } else {
+                        gtk3_g3dui_saveChannelImageAs ( gtk3gui, img );
+                    }
+                }
+            }
+        } else {
+            gtk3_g3dui_saveChannelImageAs ( gtk3gui, img );
+        }
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t gtk3_g3dui_saveAlteredImages ( GTK3G3DUI *gtk3gui ) {
+    LIST *ltmpmat = gtk3gui->core.sce->lmat;
+    uint32_t ret = 0x00;
+
+    while ( ltmpmat ) {
+        G3DMATERIAL *mat = ( G3DMATERIAL * ) ltmpmat->data;
+
+        ret += gtk3_g3dui_saveChannelAlteredImage ( gtk3gui, 
+                                                    mat->name,
+                                                   &mat->diffuse,
+                                                    0x01,
+                                                    0x00 );
+
+        ret += gtk3_g3dui_saveChannelAlteredImage ( gtk3gui, 
+                                                    mat->name,
+                                                   &mat->specular,
+                                                    0x01,
+                                                    0x00 );
+
+        ret += gtk3_g3dui_saveChannelAlteredImage ( gtk3gui, 
+                                                    mat->name,
+                                                   &mat->displacement,
+                                                    0x01,
+                                                    0x00 );
+
+        ret += gtk3_g3dui_saveChannelAlteredImage ( gtk3gui, 
+                                                    mat->name,
+                                                   &mat->bump,
+                                                    0x01,
+                                                    0x00 );
+
+        ret += gtk3_g3dui_saveChannelAlteredImage ( gtk3gui, 
+                                                    mat->name,
+                                                   &mat->alpha,
+                                                    0x01,
+                                                    0x00 );
+
+        ret += gtk3_g3dui_saveChannelAlteredImage ( gtk3gui, 
+                                                    mat->name,
+                                                   &mat->reflection,
+                                                    0x01,
+                                                    0x00 );
+
+        ret += gtk3_g3dui_saveChannelAlteredImage ( gtk3gui, 
+                                                    mat->name,
+                                                   &mat->refraction,
+                                                    0x01,
+                                                    0x00 );
+
+        ret += gtk3_g3dui_saveChannelAlteredImage ( gtk3gui, 
+                                                    mat->name,
+                                                   &mat->ambient,
+                                                    0x01,
+                                                    0x00 );
+
+        ltmpmat = ltmpmat->next;
+    }
+
+    return ret;
 }
 
 /******************************************************************************/
@@ -1958,12 +2170,11 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
         gtk3_updateCoords ( gtk3gui );
     }
 
-#ifdef TODO
-
     if ( msk & REDRAWUVMAPEDITOR ) {
-        gtk3_redrawUVMapEditors ( );
+        gtk3_redrawUVMapEditor ( gtk3gui );
     }
 
+#ifdef TODO
     if ( msk & UPDATEMAINMENU ) {
         gtk3_updateMenuBar    ( );
     }
@@ -1991,45 +2202,54 @@ static uint64_t setMouseToolCbk ( G3DUIMENU *menu,
                                   void      *data ) {
     GTK3G3DUIMENU *gtk3menu = ( GTK3G3DUIMENU * ) menu;
 
-    return gtk3_setMouseTool ( menu->gui, gtk3menu->item, menu->name );
+    return gtk3_setMouseTool ( ( GTK3G3DUI * ) menu->gui, 
+                                               gtk3menu->item,
+                                               menu->name );
 }
 
 /******************************************************************************/
 void gtk3_initDefaultMouseTools ( GTK3G3DUI *gtk3gui ) {
-    G3DMOUSETOOL *pickTool               = g3dmousetoolpick_new ( ),
-                 *createSphereTool       = g3dmousetoolcreatesphere_new ( ),
-                 *createCubeTool         = g3dmousetoolcreatecube_new ( ),
-                 *createPlaneTool        = g3dmousetoolcreateplane_new ( ),
-                 *createCylinderTool     = g3dmousetoolcreatecylinder_new ( ),
-                 *createTubeTool         = g3dmousetoolcreatetube_new ( ),
-                 *createTorusTool        = g3dmousetoolcreatetorus_new ( ),
-                 *createBoneTool         = g3dmousetoolcreatebone_new ( ),
-                 *createMakeEditableTool = g3dmousetoolmakeeditable_new ( ),
+    G3DMOUSETOOL *pickTool               = ( G3DMOUSETOOL * ) g3dmousetoolpick_new ( ),
+                 *createSphereTool       = ( G3DMOUSETOOL * ) g3dmousetoolcreatesphere_new ( ),
+                 *createCubeTool         = ( G3DMOUSETOOL * ) g3dmousetoolcreatecube_new ( ),
+                 *createPlaneTool        = ( G3DMOUSETOOL * ) g3dmousetoolcreateplane_new ( ),
+                 *createCylinderTool     = ( G3DMOUSETOOL * ) g3dmousetoolcreatecylinder_new ( ),
+                 *createTubeTool         = ( G3DMOUSETOOL * ) g3dmousetoolcreatetube_new ( ),
+                 *createTorusTool        = ( G3DMOUSETOOL * ) g3dmousetoolcreatetorus_new ( ),
+                 *createBoneTool         = ( G3DMOUSETOOL * ) g3dmousetoolcreatebone_new ( ),
+                 *createMakeEditableTool = ( G3DMOUSETOOL * ) g3dmousetoolmakeeditable_new ( ),
 
-                 *cutMeshTool            = g3dmousetoolcutmesh_new ( ),
-                 *createVertexTool       = g3dmousetoolcreatevertex_new ( ),
-                 *revertSplineTool       = g3dmousetoolrevertspline_new ( ),
-                 *bridgeVertexTool       = g3dmousetoolbridge_new ( ),
-                 *extrudeFaceTool        = g3dmousetoolextrudeface_new ( ),
-                 *extrudeInnerTool       = g3dmousetoolextrudeinner_new ( ),
-                 *untriangulateTool      = g3dmousetooluntriangulate_new ( ),
-                 *triangulateTool        = g3dmousetooltriangulate_new ( ),
-                 *roundSplinePointTool   = g3dmousetoolroundsplinepoint_new ( ),
-                 *weldVerticesTool       = g3dmousetoolweldvertices_new ( ),
-                 *weldNeighboursTool     = g3dmousetoolweldneighbours_new ( ),
-                 *invertNormalTool       = g3dmousetoolinvertnormal_new ( ),
-                 *createFacegroupTool    = g3dmousetoolcreatefacegroup_new ( ),
-                 *sculptInflateTool      = g3dmousetoolsculpt_new ( SCULPTINFLATE ),
-                 *sculptCreaseTool       = g3dmousetoolsculpt_new ( SCULPTCREASE ),
-                 *unsculptTool           = g3dmousetoolsculpt_new ( SCULPTUNSCULPT ),
+                 *cutMeshTool            = ( G3DMOUSETOOL * ) g3dmousetoolcutmesh_new ( ),
+                 *createVertexTool       = ( G3DMOUSETOOL * ) g3dmousetoolcreatevertex_new ( ),
+                 *revertSplineTool       = ( G3DMOUSETOOL * ) g3dmousetoolrevertspline_new ( ),
+                 *bridgeVertexTool       = ( G3DMOUSETOOL * ) g3dmousetoolbridge_new ( ),
+                 *extrudeFaceTool        = ( G3DMOUSETOOL * ) g3dmousetoolextrudeface_new ( ),
+                 *extrudeInnerTool       = ( G3DMOUSETOOL * ) g3dmousetoolextrudeinner_new ( ),
+                 *untriangulateTool      = ( G3DMOUSETOOL * ) g3dmousetooluntriangulate_new ( ),
+                 *triangulateTool        = ( G3DMOUSETOOL * ) g3dmousetooltriangulate_new ( ),
+                 *roundSplinePointTool   = ( G3DMOUSETOOL * ) g3dmousetoolroundsplinepoint_new ( ),
+                 *weldVerticesTool       = ( G3DMOUSETOOL * ) g3dmousetoolweldvertices_new ( ),
+                 *weldNeighboursTool     = ( G3DMOUSETOOL * ) g3dmousetoolweldneighbours_new ( ),
+                 *invertNormalTool       = ( G3DMOUSETOOL * ) g3dmousetoolinvertnormal_new ( ),
+                 *createFacegroupTool    = ( G3DMOUSETOOL * ) g3dmousetoolcreatefacegroup_new ( ),
+                 *sculptInflateTool      = ( G3DMOUSETOOL * ) g3dmousetoolsculpt_new ( SCULPTINFLATE ),
+                 *sculptCreaseTool       = ( G3DMOUSETOOL * ) g3dmousetoolsculpt_new ( SCULPTCREASE ),
+                 *unsculptTool           = ( G3DMOUSETOOL * ) g3dmousetoolsculpt_new ( SCULPTUNSCULPT ),
 
-                 *moveTool               = g3dmousetoolmove_new ( ),
-                 *scaleTool              = g3dmousetoolscale_new ( ),
-                 *rotateTool             = g3dmousetoolrotate_new ( ),
-                 *pickUVTool             = g3dmousetoolpickUV_new ( ),
-                 *moveUVTool             = g3dmousetoolmoveUV_new ( ),
-                 *scaleUVTool            = g3dmousetoolscaleUV_new ( ),
-                 *rotateUVTool           = g3dmousetoolrotateUV_new ( );
+                 *moveTool               = ( G3DMOUSETOOL * ) g3dmousetoolmove_new ( ),
+                 *scaleTool              = ( G3DMOUSETOOL * ) g3dmousetoolscale_new ( ),
+                 *rotateTool             = ( G3DMOUSETOOL * ) g3dmousetoolrotate_new ( ),
+
+                 *pickUVTool             = ( G3DMOUSETOOL * ) g3dmousetoolpickUV_new ( ),
+                 *moveUVTool             = ( G3DMOUSETOOL * ) g3dmousetoolmoveUV_new ( ),
+                 *scaleUVTool            = ( G3DMOUSETOOL * ) g3dmousetoolscaleUV_new ( ),
+                 *rotateUVTool           = ( G3DMOUSETOOL * ) g3dmousetoolrotateUV_new ( ),
+
+                 *penUVTool              = ( G3DMOUSETOOL * ) m3dmousetoolpen_new ( ),
+                 *eraserUVTool           = ( G3DMOUSETOOL * ) m3dmousetooleraser_new ( ),
+                 *selectUVTool           = ( G3DMOUSETOOL * ) m3dmousetoolselect_new ( ),
+                 *bucketUVTool           = ( G3DMOUSETOOL * ) m3dmousetoolbucket_new ( );
+
     G3DUI *gui = &gtk3gui->core;
 
 #ifdef TODO
@@ -2324,265 +2544,16 @@ void gtk3_initDefaultMouseTools ( GTK3G3DUI *gtk3gui ) {
     g3dui_addMouseTool ( gui, g3duimousetool_new ( moveTool    , NULL, 0x00 ) );
     g3dui_addMouseTool ( gui, g3duimousetool_new ( scaleTool   , NULL, 0x00 ) );
     g3dui_addMouseTool ( gui, g3duimousetool_new ( rotateTool  , NULL, 0x00 ) );
+
     g3dui_addMouseTool ( gui, g3duimousetool_new ( pickUVTool  , NULL, 0x00 ) );
     g3dui_addMouseTool ( gui, g3duimousetool_new ( moveUVTool  , NULL, 0x00 ) );
     g3dui_addMouseTool ( gui, g3duimousetool_new ( scaleUVTool , NULL, 0x00 ) );
     g3dui_addMouseTool ( gui, g3duimousetool_new ( rotateUVTool, NULL, 0x00 ) );
 
+    g3dui_addMouseTool ( gui, g3duimousetool_new ( penUVTool   , NULL, 0x00 ) );
+    g3dui_addMouseTool ( gui, g3duimousetool_new ( eraserUVTool, NULL, 0x00 ) );
+    g3dui_addMouseTool ( gui, g3duimousetool_new ( selectUVTool, NULL, 0x00 ) );
+    g3dui_addMouseTool ( gui, g3duimousetool_new ( bucketUVTool, NULL, 0x00 ) );
 
     gtk3_buildContextMenus ( gtk3gui, NULL );
-
-#ifdef unused
-
-/*
-                  penTool = m3dmousetoolpen_new ( ) );
-                  eraserTool = m3dmousetooleraser_new ( ) );
-                  selectTool = m3dmousetoolselect_new ( ) );
-                  bucketTool = m3dmousetoolbucket_new ( ) );
-*/
-
-
-    mou = ( G3DMOUSETOOL * ) g3dmousetoolpick_new ( );
-
-    g3dui_addMouseTool ( gui, mou );
-
-    /*** Pick is the default mouse tool ***/
-    gtk3_interpretUIReturnFlags ( gtk3gui, g3dui_setMouseTool ( gui,
-                                                                NULL,
-                                                                mou ) );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatesphere_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, OBJECTMODETOOL |
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatecube_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, OBJECTMODETOOL | 
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreateplane_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, OBJECTMODETOOL | 
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatecylinder_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, OBJECTMODETOOL | 
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatetube_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, OBJECTMODETOOL | 
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatetorus_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, OBJECTMODETOOL | 
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatebone_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, OBJECTMODETOOL | 
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolmakeeditable_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, OBJECTMODETOOL |
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcutmesh_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, VERTEXMODETOOL | 
-                                     FACEMODETOOL   | 
-                                     EDGEMODETOOL   |
-                                     MESHTOOL       |
-                                     SPLINETOOL     |
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatevertex_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, VERTEXMODETOOL |
-                                     MESHTOOL       |
-                                     SPLINETOOL     |
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolrevertspline_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, VERTEXMODETOOL |
-                                     SPLINETOOL     |
-                                     GLMENUTOOL );
-
-    /********************************/
-#ifdef TODO
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolremovevertexpose_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, VERTEXMODETOOL |
-                                     MORPHERTOOL     |
-                                     GLMENUTOOL );
-#endif
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolbridge_new ( ) ); 
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, VERTEXMODETOOL |
-                                     MESHTOOL       |
-                                     SPLINETOOL     |
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolextrudeface_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, FACEMODETOOL | 
-                                     MESHTOOL     |
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolextrudeinner_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, FACEMODETOOL | 
-                                     MESHTOOL     |
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetooluntriangulate_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, FACEMODETOOL |
-                                     MESHTOOL     | 
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetooltriangulate_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, FACEMODETOOL |
-                                     MESHTOOL     | 
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolroundsplinepoint_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, VERTEXMODETOOL |
-                                     SPLINETOOL     | 
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolweldvertices_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, VERTEXMODETOOL |
-                                     MESHTOOL     | 
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolweldneighbours_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, VERTEXMODETOOL |
-                                     MESHTOOL     | 
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolinvertnormal_new ( ) );
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, FACEMODETOOL |
-                                     MESHTOOL     |
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolcreatefacegroup_new ( ) ); 
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, FACEMODETOOL | 
-                                     MESHTOOL     |
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolsculpt_new ( SCULPTINFLATE ) ); 
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, SCULPTMODETOOL | 
-                                     MESHTOOL     |
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolsculpt_new ( SCULPTCREASE ) ); 
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, SCULPTMODETOOL | 
-                                     MESHTOOL     |
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    /*common_g3dui_addMouseTool ( gui,
-                                g3dmousetoolsculpt_new ( SCULPTFLATTEN ), 
-                                SCULPTMODETOOL | 
-                                MESHTOOL     |
-                                GLMENUTOOL );*/
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, mou = g3dmousetoolsculpt_new ( SCULPTUNSCULPT ) ); 
-    gtk3_dispatchGLMenuButton ( gtk3gui, mou, SCULPTMODETOOL | 
-                                     MESHTOOL     |
-                                     GLMENUTOOL );
-
-    /********************************/
-
-    /*common_g3dui_addMouseTool ( gui,
-                                g3dmousetoolsculpt_new ( SCULPTSMOOTH ), 
-                                SCULPTMODETOOL | 
-                                MESHTOOL     |
-                                GLMENUTOOL );*/
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, g3dmousetoolmove_new ( ) );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, g3dmousetoolscale_new ( ) );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, g3dmousetoolrotate_new ( ) );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, g3dmousetoolpickUV_new ( ) );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, g3dmousetoolmoveUV_new ( ) );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, g3dmousetoolscaleUV_new ( ) );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, g3dmousetoolrotateUV_new ( ) );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, m3dmousetoolpen_new ( ) );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, m3dmousetooleraser_new ( ) );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, m3dmousetoolselect_new ( ) );
-
-    /********************************/
-
-    g3dui_addMouseTool   ( gui, m3dmousetoolbucket_new ( ) );
-
-#endif
 }

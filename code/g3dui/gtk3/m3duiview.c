@@ -35,54 +35,22 @@
 #include <xpm/maximize_view.xpm>
 #include <xpm/zoom_view.xpm>
 
-#ifdef unused
 /******************************************************************************/
 static gboolean inputGL ( GtkWidget *widget, 
                           GdkEvent  *gdkev, 
                           gpointer   user_data ) {
-    GTK3G3DUIVIEW *gtk3view =  ( GTK3G3DUIVIEW * ) user_data;
-    G3DUIVIEW     *view     = &gtk3view->core;
-    G3DUI         *gui      = view->gui;
-    GTK3G3DUI     *gtk3gui = ( GTK3G3DUI * ) gui;
-    GTK3G3DUIQUAD *gtk3quad = ( GTK3G3DUIQUAD * ) gui->main->quad;
+    GTK3M3DUIVIEW *gtk3view =  ( GTK3M3DUIVIEW * ) user_data;
+    M3DUIVIEW     *view    = &gtk3view->core;
+    M3DUI         *mui      = view->mui;
+    G3DUI         *gui      = mui->gui;
+    uint64_t ret = 0x00;
+    G3DEvent g3dev;
 
-    if ( gui->currentView !=  ( G3DUIVIEW * ) gtk3view ) {
-        gui->currentView = ( G3DUIVIEW * ) gtk3view;
+    gdkevent_to_g3devent ( gdkev, &g3dev );
 
-        /*** foirce redrawing the frame around the current view ***/
-        gtk_widget_queue_draw ( gtk3quad->layout );
-    }
+    ret = m3duiview_inputGL ( view, &g3dev );
 
-    if ( gdkev->type == GDK_BUTTON_PRESS ) {
-        GdkEventButton *bev = ( GdkEventButton * ) gdkev;
-
-        if ( bev->button == 3 ) {
-            PostMenu ( gtk3gui, gdkev );
-
-            return TRUE;
-        }
-    }
-
-    if ( gui->curmou ) {
-        /*** Call the mousetool callback and redraw if return value is > 0 ***/
-        G3DEvent g3dev;
-
-        gdkevent_to_g3devent ( gdkev, &g3dev );
-
-        if ( gui->curmou->tool->event ) {
-            uint32_t msk = gui->curmou->tool->event ( gui->curmou->tool, 
-                                                   gui->sce,
-                                                   view->cam, 
-                                                   gui->urm,
-                                                   gui->engine_flags, &g3dev );
-
-            gtk3_interpretUIReturnFlags ( gtk3gui, msk );
-
-            if ( gdkev->type == GDK_BUTTON_RELEASE ) {
-                g3dcursor_reset ( &gui->sce->csr );
-            }
-        }
-    }
+    gtk3_interpretUIReturnFlags ( ( GTK3G3DUI * ) gui, ret );
 
     return TRUE;
 }
@@ -91,33 +59,26 @@ static gboolean inputGL ( GtkWidget *widget,
 static void sizeGL ( GtkWidget     *widget,
                      GtkAllocation *allocation, 
                      gpointer       user_data ) {
-    GTK3G3DUIVIEW *gtk3view =  ( GTK3G3DUIVIEW * ) user_data;
-    G3DUIVIEW     *view    = &gtk3view->core;
-    G3DUI         *gui     = view->gui;
-    /*GdkDisplay    *gdkdpy  =  gtk_widget_get_display ( widget );
-    GdkWindow     *gdkwin  =  gtk_widget_get_window ( widget );*/
+    GTK3M3DUIVIEW *gtk3view =  ( GTK3M3DUIVIEW * ) user_data;
+    M3DUIVIEW     *view    = &gtk3view->core;
+    M3DUI         *mui      = view->mui;
+    G3DUI         *gui      = mui->gui;
 
-/*printf("glarea %d %d\n", allocation->width, allocation->height );*/
-
-    /*if ( gdkwin ) {*/
 #ifdef TODO : find why I get allocation.{width,height} = 1
 #endif
         if ( (allocation->width > 1 ) && (allocation->height > 1) ) {
-            /*** cancel renderprocess if any ***/
-            g3dui_cancelRenderByID ( gui, ( uint64_t ) widget );
-
-            g3duiview_sizeGL ( view, allocation->width, allocation->height );
-
-            /*gtk_widget_queue_draw ( widget );*/
+            m3duiview_sizeGL ( view,
+                               allocation->width,
+                               allocation->height );
         }
-   /* }*/
 }
 
 /******************************************************************************/
 static void initGL ( GtkWidget *widget,
                      gpointer   user_data ) {
-    GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
-    G3DUIVIEW     *view    = &gtk3view->core;
+    GTK3M3DUIVIEW *gtk3view = ( GTK3M3DUIVIEW * ) user_data;
+    M3DUIVIEW     *view    = &gtk3view->core;
+    M3DUI         *mui      = view->mui;
 
 }
 
@@ -125,10 +86,11 @@ static void initGL ( GtkWidget *widget,
 static gboolean showGL ( GtkWidget *widget, 
                          cairo_t   *cr, 
                          gpointer   user_data ) {
-    GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
-    G3DUIVIEW     *view    = &gtk3view->core;
+    GTK3M3DUIVIEW *gtk3view = ( GTK3M3DUIVIEW * ) user_data;
+    M3DUIVIEW     *view    = &gtk3view->core;
+    M3DUI         *mui      = view->mui;
 
-    g3duiview_showGL ( view, view->engine_flags );
+    m3duiview_showGL ( view, mui->engine_flags );
 
     return FALSE;
 }
@@ -136,8 +98,8 @@ static gboolean showGL ( GtkWidget *widget,
 /******************************************************************************/
 static void mapGL ( GtkWidget *widget, 
                     gpointer   user_data ) {
-    GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
-    G3DUIVIEW     *view    = &gtk3view->core;
+    GTK3M3DUIVIEW *gtk3view = ( GTK3M3DUIVIEW * ) user_data;
+    M3DUIVIEW     *view    = &gtk3view->core;
     GdkDisplay    *gdkdpy  = gtk_widget_get_display ( widget );
 #ifdef __linux__
     GdkWindow     *gdkwin  = gtk_widget_get_window ( widget );
@@ -153,13 +115,13 @@ static void mapGL ( GtkWidget *widget,
     gtk3view->core.hWnd = hWnd;
 #endif
 
-    g3duiview_initGL ( view );
+    m3duiview_initGL ( view );
 }
 
 /******************************************************************************/
-static GTK3G3DUIVIEW *gtk3_g3duiview_new ( GTK3G3DUI *gtk3gui ) {
-    uint32_t memSize =  sizeof ( GTK3G3DUIVIEW );
-    GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) calloc ( 0x01, memSize );
+static GTK3M3DUIVIEW *gtk3_m3duiview_new ( GTK3M3DUI *gtk3mui ) {
+    uint32_t memSize =  sizeof ( GTK3M3DUIVIEW );
+    GTK3M3DUIVIEW *gtk3view = ( GTK3M3DUIVIEW * ) calloc ( 0x01, memSize );
 
     if ( gtk3view == NULL ) {
         fprintf ( stderr, "%s: calloc failed\n", __func__ );
@@ -168,7 +130,7 @@ static GTK3G3DUIVIEW *gtk3_g3duiview_new ( GTK3G3DUI *gtk3gui ) {
 
     }
 
-    gtk3view->core.gui = ( G3DUI * ) gtk3gui;
+    gtk3view->core.mui = ( M3DUI * ) gtk3mui;
     gtk3view->core.pressedButtonID = -1;
 
 
@@ -177,7 +139,7 @@ static GTK3G3DUIVIEW *gtk3_g3duiview_new ( GTK3G3DUI *gtk3gui ) {
 
 /******************************************************************************/
 static void Destroy ( GtkWidget *widget, gpointer user_data ) {
-    GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
+    GTK3M3DUIVIEW *gtk3view = ( GTK3M3DUIVIEW * ) user_data;
 
     free ( gtk3view );
 }
@@ -185,47 +147,48 @@ static void Destroy ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void Realize ( GtkWidget *widget, 
                       gpointer   user_data ) {
-    GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
+    GTK3M3DUIVIEW *gtk3view = ( GTK3M3DUIVIEW * ) user_data;
 
 
 }
 
 /******************************************************************************/
-static void gtk3_g3duiview_createGLArea ( GTK3G3DUIVIEW *gtk3view ) {
-    G3DUI *gui = gtk3view->core.gui;
+static void gtk3_m3duiview_createGLArea ( GTK3M3DUIVIEW *gtk3view ) {
+    M3DUIVIEW *view = &gtk3view->core;
+    GTK3M3DUI *gtk3mui = ( GTK3M3DUI * ) gtk3view->core.mui;
+    G3DUI *gui = gtk3mui->core.gui;
     GtkWidget    *glarea = gtk_drawing_area_new ( );
-GdkVisual* visual;
-GdkScreen *screen;
+    GdkVisual* visual;
+    GdkScreen *screen;
 
 #ifdef __linux__
-XVisualInfo *xvisual;
-Colormap xcolormap;
-Display *display;
-int xscreen;
-Window root;
+    XVisualInfo *xvisual;
+    Colormap xcolormap;
+    Display *display;
+    int xscreen;
+    Window root;
 
     /*** the OpenGL Window ***/
     gtk_widget_set_double_buffered ( glarea, FALSE );
 
-int attributes[] = { GLX_RGBA, GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1,
-GLX_BLUE_SIZE, 1, GLX_DOUBLEBUFFER, True, GLX_DEPTH_SIZE, 12, None };
-display = gdk_x11_get_default_xdisplay ();
-xscreen = DefaultScreen (display);
-screen = gdk_screen_get_default ();
-xvisual = glXChooseVisual (display, xscreen, attributes);
-visual = gdk_x11_screen_lookup_visual (screen, xvisual->visualid);
-root = RootWindow (display, xscreen);
-xcolormap = XCreateColormap (display, root, xvisual->visual, AllocNone);
-gtk_widget_set_visual(glarea, visual);
-
+    int attributes[] = { GLX_RGBA, GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1,
+    GLX_BLUE_SIZE, 1, GLX_DOUBLEBUFFER, True, GLX_DEPTH_SIZE, 12, None };
+    display = gdk_x11_get_default_xdisplay ();
+    xscreen = DefaultScreen (display);
+    screen = gdk_screen_get_default ();
+    xvisual = glXChooseVisual (display, xscreen, attributes);
+    visual = gdk_x11_screen_lookup_visual (screen, xvisual->visualid);
+    root = RootWindow (display, xscreen);
+    xcolormap = XCreateColormap (display, root, xvisual->visual, AllocNone);
+    gtk_widget_set_visual(glarea, visual);
 
     gtk3view->core.glctx = glXCreateContext ( display, 
                                               xvisual, 
                                               gui->sharedCtx,
                                               TRUE);
-
-    /*** share textures ***/
+/*
     if ( gui->sharedCtx == NULL ) gui->sharedCtx = gtk3view->core.glctx;
+*/
 
     free (xvisual);
 #endif /* __linux__ */
@@ -264,7 +227,7 @@ gtk_widget_set_visual(glarea, visual);
 }
 
 /******************************************************************************/
-static void redrawGLArea ( GTK3G3DUIVIEW  *gtk3view ) {
+static void redrawGLArea ( GTK3M3DUIVIEW  *gtk3view ) {
     GdkWindow *window = gtk_widget_get_window ( gtk3view->glarea );
     /*GdkRectangle arec;
 
@@ -327,12 +290,12 @@ static void redrawNavigationBar ( GtkWidget *widget ) {
 }
 
 /******************************************************************************/
-static void motionNotify ( GTK3G3DUIVIEW  *gtk3view,
+static void motionNotify ( GTK3M3DUIVIEW  *gtk3view,
                            GdkModifierType state,
                            G3DPIVOT       *piv,
                            float           difx,
                            float           dify ) {
-    G3DUIVIEW *view = ( G3DUIVIEW * ) gtk3view;
+    M3DUIVIEW *view = &gtk3view->core;
 
     if ( ( state & GDK_CONTROL_MASK ) &&
          ( state & GDK_SHIFT_MASK   ) ) {
@@ -351,39 +314,21 @@ static void motionNotify ( GTK3G3DUIVIEW  *gtk3view,
     }
 
     switch ( view->pressedButtonID ) {
-        case ROTATEBUTTON : {
-            if ( state & GDK_BUTTON1_MASK ) {
-                g3duiview_orbit ( view, 
-                                  piv,
-                                  difx, 
-                                  dify );
-            }
-
-            if ( state & GDK_BUTTON3_MASK ) {
-                g3duiview_spin ( view, 
-                                 difx );
-            }
-        } break;
-
         case ZOOMBUTTON : {
-            if ( state & GDK_BUTTON3_MASK ) {
-                g3duiview_zoom ( view, -difx );
-            }
-
             if ( state & GDK_BUTTON1_MASK ) {
-                g3duiview_moveForward ( view, difx );
+                m3duiview_moveForward ( view, difx );
             }
         } break;
 
         case TRANSLATEBUTTON : {
             if ( state & GDK_BUTTON1_MASK ) {
-                g3duiview_moveSideward ( view,
+                m3duiview_moveSideward ( view,
                                          difx,
                                          dify );
             }
 
             if ( state & GDK_BUTTON3_MASK ) {
-                g3duiview_moveForward ( view, difx );
+                m3duiview_moveForward ( view, difx );
             }
         } break;
 
@@ -396,12 +341,12 @@ static void motionNotify ( GTK3G3DUIVIEW  *gtk3view,
 static gboolean navInput ( GtkWidget *widget,
                            GdkEvent  *event,
                            gpointer user_data ) {
-    GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
-    G3DUIVIEW *view = &gtk3view->core;
-    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3view->core.gui;
-    G3DUI *gui = &gtk3gui->core;
+    GTK3M3DUIVIEW *gtk3view = ( GTK3M3DUIVIEW * ) user_data;
+    M3DUIVIEW *view = &gtk3view->core;
+    GTK3M3DUI *gtk3mui = ( GTK3M3DUI * ) gtk3view->core.mui;
+    G3DUI *gui = gtk3mui->core.gui;
     static G3DPIVOT *piv;
-    G3DCAMERA *cam = view->cam;
+    G3DCAMERA *cam = &view->cam;
     G3DSCENE *sce = gui->sce;
     static uint32_t grabbing;
     static int xori, yori, xold, yold;
@@ -410,15 +355,13 @@ static gboolean navInput ( GtkWidget *widget,
         case GDK_BUTTON_PRESS : {
             GdkEventButton *bev = ( GdkEventButton * ) event;
 
-            g3dui_cancelRenderByID ( gui, ( uint64_t ) gtk3view->glarea );
-
-            g3duiview_pressButton ( view, bev->x, bev->y );
+            m3duiview_pressButton ( view, bev->x, bev->y );
 
             xori = xold = bev->x;
             yori = yold = bev->y;
 
             if ( view->pressedButtonID != MAXIMIZEBUTTON ) {
-                GdkWindow *gdkwin = gtk_widget_get_window ( gtk3gui->topWin );
+                GdkWindow *gdkwin = gtk_widget_get_window ( gtk3mui->topWin );
 
                 /*** Hide the mouse cursor ***/
                 gdk_window_set_cursor ( gdkwin, 
@@ -464,12 +407,12 @@ static gboolean navInput ( GtkWidget *widget,
             GdkEventButton *bev = ( GdkEventButton * ) event;
 
             if ( view->pressedButtonID != MAXIMIZEBUTTON ) {
-                GdkWindow *gdkwin = gtk_widget_get_window ( gtk3gui->topWin );
+                GdkWindow *gdkwin = gtk_widget_get_window ( gtk3mui->topWin );
 
                 gdk_window_set_cursor ( gdkwin, NULL );
             }
 
-            g3duiview_releaseButton ( view );
+            m3duiview_releaseButton ( view );
 
             if ( grabbing ) ungrabPointer ( widget, event );
 
@@ -495,8 +438,8 @@ static gboolean navInput ( GtkWidget *widget,
 static gboolean navDraw ( GtkWidget *widget, 
                           cairo_t   *cr, 
                           gpointer   user_data ) {
-    GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
-    G3DUIVIEW *view = &gtk3view->core;
+    GTK3M3DUIVIEW *gtk3view = ( GTK3M3DUIVIEW * ) user_data;
+    M3DUIVIEW *view = &gtk3view->core;
     GtkStyleContext *context = gtk_widget_get_style_context ( widget );
     uint32_t width  = gtk_widget_get_allocated_width  ( widget ),
              height = gtk_widget_get_allocated_height ( widget );
@@ -526,7 +469,7 @@ static gboolean navDraw ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-static void gtk3_g3duiview_createNavigationBar ( GTK3G3DUIVIEW *gtk3view ) {
+static void gtk3_m3duiview_createNavigationBar ( GTK3M3DUIVIEW *gtk3view ) {
     GtkWidget *navbar = ui_gtk_drawing_area_new ( CLASS_VIEW_MENU_BAR );
     GtkStyleContext *context = gtk_widget_get_style_context ( navbar );
 
@@ -551,11 +494,9 @@ static void gtk3_g3duiview_createNavigationBar ( GTK3G3DUIVIEW *gtk3view ) {
     g_signal_connect ( G_OBJECT (navbar), "button_press_event"  , G_CALLBACK (navInput), gtk3view );
     g_signal_connect ( G_OBJECT (navbar), "button_release_event", G_CALLBACK (navInput), gtk3view );
 
-
-
     gtk3view->pix[MAXIMIZEBUTTON]  = gdk_pixbuf_new_from_xpm_data ( maximize_view_xpm  );
-    gtk3view->pix[ROTATEBUTTON]    = gdk_pixbuf_new_from_xpm_data ( rotate_view_xpm    );
     gtk3view->pix[TRANSLATEBUTTON] = gdk_pixbuf_new_from_xpm_data ( translate_view_xpm );
+    gtk3view->pix[ROTATEBUTTON]    = gdk_pixbuf_new_from_xpm_data ( rotate_view_xpm    );
     gtk3view->pix[ZOOMBUTTON]      = gdk_pixbuf_new_from_xpm_data ( zoom_view_xpm      );
 
     gtk_layout_put ( GTK_LAYOUT(gtk3view->layout), navbar, 0, 0 );
@@ -564,15 +505,13 @@ static void gtk3_g3duiview_createNavigationBar ( GTK3G3DUIVIEW *gtk3view ) {
 }
 
 /******************************************************************************/
-void gtk3_g3duiview_resize ( GTK3G3DUIVIEW *gtk3view,
+void gtk3_m3duiview_resize ( GTK3M3DUIVIEW *gtk3view,
                              uint32_t       width,
                              uint32_t       height ) {
     GTK3G3DUIMENU *menuBar = ( GTK3G3DUIMENU * ) gtk3view->core.menuBar;
     GdkRectangle gdkrec;
 
-/*printf("%d\n", gtk_widget_get_allocated_height ( menuBar->menu ) );*/
-
-    g3duiview_resize ( &gtk3view->core,
+    m3duiview_resize ( &gtk3view->core,
                         width,
                         height,
                         BUTTONSIZE );
@@ -584,9 +523,9 @@ void gtk3_g3duiview_resize ( GTK3G3DUIVIEW *gtk3view,
         g3duirectangle_toGdkRectangle ( &gtk3view->core.menurec, &gdkrec );
 
         gtk_layout_move ( gtk3view->layout,
-                         gtk3menu->menu, 
-                         gdkrec.x,
-                         gdkrec.y );
+                          gtk3menu->menu, 
+                          gdkrec.x,
+                          gdkrec.y );
 
         gtk_widget_set_size_request ( gtk3menu->menu,
                                       gdkrec.width,
@@ -598,9 +537,9 @@ void gtk3_g3duiview_resize ( GTK3G3DUIVIEW *gtk3view,
         g3duirectangle_toGdkRectangle ( &gtk3view->core.glrec, &gdkrec );
 
         gtk_layout_move ( gtk3view->layout,
-                         gtk3view->glarea, 
-                         gdkrec.x,
-                         gdkrec.y );
+                          gtk3view->glarea, 
+                          gdkrec.x,
+                          gdkrec.y );
 
         gtk_widget_set_size_request ( gtk3view->glarea,
                                       gdkrec.width,
@@ -623,28 +562,49 @@ void gtk3_g3duiview_resize ( GTK3G3DUIVIEW *gtk3view,
 }
 
 /******************************************************************************/
-GTK3G3DUIVIEW *gtk3_g3duiview_create ( GtkWidget *parent,
-                                       GTK3G3DUI *gtk3gui,
+void gtk3_m3duiview_updateMenuBar ( GTK3G3DUIVIEW *gtk3view ) {
+    gtk3_g3duimenu_update_r ( ( GTK3G3DUIMENU * ) gtk3view->core.menuBar );
+}
+
+/******************************************************************************/
+static void gtk3_m3duiview_createMenuBar ( GTK3M3DUIVIEW *gtk3view ) {
+    GTK3G3DUIMENU *gtk3menu;
+
+    gtk3menu = gtk3_g3duimenu_parse_r ( g3duimenu_getViewMenuNode ( ),
+                                        gtk3view->core.mui->gui,
+                                        gtk3view );
+
+    gtk3_g3duimenu_update_r ( gtk3menu );
+
+    gtk_layout_put ( GTK_LAYOUT(gtk3view->layout), gtk3menu->menu, 0, 0 );
+
+    gtk_widget_show ( gtk3menu->menu );
+
+
+    gtk3view->core.menuBar = ( G3DUIMENU * ) gtk3menu;
+}
+
+/******************************************************************************/
+GTK3M3DUIVIEW *gtk3_m3duiview_create ( GtkWidget *parent,
+                                       GTK3M3DUI *gtk3mui,
                                        char      *name ) {
-    GTK3G3DUIVIEW *gtk3view = gtk3_g3duiview_new ( gtk3gui );
-    GtkWidget    *layout = gtk_layout_new ( NULL, NULL );
+    GTK3M3DUIVIEW *gtk3view = gtk3_m3duiview_new ( gtk3mui );
+    GtkWidget    *layout = ui_gtk_layout_new ( CLASS_MAIN, NULL, NULL );
 
     gtk3view->layout = layout;
 
     gtk_widget_set_name ( layout, name );
-
-    /*gtk_widget_add_events(GTK_WIDGET(layout), GDK_CONFIGURE);*/
 
     g_signal_connect ( G_OBJECT (layout), "realize", G_CALLBACK (Realize), gtk3view );
     g_signal_connect ( G_OBJECT (layout), "destroy", G_CALLBACK (Destroy), gtk3view );
 
     gtk_widget_show ( layout );
 
-    gtk3_g3duiview_createGLArea ( gtk3view );
-    gtk3_g3duiview_createMenuBar ( gtk3view );
-    gtk3_g3duiview_createNavigationBar ( gtk3view );
+    gtk3_m3duiview_createGLArea ( gtk3view );
+    gtk3_m3duiview_createMenuBar ( gtk3view );
+    gtk3_m3duiview_createNavigationBar ( gtk3view );
 
 
     return gtk3view;
 }
-#endif
+

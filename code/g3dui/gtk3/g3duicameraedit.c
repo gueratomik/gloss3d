@@ -61,9 +61,9 @@ static void updateDOFPanel ( GTK3G3DUICAMERAEDIT *gtk3ced ) {
         G3DCAMERA *cam = gtk3ced->core.editedCamera;
 
         if ( ((G3DOBJECT*)cam)->flags & CAMERADOF ) {
-            gtk_toggle_button_set_active ( gtk3ced->dofEnableToggle, TRUE  );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3ced->dofEnableToggle), TRUE  );
         } else {
-            gtk_toggle_button_set_active ( gtk3ced->dofEnableToggle, FALSE );
+            gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON(gtk3ced->dofEnableToggle), FALSE );
         }
 
         gtk_spin_button_set_value ( gtk3ced->dofNearBlurEntry, cam->dof.nearBlur );
@@ -78,7 +78,7 @@ static void updateDOFPanel ( GTK3G3DUICAMERAEDIT *gtk3ced ) {
 /******************************************************************************/
 static void dofEnableCbk  ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUICAMERAEDIT *gtk3ced = ( GTK3G3DUICAMERAEDIT * ) user_data;
-    GTK3G3DUI *gtk3gui = gtk3ced->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3ced->core.gui;
     uint64_t ret = 0x00;
 
     /*** prevents loop ***/
@@ -92,7 +92,7 @@ static void dofEnableCbk  ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void dofNearBlurCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUICAMERAEDIT *gtk3ced = ( GTK3G3DUICAMERAEDIT * ) user_data;
-    GTK3G3DUI *gtk3gui = gtk3ced->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3ced->core.gui;
     GtkWidget *parent = gtk_widget_get_parent ( widget );
     double nearBlur = ( double ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     uint64_t ret = 0x00;
@@ -108,7 +108,7 @@ static void dofNearBlurCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void dofNoBlurCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUICAMERAEDIT *gtk3ced = ( GTK3G3DUICAMERAEDIT * ) user_data;
-    GTK3G3DUI *gtk3gui = gtk3ced->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3ced->core.gui;
     GtkWidget *parent = gtk_widget_get_parent ( widget );
     double noBlur = ( double ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     uint64_t ret = 0x00;
@@ -124,7 +124,7 @@ static void dofNoBlurCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void dofFarBlurCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUICAMERAEDIT *gtk3ced = ( GTK3G3DUICAMERAEDIT * ) user_data;
-    GTK3G3DUI *gtk3gui = gtk3ced->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3ced->core.gui;
     GtkWidget *parent = gtk_widget_get_parent ( widget );
     double farBlur = ( double ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     uint64_t ret = 0x00;
@@ -140,7 +140,7 @@ static void dofFarBlurCbk ( GtkWidget *widget, gpointer user_data ) {
 /******************************************************************************/
 static void dofRadiusCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUICAMERAEDIT *gtk3ced = ( GTK3G3DUICAMERAEDIT * ) user_data;
-    GTK3G3DUI *gtk3gui = gtk3ced->core.gui;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3ced->core.gui;
     GtkWidget *parent = gtk_widget_get_parent ( widget );
     int radius = ( int ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
     uint64_t ret = 0x00;
@@ -263,13 +263,13 @@ GTK3G3DUICAMERAEDIT *gtk3_g3duicameraedit_create ( GtkWidget *parent,
                                                    GTK3G3DUI *gtk3gui,
                                                    char      *name ) {
     GTK3G3DUICAMERAEDIT *gtk3ced = gtk3_g3duicameraedit_new ( gtk3gui );
-    GtkWidget *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
+    GtkNotebook *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
 
-    gtk3ced->notebook = GTK_NOTEBOOK(notebook);
+    gtk3ced->notebook = notebook;
 
-    gtk_notebook_set_scrollable ( GTK_NOTEBOOK(notebook), TRUE );
+    gtk_notebook_set_scrollable ( notebook, TRUE );
 
-    gtk_widget_set_name ( notebook, name );
+    gtk_widget_set_name ( GTK_WIDGET(notebook), name );
 
     /*gtk_widget_set_size_request ( tab, width, height );*/
 
@@ -279,7 +279,7 @@ GTK3G3DUICAMERAEDIT *gtk3_g3duicameraedit_create ( GtkWidget *parent,
     createDOFPanel ( gtk3ced, 0, 0, 310, 150 );
 
 
-    gtk_widget_show ( notebook );
+    gtk_widget_show ( GTK_WIDGET(notebook) );
 
 
     return gtk3ced;

@@ -29,25 +29,20 @@
 #include <config.h>
 #include <g3dui.h>
 
-#define CLEARCOLOR 100
-
 /******************************************************************************/
 void m3duiview_moveSideward ( M3DUIVIEW *view, 
-                              int32_t    x, 
-                              int32_t    y, 
-                              int32_t    xold, 
-                              int32_t    yold ) {
-    view->cam.obj.pos.x -= ( ( float ) ( x - xold ) * 0.005f );
-    view->cam.obj.pos.y += ( ( float ) ( y - yold ) * 0.005f );
+                              float      difx,
+                              float      dify ) {
+    view->cam.obj.pos.x += ( difx * 0.005f );
+    view->cam.obj.pos.y -= ( dify * 0.005f );
 
     g3dobject_updateMatrix ( ( G3DOBJECT * ) &view->cam, view->mui->engine_flags );
 }
 
 /******************************************************************************/
 void m3duiview_moveForward ( M3DUIVIEW *view, 
-                             int32_t    x, 
-                             int32_t    xold ) {
-    view->cam.ortho.z -= ( ( float ) ( x - xold ) * 0.000005f );
+                             float      difx ) {
+    view->cam.ortho.z += ( difx * 0.000005f );
 
     if ( view->cam.ortho.z < 0.00001f ) view->cam.ortho.z = 0.00001f;
 
@@ -85,14 +80,13 @@ void m3duiview_releaseButton ( M3DUIVIEW *view ) {
 }
 
 /******************************************************************************/
-void m3duiview_init ( M3DUIVIEW *view, 
-                      uint32_t   width,
-                      uint32_t   height ) {
+void m3duiview_init ( M3DUIVIEW *view ) {
     view->pressedButtonID = -1;
 
     /*** as we use an identity projection matrix, the coorinates system will ***/
     /*** be from -1.0f to 1.0f. So we have to move our UVMAP to the center ***/
     /*** of this coordinates system by shifting it by 0.5f ***/
+
     view->cam.obj.pos.x =  0.5f;
     view->cam.obj.pos.y =  0.5f;
     view->cam.obj.pos.z =  0.0f;
@@ -105,13 +99,14 @@ void m3duiview_init ( M3DUIVIEW *view,
     view->cam.obj.sca.y = 1.0f;
     view->cam.obj.sca.z = 1.0f;
 
-    view->cam.obj.flags |= CAMERAORTHOGRAPHIC;
-	view->cam.ortho.x = 0.0f;
+    view->cam.obj.flags = CAMERAORTHOGRAPHIC;
+
+	view->cam.ortho.x  = 0.0f;
     view->cam.ortho.y = 0.0f;
     view->cam.ortho.z = 0.001f;
     view->cam.znear   = -1000.0f;
     view->cam.zfar    = 1000.0f;
-	
+
 	view->cam.obj.name = "UVMapEditor Camera";
 	
     /*mui->uvurm = g3durmanager_new ( mui->gui->conf.undolevel );*/
@@ -155,12 +150,71 @@ void m3duiview_resize ( M3DUIVIEW *view,
 }
 
 /******************************************************************************/
+uint64_t m3duiview_inputGL ( M3DUIVIEW *view, G3DEvent *g3dev ) {
+    M3DUI         *mui      = view->mui;
+    G3DUI         *gui      = mui->gui;
+    uint64_t ret = 0x00;
+
+#ifdef __linux__
+    if ( glXMakeCurrent ( view->dpy,
+                          view->win,
+                          view->glctx ) == TRUE ) {
+#endif
+#ifdef __MINGW32__
+    HDC dc = GetDC ( view->hWnd );
+    if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
+#endif
+
+    if ( mui->curmou ) {
+        if ( g3dev->type == G3DButtonPress ) {
+            /*** Leave this here for no until we fin a better arch ***/
+            m3dui_resizeBuffers ( mui );
+
+            mui->curmou->tool->mask    = mui->mask;
+            mui->curmou->tool->zbuffer = mui->zbuffer;
+        }
+
+        if ( mui->curmou->tool->event ) {
+            ret = mui->curmou->tool->event ( mui->curmou->tool, 
+                                             gui->sce,
+                                            &view->cam, 
+                                             gui->urm,
+                                             mui->engine_flags, 
+                                             g3dev );
+
+            if ( g3dev->type == G3DButtonRelease ) {
+                g3dcursor_reset ( &gui->sce->csr );
+            }
+        }
+    }
+
+#ifdef __linux__
+    }
+#endif
+#ifdef __MINGW32__
+    } ReleaseDC ( view->hWnd, dc );
+#endif
+
+    return ret;
+}
+
+/******************************************************************************/
 void m3duiview_showGL ( M3DUIVIEW    *view,
                         uint64_t      engine_flags ) {
     G3DUI *gui = view->mui->gui;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
     G3DUIMOUSETOOL *mou = view->mui->curmou;
-    M3DMOUSETOOL *tool =  ( mou ) ? ( M3DMOUSETOOL * ) mou->tool : NULL;
+    G3DMOUSETOOL *tool =  ( mou ) ? ( G3DMOUSETOOL * ) mou->tool : NULL;
+
+#ifdef __linux__
+    if ( glXMakeCurrent ( view->dpy,
+                          view->win,
+                          view->glctx ) == TRUE ) {
+#endif
+#ifdef __MINGW32__
+    HDC dc = GetDC ( view->hWnd );
+    if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
+#endif
 
     glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -202,6 +256,7 @@ void m3duiview_showGL ( M3DUIVIEW    *view,
 
                             glMatrixMode(GL_PROJECTION);
                             glLoadIdentity();
+
                             g3dcamera_project ( &view->cam, 0x00  );
 
                             glMatrixMode ( GL_MODELVIEW );
@@ -256,16 +311,45 @@ void m3duiview_showGL ( M3DUIVIEW    *view,
         }
     }
 
-    if ( tool && tool->gtool.draw ) {
-        tool->gtool.draw ( tool, gui->sce, engine_flags );
+    if ( tool && tool->draw ) {
+        tool->draw ( tool, gui->sce, engine_flags );
     }
+
+#ifdef __linux__
+    } glXSwapBuffers ( view->dpy, view->win);
+
+    XFlush ( view->dpy );
+    XSync ( view->dpy, False );
+#endif
+#ifdef __MINGW32__
+    } SwapBuffers ( dc );
+
+      ReleaseDC ( view->hWnd, dc );
+#endif
 }
 
 /******************************************************************************/
 void m3duiview_sizeGL ( M3DUIVIEW *view, 
                         uint32_t   width, 
                         uint32_t   height ) {
+#ifdef __linux__
+    if ( glXMakeCurrent ( view->dpy,
+                          view->win,
+                          view->glctx ) == TRUE ) {
+#endif
+#ifdef __MINGW32__
+    HDC dc = GetDC ( view->hWnd );
+    if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
+#endif
+
     glViewport ( 0, 0, width, height );
+
+#ifdef __linux__
+    }
+#endif
+#ifdef __MINGW32__
+    } ReleaseDC ( view->hWnd, dc );
+#endif
 }
 
 /******************************************************************************/
@@ -295,6 +379,8 @@ void m3duiview_initGL ( M3DUIVIEW *view ) {
 
     glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL );
     /*glLightModeli ( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );*/
+
+    m3duiview_init ( view );
 
 #ifdef __linux__
     }

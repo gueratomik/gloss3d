@@ -67,11 +67,10 @@ static void gtk3_m3duimain_createMenuBar ( GTK3M3DUIMAIN *gtk3main ) {
 }
 
 /******************************************************************************/
-/*
 static void gtk3_m3duimain_createToolBar ( GTK3M3DUIMAIN *gtk3main ) {
     GTK3M3DUI *gtk3mui = ( GTK3M3DUI * ) gtk3main->core.mui;
 
-    GTK3M3DUITOOLBAR *gtk3tb = gtk3_g3duitoolbar_create ( gtk3main->layout,
+    GTK3M3DUITOOLBAR *gtk3tb = gtk3_m3duitoolbar_create ( gtk3main->layout,
                                                           gtk3mui,
                                                           "toolbar" );
 
@@ -80,14 +79,12 @@ static void gtk3_m3duimain_createToolBar ( GTK3M3DUIMAIN *gtk3main ) {
 
     gtk3main->core.toolBar = ( G3DUITOOLBAR * ) gtk3tb;
 }
-*/
 
 /******************************************************************************/
-/*
 static void gtk3_m3duimain_createModeBar ( GTK3M3DUIMAIN *gtk3main ) {
     GTK3M3DUI *gtk3mui = ( GTK3M3DUI * ) gtk3main->core.mui;
 
-    GTK3M3DUIMODEBAR *gtk3mb = gtk3_g3duimodebar_create ( gtk3main->layout,
+    GTK3M3DUIMODEBAR *gtk3mb = gtk3_m3duimodebar_create ( gtk3main->layout,
                                                           gtk3mui,
                                                           "modebar" );
 
@@ -96,21 +93,18 @@ static void gtk3_m3duimain_createModeBar ( GTK3M3DUIMAIN *gtk3main ) {
 
     gtk3main->core.modeBar = ( G3DUIMODEBAR * ) gtk3mb;
 }
-*/
 
 /******************************************************************************/
-/*
 static void gtk3_m3duimain_createView ( GTK3M3DUIMAIN *gtk3main ) {
     GTK3M3DUI *gtk3mui = ( GTK3M3DUI * ) gtk3main->core.mui;
     GTK3M3DUIVIEW *gtk3view = gtk3_m3duiview_create ( gtk3main->layout,
                                                       gtk3mui,
                                                       "view" );
 
-    gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3quad->layout, 0, 0 );
+    gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3view->layout, 0, 0 );
 
     gtk3main->core.view = ( M3DUIVIEW * ) gtk3view;
 }
-*/
 
 /******************************************************************************/
 /*
@@ -143,7 +137,7 @@ void gtk3_m3duimain_resize ( GTK3M3DUIMAIN *gtk3main,
                         width, 
                         height );
 
-/*
+
     if ( gtk3toolBar ) {
         g3duirectangle_toGdkRectangle ( &gtk3main->core.tbarrec, &gdkrec );
 
@@ -156,7 +150,6 @@ void gtk3_m3duimain_resize ( GTK3M3DUIMAIN *gtk3main,
                                       gdkrec.width,
                                       gdkrec.height );
     }
-*/
 
     if ( gtk3menuBar ) {
         g3duirectangle_toGdkRectangle ( &gtk3main->core.menurec, &gdkrec );
@@ -171,7 +164,6 @@ void gtk3_m3duimain_resize ( GTK3M3DUIMAIN *gtk3main,
                                       gdkrec.height );
     }
 
-/*
     if ( gtk3modeBar ) {
         g3duirectangle_toGdkRectangle ( &gtk3main->core.mbarrec, &gdkrec );
 
@@ -184,23 +176,23 @@ void gtk3_m3duimain_resize ( GTK3M3DUIMAIN *gtk3main,
                                       gdkrec.width,
                                       gdkrec.height );
     }
-*/
-/*
+
+
     if ( gtk3view ) {
         g3duirectangle_toGdkRectangle ( &gtk3main->core.viewrec, &gdkrec );
 
-        gtk3_g3duiquad_resize ( gtk3quad, gdkrec.width, gdkrec.height );
+        gtk3_m3duiview_resize ( gtk3view, gdkrec.width, gdkrec.height );
 
         gtk_layout_move ( gtk3main->layout,
                           gtk3view->layout, 
                           gdkrec.x,
                           gdkrec.y );
 
-        gtk_widget_set_size_request ( gtk3view->fixed,
+        gtk_widget_set_size_request ( gtk3view->layout,
                                       gdkrec.width,
                                       gdkrec.height );
     }
-*/
+
 /*
     if ( gtk3board ) {
         g3duirectangle_toGdkRectangle ( &gtk3main->core.mbrdrec, &gdkrec );
@@ -259,10 +251,11 @@ GTK3M3DUIMAIN *gtk3_m3duimain_create ( GtkWidget *parent,
     gtk3main->layout = layout;
 
     gtk3_m3duimain_createMenuBar   ( gtk3main );
-/*
     gtk3_m3duimain_createToolBar   ( gtk3main );
     gtk3_m3duimain_createModeBar   ( gtk3main );
     gtk3_m3duimain_createView      ( gtk3main );
+
+/*
     gtk3_m3duimain_createBoard     ( gtk3main );
 */
 

@@ -163,7 +163,7 @@ static XImage *allocXImage ( Display         *dis,
     if ( XShmQueryExtension ( dis ) == 0x00 ) {
         fprintf ( stderr, "filtertowindow_new: XSHM not availabale\n" );
 
-        return;
+        return NULL;
     }
 
     /*** http://www.x.org/releases/current/doc/xextproto/shm.html ***/
@@ -180,7 +180,7 @@ static XImage *allocXImage ( Display         *dis,
     if ( ximg == NULL ) {
         fprintf ( stderr, "XShmCreateImage failed\n" );
 
-        return;
+        return NULL;
     }
 
     imgsize = ( ximg->bytes_per_line * ximg->height );
@@ -192,7 +192,7 @@ static XImage *allocXImage ( Display         *dis,
     if ( XShmAttach ( dis, ssi ) == 0x00 ) {
         fprintf ( stderr, "XSHM Failed\n" );
 
-        return;
+        return NULL;
     }
 
     shmctl ( ssi->shmid, IPC_RMID, 0x00 );

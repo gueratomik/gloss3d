@@ -901,7 +901,7 @@ int pickUV_tool ( G3DMOUSETOOL *mou,
         	                pt->start = 0x01;
 
         	                startSelectionRectangle ( bev->x, VPX[0x03] - bev->y, pt->coord );
-                        } return UPDATEANDREDRAWALL;
+                        } return REDRAWUVMAPEDITOR;
 
                         case G3DMotionNotify : {
         	            /*** if G3DButtonPress was called ***/
@@ -953,7 +953,7 @@ int pickUV_tool ( G3DMOUSETOOL *mou,
                             }
 
         	                pt->start = 0x00;
-                        } return UPDATEANDREDRAWALL;
+                        } return REDRAWUVMAPEDITOR;
 
                         default :
                         break;

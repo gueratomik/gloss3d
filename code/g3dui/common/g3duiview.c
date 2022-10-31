@@ -391,7 +391,7 @@ void g3duiview_initGL ( G3DUIVIEW *view ) {
     if ( cam ) {
         float      clearColorf = ( float ) CLEARCOLOR / 255.0f;
 
-        g3dobject_updateMatrix_r (  cam, 0x00 );
+        g3dobject_updateMatrix_r ( ( G3DOBJECT * ) cam, 0x00 );
 
         /*** Set clear color for the OpenGL Window ***/
         glClearColor ( clearColorf, clearColorf, clearColorf, 1.0f );

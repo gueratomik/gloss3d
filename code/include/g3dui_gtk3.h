@@ -122,17 +122,47 @@ typedef struct _G3DUIWIDGETGROUP {
 
 /******************************************************************************/
 typedef struct _GTK3M3DUIVIEW {
-    M3DUIVIEW core;
+    M3DUIVIEW  core;
+    GtkWidget *layout;
+    GtkWidget *navbar;
+    GtkWidget *glarea;
+    GdkPixbuf *pix[0x04];
 } GTK3M3DUIVIEW;
 
 /******************************************************************************/
 typedef struct _GTK3M3DUITOOLBAR {
-    M3DUITOOLBAR core;
+    M3DUITOOLBAR         core;
+
+    GtkToolbar           *bar;
+
+    GtkToolButton       *createImageButton;
+    GtkToolButton       *openFileButton;
+    GtkToolButton       *saveAsButton;
+    GtkToolButton       *saveButton;
+    GtkToolButton       *saveImageAsButton;
+    GtkToolButton       *saveImageButton;
+    GtkToolButton       *undoButton;
+    GtkToolButton       *redoButton;
+    GtkToggleToolButton *pickUVToggle;
+    GtkToggleToolButton *moveUVToggle;
+    GtkToggleToolButton *scaleUVToggle;
+    GtkToggleToolButton *rotateUVToggle;
+    GtkToggleToolButton *selectSquareToggle;
+    GtkToggleToolButton *selectRandomToggle;
+    GtkToolButton       *unselectButton;
+    GtkToggleToolButton *penToggle;
+    GtkToggleToolButton *bucketToggle;
+    GtkToggleToolButton *eraserToggle;
 } GTK3M3DUITOOLBAR;
 
 /******************************************************************************/
 typedef struct _GTK3M3DUIMODEBAR {
-    M3DUIMODEBAR core;
+    M3DUIMODEBAR        core;
+
+    GtkToolbar         *bar;
+
+    GtkRadioToolButton *vertexMode;
+    GtkRadioToolButton *faceMode;
 } GTK3M3DUIMODEBAR;
 
 /******************************************************************************/
@@ -142,22 +172,21 @@ typedef struct _GTK3M3DUIBOARD {
 
 /******************************************************************************/
 typedef struct _GTK3M3DUI {
-    M3DUI core;
+    M3DUI      core;
+    GtkWindow *topWin;
+    GtkWidget *currentMouseToolButton;
 } GTK3M3DUI;
 
 /******************************************************************************/
 typedef struct _GTK3G3DUI {
-    G3DUI          core;
-    LIST         *lmtools; /*** list of mousetools widget ***/
+    G3DUI           core;
+    LIST          *lmtools; /*** list of mousetools widget ***/
 
-    GdkWindow    *winAtPosition; /*** window at mouse position (for hourGlass)***/
+    GdkWindow     *winAtPosition; /*** window at mouse position (for hourGlass)***/
 
-    GtkWidget    *topWin;
-    GtkWidget    *currentMouseToolButton; /*** store the current pressed toggle button      ***/
-    GtkWidget    *curMaterialWidget; /*** current material ***/
-
-    GtkWidget    *topUVWin;
-    GtkWidget    *currentUVMouseToolButton;
+    GtkWindow     *topWin;
+    GtkWidget     *currentMouseToolButton; /*** store the current pressed toggle button      ***/
+    GtkWidget     *curMaterialWidget; /*** current material ***/
 } GTK3G3DUI;
 
 /******************************************************************************/
@@ -261,77 +290,77 @@ typedef struct _GTK3G3DUIMATERIALLIST {
 typedef struct _GTK3G3DUIMATERIALEDIT {
     G3DUIMATERIALEDIT core;
 
-    GtkNotebook      *fixed;
-    GtkEntry         *nameEntry;
-    GtkNotebook      *scrolled;
-    GtkNotebook      *notebook;
+    GtkFixed          *fixed;
+    GtkEntry          *nameEntry;
+    GtkScrolledWindow *scrolled;
+    GtkNotebook       *notebook;
 
-    /*GtkFixed         *diffusePanel;*/
-    GtkToggleButton  *diffuseEnabledToggle;
-    GtkToggleButton  *diffuseSolidToggle;
-    GtkColorButton   *diffuseColorButton;
-    GtkToggleButton  *diffuseImageToggle;
-    GtkButton        *diffuseImageButton;
-    GtkToggleButton  *diffuseProcToggle;
-    GtkComboBoxText  *diffuseProcTypeCombo;
-    GtkButton        *diffuseProcSettingsButton;
+    /*GtkFixed          *diffusePanel;*/
+    GtkCheckButton    *diffuseEnabledToggle;
+    GtkCheckButton    *diffuseSolidToggle;
+    GtkColorButton    *diffuseColorButton;
+    GtkCheckButton    *diffuseImageToggle;
+    GtkButton         *diffuseImageButton;
+    GtkCheckButton    *diffuseProcToggle;
+    GtkComboBoxText   *diffuseProcTypeCombo;
+    GtkButton         *diffuseProcSettingsButton;
 
-    /*GtkFixed         *specularPanel;*/
-    GtkToggleButton  *specularEnabledToggle;
-    GtkScale         *specularShininessScale;
-    GtkScale         *specularLevelScale;
-    GtkToggleButton  *specularSolidToggle;
-    GtkColorButton   *specularColorButton;
-    GtkToggleButton  *specularImageToggle;
-    GtkButton        *specularImageButton;
-    GtkToggleButton  *specularProcToggle;
-    GtkComboBoxText  *specularProcTypeCombo;
-    GtkButton        *specularProcSettingsButton;
+    /*GtkFixed          *specularPanel;*/
+    GtkCheckButton    *specularEnabledToggle;
+    GtkScale          *specularShininessScale;
+    GtkScale          *specularLevelScale;
+    GtkCheckButton    *specularSolidToggle;
+    GtkColorButton    *specularColorButton;
+    GtkCheckButton    *specularImageToggle;
+    GtkButton         *specularImageButton;
+    GtkCheckButton    *specularProcToggle;
+    GtkComboBoxText   *specularProcTypeCombo;
+    GtkButton         *specularProcSettingsButton;
 
-    GtkSpinButton    *bumpStrengthEntry;
-    GtkToggleButton  *bumpEnabledToggle;
-    GtkScale         *bumpStrengthScale;
-    GtkToggleButton  *bumpImageToggle;
-    GtkButton        *bumpImageButton;
-    GtkToggleButton  *bumpProcToggle;
-    GtkComboBoxText  *bumpProcTypeCombo;
-    GtkButton        *bumpProcSettingsButton;
+    GtkSpinButton     *bumpStrengthEntry;
+    GtkCheckButton    *bumpEnabledToggle;
+    GtkScale          *bumpStrengthScale;
+    GtkCheckButton    *bumpImageToggle;
+    GtkButton         *bumpImageButton;
+    GtkCheckButton    *bumpProcToggle;
+    GtkComboBoxText   *bumpProcTypeCombo;
+    GtkButton         *bumpProcSettingsButton;
 
-    GtkSpinButton    *displacementStrengthEntry;
-    GtkToggleButton  *displacementEnabledToggle;
-    GtkScale         *displacementStrengthScale;
-    GtkToggleButton  *displacementImageToggle;
-    GtkButton        *displacementImageButton;
-    GtkToggleButton  *displacementProcToggle;
-    GtkComboBoxText  *displacementProcTypeCombo;
-    GtkButton        *displacementProcSettingsButton;
+    GtkSpinButton     *displacementStrengthEntry;
+    GtkCheckButton    *displacementEnabledToggle;
+    GtkScale          *displacementStrengthScale;
+    GtkCheckButton    *displacementImageToggle;
+    GtkButton         *displacementImageButton;
+    GtkCheckButton    *displacementProcToggle;
+    GtkComboBoxText   *displacementProcTypeCombo;
+    GtkButton         *displacementProcSettingsButton;
 
-    GtkSpinButton    *alphaStrengthEntry;
-    GtkToggleButton  *alphaEnabledToggle;
-    GtkScale         *alphaStrengthScale;
-    GtkToggleButton  *alphaImageToggle;
-    GtkButton        *alphaImageButton;
-    GtkToggleButton  *alphaProcToggle;
-    GtkComboBoxText  *alphaProcTypeCombo;
-    GtkButton        *alphaProcSettingsButton;
+    GtkSpinButton     *alphaStrengthEntry;
+    GtkCheckButton   *alphaEnabledToggle;
+    GtkScale          *alphaStrengthScale;
+    GtkCheckButton   *alphaImageToggle;
+    GtkButton         *alphaImageButton;
+    GtkCheckButton   *alphaProcToggle;
+    GtkComboBoxText   *alphaProcTypeCombo;
+    GtkButton         *alphaProcSettingsButton;
 
-    GtkToggleButton  *reflectionEnabledToggle;
-    GtkToggleButton  *reflectionSolidToggle;
-    GtkToggleButton  *reflectionImageToggle;
-    GtkButton        *reflectionImageButton;
-    GtkToggleButton  *reflectionProcToggle;
-    GtkComboBoxText  *reflectionProcTypeCombo;
-    GtkButton        *reflectionProcSettingsButton;
-    GtkScale         *reflectionStrengthScale;
+    GtkCheckButton   *reflectionEnabledToggle;
+    GtkCheckButton   *reflectionSolidToggle;
+    GtkCheckButton   *reflectionImageToggle;
+    GtkButton         *reflectionImageButton;
+    GtkCheckButton   *reflectionProcToggle;
+    GtkComboBoxText   *reflectionProcTypeCombo;
+    GtkButton         *reflectionProcSettingsButton;
+    GtkScale          *reflectionStrengthScale;
 
-    GtkToggleButton  *refractionEnabledToggle;
-    GtkToggleButton  *refractionSolidToggle;
-    GtkToggleButton  *refractionImageToggle;
-    GtkButton        *refractionImageButton;
-    GtkToggleButton  *refractionProcToggle;
-    GtkComboBoxText  *refractionProcTypeCombo;
-    GtkButton        *refractionProcSettingsButton;
-    GtkScale         *refractionStrengthScale;
+    GtkCheckButton    *refractionEnabledToggle;
+    GtkCheckButton    *refractionSolidToggle;
+    GtkCheckButton    *refractionImageToggle;
+    GtkButton         *refractionImageButton;
+    GtkCheckButton    *refractionProcToggle;
+    GtkComboBoxText   *refractionProcTypeCombo;
+    GtkButton         *refractionProcSettingsButton;
+    GtkScale          *refractionStrengthScale;
 } GTK3G3DUIMATERIALEDIT;
 
 /******************************************************************************/
@@ -368,7 +397,7 @@ typedef struct _GTK3G3DUIOBJECTBOARD {
 /******************************************************************************/
 typedef struct _GTK3G3DUIBOARD {
     G3DUIBOARD   core;
-    GtkWidget   *layout;
+    GtkLayout   *layout;
     GtkNotebook *notebook;
     GtkNotebook *toolbook;
 } GTK3G3DUIBOARD;
@@ -380,7 +409,7 @@ typedef struct _GTK3G3DUIRENDEREDIT {
     GtkNotebook     *fixed;
     GtkNotebook     *notebook;
 
-    GtkToggleButton *renderPreviewToggle;
+    GtkCheckButton  *renderPreviewToggle;
     GtkSpinButton   *fromFrameEntry;
     GtkSpinButton   *toFrameEntry;
     GtkSpinButton   *framerateEntry;
@@ -392,44 +421,44 @@ typedef struct _GTK3G3DUIRENDEREDIT {
     GtkSpinButton   *renderHeightEntry;
     GtkSpinButton   *renderRatioEntry;
 
-    GtkToggleButton *blurEnabledToggle;
-    GtkToggleButton *blurVectorEnabledToggle;
-    GtkToggleButton *blurSceneEnabledToggle;
+    GtkCheckButton  *blurEnabledToggle;
+    GtkCheckButton  *blurVectorEnabledToggle;
+    GtkCheckButton  *blurSceneEnabledToggle;
     GtkSpinButton   *blurSamplesEntry;
     GtkSpinButton   *blurSubSamplingEntry;
     GtkSpinButton   *blurStrengthEntry;
     GtkSpinButton   *blurIterationsEntry;
 
-    GtkToggleButton *backgroundColorToggle;
+    GtkCheckButton  *backgroundColorToggle;
     GtkColorButton  *backgroundColorButton;
-    GtkToggleButton *backgroundImageToggle;
+    GtkCheckButton  *backgroundImageToggle;
     GtkButton       *backgroundImageButton;
 
-    GtkToggleButton *outputEnabledToggle;
+    GtkCheckButton  *outputEnabledToggle;
     GtkButton       *outputCodecButton;
     GtkEntry        *outputFileEntry;
     GtkComboBoxText *outputFormatSelector;
 
-    GtkToggleButton *wireframeEnabledToggle;
-    GtkToggleButton *wireframeAffectedToggle;
+    GtkCheckButton  *wireframeEnabledToggle;
+    GtkCheckButton  *wireframeAffectedToggle;
     GtkSpinButton   *wireframeThicknessEntry;
     GtkColorButton  *wireframeColorButton;
 
-    GtkToggleButton *fogAffectsBackgroundToggle;
-    GtkToggleButton *fogEnabledToggle;
+    GtkCheckButton  *fogAffectsBackgroundToggle;
+    GtkCheckButton  *fogEnabledToggle;
     GtkSpinButton   *fogNearEntry;
     GtkSpinButton   *fogFarEntry;
     GtkColorButton  *fogColorButton;
     GtkSpinButton   *fogStrengthEntry;
 
-    GtkToggleButton *texturingDisabledToggle;
+    GtkCheckButton  *texturingDisabledToggle;
     GtkWidget       *texturingColorButton;
 
-    GtkToggleButton *aliasingEnabledToggle;
-    GtkToggleButton *aliasingEdgeToggle;
-    GtkToggleButton *aliasingFullToggle;
-    GtkToggleButton *aliasingS5Toggle;
-    GtkToggleButton *aliasingS9Toggle;
+    GtkCheckButton  *aliasingEnabledToggle;
+    GtkCheckButton  *aliasingEdgeToggle;
+    GtkCheckButton  *aliasingFullToggle;
+    GtkCheckButton  *aliasingS5Toggle;
+    GtkCheckButton  *aliasingS9Toggle;
 } GTK3G3DUIRENDEREDIT;
 
 /******************************************************************************/
@@ -440,12 +469,12 @@ typedef struct _GTK3G3DUILIGHTEDIT {
     GtkColorButton  *diffuseColorButton;
     GtkColorButton  *specularColorButton;
     GtkSpinButton   *intensityEntry;
-    GtkToggleButton *castShadowsToggle;
-    GtkToggleButton *spotToggle;
+    GtkCheckButton  *castShadowsToggle;
+    GtkCheckButton  *spotToggle;
     GtkSpinButton   *spotLengthEntry;
     GtkSpinButton   *spotAngleEntry;
     GtkSpinButton   *spotFadeAngleEntry; 
-    GtkToggleButton *softShadowsToggle;
+    GtkCheckButton  *softShadowsToggle;
     GtkSpinButton   *shadowRadiusEntry;
     GtkSpinButton   *shadowSampleEntry;
 } GTK3G3DUILIGHTEDIT;
@@ -584,7 +613,7 @@ typedef struct _GTK3G3DUIPARTICLEEMITTEREDIT {
     GtkSpinButton           *lifetimeEntry;              
     GtkSpinButton           *ppfEntry;                   
     GtkSpinButton           *maxPreviewsEntry;           
-    GtkToggleButton         *displayPartToggle;          
+    GtkCheckButton          *displayPartToggle;          
 
     GtkSpinButton           *initialAccelXEntry;         
     GtkSpinButton           *initialAccelYEntry;         
@@ -658,8 +687,8 @@ typedef struct _GTK3G3DUITIMEBOARD {
     GtkButton       *recordButton;
 
     GtkFixed        *functionsFixed;
-    GtkToggleButton *scaleButton;
-    GtkToggleButton *panButton;
+    GtkCheckButton  *scaleButton;
+    GtkCheckButton  *panButton;
 } GTK3G3DUITIMEBOARD;
 
 /******************************************************************************/
@@ -697,8 +726,8 @@ typedef struct _GTK3G3DUIPROCEDURALGRADIENTEDIT {
     GtkDrawingArea             *drawingArea;
     GtkColorButton             *color1Button;
     GtkColorButton             *color2Button;
-    GtkToggleButton            *horizontalToggle;
-    GtkToggleButton            *verticalToggle;
+    GtkCheckButton             *horizontalToggle;
+    GtkCheckButton             *verticalToggle;
 } GTK3G3DUIPROCEDURALGRADIENTEDIT;
 
 typedef struct _GTK3G3DUIPROCEDURALNOISEEDIT {
@@ -724,8 +753,8 @@ typedef struct _GTK3G3DUITEXTUREEDIT {
     GtkFixed        *fixed;
     GtkFixed        *facegroupFrame;
     GtkFixed        *facegroupFixed;
-    GtkToggleButton *restrictToggle;
-    GtkToggleButton *repeatToggle;
+    GtkCheckButton  *restrictToggle;
+    GtkCheckButton  *repeatToggle;
     GtkButton       *editButton;
     GtkComboBoxText *uvmapSelector;
 } GTK3G3DUITEXTUREEDIT ;
@@ -734,7 +763,7 @@ typedef struct _GTK3G3DUITEXTUREEDIT {
 typedef struct _GTK3G3DUICAMERAEDIT {
     G3DUICAMERAEDIT  core;
     GtkNotebook     *notebook;
-    GtkToggleButton *dofEnableToggle;
+    GtkCheckButton  *dofEnableToggle;
     GtkSpinButton   *dofNearBlurEntry;
     GtkSpinButton   *dofNoBlurEntry;
     GtkSpinButton   *dofFarBlurEntry;
@@ -757,7 +786,7 @@ typedef struct _GTK3G3DUIUVMAPEDIT {
     G3DUIUVMAPEDIT   core;
     GtkFixed        *fixed;
     GtkEntry        *nameEntry;
-    GtkToggleButton *fixedToggle;
+    GtkCheckButton  *fixedToggle;
     GtkComboBoxText *projectionCombo;
 } GTK3G3DUIUVMAPEDIT;
 
@@ -781,7 +810,7 @@ typedef struct _GTK3G3DUISPLINEREVOLVEREDIT {
 typedef struct _GTK3G3DUITRACKERTAGEDIT {
     G3DUITRACKERTAGEDIT core;
     GtkFixed           *fixed;
-    GtkToggleButton    *objectCombo;
+    GtkCheckButton     *objectCombo;
     GtkComboBoxText    *orientationCombo;
 } GTK3G3DUITRACKERTAGEDIT;
 
@@ -799,11 +828,11 @@ typedef struct _GTK3G3DUIPICKTOOLEDIT {
 typedef struct _GTK3G3DUISCULPTTOOLEDIT {
     G3DUISCULPTTOOLEDIT core;
     GtkFixed           *fixed;
-    GtkToggleButton   *visibleToggle;
+    GtkCheckButton    *visibleToggle;
     GtkScale           *radiusScale;
     GtkScale           *pressureScale;
-    GtkToggleButton    *circularToggle;
-    GtkToggleButton    *squaredToggle;
+    GtkCheckButton     *circularToggle;
+    GtkCheckButton     *squaredToggle;
 } GTK3G3DUISCULPTTOOLEDIT;
 
 /******************************************************************************/
@@ -832,7 +861,7 @@ typedef struct _GTK3G3DUIBONEEDIT {
 typedef struct _GTK3G3DUIMESHEDIT {
     G3DUIMESHEDIT    core;
     GtkNotebook     *notebook;
-    GtkToggleButton *shadingToggle;
+    GtkCheckButton  *shadingToggle;
     GtkSpinButton   *gouraudEntry;
     GtkEntry        *fgNameEntry;
     GtkFixed        *fgListFixed;
@@ -847,9 +876,9 @@ typedef struct _GTK3G3DUIMESHEDIT {
 typedef struct _GTK3G3DUIKEYEDIT {
     G3DUIKEYEDIT    core;
     GtkFixed        *fixed;
-    GtkToggleButton *translationToggle;
-    GtkToggleButton *rotationToggle;
-    GtkToggleButton *scalingToggle;
+    GtkCheckButton  *translationToggle;
+    GtkCheckButton  *rotationToggle;
+    GtkCheckButton  *scalingToggle;
     GtkSpinButton   *XTranslationEntry;
     GtkSpinButton   *YTranslationEntry;
     GtkSpinButton   *ZTranslationEntry;
@@ -859,9 +888,9 @@ typedef struct _GTK3G3DUIKEYEDIT {
     GtkSpinButton   *XScalingEntry;
     GtkSpinButton   *YScalingEntry;
     GtkSpinButton   *ZScalingEntry;
-    GtkToggleButton *loopToggle;
+    GtkCheckButton  *loopToggle;
     GtkSpinButton   *loopFrameEntry;
-    GtkToggleButton *keyDataToggle;
+    GtkCheckButton  *keyDataToggle;
     GtkButton       *keyDataButton;
 } GTK3G3DUIKEYEDIT;
 
@@ -906,7 +935,7 @@ gchar *gtk3_getDefaultCSS ( );
 void g3duirectangle_toGdkRectangle ( G3DUIRECTANGLE *in, 
                                      GdkRectangle   *out  );
 uint64_t gtk3_setMouseTool ( GTK3G3DUI *gtk3gui, 
-                             GtkWidget *button, 
+                             GtkWidget *button,
                              char      *toolName );
 void gtk3_setHourGlass ( GTK3G3DUI *gtk3gui );
 void gtk3_unsetHourGlass ( GTK3G3DUI *gtk3gui );
@@ -934,7 +963,7 @@ GtkFixed *ui_createTab ( GtkNotebook *parent,
                          gint         width,
                          gint         height );
 
-GtkScale *ui_createHorizontalScale ( GtkWidget *parent,
+GtkScale *ui_createHorizontalScale ( GtkFixed  *parent,
                                      void      *data,
                                      char      *name,
                                      char      *class,
@@ -948,17 +977,17 @@ GtkScale *ui_createHorizontalScale ( GtkWidget *parent,
                                      float      step,
                                      void     (*cbk)( GtkWidget *, 
                                                       gpointer ) );
-GtkToggleButton *ui_createToggleLabel ( GtkFixed *parent, 
-                                        void     *data,
-                                        char     *name,
-                                        char     *class,
-                                        gint      x, 
-                                        gint      y,
-                                        gint      labwidth,
-                                        gint      btnwidth,
-                                        gint      height,
-                                        void    (*cbk)( GtkWidget *, 
-                                                        gpointer ) );
+GtkCheckButton *ui_createToggleLabel ( GtkFixed *parent, 
+                                       void     *data,
+                                       char     *name,
+                                       char     *class,
+                                       gint      x, 
+                                       gint      y,
+                                       gint      labwidth,
+                                       gint      btnwidth,
+                                       gint      height,
+                                       void    (*cbk)( GtkWidget *, 
+                                                       gpointer ) );
 GtkLabel *ui_createSimpleLabel ( GtkFixed *parent,
                                  void     *data,
                                  char     *name,
@@ -1065,7 +1094,7 @@ GtkButton *ui_createImageButton ( GtkFixed    *parent,
                                   void        *data, 
                                   char        *name,
                                   char        *class,
-                                  char       **xpm,
+                           const  char       **xpm,
                                   gint         x,
                                   gint         y,
                                   gint         width,
@@ -1174,6 +1203,15 @@ GtkLayout *ui_gtk_layout_new ( char          *class,
 GtkDrawingArea *ui_gtk_drawing_area_new ( char *class );
 GtkCheckButton *ui_gtk_check_button_new_with_label ( char *class,
                                                      char *label );
+
+uint64_t gtk3_g3dui_saveAlteredImages ( GTK3G3DUI *gtk3gui );
+uint64_t gtk3_g3dui_saveChannelAlteredImage ( GTK3G3DUI  *gtk3gui,
+                                              char       *materialName,
+                                              G3DCHANNEL *chn,
+                                              uint32_t    ask,
+                                              uint32_t    rename );
+uint32_t gtk3_g3dui_saveChannelImageAs ( GTK3G3DUI  *gtk3gui,
+                                         G3DIMAGE   *img );
 
 /******************************* g3duiboard.c *********************************/
 GTK3G3DUIBOARD *gtk3_g3duiboard_create ( GtkWidget *parent,
@@ -1574,7 +1612,7 @@ Q3DFILTER *q3dfilter_toStatusBar_new ( GtkWidget *widget,
 
 
 
-
+void gdkevent_to_g3devent ( GdkEvent *gdkev, G3DEvent *g3dev );
 
 
 /******************************************************************************/
@@ -1583,6 +1621,11 @@ Q3DFILTER *q3dfilter_toStatusBar_new ( GtkWidget *widget,
 /*********************************** m3dui.c **********************************/
 GTK3M3DUI *gtk3_m3dui_create ( GTK3G3DUI *gtk3gui );
 void gtk3_m3dui_display ( GTK3M3DUI *gtk3mui );
+uint64_t gtk3_m3dui_loadImageByChannelIDCbk ( GTK3M3DUI *gtk3mui );
+uint64_t gtk3_m3dui_setMouseTool ( GTK3M3DUI *gtk3mui,
+                                   GtkWidget *button,
+                                   char      *toolName );
+void gtk3_m3dui_saveimage ( GTK3M3DUI *gtk3mui );
 
 /********************************* m3duimain.c ********************************/
 void gtk3_m3duimain_resize ( GTK3M3DUIMAIN *gtk3main,
@@ -1592,11 +1635,23 @@ GTK3M3DUIMAIN *gtk3_m3duimain_create ( GtkWidget *parent,
                                        GTK3M3DUI *gtk3mui,
                                        char      *name );
 
+/******************************** m3duimodebar.c ******************************/
+GTK3M3DUIMODEBAR *gtk3_m3duimodebar_create ( GtkWidget *parent,
+                                             GTK3M3DUI *gtk3gui,
+                                             char      *name );
 
+/******************************** m3duitoolbar.c ******************************/
+GTK3M3DUITOOLBAR *gtk3_m3duitoolbar_create ( GtkWidget *parent,
+                                             GTK3M3DUI *gtk3gui,
+                                             char      *name );
 
-
-
-
+/********************************* m3duiview.c ********************************/
+GTK3M3DUIVIEW *gtk3_m3duiview_create ( GtkWidget *parent,
+                                       GTK3M3DUI *gtk3mui,
+                                       char      *name );
+void gtk3_m3duiview_resize ( GTK3M3DUIVIEW *gtk3view,
+                             uint32_t       width,
+                             uint32_t       height );
 
 
 

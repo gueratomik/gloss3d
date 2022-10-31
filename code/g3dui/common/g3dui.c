@@ -97,11 +97,11 @@ uint64_t g3dui_closeScene ( G3DUI *gui ) {
     /* reset background image and system values */
     g3dsysinfo_reset ( sysinfo );
 
-    if ( gui->sce ) g3dobject_free ( gui->sce );
+    if ( gui->sce ) g3dobject_free ( ( G3DOBJECT * ) gui->sce );
 
     gui->sce = NULL;
 
-    if ( gui->lrsg ) list_free ( &gui->lrsg, q3dsettings_free );
+    if ( gui->lrsg ) list_free ( &gui->lrsg, LIST_FUNCDATA(q3dsettings_free) );
 
     rsg = q3dsettings_new ( );
 

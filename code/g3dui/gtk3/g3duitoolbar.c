@@ -206,12 +206,12 @@ static void zAxisCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-GtkWidget *addToolBarToggleButton ( GtkWidget   *bar,
-                                    void        *data,
-                                    char        *name,
-                                    const char **xpm_data,
-                                    void       (*cbk) ( GtkWidget *, 
-                                                        gpointer ) ) {
+static GtkWidget *addToolBarToggleButton ( GtkWidget   *bar,
+                                           void        *data,
+                                           char        *name,
+                                           const char **xpm_data,
+                                           void       (*cbk) ( GtkWidget *, 
+                                                               gpointer ) ) {
     /*GtkIconTheme *icon_theme = gtk_icon_theme_get_default ( );*/
     GtkWidget *btn = (GtkWidget*) ui_gtk_toggle_tool_button_new ( CLASS_MAIN );
 
@@ -252,16 +252,16 @@ GtkWidget *addToolBarToggleButton ( GtkWidget   *bar,
 }
 
 /******************************************************************************/
-GtkWidget *addToolBarPushButton ( GtkWidget   *bar,
-                                  void        *data,
-                                  char        *name,
-                                  const char **xpm_data,
-                                  void       (*cbk) ( GtkWidget *,
-                                                      gpointer ) ) {
+static GtkWidget *addToolBarPushButton ( GtkWidget   *bar,
+                                         void        *data,
+                                         char        *name,
+                                         const char **xpm_data,
+                                         void       (*cbk) ( GtkWidget *,
+                                                             gpointer ) ) {
     /*GtkIconTheme *icon_theme = gtk_icon_theme_get_default ( );*/
     GtkWidget *btn = (GtkWidget*) ui_gtk_tool_button_new ( CLASS_MAIN, NULL, NULL );
 
-    gtk_widget_set_name ( btn, /*name*/"TB" );
+    gtk_widget_set_name ( btn, name );
 
     gtk_widget_set_tooltip_text ( btn, name );
 

@@ -133,13 +133,18 @@ void g3duimateriallist_removeMaterial ( G3DUIMATERIALLIST *matlist,
                                         G3DSCENE          *sce,
                                         G3DURMANAGER      *urm,
                                         G3DMATERIAL       *mat ) {
-     g3durm_scene_removeMaterial ( urm, 
-                                   sce, 
-                                   mat, 
-                                   0x00,
-                                   REDRAWOBJECTLIST | UPDATEMATERIALLIST  );
+    G3DUIMATERIALPREVIEW *preview = g3duimateriallist_getPreview ( matlist,
+                                                                   mat );
+ 
+    if ( preview ) {
+        g3durm_scene_removeMaterial ( urm, 
+                                      sce, 
+                                      mat, 
+                                      0x00,
+                                      REDRAWOBJECTLIST | UPDATEMATERIALLIST  );
 
-    g3duimateriallist_removePreview ( matlist, mat );
+        g3duimateriallist_removePreview ( matlist, preview );
+    }
 }
 
 

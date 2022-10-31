@@ -892,7 +892,7 @@ GTK3G3DUIVIEW *gtk3_g3duiview_create ( GtkWidget *parent,
                                        GTK3G3DUI *gtk3gui,
                                        char      *name ) {
     GTK3G3DUIVIEW *gtk3view = gtk3_g3duiview_new ( gtk3gui );
-    GtkWidget    *layout = gtk_layout_new ( NULL, NULL );
+    GtkWidget    *layout = ui_gtk_layout_new ( CLASS_MAIN, NULL, NULL );
 
     gtk3view->layout = layout;
 
