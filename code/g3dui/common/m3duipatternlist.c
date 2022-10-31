@@ -37,35 +37,78 @@
 #include <xpm/brush_5.c>
 
 /******************************************************************************/
-M3DUIPATTERNLIST *m3duipatternlist_new ( uint32_t size ) {
-    uint32_t structsize = sizeof ( M3DUIPATTERNLIST );
-    M3DUIPATTERNLIST *pdata = ( M3DUIPATTERNLIST * ) calloc ( 0x01,
-                                                              structsize );
+void m3duipatternlist_init ( M3DUIPATTERNLIST *patlist, uint32_t size ) {
+    patlist->preview_border = 0x01;
+    patlist->image_width    = size;
+    patlist->image_height   = size;
+    patlist->preview_width  = size  + ( patlist->preview_border * 0x02 );
+    patlist->preview_height = size  + ( patlist->preview_border * 0x02 );
 
-    if ( pdata == NULL ) {
-        fprintf ( stderr, "%s: memory allocation failed\n", __func__ );
+    list_insert ( &patlist->lpattern, m3dplainrectanglepattern_new ( size ) );
+    list_insert ( &patlist->lpattern, m3dplaincirclepattern_new    ( size ) );
+    list_insert ( &patlist->lpattern, m3dfadedcirclepattern_new    ( size, 1.0f, 0.00f ) );
+    list_insert ( &patlist->lpattern, m3dfadedcirclepattern_new    ( size, 1.0f, 0.10f ) );
+    list_insert ( &patlist->lpattern, m3dfadedcirclepattern_new    ( size, 1.0f, 0.25f ) );
+    list_insert ( &patlist->lpattern, m3dfadedcirclepattern_new    ( size, 1.0f, 0.50f ) );
+    list_insert ( &patlist->lpattern, m3dbrushpattern_new          ( size, ( M3DGIMPBRUSH * ) &brush_0 ) );
+    list_insert ( &patlist->lpattern, m3dbrushpattern_new          ( size, ( M3DGIMPBRUSH * ) &brush_1 ) );
+    list_insert ( &patlist->lpattern, m3dbrushpattern_new          ( size, ( M3DGIMPBRUSH * ) &brush_2 ) );
+    list_insert ( &patlist->lpattern, m3dbrushpattern_new          ( size, ( M3DGIMPBRUSH * ) &brush_3 ) );
+    list_insert ( &patlist->lpattern, m3dbrushpattern_new          ( size, ( M3DGIMPBRUSH * ) &brush_4 ) );
+    list_insert ( &patlist->lpattern, m3dbrushpattern_new          ( size, ( M3DGIMPBRUSH * ) &brush_5 ) );
+}
 
-        return NULL;
+/******************************************************************************/
+void m3duipatternlist_clearPatterns ( M3DUIPATTERNLIST *patlist ) {
+    fprintf( stderr, "TODO: %s - clear patterns \n" );
+}
+
+/******************************************************************************/
+void m3duipatternlist_arrangePreviews ( M3DUIPATTERNLIST *patlist,
+                                        uint32_t          width,
+                                        uint32_t          height ) {
+    LIST *ltmppreview = patlist->lpreview;
+    uint32_t x = 0x00;
+    uint32_t y = 0x00;
+    uint32_t xcumul;
+
+    while ( ltmppreview ) {
+        M3DUIPATTERNPREVIEW *patpreview = ( M3DUIPATTERNPREVIEW * ) ltmppreview->data;
+
+        patpreview->rec.x = x;
+        patpreview->rec.y = y;
+        patpreview->rec.width = patlist->preview_width;
+        patpreview->rec.height = patlist->preview_height;
+
+        xcumul += patlist->preview_width;
+
+        if ( xcumul > width ) {
+            y += patlist->preview_height;
+        }
+
+        ltmppreview = ltmppreview->next;
+    }
+}
+
+/******************************************************************************/
+M3DUIPATTERNPREVIEW *m3duipatternlist_pickPreview ( M3DUIPATTERNLIST *patlist,
+                                                    uint32_t          x,
+                                                    uint32_t          y ) {
+    LIST *ltmppreview = patlist->lpreview;
+
+    while ( ltmppreview ) {
+        M3DUIPATTERNPREVIEW *patpreview = ( M3DUIPATTERNPREVIEW * ) ltmppreview->data;
+
+        if ( ( x > patpreview->rec.x ) &&
+             ( x < ( patpreview->rec.x + patpreview->rec.width ) ) &&
+             ( y > patpreview->rec.y ) &&
+             ( y < ( patpreview->rec.y + patpreview->rec.height ) ) ) {
+
+            return patpreview;
+        }
+
+        ltmppreview = ltmppreview->next;
     }
 
-    pdata->preview_border = 0x04;
-    pdata->image_width    = size;
-    pdata->image_height   = size;
-    pdata->preview_width  = size  + ( pdata->preview_border * 0x02 );
-    pdata->preview_height = size  + ( pdata->preview_border * 0x02 );
-
-    pdata->patterns[0x0B] = ( M3DPATTERN *) m3dplainrectanglepattern_new ( size );
-    pdata->patterns[0x0A] = ( M3DPATTERN *) m3dplaincirclepattern_new    ( size );
-    pdata->patterns[0x09] = ( M3DPATTERN *) m3dfadedcirclepattern_new    ( size, 1.0f, 0.00f );
-    pdata->patterns[0x08] = ( M3DPATTERN *) m3dfadedcirclepattern_new    ( size, 1.0f, 0.10f );
-    pdata->patterns[0x07] = ( M3DPATTERN *) m3dfadedcirclepattern_new    ( size, 1.0f, 0.25f );
-    pdata->patterns[0x06] = ( M3DPATTERN *) m3dfadedcirclepattern_new    ( size, 1.0f, 0.50f );
-    pdata->patterns[0x05] = ( M3DPATTERN *) m3dbrushpattern_new          ( size, ( M3DGIMPBRUSH * ) &brush_0 );
-    pdata->patterns[0x04] = ( M3DPATTERN *) m3dbrushpattern_new          ( size, ( M3DGIMPBRUSH * ) &brush_1 );
-    pdata->patterns[0x03] = ( M3DPATTERN *) m3dbrushpattern_new          ( size, ( M3DGIMPBRUSH * ) &brush_2 );
-    pdata->patterns[0x02] = ( M3DPATTERN *) m3dbrushpattern_new          ( size, ( M3DGIMPBRUSH * ) &brush_3 );
-    pdata->patterns[0x01] = ( M3DPATTERN *) m3dbrushpattern_new          ( size, ( M3DGIMPBRUSH * ) &brush_4 );
-    pdata->patterns[0x00] = ( M3DPATTERN *) m3dbrushpattern_new          ( size, ( M3DGIMPBRUSH * ) &brush_5 );
-
-    return pdata;
+    return NULL;
 }

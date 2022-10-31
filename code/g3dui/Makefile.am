@@ -136,6 +136,7 @@ if HAVE_GTK3
                             gtk3/m3dui.c \
                             gtk3/m3duimain.c \
                             gtk3/m3duimodebar.c \
+                            gtk3/m3duipatternlist.c \
                             gtk3/m3duitoolbar.c \
                             gtk3/m3duiview.c \
                             gtk3/css/default.c

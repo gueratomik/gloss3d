@@ -199,8 +199,8 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/mousetool/g3duicutmeshtooledit.c \
 	gtk3/mousetool/g3duipicktooledit.c \
 	gtk3/mousetool/g3duisculpttooledit.c gtk3/m3dui.c \
-	gtk3/m3duimain.c gtk3/m3duimodebar.c gtk3/m3duitoolbar.c \
-	gtk3/m3duiview.c gtk3/css/default.c
+	gtk3/m3duimain.c gtk3/m3duimodebar.c gtk3/m3duipatternlist.c \
+	gtk3/m3duitoolbar.c gtk3/m3duiview.c gtk3/css/default.c
 am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@am__objects_1 = common/g3dui.lo common/g3duiboard.lo \
 @HAVE_GTK3_TRUE@	common/g3duiboneedit.lo \
@@ -302,8 +302,9 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/mousetool/g3duipicktooledit.lo \
 @HAVE_GTK3_TRUE@	gtk3/mousetool/g3duisculpttooledit.lo \
 @HAVE_GTK3_TRUE@	gtk3/m3dui.lo gtk3/m3duimain.lo \
-@HAVE_GTK3_TRUE@	gtk3/m3duimodebar.lo gtk3/m3duitoolbar.lo \
-@HAVE_GTK3_TRUE@	gtk3/m3duiview.lo gtk3/css/default.lo
+@HAVE_GTK3_TRUE@	gtk3/m3duimodebar.lo gtk3/m3duipatternlist.lo \
+@HAVE_GTK3_TRUE@	gtk3/m3duitoolbar.lo gtk3/m3duiview.lo \
+@HAVE_GTK3_TRUE@	gtk3/css/default.lo
 @HAVE_GTK3_TRUE@am_libgloss_g3dui_gtk3_la_OBJECTS = $(am__objects_1)
 libgloss_g3dui_gtk3_la_OBJECTS = $(am_libgloss_g3dui_gtk3_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -434,6 +435,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	gtk3/$(DEPDIR)/g3duiuvmapedit.Plo gtk3/$(DEPDIR)/g3duiview.Plo \
 	gtk3/$(DEPDIR)/g3duiwireframeedit.Plo gtk3/$(DEPDIR)/m3dui.Plo \
 	gtk3/$(DEPDIR)/m3duimain.Plo gtk3/$(DEPDIR)/m3duimodebar.Plo \
+	gtk3/$(DEPDIR)/m3duipatternlist.Plo \
 	gtk3/$(DEPDIR)/m3duitoolbar.Plo gtk3/$(DEPDIR)/m3duiview.Plo \
 	gtk3/$(DEPDIR)/q3dfilters.Plo gtk3/css/$(DEPDIR)/default.Plo \
 	gtk3/menu/$(DEPDIR)/condition.Plo \
@@ -754,6 +756,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/m3dui.c \
 @HAVE_GTK3_TRUE@                            gtk3/m3duimain.c \
 @HAVE_GTK3_TRUE@                            gtk3/m3duimodebar.c \
+@HAVE_GTK3_TRUE@                            gtk3/m3duipatternlist.c \
 @HAVE_GTK3_TRUE@                            gtk3/m3duitoolbar.c \
 @HAVE_GTK3_TRUE@                            gtk3/m3duiview.c \
 @HAVE_GTK3_TRUE@                            gtk3/css/default.c
@@ -1111,6 +1114,8 @@ gtk3/m3dui.lo: gtk3/$(am__dirstamp) gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/m3duimain.lo: gtk3/$(am__dirstamp) gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/m3duimodebar.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/m3duipatternlist.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/m3duitoolbar.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/m3duiview.lo: gtk3/$(am__dirstamp) gtk3/$(DEPDIR)/$(am__dirstamp)
@@ -1259,6 +1264,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/m3dui.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/m3duimain.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/m3duimodebar.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/m3duipatternlist.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/m3duitoolbar.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/m3duiview.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/q3dfilters.Plo@am__quote@ # am--include-marker
@@ -1573,6 +1579,7 @@ distclean: distclean-am
 	-rm -f gtk3/$(DEPDIR)/m3dui.Plo
 	-rm -f gtk3/$(DEPDIR)/m3duimain.Plo
 	-rm -f gtk3/$(DEPDIR)/m3duimodebar.Plo
+	-rm -f gtk3/$(DEPDIR)/m3duipatternlist.Plo
 	-rm -f gtk3/$(DEPDIR)/m3duitoolbar.Plo
 	-rm -f gtk3/$(DEPDIR)/m3duiview.Plo
 	-rm -f gtk3/$(DEPDIR)/q3dfilters.Plo
@@ -1749,6 +1756,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gtk3/$(DEPDIR)/m3dui.Plo
 	-rm -f gtk3/$(DEPDIR)/m3duimain.Plo
 	-rm -f gtk3/$(DEPDIR)/m3duimodebar.Plo
+	-rm -f gtk3/$(DEPDIR)/m3duipatternlist.Plo
 	-rm -f gtk3/$(DEPDIR)/m3duitoolbar.Plo
 	-rm -f gtk3/$(DEPDIR)/m3duiview.Plo
 	-rm -f gtk3/$(DEPDIR)/q3dfilters.Plo

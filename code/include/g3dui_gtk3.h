@@ -228,6 +228,19 @@ typedef struct _GTK3G3DUIMODEBAR {
 } GTK3G3DUIMODEBAR;
 
 /******************************************************************************/
+typedef struct _GTK3M3DUIPATTERNPREVIEW {
+    M3DUIPATTERNPREVIEW core;
+    GdkPixbuf          *img;
+} GTK3M3DUIPATTERNPREVIEW;
+
+/******************************************************************************/
+typedef struct _GTK3M3DUIPATTERNLIST {
+    M3DUIPATTERNLIST core;
+    GtkDrawingArea  *area;
+    GtkScrolledWindow *scrolled;
+} GTK3M3DUIPATTERNLIST;
+
+/******************************************************************************/
 typedef struct _GTK3G3DUIVIEW {
     G3DUIVIEW  core;
     GtkWidget *layout;
@@ -1639,6 +1652,11 @@ GTK3M3DUIMAIN *gtk3_m3duimain_create ( GtkWidget *parent,
 GTK3M3DUIMODEBAR *gtk3_m3duimodebar_create ( GtkWidget *parent,
                                              GTK3M3DUI *gtk3gui,
                                              char      *name );
+
+/***************************** m3duipatternlist.c *****************************/
+GTK3M3DUIPATTERNLIST *gtk3_m3duipatternlist_create ( GtkWidget *parent,
+                                                     GTK3M3DUI *gtk3mui,
+                                                     char      *name );
 
 /******************************** m3duitoolbar.c ******************************/
 GTK3M3DUITOOLBAR *gtk3_m3duitoolbar_create ( GtkWidget *parent,

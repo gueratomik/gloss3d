@@ -571,6 +571,24 @@ typedef struct _M3DUIVIEW {
 } M3DUIVIEW;
 
 /******************************************************************************/
+typedef struct _M3DUIPATTERNPREVIEW {
+    G3DUIRECTANGLE  rec;
+    M3DPATTERN     *pat;
+} M3DUIPATTERNPREVIEW;
+
+/******************************************************************************/
+typedef struct _M3DUIPATTERNLIST {
+    M3DUI   *mui;
+    LIST    *lpreview;
+    LIST    *lpattern;
+    uint32_t image_width;
+    uint32_t image_height;
+    uint32_t preview_width;
+    uint32_t preview_height;
+    uint32_t preview_border;
+} M3DUIPATTERNLIST;
+
+/******************************************************************************/
 typedef struct _M3DUITOOLBAR {
     M3DUI          *mui;
 } M3DUITOOLBAR;
@@ -1411,21 +1429,6 @@ typedef struct _PICKEDOBJECT {
     G3DTAG     *tag;
     uint32_t picked; 
 } PICKEDOBJECT;
-
-
-
-/******************************************************************************/
-#define NBPATTERNS 0x0C
-typedef struct _M3DUIPATTERNLIST {
-    /*** List of pattern previews (those are ToolKit related) ***/
-    LIST    *lpreview;
-    uint32_t image_width;
-    uint32_t image_height;
-    uint32_t preview_width;
-    uint32_t preview_height;
-    uint32_t preview_border;
-    M3DPATTERN *patterns[NBPATTERNS];
-} M3DUIPATTERNLIST;
 
 /******************************************************************************/
 /******************************************************************************/
@@ -2373,6 +2376,16 @@ uint64_t m3dui_setMouseTool ( M3DUI          *mui,
 void m3duimain_resize ( M3DUIMAIN *mmn, 
                         uint32_t   width, 
                         uint32_t   height );
+
+/***************************** m3duipatternlist.c *****************************/
+M3DUIPATTERNPREVIEW *m3duipatternlist_pickPreview ( M3DUIPATTERNLIST *patlist,
+                                                    uint32_t          x,
+                                                    uint32_t          y );
+void m3duipatternlist_arrangePreviews ( M3DUIPATTERNLIST *patlist,
+                                        uint32_t          width,
+                                        uint32_t          height );
+void m3duipatternlist_clearPatterns ( M3DUIPATTERNLIST *patlist );
+void m3duipatternlist_init ( M3DUIPATTERNLIST *patlist, uint32_t size );
 
 /******************************* m3duiview.c **********************************/
 void m3duiview_initGL ( M3DUIVIEW *view );
