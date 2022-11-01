@@ -30,15 +30,17 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t m3duibuckettooledit_setToleranceCbk ( M3DUIBUCKETTOOLEDIT *btedit, 
-                                               uint32_t             tolerance ) {
-    G3DUI *gui = btedit->gui;
-    M3DMOUSETOOL *tool = ( M3DMOUSETOOL * ) g3dui_getMouseTool ( gui,
-                                                                 BUCKETTOOL );
-    M3DMOUSETOOLBUCKET *mtb = ( M3DMOUSETOOLBUCKET * ) tool;
-    M3DBUCKET *bkt = mtb->ltool.obj;
+uint64_t m3duibuckettooledit_setTolerance ( M3DUIBUCKETTOOLEDIT *buckedit, 
+                                            uint32_t             tolerance ) {
+    G3DUI *gui = buckedit->mui->gui;
+    G3DUIMOUSETOOL *mou = g3dui_getMouseTool ( gui, BUCKETTOOL );
 
-    bkt->tolerance = tolerance;
+    if ( mou ) {
+        M3DMOUSETOOLBUCKET *mtb = ( M3DMOUSETOOLBUCKET * ) mou->tool;
+        M3DBUCKET *bkt = mtb->ltool.obj;
+
+        bkt->tolerance = tolerance;
+    }
 
 
     return 0x00;

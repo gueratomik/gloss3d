@@ -29,46 +29,29 @@
 #include <config.h>
 #include <g3dui.h>
 
-/******************************************************************************/
-uint64_t m3duipentooledit_setIncremental ( M3DUIPENTOOLEDIT *ptedit, 
-                                           uint32_t          inc ) {
-    G3DUI *gui = ptedit->mui->gui;
-    G3DUIMOUSETOOL *mou = g3dui_getMouseTool ( gui, PENTOOL );
-
-    if ( mou ) {
-        M3DMOUSETOOLPEN *pentool = ( M3DMOUSETOOLPEN * ) mou->tool;
-
-        if ( pentool ) {
-            pentool->incremental = inc;
-        }
-    }
-
-    return 0x00;
-}
+#define FGBGBORDER 0x02
 
 /******************************************************************************/
-uint64_t m3duipentooledit_setRadius ( M3DUIPENTOOLEDIT *ptedit, 
-                                      float             radius ) {
-    G3DUI *gui = ptedit->mui->gui;
-    M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
+void m3duicolorpicker_resize ( M3DUICOLORPICKER *colpick, 
+                               uint32_t          width,
+                               uint32_t          height ) {
+    colpick->fgcolrec.x      = ( 0x00 ) + FGBGBORDER;
+    colpick->fgcolrec.y      = ( 0x00 ) + FGBGBORDER;
+    colpick->fgcolrec.width  = ( width  * 0x05 / 0x08 ) - ( FGBGBORDER * 2 );
+    colpick->fgcolrec.height = ( height * 0x05 / 0x08 ) - ( FGBGBORDER * 2 );
 
-    m3dpattern_resize ( sysinfo->pattern, radius );
+    colpick->bgcolrec.x      = ( width  * 0x03 / 0x08 ) + FGBGBORDER;
+    colpick->bgcolrec.y      = ( height * 0x03 / 0x08 ) + FGBGBORDER;
+    colpick->bgcolrec.width  = ( width  * 0x05 / 0x08 ) - ( FGBGBORDER * 2 );
+    colpick->bgcolrec.height = ( height * 0x05 / 0x08 ) - ( FGBGBORDER * 2 );
 
-    return 0x00;
-}
+    colpick->bwcolrec.x      = ( 0x00 ) + FGBGBORDER;
+    colpick->bwcolrec.y      = ( height * 0x05 / 0x08 ) + FGBGBORDER;
+    colpick->bwcolrec.width  = ( width  * 0x03 / 0x08 ) - ( FGBGBORDER * 2 );
+    colpick->bwcolrec.height = ( height * 0x03 / 0x08 ) - ( FGBGBORDER * 2 );
 
-/******************************************************************************/
-uint64_t m3duipentooledit_setPressure ( M3DUIPENTOOLEDIT *ptedit, 
-                                        float             pressure ) {
-    G3DUI *gui = ptedit->mui->gui;
-    G3DUIMOUSETOOL *mou = g3dui_getMouseTool ( gui, PENTOOL );
-
-    if ( mou ) {
-        M3DMOUSETOOLPEN *pentool = ( M3DMOUSETOOLPEN * ) mou->tool;
-        M3DBASEPEN *bpobj = ( M3DBASEPEN * ) pentool->ltool.obj;
-
-        bpobj->pressure = pressure;
-    }
-
-    return 0x00;
+    colpick->swcolrec.x      = ( height * 0x05 / 0x08 ) + FGBGBORDER;
+    colpick->swcolrec.y      = ( 0x00 ) + FGBGBORDER;
+    colpick->swcolrec.width  = ( width  * 0x03 / 0x08 ) - ( FGBGBORDER * 2 );
+    colpick->swcolrec.height = ( height * 0x03 / 0x08 ) - ( FGBGBORDER * 2 );
 }

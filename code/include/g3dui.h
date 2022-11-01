@@ -571,6 +571,15 @@ typedef struct _M3DUIVIEW {
 } M3DUIVIEW;
 
 /******************************************************************************/
+typedef struct M3DUICOLORPICKER {
+    M3DUI         *mui;
+    G3DUIRECTANGLE fgcolrec;
+    G3DUIRECTANGLE bgcolrec;
+    G3DUIRECTANGLE bwcolrec;
+    G3DUIRECTANGLE swcolrec;
+} M3DUICOLORPICKER;
+
+/******************************************************************************/
 typedef struct _M3DUIPATTERNPREVIEW {
     G3DUIRECTANGLE  rec;
     M3DPATTERN     *pat;
@@ -590,17 +599,40 @@ typedef struct _M3DUIPATTERNLIST {
 
 /******************************************************************************/
 typedef struct _M3DUITOOLBAR {
-    M3DUI          *mui;
+    M3DUI *mui;
 } M3DUITOOLBAR;
 
 /******************************************************************************/
 typedef struct _M3DUIMODEBAR {
-    M3DUI          *mui;
+    M3DUI *mui;
 } M3DUIMODEBAR;
 
 /******************************************************************************/
+typedef struct _M3DUIBUCKETTOOLEDIT {
+    M3DUI *mui;
+} M3DUIBUCKETTOOLEDIT;
+
+/******************************************************************************/
+typedef struct _M3DUIPENTOOLEDIT {
+    M3DUI *mui;
+} M3DUIPENTOOLEDIT;
+
+/******************************************************************************/
+typedef struct _M3DUIMOUSETOOLEDIT {
+    M3DUI               *mui;
+    M3DUIPENTOOLEDIT    *penedit;
+    M3DUIBUCKETTOOLEDIT *buckedit;
+} M3DUIMOUSETOOLEDIT;
+
+/******************************************************************************/
 typedef struct _M3DUIBOARD {
-    M3DUI          *mui;
+    M3DUI              *mui;
+    M3DUIPATTERNLIST   *patlist;
+    M3DUICOLORPICKER   *colpick;
+    M3DUIMOUSETOOLEDIT *tooledit;
+    G3DUIRECTANGLE      patrec;
+    G3DUIRECTANGLE      colrec;
+    G3DUIRECTANGLE      toolrec;
 } M3DUIBOARD;
 
 /******************************************************************************/
@@ -1133,16 +1165,6 @@ typedef struct _G3DUIBOARD {
 typedef struct _G3DUIMODEBAR {
     G3DUI *gui;
 } G3DUIMODEBAR;
-
-/******************************************************************************/
-typedef struct _M3DUIBUCKETTOOLEDIT {
-    G3DUI *gui;
-} M3DUIBUCKETTOOLEDIT;
-
-/******************************************************************************/
-typedef struct _M3DUIPENTOOLEDIT {
-    M3DUI *mui;
-} M3DUIPENTOOLEDIT;
 
 /******************************************************************************/
 typedef struct _G3DUIRENDEREDIT {
@@ -2372,6 +2394,20 @@ uint64_t m3dui_setMouseTool ( M3DUI          *mui,
                               G3DCAMERA      *cam, 
                               G3DUIMOUSETOOL *mou );
 
+/******************************* m3duiboard.c *********************************/
+void m3duiboard_resize ( M3DUIBOARD *board, 
+                         uint32_t    width,
+                         uint32_t    height );
+
+/***************************** m3duibuckettool.c ******************************/
+uint64_t m3duibuckettooledit_setTolerance ( M3DUIBUCKETTOOLEDIT *buckedit, 
+                                            uint32_t             tolerance );
+
+/**************************** m3duicolorpicker.c ******************************/
+void m3duicolorpicker_resize ( M3DUICOLORPICKER *colpick, 
+                               uint32_t          width,
+                               uint32_t          height );
+
 /******************************* m3duimain.c **********************************/
 void m3duimain_resize ( M3DUIMAIN *mmn, 
                         uint32_t   width, 
@@ -2381,11 +2417,18 @@ void m3duimain_resize ( M3DUIMAIN *mmn,
 M3DUIPATTERNPREVIEW *m3duipatternlist_pickPreview ( M3DUIPATTERNLIST *patlist,
                                                     uint32_t          x,
                                                     uint32_t          y );
-void m3duipatternlist_arrangePreviews ( M3DUIPATTERNLIST *patlist,
-                                        uint32_t          width,
-                                        uint32_t          height );
+uint32_t m3duipatternlist_arrangePreviews ( M3DUIPATTERNLIST *patlist,
+                                            uint32_t          width );
 void m3duipatternlist_clearPatterns ( M3DUIPATTERNLIST *patlist );
 void m3duipatternlist_init ( M3DUIPATTERNLIST *patlist, uint32_t size );
+
+/****************************** m3duipentool.c ********************************/
+uint64_t m3duipentooledit_setIncremental ( M3DUIPENTOOLEDIT *ptedit, 
+                                           uint32_t          inc );
+uint64_t m3duipentooledit_setRadius ( M3DUIPENTOOLEDIT *ptedit, 
+                                      float             radius );
+uint64_t m3duipentooledit_setPressure ( M3DUIPENTOOLEDIT *ptedit, 
+                                        float             pressure );
 
 /******************************* m3duiview.c **********************************/
 void m3duiview_initGL ( M3DUIVIEW *view );

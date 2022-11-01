@@ -54,17 +54,9 @@ void gtk3_g3duimousetooledit_update ( GTK3G3DUIMOUSETOOLEDIT *gtk3mtledit ) {
     G3DUI *gui = gtk3mtledit->core.gui;
     G3DUIMOUSETOOL *mtl = gui->curmou;
 
-/*
-    GTK3G3DUICUBEEDIT            *cubedit = ( GTK3G3DUICUBEEDIT            * ) gtk3mtledit->core.cubedit;
-    GTK3G3DUICYLINDEREDIT        *cyledit = ( GTK3G3DUICYLINDEREDIT        * ) gtk3mtledit->core.cyledit;
-*/
     if ( pickedit   ) gtk_widget_hide ( pickedit->fixed   );
     if ( cmedit     ) gtk_widget_hide ( cmedit->fixed     );
     if ( sculptedit ) gtk_widget_hide ( sculptedit->fixed );
-/*
-    if ( cubedit ) gtk_widget_hide ( cubedit->fixed );
-    if ( cyledit ) gtk_widget_hide ( cyledit->fixed );
-*/
 
     if ( mtl ) {
         G3DMOUSETOOL *tool = mtl->tool;
@@ -144,19 +136,6 @@ static void createCutMeshToolEdit ( GTK3G3DUIMOUSETOOLEDIT *gtk3mtledit ) {
 
     gtk3mtledit->core.cutmeshedit = ( GTK3G3DUICUTMESHTOOLEDIT * ) gtk3cmedit;
 }
-
-/******************************************************************************/
-/*
-void gtk3_g3duimousetooledit_resize ( GTK3G3DUIMOUSETOOLEDIT *gtk3mtledit,
-                                      uint32_t                width,
-                                      uint32_t                height ) {
-    if ( gtk3mtledit->scrolled ) {
-        gtk_widget_set_size_request ( gtk3mtledit->scrolled,
-                                      width,
-                                      height );
-    }
-}
-/*
 
 /******************************************************************************/
 static void Destroy ( GtkWidget *widget,

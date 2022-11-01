@@ -107,18 +107,16 @@ static void gtk3_m3duimain_createView ( GTK3M3DUIMAIN *gtk3main ) {
 }
 
 /******************************************************************************/
-/*
 static void gtk3_m3duimain_createBoard ( GTK3M3DUIMAIN *gtk3main ) {
-    GTK3M3DUI *gtk3mui = ( GTK3M3DUI * ) gtk3main->core.gui;
-    GTK3M3DUIBOARD *gtk3board = gtk3_g3duiboard_create ( gtk3main->layout,
+    GTK3M3DUI *gtk3mui = ( GTK3M3DUI * ) gtk3main->core.mui;
+    GTK3M3DUIBOARD *gtk3board = gtk3_m3duiboard_create ( gtk3main->layout,
                                                          gtk3mui,
-                                                         "quad" );
+                                                         "Board" );
 
     gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3board->layout, 0, 0 );
 
     gtk3main->core.board = ( GTK3M3DUIBOARD * ) gtk3board;
 }
-*/
 
 /******************************************************************************/
 
@@ -181,7 +179,9 @@ void gtk3_m3duimain_resize ( GTK3M3DUIMAIN *gtk3main,
     if ( gtk3view ) {
         g3duirectangle_toGdkRectangle ( &gtk3main->core.viewrec, &gdkrec );
 
-        gtk3_m3duiview_resize ( gtk3view, gdkrec.width, gdkrec.height );
+        gtk3_m3duiview_resize ( &gtk3view->core,
+                                 gdkrec.width,
+                                 gdkrec.height );
 
         gtk_layout_move ( gtk3main->layout,
                           gtk3view->layout, 
@@ -193,11 +193,10 @@ void gtk3_m3duimain_resize ( GTK3M3DUIMAIN *gtk3main,
                                       gdkrec.height );
     }
 
-/*
     if ( gtk3board ) {
         g3duirectangle_toGdkRectangle ( &gtk3main->core.mbrdrec, &gdkrec );
 
-        gtk3_g3duiboard_resize ( gtk3board,
+        gtk3_m3duiboard_resize ( &gtk3board->core,
                                  gdkrec.width,
                                  gdkrec.height );
 
@@ -210,7 +209,6 @@ void gtk3_m3duimain_resize ( GTK3M3DUIMAIN *gtk3main,
                                       gdkrec.width,
                                       gdkrec.height );
     }
-*/
 }
 
 /******************************************************************************/
@@ -254,10 +252,7 @@ GTK3M3DUIMAIN *gtk3_m3duimain_create ( GtkWidget *parent,
     gtk3_m3duimain_createToolBar   ( gtk3main );
     gtk3_m3duimain_createModeBar   ( gtk3main );
     gtk3_m3duimain_createView      ( gtk3main );
-
-/*
     gtk3_m3duimain_createBoard     ( gtk3main );
-*/
 
     gtk_widget_show ( layout );
 

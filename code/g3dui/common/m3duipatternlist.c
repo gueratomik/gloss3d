@@ -64,9 +64,8 @@ void m3duipatternlist_clearPatterns ( M3DUIPATTERNLIST *patlist ) {
 }
 
 /******************************************************************************/
-void m3duipatternlist_arrangePreviews ( M3DUIPATTERNLIST *patlist,
-                                        uint32_t          width,
-                                        uint32_t          height ) {
+uint32_t m3duipatternlist_arrangePreviews ( M3DUIPATTERNLIST *patlist,
+                                            uint32_t          width ) {
     LIST *ltmppreview = patlist->lpreview;
     uint32_t x = 0x00;
     uint32_t y = 0x00;
@@ -80,14 +79,17 @@ void m3duipatternlist_arrangePreviews ( M3DUIPATTERNLIST *patlist,
         patpreview->rec.width = patlist->preview_width;
         patpreview->rec.height = patlist->preview_height;
 
-        xcumul += patlist->preview_width;
+        x += patlist->preview_width;
 
-        if ( xcumul > width ) {
+        if ( x > width ) {
             y += patlist->preview_height;
+            x = 0x00;
         }
 
         ltmppreview = ltmppreview->next;
     }
+
+    return ( y + patlist->preview_height );
 }
 
 /******************************************************************************/

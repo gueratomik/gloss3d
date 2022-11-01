@@ -30,45 +30,24 @@
 #include <g3dui.h>
 
 /******************************************************************************/
-uint64_t m3duipentooledit_setIncremental ( M3DUIPENTOOLEDIT *ptedit, 
-                                           uint32_t          inc ) {
-    G3DUI *gui = ptedit->mui->gui;
-    G3DUIMOUSETOOL *mou = g3dui_getMouseTool ( gui, PENTOOL );
+void m3duiboard_resize ( M3DUIBOARD *board, 
+                         uint32_t    width,
+                         uint32_t    height ) {
+    /*** Patterns ***/
+    board->patrec.x      = 0x00;
+    board->patrec.y      = 0x00;
+    board->patrec.width  = width;
+    board->patrec.height = 200;
 
-    if ( mou ) {
-        M3DMOUSETOOLPEN *pentool = ( M3DMOUSETOOLPEN * ) mou->tool;
+    /*** Color Picker ***/
+    board->colrec.x      = ( width * 0.5f ) - 32;
+    board->colrec.y      = board->patrec.y + board->patrec.height;
+    board->colrec.width  = 64;
+    board->colrec.height = 64;
 
-        if ( pentool ) {
-            pentool->incremental = inc;
-        }
-    }
-
-    return 0x00;
-}
-
-/******************************************************************************/
-uint64_t m3duipentooledit_setRadius ( M3DUIPENTOOLEDIT *ptedit, 
-                                      float             radius ) {
-    G3DUI *gui = ptedit->mui->gui;
-    M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
-
-    m3dpattern_resize ( sysinfo->pattern, radius );
-
-    return 0x00;
-}
-
-/******************************************************************************/
-uint64_t m3duipentooledit_setPressure ( M3DUIPENTOOLEDIT *ptedit, 
-                                        float             pressure ) {
-    G3DUI *gui = ptedit->mui->gui;
-    G3DUIMOUSETOOL *mou = g3dui_getMouseTool ( gui, PENTOOL );
-
-    if ( mou ) {
-        M3DMOUSETOOLPEN *pentool = ( M3DMOUSETOOLPEN * ) mou->tool;
-        M3DBASEPEN *bpobj = ( M3DBASEPEN * ) pentool->ltool.obj;
-
-        bpobj->pressure = pressure;
-    }
-
-    return 0x00;
+    /*** Tools ***/
+    board->toolrec.x       = 0x00;
+    board->toolrec.y       = board->colrec.y + board->colrec.height;
+    board->toolrec.width   = width;
+    board->toolrec.height  = height - board->toolrec.y;
 }

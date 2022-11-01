@@ -68,6 +68,8 @@ if HAVE_GTK3
                             common/mousetool/g3duipicktooledit.c \
                             common/mousetool/g3duisculpttooledit.c \
                             common/m3dui.c \
+                            common/m3duiboard.c \
+                            common/m3duicolorpicker.c \
                             common/m3duimain.c \
                             common/m3duimodebar.c \
                             common/m3duitoolbar.c \
@@ -129,11 +131,16 @@ if HAVE_GTK3
                             gtk3/menu/timelinemenu.c \
                             gtk3/menu/uveditormenu.c \
                             gtk3/menu/viewmenu.c \
+                            gtk3/mousetool/m3duimousetooledit.c \
+                            gtk3/mousetool/m3duibuckettooledit.c \
+                            gtk3/mousetool/m3duipentooledit.c \
                             gtk3/mousetool/g3duimousetooledit.c \
                             gtk3/mousetool/g3duicutmeshtooledit.c \
                             gtk3/mousetool/g3duipicktooledit.c \
                             gtk3/mousetool/g3duisculpttooledit.c \
                             gtk3/m3dui.c \
+                            gtk3/m3duiboard.c \
+                            gtk3/m3duicolorpicker.c \
                             gtk3/m3duimain.c \
                             gtk3/m3duimodebar.c \
                             gtk3/m3duipatternlist.c \

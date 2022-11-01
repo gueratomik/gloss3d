@@ -157,7 +157,9 @@ static void setMouseToolCbk ( GtkWidget *widget,
                               gpointer   user_data ) {
     GTK3M3DUITOOLBAR *gtk3tb = ( GTK3M3DUITOOLBAR * ) user_data;
     M3DUI *mui = ( M3DUI * ) gtk3tb->core.mui;
+    G3DUI *gui = ( G3DUI * ) mui->gui;
     char *toolName = gtk_widget_get_name ( widget );
+    uint64_t ret;
 
     if ( mui->gui->lock ) return;
 
@@ -165,9 +167,11 @@ static void setMouseToolCbk ( GtkWidget *widget,
     /*** that's why we have to lock it ***/
     mui->gui->lock = 0x01;
 
-    gtk3_m3dui_setMouseTool ( ( GTK3M3DUI * ) mui, widget, toolName );
+    ret = gtk3_m3dui_setMouseTool ( ( GTK3M3DUI * ) mui, widget, toolName );
 
     mui->gui->lock = 0x00;
+
+    gtk3_interpretUIReturnFlags ( ( GTK3G3DUI * ) gui, ret );
 }
 
 /******************************************************************************/

@@ -530,15 +530,19 @@ static int pen_tool ( G3DMOUSETOOL *mou,
                       G3DEvent     *event ) {
     M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
 
-    return basepen_tool ( mou, 
-                          sce,
-                          cam,
-                          urm,
-                          sysinfo->pattern,
-                          sysinfo->fgcolor,
-                          sysinfo->bgcolor, 
-                          engine_flags, 
-                          event );
+    if ( sysinfo->pattern ) {
+        return basepen_tool ( mou, 
+                              sce,
+                              cam,
+                              urm,
+                              sysinfo->pattern,
+                              sysinfo->fgcolor,
+                              sysinfo->bgcolor, 
+                              engine_flags, 
+                              event );
+    }
+
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -550,13 +554,17 @@ static int eraser_tool ( G3DMOUSETOOL *mou,
                          G3DEvent     *event ) {
     M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
 
-    return basepen_tool ( mou, 
-                          sce,
-                          cam,
-                          urm,
-                          sysinfo->pattern,
-                          0xFFFFFFFF,
-                          0x00000000, 
-                          engine_flags, 
-                          event );
+    if ( sysinfo->pattern ) {
+        return basepen_tool ( mou, 
+                              sce,
+                              cam,
+                              urm,
+                              sysinfo->pattern,
+                              0xFFFFFFFF,
+                              0x00000000, 
+                              engine_flags, 
+                              event );
+    }
+
+    return 0x00;
 }

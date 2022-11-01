@@ -1146,7 +1146,7 @@ uint64_t gtk3_loadImageForChannel ( GTK3G3DUI  *gtk3gui,
     gtk_widget_destroy ( dialog );
 
     return REDRAWMATERIALLIST | 
-           UPDATECURRENTMATERIAL;
+           UPDATECURRENTMATERIAL | UPDATECURRENTMATERIALPREVIEW;
 }
 
 /******************************************************************************/
@@ -1519,6 +1519,28 @@ static void gtk3_updateMouseTool ( GTK3G3DUI *gtk3gui ) {
 
                 if ( gtk3mtledit ) {
                     gtk3_g3duimousetooledit_update ( gtk3mtledit );
+                }
+            }
+        }
+    }
+}
+
+/******************************************************************************/
+static void gtk3_updateUVMouseTool ( GTK3G3DUI *gtk3gui ) {
+    if (  gtk3gui->core.mui ) {
+        if (  gtk3gui->core.mui ) {
+            M3DUI *mui = gtk3gui->core.mui;
+            M3DUIMAIN *main = mui->main;
+
+            if (  main ) {
+                M3DUIBOARD *board = main->board;
+
+                if ( board ) {
+                    GTK3M3DUIMOUSETOOLEDIT *gtk3mtledit = ( GTK3M3DUIMOUSETOOLEDIT * ) board->tooledit;
+
+                    if ( gtk3mtledit ) {
+                        gtk3_m3duimousetooledit_update ( gtk3mtledit );
+                    }
                 }
             }
         }
@@ -2164,6 +2186,7 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
 
     if ( msk & UPDATECURRENTMOUSETOOL ) {
         gtk3_updateMouseTool ( gtk3gui );
+        gtk3_updateUVMouseTool ( gtk3gui );
     }
 
     if ( msk & UPDATECOORDS ) {

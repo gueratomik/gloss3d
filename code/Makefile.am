@@ -249,5 +249,5 @@ backup:
 .PHONY: backup
 
 count:
-	cloc * --exclude-lang=CSS,Javascript,HTML,m4,make,Bourne\ Shell,Bourne\ Again\ Shell
+	cloc main.c list.c include g3dui g3dengine g3dmouse qiss3d makeup3d g3durmanager g3dexport g3dimport g3dcom --exclude-lang=CSS,Javascript,HTML,m4,make,Bourne\ Shell,Bourne\ Again\ Shell
 .PHONY: count

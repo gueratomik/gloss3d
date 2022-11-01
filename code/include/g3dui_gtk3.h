@@ -168,6 +168,7 @@ typedef struct _GTK3M3DUIMODEBAR {
 /******************************************************************************/
 typedef struct _GTK3M3DUIBOARD {
     M3DUIBOARD core;
+    GtkWidget *layout;
 } GTK3M3DUIBOARD;
 
 /******************************************************************************/
@@ -176,6 +177,48 @@ typedef struct _GTK3M3DUI {
     GtkWindow *topWin;
     GtkWidget *currentMouseToolButton;
 } GTK3M3DUI;
+
+/******************************************************************************/
+typedef struct _GTK3M3DUIPATTERNPREVIEW {
+    M3DUIPATTERNPREVIEW core;
+    GdkPixbuf          *img;
+} GTK3M3DUIPATTERNPREVIEW;
+
+/******************************************************************************/
+typedef struct _GTK3M3DUIPATTERNLIST {
+    M3DUIPATTERNLIST core;
+    GtkDrawingArea  *area;
+    GtkScrolledWindow *scrolled;
+} GTK3M3DUIPATTERNLIST;
+
+/******************************************************************************/
+typedef struct _GTK3M3DUICOLORPICKER {
+    M3DUICOLORPICKER core;
+    GtkDrawingArea  *area;
+} GTK3M3DUICOLORPICKER;
+
+/******************************************************************************/
+typedef struct _GTK3M3DUIBUCKETTOOLEDIT {
+    M3DUIBUCKETTOOLEDIT core;
+    GtkFixed           *fixed;
+    GtkSpinButton      *toleranceEntry;
+} GTK3M3DUIBUCKETTOOLEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3M3DUIPENTOOLEDIT {
+    M3DUIPENTOOLEDIT core;
+    GtkFixed        *fixed;
+    GtkScale        *pressureScale;
+    GtkSpinButton   *radiusEntry;
+    GtkCheckButton  *incrementalToggle;
+} GTK3M3DUIPENTOOLEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3M3DUIMOUSETOOLEDIT {
+    M3DUIMOUSETOOLEDIT core;
+    GtkScrolledWindow *scrolled;
+    GtkFixed          *mousetoolFixed;
+} GTK3M3DUIMOUSETOOLEDIT;
 
 /******************************************************************************/
 typedef struct _GTK3G3DUI {
@@ -226,19 +269,6 @@ typedef struct _GTK3G3DUIMODEBAR {
     GtkWidget     *axisMode;
     GtkWidget     *pathMode;
 } GTK3G3DUIMODEBAR;
-
-/******************************************************************************/
-typedef struct _GTK3M3DUIPATTERNPREVIEW {
-    M3DUIPATTERNPREVIEW core;
-    GdkPixbuf          *img;
-} GTK3M3DUIPATTERNPREVIEW;
-
-/******************************************************************************/
-typedef struct _GTK3M3DUIPATTERNLIST {
-    M3DUIPATTERNLIST core;
-    GtkDrawingArea  *area;
-    GtkScrolledWindow *scrolled;
-} GTK3M3DUIPATTERNLIST;
 
 /******************************************************************************/
 typedef struct _GTK3G3DUIVIEW {
@@ -1640,6 +1670,25 @@ uint64_t gtk3_m3dui_setMouseTool ( GTK3M3DUI *gtk3mui,
                                    char      *toolName );
 void gtk3_m3dui_saveimage ( GTK3M3DUI *gtk3mui );
 
+/********************************* m3duiboard.c *******************************/
+void gtk3_m3duiboard_resize ( GTK3M3DUIBOARD *gtk3board,
+                              uint32_t        width,
+                              uint32_t        height );
+GTK3M3DUIBOARD *gtk3_m3duiboard_create ( GtkWidget *parent,
+                                         GTK3M3DUI *gtk3mui,
+                                         char      *name );
+
+/*************************** m3duibuckettooledit.c ****************************/
+void gtk3_m3duibuckettooledit_update ( GTK3M3DUIBUCKETTOOLEDIT *gtk3buckedit );
+GTK3M3DUIBUCKETTOOLEDIT *gtk3_m3duibuckettooledit_create ( GtkWidget *parent, 
+                                                           GTK3M3DUI *gtk3mui,
+                                                           char      *name );
+
+/***************************** m3duicolorpicker.c *****************************/
+GTK3M3DUICOLORPICKER *gtk3_m3duicolorpicker_create ( GtkWidget *parent,
+                                                     GTK3M3DUI *gtk3mui,
+                                                     char      *name );
+
 /********************************* m3duimain.c ********************************/
 void gtk3_m3duimain_resize ( GTK3M3DUIMAIN *gtk3main,
                              uint32_t       width,
@@ -1653,8 +1702,20 @@ GTK3M3DUIMODEBAR *gtk3_m3duimodebar_create ( GtkWidget *parent,
                                              GTK3M3DUI *gtk3gui,
                                              char      *name );
 
+/***************************** m3duimousetool.c *******************************/
+void gtk3_m3duimousetooledit_update ( GTK3M3DUIMOUSETOOLEDIT *gtk3mtledit );
+GTK3M3DUIMOUSETOOLEDIT *gtk3_m3duimousetooledit_create ( GtkWidget *parent, 
+                                                         GTK3M3DUI *gtk3mui,
+                                                         char      *name );
+
 /***************************** m3duipatternlist.c *****************************/
 GTK3M3DUIPATTERNLIST *gtk3_m3duipatternlist_create ( GtkWidget *parent,
+                                                     GTK3M3DUI *gtk3mui,
+                                                     char      *name );
+
+/***************************** m3duipentooledit.c *****************************/
+void gtk3_m3duipentooledit_update ( GTK3M3DUIPENTOOLEDIT *gtk3penedit );
+GTK3M3DUIPENTOOLEDIT *gtk3_m3duipentooledit_create ( GtkWidget *parent, 
                                                      GTK3M3DUI *gtk3mui,
                                                      char      *name );
 

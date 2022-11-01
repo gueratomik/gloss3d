@@ -131,7 +131,11 @@ static void Input ( GtkWidget *widget,
 
             if ( gtk3patpreview ) {
                 mui->selpat = gtk3patpreview->core.pat;
+
+                m3dsysinfo_setPattern ( m3dsysinfo_get(), mui->selpat );
             }
+
+            gtk_widget_queue_draw ( widget );
 #ifdef TODO
             gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW          |
                                                    REDRAWMATERIALLIST  | 
@@ -203,17 +207,6 @@ GTK3M3DUIPATTERNPREVIEW *gtk3_m3duipatternpreview_new ( M3DPATTERN  *pat,
 }
 
 /******************************************************************************/
-static void Size ( GtkWidget     *self,
-                   GtkAllocation *allocation,
-                   gpointer       user_data ) {
-    GTK3M3DUIPATTERNLIST *gtk3patlist = ( GTK3M3DUIPATTERNLIST * ) user_data;
-
-    m3duipatternlist_arrangePreviews ( &gtk3patlist->core,
-                                        allocation->width,
-                                        allocation->height );
-}
-
-/******************************************************************************/
 static void Destroy ( GtkWidget *widget, gpointer user_data ) {
     GTK3M3DUIPATTERNLIST *gtk3patlist = ( GTK3M3DUIPATTERNLIST * ) user_data;
 
@@ -255,8 +248,14 @@ static GTK3M3DUIPATTERNLIST *gtk3_m3duipatternlist_new ( GTK3M3DUI *gtk3mui ) {
 
     gtk3patlist->core.mui = ( M3DUI * ) gtk3mui;
 
-    m3duipatternlist_init ( &gtk3patlist->core, 64 );
+    m3duipatternlist_init ( &gtk3patlist->core, 48 );
 
+    /*** default pattern. Not sure that the best place to put that ***/
+    if ( gtk3patlist->core.lpattern ) {
+        gtk3mui->core.selpat = ( M3DPATTERN * ) gtk3patlist->core.lpattern->data;
+
+        m3dsysinfo_setPattern ( m3dsysinfo_get(), gtk3mui->core.selpat );
+    }
 
     return gtk3patlist; 
 }
@@ -265,8 +264,14 @@ static GTK3M3DUIPATTERNLIST *gtk3_m3duipatternlist_new ( GTK3M3DUI *gtk3mui ) {
 static void Realize ( GtkWidget *widget,
                       gpointer   user_data ) {
     GTK3M3DUIPATTERNLIST *gtk3patlist = ( GTK3M3DUIPATTERNLIST * ) user_data;
+    uint32_t width = 300;
+    uint32_t height;
 
     GeneratePreviews ( gtk3patlist );
+
+    height = m3duipatternlist_arrangePreviews ( &gtk3patlist->core, width );
+
+    gtk_widget_set_size_request ( widget, width, height );
 }
 
 /******************************************************************************/
@@ -307,11 +312,12 @@ GTK3M3DUIPATTERNLIST *gtk3_m3duipatternlist_create ( GtkWidget *parent,
                                      GTK_POLICY_AUTOMATIC,
                                      GTK_POLICY_AUTOMATIC );
 
-    g_signal_connect ( G_OBJECT (drw), "realize", G_CALLBACK (Realize), gtk3patlist );
-    g_signal_connect ( G_OBJECT (drw), "destroy", G_CALLBACK (Destroy), gtk3patlist );
-    g_signal_connect ( G_OBJECT (drw), "draw"   , G_CALLBACK (Draw)   , gtk3patlist );
-    g_signal_connect ( G_OBJECT (drw), "size"   , G_CALLBACK (Size)   , gtk3patlist );
-
+    g_signal_connect ( G_OBJECT (drw), "realize"      , G_CALLBACK (Realize), gtk3patlist );
+    g_signal_connect ( G_OBJECT (drw), "destroy"      , G_CALLBACK (Destroy), gtk3patlist );
+    g_signal_connect ( G_OBJECT (drw), "draw"         , G_CALLBACK (Draw)   , gtk3patlist );
+/*
+    g_signal_connect ( G_OBJECT (drw), "size-allocate", G_CALLBACK (Size)   , gtk3patlist );
+*/
     g_signal_connect ( G_OBJECT (drw), "motion_notify_event" , G_CALLBACK (Input), gtk3patlist );
     g_signal_connect ( G_OBJECT (drw), "button-press-event"  , G_CALLBACK (Input), gtk3patlist );
     g_signal_connect ( G_OBJECT (drw), "button-release-event", G_CALLBACK (Input), gtk3patlist );
