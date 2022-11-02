@@ -188,9 +188,7 @@ static void Map ( GtkWidget *widget,
 */
 
         if ( rsg->flags & RENDERPREVIEW ) {
-#ifdef TODO
-            makepreview = q3dfilter_preview_new ( gui );
-#endif
+            makepreview = q3dfilter_preview_new ( gtk3gui );
         }
 
 #ifdef unusedQISS3D

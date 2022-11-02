@@ -123,6 +123,7 @@ if HAVE_GTK3
                             gtk3/g3duiview.c \
                             gtk3/g3duiwireframeedit.c \
                             gtk3/q3dfilters.c \
+                            gtk3/q3dpreview.c \
                             gtk3/menu/condition.c \
                             gtk3/menu/mainmenu.c \
                             gtk3/menu/materialboardmenu.c \

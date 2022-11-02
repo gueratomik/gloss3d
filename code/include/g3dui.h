@@ -2366,7 +2366,7 @@ uint64_t g3duiwireframeedit_thickness ( G3DUIWIREFRAMEEDIT *wfmedit,
                                            float               thickness );
 
 /******************************************************************************/
-Q3DFILTER *q3dfilter_preview_new ( G3DUI *gui );
+
 
 
 

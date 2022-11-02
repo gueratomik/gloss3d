@@ -1292,6 +1292,7 @@ void gtk3_g3duicameraedit_update ( GTK3G3DUICAMERAEDIT *gtk3ced );
 
 /******************************** g3duicom.c **********************************/
 Q3DFILTER *q3dfilter_gotoframe_new ( GTK3G3DUI *gtk3gui );
+Q3DFILTER *q3dfilter_preview_new ( GTK3G3DUI *gtk3gui );
 void gtk3_g3duicom_handleAction ( GtkWidget *widget, 
                              gpointer   ptr, 
                              gpointer   user_data );

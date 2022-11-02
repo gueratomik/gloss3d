@@ -136,11 +136,6 @@ static void Input ( GtkWidget *widget,
             }
 
             gtk_widget_queue_draw ( widget );
-#ifdef TODO
-            gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW          |
-                                                   REDRAWMATERIALLIST  | 
-                                                   UPDATECURRENTMATERIAL );
-#endif
         } break;
 
         default:

@@ -191,7 +191,7 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/g3duitimeboard.c gtk3/g3duitimeline.c gtk3/g3duitoolbar.c \
 	gtk3/g3duitorusedit.c gtk3/g3duitrackertagedit.c \
 	gtk3/g3duitubeedit.c gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
-	gtk3/g3duiwireframeedit.c gtk3/q3dfilters.c \
+	gtk3/g3duiwireframeedit.c gtk3/q3dfilters.c gtk3/q3dpreview.c \
 	gtk3/menu/condition.c gtk3/menu/mainmenu.c \
 	gtk3/menu/materialboardmenu.c gtk3/menu/objectboardmenu.c \
 	gtk3/menu/renderwindowmenu.c gtk3/menu/timelinemenu.c \
@@ -296,8 +296,8 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/g3duitrackertagedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duitubeedit.lo gtk3/g3duiuvmapedit.lo \
 @HAVE_GTK3_TRUE@	gtk3/g3duiview.lo gtk3/g3duiwireframeedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/q3dfilters.lo gtk3/menu/condition.lo \
-@HAVE_GTK3_TRUE@	gtk3/menu/mainmenu.lo \
+@HAVE_GTK3_TRUE@	gtk3/q3dfilters.lo gtk3/q3dpreview.lo \
+@HAVE_GTK3_TRUE@	gtk3/menu/condition.lo gtk3/menu/mainmenu.lo \
 @HAVE_GTK3_TRUE@	gtk3/menu/materialboardmenu.lo \
 @HAVE_GTK3_TRUE@	gtk3/menu/objectboardmenu.lo \
 @HAVE_GTK3_TRUE@	gtk3/menu/renderwindowmenu.lo \
@@ -454,7 +454,8 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	gtk3/$(DEPDIR)/m3duimain.Plo gtk3/$(DEPDIR)/m3duimodebar.Plo \
 	gtk3/$(DEPDIR)/m3duipatternlist.Plo \
 	gtk3/$(DEPDIR)/m3duitoolbar.Plo gtk3/$(DEPDIR)/m3duiview.Plo \
-	gtk3/$(DEPDIR)/q3dfilters.Plo gtk3/css/$(DEPDIR)/default.Plo \
+	gtk3/$(DEPDIR)/q3dfilters.Plo gtk3/$(DEPDIR)/q3dpreview.Plo \
+	gtk3/css/$(DEPDIR)/default.Plo \
 	gtk3/menu/$(DEPDIR)/condition.Plo \
 	gtk3/menu/$(DEPDIR)/mainmenu.Plo \
 	gtk3/menu/$(DEPDIR)/materialboardmenu.Plo \
@@ -763,6 +764,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiview.c \
 @HAVE_GTK3_TRUE@                            gtk3/g3duiwireframeedit.c \
 @HAVE_GTK3_TRUE@                            gtk3/q3dfilters.c \
+@HAVE_GTK3_TRUE@                            gtk3/q3dpreview.c \
 @HAVE_GTK3_TRUE@                            gtk3/menu/condition.c \
 @HAVE_GTK3_TRUE@                            gtk3/menu/mainmenu.c \
 @HAVE_GTK3_TRUE@                            gtk3/menu/materialboardmenu.c \
@@ -1105,6 +1107,8 @@ gtk3/g3duiwireframeedit.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/q3dfilters.lo: gtk3/$(am__dirstamp) \
 	gtk3/$(DEPDIR)/$(am__dirstamp)
+gtk3/q3dpreview.lo: gtk3/$(am__dirstamp) \
+	gtk3/$(DEPDIR)/$(am__dirstamp)
 gtk3/menu/$(am__dirstamp):
 	@$(MKDIR_P) gtk3/menu
 	@: > gtk3/menu/$(am__dirstamp)
@@ -1317,6 +1321,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/m3duitoolbar.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/m3duiview.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/q3dfilters.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/$(DEPDIR)/q3dpreview.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/css/$(DEPDIR)/default.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/menu/$(DEPDIR)/condition.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/menu/$(DEPDIR)/mainmenu.Plo@am__quote@ # am--include-marker
@@ -1640,6 +1645,7 @@ distclean: distclean-am
 	-rm -f gtk3/$(DEPDIR)/m3duitoolbar.Plo
 	-rm -f gtk3/$(DEPDIR)/m3duiview.Plo
 	-rm -f gtk3/$(DEPDIR)/q3dfilters.Plo
+	-rm -f gtk3/$(DEPDIR)/q3dpreview.Plo
 	-rm -f gtk3/css/$(DEPDIR)/default.Plo
 	-rm -f gtk3/menu/$(DEPDIR)/condition.Plo
 	-rm -f gtk3/menu/$(DEPDIR)/mainmenu.Plo
@@ -1825,6 +1831,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gtk3/$(DEPDIR)/m3duitoolbar.Plo
 	-rm -f gtk3/$(DEPDIR)/m3duiview.Plo
 	-rm -f gtk3/$(DEPDIR)/q3dfilters.Plo
+	-rm -f gtk3/$(DEPDIR)/q3dpreview.Plo
 	-rm -f gtk3/css/$(DEPDIR)/default.Plo
 	-rm -f gtk3/menu/$(DEPDIR)/condition.Plo
 	-rm -f gtk3/menu/$(DEPDIR)/mainmenu.Plo

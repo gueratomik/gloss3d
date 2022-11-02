@@ -1267,9 +1267,7 @@ uint64_t gtk3_newScene ( GTK3G3DUI *gtk3gui ) {
 
     if ( res == GTK_RESPONSE_YES ) {
         ret = g3dui_closeScene ( gui );
-#ifdef TODO
-        g3dui_clearMaterials ( gui );
-#endif
+
         gui->sce = g3dscene_new ( 0x00, "SCENE" );
     }
 
@@ -2290,6 +2288,15 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
         gtk3_updateCurrentMaterialPreview ( gtk3gui );
     }
 
+    if ( msk & UPDATECURRENTMOUSETOOL ) {
+        gtk3_updateMouseTool ( gtk3gui );
+        gtk3_updateUVMouseTool ( gtk3gui );
+    }
+
+    if ( msk & UPDATECOORDS ) {
+        gtk3_updateCoords ( gtk3gui );
+    }
+
     if ( msk & RESIZERENDERWINDOW ) {
         gtk3_resizeRenderWindow ( gtk3gui );
     }
@@ -2308,15 +2315,6 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
 
     if ( msk & REDRAWTIMELINE ) {
         gtk3_redrawTimeline ( gtk3gui );
-    }
-
-    if ( msk & UPDATECURRENTMOUSETOOL ) {
-        gtk3_updateMouseTool ( gtk3gui );
-        gtk3_updateUVMouseTool ( gtk3gui );
-    }
-
-    if ( msk & UPDATECOORDS ) {
-        gtk3_updateCoords ( gtk3gui );
     }
 
     if ( msk & REDRAWUVMAPEDITOR ) {

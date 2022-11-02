@@ -352,13 +352,9 @@ static void Input ( GtkWidget *widget,
                 obj = pob->obj;
 
                 if ( pob->picked == TEXTURERECTHIT ) {
-#ifdef TODO
-                    g3dui_resizeUVMapEditors ( gui );
-#endif
+                    gtk3_interpretUIReturnFlags ( gtk3gui, 
+                                                  REDRAWUVMAPEDITOR );
                 }
-
-                /*g3dui_updateCoords ( gui );
-                g3dui_redrawTimeline ( gui );*/
             }
 
             gtk3_interpretUIReturnFlags ( gtk3gui, 

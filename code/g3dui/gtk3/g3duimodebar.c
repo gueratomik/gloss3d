@@ -65,19 +65,6 @@ static GTK3G3DUIMODEBAR *gtk3_g3duimodebar_new ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
-static void  setUVMode ( GtkWidget *widget,
-                         gpointer   user_data ) {
-#ifdef TODO
-    const char *modename = gtk_widget_get_name ( widget );
-    M3DUI *lui = ( M3DUI * ) user_data;
-
-    m3dui_setMode ( lui, modename );
-
-    /*g3dui_redrawGLViews ( gui );*/
-#endif
-}
-
-/******************************************************************************/
 static void setMode ( GtkWidget *widget,
                       gpointer   user_data ) {
     GTK3G3DUIMODEBAR *gtk3mb = ( GTK3G3DUIMODEBAR * ) user_data;

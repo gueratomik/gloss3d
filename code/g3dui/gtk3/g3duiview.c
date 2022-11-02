@@ -306,43 +306,6 @@ static void mapGL ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-void gtk3_addMenuButton ( G3DUI        *gui, 
-                          GtkWidget    *menu, 
-                          G3DMOUSETOOL *mou ) {
-#ifdef TODO
-    G3DUIGTK3 *ggt = ( G3DUIGTK3 * ) gui->toolkit_data;
-    GtkWidget *btn;
-
-    btn = gtk_menu_item_new_with_label ( mou->name );
-
-    gtk_widget_set_name ( btn, mou->name );
-
-    g_signal_connect( btn, "activate", (GCallback) gtk3_setMouseTool, gui );
-
-    gtk_menu_shell_append ( GTK_MENU_SHELL ( menu ), btn );
-
-    gtk_widget_show ( btn );
-#endif
-}
-
-/******************************************************************************/
-void gtk3_addMenuListButton ( G3DUI        *gui, 
-                              LIST         *lmenu, 
-                              G3DMOUSETOOL *mou ) {
-#ifdef TODO
-    LIST *ltmpmenu = lmenu;
-
-    while ( ltmpmenu ) {
-        GtkWidget *menu = ( GtkWidget * ) ltmpmenu->data;
-
-        gtk3_addMenuButton ( gui, menu, mou );
-
-        ltmpmenu = ltmpmenu->next;
-    }
-#endif
-}
-
-/******************************************************************************/
 static GTK3G3DUIVIEW *gtk3_g3duiview_new ( GTK3G3DUI *gtk3gui ) {
     uint32_t memSize =  sizeof ( GTK3G3DUIVIEW );
     GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) calloc ( 0x01, memSize );
