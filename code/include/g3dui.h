@@ -598,6 +598,15 @@ typedef struct _M3DUIPATTERNLIST {
 } M3DUIPATTERNLIST;
 
 /******************************************************************************/
+typedef struct _M3DUICHANNELIMAGECREATOR {
+    M3DUI      *mui;
+    G3DCHANNEL *chn;
+    uint32_t    width;
+    uint32_t    height;
+    uint32_t    resize;
+} M3DUICHANNELIMAGECREATOR;
+
+/******************************************************************************/
 typedef struct _M3DUITOOLBAR {
     M3DUI *mui;
 } M3DUITOOLBAR;
@@ -1499,9 +1508,11 @@ uint64_t            g3dui_setMouseTool ( G3DUI          *gui,
 void                g3dui_setFileName ( G3DUI      *gui, 
                                         const char *filename );
 void                g3dui_saveG3DFile ( G3DUI *gui );
-G3DSCENE           *g3dui_importFileOk ( G3DUI      *gui, 
+uint64_t            g3dui_importFileOk ( G3DUI      *gui, 
                                             const char *filedesc, 
                                             const char *filename );
+void                g3dui_mergeG3DFile ( G3DUI      *gui, 
+                                         const char *filename );
 uint32_t            g3dui_exportFileOk ( G3DUI      *gui,
                                             const char *filedesc, 
                                             const char *filename );

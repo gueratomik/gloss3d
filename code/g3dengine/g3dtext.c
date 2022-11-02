@@ -329,85 +329,88 @@ void g3dtext_setFont ( G3DTEXT *txt,
     uint32_t nbSearchPath = sizeof ( searchPath ) / sizeof ( char * );
     G3DSYSINFO *sysinfo = g3dsysinfo_get();
     char fontPath[0x100] = { 0 };
-    uint32_t fontFound = 0x00;
     FILE *f = NULL;
     uint32_t i;
 
     g3dtext_empty ( txt );
-    
-    if ( txt->fontFaceName ) {
-        free ( txt->fontFaceName );
-    }
 
-    txt->fontFaceName = strdup ( fontFaceName );
-    txt->fontFaceSize = fontFaceSize;
+    if ( fontFaceName ) {
+        uint32_t fontFound = 0x00;
 
-    if ( fontFaceFile ) {
-        if ( f = fopen ( fontFaceFile, "r" ) ) {
-            fontFound = 0x01;
+        if ( txt->fontFaceName ) {
+            free ( txt->fontFaceName );
+        }
 
-            strcpy ( fontPath, fontFaceFile );
+        txt->fontFaceName = strdup ( fontFaceName );
+        txt->fontFaceSize = fontFaceSize;
 
-            fclose ( f );
-        } else {
-            for ( i = 0x00; i < nbSearchPath; i++ ) {
-                /* basename must work with copies. RTFM */
-                char *filenameCopy = strdup ( fontFaceFile );
+        if ( fontFaceFile ) {
+            if ( f = fopen ( fontFaceFile, "r" ) ) {
+                fontFound = 0x01;
 
-                strcpy ( fontPath, searchPath[i] );
-                strcat ( fontPath, "/" );
-                strcat ( fontPath, basename ( filenameCopy ) );
+                strcpy ( fontPath, fontFaceFile );
 
-                if ( f = fopen ( fontPath, "r" ) ) {
-                    fontFound = 0x01;
+                fclose ( f );
+            } else {
+                for ( i = 0x00; i < nbSearchPath; i++ ) {
+                    /* basename must work with copies. RTFM */
+                    char *filenameCopy = strdup ( fontFaceFile );
 
-                    fclose ( f );
-                    break;
+                    strcpy ( fontPath, searchPath[i] );
+                    strcat ( fontPath, "/" );
+                    strcat ( fontPath, basename ( filenameCopy ) );
+
+                    if ( f = fopen ( fontPath, "r" ) ) {
+                        fontFound = 0x01;
+
+                        fclose ( f );
+                        break;
+                    }
+
+                    free ( filenameCopy );
                 }
-
-                free ( filenameCopy );
             }
         }
-    }
 
-    if ( fontFound ) {
-        printf("using font file %s\n", fontPath);
+        if ( fontFound ) {
+            printf("using font file %s\n", fontPath);
 
-        if ( txt->fontFaceFile ) {
-            free ( txt->fontFaceFile );
-        }
+            if ( txt->fontFaceFile ) {
+                free ( txt->fontFaceFile );
+            }
 
-        txt->fontFaceFile = strdup ( fontPath );
+            txt->fontFaceFile = strdup ( fontPath );
 
-        if ( txt->face ) {
-            FT_Done_Face ( txt->face );
-        }
+            if ( txt->face ) {
+                FT_Done_Face ( txt->face );
+            }
 
-        if ( FT_New_Face( sysinfo->ftlib,
-                          fontPath,
-                          0,
-                         &txt->face ) ) {
-            fprintf ( stderr, "FreeType font loading failed\n" );
+            if ( FT_New_Face( sysinfo->ftlib,
+                              fontPath,
+                              0,
+                             &txt->face ) ) {
+                fprintf ( stderr, "FreeType font loading failed\n" );
 
-            txt->face = NULL;
+                txt->face = NULL;
 
-            return;
-        }
+                return;
+            }
 
-        printf("font file %s loaded successfully!\n", fontPath);
+            printf("font file %s loaded successfully!\n", fontPath);
 
-        FT_Select_Charmap ( txt->face, FT_ENCODING_UNICODE );
+            FT_Select_Charmap ( txt->face, FT_ENCODING_UNICODE );
 
-        FT_Set_Char_Size( txt->face,       /* handle to face object           */
-                          0,               /* char_width in 1/64th of points  */
-                          fontFaceSize*64, /* char_height in 1/64th of points */
-                          300,             /* horizontal device resolution    */
-                          300 );
+            FT_Set_Char_Size( txt->face,       /* handle to face object           */
+                              0,               /* char_width in 1/64th of points  */
+                              fontFaceSize*64, /* char_height in 1/64th of points */
+                              300,             /* horizontal device resolution    */
+                              300 );
 
-        txt->height = ( float ) txt->face->size->metrics.height / 1000;
+            txt->height = ( float ) txt->face->size->metrics.height / 1000;
 
-        if ( txt->text ) {
-            g3dtext_generate ( txt, 0x00, strlen ( txt->text ), engine_flags );
+            if ( txt->text ) {
+                g3dtext_generate ( txt, 0x00, strlen ( txt->text ), engine_flags );
+            }
         }
     }
 }
@@ -423,15 +426,16 @@ void g3dtext_setSize ( G3DTEXT *txt,
 
     txt->fontFaceSize = fontFaceSize;
 
-    FT_Set_Char_Size( txt->face,       /* handle to face object           */
-                      0,               /* char_width in 1/64th of points  */
-                      fontFaceSize*64, /* char_height in 1/64th of points */
-                      300,             /* horizontal device resolution    */
-                      300 );
+    if ( txt->text && txt->face ) {
+        FT_Set_Char_Size( txt->face,       /* handle to face object           */
+                          0,               /* char_width in 1/64th of points  */
+                          fontFaceSize*64, /* char_height in 1/64th of points */
+                          300,             /* horizontal device resolution    */
+                          300 );
 
-    txt->height = ( float ) txt->face->size->metrics.height / 1000;
+        txt->height = ( float ) txt->face->size->metrics.height / 1000;
 
-    if ( txt->text ) {
+
         g3dtext_generate ( txt, 0x00, strlen ( txt->text ), engine_flags );
     }
 }
@@ -447,7 +451,7 @@ void g3dtext_setRoundness ( G3DTEXT *txt,
 
     txt->roundness = roundness;
 
-    if ( txt->text ) {
+    if ( txt->text && txt->face ) {
         g3dtext_generate ( txt, 0x00, strlen ( txt->text ), engine_flags );
     }
 }
@@ -465,7 +469,7 @@ void g3dtext_setThickness ( G3DTEXT *txt,
          ( ( newThickness == 0.0f ) && ( oldThickness ) ) ) {
         g3dtext_empty ( txt );
 
-        if ( txt->text ) {
+        if ( txt->text && txt->face ) {
             g3dtext_generate ( txt, 0x00, strlen ( txt->text ), engine_flags );
         }
 
@@ -915,7 +919,7 @@ void g3dtext_generate ( G3DTEXT   *txt,
     G3DOBJECT *obj = ( G3DOBJECT * ) txt;
     uint32_t i;
 
-    if ( txt->text ) {
+    if ( txt->text && txt->face ) {
         GLUtesselator *tobj = gluNewTess();
         glong items_written = 0, 
               items_read = 0;
@@ -1035,6 +1039,8 @@ void g3dtext_init ( G3DTEXT *txt,
                                    COMMIT_CALLBACK(g3dmesh_copy),
                                  ADDCHILD_CALLBACK(NULL),
                                                    NULL );
+
+    g3dtext_setSize ( txt, 8, engine_flags );
 
     ((G3DMESH*)txt)->dump = g3dmesh_default_dump;
 

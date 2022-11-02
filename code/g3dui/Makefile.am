@@ -140,6 +140,7 @@ if HAVE_GTK3
                             gtk3/mousetool/g3duisculpttooledit.c \
                             gtk3/m3dui.c \
                             gtk3/m3duiboard.c \
+                            gtk3/m3duichannelimagecreator.c \
                             gtk3/m3duicolorpicker.c \
                             gtk3/m3duimain.c \
                             gtk3/m3duimodebar.c \

@@ -76,23 +76,21 @@ uint32_t q3dmesh_intersect ( Q3DMESH    *qmes,
                              uint64_t    render_flags ) {
     Q3DVERTEXSET *qverset;
 
-    /*** Optimize for speed to avoid function call in most cases ***/
-    if ( frame == qmes->vertexSet[0x00].frame ) {
-        qverset = &qmes->vertexSet[0x00];
-    } else {
-        qverset = q3dmesh_getVertexSet ( qmes, frame );
-    }
+    qverset = q3dmesh_getVertexSet ( qmes, frame );
 
-    if ( q3doctree_intersect_r ( qverset->qoct, 
-                                 qray,
-                                 qmes->qtri,
-                                &discard->tri,
-                                 qverset->qver,
-                                 query_flags,
-                                 render_flags ) ) {
-        qray->isx.qobj = ( Q3DOBJECT * )qmes;
+    /** a mesh could be empty ***/
+    if ( qverset ) {
+        if ( q3doctree_intersect_r ( qverset->qoct, 
+                                     qray,
+                                     qmes->qtri,
+                                    &discard->tri,
+                                     qverset->qver,
+                                     query_flags,
+                                     render_flags ) ) {
+            qray->isx.qobj = ( Q3DOBJECT * )qmes;
 
-        return 0x01;
+            return 0x01;
+        }
     }
 
     return 0x00;
@@ -119,13 +117,14 @@ void q3dmesh_addVertexSet ( Q3DMESH *qmes,
                             float    frame ) {
     uint32_t structSize  = sizeof ( Q3DVERTEXSET );
     uint32_t vertexSetID = qmes->nbVertexSet;
-    uint32_t arraySize   = (++qmes->nbVertexSet) * structSize;
-
-    qmes->vertexSet = ( Q3DVERTEXSET * ) realloc ( qmes->vertexSet, arraySize );
 
     if ( qmes->nbqver ) {
+        uint32_t arraySize   = (++qmes->nbVertexSet) * structSize;
         Q3DVERTEX *qver = ( Q3DVERTEX * ) calloc ( qmes->nbqver,
                                                    sizeof ( Q3DVERTEX ) );
+
+        qmes->vertexSet = ( Q3DVERTEXSET * ) realloc ( qmes->vertexSet,
+                                                       arraySize );
 
         qmes->vertexSet[vertexSetID].qver  = qver;
         qmes->vertexSet[vertexSetID].frame = frame;

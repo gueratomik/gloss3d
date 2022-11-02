@@ -136,13 +136,16 @@ static void mirroredToggleCbk  ( GtkWidget *widget,
     GTK3G3DUIINSTANCEEDIT *gtk3ied = ( GTK3G3DUIINSTANCEEDIT * ) user_data;
     G3DUI *gui = gtk3ied->core.gui;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
+    uint64_t ret;
 
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ied->core.gui->lock ) return;
 
-    g3duiinstanceedit_mirroredToggle ( &gtk3ied->core );
+    ret = g3duiinstanceedit_mirroredToggle ( &gtk3ied->core );
 
     gtk3_g3duiinstanceedit_update ( gtk3ied );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
 }
 
 /******************************************************************************/
@@ -152,11 +155,14 @@ static void objectSelectorCbk ( GtkWidget *widget,
     G3DUI *gui = gtk3ied->core.gui;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
     uint32_t rank = gtk_combo_box_get_active ( GTK_COMBO_BOX(widget) );
+    uint64_t ret;
 
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ied->core.gui->lock ) return;
 
-    g3duiinstanceedit_setReference ( &gtk3ied->core, rank );
+    ret = g3duiinstanceedit_setReference ( &gtk3ied->core, rank );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
 }
 
 /******************************************************************************/
@@ -166,11 +172,14 @@ static void orientationCbk ( GtkWidget *widget,
     G3DUI *gui = gtk3ied->core.gui;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
     char *str = gtk_combo_box_text_get_active_text ( GTK_COMBO_BOX_TEXT(widget) );
+    uint64_t ret;
 
     /*** prevents loop and possibly lock reset if some panels are updated ***/
     if ( gtk3ied->core.gui->lock ) return;
 
-    g3duiinstanceedit_orientation ( &gtk3ied->core, str );
+    ret = g3duiinstanceedit_orientation ( &gtk3ied->core, str );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
 }
 
 /******************************************************************************/

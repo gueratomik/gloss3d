@@ -47,22 +47,30 @@
 /******************************************************************************/
 static uint64_t resizeChannelImageCbk ( G3DUIMENU *menu, 
                                         void      *data ) {
-#ifdef TODO
-    M3DUI *mui = ( M3DUI * ) data;
-    G3DCHANNEL *chn = common_m3dui_getWorkingChannel ( mui );
+    GTK3M3DUI *gtk3mui = ( GTK3M3DUI * ) data;
+    G3DCHANNEL *chn = m3dui_getWorkingChannel ( &gtk3mui->core );
 
     if ( chn ) {
-        GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+        GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
+        GtkWidget *box = gtk_dialog_get_content_area ( dial );
+        GTK3M3DUICHANNELIMAGECREATOR *gtk3cic;
 
-        createChannelImage ( dial, 
-                             mui, 
-                             chn,
-                             0x01,
-                             "Channel Image", 0, 0, 200, 96 );
+        gtk3cic = gtk3_m3duichannelimagecreator_create ( box,
+                                                         gtk3mui,
+                                                         chn,
+                                                         1,
+                                                         "Resize Image" );
 
-        gtk_widget_show ( dial );
+        gtk_container_add ( GTK_CONTAINER(box), gtk3cic->fixed );
+
+        g_signal_connect_swapped ( dial,
+                                   "response",
+                                   G_CALLBACK (gtk_widget_destroy),
+                                   dial);
+
+        gtk_dialog_run ( dial );
     }
-#endif
+
 
     return 0x00;
 }
@@ -256,7 +264,6 @@ static G3DUIMENU uvedit_menu = { NULL,
 /******************************************************************************/
 static uint64_t loadImageByChannelIDCbk ( G3DUIMENU *menu, 
                                           void      *data ) {
-#ifdef TODO
     M3DUI *mui = ( M3DUI * ) data;
     G3DUI *gui = ( G3DUI * ) mui->gui;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
@@ -275,14 +282,16 @@ static uint64_t loadImageByChannelIDCbk ( G3DUIMENU *menu,
                 uint32_t chnID = GETCHANNEL(mui->engine_flags);
                 G3DCHANNEL  *chn = g3dmaterial_getChannelByID ( mat, chnID );
 
-                g3dui_loadImageForChannel ( gui, chn );
+                gtk3_loadImageForChannel ( ( GTK3G3DUI * ) gui, chn );
 
                 /*** resize selection mask and zbuffer ***/
-                m3dui_resizeBuffers ( mui );
+                /** COMMENTED OUT: this is now donw ***/
+                /*** temporarily just before the mouse tool event ***/
+                /*** I have to find a better place for that IMHO ***/
+                /*** m3dui_resizeBuffers ( mui );   ***/
             }
         }
     }
-#endif
 
     return REDRAWUVMAPEDITOR;
 }
@@ -290,22 +299,30 @@ static uint64_t loadImageByChannelIDCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t createChannelImageCbk ( G3DUIMENU *menu, 
                                         void      *data ) {
-#ifdef TODO
-    M3DUI *mui = ( M3DUI * ) user_data;
-    G3DCHANNEL *chn = common_m3dui_getWorkingChannel ( mui );
+    GTK3M3DUI *gtk3mui = ( GTK3M3DUI * ) data;
+    G3DCHANNEL *chn = m3dui_getWorkingChannel ( &gtk3mui->core );
 
     if ( chn ) {
-        GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+        GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
+        GtkWidget *box = gtk_dialog_get_content_area ( dial );
+        GTK3M3DUICHANNELIMAGECREATOR *gtk3cic;
 
-        createChannelImage ( dial, 
-                             lui, 
-                             chn,
-                             0x00,
-                             "Channel Image", 0, 0, 200, 96 );
+        gtk3cic = gtk3_m3duichannelimagecreator_create ( box,
+                                                         gtk3mui,
+                                                         chn,
+                                                         0,
+                                                         "Create Image" );
 
-        gtk_widget_show ( dial );
+        gtk_container_add ( GTK_CONTAINER(box), gtk3cic->fixed );
+
+        g_signal_connect_swapped ( dial,
+                                   "response",
+                                   G_CALLBACK (gtk_widget_destroy),
+                                   dial);
+
+        gtk_dialog_run ( dial );
+
     }
-#endif
 
     return 0x00;
 }
@@ -348,7 +365,7 @@ static G3DUIMENU *uvrootchildren[] = { &uvfile_menu,
 
 static G3DUIMENU uvrootnode = { NULL,
                                 "Bar",
-                                NULL,
+                                MENU_CLASS_MAIN,
                                 G3DUIMENUTYPE_MENUBAR,
                                 NULL,
                                 NULL,

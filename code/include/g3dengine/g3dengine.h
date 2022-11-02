@@ -168,12 +168,12 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define AMBIENTCHANNELID        0x05
 #define REFLECTIONCHANNELID     0x06
 #define REFRACTIONCHANNELID     0x07
-#define UVCHANNELMASK      ( ((uint64_t)1  << 30 ) | \
-                             ((uint64_t)1  << 31 ) | \
+#define UVCHANNELMASK      ( ((uint64_t)1  << 31 ) | \
                              ((uint64_t)1  << 32 ) | \
-                             ((uint64_t)1  << 33 ) )
-#define SHOWCHANNEL(f,a)  (f=(f&(~UVCHANNELMASK)|((uint64_t)a<<30)))
-#define GETCHANNEL(f)    ((f&UVCHANNELMASK)>>30)
+                             ((uint64_t)1  << 33 ) | \
+                             ((uint64_t)1  << 34 ) )
+#define SHOWCHANNEL(f,a)  (f=(f&(~UVCHANNELMASK)|((uint64_t)a<<31)))
+#define GETCHANNEL(f)    ((f&UVCHANNELMASK)>>31)
 
 /******************************* Object Types *********************************/
 #define OBJECT          ( ( uint64_t )  1       )

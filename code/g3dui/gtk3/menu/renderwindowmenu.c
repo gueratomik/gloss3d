@@ -101,16 +101,50 @@ static G3DUIMENU rw_view_menu = { NULL,
 
 /******************************************************************************/
 static uint64_t renderwindowExitCbk ( G3DUIMENU *menu, void *data ) {
-/***
-    G3DUIRENDERWINDOW *grw = ( G3DUIRENDERWINDOW * ) user_data;
+    GTK3G3DUIRENDERWINDOW *gtk3rwin = ( G3DUIRENDERWINDOW * ) data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3rwin->core.gui;
 
-    gtk_widget_destroy ( grw->topLevel );
-*/
+    gtk_widget_destroy ( gtk3gui->topWin );
+
     return 0x00;
 }
 
 /******************************************************************************/
 static uint64_t renderwindowSaveJPGCbk ( G3DUIMENU *menu, void *data ) {
+    GTK3G3DUIRENDERWINDOW *gtk3rwin = ( G3DUIRENDERWINDOW * ) data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3rwin->core.gui;
+    GtkWidget *dialog;
+    gint       res;
+
+    dialog = gtk_file_chooser_dialog_new ( "Save image ...",
+                                           GTK_WINDOW(gtk3gui->topWin),
+                        /*** from ristretto-0.3.5/src/main_window.c ***/
+                                           GTK_FILE_CHOOSER_ACTION_SAVE,
+                                           "_Cancel", 
+                                           GTK_RESPONSE_CANCEL,
+                                           "_Open", 
+                                           GTK_RESPONSE_OK,
+                                           NULL );
+
+    gtk_file_chooser_set_do_overwrite_confirmation ( GTK_FILE_CHOOSER(dialog),
+                                                     TRUE );
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_OK ) {
+        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
+        char           *filename = gtk_file_chooser_get_filename ( chooser );
+        G3DUIRENDERPROCESS *rps = gtk3rwin->core.rps;
+
+        if ( rps ) {
+            g3duirenderprocess_savejpg ( rps, filename );
+        }
+
+        g_free    ( filename );
+    }
+
+    gtk_widget_destroy ( dialog );
+
 
     return 0x00;
 }
@@ -159,7 +193,7 @@ static G3DUIMENU *renderwindowchildren[] = { &rw_file_menu,
 
 static G3DUIMENU renderwindowrootnode = { NULL,
                                           "Bar",
-                                          NULL,
+                                          MENU_CLASS_MAIN,
                                           G3DUIMENUTYPE_MENUBAR,
                                           NULL,
                                           NULL,

@@ -58,7 +58,7 @@ static void gtk3_m3duimain_createMenuBar ( GTK3M3DUIMAIN *gtk3main ) {
 
     gtk3menu = gtk3_g3duimenu_parse_r ( g3duimenu_getUVEditorMenuNode ( ),
                                         gtk3main->core.mui->gui,
-                                        gtk3main );
+                                        gtk3main->core.mui );
 
     gtk_layout_put ( GTK_LAYOUT(gtk3main->layout), gtk3menu->menu, 0, 0 );
 

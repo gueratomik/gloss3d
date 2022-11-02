@@ -35,18 +35,22 @@ uint64_t g3duiinstanceedit_setReference ( G3DUIINSTANCEEDIT *insedit,
     G3DUI *gui = insedit->gui;
     G3DSCENE *sce = gui->sce;
     LIST *ltmpselobj = sce->lsel;
+    LIST *ltmpobj, *lobj = NULL;
+    /*** flatten the object tree ***/
+
+    g3dobject_treeToList_r ( ( G3DOBJECT * ) sce, &lobj );
 
     while ( ltmpselobj ) {
         G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
 
         if ( sel->type == G3DINSTANCETYPE ) {
             G3DINSTANCE *ins = ( G3DINSTANCE * ) sel;
-            LIST *ltmpobj, *lobj = NULL;
+
             uint32_t objRank = 0x00;
             int selected = 0x00;
 
-            /*** flatten the object tree ***/
-            g3dobject_treeToList_r ( ( G3DOBJECT * ) sce, &lobj );
+            /*** reset first ***/
+            g3dinstance_setReference ( ins, NULL );
 
             ltmpobj = lobj;
 
@@ -65,12 +69,12 @@ uint64_t g3duiinstanceedit_setReference ( G3DUIINSTANCEEDIT *insedit,
 
                 ltmpobj = ltmpobj->next;
             }
-
-            list_free ( &lobj, NULL );
         }
 
         ltmpselobj = ltmpselobj->next;
     }
+
+    list_free ( &lobj, NULL );
 
 
     return REDRAWVIEW;

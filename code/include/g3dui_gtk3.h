@@ -166,6 +166,15 @@ typedef struct _GTK3M3DUIMODEBAR {
 } GTK3M3DUIMODEBAR;
 
 /******************************************************************************/
+typedef struct _GTK3M3DUICHANNELIMAGECREATOR {
+    M3DUICHANNELIMAGECREATOR core;
+    GtkFixed                *fixed;
+    GtkSpinButton           *widthEntry;
+    GtkSpinButton           *heightEntry;
+    GtkLabel                *infoLabel;
+} GTK3M3DUICHANNELIMAGECREATOR;
+
+/******************************************************************************/
 typedef struct _GTK3M3DUIBOARD {
     M3DUIBOARD core;
     GtkWidget *layout;
@@ -988,10 +997,15 @@ void gtk3_initDefaultMouseTools ( GTK3G3DUI *gtk3gui );
 void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
                                    uint64_t   msk );
 
-void gtk3_newScene ( GTK3G3DUI *gtk3gui );
-void gtk3_openFile ( GTK3G3DUI *gtk3gui );
-void gtk3_saveAs ( GTK3G3DUI *gtk3gui );
-void gtk3_saveFile ( GTK3G3DUI *gtk3gui );
+uint64_t gtk3_newScene ( GTK3G3DUI *gtk3gui );
+uint64_t gtk3_openFile ( GTK3G3DUI *gtk3gui );
+uint64_t gtk3_saveAs ( GTK3G3DUI *gtk3gui );
+uint64_t gtk3_saveFile ( GTK3G3DUI *gtk3gui );
+uint64_t gtk3_mergeFile ( GTK3G3DUI *gtk3gui );
+uint64_t gtk3_exportFile ( GTK3G3DUI   *gtk3gui,
+                           const gchar *filedesc );
+uint64_t gtk3_importFile ( GTK3G3DUI   *gtk3gui,
+                           const gchar *filedesc );
 void gtk3_renderView ( GTK3G3DUI *gtk3gui );
 void gtk3_runRender ( GTK3G3DUI *gtk3gui );
 uint64_t gtk3_loadImageForChannel ( GTK3G3DUI  *gtk3gui,

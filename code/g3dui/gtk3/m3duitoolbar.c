@@ -89,20 +89,29 @@ static void loadImageByChannelIDCbk ( GtkWidget *widget,
 static void createChannelImageCbk ( GtkWidget *widget, 
                                     gpointer   user_data ) {
     GTK3M3DUITOOLBAR *gtk3tb = ( GTK3M3DUITOOLBAR * ) user_data;
-    M3DUI *mui = ( M3DUI * ) gtk3tb->core.mui;
-    G3DUI *gui = ( G3DUI * ) mui->gui;
-    G3DCHANNEL *chn = m3dui_getWorkingChannel ( mui );
+    GTK3M3DUI *gtk3mui = ( GTK3M3DUI * ) gtk3tb->core.mui;
+    G3DUI *gui = ( G3DUI * ) gtk3mui->core.gui;
+    G3DCHANNEL *chn = m3dui_getWorkingChannel ( &gtk3mui->core );
 
     if ( chn ) {
-        GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
-#ifdef TODO
-        createChannelImage ( dial, 
-                             lui, 
-                             chn,
-                             0x00,
-                             "Channel Image", 0, 0, 200, 96 );
-#endif
-        gtk_widget_show ( dial );
+        GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
+        GtkWidget *box = gtk_dialog_get_content_area ( dial );
+        GTK3M3DUICHANNELIMAGECREATOR *gtk3cic;
+
+        gtk3cic = gtk3_m3duichannelimagecreator_create ( box,
+                                                         gtk3mui,
+                                                         chn,
+                                                         0,
+                                                         "Create Image" );
+
+        gtk_container_add ( GTK_CONTAINER(box), gtk3cic->fixed );
+
+        g_signal_connect_swapped ( dial,
+                                   "response",
+                                   G_CALLBACK (gtk_widget_destroy),
+                                   dial);
+
+        gtk_dialog_run ( dial );
     }
 }
 

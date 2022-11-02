@@ -110,6 +110,8 @@ uint64_t g3dui_closeScene ( G3DUI *gui ) {
 
     g3dui_resetDefaultCameras ( gui );
 
+    list_free ( &gui->lselmat, NULL );
+
     return UPDATEANDREDRAWALL;
 }
 
@@ -655,6 +657,8 @@ uint64_t g3dui_addBone ( G3DUI *gui ) {
     G3DBONE *bon = g3dbone_new ( oid, "Bone", 1.0f );
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
+    if ( obj == NULL ) obj = sce;
+
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
                                          REDRAWOBJECTLIST | UPDATECURRENTOBJECT ),
@@ -1008,14 +1012,14 @@ uint64_t g3dui_addText ( G3DUI *gui ) {
                                  gui->engine_flags  );
 
     g3dtext_configure ( txt,
-                        "Arial",    /* font face name */
-                        "arial.ttf",/* font file name */
+                        NULL,    /* font face name */
+                        NULL,/* font file name */
                         16,         /* font face size */
                         0.0f,
                         12,
                         gui->engine_flags );
 
-    g3dtext_setText ( txt, "Text", gui->engine_flags  );
+    g3dtext_setText ( txt, "Gloss3D", gui->engine_flags  );
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
@@ -1735,10 +1739,8 @@ void g3dui_exitOk ( G3DUI *gui ) {
 
 /******************************************************************************/
 uint32_t g3dui_exportFileOk ( G3DUI      *gui,
-                                 const char *filedesc, 
-                                 const char *filename ) {
-    /*#g3dui_setHourGlass ( gui );#*/
-
+                              const char *filedesc, 
+                              const char *filename ) {
     printf ( "Exporting to %s of type %s ...\n", filename, filedesc );
 
     if ( strcmp ( filedesc, FILEDESC_POV ) == 0x00 ) {
@@ -1761,13 +1763,6 @@ uint32_t g3dui_exportFileOk ( G3DUI      *gui,
                          0x00 );
     }*/
 
-    /*#g3dui_unsetHourGlass ( gui );
-
-    g3dui_redrawGLViews        ( gui );
-    g3dui_updateCoords         ( gui );
-    g3dui_redrawObjectList     ( gui );
-    g3dui_updateAllCurrentEdit ( gui );#*/
-
     return REDRAWVIEW   |
            UPDATECOORDS |
            REDRAWOBJECTLIST   |
@@ -1775,9 +1770,9 @@ uint32_t g3dui_exportFileOk ( G3DUI      *gui,
 }
 
 /******************************************************************************/
-G3DSCENE *g3dui_importFileOk ( G3DUI      *gui, 
-                                  const char *filedesc, 
-                                  const char *filename ) {
+uint64_t g3dui_importFileOk ( G3DUI      *gui, 
+                              const char *filedesc, 
+                              const char *filename ) {
     G3DSCENE *sce = gui->sce;
 
     /*#g3dui_setHourGlass ( gui );#*/
@@ -1843,7 +1838,10 @@ G3DSCENE *g3dui_importFileOk ( G3DUI      *gui,
 
     g3dui_unsetHourGlass ( gui );#*/
 
-    return sce;
+    return REDRAWVIEW   |
+           UPDATECOORDS |
+           REDRAWOBJECTLIST   |
+           UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
@@ -2112,6 +2110,39 @@ void g3dui_createDefaultCameras ( G3DUI *gui ) {
 }
 
 /******************************************************************************/
+void g3dui_mergeG3DFile ( G3DUI      *gui, 
+                          const char *filename ) {
+    LIST *limportExtensions = NULL;
+    G3DIMPORTV3EXTENSION *r3dext;
+
+    /* import render settings module */
+    r3dext = g3dimportv3extension_new ( SIG_RENDERSETTINGS_EXTENSION,
+                                      q3dsettings_read,
+                                     &gui->lrsg );
+
+    list_insert ( &limportExtensions, r3dext );
+
+#ifdef __linux__
+    if ( access( filename, F_OK ) == 0x00 ) {
+#endif
+#ifdef __MINGW32__
+    if ( PathFileExists ( filename ) ) {
+#endif
+        printf ( "Opening %s ...\n", filename );
+
+        g3durmanager_clear ( gui->urm );
+
+        g3dscene_importv3 ( filename, gui->sce, limportExtensions, gui->engine_flags );
+
+        printf ( "...Done!\n" );
+    }
+
+    g3dimportv3extension_free ( r3dext );
+
+    list_free ( &limportExtensions, NULL );
+}
+
+/******************************************************************************/
 uint64_t g3dui_openG3DFile ( G3DUI      *gui, 
                              const char *filename ) {
     G3DIMPORTV3EXTENSION *r3dext,
@@ -2192,12 +2223,7 @@ uint64_t g3dui_openG3DFile ( G3DUI      *gui,
         gui->sce = g3dscene_new ( 0x00, "Gloss3D scene" );
     }
 
-    return REDRAWVIEW          |
-           UPDATEMATERIALLIST  |
-           UPDATEVIEWMENU      |
-           REDRAWOBJECTLIST    |
-           UPDATECOORDS        |
-           UPDATECURRENTOBJECT;
+    return UPDATEANDREDRAWALL;
 }
 
 /******************************************************************************/

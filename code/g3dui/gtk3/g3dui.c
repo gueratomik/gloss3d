@@ -1250,10 +1250,11 @@ void gtk3_renderView ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
-void gtk3_newScene ( GTK3G3DUI *gtk3gui ) {
+uint64_t gtk3_newScene ( GTK3G3DUI *gtk3gui ) {
     G3DUI * gui = ( G3DUI * ) gtk3gui;
     GtkWidget *dialog;
     gint       res;
+    uint64_t ret;
 
     dialog = gtk_message_dialog_new ( NULL,
                                       GTK_DIALOG_MODAL,
@@ -1265,7 +1266,7 @@ void gtk3_newScene ( GTK3G3DUI *gtk3gui ) {
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
     if ( res == GTK_RESPONSE_YES ) {
-        g3dui_closeScene ( gui );
+        ret = g3dui_closeScene ( gui );
 #ifdef TODO
         g3dui_clearMaterials ( gui );
 #endif
@@ -1273,10 +1274,86 @@ void gtk3_newScene ( GTK3G3DUI *gtk3gui ) {
     }
 
     gtk_widget_destroy ( dialog );
+
+    return ret;
 }
 
 /******************************************************************************/
-void gtk3_saveAs ( GTK3G3DUI *gtk3gui ) {
+uint64_t gtk3_importFile ( GTK3G3DUI   *gtk3gui,
+                           const gchar *filedesc ) {
+    G3DUI * gui = ( G3DUI * ) gtk3gui;
+    GtkWidget *dialog;
+    gint       res;
+    uint64_t ret = 0x00;
+
+    dialog = gtk_file_chooser_dialog_new ( "Import file ...",
+                                           GTK_WINDOW(gtk3gui->topWin),
+                        /*** from ristretto-0.3.5/src/main_window.c ***/
+                                           GTK_FILE_CHOOSER_ACTION_OPEN,
+                                           "_Cancel", 
+                                           GTK_RESPONSE_CANCEL,
+                                           "_Open", 
+                                           GTK_RESPONSE_OK,
+                                           NULL );
+
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_OK ) {
+        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
+        const char *filename = gtk_file_chooser_get_filename ( chooser );
+
+        ret = g3dui_importFileOk ( &gtk3gui->core, filedesc, filename );
+
+        g_free    ( ( gpointer ) filename );
+    }
+
+    gtk_widget_destroy ( dialog );
+
+
+    return ret;
+}
+
+/******************************************************************************/
+uint64_t gtk3_exportFile ( GTK3G3DUI   *gtk3gui,
+                           const gchar *filedesc ) {
+    G3DUI * gui = ( G3DUI * ) gtk3gui;
+    GtkWidget *dialog;
+    gint       res;
+    uint64_t ret = 0x00;
+
+    dialog = gtk_file_chooser_dialog_new ( "Export file ...",
+                                           GTK_WINDOW(gtk3gui->topWin),
+                        /*** from ristretto-0.3.5/src/main_window.c ***/
+                                           GTK_FILE_CHOOSER_ACTION_SAVE,
+                                           "_Cancel", 
+                                           GTK_RESPONSE_CANCEL,
+                                           "_Open", 
+                                           GTK_RESPONSE_OK,
+                                           NULL );
+
+    gtk_file_chooser_set_do_overwrite_confirmation ( GTK_FILE_CHOOSER(dialog),
+                                                     TRUE );
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_OK ) {
+        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
+        const char *filename = gtk_file_chooser_get_filename ( chooser );
+
+        ret = g3dui_exportFileOk ( gui, filedesc, filename );
+
+        g_free    ( ( gpointer ) filename );
+    }
+
+    gtk_widget_destroy ( dialog );
+
+
+    return 0x00;
+}
+
+/******************************************************************************/
+uint64_t gtk3_saveAs ( GTK3G3DUI *gtk3gui ) {
     G3DUI * gui = ( G3DUI * ) gtk3gui;
     GtkWidget *dialog;
     gint       res;
@@ -1324,10 +1401,48 @@ void gtk3_saveAs ( GTK3G3DUI *gtk3gui ) {
     }
 
     gtk_widget_destroy ( dialog );
+
+
+    return 0x00;
 }
 
 /******************************************************************************/
-void gtk3_saveFile ( GTK3G3DUI *gtk3gui ) {
+uint64_t gtk3_mergeFile ( GTK3G3DUI *gtk3gui ) {
+    G3DUI * gui = ( G3DUI * ) gtk3gui;
+    GtkWidget *dialog;
+    gint       res;
+
+    dialog = gtk_file_chooser_dialog_new ( "Merge File",
+                                           GTK_WINDOW(gtk3gui->topWin),
+                        /*** from ristretto-0.3.5/src/main_window.c ***/
+                                           GTK_FILE_CHOOSER_ACTION_OPEN,
+                                           "_Cancel", 
+                                           GTK_RESPONSE_CANCEL,
+                                           "_Open", 
+                                           GTK_RESPONSE_OK,
+                                           NULL );
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_OK ) {
+        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
+        char           *filename = gtk_file_chooser_get_filename ( chooser );
+
+        if ( filename ) {
+            g3dui_mergeG3DFile ( gui, filename );
+
+            g_free    ( filename );
+        }
+    }
+
+    gtk_widget_destroy ( dialog );
+
+
+    return UPDATEANDREDRAWALL;
+}
+
+/******************************************************************************/
+uint64_t gtk3_saveFile ( GTK3G3DUI *gtk3gui ) {
     G3DUI * gui = ( G3DUI * ) gtk3gui;
     GtkWidget *dialog;
     gint       res;
@@ -1339,11 +1454,13 @@ void gtk3_saveFile ( GTK3G3DUI *gtk3gui ) {
     } else {
         gtk3_saveAs ( gtk3gui );
     }
+
+    return 0x00;
 }
 
 /******************************************************************************/
 /*** WTF: https://developer.gnome.org/gtk3/stable/GtkFileChooserDialog.html ***/
-void gtk3_openFile ( GTK3G3DUI *gtk3gui ) {
+uint64_t gtk3_openFile ( GTK3G3DUI *gtk3gui ) {
     G3DUI * gui = ( G3DUI * ) gtk3gui;
     GtkWidget *dialog;
     gint       res;
@@ -1384,6 +1501,9 @@ void gtk3_openFile ( GTK3G3DUI *gtk3gui ) {
     }
 
     gtk_widget_destroy ( dialog );
+
+
+    return UPDATEANDREDRAWALL;
 }
 
 /******************************************************************************/
@@ -1765,18 +1885,24 @@ static void gtk3_updateGLViewsMenu ( GTK3G3DUI *gtk3gui ) {
 static void gtk3_redrawRenderWindowMenu ( GTK3G3DUI *gtk3gui ) {
     GTK3G3DUIRENDERWINDOW *gtk3rwin = ( GTK3G3DUIRENDERWINDOW * ) gtk3gui->core.renderWindow;
 
-    gtk3_g3duirenderwindow_updateMenuBar ( gtk3rwin );
+    if ( gtk3rwin ) {
+        gtk3_g3duirenderwindow_updateMenuBar ( gtk3rwin );
+    }
 }
 
 /******************************************************************************/
 static void gtk3_resizeRenderWindow ( GTK3G3DUI *gtk3gui ) {
     GTK3G3DUIRENDERWINDOW *gtk3rwin = ( GTK3G3DUIRENDERWINDOW * ) gtk3gui->core.renderWindow;
-    uint32_t width = gtk_widget_get_allocated_width  ( GTK_WIDGET(gtk3rwin->layout) );
-    uint32_t height = gtk_widget_get_allocated_height  ( GTK_WIDGET(gtk3rwin->layout) );
 
-    gtk3_g3duirenderwindow_resize ( gtk3rwin,
-                                    width,
-                                    height );
+    if ( gtk3rwin ) {
+        uint32_t width = gtk_widget_get_allocated_width  ( GTK_WIDGET(gtk3rwin->layout) );
+        uint32_t height = gtk_widget_get_allocated_height  ( GTK_WIDGET(gtk3rwin->layout) );
+
+
+        gtk3_g3duirenderwindow_resize ( gtk3rwin,
+                                        width,
+                                        height );
+    }
 }
 
 /******************************************************************************/

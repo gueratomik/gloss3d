@@ -159,13 +159,15 @@ void gtk3_g3duimateriallist_updatePreview ( GTK3G3DUIMATERIALLIST *gtk3matlist,
     GTK3G3DUIMATERIALPREVIEW *gtk3preview = g3duimateriallist_getPreview ( matlist,
                                                                            mat );
 
-    if ( gtk3preview ) gtk3_g3duimaterialpreview_update ( gtk3preview );
+    if ( gtk3preview ) {
+        gtk3_g3duimaterialpreview_update ( gtk3preview );
 
-    gtk_widget_queue_draw_area ( gtk3matlist->area,
-                                 gtk3preview->core.rec.x, 
-                                 gtk3preview->core.rec.y,
-                                 gtk3preview->core.rec.width, 
-                                 gtk3preview->core.rec.height );
+        gtk_widget_queue_draw_area ( gtk3matlist->area,
+                                     gtk3preview->core.rec.x, 
+                                     gtk3preview->core.rec.y,
+                                     gtk3preview->core.rec.width, 
+                                     gtk3preview->core.rec.height );
+    }
 }
 
 /******************************************************************************/

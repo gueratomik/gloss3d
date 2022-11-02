@@ -415,6 +415,11 @@ static void g3dbone_activate ( G3DBONE *bon,
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     LIST *ltmprig = bon->lrig;
 
+    /*** backup transformation values ***/
+    memcpy ( &bon->fixrot, &objbon->rot, sizeof ( G3DVECTOR ) );
+    memcpy ( &bon->fixpos, &objbon->pos, sizeof ( G3DVECTOR ) );
+    memcpy ( &bon->fixsca, &objbon->sca, sizeof ( G3DVECTOR ) );
+
     while ( ltmprig ) {
         G3DRIG *rig = ( G3DRIG * ) ltmprig->data;
 
@@ -469,6 +474,7 @@ static void g3dbone_deactivate ( G3DBONE *bon,
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     LIST *ltmprig = bon->lrig;
 
+    /*** restore transformation values ***/
     memcpy ( &objbon->rot, &bon->fixrot, sizeof ( G3DVECTOR ) );
     memcpy ( &objbon->pos, &bon->fixpos, sizeof ( G3DVECTOR ) );
     memcpy ( &objbon->sca, &bon->fixsca, sizeof ( G3DVECTOR ) );

@@ -437,11 +437,15 @@ static void updateRefractionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
 static void refractionStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
     float val = ( float ) gtk_range_get_value ( GTK_RANGE(widget) );
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3med->core.gui;
+    uint64_t ret;
 
     /*** prevents a loop ***/
     if ( gtk3med->core.gui->lock ) return;
 
-    g3duimaterialedit_setRefractionStrength ( &gtk3med->core, val / 100.0f );
+    ret = g3duimaterialedit_setRefractionStrength ( &gtk3med->core, val / 100.0f );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
 }
 
 /******************************************************************************/
@@ -608,11 +612,15 @@ static void updateReflectionPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
 static void reflectionStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
     float val = ( float ) gtk_range_get_value ( GTK_RANGE(widget) );
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3med->core.gui;
+    uint64_t ret;
 
     /*** prevents a loop ***/
     if ( gtk3med->core.gui->lock ) return;
 
-    g3duimaterialedit_setReflectionStrength ( &gtk3med->core, val  / 100.0f );
+    ret = g3duimaterialedit_setReflectionStrength ( &gtk3med->core, val  / 100.0f );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
 }
 
 /******************************************************************************/
@@ -767,12 +775,16 @@ static void updateAlphaPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
 /******************************************************************************/
 static void alphaStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3med->core.gui;
     float val = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    uint64_t ret;
 
     /*** prevents a loop ***/
     if ( gtk3med->core.gui->lock ) return;
 
-    g3duimaterialedit_setAlphaStrength ( &gtk3med->core, val / 100.0f );
+    ret = g3duimaterialedit_setAlphaStrength ( &gtk3med->core, val / 100.0f );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
 }
 
 /******************************************************************************/
@@ -801,7 +813,7 @@ static GtkFixed *createAlphaPanel ( GTK3G3DUIMATERIALEDIT *gtk3med,
                                                          gtk3med,
                                                          EDITMATERIALALPHASTRENGTH,
                                                          CLASS_MAIN,
-                                                         0.0f, FLT_MAX,
+                                                         0.0f, 100.0f,
                                                          0, 24, 96, 96, 20,
                                                          alphaStrengthCbk );
 
@@ -1081,12 +1093,16 @@ static void updateBumpPanel ( GTK3G3DUIMATERIALEDIT *gtk3med ) {
 /******************************************************************************/
 static void bumpStrengthCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIMATERIALEDIT *gtk3med = ( GTK3G3DUIMATERIALEDIT * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3med->core.gui;
     float val = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    uint64_t ret;
 
     /*** prevents a loop ***/
     if ( gtk3med->core.gui->lock ) return;
 
-    g3duimaterialedit_setBumpStrength ( &gtk3med->core, val );
+    ret = g3duimaterialedit_setBumpStrength ( &gtk3med->core, val );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
 }
 
 /******************************************************************************/

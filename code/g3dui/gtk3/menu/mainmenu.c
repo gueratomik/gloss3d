@@ -32,8 +32,7 @@
 /******************************************************************************/
 static uint64_t aboutCbk ( G3DUIMENU *menu, 
                            void      *data ) {
-#ifdef TODO
-    G3DUI *gui = ( G3DUI * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) menu->gui;
     gchar *authors[] = { "Gary GABRIEL", NULL };
 
     gtk_show_about_dialog ( NULL,
@@ -42,11 +41,10 @@ static uint64_t aboutCbk ( G3DUIMENU *menu,
                            "license", GLOSS3DLICENSE,
                            "comments", "Graphics by a Lightweight Open-Source Software",
                            "version", VERSION,
-                           "copyright", "2012-2021 The Gloss3D Team",
+                           "copyright", "2012-2022 The Gloss3D Team",
                            "website", "http://www.gloss3d.net",
                            "title", ("About Gloss3D"),
                            NULL );
-#endif
 
     return 0x00;
 }
@@ -172,6 +170,8 @@ static G3DUIMENU uvmapping_menu = { NULL,
 
 static uint64_t renderViewCbk ( G3DUIMENU *menu, 
                                 void      *data ) {
+    gtk3_renderView ( ( GTK3G3DUI * ) menu->gui );
+
     return 0x00;
 }
 
@@ -963,8 +963,6 @@ static uint64_t invertSelectionCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t getObjectStatsCbk ( G3DUIMENU *menu, 
                                     void      *data ) {
-#ifdef TODO
-    G3DUI *gui = ( G3DUI * ) user_data;
     char buffer[0x200] = { 0 };
     GtkWidget *dialog;
 
@@ -981,7 +979,7 @@ static uint64_t getObjectStatsCbk ( G3DUIMENU *menu,
         gtk_dialog_run ( GTK_DIALOG ( dialog ) );
         gtk_widget_destroy ( dialog );
     }
-#endif
+
 
     return 0x00;
 }
@@ -1166,123 +1164,54 @@ static G3DUIMENU edit_menu = { NULL,
 
 static uint64_t mergeSceneCbk ( G3DUIMENU *menu, 
                                 void      *data ) {
-
-    return 0x00;
+    return gtk3_mergeFile ( ( GTK3G3DUI * ) menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t newSceneCbk ( G3DUIMENU *menu, 
                               void      *data ) {
-
-    return 0x00;
+    return gtk3_newScene ( ( GTK3G3DUI * ) menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t openFileCbk ( G3DUIMENU *menu, 
                               void      *data ) {
-
-    return 0x00;
-}
-
-/******************************************************************************/
-static uint64_t saveFileCbk ( G3DUIMENU *menu, 
-                              void      *data ) {
-
-    return 0x00;
+    return gtk3_openFile ( ( GTK3G3DUI * ) menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t saveAsCbk ( G3DUIMENU *menu, 
                             void      *data ) {
+    return gtk3_saveAs ( ( GTK3G3DUI * ) menu->gui );
+}
 
-    return 0x00;
+/******************************************************************************/
+static uint64_t saveFileCbk ( G3DUIMENU *menu, 
+                              void      *data ) {
+    return gtk3_saveFile ( ( GTK3G3DUI * ) menu->gui );
 }
 
 /******************************************************************************/
 static uint64_t exportFileCbk ( G3DUIMENU *menu, 
                                 void      *data ) {
-#ifdef TODO
-    const gchar *filedesc = gtk_widget_get_name  ( widget );
-    G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
-    GtkWidget *dialog;
-    gint       res;
+    GTK3G3DUIMENU *gtk3menu = ( GTK3G3DUIMENU * ) menu;
 
-    dialog = gtk_file_chooser_dialog_new ( "Export file ...",
-                                           GTK_WINDOW(ggt->top),
-                        /*** from ristretto-0.3.5/src/main_window.c ***/
-                                           GTK_FILE_CHOOSER_ACTION_SAVE,
-                                           "_Cancel", 
-                                           GTK_RESPONSE_CANCEL,
-                                           "_Open", 
-                                           GTK_RESPONSE_OK,
-                                           NULL );
-
-    gtk_file_chooser_set_do_overwrite_confirmation ( GTK_FILE_CHOOSER(dialog),
-                                                     TRUE );
-
-    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
-
-    if ( res == GTK_RESPONSE_OK ) {
-        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
-        const char *filename = gtk_file_chooser_get_filename ( chooser );
-
-        g3dui_exportFileOk ( gui, filedesc, filename );
-
-        g_free    ( ( gpointer ) filename );
-    }
-
-    gtk_widget_destroy ( dialog );
-#endif
-
-    return 0x00;
+    return gtk3_exportFile ( ( GTK3G3DUI * ) menu->gui, menu->name );
 }
 
 /******************************************************************************/
 static uint64_t importFileCbk ( G3DUIMENU *menu, 
                                 void      *data ) {
-#ifdef TODO
-    const gchar *filedesc = gtk_widget_get_name  ( widget );
-    G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
-    GtkWidget *dialog;
-    gint       res;
+    GTK3G3DUIMENU *gtk3menu = ( GTK3G3DUIMENU * ) menu;
 
-    dialog = gtk_file_chooser_dialog_new ( "Import file ...",
-                                           GTK_WINDOW(ggt->top),
-                        /*** from ristretto-0.3.5/src/main_window.c ***/
-                                           GTK_FILE_CHOOSER_ACTION_OPEN,
-                                           "_Cancel", 
-                                           GTK_RESPONSE_CANCEL,
-                                           "_Open", 
-                                           GTK_RESPONSE_OK,
-                                           NULL );
-
-
-    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
-
-    if ( res == GTK_RESPONSE_OK ) {
-        GtkFileChooser *chooser  = GTK_FILE_CHOOSER ( dialog );
-        const char *filename = gtk_file_chooser_get_filename ( chooser );
-
-        g3dui_importFileOk ( gui, filedesc, filename );
-
-        g_free    ( ( gpointer ) filename );
-    }
-
-    gtk_widget_destroy ( dialog );
-#endif
-
-    return 0x00;
+    return gtk3_importFile ( ( GTK3G3DUI * ) menu->gui, menu->name );
 }
 
 
 /******************************************************************************/
 static uint64_t exitCbk ( G3DUIMENU *menu, 
                           void      *data ) {
-#ifdef TODO
-    G3DUI *gui = ( G3DUI * ) user_data;
-    G3DUIGTK3 *ggt = gui->toolkit_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) menu->gui;
     GtkWidget *dialog;
     gint       res;
 
@@ -1296,11 +1225,11 @@ static uint64_t exitCbk ( G3DUIMENU *menu,
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
     if ( res == GTK_RESPONSE_YES ) {
-        g3dui_exitOk ( gui );
+        g3dui_exitOk ( &gtk3gui->core );
     }
 
     gtk_widget_destroy ( dialog );
-#endif
+
 
     return 0x00;
 }

@@ -34,7 +34,9 @@ void g3dinstance_setReference ( G3DINSTANCE *ins,
                                 G3DOBJECT   *ref ) {
     ins->ref = ref;
 
-    g3dscene_addReferredObject ( ins->sce, ref );
+    if ( ref ) {
+        g3dscene_addReferredObject ( ins->sce, ref );
+    }
 }
 
 /******************************************************************************/
