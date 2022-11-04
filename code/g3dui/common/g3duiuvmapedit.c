@@ -31,10 +31,10 @@
 
 /******************************************************************************/
 uint64_t g3duiuvmapedit_projection ( G3DUIUVMAPEDIT *uvedit,
-                                        const char     *projection ) {
+                                     const char     *projection ) {
     G3DUI *gui = uvedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    G3DOBJECT *obj = uvedit->obj;
 
     if ( obj && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
@@ -78,7 +78,7 @@ uint64_t g3duiuvmapedit_projection ( G3DUIUVMAPEDIT *uvedit,
 uint64_t g3duiuvmapedit_lockUVMap ( G3DUIUVMAPEDIT *uvedit ) {
     G3DUI *gui = uvedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    G3DOBJECT *obj = uvedit->obj;
 
     if ( obj && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;

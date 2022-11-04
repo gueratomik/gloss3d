@@ -30,7 +30,8 @@
 #include <g3dui_gtk3.h>
 
 /******************************************************************************/
-static GTK3G3DUIUVMAPEDIT *gtk3_g3duiuvmapedit_new ( GTK3G3DUI *gtk3gui ) {
+static GTK3G3DUIUVMAPEDIT *gtk3_g3duiuvmapedit_new ( GTK3G3DUI *gtk3gui,
+                                                     G3DOBJECT *obj ) {
     GTK3G3DUIUVMAPEDIT *gtk3uvmed = calloc ( 0x01, sizeof ( GTK3G3DUIUVMAPEDIT ) );
 
     if ( gtk3uvmed == NULL ) {
@@ -40,6 +41,7 @@ static GTK3G3DUIUVMAPEDIT *gtk3_g3duiuvmapedit_new ( GTK3G3DUI *gtk3gui ) {
     }
 
     gtk3uvmed->core.gui = ( G3DUI * ) gtk3gui;
+    gtk3uvmed->core.obj = obj;
 
 
     return gtk3uvmed; 
@@ -50,7 +52,7 @@ void gtk3_g3duiuvmapedit_update ( GTK3G3DUIUVMAPEDIT *gtk3uvmed ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3uvmed->core.gui;
     G3DUI *gui = &gtk3gui->core;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+    G3DOBJECT *obj = gtk3uvmed->core.obj;
 
     /*** prevents a loop ***/
     gui->lock = 0x01;
@@ -119,7 +121,7 @@ static void nameUVMapCbk  ( GtkWidget *widget,
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3uvmed->core.gui;
     G3DUI *gui = &gtk3gui->core;
     const char *mapname = gtk_entry_get_text ( GTK_ENTRY(widget) );
-    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+    G3DOBJECT *obj = gtk3uvmed->core.obj;
 
     if ( gtk3uvmed->core.gui->lock ) return;
 
@@ -153,18 +155,15 @@ static void Realize ( GtkWidget *widget, gpointer user_data ) {
 GTK3G3DUIUVMAPEDIT* gtk3_g3duiuvmapedit_create ( GtkWidget *parent,
                                                  GTK3G3DUI *gtk3gui,
                                                  char      *name,
-                                                 gint       x,
-                                                 gint       y,
-                                                 gint       width,
-                                                 gint       height ) {
-    GTK3G3DUIUVMAPEDIT *gtk3uvmed = gtk3_g3duiuvmapedit_new ( gtk3gui );
+                                                 G3DOBJECT *obj ) {
+    GTK3G3DUIUVMAPEDIT *gtk3uvmed = gtk3_g3duiuvmapedit_new ( gtk3gui, obj );
     GtkWidget *fixed = ui_gtk_fixed_new ( CLASS_MAIN );
 
     gtk3uvmed->fixed = fixed;
 
     gtk_widget_set_name ( fixed, name );
 
-    gtk_widget_set_size_request ( fixed, width, height );
+    gtk_widget_set_size_request ( fixed, 264, 48 );
 
     gtk3uvmed->nameEntry       = ui_createCharText           ( fixed, gtk3uvmed, EDITUVMAPNAME      , CLASS_MAIN, 0,  0, 96, 96, 20, nameUVMapCbk  );
     gtk3uvmed->projectionCombo = ui_createProjectionSelector ( fixed, gtk3uvmed, EDITUVMAPPROJECTION, CLASS_MAIN, 0, 24, 96, 96, 20, projectionCbk );

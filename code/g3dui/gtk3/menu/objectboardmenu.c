@@ -90,7 +90,44 @@ static G3DUIMENU tags_menu = { NULL,
 
 /******************************************************************************/
 /******************************************************************************/
-static G3DUIMENU *objrootchildren[] = { &tags_menu,
+
+static uint64_t makeupCbk ( G3DUIMENU *menu, 
+                            void      *data ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) menu->gui;
+    GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+
+    if ( gtk3gui->core.mui == NULL ) {
+        gtk3gui->core.mui = gtk3_m3dui_create ( gtk3gui );
+    }
+
+    gtk3_m3dui_display ( gtk3gui->core.mui );
+}
+/******************************************************************************/
+/******************************************************************************/
+static G3DUIMENU uvw_menu_makeup = { NULL,
+                                     MENU_MAKEUP,
+                                     MENU_CLASS_MAIN,
+                                     G3DUIMENUTYPE_PUSHBUTTON,
+                                     object_objectSelectedAndUVFixed,
+                                     makeupCbk };
+
+/******************************************************************************/
+static G3DUIMENU *uvwchildren[] = { &uvw_menu_makeup,
+                                     NULL };
+
+/******************************************************************************/
+static G3DUIMENU uvw_menu = { NULL,
+                              "Texturing",
+                              MENU_CLASS_MAIN,
+                              G3DUIMENUTYPE_SUBMENU,
+                              NULL,
+                              NULL,
+                             .nodes = uvwchildren };
+
+/******************************************************************************/
+/******************************************************************************/
+static G3DUIMENU *objrootchildren[] = { &uvw_menu,
+                                        &tags_menu,
                                          NULL };
 
 static G3DUIMENU objrootnode = { NULL,

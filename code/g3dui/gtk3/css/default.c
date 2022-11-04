@@ -29,6 +29,7 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
+
 #define FTCOL   "0"
 #define FTCOL2  "96"
 #define GRAY0 "208"
@@ -40,7 +41,7 @@
 
 /*
 #define FTCOL "240"
-#define FTCOL2 "224"
+#define FTCOL2 "160"
 #define GRAY0 "88"
 #define GRAY1 "72"
 #define GRAY2 "90"
@@ -48,11 +49,14 @@
 #define GRAY5 "26"
 #define GRAY6 "64"
 */
+
+#define BCKGBLUE "#708090"
+
 /* nice green : 1c2f31 */
 
 static const gchar *myCSS = {
 "button:hover, button:checked {      \n"
-"    background       : #708090; \n"
+"    background       : "BCKGBLUE"; \n"
 "}                           \n"
 "frame.g3dmain {      \n"
 "    color            : rgba("FTCOL2", "FTCOL2", "FTCOL2", 1); \n"
@@ -83,6 +87,9 @@ static const gchar *myCSS = {
 "    font-size        : 10px; \n"
 #endif
 "}                        \n"
+".g3dmain:disabled {      \n"
+"    color            : rgba("FTCOL2", "FTCOL2", "FTCOL2", 1); \n"
+"}                           \n"
 "checkbutton.g3dmain > check {                             \n"
 "    border-width     : 1px; \n"
 "    background-color : rgba("GRAY3", "GRAY3", "GRAY3", 1);\n"
@@ -129,8 +136,8 @@ static const gchar *myCSS = {
 "}                           \n"
 "notebook.g3dmain > header.top > tabs > tab:checked, \n"
 "notebook.g3dmain > header.top > tabs > tab:checked > label { \n"
-"    color            : #000000; \n"
-"    background-color : rgba("GRAY5", "GRAY5", "GRAY5", 1);\n"
+"    color            : rgba("FTCOL", "FTCOL", "FTCOL", 1); \n"
+"    background-color : "BCKGBLUE";\n"
 "    border-color     : blue;\n"
 "    font-weight      : 800; \n"
 "    min-height       : 0px; \n"

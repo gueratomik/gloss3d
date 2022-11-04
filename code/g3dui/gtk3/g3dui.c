@@ -1729,6 +1729,19 @@ static void gtk3_updateObjectEdit ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
+static void gtk3_updateMainMenu ( GTK3G3DUI *gtk3gui ) {
+    if (  gtk3gui->core.main ) {
+        G3DUIMAIN *main = ( G3DUIMAIN * ) gtk3gui->core.main;
+
+        if (  main ) {
+            GTK3G3DUIMAIN *gtk3main = ( GTK3G3DUIMAIN * ) main;
+
+            gtk3_g3duimain_updateMenuBar ( gtk3main );
+        }
+    }
+}
+
+/******************************************************************************/
 static void gtk3_updateObjectBoardMenu ( GTK3G3DUI *gtk3gui ) {
     if (  gtk3gui->core.main ) {
         G3DUIMAIN *main = ( G3DUIMAIN * ) gtk3gui->core.main;
@@ -2321,13 +2334,12 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
         gtk3_redrawUVMapEditor ( gtk3gui );
     }
 
-#ifdef TODO
+
     if ( msk & UPDATEMAINMENU ) {
-        gtk3_updateMenuBar    ( );
+        gtk3_updateMainMenu    ( gtk3gui );
     }
 
-
-
+#ifdef TODO
     if ( msk & UPDATECOORDS ) {
         gtk3_updateCoords ( );
     }

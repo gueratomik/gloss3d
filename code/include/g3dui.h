@@ -396,6 +396,8 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 
 #define MENU_ADDUVWMAP            "Add UVW Map"
 
+#define MENU_MAKEUP               "Edit UVW / Paint texture"
+
 #define MENU_MIRRORWEIGHTGROUP    "Mirror WeightGroup"
 #define MENU_MIRRORHEIGHTMAP      "Mirror Heightmap"
 #define MENU_MIRRORXY             "Along XY plane"
@@ -869,7 +871,8 @@ typedef struct _G3DUILIGHTEDIT {
 
 /******************************************************************************/
 typedef struct _G3DUIUVMAPEDIT {
-    G3DUI *gui;
+    G3DUI      *gui;
+    G3DOBJECT  *obj;
 } G3DUIUVMAPEDIT;
 
 typedef struct _G3DUIWEIGHTGROUPLIST {
@@ -931,7 +934,8 @@ typedef struct _G3DUISUBDIVIDEREDIT {
 
 /******************************************************************************/
 typedef struct _G3DUITEXTUREEDIT {
-    G3DUI *gui;
+    G3DUI      *gui;
+    G3DOBJECT  *obj;
 } G3DUITEXTUREEDIT;
 
 /******************************************************************************/
@@ -957,7 +961,8 @@ typedef struct _G3DUITORUSEDIT {
 
 /******************************************************************************/
 typedef struct _G3DUITRACKERTAGEDIT {
-    G3DUI *gui;
+    G3DUI     *gui;
+    G3DOBJECT *obj;
 } G3DUITRACKERTAGEDIT;
 
 /******************************************************************************/

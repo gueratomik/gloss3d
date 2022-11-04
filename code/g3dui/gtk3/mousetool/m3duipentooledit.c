@@ -54,7 +54,7 @@ static GTK3M3DUIPENTOOLEDIT *gtk3_m3duipentooledit_new ( GTK3M3DUI *gtk3mui ) {
 void gtk3_m3duipentooledit_update ( GTK3M3DUIPENTOOLEDIT *gtk3penedit ) {
     M3DUI *mui = gtk3penedit->core.mui;
     G3DUI *gui = mui->gui;
-    G3DUIMOUSETOOL *mou = g3dui_getMouseTool ( gui, BUCKETTOOL );
+    G3DUIMOUSETOOL *mou = g3dui_getMouseTool ( gui, PENTOOL );
     M3DSYSINFO *sysinfo = m3dsysinfo_get ( );
 
     gui->lock = 0x01;

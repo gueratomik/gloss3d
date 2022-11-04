@@ -218,6 +218,13 @@ GTK3M3DUICHANNELIMAGECREATOR *gtk3_m3duichannelimagecreator_create ( GtkWidget  
                                                  60, 72, 32, 20,
                                                  okCbk );
 
+    gtk3cic->core.mui->gui->lock = 0x01;
+
+    gtk_spin_button_set_value ( gtk3cic->widthEntry , 512 );
+    gtk_spin_button_set_value ( gtk3cic->heightEntry, 512 );
+
+    gtk3cic->core.mui->gui->lock = 0x00;
+
     g_signal_connect ( G_OBJECT (fixed), "realize", G_CALLBACK (Realize), gtk3cic );
     g_signal_connect ( G_OBJECT (fixed), "destroy", G_CALLBACK (Destroy), gtk3cic );
 

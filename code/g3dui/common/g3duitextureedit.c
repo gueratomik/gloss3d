@@ -33,7 +33,7 @@
 uint64_t g3duitextureedit_toggleRestrict ( G3DUITEXTUREEDIT *texedit ) {
     G3DUI *gui = texedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    G3DOBJECT *obj = texedit->obj;
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
@@ -58,7 +58,7 @@ uint64_t g3duitextureedit_toggleRestrict ( G3DUITEXTUREEDIT *texedit ) {
 uint64_t g3duitextureedit_toggleRepeat ( G3DUITEXTUREEDIT *texedit ) {
     G3DUI *gui = texedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    G3DOBJECT *obj = texedit->obj;
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
@@ -84,7 +84,7 @@ uint64_t g3duitextureedit_setUVMap ( G3DUITEXTUREEDIT *texedit,
                                         uint32_t         rank ) {
     G3DUI *gui = texedit->gui;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
+    G3DOBJECT *obj = texedit->obj;
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {

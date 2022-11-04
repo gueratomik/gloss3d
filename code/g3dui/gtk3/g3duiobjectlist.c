@@ -234,10 +234,7 @@ static void Input ( GtkWidget *widget,
                                   gtk3_g3duitextureedit_create ( dial,
                                                                  gtk3gui,
                                                                  "TEXTUREEDIT",
-                                                                 0,
-                                                                 0,
-                                                                 264,
-                                                                 48 );
+                                                                 pob->obj );
 
                 gtk_container_add ( GTK_CONTAINER(box), tedit->fixed );
 
@@ -256,10 +253,7 @@ static void Input ( GtkWidget *widget,
                                   gtk3_g3duiuvmapedit_create ( dial,
                                                                gtk3gui,
                                                                "UVMAPEDIT",
-                                                               0,
-                                                               0,
-                                                               264,
-                                                               48 );
+                                                               pob->obj );
 
                 gtk_container_add ( GTK_CONTAINER(box), uvmedit->fixed );
 
@@ -278,10 +272,7 @@ static void Input ( GtkWidget *widget,
                                   gtk3_g3duitrackertagedit_create ( dial,
                                                                     gtk3gui,
                                                                     "TRACKERTAGEDIT",
-                                                                    0,
-                                                                    0,
-                                                                    264,
-                                                                    48 );
+                                                                    pob->obj );
 
                 gtk_container_add ( GTK_CONTAINER(box), ttedit->fixed );
 

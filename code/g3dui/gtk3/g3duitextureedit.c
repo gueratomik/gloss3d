@@ -39,8 +39,6 @@
 #define EDITTEXTURERESTRICT  "Restrict to facegroup(s)"
 #define EDITTEXTUREREPEAT    "Repeat"
  
-
-
 typedef struct _FACEGROUPDATA {
     G3DMESH          *mes;
     G3DFACEGROUP     *facgrp;
@@ -48,7 +46,8 @@ typedef struct _FACEGROUPDATA {
 } FACEGROUPDATA;
 
 /******************************************************************************/
-static GTK3G3DUITEXTUREEDIT *gtk3_g3duitextureedit_new ( GTK3G3DUI *gtk3gui ) {
+static GTK3G3DUITEXTUREEDIT *gtk3_g3duitextureedit_new ( GTK3G3DUI  *gtk3gui,
+                                                         G3DOBJECT  *obj ) {
     GTK3G3DUITEXTUREEDIT *gtk3ted = calloc ( 0x01, sizeof ( GTK3G3DUITEXTUREEDIT ) );
 
     if ( gtk3ted == NULL ) {
@@ -58,7 +57,7 @@ static GTK3G3DUITEXTUREEDIT *gtk3_g3duitextureedit_new ( GTK3G3DUI *gtk3gui ) {
     }
 
     gtk3ted->core.gui = ( G3DUI * ) gtk3gui;
-
+    gtk3ted->core.obj = obj;
 
     return gtk3ted; 
 }
@@ -67,16 +66,18 @@ static GTK3G3DUITEXTUREEDIT *gtk3_g3duitextureedit_new ( GTK3G3DUI *gtk3gui ) {
 static void selectFacegroupCbk ( GtkWidget *widget, gpointer user_data ) {
     gboolean active = gtk_toggle_button_get_active (widget);
     FACEGROUPDATA *fgd = ( FACEGROUPDATA * ) user_data;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( fgd->tedit->gui->sce );
+    G3DOBJECT *obj = fgd->tedit->obj;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) fgd->tedit->gui;
 
     if ( obj ) {
         if ( obj->type == G3DMESHTYPE ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
-            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+            G3DTEXTURE *tex =  g3dmesh_getSelectedTexture ( mes );
 
-            if ( active == TRUE  ) g3dtexture_restrictFacegroup   ( tex, fgd->facgrp );
-            if ( active == FALSE ) g3dtexture_unrestrictFacegroup ( tex, fgd->facgrp );
+            if ( tex ) {
+                if ( active == TRUE  ) g3dtexture_restrictFacegroup   ( tex, fgd->facgrp );
+                if ( active == FALSE ) g3dtexture_unrestrictFacegroup ( tex, fgd->facgrp );
+            }
         }
     }
 
@@ -108,7 +109,7 @@ static void emptyFaceGroupList ( GTK3G3DUITEXTUREEDIT *gtk3ted ) {
 static void updateFaceGroupList ( GTK3G3DUITEXTUREEDIT *gtk3ted ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3ted->core.gui;
     G3DUI *gui = ( G3DUI * ) &gtk3gui->core;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+    G3DOBJECT *obj = gtk3ted->core.obj;
 
     gui->lock = 0x01;
 
@@ -162,23 +163,6 @@ static void updateFaceGroupList ( GTK3G3DUITEXTUREEDIT *gtk3ted ) {
     }
 
     gui->lock = 0x00;
-}
-
-/******************************************************************************/
-static void runLIPS3DCbk ( GtkWidget *widget, gpointer user_data ) {
-    GTK3G3DUITEXTUREEDIT *gtk3ted = ( GTK3G3DUITEXTUREEDIT * ) user_data;
-    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3ted->core.gui;
-    GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
-    /**** MakeUP 3D. Declared static on purpose ***/
-
-    if ( gtk3gui->core.mui == NULL ) {
-        gtk3gui->core.mui = gtk3_m3dui_create ( gtk3gui );
-    }
-
-
-    gtk3_m3dui_display ( gtk3gui->core.mui );
-
-    gtk_widget_destroy ( gtk_widget_get_toplevel ( widget ) );
 }
 
 /******************************************************************************/
@@ -236,8 +220,7 @@ static void createUVMapSelector ( GTK3G3DUITEXTUREEDIT *gtk3ted,
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3ted->core.gui;
     G3DUI *gui = &gtk3gui->core;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
-
+    G3DOBJECT *obj = gtk3ted->core.obj;
 
     gtk3ted->uvmapSelector = ui_createSelector ( gtk3ted->fixed, 
                                                  gtk3ted,
@@ -253,31 +236,34 @@ static void createUVMapSelector ( GTK3G3DUITEXTUREEDIT *gtk3ted,
     if ( obj && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
         G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
-        LIST *ltmpuvmap = mes->luvmap;
-        uint32_t mapRank = 0x00;
-        int selected = 0x00;
 
-        while ( ltmpuvmap ) {
-            G3DUVMAP *map = ( G3DUVMAP * ) ltmpuvmap->data;
-            char *mapname = ((G3DOBJECT*)map)->name;
+        if ( tex ) {
+            LIST *ltmpuvmap = mes->luvmap;
+            uint32_t mapRank = 0x00;
+            int selected = 0x00;
 
-            gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(gtk3ted->uvmapSelector), NULL, mapname );
- 
-            if ( tex->map == map ) {
-                gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3ted->uvmapSelector), mapRank );
+            while ( ltmpuvmap ) {
+                G3DUVMAP *map = ( G3DUVMAP * ) ltmpuvmap->data;
+                char *mapname = ((G3DOBJECT*)map)->name;
 
-                selected = 0x01;
+                gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(gtk3ted->uvmapSelector), NULL, mapname );
+
+                if ( tex->map == map ) {
+                    gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3ted->uvmapSelector), mapRank );
+
+                    selected = 0x01;
+                }
+
+                mapRank++;
+
+                ltmpuvmap = ltmpuvmap->next;
             }
 
-            mapRank++;
+            gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(gtk3ted->uvmapSelector), NULL, "None" );
 
-            ltmpuvmap = ltmpuvmap->next;
-        }
-
-        gtk_combo_box_text_append ( GTK_COMBO_BOX_TEXT(gtk3ted->uvmapSelector), NULL, "None" );
-
-        if ( selected == 0x00 ) {
-            gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3ted->uvmapSelector), mapRank );
+            if ( selected == 0x00 ) {
+                gtk_combo_box_set_active ( GTK_COMBO_BOX(gtk3ted->uvmapSelector), mapRank );
+            }
         }
     }
 }
@@ -287,7 +273,7 @@ void updateTextureEdit ( GTK3G3DUITEXTUREEDIT *gtk3ted ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3ted->core.gui;
     G3DUI *gui = &gtk3gui->core;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+    G3DOBJECT *obj = gtk3ted->core.obj;
 
     updateFaceGroupList ( gtk3ted );
 
@@ -377,15 +363,12 @@ static void Realize ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-GTK3G3DUITEXTUREEDIT* gtk3_g3duitextureedit_create ( GtkWidget *parent,
-                                                     GTK3G3DUI *gtk3gui,
-                                                     char      *name,
-                                                     gint       x,
-                                                     gint       y,
-                                                     gint       width,
-                                                     gint       height ) {
-    GTK3G3DUITEXTUREEDIT *gtk3ted = gtk3_g3duitextureedit_new ( gtk3gui );
-    GdkRectangle gdkrec = { 0, 0, width, height };
+GTK3G3DUITEXTUREEDIT* gtk3_g3duitextureedit_create ( GtkWidget  *parent,
+                                                     GTK3G3DUI  *gtk3gui,
+                                                     char       *name,
+                                                     G3DOBJECT  *obj ) {
+    GTK3G3DUITEXTUREEDIT *gtk3ted = gtk3_g3duitextureedit_new ( gtk3gui,
+                                                                obj );
     GtkWidget *fixed = ui_gtk_fixed_new ( CLASS_MAIN );
 
     gtk3ted->fixed = fixed;
@@ -394,13 +377,12 @@ GTK3G3DUITEXTUREEDIT* gtk3_g3duitextureedit_create ( GtkWidget *parent,
 
     /*gtk_widget_size_allocate ( frm, &gdkrec );*/
 
-    gtk_widget_set_size_request ( fixed, gdkrec.width, gdkrec.height );
+    gtk_widget_set_size_request ( fixed, 264, 72 );
 
     createUVMapSelector ( gtk3ted, 0, 0, 144, 96, 20 );
 
-    gtk3ted->editButton     = ui_createPushButton  ( fixed, gtk3ted, EDITUVMAPEDITOR    , CLASS_MAIN,  0, 24, width, 20, runLIPS3DCbk );
-    gtk3ted->repeatToggle   = ui_createToggleLabel ( fixed, gtk3ted, EDITTEXTUREREPEAT  , CLASS_MAIN,  0, 48, 144, 20, 20, repeatCbk        );
-    gtk3ted->restrictToggle = ui_createToggleLabel ( fixed, gtk3ted, EDITTEXTURERESTRICT, CLASS_MAIN,  0, 72, 144, 20, 20, restrictCbk      );
+    gtk3ted->repeatToggle   = ui_createToggleLabel ( fixed, gtk3ted, EDITTEXTUREREPEAT  , CLASS_MAIN,  0, 24, 144, 20, 20, repeatCbk        );
+    gtk3ted->restrictToggle = ui_createToggleLabel ( fixed, gtk3ted, EDITTEXTURERESTRICT, CLASS_MAIN,  0, 48, 144, 20, 20, restrictCbk      );
 
     createFaceGroupFrame ( gtk3ted,  0, 96, 286, 140 );
 

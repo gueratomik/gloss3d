@@ -1538,10 +1538,7 @@ void gtk3_g3duitextedit_update ( GTK3G3DUITEXTEDIT *gtk3ted );
 GTK3G3DUITEXTUREEDIT* gtk3_g3duitextureedit_create ( GtkWidget *parent,
                                                      GTK3G3DUI *gtk3gui,
                                                      char      *name,
-                                                     gint       x,
-                                                     gint       y,
-                                                     gint       width,
-                                                     gint       height );
+                                                     G3DOBJECT *obj );
 
 void updateTextureEdit ( GTK3G3DUITEXTUREEDIT *gtk3ted );
 
@@ -1574,10 +1571,7 @@ GTK3G3DUITORUSEDIT *gtk3_g3duitorusedit_create ( GtkWidget *parent,
 GTK3G3DUITRACKERTAGEDIT* gtk3_g3duitrackertagedit_create ( GtkWidget *parent,
                                                            GTK3G3DUI *gtk3gui,
                                                            char      *name,
-                                                           gint       x,
-                                                           gint       y,
-                                                           gint       width,
-                                                           gint       height );
+                                                           G3DOBJECT *obj );
 
 
 /***************************** g3duitubeedit.c ********************************/
@@ -1641,10 +1635,7 @@ void gtk3_g3duiuvmapedit_update ( GTK3G3DUIUVMAPEDIT *gtk3uvmed );
 GTK3G3DUIUVMAPEDIT* gtk3_g3duiuvmapedit_create ( GtkWidget *parent,
                                                  GTK3G3DUI *gtk3gui,
                                                  char      *name,
-                                                 gint       x,
-                                                 gint       y,
-                                                 gint       width,
-                                                 gint       height );
+                                                 G3DOBJECT *obj );
 
 /****************************** g3duiview.c ***********************************/
 GTK3G3DUIVIEW *gtk3_g3duiview_create ( GtkWidget *parent, 
@@ -1765,6 +1756,8 @@ uint32_t objectMode_skinSelected ( G3DUIMENU *menu, void *data );
 uint32_t objectMode_objectSelected ( G3DUIMENU *menu, void *data );
 uint32_t objectMode_boneSelected ( G3DUIMENU *menu, void *data );
 uint32_t objectMode_boneOrSkinSelected ( G3DUIMENU *menu, void *data );
+uint32_t object_objectSelectedAndUVFixed ( G3DUIMENU *menu,
+                                           void      *data );
 
 /**************************** menu/g3duimainmenu.c ****************************/
 G3DUIMENU *g3duimenu_getMainMenuNode ( );

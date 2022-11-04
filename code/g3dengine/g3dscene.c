@@ -423,7 +423,7 @@ uint32_t g3dscene_deleteSelectedObjects ( G3DSCENE *sce,
         if ( g3dobject_hasSelectedParent ( child ) == 0x00 ) {
             g3dobject_removeChild ( child->parent, child, engine_flags );
 
-            list_insert ( lremovedObjects, child );
+            if ( lremovedObjects ) list_insert ( lremovedObjects, child );
         }
 
         ltmp = ltmp->next;

@@ -109,7 +109,7 @@ GTK3M3DUIBUCKETTOOLEDIT *gtk3_m3duibuckettooledit_create ( GtkWidget *parent,
                                                           EDITBUCKETTOOLTOLERANCE, 
                                                           CLASS_MAIN,
                                                           0, 255,
-                                                          0, 0, 96, 96, 32,
+                                                          0, 0, 96, 96, 20,
                                                           setToleranceCbk );
 
     g_signal_connect ( G_OBJECT (gtk3buckedit->fixed), "realize", G_CALLBACK (Realize), gtk3buckedit );

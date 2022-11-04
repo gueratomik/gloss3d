@@ -72,7 +72,7 @@ uint64_t gtk3_m3dui_setMouseTool ( GTK3M3DUI *gtk3mui,
 uint64_t gtk3_m3dui_loadImageByChannelIDCbk ( GTK3M3DUI *gtk3mui ) {
     M3DUI *mui = ( M3DUI * ) gtk3mui;
     G3DUI *gui = ( G3DUI * ) gtk3mui->core.gui;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
     uint64_t ret = 0x00;
 
     if ( obj ) {
@@ -104,7 +104,7 @@ uint64_t gtk3_m3dui_loadImageByChannelIDCbk ( GTK3M3DUI *gtk3mui ) {
 void gtk3_m3dui_saveimage ( GTK3M3DUI *gtk3mui ) {
     M3DUI *mui = ( M3DUI * ) gtk3mui;
     G3DUI *gui = ( G3DUI * ) gtk3mui->core.gui;
-    G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
+    G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
 
     if ( obj ) {
         if ( obj->type & MESH ) {
@@ -130,7 +130,7 @@ void gtk3_m3dui_saveimage ( GTK3M3DUI *gtk3mui ) {
 }
 
 /******************************************************************************/
-GTK3M3DUI *gtk3_m3dui_create ( GTK3G3DUI *gtk3gui ) {
+GTK3M3DUI *gtk3_m3dui_create ( GTK3G3DUI *gtk3gui) {
     GTK3M3DUI* gtk3mui = ( GTK3M3DUI * ) calloc ( 0x01, sizeof ( GTK3M3DUI ) );
 
     if ( gtk3mui == NULL ) {

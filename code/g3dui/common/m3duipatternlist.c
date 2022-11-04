@@ -60,7 +60,7 @@ void m3duipatternlist_init ( M3DUIPATTERNLIST *patlist, uint32_t size ) {
 
 /******************************************************************************/
 void m3duipatternlist_clearPatterns ( M3DUIPATTERNLIST *patlist ) {
-    fprintf( stderr, "TODO: %s - clear patterns \n" );
+    fprintf( stderr, "TODO: %s - clear patterns \n", __func__ );
 }
 
 /******************************************************************************/

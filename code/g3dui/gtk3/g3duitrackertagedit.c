@@ -33,7 +33,7 @@
 #define EDITRACKERORIENTATION "Orientation"
 
 /******************************************************************************/
-static GTK3G3DUITRACKERTAGEDIT *gtk3_g3duitrackertagedit_new ( GTK3G3DUI *gtk3gui ) {
+static GTK3G3DUITRACKERTAGEDIT *gtk3_g3duitrackertagedit_new ( GTK3G3DUI *gtk3gui, G3DOBJECT *obj ) {
     GTK3G3DUITRACKERTAGEDIT *gtk3tted = calloc ( 0x01, sizeof ( GTK3G3DUITRACKERTAGEDIT ) );
 
     if ( gtk3tted == NULL ) {
@@ -43,7 +43,7 @@ static GTK3G3DUITRACKERTAGEDIT *gtk3_g3duitrackertagedit_new ( GTK3G3DUI *gtk3gu
     }
 
     gtk3tted->core.gui = ( G3DUI * ) gtk3gui;
-
+    gtk3tted->core.obj = obj;
 
     return gtk3tted; 
 }
@@ -53,7 +53,7 @@ void gtk3_g3duitrackertagedit_update ( GTK3G3DUITRACKERTAGEDIT *gtk3tted ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3tted->core.gui;
     G3DUI *gui = &gtk3gui->core;
     G3DSCENE *sce = gui->sce;
-    G3DOBJECT *sel = g3dscene_getLastSelected ( sce );
+    G3DOBJECT *sel = gtk3tted->core.obj;
 
     gtk3tted->core.gui->lock = 0x01;
 
@@ -183,18 +183,16 @@ static void Realize ( GtkWidget *widget, gpointer user_data ) {
 GTK3G3DUITRACKERTAGEDIT* gtk3_g3duitrackertagedit_create ( GtkWidget *parent,
                                                            GTK3G3DUI *gtk3gui,
                                                            char      *name,
-                                                           gint       x,
-                                                           gint       y,
-                                                           gint       width,
-                                                           gint       height ) {
-    GTK3G3DUITRACKERTAGEDIT *gtk3tted = gtk3_g3duitrackertagedit_new ( gtk3gui );
+                                                           G3DOBJECT *obj ) {
+    GTK3G3DUITRACKERTAGEDIT *gtk3tted = gtk3_g3duitrackertagedit_new ( gtk3gui,
+                                                                       obj );
     GtkWidget *fixed = ui_gtk_fixed_new ( CLASS_MAIN );
 
     gtk3tted->fixed = fixed;
 
     gtk_widget_set_name ( fixed, name );
 
-    gtk_widget_set_size_request ( fixed, width, height );
+    gtk_widget_set_size_request ( fixed, 264, 48 );
 
     createObjectSelector ( gtk3tted, 0, 0, 96, 96, 20 );
 

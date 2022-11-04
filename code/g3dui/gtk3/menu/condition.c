@@ -95,6 +95,33 @@ uint32_t objectMode_skinSelected ( G3DUIMENU *menu,
 }
 
 /******************************************************************************/
+uint32_t object_objectSelectedAndUVFixed ( G3DUIMENU *menu,
+                                           void      *data ) {
+    G3DUI *gui = menu->gui;
+
+    if ( gui->sce ) {
+        G3DOBJECT *obj = g3dscene_getLastSelected ( gui->sce );
+        
+        if( obj && obj->type & MESH ) {
+            G3DMESH *mes = ( G3DMESH * ) obj;
+            G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
+
+            if ( tex ) {
+                G3DUVMAP *uvmap = tex->map;
+
+                if ( uvmap ) {
+                    if ( ((G3DOBJECT*)uvmap)->flags & UVMAPFIXED ) {
+                        return MENU_CONDITION_SENSITIVE;
+                    }
+                }
+            }
+        }
+    }
+
+    return 0x00;
+}
+
+/******************************************************************************/
 uint32_t objectMode_objectSelected ( G3DUIMENU *menu,
                                      void      *data ) {
     G3DUI *gui = menu->gui;
