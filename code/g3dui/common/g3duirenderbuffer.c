@@ -125,10 +125,10 @@ static WImage *WCreateImage ( HDC      dc,
 void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
                               HWND               hWnd,
                               uint32_t           width,
-                              uint32_t           height, ) {
+                              uint32_t           height ) {
     rbuf->hWnd = hWnd;
 
-    rbuf->wimg = WCreateImage ( dc, width,
+    rbuf->wimg = WCreateImage ( GetDC ( hWnd ), width,
                                     height, 24 );
 }
 

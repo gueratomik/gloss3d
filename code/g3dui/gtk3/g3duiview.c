@@ -377,8 +377,8 @@ static void mapGL ( GtkWidget *widget,
     GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
     G3DUIVIEW     *view    = &gtk3view->core;
     GdkDisplay    *gdkdpy  = gtk_widget_get_display ( widget );
-#ifdef __linux__
     GdkWindow     *gdkwin  = gtk_widget_get_window ( widget );
+#ifdef __linux__
     Display       *dpy     = gdk_x11_display_get_xdisplay ( gdkdpy );
     Window         win     = gdk_x11_window_get_xid ( gdkwin );
 

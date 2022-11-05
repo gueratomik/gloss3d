@@ -334,7 +334,7 @@ static void createFaceGroupFrame ( GTK3G3DUITEXTUREEDIT *gtk3ted,
 #if GTK_CHECK_VERSION(3,8,0)
     gtk_container_add ( GTK_CONTAINER(scrolled), fixed );
 #else
-    gtk_scrolled_window_add_with_viewport ( GTK_SCROLLED_WINDOW(scrolled), notebook );
+    gtk_scrolled_window_add_with_viewport ( GTK_SCROLLED_WINDOW(scrolled), fixed );
 #endif
 
     gtk_widget_set_size_request ( scrolled, width, height );

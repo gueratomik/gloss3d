@@ -165,7 +165,7 @@ GTK3G3DUIMOUSETOOLEDIT *gtk3_g3duimousetooledit_create ( GtkWidget *parent,
 #if GTK_CHECK_VERSION(3,8,0)
     gtk_container_add ( GTK_CONTAINER(gtk3mtledit->scrolled), gtk3mtledit->mousetoolFixed );
 #else
-    gtk_scrolled_window_add_with_viewport ( GTK_SCROLLED_WINDOW(gtk3mtledit->scrolled), gtk3objedit->mousetoolFixed );
+    gtk_scrolled_window_add_with_viewport ( GTK_SCROLLED_WINDOW(gtk3mtledit->scrolled), gtk3mtledit->mousetoolFixed );
 #endif
 
     g_signal_connect ( G_OBJECT (gtk3mtledit->scrolled), "realize", G_CALLBACK (Realize), gtk3mtledit );

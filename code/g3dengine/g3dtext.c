@@ -935,12 +935,22 @@ void g3dtext_generate ( G3DTEXT   *txt,
                                             NULL );
 
 
+#ifdef __linux__
         gluTessProperty ( tobj, GLU_TESS_BOUNDARY_ONLY, GL_FALSE );
         gluTessCallback ( tobj, GLU_TESS_BEGIN_DATA , (_GLUfuncptr) g3dtext_beginGroup );
         gluTessCallback ( tobj, GLU_TESS_VERTEX_DATA, (_GLUfuncptr) g3dtext_vertex3dv  );
         gluTessCallback ( tobj, GLU_TESS_END_DATA   , (_GLUfuncptr) g3dtext_endGroup   );
         /*gluTessCallback ( tobj, GLU_TESS_COMBINE    , g3dtext_combine    );*/
         gluTessCallback ( tobj, GLU_TESS_ERROR      , (_GLUfuncptr) g3dtext_error      );
+#endif
+#ifdef __MINGW32__
+        gluTessProperty ( tobj, GLU_TESS_BOUNDARY_ONLY, GL_FALSE );
+        gluTessCallback ( tobj, GLU_TESS_BEGIN_DATA ,  g3dtext_beginGroup );
+        gluTessCallback ( tobj, GLU_TESS_VERTEX_DATA,  g3dtext_vertex3dv  );
+        gluTessCallback ( tobj, GLU_TESS_END_DATA   ,  g3dtext_endGroup   );
+        /*gluTessCallback ( tobj, GLU_TESS_COMBINE    , g3dtext_combine    );*/
+        gluTessCallback ( tobj, GLU_TESS_ERROR      ,  g3dtext_error      );
+#endif
 
 
         for ( i = 0; i < items_written; i++ ) {

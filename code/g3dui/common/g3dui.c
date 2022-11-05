@@ -2333,7 +2333,7 @@ void g3dui_init ( G3DUI     *gui,
     char *home = getenv ( "HOME" );
     #endif
     #ifdef __MINGW32__
-    static char *home = getenv ( "USERPROFILE" );
+    char *home = getenv ( "USERPROFILE" );
     #endif
     static char configFileName[0x1000];
     char *loadFile = NULL;
