@@ -565,7 +565,7 @@ typedef struct _M3DUIVIEW {
     pthread_t      render_tid; /*** current rendering thread - Used for canceling***/
 #endif
 #ifdef __MINGW32__
-    HWND           hWnd
+    HWND           hWnd;
     HGLRC          glctx;
     HANDLE         render_tid;
 #endif
@@ -1374,7 +1374,7 @@ typedef struct _G3DUIVIEW {
     pthread_t      render_tid; /*** current rendering thread - Used for canceling***/
 #endif
 #ifdef __MINGW32__
-    HWND           hWnd
+    HWND           hWnd;
     HGLRC          glctx;
     HANDLE         render_tid;
 #endif

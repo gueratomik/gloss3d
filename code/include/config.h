@@ -2,7 +2,7 @@
 /* include/config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-#define HAVE_DLFCN_H 1
+/* #undef HAVE_DLFCN_H */
 
 /* Define to 1 if you have the <expat.h> header file. */
 #define HAVE_EXPAT_H 1
@@ -13,14 +13,14 @@
 /* Define to 1 if you have the <jpeglib.h> header file. */
 #define HAVE_JPEGLIB_H 1
 
-/* Define to 1 if you have the <memory.h> header file. */
-#define HAVE_MEMORY_H 1
-
 /* Define to 1 if you have the <png.h> header file. */
 #define HAVE_PNG_H 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
+
+/* Define to 1 if you have the <stdio.h> header file. */
+#define HAVE_STDIO_H 1
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #define HAVE_STDLIB_H 1
@@ -41,7 +41,7 @@
 #define HAVE_UNISTD_H 1
 
 /* Define to 1 if you have the <Xm/Xm.h> header file. */
-#define HAVE_XM_XM_H 1
+/* #undef HAVE_XM_XM_H */
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #define LT_OBJDIR ".libs/"
@@ -67,7 +67,9 @@
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "0.99.0"
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #define STDC_HEADERS 1
 
 /* Version number of package */

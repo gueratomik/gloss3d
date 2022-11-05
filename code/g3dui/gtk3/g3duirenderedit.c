@@ -495,7 +495,7 @@ static void createSaveOutputFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                   gtk3red,
                                                   EDITRENDERCODEC,
                                                   CLASS_MAIN,
-                                                  96, 48, 96, 20, 20,
+                                                  96, 48, 96, 20,
                                                   chooseCodecCbk );
 #endif
     gtk3red->outputFileEntry = 
