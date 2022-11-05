@@ -161,7 +161,7 @@ GTK3G3DUIPICKTOOLEDIT *gtk3_g3duipicktooledit_create ( GtkWidget *parent,
                                                                gtk3pickedit,
                                                                EDITPICKTOOLVISIBLE,
                                                                CLASS_MAIN,
-                                                               0, 0, 96, 96, 20,
+                                                               0, 0, 96, 20, 20,
                                                                onlyVisibleCbk );
 
     gtk3pickedit->weightFrame         = ui_gtk_frame_new ( CLASS_MAIN,

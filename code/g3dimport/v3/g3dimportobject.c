@@ -283,7 +283,7 @@ void g3dimportv3object ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                                                        mat, 
                                                        NULL );
 
-                g3dmesh_addTexture ( mes, gid->currentTexture );
+                g3dmesh_appendTexture ( mes, gid->currentTexture );
             } break;
 
             case SIG_OBJECT_TEXTURE_UVMAP : {

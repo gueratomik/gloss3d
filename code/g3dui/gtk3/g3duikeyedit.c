@@ -77,10 +77,40 @@ static void editKeyDataCbk ( GtkWidget *widget,
                                            G_CALLBACK (gtk_widget_destroy),
                                            dial);
 
-                gtk_dialog_run ( dial );
+                gtk_widget_show ( dial );
 
                 /* must be called after the realization of the widget */
                 gtk3_g3duilightedit_update ( ledit, keylig );
+            }
+        }
+
+        if ( obj->type == G3DCAMERATYPE ) {
+            G3DCAMERA *cam = ( G3DCAMERA * ) obj;
+
+            if ( obj->lselkey ) {
+                GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
+                GtkWidget *box = gtk_dialog_get_content_area ( dial );
+                G3DKEY *key = obj->lselkey->data;
+                G3DCAMERA *keycam = key->data.ptr;
+
+                GTK3G3DUICAMERAEDIT *cedit = gtk3_g3duicameraedit_create ( dial,
+                                                                           gtk3gui,
+                                                                           "CAMERAEDIT", 
+                                                                           0x01 );
+
+                gtk_container_add ( GTK_CONTAINER(box), cedit->notebook );
+
+                gtk_widget_set_size_request ( cedit->notebook, 400, 200 );
+
+                g_signal_connect_swapped ( dial,
+                                           "response",
+                                           G_CALLBACK (gtk_widget_destroy),
+                                           dial);
+
+                gtk_widget_show ( dial );
+
+                /* must be called after the realization of the widget */
+                gtk3_g3duicameraedit_update ( cedit, keycam );
             }
         }
 

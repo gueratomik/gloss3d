@@ -1212,23 +1212,8 @@ static uint64_t importFileCbk ( G3DUIMENU *menu,
 static uint64_t exitCbk ( G3DUIMENU *menu, 
                           void      *data ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) menu->gui;
-    GtkWidget *dialog;
-    gint       res;
 
-    dialog = gtk_message_dialog_new ( NULL,
-                                      GTK_DIALOG_MODAL,
-                                      GTK_MESSAGE_QUESTION,
-                                      GTK_BUTTONS_YES_NO,
-                                      "Leave Gloss3D ?" );
-
-
-    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
-
-    if ( res == GTK_RESPONSE_YES ) {
-        g3dui_exitOk ( &gtk3gui->core );
-    }
-
-    gtk_widget_destroy ( dialog );
+    gtk3_exit ( gtk3gui );
 
 
     return 0x00;

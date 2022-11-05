@@ -139,7 +139,7 @@ void gtk3_g3duiobjectedit_update ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
                 }
 
                 if ( obj->type == G3DCAMERATYPE ) {
-                    gtk3_g3duicameraedit_update ( camedit );
+                    gtk3_g3duicameraedit_update ( camedit, NULL );
 
                     gtk_widget_show ( camedit->notebook );
                 }
@@ -537,7 +537,8 @@ static void createCameraEdit ( GTK3G3DUIOBJECTEDIT *gtk3objedit ) {
 
     gtk3camedit = gtk3_g3duicameraedit_create ( gtk3objedit->objectFixed,
                                                 gtk3gui,
-                                                "Edit Camera" );
+                                                "Edit Camera",
+                                                0x00 );
 
     gtk_fixed_put ( GTK_FIXED(gtk3objedit->objectFixed), gtk3camedit->notebook, 0, 0 );
 

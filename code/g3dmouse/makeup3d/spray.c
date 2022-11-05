@@ -315,6 +315,9 @@ int basepen_tool ( G3DMOUSETOOL *mou,
         case G3DMotionNotify : {
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
 
+
+/*printf("%s %d\n", __func__, ( mev->state & G3DButton1Mask ) );*/
+
             obj = ( G3DOBJECT * ) g3dscene_getLastSelected ( sce );
 
             if ( obj ) {

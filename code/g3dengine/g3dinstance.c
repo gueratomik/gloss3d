@@ -86,9 +86,17 @@ static uint32_t g3dinstance_draw ( G3DINSTANCE *ins,
 
                 if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
                     glMultMatrixd ( ins->smatrix );
-                }
 
-                ins->ref->draw ( ins->ref, curcam, ( engine_flags & (~MODEMASK) ) | VIEWOBJECT );
+        glEnable ( GL_RESCALE_NORMAL );
+                    glFrontFace(  GL_CW );
+                }
+    glColor3ub ( 0xFF, 0xFF, 0xFF );
+                ins->ref->draw ( ins->ref, curcam, ( engine_flags & (~VIEWDETAILS) ) | VIEWOBJECT );
+
+                if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
+        glDisable ( GL_RESCALE_NORMAL );
+                    glFrontFace(  GL_CCW );
+                }
 
                 glPopMatrix ( );
             }

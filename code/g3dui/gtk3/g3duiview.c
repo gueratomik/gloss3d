@@ -212,6 +212,94 @@ static gboolean inputGL ( GtkWidget *widget,
         }
     }
 
+    switch ( gdkev->type ) {
+        case GDK_KEY_PRESS : {
+            GdkEventKey *kev = ( GdkEventKey * ) gdkev;
+
+            switch ( kev->keyval ) {
+                case GDK_KEY_Delete: {
+                    uint64_t ret = g3dui_deleteSelection ( gui );
+
+                    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
+/*
+                    if ( g3dui_deleteSelection ( gui ) == G3DERROR_OBJECT_REFERRED ) {
+                        GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
+                        GtkMessageDialog *dialog;
+
+                        dialog = gtk_message_dialog_new ( NULL,
+                                                          flags,
+                                                          GTK_MESSAGE_ERROR,
+                                                          GTK_BUTTONS_CLOSE,
+                                                          "Could not remove referred object" );
+                        gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+                        gtk_widget_destroy ( dialog );
+                    }
+*/
+                } break;
+
+                case GDK_KEY_z: {
+                    /*** undo ***/
+                    if ( kev->state & GDK_CONTROL_MASK ) {
+                        uint64_t ret = g3dui_undo ( gui );
+
+                        gtk3_interpretUIReturnFlags ( gtk3gui, ret );
+                    }
+                } break;
+
+                case GDK_KEY_y: {
+                    /*** redo ***/
+                    if ( kev->state & GDK_CONTROL_MASK ) {
+                        uint64_t ret = g3dui_redo ( gui );
+
+                        gtk3_interpretUIReturnFlags ( gtk3gui, ret );
+                    }
+                } break;
+
+                case GDK_KEY_c: {
+                    if ( kev->state & GDK_CONTROL_MASK ) {
+                        g3dui_copySelection ( gui );
+                    }
+                } break;
+
+                case GDK_KEY_v: {
+                    if ( kev->state & GDK_CONTROL_MASK ) {
+                        g3dui_pasteSelection ( gui );
+                    }
+                } break;
+
+                case GDK_KEY_s: {
+                    if ( kev->state & GDK_CONTROL_MASK ) {
+                        gtk3_saveFile ( gtk3gui );
+                    }
+                } break;
+
+                case GDK_KEY_a: {
+                    if ( kev->state & GDK_CONTROL_MASK ) {
+                        g3dui_selectAll ( gui );
+                    }
+                } break;
+            }
+        } break;
+
+        case GDK_BUTTON_PRESS : {
+            G3DUIRENDERPROCESS *rps = g3dui_getRenderProcessByID ( gui, ( uint64_t ) widget );
+            /*** If there was a running render, cancel it and dont go further ***/
+            if ( rps ) {
+                q3djob_end ( rps->qjob );
+
+                pthread_join ( rps->tid, NULL );
+
+                return TRUE;
+            }
+
+            /*** For keyboard inputs ***/
+            gtk_widget_grab_focus ( widget );
+        } break;
+
+        default :
+        break;
+    }
+
     if ( gui->curmou ) {
         /*** Call the mousetool callback and redraw if return value is > 0 ***/
         G3DEvent g3dev;
@@ -220,10 +308,11 @@ static gboolean inputGL ( GtkWidget *widget,
 
         if ( gui->curmou->tool->event ) {
             uint32_t msk = gui->curmou->tool->event ( gui->curmou->tool, 
-                                                   gui->sce,
-                                                   view->cam, 
-                                                   gui->urm,
-                                                   gui->engine_flags, &g3dev );
+                                                      gui->sce,
+                                                      view->cam, 
+                                                      gui->urm,
+                                                      gui->engine_flags,
+                                                     &g3dev );
 
             gtk3_interpretUIReturnFlags ( gtk3gui, msk );
 
@@ -444,7 +533,6 @@ gtk_widget_set_visual(glarea, visual);
 #endif /* __linux__ */
 
     /*** For keyboard inputs ***/
-
     gtk_widget_set_can_focus ( glarea, TRUE );
 
     /*** Drawing area does not receive mous events by defaults ***/
@@ -585,6 +673,11 @@ static void motionNotify ( GTK3G3DUIVIEW  *gtk3view,
 
             if ( state & GDK_BUTTON1_MASK ) {
                 g3duiview_moveForward ( view, difx );
+            }
+
+            if ( view->cam != view->defcam ) {
+                /*** update camera focal value ***/
+                gtk3_interpretUIReturnFlags ( gtk3view->core.gui, UPDATECURRENTOBJECT ); 
             }
         } break;
 

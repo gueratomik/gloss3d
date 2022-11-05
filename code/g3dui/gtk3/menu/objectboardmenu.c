@@ -94,13 +94,17 @@ static G3DUIMENU tags_menu = { NULL,
 static uint64_t makeupCbk ( G3DUIMENU *menu, 
                             void      *data ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) menu->gui;
-    GtkWidget *dial = gtk_window_new ( GTK_WINDOW_TOPLEVEL );
+    GTK3M3DUI *gtk3mui = ( GTK3M3DUI * ) gtk3gui->core.mui;
 
-    if ( gtk3gui->core.mui == NULL ) {
-        gtk3gui->core.mui = gtk3_m3dui_create ( gtk3gui );
+    if ( gtk3mui == NULL ) {
+        gtk3mui = gtk3_m3dui_create ( gtk3gui );
+
+        gtk3gui->core.mui = ( M3DUI * ) gtk3mui;
+
+        gtk3_m3dui_display ( gtk3mui );
+    } else {
+        gtk_widget_show ( gtk3mui->topWin );
     }
-
-    gtk3_m3dui_display ( gtk3gui->core.mui );
 }
 /******************************************************************************/
 /******************************************************************************/

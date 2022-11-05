@@ -130,6 +130,12 @@ static void okCbk ( GtkWidget *widget,
         g3dscene_registerImage ( gui->sce, chn->image );
     }
 
+    /*** Note: buffers are resized via m3dui_resizeBuffers()    ***/
+    /*** located in : gtk3/menu/uvviewmenu.c, gtk3/m3duiview.c  ***/
+    /*** and gtk3/m3duichannelimagecreator.c                    ***/
+    m3dui_resizeBuffers ( gtk3cic->core.mui );
+
+
     g3dchannel_enableImageColor ( chn );
 
     gtk3_interpretUIReturnFlags ( ( GTK3G3DUI * ) gui, UPDATECURRENTMATERIAL |

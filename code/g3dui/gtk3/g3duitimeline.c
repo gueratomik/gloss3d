@@ -641,7 +641,7 @@ static gboolean panToolInput ( GtkWidget *widget,
             oncursor = dragging = 0x00;
 
             gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW | 
-                                                   REDRAWTIMELINE );
+                                                   REDRAWTIMELINE | UPDATECURRENTOBJECT );
         } break;
 
         default:

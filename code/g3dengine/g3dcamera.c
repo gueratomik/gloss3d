@@ -29,6 +29,12 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
+/******************************************************************************/
+typedef struct _CAMERAKEYDATA {
+    G3DCAMERA keycam;
+} CAMERAKEYDATA;
+
+/******************************************************************************/
 static uint32_t drawTarget ( G3DOBJECT *obj,
                              G3DCAMERA *curcam, 
                              uint64_t   engine_flags ) {
@@ -47,6 +53,78 @@ static uint32_t drawTarget ( G3DOBJECT *obj,
     glVertex3f ( 0.0f, 0.0f, 1.0f );
     glEnd ( );
     glEnable ( GL_LIGHTING );
+}
+
+/******************************************************************************/
+static void g3dcamera_anim ( G3DCAMERA *cam,
+                             float     frame, 
+                             uint64_t  engine_flags ) {
+    G3DOBJECT *obj = ( G3DOBJECT * ) cam;
+    G3DKEY *prevKey = NULL,
+           *nextKey = NULL,
+           *currKey = NULL;
+
+    if ( g3dobject_isActive ( ( G3DOBJECT * ) cam ) == 0x00 ) return;
+
+    frame = g3dobject_getKeys ( obj, 
+                                frame, 
+                               &currKey,
+                               &prevKey, 
+                               &nextKey, 
+                                KEYDATA,
+                                0x00 );
+
+    if ( currKey ) {
+        CAMERAKEYDATA *ckd = currKey->data.ptr;
+
+        cam->focal = ckd->keycam.focal;
+    } else {
+        if ( prevKey && nextKey ) {
+            CAMERAKEYDATA *pckd = prevKey->data.ptr,
+                          *nckd = nextKey->data.ptr;
+            float pRatio = (          frame - nextKey->frame ) / 
+                           ( prevKey->frame - nextKey->frame ),
+                  nRatio = 1.0f - pRatio;
+
+            cam->focal = ( pckd->keycam.focal * pRatio ) + 
+                         ( nckd->keycam.focal * nRatio );
+        }
+    }
+}
+
+/******************************************************************************/
+CAMERAKEYDATA *camerakeydata_new ( ) {
+    CAMERAKEYDATA *ckd = calloc ( 0x01, sizeof ( CAMERAKEYDATA ) );
+    uint32_t i;
+
+    if ( ckd == NULL ) {
+        fprintf ( stderr, "%s: calloc failed\n", __func__ );
+    }
+
+    return ckd;
+}
+
+/******************************************************************************/
+static void g3dcamerakey_free ( G3DKEY *key ) {
+    CAMERAKEYDATA *ckd = ( CAMERAKEYDATA * ) key->data.ptr;
+
+    free ( ckd );
+}
+
+/******************************************************************************/
+static void g3dcamera_pose ( G3DCAMERA *cam,
+                             G3DKEY   *key ) {
+    if ( key->data.ptr == NULL ) {
+        CAMERAKEYDATA *ckd = camerakeydata_new ( );
+
+        key->free = g3dcamerakey_free; /*** callback for freeing memory ***/
+
+        key->data.ptr = ckd;
+
+        memcpy ( &ckd->keycam, cam, sizeof ( G3DCAMERA ) );
+
+        ckd->keycam.obj.flags |= KEYCAMERA;
+    }
 }
 
 /******************************************************************************/
@@ -479,13 +557,15 @@ G3DCAMERA *g3dcamera_new ( uint32_t id,
                                      DRAW_CALLBACK(g3dcamera_draw),
                                      FREE_CALLBACK(g3dcamera_free),
                                      PICK_CALLBACK(g3dcamera_pick),
-                                                   NULL,
+                                     POSE_CALLBACK(g3dcamera_pose),
                                      COPY_CALLBACK(g3dcamera_copy),
                                                    NULL,
                                                    NULL,
                                                    NULL,
                                                    NULL,
                                                    NULL );
+
+    obj->anim = ANIM_CALLBACK(g3dcamera_anim);
 
     obj->transform = TRANSFORM_CALLBACK(g3dcamera_transform);
 

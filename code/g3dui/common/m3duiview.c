@@ -167,8 +167,10 @@ uint64_t m3duiview_inputGL ( M3DUIVIEW *view, G3DEvent *g3dev ) {
 
     if ( mui->curmou ) {
         if ( g3dev->type == G3DButtonPress ) {
-            /*** Leave this here for no until we fin a better arch ***/
-            m3dui_resizeBuffers ( mui );
+
+            /*** Note: buffers are resized via m3dui_resizeBuffers()    ***/
+            /*** located in : gtk3/menu/uvviewmenu.c, gtk3/m3duiview.c  ***/
+            /*** and gtk3/m3duichannelimagecreator.c                    ***/
 
             mui->curmou->tool->mask    = mui->mask;
             mui->curmou->tool->zbuffer = mui->zbuffer;
@@ -204,8 +206,10 @@ void m3duiview_showGL ( M3DUIVIEW    *view,
     G3DUI *gui = view->mui->gui;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( gui->sce );
     G3DUIMOUSETOOL *mou = view->mui->curmou;
-    G3DMOUSETOOL *tool =  ( mou ) ? ( G3DMOUSETOOL * ) mou->tool : NULL;
-
+    G3DMOUSETOOL *tool = ( mou ) ? mou->tool : NULL;
+    /*** used to display the selection region ***/
+    G3DUIMOUSETOOL *selmou = g3dui_getMouseTool ( gui, SELECTTOOL );
+    G3DMOUSETOOL *seltool = ( selmou ) ? selmou->tool : NULL;
 #ifdef __linux__
     if ( glXMakeCurrent ( view->dpy,
                           view->win,
@@ -309,6 +313,12 @@ void m3duiview_showGL ( M3DUIVIEW    *view,
                 }
             }
         }
+    }
+
+
+
+    if ( seltool && ( seltool != tool ) && seltool->draw ) {
+        seltool->draw ( seltool, gui->sce, engine_flags );
     }
 
     if ( tool && tool->draw ) {

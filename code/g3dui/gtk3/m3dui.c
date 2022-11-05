@@ -130,7 +130,7 @@ void gtk3_m3dui_saveimage ( GTK3M3DUI *gtk3mui ) {
 }
 
 /******************************************************************************/
-GTK3M3DUI *gtk3_m3dui_create ( GTK3G3DUI *gtk3gui) {
+GTK3M3DUI *gtk3_m3dui_create ( GTK3G3DUI *gtk3gui ) {
     GTK3M3DUI* gtk3mui = ( GTK3M3DUI * ) calloc ( 0x01, sizeof ( GTK3M3DUI ) );
 
     if ( gtk3mui == NULL ) {
@@ -143,6 +143,17 @@ GTK3M3DUI *gtk3_m3dui_create ( GTK3G3DUI *gtk3gui) {
 
 
     return gtk3mui;
+}
+
+/******************************************************************************/
+static gboolean Delete ( GtkWidget *widget,
+                         GdkEvent  *event,
+                         gpointer   data ) {
+    GTK3M3DUI *gtk3mui = ( GTK3M3DUI * ) data;
+
+    gtk_widget_hide ( gtk3mui->topWin );
+
+    return TRUE;
 }
 
 /******************************************************************************/
@@ -171,7 +182,11 @@ void gtk3_m3dui_display ( GTK3M3DUI *gtk3mui ) {
 
     gtk3mui->topWin = win;
 
+    gtk_window_set_position ( gtk3mui->topWin, GTK_WIN_POS_CENTER );
+
     g_signal_connect ( win, "configure-event", G_CALLBACK (Configure), gtk3mui );
+    g_signal_connect ( win, "delete-event"   , G_CALLBACK (Delete   ), gtk3mui );
+
 
     if ( gtk3mui->core.main == NULL ) {
         gtk3mui->core.main = ( M3DUIMAIN * ) gtk3main;

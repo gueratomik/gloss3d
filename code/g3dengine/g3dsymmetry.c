@@ -298,42 +298,42 @@ void g3dsymmetry_childVertexChange ( G3DOBJECT *obj,
     G3DVECTOR newpos;
 
     if ( g3dvertex_isBoundary ( ver ) ) {
-    /*** Compute parent symmetry center in child's coordinates system ***/
-    g3dvector_matrix ( &zeropos    , obj->wmatrix , &symworldpos );
-    g3dvector_matrix ( &symworldpos, kid->iwmatrix, &symlocalpos );
+        /*** Compute parent symmetry center in child's coordinates system ***/
+        g3dvector_matrix ( &zeropos    , obj->wmatrix , &symworldpos );
+        g3dvector_matrix ( &symworldpos, kid->iwmatrix, &symlocalpos );
 
-    if ( sym->orientation == SYMMETRYZX ) {
-        if ( ( ver->pos.y < ( symlocalpos.y + sym->mergelimit ) ) &&
-             ( ver->pos.y > ( symlocalpos.y - sym->mergelimit ) ) ) {
-            ver->pos.y = symlocalpos.y;
+        if ( sym->orientation == SYMMETRYZX ) {
+            if ( ( ver->pos.y < ( symlocalpos.y + sym->mergelimit ) ) &&
+                 ( ver->pos.y > ( symlocalpos.y - sym->mergelimit ) ) ) {
+                ver->pos.y = symlocalpos.y;
 
-            ver->flags = ( ver->flags | VERTEXSYMZX    );
-        } else {
-            ver->flags = ( ver->flags & (~VERTEXSYMZX) );
+                ver->flags = ( ver->flags | VERTEXSYMZX    );
+            } else {
+                ver->flags = ( ver->flags & (~VERTEXSYMZX) );
+            }
         }
-    }
 
-    if ( sym->orientation == SYMMETRYYZ ) {
-        if ( ( ver->pos.x < ( symlocalpos.x + sym->mergelimit ) ) &&
-             ( ver->pos.x > ( symlocalpos.x - sym->mergelimit ) ) ) {
-            ver->pos.x = symlocalpos.x;
+        if ( sym->orientation == SYMMETRYYZ ) {
+            if ( ( ver->pos.x < ( symlocalpos.x + sym->mergelimit ) ) &&
+                 ( ver->pos.x > ( symlocalpos.x - sym->mergelimit ) ) ) {
+                ver->pos.x = symlocalpos.x;
 
-            ver->flags = ( ver->flags | VERTEXSYMYZ    );
-        } else {
-            ver->flags = ( ver->flags & (~VERTEXSYMYZ) );
+                ver->flags = ( ver->flags | VERTEXSYMYZ    );
+            } else {
+                ver->flags = ( ver->flags & (~VERTEXSYMYZ) );
+            }
         }
-    }
 
-    if ( sym->orientation == SYMMETRYXY ) {
-        if ( ( ver->pos.z < ( symlocalpos.z + sym->mergelimit ) ) &&
-             ( ver->pos.z > ( symlocalpos.z - sym->mergelimit ) ) ) {
-            ver->pos.z = symlocalpos.z;
+        if ( sym->orientation == SYMMETRYXY ) {
+            if ( ( ver->pos.z < ( symlocalpos.z + sym->mergelimit ) ) &&
+                 ( ver->pos.z > ( symlocalpos.z - sym->mergelimit ) ) ) {
+                ver->pos.z = symlocalpos.z;
 
-            ver->flags = ( ver->flags | VERTEXSYMXY    );
-        } else {
-            ver->flags = ( ver->flags & (~VERTEXSYMXY) );
+                ver->flags = ( ver->flags | VERTEXSYMXY    );
+            } else {
+                ver->flags = ( ver->flags & (~VERTEXSYMXY) );
+            }
         }
-    }
     }
 }
 

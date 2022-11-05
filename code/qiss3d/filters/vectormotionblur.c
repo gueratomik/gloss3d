@@ -420,7 +420,7 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
                             fvmb->abuffer[aoffset][0x02] += ( B    * opacity );
                             fvmb->abuffer[aoffset][0x03] += ( 0xFF * opacity );
                             fvmb->abuffer[aoffset][0x04] ++;
-                        }
+                    }
                 /*}*/
             }
         }
@@ -1044,7 +1044,7 @@ static void filtervmb_import ( Q3DFILTER *qfil,
 static void filtervmb_empty ( FILTERVMB *fvmb ) {
     uint32_t i;
 
-    fvmb->abuffer = ( uint16_t * ) realloc  ( fvmb->abuffer,
+    fvmb->abuffer = ( uint16_t (*)[5] ) realloc  ( fvmb->abuffer,
                                               fvmb->width * 
                                               fvmb->height * sizeof ( uint16_t ) * NBCOMPONENT );
 

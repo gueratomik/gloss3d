@@ -197,8 +197,11 @@ static void stopCbk ( GtkWidget *widget,
                       gpointer   user_data ) {
     GTK3G3DUITIMEBOARD *gtk3timeboard = ( GTK3G3DUITIMEBOARD * ) user_data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3timeboard->core.gui;
+    uint64_t ret;
 
-    g3duitimeboard_stop ( &gtk3timeboard->core );
+    ret = g3duitimeboard_stop ( &gtk3timeboard->core );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
 }
 
 /******************************************************************************/
@@ -244,7 +247,6 @@ static void *play_t ( void *user_data ) {
     return NULL;
 }
 
-
 /******************************************************************************/
 static void playCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUITIMEBOARD *gtk3timeboard = ( GTK3G3DUITIMEBOARD * ) user_data;
@@ -264,7 +266,7 @@ static void playCbk ( GtkWidget *widget, gpointer user_data ) {
         pthread_attr_init ( &attr );
 
         /*** launch rays in a thread ***/
-        pthread_create ( &gui->playthreadid, &attr, play_t, gui );
+        pthread_create ( &gui->playthreadid, &attr, play_t, gtk3timeboard );
 
         /*** prepare to release resources after thread termination ***/
         pthread_detach ( gui->playthreadid );
@@ -349,7 +351,7 @@ static void createButtons ( GTK3G3DUITIMEBOARD *gtk3timeboard ) {
 
     gtk3timeboard->buttonsFixed = fixed;
 
-    gtk_widget_set_size_request ( GTK_WIDGET(fixed), 144, 24 );
+    gtk_widget_set_size_request ( GTK_WIDGET(fixed), 168, 24 );
 
     gtk_layout_put ( GTK_LAYOUT(gtk3timeboard->layout),
                      GTK_WIDGET(fixed),
@@ -365,10 +367,18 @@ static void createButtons ( GTK3G3DUITIMEBOARD *gtk3timeboard ) {
 
     ui_createImageButton ( fixed,
                            gtk3timeboard,
+                           TIMEBOARDSTOP,
+                           CLASS_MAIN,
+                           stopanim_xpm,
+                           24,  0, 24, 24,
+                           stopCbk );
+
+    ui_createImageButton ( fixed,
+                           gtk3timeboard,
                            TIMEBOARDPLAY,
                            CLASS_MAIN,
                            playanim_xpm,
-                           24,  0, 24, 24,
+                           48,  0, 24, 24,
                            playCbk );
 
     ui_createImageButton ( fixed,
@@ -376,7 +386,7 @@ static void createButtons ( GTK3G3DUITIMEBOARD *gtk3timeboard ) {
                            TIMEBOARDNEXT,
                            CLASS_MAIN,
                            nextframe_xpm,
-                           48,  0, 24, 24,
+                           72,  0, 24, 24,
                            nextFrameCbk );
 
     ui_createImageButton ( fixed,
@@ -384,7 +394,7 @@ static void createButtons ( GTK3G3DUITIMEBOARD *gtk3timeboard ) {
                            TIMEBOARDZOOM,
                            CLASS_MAIN,
                            zoomtime_xpm,
-                           72,  0, 24, 24,
+                           96,  0, 24, 24,
                            zoomFrameCbk );
 
     ui_createImageButton ( fixed,
@@ -392,7 +402,7 @@ static void createButtons ( GTK3G3DUITIMEBOARD *gtk3timeboard ) {
                            TIMEBOARDUNZOOM,
                            CLASS_MAIN,
                            unzoomtime_xpm,
-                           96,  0, 24, 24,
+                           120,  0, 24, 24,
                            unzoomFrameCbk );
 
     ui_createImageButton ( fixed,
@@ -400,7 +410,7 @@ static void createButtons ( GTK3G3DUITIMEBOARD *gtk3timeboard ) {
                            TIMEBOARDRECORD,
                            CLASS_MAIN,
                            record_xpm,
-                           120,  0, 24, 24,
+                           144,  0, 24, 24,
                            recordFrameCbk );
 
     gtk_widget_show_all ( GTK_WIDGET(fixed) );

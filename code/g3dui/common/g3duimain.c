@@ -58,20 +58,20 @@ void g3duimain_resize ( G3DUIMAIN *gmn,
     gmn->mbrdrec.height = height - gmn->menurec.height - gmn->tbarrec.height;
 
     /*** Quad View Panel ***/
-    gmn->quadrec.x      = 0x30;
+    gmn->quadrec.x      = 0x38;
     gmn->quadrec.y      = gmn->tbarrec.y + gmn->tbarrec.height;
-    gmn->quadrec.width  = width  - gmn->mbarrec.width  - gmn->mbrdrec.width;
+    gmn->quadrec.width  = width  - gmn->mbrdrec.width - gmn->quadrec.x;
 
     gmn->quadrec.height = gmn->mbarrec.height - 0x2A;
 
     /*** Timeboard Panel ***/
-    gmn->timerec.x      = 0x30;
+    gmn->timerec.x      = 0x38;
     gmn->timerec.y      = gmn->quadrec.y + gmn->quadrec.height;
     gmn->timerec.width  = gmn->quadrec.width;
     gmn->timerec.height = 0x18;
 
     /*** Information Panel ***/
-    gmn->inforec.x      = 0x30;
+    gmn->inforec.x      = 0x38;
     gmn->inforec.y      = gmn->timerec.y + gmn->timerec.height;
     gmn->inforec.width  = gmn->quadrec.width;
     gmn->inforec.height = 0x12;

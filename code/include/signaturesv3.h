@@ -105,6 +105,7 @@
 #define  SIG_OBJECT_INSTANCE_MIRRORINGPLANE                  0x69CFADF9
 #define  SIG_OBJECT_INSTANCE_REFERENCE                       0x8D71BF22
 #define  SIG_OBJECT_KEY_DATA                                 0x577054D2
+#define  SIG_OBJECT_KEY_DATA_CAMERA                          0xC2D6F143
 #define  SIG_OBJECT_KEY_DATA_LIGHT                           0x7B93AC07
 #define  SIG_OBJECT_KEY_DATA_MORPHER                         0xDF460185
 #define  SIG_OBJECT_KEY_DATA_MORPHER_SLOT_ENTRY              0xFCC8B531

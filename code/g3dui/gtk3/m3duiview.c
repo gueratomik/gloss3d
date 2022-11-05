@@ -562,7 +562,7 @@ void gtk3_m3duiview_resize ( GTK3M3DUIVIEW *gtk3view,
 }
 
 /******************************************************************************/
-void gtk3_m3duiview_updateMenuBar ( GTK3G3DUIVIEW *gtk3view ) {
+void gtk3_m3duiview_updateMenuBar ( GTK3M3DUIVIEW *gtk3view ) {
     gtk3_g3duimenu_update_r ( ( GTK3G3DUIMENU * ) gtk3view->core.menuBar );
 }
 
@@ -570,7 +570,7 @@ void gtk3_m3duiview_updateMenuBar ( GTK3G3DUIVIEW *gtk3view ) {
 static void gtk3_m3duiview_createMenuBar ( GTK3M3DUIVIEW *gtk3view ) {
     GTK3G3DUIMENU *gtk3menu;
 
-    gtk3menu = gtk3_g3duimenu_parse_r ( g3duimenu_getViewMenuNode ( ),
+    gtk3menu = gtk3_g3duimenu_parse_r ( g3duimenu_getUVViewMenuNode ( ),
                                         gtk3view->core.mui->gui,
                                         gtk3view );
 
@@ -590,6 +590,11 @@ GTK3M3DUIVIEW *gtk3_m3duiview_create ( GtkWidget *parent,
                                        char      *name ) {
     GTK3M3DUIVIEW *gtk3view = gtk3_m3duiview_new ( gtk3mui );
     GtkWidget    *layout = ui_gtk_layout_new ( CLASS_MAIN, NULL, NULL );
+
+    /*** Note: buffers are resized via m3dui_resizeBuffers()    ***/
+    /*** located in : gtk3/menu/uvviewmenu.c, gtk3/m3duiview.c  ***/
+    /*** and gtk3/m3duichannelimagecreator.c                    ***/
+    m3dui_resizeBuffers ( gtk3view->core.mui );
 
     gtk3view->layout = layout;
 

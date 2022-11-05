@@ -29,333 +29,250 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
-
-#define FTCOL   "0"
-#define FTCOL2  "96"
-#define GRAY0 "208"
-#define GRAY1 "224"
-#define GRAY2 "240"
-#define GRAY3 "255"
-#define GRAY5 "176"
-#define GRAY6 "160"
-
-/*
-#define FTCOL "240"
-#define FTCOL2 "160"
-#define GRAY0 "88"
-#define GRAY1 "72"
-#define GRAY2 "90"
-#define GRAY3 "105"
-#define GRAY5 "26"
-#define GRAY6 "64"
-*/
-
 #define BCKGBLUE "#708090"
 
 /* nice green : 1c2f31 */
 
-static const gchar *myCSS = {
-"button:hover, button:checked {      \n"
-"    background       : "BCKGBLUE"; \n"
-"}                           \n"
-"frame.g3dmain {      \n"
-"    color            : rgba("FTCOL2", "FTCOL2", "FTCOL2", 1); \n"
-"}                           \n"
-".g3dhighlighted {      \n"
-"    background       : rgba("GRAY5", "GRAY5", "GRAY5", 1); \n"
-"}                           \n"
-".g3dwarning {      \n"
-"    color            : rgba( 255, 0, 0, 1); \n"
-"    background       : rgba("GRAY0", "GRAY0", "GRAY0", 1); \n"
-"}                           \n"
-".g3dmain, .g3dheader {      \n"
+#define GTK3CSSSTYLE(FTFACE,FTSIZE,FTCOL,FTCOL2,GRAY0,GRAY1,GRAY2,GRAY3,GRAY4,GRAY5,GRAY6)  \
+"button:hover, button:checked {                                \n" \
+"    background       : "BCKGBLUE";                            \n" \
+"}                                                             \n" \
+"frame.g3dmain {                                               \n" \
+"    color            : rgba("FTCOL2", "FTCOL2", "FTCOL2", 1); \n" \
+"}                                                             \n" \
+".g3dhighlighted {                                             \n" \
+"    background       : rgba("GRAY5", "GRAY5", "GRAY5", 1);    \n" \
+"}                                                             \n" \
+".g3dwarning {                                                 \n" \
+"    color            : rgba( 255, 0, 0, 1);                   \n" \
+"    background       : rgba("GRAY0", "GRAY0", "GRAY0", 1);    \n" \
+"}                                                             \n" \
+".g3dmain, .g3dheader {                                        \n" \
+"    min-height       : 0px;                                   \n" \
+"    border-width     : 1px;                                   \n" \
+"    border-color     : rgba("GRAY5", "GRAY5", "GRAY5", 1);    \n" \
+"    border-radius    : 0px;                                   \n" \
+"    margin           : 0px;                                   \n" \
+"    padding          : 0px;                                   \n" \
+"    color            : rgba("FTCOL", "FTCOL", "FTCOL", 1);    \n" \
+"    background       : rgba("GRAY0", "GRAY0", "GRAY0", 1);    \n" \
+"    font-family      : "FTFACE";                              \n" \
+"    font-size        : "FTSIZE"px;                            \n" \
+"}                                                             \n" \
+".g3dmain:disabled {                                           \n" \
+"    color            : rgba("FTCOL2", "FTCOL2", "FTCOL2", 1); \n" \
+"}                                                             \n" \
+"checkbutton.g3dmain > check {                                 \n" \
+"    border-width     : 1px;                                   \n" \
+"    background-color : rgba("GRAY3", "GRAY3", "GRAY3", 1);    \n" \
+"}                                                             \n" \
+"spinbutton.g3dmain > button {                                 \n" \
+"    color            : rgba("FTCOL", "FTCOL", "FTCOL", 1);    \n" \
+"    background-color : rgba("GRAY2", "GRAY2", "GRAY2", 1);    \n" \
+"    margin           : 0px;                                   \n" \
+"    padding          : 0px;                                   \n" \
+"}                                                             \n" \
+"spinbutton.g3dmain > entry {                                  \n" \
+"    color            : rgba("FTCOL", "FTCOL", "FTCOL", 1);    \n" \
+"    background-color : rgba("GRAY3", "GRAY3", "GRAY3", 1);    \n" \
+"    min-height       : 0px;                                   \n" \
+"    margin           : 0px;                                   \n" \
+"    padding-top      : 0px;                                   \n" \
+"    padding-right    : 4px;                                   \n" \
+"    padding-left     : 4px;                                   \n" \
+"    padding-bottom   : 0px;                                   \n" \
+"}                                                             \n" \
+"entry.g3dmain {                                               \n" \
+"    border-width     : 0px;                                   \n" \
+"    background-color : rgba("GRAY3", "GRAY3", "GRAY3", 1);    \n" \
+"    padding-right    : 4px;                                   \n" \
+"    padding-left     : 4px;                                   \n" \
+"}                                                             \n" \
+"notebook.g3dmain  {                                           \n" \
+"}                                                             \n" \
+"notebook.g3dmain > stack {                                    \n" \
+"    background-color : rgba("GRAY0", "GRAY0", "GRAY0", 1);    \n" \
+"}                                                             \n" \
+"notebook.g3dmain > header.top,                                \n" \
+"notebook.g3dmain > header.top > tabs,                         \n" \
+"notebook.g3dmain > header.top > tabs > tab,                   \n" \
+"notebook.g3dmain > header.top > tabs > tab > label {          \n" \
+"    background-color : rgba("GRAY1", "GRAY1", "GRAY1", 1);    \n" \
+"    min-height       : 0px;                                   \n" \
+"    margin           : 0px;                                   \n" \
+"    padding-top      : 0px;                                   \n" \
+"    padding-right    : 8px;                                   \n" \
+"    padding-left     : 8px;                                   \n" \
+"    padding-bottom   : 0px;                                   \n" \
+"}                                                             \n" \
+"notebook.g3dmain > header.top > tabs > tab:checked,           \n" \
+"notebook.g3dmain > header.top > tabs > tab:checked > label {  \n" \
+"    color            : rgba("FTCOL", "FTCOL", "FTCOL", 1);    \n" \
+"    background-color : "BCKGBLUE";                            \n" \
+"    border-color     : blue;                                  \n" \
+"    font-weight      : 800;                                   \n" \
+"    min-height       : 0px;                                   \n" \
+"    margin-top       : 0px;                                   \n" \
+"    margin-right     : 0px;                                   \n" \
+"    margin-left      : 0px;                                   \n" \
+"    margin-bottom    : 1px;                                   \n" \
+"    padding-top      : 0px;                                   \n" \
+"    padding-right    : 8px;                                   \n" \
+"    padding-left     : 8px;                                   \n" \
+"    padding-bottom   : 0px;                                   \n" \
+"}                                                             \n" \
+"menubar.g3dmain {                                             \n" \
+"    color         : rgba("FTCOL", "FTCOL", "FTCOL", 1);       \n" \
+"    background    : rgba("GRAY1", "GRAY1", "GRAY1", 1);       \n" \
+"    border-width  : 0px;                                      \n" \
+"    border-radius : 0px;                                      \n" \
+"    margin        : 0px;                                      \n" \
+"    padding       : 0px;                                      \n" \
+"}                                                             \n" \
+"menuitem.g3dmain, menu.g3dmain {                              \n" \
+"    color         : rgba("FTCOL", "FTCOL", "FTCOL", 1);       \n" \
+"    background    : rgba("GRAY1", "GRAY1", "GRAY1", 1);       \n" \
+"    border-width:   1px;                                      \n" \
+"    border-radius:  0px;                                      \n" \
+"    margin-top:     1px;                                      \n" \
+"    margin-right:   1px;                                      \n" \
+"    margin-left:    4px;                                      \n" \
+"    margin-bottom:  1px;                                      \n" \
+"    padding-top:    2px;                                      \n" \
+"    padding-right:  0px;                                      \n" \
+"    padding-left:   0px;                                      \n" \
+"    padding-bottom: 2px;                                      \n" \
+"    font-size:      12px;                                     \n" \
+"}                                                             \n" \
+".view_menu_bar {                                              \n" \
+"    color:          rgba("FTCOL", "FTCOL", "FTCOL", 1);       \n" \
+"    background:     rgba("GRAY1", "GRAY1", "GRAY1", 1);       \n" \
+"    border-width:   0px;                                      \n" \
+"    border-radius:  0px;                                      \n" \
+"    margin-top:     0px;                                      \n" \
+"    margin-right:   0px;                                      \n" \
+"    margin-left:    4px;                                      \n" \
+"    margin-bottom:  0px;                                      \n" \
+"    padding-top:    0px;                                      \n" \
+"    padding-right:  0px;                                      \n" \
+"    padding-left:   0px;                                      \n" \
+"    padding-bottom: 0px;                                      \n" \
+"    font-size:     12px;                                      \n" \
+"}                                                             \n" \
+"toolbutton.g3dmain > button {                                 \n" \
+"    border-width:   1px;                                      \n" \
+"    border-radius:  0px;                                      \n" \
+"    margin-top:     0px;                                      \n" \
+"    margin-right:   0px;                                      \n" \
+"    margin-left:    0px;                                      \n" \
+"    margin-bottom:  0px;                                      \n" \
+"    padding-top:    0px;                                      \n" \
+"    padding-right:  0px;                                      \n" \
+"    padding-left:   0px;                                      \n" \
+"    padding-bottom: 0px;                                      \n" \
+"}                                                             \n" \
+"combobox.g3dmain * {                                          \n" \
+"    min-height    : 0px;                                      \n" \
+"    border-width  : 0px;                                      \n" \
+"    border-radius : 0px;                                      \n" \
+"    margin        : 0px;                                      \n" \
+"    padding       : 0px;                                      \n" \
+"}                                                             \n" \
+"button.color {                                                \n" \
+"    min-height    : 0px;                                      \n" \
+"    border-width:   0px;                                      \n" \
+"    border-radius:  0px;                                      \n" \
+"    margin-top:     0px;                                      \n" \
+"    margin-right:   0px;                                      \n" \
+"    margin-left:    0px;                                      \n" \
+"    margin-bottom:  0px;                                      \n" \
+"    padding-top:    0px;                                      \n" \
+"    padding-right:  0px;                                      \n" \
+"    padding-left:   0px;                                      \n" \
+"    padding-bottom: 0px;                                      \n" \
+"}                                                             \n"
 
-"    min-height       : 0px; \n"
-"    border-width     : 1px; \n"
-"    border-color     : rgba("GRAY5", "GRAY5", "GRAY5", 1);"
-"    border-radius    : 0px; \n"
-"    margin           : 0px; \n"
-"    padding          : 0px; \n"
-"    color            : rgba("FTCOL", "FTCOL", "FTCOL", 1); \n"
-"    background       : rgba("GRAY0", "GRAY0", "GRAY0", 1); \n"
-#ifdef __linux__n
-"    font-family      : Lucida Sans; \n"
-"    font-size        : 12px; \n"
+/******************************************************************************/
+#define LFTCOL   "0"
+#define LFTCOL2 "96"
+#define LGRAY0 "208"
+#define LGRAY1 "224"
+#define LGRAY2 "240"
+#define LGRAY3 "255"
+#define LGRAY4 "255"
+#define LGRAY5 "176"
+#define LGRAY6 "160"
+
+gchar *gtk3_getLightModeCSS ( ) {
+#ifdef __linux__
+    static const gchar *myCSS = GTK3CSSSTYLE ("Lucida Sans",
+                                              "12",
+                                              LFTCOL,
+                                              LFTCOL2,
+                                              LGRAY0,
+                                              LGRAY1,
+                                              LGRAY2,
+                                              LGRAY3,
+                                              LGRAY4,
+                                              LGRAY5,
+                                              LGRAY6);
 #endif
 #ifdef __MINGW32__
-"    font-family      : Calibri; \n"
-"    font-size        : 10px; \n"
+    static const gchar *myCSS = GTK3CSSSTYLE ("Calibri",
+                                              "10",
+                                              LFTCOL,
+                                              LFTCOL2,
+                                              LGRAY0,
+                                              LGRAY1,
+                                              LGRAY2,
+                                              LGRAY3,
+                                              LGRAY4,
+                                              LGRAY5,
+                                              LGRAY6);
 #endif
-"}                        \n"
-".g3dmain:disabled {      \n"
-"    color            : rgba("FTCOL2", "FTCOL2", "FTCOL2", 1); \n"
-"}                           \n"
-"checkbutton.g3dmain > check {                             \n"
-"    border-width     : 1px; \n"
-"    background-color : rgba("GRAY3", "GRAY3", "GRAY3", 1);\n"
-"}                                                         \n"
-"spinbutton.g3dmain > button {                             \n"
-"    color            : rgba("FTCOL", "FTCOL", "FTCOL", 1);\n"
-"    background-color : rgba("GRAY2", "GRAY2", "GRAY2", 1);\n"
-"    margin           : 0px; \n"
-"    padding          : 0px; \n"
-"}                                                         \n"
-"spinbutton.g3dmain > entry {               \n"
-"    color            : rgba("FTCOL", "FTCOL", "FTCOL", 1);\n"
-"    background-color : rgba("GRAY3", "GRAY3", "GRAY3", 1);\n"
-"    min-height       : 0px; \n"
-"    margin           : 0px; \n"
-"    padding-top      : 0px; \n"
-"    padding-right    : 4px; \n"
-"    padding-left     : 4px; \n"
-"    padding-bottom   : 0px; \n"
-"}                           \n"
-"entry.g3dmain { \n"
-"    border-width     : 0px; \n"
-"    background-color : rgba("GRAY3", "GRAY3", "GRAY3", 1);\n"
-"    padding-right    : 4px; \n"
-"    padding-left     : 4px; \n"
-"}                           \n"
-"notebook.g3dmain  {         \n"
-"}                           \n"
-"notebook.g3dmain > stack {                      \n"
-"    background-color : rgba("GRAY0", "GRAY0", "GRAY0", 1);\n"
-"}                           \n"
-"notebook.g3dmain > header.top,                      \n"
-"notebook.g3dmain > header.top > tabs,               \n"
-"notebook.g3dmain > header.top > tabs > tab,         \n"
-"notebook.g3dmain > header.top > tabs > tab > label {\n"
-"    background-color : rgba("GRAY1", "GRAY1", "GRAY1", 1);\n"
-"    min-height       : 0px; \n"
-"    margin           : 0px; \n"
-"    padding-top      : 0px; \n"
-"    padding-right    : 8px; \n"
-"    padding-left     : 8px; \n"
-"    padding-bottom   : 0px; \n"
 
-"}                           \n"
-"notebook.g3dmain > header.top > tabs > tab:checked, \n"
-"notebook.g3dmain > header.top > tabs > tab:checked > label { \n"
-"    color            : rgba("FTCOL", "FTCOL", "FTCOL", 1); \n"
-"    background-color : "BCKGBLUE";\n"
-"    border-color     : blue;\n"
-"    font-weight      : 800; \n"
-"    min-height       : 0px; \n"
-"    margin-top       : 0px; \n"
-"    margin-right     : 0px; \n"
-"    margin-left      : 0px; \n"
-"    margin-bottom    : 1px; \n"
-"    padding-top      : 0px; \n"
-"    padding-right    : 8px; \n"
-"    padding-left     : 8px; \n"
-"    padding-bottom   : 0px; \n"
-"}                           \n" 
-"menubar.g3dmain {           \n"
-"    color         : rgba("FTCOL", "FTCOL", "FTCOL", 1); \n"
-"    background    : rgba("GRAY1", "GRAY1", "GRAY1", 1); \n"
-"    border-width  : 0px; \n"
-"    border-radius : 0px; \n"
-"    margin        : 0px; \n"
-"    padding       : 0px; \n"
-"}                        \n"
-"menuitem.g3dmain, menu.g3dmain {\n"
-"    color         : rgba("FTCOL", "FTCOL", "FTCOL", 1); \n"
-"    background    : rgba("GRAY1", "GRAY1", "GRAY1", 1); \n"
-"    border-width:   1px;  \n"
-"    border-radius:  0px;  \n"
-"    margin-top:     1px;  \n"
-"    margin-right:   1px;  \n"
-"    margin-left:    4px;  \n"
-"    margin-bottom:  1px;  \n"
-"    padding-top:    2px;  \n"
-"    padding-right:  0px;  \n"
-"    padding-left:   0px;  \n"
-"    padding-bottom: 2px;  \n"
-"    font-size:      12px; \n"
-"}                         \n"
-".view_menu_bar {\n"
-"    color:          rgba("FTCOL", "FTCOL", "FTCOL", 1);"
-"    background:     rgba("GRAY1", "GRAY1", "GRAY1", 1);"
-"    border-width:   0px; \n"
-"    border-radius:  0px; \n"
-"    margin-top:     0px; \n"
-"    margin-right:   0px; \n"
-"    margin-left:    4px; \n"
-"    margin-bottom:  0px; \n"
-"    padding-top:    0px; \n"
-"    padding-right:  0px; \n"
-"    padding-left:   0px; \n"
-"    padding-bottom: 0px; \n"
-"    font-size:     12px; \n"
-"}                        \n"
-"toolbutton.g3dmain > button {             \n"
-"    border-width:   1px; \n"
-"    border-radius:  0px; \n"
-"    margin-top:     0px; \n"
-"    margin-right:   0px; \n"
-"    margin-left:    0px; \n"
-"    margin-bottom:  0px; \n"
-"    padding-top:    0px; \n"
-"    padding-right:  0px; \n"
-"    padding-left:   0px; \n"
-"    padding-bottom: 0px; \n"
-"}                        \n"
-"combobox.g3dmain * {             \n"
-"    min-height    : 0px; \n"
-"    border-width  : 0px; \n"
-"    border-radius : 0px; \n"
-"    margin        : 0px; \n"
-"    padding       : 0px; \n"
-"}                        \n"
-"button.color {           \n"
-"    min-height    : 0px; \n"
-"    border-width:   0px; \n"
-"    border-radius:  0px; \n"
-"    margin-top:     0px; \n"
-"    margin-right:   0px; \n"
-"    margin-left:    0px; \n"
-"    margin-bottom:  0px; \n"
-"    padding-top:    0px; \n"
-"    padding-right:  0px; \n"
-"    padding-left:   0px; \n"
-"    padding-bottom: 0px; \n"
-"}                        \n"
-};
-#ifdef unused
 
-/*"scale {                     \n"
-"}                           \n"
+    return myCSS;
+}
 
-"notebook tab { \n"
-"    font-weight      : 600; \n"
-"}                            \n"
-"notebook tab:checked label { \n"
-"    color            : #000000; \n"
-"    font-weight      : 800; \n"
-"} \n"*/
-/*"notebook tab:checked label { \n"
-"    color      : #808080; \n"
-"    font-weight: 800; \n"
-"} \n"*/
-/*"notebook tab button { \n"
-"    padding         : 0; \n"
-"    background-color: transparent; \n"
-"    color           : #ccc; \n"
-"} \n"*/
-/*"notebook tab button:hover { \n"
-"  border          : 0px; \n"
-"  background-image: none; \n"
-"  border-color    : #000000; \n"
-"  border-style    : solid; \n"
-"  border-width    : 1px; \n"
-"} \n"*/
-
-/*"notebook > header.top > tabs > tab > label {               \n"
-"    color            : rgba("FTCOL", "FTCOL", "FTCOL", 1); \n"
-"    background       : rgba("GRAY2", "GRAY2", "GRAY2", 1); \n"
-"    min-height       : 0px; \n"
-"    border-width     : 1px; \n"
-"    border-radius    : 0px; \n"
-"    margin           : 0px; \n"
-"    padding-top      : 0px; \n"
-"    padding-right    : 4px; \n"
-"    padding-left     : 4px; \n"
-"    padding-bottom   : 0px; \n"
-"}                           \n"*/
-/*"notebook tab:checked label {      \n"
-"    color: #76C802;  \n"
-"    background-color: #FFEF00;  \n"
-"    border-width: 0px;      \n"
-"}                           \n"*/
-/*"notebook > stack  {               \n"
-"    color            : rgba("FTCOL", "FTCOL", "FTCOL", 1);"
-"    background       : rgba("GRAY0", "GRAY0", "GRAY0", 1); \n"
-"    min-height       : 0px; \n"
-"    border-width     : 1px; \n"
-"    border-radius    : 0px; \n"
-"    margin           : 0px; \n"
-"    padding          : 0px; \n"
-"}                        \n"*/
-/*
-"button.g3dmain {              \n"
-"    min-height     : 0px; \n"
-"    border-width   : 1px; \n"
-"    border-radius  : 0px; \n"
-"    margin         : 0px; \n"
-"    padding        : 0px; \n"
-"}                         \n"*/
-/*"button.g3dmain:checked {              \n"
-"    min-height     : 0px; \n"
-"    border-width   : 1px; \n"
-"    border-radius  : 0px; \n"
-"    margin         : 0px; \n"
-"    padding        : 0px; \n"
-"}                         \n"*/
-/*"layout {                  \n"
-"    border-width   : 1px; \n"
-"    border-radius  : 0px; \n"
-"    margin         : 0px; \n"
-"    padding        : 0px; \n"
-"}                         \n"*/
-"menubar.g3dmain {\n"
-"    color         : rgba("FTCOL", "FTCOL", "FTCOL", 1); \n"
-"    background    : rgba("GRAY1", "GRAY1", "GRAY1", 1); \n"
-"    border-width  : 0px; \n"
-"    border-radius : 0px; \n"
-"    margin        : 0px; \n"
-"    padding       : 0px; \n"
-"}                        \n"
-/*"menubar {\n"
-"    border-width  : 0px; \n"
-"    border-radius : 0px; \n"
-"    margin        : 0px; \n"
-"    padding       : 0px; \n"
-"}                        \n"*/
-"menuitem.g3dmain, menu.g3dmain {\n"
-"    color         : rgba("FTCOL", "FTCOL", "FTCOL", 1); \n"
-"    background    : rgba("GRAY1", "GRAY1", "GRAY1", 1); \n"
-"    border-width:   1px;  \n"
-"    border-radius:  0px;  \n"
-"    margin-top:     1px;  \n"
-"    margin-right:   1px;  \n"
-"    margin-left:    4px;  \n"
-"    margin-bottom:  1px;  \n"
-"    padding-top:    2px;  \n"
-"    padding-right:  0px;  \n"
-"    padding-left:   0px;  \n"
-"    padding-bottom: 2px;  \n"
-"    font-size:      12px; \n"
-"}                         \n"
-".view_menu_bar {\n"
-"    color:          rgba("FTCOL", "FTCOL", "FTCOL", 1);"
-"    background:     rgba("GRAY1", "GRAY1", "GRAY1", 1);"
-"    border-width:   0px; \n"
-"    border-radius:  0px; \n"
-"    margin-top:     0px; \n"
-"    margin-right:   0px; \n"
-"    margin-left:    4px; \n"
-"    margin-bottom:  0px; \n"
-"    padding-top:    0px; \n"
-"    padding-right:  0px; \n"
-"    padding-left:   0px; \n"
-"    padding-bottom: 0px; \n"
-"    font-size:     12px; \n"
-"}                        \n"
-"toolbar {             \n"
-"    border-width:   1px; \n"
-"    border-radius:  0px; \n"
-"    margin-top:     0px; \n"
-"    margin-right:   0px; \n"
-"    margin-left:    0px; \n"
-"    margin-bottom:  0px; \n"
-"    padding-top:    0px; \n"
-"    padding-right:  0px; \n"
-"    padding-left:   0px; \n"
-"    padding-bottom: 0px; \n"
-"}                        \n"
- };
-#endif
 /******************************************************************************/
-gchar *gtk3_getDefaultCSS ( ) {
+#define DFTCOL "240"
+#define DFTCOL2 "160"
+#define DGRAY0 "96"
+#define DGRAY1 "72"
+#define DGRAY2 "90"
+#define DGRAY3 "105"
+#define DGRAY4 "105"
+#define DGRAY5 "26"
+#define DGRAY6 "64"
+gchar *gtk3_getDarkModeCSS ( ) {
+#ifdef __linux__
+    static const gchar *myCSS = GTK3CSSSTYLE ("Lucida Sans",
+                                              "12",
+                                              DFTCOL,
+                                              DFTCOL2,
+                                              DGRAY0,
+                                              DGRAY1,
+                                              DGRAY2,
+                                              DGRAY3,
+                                              DGRAY4,
+                                              DGRAY5,
+                                              DGRAY6);
+#endif
+#ifdef __MINGW32__
+    static const gchar *myCSS = GTK3CSSSTYLE ("Calibri",
+                                              "10",
+                                              DFTCOL,
+                                              DFTCOL2,
+                                              DGRAY0,
+                                              DGRAY1,
+                                              DGRAY2,
+                                              DGRAY3,
+                                              DGRAY4,
+                                              DGRAY5,
+                                              DGRAY6);
+#endif
+
+
     return myCSS;
 }

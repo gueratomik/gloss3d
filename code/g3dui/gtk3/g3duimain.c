@@ -251,7 +251,7 @@ static void Realize ( GtkWidget *widget,
     G3DUI *gui = gtk3main->core.gui;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
     GtkCssProvider *provider = gtk_css_provider_new ();
-    gchar *myCSS = gtk3_getDefaultCSS ( );
+    gchar *myCSS = gtk3_getLightModeCSS ( );
     GdkDisplay *display = gdk_display_get_default ( );
     GdkScreen  *screen  = gdk_display_get_default_screen ( display );
     GtkWidget *tab;

@@ -243,8 +243,8 @@ GTK3M3DUIMAIN *gtk3_m3duimain_create ( GtkWidget *parent,
 
     gtk_widget_add_events(GTK_WIDGET(layout), GDK_CONFIGURE);
 
-    g_signal_connect ( G_OBJECT (layout), "realize", G_CALLBACK (Realize), gtk3main );
-    g_signal_connect ( G_OBJECT (layout), "destroy", G_CALLBACK (Destroy), gtk3main );
+    g_signal_connect ( G_OBJECT (layout), "realize"     , G_CALLBACK (Realize), gtk3main );
+    g_signal_connect ( G_OBJECT (layout), "destroy"     , G_CALLBACK (Destroy), gtk3main );
 
     gtk3main->layout = layout;
 

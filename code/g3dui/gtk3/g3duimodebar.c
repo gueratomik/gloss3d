@@ -39,12 +39,9 @@
 #include <xpm/edgemode.xpm>
 #include <xpm/edgemode_test2.xpm>
 #include <xpm/skinmode.xpm>
-#include <xpm/skinmode_test.xpm>
 #include <xpm/uvwmapmode.xpm>
-#include <xpm/uvwmapmode_test.xpm>
 #include <xpm/sculptmode2.xpm>
 #include <xpm/axismode.xpm>
-#include <xpm/axismode_test.xpm>
 #include <xpm/pathmode.xpm>
 
 /******************************************************************************/
@@ -152,10 +149,10 @@ GTK3G3DUIMODEBAR *gtk3_g3duimodebar_create ( GtkWidget *parent,
     gtk3mb->edgeMode   = addModeBarButton ( gtk3mb->bar, gtk3mb->objectMode, gtk3mb, MODE_VIEWEDGE  , edgemode_test_xpm  , setMode );
     gtk3mb->faceMode   = addModeBarButton ( gtk3mb->bar, gtk3mb->objectMode, gtk3mb, MODE_VIEWFACE  , facemode_test_xpm  , setMode );
     gtk3mb->sculptMode = addModeBarButton ( gtk3mb->bar, gtk3mb->objectMode, gtk3mb, MODE_VIEWSCULPT, sculptmode_xpm     , setMode );
-    gtk3mb->skinMode   = addModeBarButton ( gtk3mb->bar, gtk3mb->objectMode, gtk3mb, MODE_VIEWSKIN  , skinmode_test_xpm  , setMode );
-    gtk3mb->uvmapMode  = addModeBarButton ( gtk3mb->bar, gtk3mb->objectMode, gtk3mb, MODE_VIEWUVWMAP, uvwmapmode_test_xpm, setMode );
-    gtk3mb->axisMode   = addModeBarButton ( gtk3mb->bar, gtk3mb->objectMode, gtk3mb, MODE_VIEWAXIS  , axismode_test_xpm  , setMode );
-    gtk3mb->pathMode   = addModeBarButton ( gtk3mb->bar, gtk3mb->objectMode, gtk3mb, MODE_VIEWPATH  , pathmode_xpm       , setMode );
+    gtk3mb->skinMode   = addModeBarButton ( gtk3mb->bar, gtk3mb->objectMode, gtk3mb, MODE_VIEWSKIN  , skinmode_xpm  , setMode );
+    gtk3mb->uvmapMode  = addModeBarButton ( gtk3mb->bar, gtk3mb->objectMode, gtk3mb, MODE_VIEWUVWMAP, uvwmapmode_xpm, setMode );
+    gtk3mb->axisMode   = addModeBarButton ( gtk3mb->bar, gtk3mb->objectMode, gtk3mb, MODE_VIEWAXIS  , axismode_xpm  , setMode );
+    gtk3mb->pathMode   = addModeBarButton ( gtk3mb->bar, gtk3mb->objectMode, gtk3mb, MODE_VIEWPATH  , pathmode_xpm  , setMode );
 
     gtk_toolbar_set_show_arrow ( GTK_TOOLBAR(gtk3mb->bar), TRUE );
 

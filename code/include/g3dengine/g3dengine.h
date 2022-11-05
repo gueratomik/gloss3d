@@ -414,6 +414,8 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define CAMERAYZ              (  1 << 21 )
 #define CAMERAZX              (  1 << 22 )
 #define CAMERADEFAULT         (  1 << 23 ) /*** not part of the obj hierarchy ***/
+#define KEYCAMERA             (  1 << 24 )
+
 /**** SPHERE flags ***/
 #define SPHEREISPERFECT       (  1 << 17 ) /* render perfect */
 
@@ -2611,6 +2613,8 @@ void       g3dmesh_addVertex            ( G3DMESH *, G3DVERTEX * );
 void       g3dmesh_addSelectedFace      ( G3DMESH *, G3DFACE * );
 void       g3dmesh_addSelectedVertex    ( G3DMESH *, G3DVERTEX * );
 void       g3dmesh_addTexture           ( G3DMESH *, G3DTEXTURE * );
+void       g3dmesh_appendTexture        ( G3DMESH    *mes,
+                                          G3DTEXTURE *tex );
 void       g3dmesh_addUVMap ( G3DMESH  *mes, 
                               G3DUVMAP *map,
                               LIST    **lnewuvset,

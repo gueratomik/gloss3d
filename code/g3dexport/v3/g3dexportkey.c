@@ -210,6 +210,14 @@ static uint32_t g3dexportv3key_dataLight ( G3DEXPORTV3DATA *ged,
 }
 
 /******************************************************************************/
+static uint32_t g3dexportv3key_dataCamera ( G3DEXPORTV3DATA *ged, 
+                                            G3DKEY          *key, 
+                                            uint32_t         flags, 
+                                            FILE            *fdst ) {
+    return g3dexportv3camera ( ged, key->data.ptr, flags, fdst );
+}
+
+/******************************************************************************/
 static uint32_t g3dexportv3key_data ( G3DEXPORTV3DATA *ged, 
                                     G3DKEY        *key, 
                                     uint32_t       flags, 
@@ -229,6 +237,15 @@ static uint32_t g3dexportv3key_data ( G3DEXPORTV3DATA *ged,
         case G3DLIGHTTYPE :
             size += g3dexportv3_writeChunk ( SIG_OBJECT_KEY_DATA_LIGHT,
                            EXPORTV3_CALLBACK(g3dexportv3key_dataLight),
+                                             ged,
+                                             key,
+                                             0xFFFFFFFF,
+                                             fdst );
+        break;
+
+        case G3DCAMERATYPE :
+            size += g3dexportv3_writeChunk ( SIG_OBJECT_KEY_DATA_CAMERA,
+                           EXPORTV3_CALLBACK(g3dexportv3key_dataCamera),
                                              ged,
                                              key,
                                              0xFFFFFFFF,

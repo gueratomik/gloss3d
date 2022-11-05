@@ -115,7 +115,7 @@ typedef G3DRGBA         Q3DRGBA;
 /******************************** background modes ****************************/
 #define BACKGROUND_IMAGE     ( 1      )
 #define BACKGROUND_STRETCHED ( 1 << 1 )
-#define CLEARCOLOR 0x64
+#define CLEARCOLOR           96
 
 /********************************* Triangle flags *****************************/
 #define TRIANGLESMOOTH       ( 1      )

@@ -288,17 +288,30 @@ static uint32_t g3dtrackertag_transform ( G3DTRACKERTAG *ttag,
 }
 
 /******************************************************************************/
-static void g3dtrackertag_add    ( G3DTRACKERTAG *ttag,
-                                   G3DOBJECT     *obj,
-                                   uint64_t       engine_flags ) {
+static void g3dtrackertag_add ( G3DTRACKERTAG *ttag,
+                                G3DOBJECT     *obj,
+                                uint64_t       engine_flags ) {
 
+     /*** useful to keep ttag->target set when undoing a removeTag action ***/
+    if ( ttag->target ) {
+        if ( g3dscene_isObjectReferred ( ttag->sce, ttag->target ) ) {
+            g3dtrackertag_setTarget ( ttag, obj, ttag->target, engine_flags );
+        }
+    }
 }
 
 /******************************************************************************/
 static void g3dtrackertag_remove ( G3DTRACKERTAG *ttag,
                                    G3DOBJECT     *obj,
                                    uint64_t       engine_flags ) {
+    if ( ttag->target ) {
+        if ( g3dscene_isObjectReferred ( ttag->sce, ttag->target ) ) {
+            G3DTAG *targetTag = g3dobject_getTagByID ( ttag->target, 
+                                                       ttag->targetTagID );
 
+            g3dobject_removeTag ( ttag->target, targetTag );
+        }
+    }
 }
 
 /******************************************************************************/
@@ -322,7 +335,12 @@ void g3dtrackertag_setTarget ( G3DTRACKERTAG *ttag,
         G3DTAG *targetTag = g3dobject_getTagByID ( ttag->target, 
                                                    ttag->targetTagID );
 
-        g3dobject_removeTag ( ttag->target, targetTag );
+        /* targetTag could be NULL in case g3dtrackertag_setTarget() is  */
+        /* called in a undo function(), which would trigger g3dtrackertag_add() ***/
+        /* whereas the target tag has already been removed  */
+        if ( targetTag ) {
+            g3dobject_removeTag ( ttag->target, targetTag );
+        }
     }
 
     ttag->target = target;
@@ -335,10 +353,10 @@ void g3dtrackertag_setTarget ( G3DTRACKERTAG *ttag,
                                                       tracker ) );
 
         g3dtrackertag_transform ( ttag, tracker, engine_flags );
-
-        g3dscene_addReferredObject ( ttag->sce, target  );
-        g3dscene_addReferredObject ( ttag->sce, tracker );
     }
+
+    g3dscene_addReferredObject ( ttag->sce, target  );
+    g3dscene_addReferredObject ( ttag->sce, tracker );
 }
 
 /******************************************************************************/

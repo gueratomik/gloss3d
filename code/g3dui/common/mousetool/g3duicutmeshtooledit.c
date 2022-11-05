@@ -33,11 +33,15 @@
 uint64_t g3duicutmeshtooledit_restrictCbk ( G3DUICUTMESHTOOLEDIT *cmtedit,
                                             int                   restricted ) {
     G3DUI *gui = cmtedit->gui;
-    G3DMOUSETOOL *tool = g3dui_getMouseTool ( gui, CUTMESHTOOL );
-    G3DMOUSETOOLCUTMESH *cm = ( G3DMOUSETOOLCUTMESH * ) tool;
+    G3DUIMOUSETOOL *mou = g3dui_getMouseTool ( gui, CUTMESHTOOL );
 
-    if ( cm ) {
-        cm->restrict_to_selection = restricted;
+    if ( mou ) {
+        G3DMOUSETOOL *tool = mou->tool;
+        G3DMOUSETOOLCUTMESH *cm = ( G3DMOUSETOOLCUTMESH * ) tool;
+
+        if ( cm ) {
+            cm->restrict_to_selection = restricted;
+        }
     }
 
     return 0x00;

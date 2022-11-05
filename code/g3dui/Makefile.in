@@ -195,8 +195,8 @@ am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
 	gtk3/menu/condition.c gtk3/menu/mainmenu.c \
 	gtk3/menu/materialboardmenu.c gtk3/menu/objectboardmenu.c \
 	gtk3/menu/renderwindowmenu.c gtk3/menu/timelinemenu.c \
-	gtk3/menu/uveditormenu.c gtk3/menu/viewmenu.c \
-	gtk3/mousetool/m3duimousetooledit.c \
+	gtk3/menu/uveditormenu.c gtk3/menu/uvviewmenu.c \
+	gtk3/menu/viewmenu.c gtk3/mousetool/m3duimousetooledit.c \
 	gtk3/mousetool/m3duibuckettooledit.c \
 	gtk3/mousetool/m3duipentooledit.c \
 	gtk3/mousetool/g3duimousetooledit.c \
@@ -303,7 +303,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_GTK3_TRUE@	gtk3/menu/renderwindowmenu.lo \
 @HAVE_GTK3_TRUE@	gtk3/menu/timelinemenu.lo \
 @HAVE_GTK3_TRUE@	gtk3/menu/uveditormenu.lo \
-@HAVE_GTK3_TRUE@	gtk3/menu/viewmenu.lo \
+@HAVE_GTK3_TRUE@	gtk3/menu/uvviewmenu.lo gtk3/menu/viewmenu.lo \
 @HAVE_GTK3_TRUE@	gtk3/mousetool/m3duimousetooledit.lo \
 @HAVE_GTK3_TRUE@	gtk3/mousetool/m3duibuckettooledit.lo \
 @HAVE_GTK3_TRUE@	gtk3/mousetool/m3duipentooledit.lo \
@@ -463,6 +463,7 @@ am__depfiles_remade = common/$(DEPDIR)/g3dui.Plo \
 	gtk3/menu/$(DEPDIR)/renderwindowmenu.Plo \
 	gtk3/menu/$(DEPDIR)/timelinemenu.Plo \
 	gtk3/menu/$(DEPDIR)/uveditormenu.Plo \
+	gtk3/menu/$(DEPDIR)/uvviewmenu.Plo \
 	gtk3/menu/$(DEPDIR)/viewmenu.Plo \
 	gtk3/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo \
 	gtk3/mousetool/$(DEPDIR)/g3duimousetooledit.Plo \
@@ -772,6 +773,7 @@ AM_CFLAGS = -I$(top_srcdir)/include \
 @HAVE_GTK3_TRUE@                            gtk3/menu/renderwindowmenu.c \
 @HAVE_GTK3_TRUE@                            gtk3/menu/timelinemenu.c \
 @HAVE_GTK3_TRUE@                            gtk3/menu/uveditormenu.c \
+@HAVE_GTK3_TRUE@                            gtk3/menu/uvviewmenu.c \
 @HAVE_GTK3_TRUE@                            gtk3/menu/viewmenu.c \
 @HAVE_GTK3_TRUE@                            gtk3/mousetool/m3duimousetooledit.c \
 @HAVE_GTK3_TRUE@                            gtk3/mousetool/m3duibuckettooledit.c \
@@ -1129,6 +1131,8 @@ gtk3/menu/timelinemenu.lo: gtk3/menu/$(am__dirstamp) \
 	gtk3/menu/$(DEPDIR)/$(am__dirstamp)
 gtk3/menu/uveditormenu.lo: gtk3/menu/$(am__dirstamp) \
 	gtk3/menu/$(DEPDIR)/$(am__dirstamp)
+gtk3/menu/uvviewmenu.lo: gtk3/menu/$(am__dirstamp) \
+	gtk3/menu/$(DEPDIR)/$(am__dirstamp)
 gtk3/menu/viewmenu.lo: gtk3/menu/$(am__dirstamp) \
 	gtk3/menu/$(DEPDIR)/$(am__dirstamp)
 gtk3/mousetool/$(am__dirstamp):
@@ -1330,6 +1334,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/menu/$(DEPDIR)/renderwindowmenu.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/menu/$(DEPDIR)/timelinemenu.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/menu/$(DEPDIR)/uveditormenu.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@gtk3/menu/$(DEPDIR)/uvviewmenu.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/menu/$(DEPDIR)/viewmenu.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@gtk3/mousetool/$(DEPDIR)/g3duimousetooledit.Plo@am__quote@ # am--include-marker
@@ -1654,6 +1659,7 @@ distclean: distclean-am
 	-rm -f gtk3/menu/$(DEPDIR)/renderwindowmenu.Plo
 	-rm -f gtk3/menu/$(DEPDIR)/timelinemenu.Plo
 	-rm -f gtk3/menu/$(DEPDIR)/uveditormenu.Plo
+	-rm -f gtk3/menu/$(DEPDIR)/uvviewmenu.Plo
 	-rm -f gtk3/menu/$(DEPDIR)/viewmenu.Plo
 	-rm -f gtk3/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo
 	-rm -f gtk3/mousetool/$(DEPDIR)/g3duimousetooledit.Plo
@@ -1840,6 +1846,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f gtk3/menu/$(DEPDIR)/renderwindowmenu.Plo
 	-rm -f gtk3/menu/$(DEPDIR)/timelinemenu.Plo
 	-rm -f gtk3/menu/$(DEPDIR)/uveditormenu.Plo
+	-rm -f gtk3/menu/$(DEPDIR)/uvviewmenu.Plo
 	-rm -f gtk3/menu/$(DEPDIR)/viewmenu.Plo
 	-rm -f gtk3/mousetool/$(DEPDIR)/g3duicutmeshtooledit.Plo
 	-rm -f gtk3/mousetool/$(DEPDIR)/g3duimousetooledit.Plo

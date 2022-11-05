@@ -815,6 +815,7 @@ typedef struct _GTK3G3DUITEXTUREEDIT {
 typedef struct _GTK3G3DUICAMERAEDIT {
     G3DUICAMERAEDIT  core;
     GtkNotebook     *notebook;
+    GtkSpinButton   *focalEntry;
     GtkCheckButton  *dofEnableToggle;
     GtkSpinButton   *dofNearBlurEntry;
     GtkSpinButton   *dofNoBlurEntry;
@@ -980,7 +981,8 @@ typedef struct _FILTERTOGDKWINDOW {
 } FILTERTOGDKWINDOW;
 
 /******************************** css/default.c *******************************/
-gchar *gtk3_getDefaultCSS ( );
+gchar *gtk3_getDarkModeCSS();
+gchar *gtk3_getLightModeCSS();
 
 /********************************* g3dui.c ************************************/
 
@@ -1008,6 +1010,7 @@ uint64_t gtk3_importFile ( GTK3G3DUI   *gtk3gui,
                            const gchar *filedesc );
 void gtk3_renderView ( GTK3G3DUI *gtk3gui );
 void gtk3_runRender ( GTK3G3DUI *gtk3gui );
+gint gtk3_exit ( GTK3G3DUI *gtk3gui );
 uint64_t gtk3_loadImageForChannel ( GTK3G3DUI  *gtk3gui,
                                     uint32_t    channelID );
 
@@ -1287,8 +1290,10 @@ void gtk3_g3duiboneedit_update ( GTK3G3DUIBONEEDIT *gtk3bed );
 /*************************** g3duicameraedit.c ********************************/
 GTK3G3DUICAMERAEDIT *gtk3_g3duicameraedit_create ( GtkWidget *parent,
                                                    GTK3G3DUI *gtk3gui,
-                                                   char      *name );
-void gtk3_g3duicameraedit_update ( GTK3G3DUICAMERAEDIT *gtk3ced );
+                                                   char      *name,
+                                                   uint32_t   forKey );
+void gtk3_g3duicameraedit_update ( GTK3G3DUICAMERAEDIT *gtk3ced,
+                                   G3DCAMERA           *cam );
 
 /******************************** g3duicom.c **********************************/
 Q3DFILTER *q3dfilter_gotoframe_new ( GTK3G3DUI *gtk3gui );
@@ -1684,6 +1689,13 @@ GTK3M3DUIBOARD *gtk3_m3duiboard_create ( GtkWidget *parent,
                                          GTK3M3DUI *gtk3mui,
                                          char      *name );
 
+/*************************** m3duichannelimagecreator.c************************/
+GTK3M3DUICHANNELIMAGECREATOR *gtk3_m3duichannelimagecreator_create ( GtkWidget  *parent,
+                                                                     GTK3M3DUI  *gtk3mui,
+                                                                     G3DCHANNEL *chn,
+                                                                     uint32_t    resize,
+                                                                     char       *name );
+
 /*************************** m3duibuckettooledit.c ****************************/
 void gtk3_m3duibuckettooledit_update ( GTK3M3DUIBUCKETTOOLEDIT *gtk3buckedit );
 GTK3M3DUIBUCKETTOOLEDIT *gtk3_m3duibuckettooledit_create ( GtkWidget *parent, 
@@ -1734,6 +1746,7 @@ GTK3M3DUITOOLBAR *gtk3_m3duitoolbar_create ( GtkWidget *parent,
 GTK3M3DUIVIEW *gtk3_m3duiview_create ( GtkWidget *parent,
                                        GTK3M3DUI *gtk3mui,
                                        char      *name );
+void gtk3_m3duiview_updateMenuBar ( GTK3M3DUIVIEW *gtk3view );
 void gtk3_m3duiview_resize ( GTK3M3DUIVIEW *gtk3view,
                              uint32_t       width,
                              uint32_t       height );
@@ -1759,29 +1772,28 @@ uint32_t objectMode_boneOrSkinSelected ( G3DUIMENU *menu, void *data );
 uint32_t object_objectSelectedAndUVFixed ( G3DUIMENU *menu,
                                            void      *data );
 
-/**************************** menu/g3duimainmenu.c ****************************/
+/**************************** menu/mainmenu.c ****************************/
 G3DUIMENU *g3duimenu_getMainMenuNode ( );
 
-/************************ menu/g3duimaterialboardmenu.c ***********************/
+/************************ menu/materialboardmenu.c ***********************/
 G3DUIMENU *g3duimenu_getMaterialBoardMenuNode ( );
 
-/************************* menu/g3duiobjectboardmenu.c ************************/
+/************************* menu/objectboardmenu.c ************************/
 G3DUIMENU *g3duimenu_getObjectBoardMenuNode ( );
 
-/************************* menu/g3duirenderwindowmenu.c ***********************/
+/************************* menu/renderwindowmenu.c ***********************/
 G3DUIMENU *g3duimenu_getRenderWindowMenuNode ( );
 
-/************************* menu/g3duirenderwindowmenu.c ***********************/
-G3DUIMENU *g3duimenu_getRenderWindowMenuNode ( );
-
-/************************** menu/g3duitimelinemenu.c **************************/
+/************************** menu/timelinemenu.c **************************/
 G3DUIMENU *g3duimenu_getTimelineMenuNode ( );
 
-/************************** menu/g3duiuveditormenu.c **************************/
+/************************** menu/uveditormenu.c **************************/
 G3DUIMENU *g3duimenu_getUVEditorMenuNode ( );
 
-/************************** menu/g3duiviewmenu.c **************************/
+/************************** menu/viewmenu.c **************************/
 G3DUIMENU *g3duimenu_getViewMenuNode ( );
 
+/************************** menu/uvviewmenu.c **************************/
+G3DUIMENU *g3duimenu_getUVViewMenuNode ( );
 
 #endif

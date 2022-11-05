@@ -3769,8 +3769,22 @@ void g3dmesh_addTexture ( G3DMESH    *mes,
 
         mes->nbtex++;
     }
+}
 
-    //return tex;
+/******************************************************************************/
+void g3dmesh_appendTexture ( G3DMESH    *mes,
+                             G3DTEXTURE *tex ) {
+    G3DOBJECT  *obj = ( G3DOBJECT * ) mes;
+
+    if ( tex ) {
+        list_append ( &mes->ltex, tex );
+
+        tex->slotBit = g3dmesh_getAvailableTextureSlot ( mes );
+
+        mes->textureSlots |= tex->slotBit;
+
+        mes->nbtex++;
+    }
 }
 
 /******************************************************************************/

@@ -435,47 +435,42 @@ static int m3dselector_pressSquare ( M3DOBJECT     *obj,
                                      uint32_t      *updcoord,
                                      uint64_t       engine_flags ) {
     M3DSELECTOR *sel = ( M3DSELECTOR * ) obj;
+    M3DSELECTORPOINT *pt;
+    M3DSELECTORLINE *lin;
 
-    if ( sel->closed == 0x00 ) {
-        M3DSELECTORPOINT *pt;
-        M3DSELECTORLINE *lin;
+    m3dselector_reset ( sel, engine_flags );
 
-        sel->sqpt[0x00] = m3dselectorpoint_new ( x, y, width, height );
-        sel->sqpt[0x01] = m3dselectorpoint_new ( x, y, width, height );
-        sel->sqpt[0x02] = m3dselectorpoint_new ( x, y, width, height );
-        sel->sqpt[0x03] = m3dselectorpoint_new ( x, y, width, height );
+    sel->sqpt[0x00] = m3dselectorpoint_new ( x, y, width, height );
+    sel->sqpt[0x01] = m3dselectorpoint_new ( x, y, width, height );
+    sel->sqpt[0x02] = m3dselectorpoint_new ( x, y, width, height );
+    sel->sqpt[0x03] = m3dselectorpoint_new ( x, y, width, height );
 
-        sel->firstPoint = sel->sqpt[0x00];
-        sel->lastPoint  = sel->sqpt[0x03];
+    sel->firstPoint = sel->sqpt[0x00];
+    sel->lastPoint  = sel->sqpt[0x03];
 
-        list_insert ( &sel->lpoints, sel->sqpt[0x00] );
-        list_insert ( &sel->lpoints, sel->sqpt[0x01] );
-        list_insert ( &sel->lpoints, sel->sqpt[0x02] );
-        list_insert ( &sel->lpoints, sel->sqpt[0x03] );
+    list_insert ( &sel->lpoints, sel->sqpt[0x00] );
+    list_insert ( &sel->lpoints, sel->sqpt[0x01] );
+    list_insert ( &sel->lpoints, sel->sqpt[0x02] );
+    list_insert ( &sel->lpoints, sel->sqpt[0x03] );
 
-        sel->sqlin[0x00] = m3dselectorline_new ( sel->sqpt[0x00], 
-                                                 sel->sqpt[0x01] );
-        sel->sqlin[0x01] = m3dselectorline_new ( sel->sqpt[0x01], 
-                                                 sel->sqpt[0x02] );
-        sel->sqlin[0x02] = m3dselectorline_new ( sel->sqpt[0x02], 
-                                                 sel->sqpt[0x03] );
-        sel->sqlin[0x03] = m3dselectorline_new ( sel->sqpt[0x03], 
-                                                 sel->sqpt[0x00] );
+    sel->sqlin[0x00] = m3dselectorline_new ( sel->sqpt[0x00], 
+                                             sel->sqpt[0x01] );
+    sel->sqlin[0x01] = m3dselectorline_new ( sel->sqpt[0x01], 
+                                             sel->sqpt[0x02] );
+    sel->sqlin[0x02] = m3dselectorline_new ( sel->sqpt[0x02], 
+                                             sel->sqpt[0x03] );
+    sel->sqlin[0x03] = m3dselectorline_new ( sel->sqpt[0x03], 
+                                             sel->sqpt[0x00] );
 
-        list_insert ( &sel->llines, sel->sqlin[0x00] );
-        list_insert ( &sel->llines, sel->sqlin[0x01] );
-        list_insert ( &sel->llines, sel->sqlin[0x02] );
-        list_insert ( &sel->llines, sel->sqlin[0x03] );
+    list_insert ( &sel->llines, sel->sqlin[0x00] );
+    list_insert ( &sel->llines, sel->sqlin[0x01] );
+    list_insert ( &sel->llines, sel->sqlin[0x02] );
+    list_insert ( &sel->llines, sel->sqlin[0x03] );
 
-        sel->firstLine = sel->sqlin[0x00];
-        sel->lastLine  = sel->sqlin[0x03];
+    sel->firstLine = sel->sqlin[0x00];
+    sel->lastLine  = sel->sqlin[0x03];
 
-        sel->closed = 0x01;
-    } else {
-        /*** Note: we put this here but normally the reset callback should
-             also do the job ***/
-        m3dselector_reset ( sel, engine_flags );
-    }
+    sel->closed = 0x01;
 
     return 0x00;
 }
@@ -645,7 +640,8 @@ static int m3dselector_releaseSquare ( M3DOBJECT     *obj,
                                        uint64_t       engine_flags ) {
     M3DSELECTOR *sel = ( M3DSELECTOR * ) obj;
 
-    /* the if statement is need only in case we get a release without a press */
+    /*** the if statement is needed only in    ***/
+    /*** case we get a release without a press ****/
     if ( sel->closed ) {
         if ( ( sel->sqpt[0x00]->x == sel->sqpt[0x03]->x ) &&
              ( sel->sqpt[0x00]->y == sel->sqpt[0x03]->y ) ) {

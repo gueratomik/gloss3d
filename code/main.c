@@ -61,9 +61,20 @@ char * strsep(char **sp, char *sep) {
 #endif
 
 /******************************************************************************/
+gboolean Delete( GtkWidget *widget,
+                 GdkEvent  *event,
+                 gpointer   data ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) data;
+
+    if ( gtk3_exit ( gtk3gui ) == GTK_RESPONSE_YES ) return FALSE;
+
+    return TRUE;
+}
+
+/******************************************************************************/
 static gboolean Configure ( GtkWindow *window, 
-                        GdkEvent  *event,
-                        gpointer   data ) {
+                            GdkEvent  *event,
+                            gpointer   data ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) data;
     GTK3G3DUIMAIN *gtk3main = gtk3gui->core.main;
 
@@ -194,13 +205,10 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
     gtk_window_set_title ( GTK_WINDOW ( window ), appname );
     gtk_window_resize    ( GTK_WINDOW ( window ), 1280, 720 );
 
-    g_signal_connect (window, "destroy"        , G_CALLBACK (gtk_main_quit), &gtk3gui);
+    g_signal_connect (window, "destroy"        , G_CALLBACK (gtk_main_quit), &gtk3gui );
+    g_signal_connect (window, "configure-event", G_CALLBACK (Configure)    , &gtk3gui );
+    g_signal_connect (window, "delete-event"   , G_CALLBACK (Delete)       , &gtk3gui );
 
-    g_signal_connect (window, "configure-event", G_CALLBACK (Configure), &gtk3gui );
-
-/*
-    g_signal_connect (window, "delete-event", G_CALLBACK (g3dui_exitEventCbk), &((GtkGlossUI*)glossui)->gui );
-*/
     gtk_widget_show (window);
 
     gtk_main ();

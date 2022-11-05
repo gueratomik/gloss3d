@@ -30,22 +30,48 @@
 #include <g3dui.h>
 
 /******************************************************************************/
+#define FOR_EACH_SELECTED_CAMERA                            \
+    G3DUI *gui = camedit->gui;                             \
+    G3DSCENE *sce = gui->sce;                              \
+    LIST *ltmpselobj = sce->lsel;                          \
+                                                           \
+    while ( ltmpselobj ) {                                 \
+        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data; \
+                                                           \
+        if ( sel->type == G3DCAMERATYPE ) {                \
+            G3DCAMERA *cam = ( G3DCAMERA * ) sel;          \
+
+
+#define END_FOR                                            \
+        }                                                  \
+                                                           \
+        ltmpselobj = ltmpselobj->next;                     \
+    }
+
+
+/******************************************************************************/
+uint64_t g3duicameraedit_focal ( G3DUICAMERAEDIT *camedit,
+                                 float            focal ) {
+    if ( camedit->forKey ) {
+        camedit->editedCamera->focal = focal;
+    } else {
+FOR_EACH_SELECTED_CAMERA
+        cam->focal = focal;
+END_FOR
+    }
+
+    return REDRAWVIEW;
+}
+
+/******************************************************************************/
 uint64_t g3duicameraedit_dofRadius ( G3DUICAMERAEDIT *camedit,
-                                        uint32_t         radius ) {
-    G3DUI *gui = camedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
-
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
-
-        if ( sel->type == G3DCAMERATYPE ) {
-            G3DCAMERA *cam = ( G3DCAMERA * ) sel;
-
-            cam->dof.radius = radius;
-        }
-
-        ltmpselobj = ltmpselobj->next;
+                                     uint32_t         radius ) {
+    if ( camedit->forKey ) {
+        camedit->editedCamera->dof.radius = radius;
+    } else {
+FOR_EACH_SELECTED_CAMERA
+        cam->dof.radius = radius;
+END_FOR
     }
 
 
@@ -54,21 +80,13 @@ uint64_t g3duicameraedit_dofRadius ( G3DUICAMERAEDIT *camedit,
 
 /******************************************************************************/
 uint64_t g3duicameraedit_dofNearBlur ( G3DUICAMERAEDIT *camedit,
-                                          float            nearBlur ) {
-    G3DUI *gui = camedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
-
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
-
-        if ( sel->type == G3DCAMERATYPE ) {
-            G3DCAMERA *cam = ( G3DCAMERA * ) sel;
-
-            cam->dof.nearBlur = nearBlur;
-        }
-
-        ltmpselobj = ltmpselobj->next;
+                                       float            nearBlur ) {
+    if ( camedit->forKey ) {
+        camedit->editedCamera->dof.nearBlur = nearBlur;
+    } else {
+FOR_EACH_SELECTED_CAMERA
+        cam->dof.nearBlur = nearBlur;
+END_FOR
     }
 
 
@@ -77,21 +95,13 @@ uint64_t g3duicameraedit_dofNearBlur ( G3DUICAMERAEDIT *camedit,
 
 /******************************************************************************/
 uint64_t g3duicameraedit_dofNoBlur ( G3DUICAMERAEDIT *camedit,
-                                        float            noBlur ) {
-    G3DUI *gui = camedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
-
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
-
-        if ( sel->type == G3DCAMERATYPE ) {
-            G3DCAMERA *cam = ( G3DCAMERA * ) sel;
-
-            cam->dof.noBlur = noBlur;
-        }
-
-        ltmpselobj = ltmpselobj->next;
+                                     float            noBlur ) {
+    if ( camedit->forKey ) {
+        camedit->editedCamera->dof.noBlur = noBlur;
+    } else {
+FOR_EACH_SELECTED_CAMERA
+        cam->dof.noBlur = noBlur;
+END_FOR
     }
 
 
@@ -100,21 +110,13 @@ uint64_t g3duicameraedit_dofNoBlur ( G3DUICAMERAEDIT *camedit,
 
 /******************************************************************************/
 uint64_t g3duicameraedit_dofFarBlur ( G3DUICAMERAEDIT *camedit,
-                                         float            farBlur ) {
-    G3DUI *gui = camedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
-
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
-
-        if ( sel->type == G3DCAMERATYPE ) {
-            G3DCAMERA *cam = ( G3DCAMERA * ) sel;
-
-            cam->dof.farBlur = farBlur;
-        }
-
-        ltmpselobj = ltmpselobj->next;
+                                      float            farBlur ) {
+    if ( camedit->forKey ) {
+        camedit->editedCamera->dof.farBlur = farBlur;
+    } else {
+FOR_EACH_SELECTED_CAMERA
+        cam->dof.farBlur = farBlur;
+END_FOR
     }
 
 
@@ -124,24 +126,20 @@ uint64_t g3duicameraedit_dofFarBlur ( G3DUICAMERAEDIT *camedit,
 
 /******************************************************************************/
 uint64_t g3duicameraedit_dofEnable ( G3DUICAMERAEDIT *camedit ) {
-    G3DUI *gui = camedit->gui;
-    G3DSCENE *sce = gui->sce;
-    LIST *ltmpselobj = sce->lsel;
-
-    while ( ltmpselobj ) {
-        G3DOBJECT *sel = ( G3DOBJECT * ) ltmpselobj->data;
-
-        if ( sel->type == G3DCAMERATYPE ) {
-            G3DCAMERA *cam = ( G3DCAMERA * ) sel;
-
-            if ( sel->flags & CAMERADOF ) {
-                sel->flags &= (~CAMERADOF);
-            } else {
-                sel->flags |= CAMERADOF;
-            }
+    if ( camedit->forKey ) {
+        if ( camedit->editedCamera->obj.flags & CAMERADOF ) {
+            camedit->editedCamera->obj.flags &= (~CAMERADOF);
+        } else {
+            camedit->editedCamera->obj.flags |= CAMERADOF;
         }
-
-        ltmpselobj = ltmpselobj->next;
+    } else {
+FOR_EACH_SELECTED_CAMERA
+        if ( cam->obj.flags & CAMERADOF ) {
+            cam->obj.flags &= (~CAMERADOF);
+        } else {
+            cam->obj.flags |= CAMERADOF;
+        }
+END_FOR
     }
 
 

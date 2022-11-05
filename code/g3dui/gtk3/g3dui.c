@@ -1268,7 +1268,7 @@ uint64_t gtk3_newScene ( GTK3G3DUI *gtk3gui ) {
     if ( res == GTK_RESPONSE_YES ) {
         ret = g3dui_closeScene ( gui );
 
-        gui->sce = g3dscene_new ( 0x00, "SCENE" );
+        gui->sce = g3dscene_new ( 0x00, "Gloss3D scene" );
     }
 
     gtk_widget_destroy ( dialog );
@@ -1311,6 +1311,34 @@ uint64_t gtk3_importFile ( GTK3G3DUI   *gtk3gui,
 
     return ret;
 }
+
+/******************************************************************************/
+gint gtk3_exit ( GTK3G3DUI *gtk3gui ) {
+    GtkWidget *dialog;
+    gint       res;
+
+    if ( gtk3_g3dui_saveAlteredImages ( gtk3gui ) ) {
+        return;
+    }
+
+    dialog = gtk_message_dialog_new ( NULL,
+                                      GTK_DIALOG_MODAL,
+                                      GTK_MESSAGE_QUESTION,
+                                      GTK_BUTTONS_YES_NO,
+                                      "Leave Gloss3D ?" );
+
+
+    res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+
+    if ( res == GTK_RESPONSE_YES ) {
+        g3dui_exitOk ( gtk3gui );
+    }
+
+    gtk_widget_destroy ( dialog );
+
+    return res;
+}
+
 
 /******************************************************************************/
 uint64_t gtk3_exportFile ( GTK3G3DUI   *gtk3gui,
@@ -1902,6 +1930,25 @@ static void gtk3_redrawRenderWindowMenu ( GTK3G3DUI *gtk3gui ) {
 }
 
 /******************************************************************************/
+static void gtk3_updateUVViewMenu ( GTK3G3DUI *gtk3gui ) {
+    if ( gtk3gui->core.mui ) {
+        M3DUI *mui = gtk3gui->core.mui;
+
+        if ( mui ) {
+            M3DUIMAIN *main = mui->main;
+
+            if ( main ) {
+                M3DUIVIEW *view = main->view;
+
+                if ( view ) {
+                    gtk3_m3duiview_updateMenuBar ( ( GTK3M3DUIVIEW * ) view );
+                }
+            }
+        }
+    }
+}
+
+/******************************************************************************/
 static void gtk3_resizeRenderWindow ( GTK3G3DUI *gtk3gui ) {
     GTK3G3DUIRENDERWINDOW *gtk3rwin = ( GTK3G3DUIRENDERWINDOW * ) gtk3gui->core.renderWindow;
 
@@ -2310,6 +2357,14 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
         gtk3_updateCoords ( gtk3gui );
     }
 
+    if ( msk & UPDATEMAINMENU ) {
+        gtk3_updateMainMenu    ( gtk3gui );
+    }
+
+    if ( msk & UPDATEUVVIEWMENU ) {
+        gtk3_updateUVViewMenu    ( gtk3gui );
+    }
+
     if ( msk & RESIZERENDERWINDOW ) {
         gtk3_resizeRenderWindow ( gtk3gui );
     }
@@ -2334,16 +2389,7 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
         gtk3_redrawUVMapEditor ( gtk3gui );
     }
 
-
-    if ( msk & UPDATEMAINMENU ) {
-        gtk3_updateMainMenu    ( gtk3gui );
-    }
-
 #ifdef TODO
-    if ( msk & UPDATECOORDS ) {
-        gtk3_updateCoords ( );
-    }
-
     if ( msk & NOBUFFEREDSUBDIVISION ) {
         /*** this should be replace by some MEANINGFUL mask ***/
         gui->engine_flags |= ONGOINGANIMATION;

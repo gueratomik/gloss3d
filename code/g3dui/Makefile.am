@@ -131,6 +131,7 @@ if HAVE_GTK3
                             gtk3/menu/renderwindowmenu.c \
                             gtk3/menu/timelinemenu.c \
                             gtk3/menu/uveditormenu.c \
+                            gtk3/menu/uvviewmenu.c \
                             gtk3/menu/viewmenu.c \
                             gtk3/mousetool/m3duimousetooledit.c \
                             gtk3/mousetool/m3duibuckettooledit.c \

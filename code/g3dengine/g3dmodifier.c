@@ -40,15 +40,15 @@ uint32_t g3dmodifier_modpick ( G3DMODIFIER *mod,
 
     glPushMatrix ( );
     glMultMatrixd ( obj->lmatrix );
-
+/*
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
     else                               glFrontFace(  GL_CCW );
-
+*/
     if ( mod->modpick ) mod->modpick ( mod, curcam, engine_flags );
-
+/*
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
     else                               glFrontFace(  GL_CW  );
-
+*/
     glPopMatrix ( );
 
 
@@ -66,15 +66,15 @@ uint32_t g3dmodifier_moddraw ( G3DMODIFIER *mod,
 
     glPushMatrix ( );
     glMultMatrixd ( obj->lmatrix );
-
+/*
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
     else                               glFrontFace(  GL_CCW );
-
+*/
     if ( mod->moddraw ) mod->moddraw ( mod, curcam, engine_flags );
-
+/*
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
     else                               glFrontFace(  GL_CW  );
-
+*/
     glPopMatrix ( );
 
 

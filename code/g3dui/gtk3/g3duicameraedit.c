@@ -30,6 +30,7 @@
 #include <g3dui_gtk3.h>
 
 #define EDITCAMERAGENERAL     "Camera"
+#define EDITCAMERAFOCAL       "Focal"
 #define EDITCAMERADOF         "Depth-of-field"
 #define EDITCAMERADOFENABLE   "Enable" 
 #define EDITCAMERADOFNEARBLUR "Near blur dist."
@@ -38,7 +39,8 @@
 #define EDITCAMERADOFRADIUS   "Blur radius"
 
 /******************************************************************************/
-static GTK3G3DUICAMERAEDIT *gtk3_g3duicameraedit_new ( GTK3G3DUI *gtk3gui ) {
+static GTK3G3DUICAMERAEDIT *gtk3_g3duicameraedit_new ( GTK3G3DUI *gtk3gui,
+                                                       uint32_t   forKey ) {
     GTK3G3DUICAMERAEDIT *gtk3ced = calloc ( 0x01, sizeof ( GTK3G3DUICAMERAEDIT ) );
 
     if ( gtk3ced == NULL ) {
@@ -47,10 +49,64 @@ static GTK3G3DUICAMERAEDIT *gtk3_g3duicameraedit_new ( GTK3G3DUI *gtk3gui ) {
         return NULL;
     }
 
+    gtk3ced->core.forKey = forKey;
     gtk3ced->core.gui = ( G3DUI * ) gtk3gui;
 
 
     return gtk3ced; 
+}
+
+/******************************************************************************/
+static void updateGeneralPanel ( GTK3G3DUICAMERAEDIT *gtk3ced ) {
+    gtk3ced->core.gui->lock = 0x01;
+
+    if ( gtk3ced->core.editedCamera ) {
+        G3DCAMERA *cam = gtk3ced->core.editedCamera;
+
+        gtk_spin_button_set_value ( gtk3ced->focalEntry, cam->focal );
+    }
+
+    gtk3ced->core.gui->lock = 0x00;
+}
+
+/******************************************************************************/
+static void focalCbk ( GtkWidget *widget, gpointer user_data ) {
+    GTK3G3DUICAMERAEDIT *gtk3ced = ( GTK3G3DUICAMERAEDIT * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3ced->core.gui;
+    GtkWidget *parent = gtk_widget_get_parent ( widget );
+    double focal = ( double ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
+    uint64_t ret = 0x00;
+
+    /*** prevents loop ***/
+    if ( gtk3ced->core.gui->lock ) return;
+
+    ret = g3duicameraedit_focal ( &gtk3ced->core, focal );
+
+    gtk3_interpretUIReturnFlags ( gtk3gui, ret ); 
+}
+
+/******************************************************************************/
+static void createGeneralPanel ( GTK3G3DUICAMERAEDIT *gtk3ced,
+                             gint                 x,
+                             gint                 y,
+                             gint                 width,
+                             gint                 height ) {
+    GtkFixed *pan = ui_createTab ( gtk3ced->notebook,
+                                   gtk3ced,
+                                   EDITCAMERAGENERAL,
+                                   CLASS_MAIN,
+                                   x,
+                                   y,
+                                   width,
+                                   height );
+
+    gtk3ced->focalEntry  = ui_createFloatText   ( pan,
+                                                  gtk3ced,
+                                                  EDITCAMERAFOCAL,
+                                                  CLASS_MAIN,
+                                                  0.0f, FLT_MAX,
+                                                  0, 0, 96, 96, 20,
+                                                  focalCbk );
 }
 
 /******************************************************************************/
@@ -158,30 +214,36 @@ static void dofRadiusCbk ( GtkWidget *widget, gpointer user_data ) {
 }
 
 /******************************************************************************/
-void gtk3_g3duicameraedit_update ( GTK3G3DUICAMERAEDIT *gtk3ced ) {
+void gtk3_g3duicameraedit_update ( GTK3G3DUICAMERAEDIT *gtk3ced,
+                                   G3DCAMERA           *cam ) {
     G3DUI *gui = gtk3ced->core.gui;
 
     gui->lock = 0x01;
 
-    if ( gui->sce ) {
-        G3DSCENE *sce = gui->sce;
-        uint32_t nbsel = list_count ( sce->lsel );
+    gtk3ced->core.editedCamera = cam;
 
-        if ( nbsel ) {
-            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3ced->notebook), TRUE );
+    if ( gtk3ced->core.editedCamera == NULL ) {
+        if ( gui->sce ) {
+            G3DSCENE *sce = gui->sce;
+            uint32_t nbsel = list_count ( sce->lsel );
 
-            if ( g3dobjectlist_checkType ( sce->lsel, G3DCAMERATYPE ) ) {
-                gtk3ced->core.multi = ( nbsel > 0x01 ) ? 0x01 : 0x00;
+            if ( nbsel ) {
+                gtk_widget_set_sensitive ( GTK_WIDGET(gtk3ced->notebook), TRUE );
 
-                gtk3ced->core.editedCamera = ( G3DCAMERA * ) g3dscene_getLastSelected ( sce );
+                if ( g3dobjectlist_checkType ( sce->lsel, G3DCAMERATYPE ) ) {
+                    gtk3ced->core.multi = ( nbsel > 0x01 ) ? 0x01 : 0x00;
 
-                if ( gtk3ced->core.editedCamera ) {
-                    updateDOFPanel  ( gtk3ced );
+                    gtk3ced->core.editedCamera = ( G3DCAMERA * ) g3dscene_getLastSelected ( sce );
                 }
             }
-        } else {
-            gtk_widget_set_sensitive ( GTK_WIDGET(gtk3ced->notebook), FALSE );
         }
+    }
+
+    if ( gtk3ced->core.editedCamera ) {
+        updateGeneralPanel ( gtk3ced );
+        updateDOFPanel  ( gtk3ced );
+    } else {
+        gtk_widget_set_sensitive ( GTK_WIDGET(gtk3ced->notebook), FALSE );
     }
 
     gui->lock = 0x00;
@@ -255,14 +317,15 @@ static void Realize ( GtkWidget *widget,
                       gpointer   user_data ) {
     GTK3G3DUICAMERAEDIT *gtk3ced = ( GTK3G3DUICAMERAEDIT * ) user_data;
 
-    gtk3_g3duicameraedit_update ( gtk3ced );
+    gtk3_g3duicameraedit_update ( gtk3ced, NULL );
 }
 
 /******************************************************************************/
 GTK3G3DUICAMERAEDIT *gtk3_g3duicameraedit_create ( GtkWidget *parent,
                                                    GTK3G3DUI *gtk3gui,
-                                                   char      *name ) {
-    GTK3G3DUICAMERAEDIT *gtk3ced = gtk3_g3duicameraedit_new ( gtk3gui );
+                                                   char      *name,
+                                                   uint32_t   forKey ) {
+    GTK3G3DUICAMERAEDIT *gtk3ced = gtk3_g3duicameraedit_new ( gtk3gui, forKey );
     GtkNotebook *notebook = ui_gtk_notebook_new ( CLASS_MAIN );
 
     gtk3ced->notebook = notebook;
@@ -276,6 +339,7 @@ GTK3G3DUICAMERAEDIT *gtk3_g3duicameraedit_create ( GtkWidget *parent,
     g_signal_connect ( G_OBJECT (notebook), "realize", G_CALLBACK (Realize), gtk3ced );
     g_signal_connect ( G_OBJECT (notebook), "destroy", G_CALLBACK (Destroy), gtk3ced );
 
+    createGeneralPanel ( gtk3ced, 0, 0, 310, 150 );
     createDOFPanel ( gtk3ced, 0, 0, 310, 150 );
 
 

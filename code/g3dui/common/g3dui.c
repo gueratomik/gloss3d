@@ -88,6 +88,28 @@ uint64_t g3dui_deleteSelection ( G3DUI *gui ) {
     return ret;
 }
 
+/******************************************************************************/
+uint64_t g3dui_stop ( G3DUI *gui ) {
+    /*** if scene is currently played ***/
+    if ( /*gui->playthreadid*/gui->playLock ) {
+        /* #ifdef __linux__
+        pthread_join   ( gui->playthreadid, NULL );
+        #endif
+        #ifdef __MINGW32__
+        WaitForSingleObject ( gui->playthreadid, INFINITE );
+        CloseHandle ( gui->playthreadid );
+        #endif */
+
+        gui->playLock     = 0x00;
+        /*gui->playthreadid = 0x00;*/
+
+        gui->engine_flags &= (~ONGOINGANIMATION);
+
+        g3dscene_updateMeshes ( gui->sce, gui->engine_flags );
+    }
+
+    return REDRAWVIEW;
+}
 
 /******************************************************************************/
 uint64_t g3dui_closeScene ( G3DUI *gui ) {
@@ -185,6 +207,69 @@ uint64_t g3dui_addTrackerTag ( G3DUI *gui ) {
     }
 
     return REDRAWVIEW | REDRAWOBJECTLIST;
+}
+
+/******************************************************************************/
+uint64_t g3dui_pasteSelection ( G3DUI *gui ) {
+    G3DUICLIPBOARD *cli = gui->cli;
+    G3DURMANAGER *urm = gui->urm;
+    G3DSCENE *sce = gui->sce;
+    G3DOBJECT *src = g3dscene_getSelectedObject ( sce );
+    G3DOBJECT *dst = ( G3DOBJECT * ) sce;
+
+    printf("pasting\n");
+
+    /*** add the copied object to the   ***/
+    /*** selected object's parent objet ***/
+    if ( src ) dst = src->parent;
+
+    g3duiclipboard_paste ( cli, urm, sce, dst, gui->engine_flags );
+
+    return REDRAWVIEW | 
+           REDRAWOBJECTLIST | 
+           UPDATECURRENTOBJECT | 
+           UPDATECOORDS;
+}
+
+/******************************************************************************/
+uint64_t g3dui_copySelection ( G3DUI *gui ) {
+    G3DUICLIPBOARD *cli = gui->cli;
+    G3DSCENE *sce = gui->sce;
+
+    fprintf( stdout, "copying %d object(s)\n", list_count ( sce->lsel ) );
+
+    if ( gui->engine_flags & VIEWOBJECT ) { 
+        g3duiclipboard_copyObject ( cli, 
+                                    sce,
+                                    sce->lsel, 0x01, gui->engine_flags );
+    }
+
+    if ( gui->engine_flags & VIEWSCULPT ) { 
+        G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
+
+        if ( obj && ( obj->type == G3DSUBDIVIDERTYPE ) ) {
+            G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
+            G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+
+            if ( parent ) {
+                G3DMESH *mes = ( G3DMESH * ) parent;
+                LIST *ltmpselfac = mes->lselfac;
+
+                while ( ltmpselfac ) {
+                    G3DFACE *selfac = ( G3DFACE * ) ltmpselfac->data;
+
+                    g3duiclipboard_copyFaceSculptExtension ( cli, 
+                                                             sce,
+                                                             sdr,
+                                                             selfac );
+
+                    break; /*** loop only once ***/
+                }
+            }
+        }
+    }
+
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -2035,6 +2120,34 @@ void g3dui_resetDefaultCameras ( G3DUI *gui ) {
 
         g3dobject_updateMatrix ( objcam, gui->engine_flags );
     }
+
+    for ( i = 0x00; i < 0x04; i++ ) {
+        if ( gui->main->quad ) {
+            if ( gui->main->quad->view[i] ) {
+                G3DUIVIEW *view = gui->main->quad->view[i];
+                G3DCAMERA *cam = gui->defaultCameras[i];
+                G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
+
+                view->cam    = cam;
+                view->defcam = cam;
+
+                g3dobject_updateMatrix_r ( ( G3DOBJECT * ) cam, 0x00 );
+
+                /*** this is used to discriminate whether or not ***/
+                /*** this is the main camera. See g3duiview.c ***/
+                cam->obj.id = i;
+
+                /*** save initial position in order to be able to reset ***/
+                memcpy ( &view->defcampos, &objcam->pos, sizeof ( G3DVECTOR ) );
+                memcpy ( &view->defcamrot, &objcam->rot, sizeof ( G3DVECTOR ) );
+                memcpy ( &view->defcamsca, &objcam->sca, sizeof ( G3DVECTOR ) );
+
+                view->defcamfoc = cam->focal;
+
+                g3duiview_initGL ( view );
+            }
+        }
+    }
 }
 
 /******************************************************************************/
@@ -2077,34 +2190,6 @@ void g3dui_createDefaultCameras ( G3DUI *gui ) {
                                                 1000.0f );
 
     g3dui_resetDefaultCameras ( gui );
-
-    for ( i = 0x00; i < 0x04; i++ ) {
-        if ( gui->main->quad ) {
-            if ( gui->main->quad->view[i] ) {
-                G3DUIVIEW *view = gui->main->quad->view[i];
-                G3DCAMERA *cam = gui->defaultCameras[i];
-                G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
-
-                view->cam    = cam;
-                view->defcam = cam;
-
-                g3dobject_updateMatrix_r ( ( G3DOBJECT * ) cam, 0x00 );
-
-                /*** this is used to discriminate whether or not ***/
-                /*** this is the main camera. See g3duiview.c ***/
-                cam->obj.id = i;
-
-                /*** save initial position in order to be able to reset ***/
-                memcpy ( &view->defcampos, &objcam->pos, sizeof ( G3DVECTOR ) );
-                memcpy ( &view->defcamrot, &objcam->rot, sizeof ( G3DVECTOR ) );
-                memcpy ( &view->defcamsca, &objcam->sca, sizeof ( G3DVECTOR ) );
-
-                view->defcamfoc = cam->focal;
-
-                g3duiview_initGL ( view );
-            }
-        }
-    }
 
     sysinfo->defaultCamera = gui->defaultCameras[0x00];
 }

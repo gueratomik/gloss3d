@@ -252,6 +252,7 @@ static uint32_t g3dpick_point ( G3DPICK       *pick,
         if ( pick->mask[offset] ) {
             if  ( ( ( pick->flags & ENABLEDEPTHTEST ) == 0x00 ) ||
                   ( ( pick->flags & ENABLEDEPTHTEST ) && ( z <= depth ) ) ) {
+
                 if ( pick->userAction && 
                      pick->userAction ( pick->userName, 
                                         pick->userData ) ) {

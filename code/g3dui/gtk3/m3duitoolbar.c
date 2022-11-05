@@ -156,7 +156,7 @@ static void redoCbk ( GtkWidget *widget,
     G3DUI *gui = ( G3DUI * ) mui->gui;
     uint64_t ret;
 
-    ret = m3dui_undo ( mui );
+    ret = m3dui_redo ( mui );
 
     gtk3_interpretUIReturnFlags ( ( GTK3G3DUI * ) gui, ret );
 }
@@ -173,12 +173,9 @@ static void setMouseToolCbk ( GtkWidget *widget,
     if ( mui->gui->lock ) return;
 
     /*** this func will be called on all disarmed radio buttons ***/
-    /*** that's why we have to lock it ***/
-    mui->gui->lock = 0x01;
+    /*** that's why we have to check the lock ***/
 
     ret = gtk3_m3dui_setMouseTool ( ( GTK3M3DUI * ) mui, widget, toolName );
-
-    mui->gui->lock = 0x00;
 
     gtk3_interpretUIReturnFlags ( ( GTK3G3DUI * ) gui, ret );
 }
@@ -190,6 +187,9 @@ static void setSquareSelectorCbk ( GtkWidget *widget,
     M3DUI *mui = ( M3DUI * ) gtk3tb->core.mui;
     G3DUI *gui = ( G3DUI * ) mui->gui;
     G3DUIMOUSETOOL *mou = g3dui_getMouseTool ( gui, SELECTTOOL );
+    uint64_t ret;
+
+    if ( mui->gui->lock ) return;
 
     if ( mou ) {
         M3DMOUSETOOL *tool = mou->tool;
@@ -199,7 +199,11 @@ static void setSquareSelectorCbk ( GtkWidget *widget,
         }
     }
 
-    gtk3_m3dui_setMouseTool ( ( GTK3M3DUI * ) mui, widget, SELECTTOOL );
+    /*** this func will be called on all disarmed radio buttons ***/
+    /*** that's why we have to check the lock ***/
+    ret = gtk3_m3dui_setMouseTool ( ( GTK3M3DUI * ) mui, widget, SELECTTOOL );
+
+    gtk3_interpretUIReturnFlags ( ( GTK3G3DUI * ) gui, ret );
 }
 
 /******************************************************************************/
@@ -210,6 +214,8 @@ static void setRandomSelectorCbk ( GtkWidget *widget,
     G3DUI *gui = ( G3DUI * ) mui->gui;
     G3DUIMOUSETOOL *mou = g3dui_getMouseTool ( gui, SELECTTOOL );
 
+    if ( mui->gui->lock ) return;
+
     if ( mou ) {
         M3DMOUSETOOL *tool = mou->tool;
 
@@ -218,6 +224,8 @@ static void setRandomSelectorCbk ( GtkWidget *widget,
         }
     }
 
+    /*** this func will be called on all disarmed radio buttons ***/
+    /*** that's why we have to check the lock ***/
     gtk3_m3dui_setMouseTool ( ( GTK3M3DUI * ) mui, widget, SELECTTOOL );
 }
 

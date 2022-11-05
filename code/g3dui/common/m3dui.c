@@ -437,10 +437,12 @@ uint64_t m3dui_ver2uv ( M3DUI *mui ) {
 
 /******************************************************************************/
 uint64_t m3dui_undo ( M3DUI *mui ) {
-    return g3durmanager_undo ( mui->gui->urm, mui->engine_flags );
+    return g3durmanager_undo ( mui->gui->urm, mui->engine_flags ) |
+           REDRAWUVMAPEDITOR; /*** some action dont call it, we'll find out later ***/
 }
 
 /******************************************************************************/
 uint64_t m3dui_redo ( M3DUI *mui ) {
-    return g3durmanager_redo ( mui->gui->urm, mui->engine_flags );
+    return g3durmanager_redo ( mui->gui->urm, mui->engine_flags )|
+           REDRAWUVMAPEDITOR; /*** some action dont call it, we'll find out later ***/
 }

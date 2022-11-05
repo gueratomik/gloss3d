@@ -901,6 +901,7 @@ typedef struct _G3DUICOORDINATESEDIT {
 typedef struct _G3DUICAMERAEDIT {
     G3DUI        *gui;
     uint32_t      multi;
+    uint32_t      forKey;
     G3DCAMERA    *editedCamera;
 } G3DUICAMERAEDIT;
 
@@ -1499,6 +1500,7 @@ uint64_t            g3dui_undo ( G3DUI *gui );
 uint64_t            g3dui_redo ( G3DUI *gui );
 void                g3dui_init ( G3DUI     *gui,
                                  G3DUIMAIN *main );
+uint64_t            g3dui_stop ( G3DUI *gui );
 uint64_t            g3dui_openG3DFile ( G3DUI      *gui, 
                                         const char *filename );
 void                g3dui_createDefaultCameras ( G3DUI *gui );
@@ -1507,6 +1509,8 @@ void                g3dui_addMouseTool ( G3DUI          *gui,
                                          G3DUIMOUSETOOL *mou );
 G3DUIMOUSETOOL     *g3dui_getMouseTool ( G3DUI      *gui, 
                                          const char *name );
+uint64_t            g3dui_copySelection ( G3DUI *gui );
+uint64_t            g3dui_pasteSelection ( G3DUI *gui );
 uint64_t            g3dui_setMouseTool ( G3DUI          *gui, 
                                          G3DCAMERA      *cam, 
                                          G3DUIMOUSETOOL *mou );
@@ -1623,7 +1627,8 @@ uint64_t g3duiboneedit_setLength ( G3DUIBONEEDIT *bonedit, float length );
 /***************************** g3duibonelinker.c ******************************/
 
 /***************************** g3duicameraedit.c ******************************/
-
+uint64_t g3duicameraedit_focal ( G3DUICAMERAEDIT *camedit,
+                                 float            focal );
 uint64_t g3duicameraedit_dofRadius ( G3DUICAMERAEDIT *camedit,
                                         uint32_t         radius );
 uint64_t g3duicameraedit_dofNearBlur ( G3DUICAMERAEDIT *camedit,

@@ -85,7 +85,7 @@ G3DMOUSETOOLPICKUV *g3dmousetoolpickUV_new ( ) {
                                            pickUV_tool,
                                            0x00 );
 
-    pt->only_visible  = 0x01;
+    pt->only_visible  = 0x00;
 
     pt->operation     = 0x01; /*** add vertex weight ***/
     pt->weight        = 1.0f;
@@ -585,6 +585,7 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                     /*** opration. Our drawing call must depend on an ***/
                     /*** identity matrix in the UVMap Editor ***/
                     /*glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );*/
+
                     g3dpick_setModelviewMatrix ( ((G3DOBJECT*)cam)->iwmatrix /*MVX*/ );
                     g3dmesh_pickVertexUVs ( mes, VIEWVERTEXUV );
                 }
