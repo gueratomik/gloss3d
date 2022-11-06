@@ -28,6 +28,7 @@
 /******************************************************************************/
 #include <config.h>
 #include <g3dui_gtk3.h>
+#include <inttypes.h>
 
 #define EDITRACKERTARGET      "Target"
 #define EDITRACKERORIENTATION "Orientation"

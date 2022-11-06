@@ -27,7 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dexport.h>
+#include <g3dexportv3.h>
 
 /******************************************************************************/
 void g3dmesh_exportObj ( G3DMESH *mes, FILE *fdst, uint32_t save_flags ) {

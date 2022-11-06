@@ -40,14 +40,13 @@
 #include <math.h>
 
 /******************************************************************************/
-#include <GL/gl.h>
-#include <GL/glu.h>
-
-/******************************************************************************/
 #include <list.h>
 #include <g3dengine/g3dengine.h>
 
 #include "signaturesv3.h"
+
+/******************** Wavefront .OBJ Exporter Module **************************/
+#define EXPORTOBJTRIANGULATE ( 1 << 1 )
 
 #define EXPORTV3CHANNEL_SOLIDCOLOR ( 1 << 0 )
 #define EXPORTV3CHANNEL_IMAGECOLOR ( 1 << 1 )

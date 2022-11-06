@@ -28,6 +28,7 @@
 /******************************************************************************/
 #include <config.h>
 #include <g3dui.h>
+#include <inttypes.h>
 
 /******************************************************************************/
 G3DCAMERA *g3dui_getMainViewCamera ( G3DUI *gui ) {
@@ -645,7 +646,7 @@ uint64_t g3dui_makeEditable ( G3DUI *gui ) {
     }
 
     if ( obj && ( ( obj->type & MODIFIER         ) ||
-                  ( obj->type & TEXT             ) ||
+                  ( obj->type & TEXTUAL          ) ||
                   ( obj->type == G3DSYMMETRYTYPE ) ) ) {
         G3DOBJECT *commitedObj = g3dobject_commit ( obj, 
                                                     oid, 

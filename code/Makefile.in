@@ -89,10 +89,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-@HAVE_GTK3_FALSE@@HAVE_MOTIF_FALSE@@HAVE_WIN32_TRUE@bin_PROGRAMS = gloss3d-win32$(EXEEXT)
-@HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@bin_PROGRAMS =  \
-@HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	gloss3d-motif$(EXEEXT)
-@HAVE_GTK3_TRUE@bin_PROGRAMS = gloss3d-gtk3$(EXEEXT)
+bin_PROGRAMS = gloss3d-gtk3$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -111,55 +108,20 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am__gloss3d_gtk3_SOURCES_DIST = main.c list.c GLwDrawA.c GLwMDrawA.c
-@HAVE_GTK3_FALSE@@HAVE_MOTIF_FALSE@@HAVE_WIN32_TRUE@am__objects_1 = main.$(OBJEXT) \
-@HAVE_GTK3_FALSE@@HAVE_MOTIF_FALSE@@HAVE_WIN32_TRUE@	list.$(OBJEXT)
-@HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@am__objects_1 = main.$(OBJEXT) \
-@HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	GLwDrawA.$(OBJEXT) \
-@HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	GLwMDrawA.$(OBJEXT) \
-@HAVE_GTK3_FALSE@@HAVE_MOTIF_TRUE@	list.$(OBJEXT)
-@HAVE_GTK3_TRUE@am__objects_1 = main.$(OBJEXT) list.$(OBJEXT)
-@HAVE_GTK3_TRUE@am_gloss3d_gtk3_OBJECTS = $(am__objects_1)
+am__objects_1 = main.$(OBJEXT)
+am_gloss3d_gtk3_OBJECTS = $(am__objects_1)
 gloss3d_gtk3_OBJECTS = $(am_gloss3d_gtk3_OBJECTS)
-@HAVE_GTK3_TRUE@gloss3d_gtk3_DEPENDENCIES =  \
-@HAVE_GTK3_TRUE@	g3dengine/libgloss-g3dengine.la \
-@HAVE_GTK3_TRUE@	g3dexport/libgloss-g3dexport.la \
-@HAVE_GTK3_TRUE@	g3dimport/libgloss-g3dimport.la \
-@HAVE_GTK3_TRUE@	g3dmouse/libgloss-g3dmouse.la \
-@HAVE_GTK3_TRUE@	g3dcom/libgloss-g3dcom.la \
-@HAVE_GTK3_TRUE@	g3dui/libgloss-g3dui-gtk3.la \
-@HAVE_GTK3_TRUE@	g3durmanager/libgloss-g3durmanager.la \
-@HAVE_GTK3_TRUE@	makeup3d/libgloss-makeup3d.la \
-@HAVE_GTK3_TRUE@	qiss3d/libgloss-q3d.la
+gloss3d_gtk3_DEPENDENCIES = g3dengine/libgloss-g3dengine.la \
+	g3dexport/libgloss-g3dexport.la \
+	g3dimport/libgloss-g3dimport.la g3dmouse/libgloss-g3dmouse.la \
+	g3dcom/libgloss-g3dcom.la g3dui/libgloss-g3dui-gtk3.la \
+	g3durmanager/libgloss-g3durmanager.la \
+	makeup3d/libgloss-makeup3d.la qiss3d/libgloss-q3d.la \
+	list/libgloss-list.la
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-am__gloss3d_motif_SOURCES_DIST = main.c list.c GLwDrawA.c GLwMDrawA.c
-@HAVE_MOTIF_TRUE@am_gloss3d_motif_OBJECTS = $(am__objects_1)
-gloss3d_motif_OBJECTS = $(am_gloss3d_motif_OBJECTS)
-@HAVE_MOTIF_TRUE@gloss3d_motif_DEPENDENCIES =  \
-@HAVE_MOTIF_TRUE@	g3dengine/libgloss-g3d.la \
-@HAVE_MOTIF_TRUE@	g3dexport/libgloss-g3dexport.la \
-@HAVE_MOTIF_TRUE@	g3dimport/libgloss-g3dimport.la \
-@HAVE_MOTIF_TRUE@	g3dmouse/libgloss-g3dmouse.la \
-@HAVE_MOTIF_TRUE@	g3dcom/libgloss-g3dcom.la \
-@HAVE_MOTIF_TRUE@	g3dui/libgloss-g3dui-motif.la \
-@HAVE_MOTIF_TRUE@	g3durmanager/libgloss-g3durmanager.la \
-@HAVE_MOTIF_TRUE@	makeup3d/libgloss-makeup3d.la \
-@HAVE_MOTIF_TRUE@	qiss3d/libgloss-q3d.la
-am__gloss3d_win32_SOURCES_DIST = main.c list.c GLwDrawA.c GLwMDrawA.c
-@HAVE_WIN32_TRUE@am_gloss3d_win32_OBJECTS = $(am__objects_1)
-gloss3d_win32_OBJECTS = $(am_gloss3d_win32_OBJECTS)
-@HAVE_WIN32_TRUE@gloss3d_win32_DEPENDENCIES =  \
-@HAVE_WIN32_TRUE@	g3dengine/libgloss-g3d.la \
-@HAVE_WIN32_TRUE@	g3dexport/libgloss-g3dexport.la \
-@HAVE_WIN32_TRUE@	g3dimport/libgloss-g3dimport.la \
-@HAVE_WIN32_TRUE@	g3dmouse/libgloss-g3dmouse.la \
-@HAVE_WIN32_TRUE@	g3dcom/libgloss-g3dcom.la \
-@HAVE_WIN32_TRUE@	g3dui/libgloss-g3dui-gtk3.la \
-@HAVE_WIN32_TRUE@	g3durmanager/libgloss-g3durmanager.la \
-@HAVE_WIN32_TRUE@	qiss3d/libgloss-q3d.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -175,8 +137,7 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/GLwDrawA.Po ./$(DEPDIR)/GLwMDrawA.Po \
-	./$(DEPDIR)/list.Po ./$(DEPDIR)/main.Po
+am__depfiles_remade = ./$(DEPDIR)/main.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -196,11 +157,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(gloss3d_gtk3_SOURCES) $(gloss3d_motif_SOURCES) \
-	$(gloss3d_win32_SOURCES)
-DIST_SOURCES = $(am__gloss3d_gtk3_SOURCES_DIST) \
-	$(am__gloss3d_motif_SOURCES_DIST) \
-	$(am__gloss3d_win32_SOURCES_DIST)
+SOURCES = $(gloss3d_gtk3_SOURCES)
+DIST_SOURCES = $(gloss3d_gtk3_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -383,6 +341,7 @@ datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
+have_win32 = @have_win32@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -417,12 +376,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
-@HAVE_GTK3_TRUE@AM_LDFLAGS = -Wl,--no-as-needed -lXpm -lGL -lGLU -lX11 `pkg-config --libs freetype2` -ljpeg -lpng -lm -lpthread -lc
-@HAVE_MOTIF_TRUE@AM_LDFLAGS = -Wl,--no-as-needed -lXpm -lGL -lGLU -lGLw -lXt -lX11 `pkg-config --libs freetype2` -ljpeg -lpng -lm -lpthread -lc
-@HAVE_WIN32_TRUE@AM_LDFLAGS = -Wl,--no-as-needed -lGL -lGLU -ljpeg -lpng -lm
-@HAVE_GTK3_TRUE@AM_CFLAGS = -g -I$(top_srcdir)/include -L/usr/lib -L/usr/lib/i386-linux-gnu -L/usr/lib/x86_64-linux-gnu `pkg-config --cflags freetype2` -Wimplicit-function-declaration -Wformat 
-@HAVE_MOTIF_TRUE@AM_CFLAGS = -g -I$(top_srcdir)/include -L/usr/lib -L/usr/lib/i386-linux-gnu -L/usr/lib/x86_64-linux-gnu `pkg-config --cflags freetype2` -Wimplicit-function-declaration -Wformat 
-@HAVE_WIN32_TRUE@AM_CFLAGS = -g -I$(top_srcdir)/include -I/usr/src/tarball/libjpg-win32/include -Wimplicit-function-declaration -Wformat 
+AM_LDFLAGS = -Wl,-no-undefined -shared
 SUBDIRS = g3dengine \
           g3dexport \
           g3dimport \
@@ -433,52 +387,20 @@ SUBDIRS = g3dengine \
           makeup3d \
           qiss3d
 
-@HAVE_GTK3_TRUE@gloss3d_gtk3_SOURCES = $(BINGLOSS3D_C_FILES)
-@HAVE_GTK3_TRUE@gloss3d_gtk3_LDADD = g3dengine/libgloss-g3dengine.la \
-@HAVE_GTK3_TRUE@                         g3dexport/libgloss-g3dexport.la \
-@HAVE_GTK3_TRUE@                         g3dimport/libgloss-g3dimport.la \
-@HAVE_GTK3_TRUE@                         g3dmouse/libgloss-g3dmouse.la \
-@HAVE_GTK3_TRUE@                         g3dcom/libgloss-g3dcom.la \
-@HAVE_GTK3_TRUE@                         g3dui/libgloss-g3dui-gtk3.la \
-@HAVE_GTK3_TRUE@                         g3durmanager/libgloss-g3durmanager.la \
-@HAVE_GTK3_TRUE@                         makeup3d/libgloss-makeup3d.la \
-@HAVE_GTK3_TRUE@                         qiss3d/libgloss-q3d.la
+gloss3d_gtk3_SOURCES = $(BINGLOSS3D_C_FILES)
+gloss3d_gtk3_LDADD = g3dengine/libgloss-g3dengine.la \
+                     g3dexport/libgloss-g3dexport.la \
+                     g3dimport/libgloss-g3dimport.la \
+                     g3dmouse/libgloss-g3dmouse.la \
+                     g3dcom/libgloss-g3dcom.la \
+                     g3dui/libgloss-g3dui-gtk3.la \
+                     g3durmanager/libgloss-g3durmanager.la \
+                     makeup3d/libgloss-makeup3d.la \
+                     qiss3d/libgloss-q3d.la \
+                     list/libgloss-list.la
 
-#                         r3dnet/libgloss-r3dnet.la
-@HAVE_GTK3_TRUE@BINGLOSS3D_C_FILES = main.c \
-@HAVE_GTK3_TRUE@                           list.c
-
-#                          r3dnet/libgloss-r3dnet.la
-@HAVE_MOTIF_TRUE@BINGLOSS3D_C_FILES = main.c \
-@HAVE_MOTIF_TRUE@                           GLwDrawA.c \
-@HAVE_MOTIF_TRUE@                           GLwMDrawA.c \
-@HAVE_MOTIF_TRUE@                           list.c
-
-#                          r3dnet/libgloss-r3dnet.la
-@HAVE_WIN32_TRUE@BINGLOSS3D_C_FILES = main.c \
-@HAVE_WIN32_TRUE@                           list.c
-
-@HAVE_MOTIF_TRUE@gloss3d_motif_SOURCES = $(BINGLOSS3D_C_FILES)
-@HAVE_MOTIF_TRUE@gloss3d_motif_LDADD = g3dengine/libgloss-g3d.la \
-@HAVE_MOTIF_TRUE@                          g3dexport/libgloss-g3dexport.la \
-@HAVE_MOTIF_TRUE@                          g3dimport/libgloss-g3dimport.la \
-@HAVE_MOTIF_TRUE@                          g3dmouse/libgloss-g3dmouse.la \
-@HAVE_MOTIF_TRUE@                          g3dcom/libgloss-g3dcom.la \
-@HAVE_MOTIF_TRUE@                          g3dui/libgloss-g3dui-motif.la \
-@HAVE_MOTIF_TRUE@                          g3durmanager/libgloss-g3durmanager.la \
-@HAVE_MOTIF_TRUE@                          makeup3d/libgloss-makeup3d.la \
-@HAVE_MOTIF_TRUE@                          qiss3d/libgloss-q3d.la
-
-@HAVE_WIN32_TRUE@gloss3d_win32_SOURCES = $(BINGLOSS3D_C_FILES)
-@HAVE_WIN32_TRUE@gloss3d_win32_LDADD = g3dengine/libgloss-g3d.la \
-@HAVE_WIN32_TRUE@                          g3dexport/libgloss-g3dexport.la \
-@HAVE_WIN32_TRUE@                          g3dimport/libgloss-g3dimport.la \
-@HAVE_WIN32_TRUE@                          g3dmouse/libgloss-g3dmouse.la \
-@HAVE_WIN32_TRUE@                          g3dcom/libgloss-g3dcom.la \
-@HAVE_WIN32_TRUE@                          g3dui/libgloss-g3dui-gtk3.la \
-@HAVE_WIN32_TRUE@                          g3durmanager/libgloss-g3durmanager.la \
-@HAVE_WIN32_TRUE@                          qiss3d/libgloss-q3d.la
-
+#                     r3dnet/libgloss-r3dnet.la
+BINGLOSS3D_C_FILES = main.c
 EXTRA_DIST = include/g3dexport.h \
                        include/g3dexportv2.h \
                        include/g3dexportv3.h \
@@ -531,109 +453,109 @@ EXTRA_DIST = include/g3dexport.h \
                        include/signaturesv2.h \
                        include/signaturesv3.h \
                        include/siggen.sh \
-                       xpm/addvertex.xpm \
-                       xpm/axismode.xpm \
-                       xpm/bonico.xpm \
-                       xpm/bridge.xpm \
-                       xpm/bucket.xpm \
-                       xpm/camico.xpm \
-                       xpm/cube.xpm \
-                       xpm/cubico.xpm \
-                       xpm/cylico.xpm \
-                       xpm/cylinder.xpm \
-                       xpm/defico.xpm \
-                       xpm/delete.xpm \
-                       xpm/disico.xpm \
-                       xpm/edgemode.xpm \
-                       xpm/enaico.xpm \
-                       xpm/eraser.xpm \
-                       xpm/extrude.xpm \
-                       xpm/eyeopn.xpm \
-                       xpm/eyesht.xpm \
-                       xpm/facemode.xpm \
-                       xpm/ffdico.xpm \
-                       xpm/horz.xpm \
-                       xpm/knife.xpm \
-                       xpm/ligico.xpm \
-                       xpm/makeedit.xpm \
-                       xpm/mapico.xpm \
-                       xpm/matedit.xpm \
-                       xpm/maximize_view.xpm \
-                       xpm/mesico.xpm \
-                       xpm/move.xpm \
-                       xpm/newfile.xpm \
-                       xpm/nextframe.xpm \
-                       xpm/objectmode.xpm \
-                       xpm/pathmode.xpm \
-                       xpm/openfile.xpm \
-                       xpm/pen.xpm \
-                       xpm/pick.xpm \
-                       xpm/playanim.xpm \
-                       xpm/plnico.xpm \
-                       xpm/prevframe.xpm \
-                       xpm/record.xpm \
-                       xpm/redo.xpm \
-                       xpm/renderw.xpm \
-                       xpm/render.xpm \
-                       xpm/rotate_view.xpm \
-                       xpm/rotate.xpm \
-                       xpm/saveas.xpm \
-                       xpm/saveimageas.xpm \
-                       xpm/save.xpm \
-                       xpm/saveimage.xpm \
-                       xpm/scale.xpm \
-                       xpm/scnico.xpm \
-                       xpm/sknico.xpm \
-                       xpm/insico.xpm \
-                       xpm/sculptmode.xpm \
-                       xpm/selectarea.xpm \
-                       xpm/selectrandom.xpm \
-                       xpm/shor.xpm \
-                       xpm/skinmode.xpm \
-                       xpm/sobj.xpm \
-                       xpm/sphere.xpm \
-                       xpm/sphico.xpm \
-                       xpm/splico.xpm \
-                       xpm/srvico.xpm \
-                       xpm/stopanim.xpm \
-                       xpm/stoprender.xpm \
-                       xpm/subico.xpm \
-                       xpm/symico.xpm \
-                       xpm/torico.xpm \
-                       xpm/tracker.xpm \
-                       xpm/translate_view.xpm \
-                       xpm/tubico.xpm \
-                       xpm/txtico.xpm \
-                       xpm/undo.xpm \
-                       xpm/morpher.xpm \
-                       xpm/unselectarea.xpm \
-                       xpm/unzoomtime.xpm \
-                       xpm/uvwmapmode.xpm \
-                       xpm/vertexmode.xpm \
-                       xpm/vert.xpm \
-                       xpm/vibrate.xpm \
-                       xpm/wirico.xpm \
-                       xpm/xaxis.xpm \
-                       xpm/yaxis.xpm \
-                       xpm/zaxis.xpm \
-                       xpm/zoomtime.xpm \
-                       xpm/zoom_view.xpm \
-                       xpm/scale_keys.xpm \
-                       xpm/pick_keys.xpm \
-                       xpm/vertexmode_test.xpm \
-                       xpm/objectmode_test.xpm \
-                       xpm/edgemode_test.xpm \
-                       xpm/facemode_test.xpm \
-                       xpm/skinmode_test.xpm \
-                       xpm/uvwmapmode_test.xpm \
-                       xpm/axismode_test.xpm \
-                       xpm/pemico.xpm \
-                       xpm/brush_0.c \
-                       xpm/brush_1.c \
-                       xpm/brush_2.c \
-                       xpm/brush_3.c \
-                       xpm/brush_4.c \
-                       xpm/brush_5.c
+                       include/xpm/addvertex.xpm \
+                       include/xpm/axismode.xpm \
+                       include/xpm/bonico.xpm \
+                       include/xpm/bridge.xpm \
+                       include/xpm/bucket.xpm \
+                       include/xpm/camico.xpm \
+                       include/xpm/cube.xpm \
+                       include/xpm/cubico.xpm \
+                       include/xpm/cylico.xpm \
+                       include/xpm/cylinder.xpm \
+                       include/xpm/defico.xpm \
+                       include/xpm/delete.xpm \
+                       include/xpm/disico.xpm \
+                       include/xpm/edgemode.xpm \
+                       include/xpm/enaico.xpm \
+                       include/xpm/eraser.xpm \
+                       include/xpm/extrude.xpm \
+                       include/xpm/eyeopn.xpm \
+                       include/xpm/eyesht.xpm \
+                       include/xpm/facemode.xpm \
+                       include/xpm/ffdico.xpm \
+                       include/xpm/horz.xpm \
+                       include/xpm/knife.xpm \
+                       include/xpm/ligico.xpm \
+                       include/xpm/makeedit.xpm \
+                       include/xpm/mapico.xpm \
+                       include/xpm/matedit.xpm \
+                       include/xpm/maximize_view.xpm \
+                       include/xpm/mesico.xpm \
+                       include/xpm/move.xpm \
+                       include/xpm/newfile.xpm \
+                       include/xpm/nextframe.xpm \
+                       include/xpm/objectmode.xpm \
+                       include/xpm/pathmode.xpm \
+                       include/xpm/openfile.xpm \
+                       include/xpm/pen.xpm \
+                       include/xpm/pick.xpm \
+                       include/xpm/playanim.xpm \
+                       include/xpm/plnico.xpm \
+                       include/xpm/prevframe.xpm \
+                       include/xpm/record.xpm \
+                       include/xpm/redo.xpm \
+                       include/xpm/renderw.xpm \
+                       include/xpm/render.xpm \
+                       include/xpm/rotate_view.xpm \
+                       include/xpm/rotate.xpm \
+                       include/xpm/saveas.xpm \
+                       include/xpm/saveimageas.xpm \
+                       include/xpm/save.xpm \
+                       include/xpm/saveimage.xpm \
+                       include/xpm/scale.xpm \
+                       include/xpm/scnico.xpm \
+                       include/xpm/sknico.xpm \
+                       include/xpm/insico.xpm \
+                       include/xpm/sculptmode.xpm \
+                       include/xpm/selectarea.xpm \
+                       include/xpm/selectrandom.xpm \
+                       include/xpm/shor.xpm \
+                       include/xpm/skinmode.xpm \
+                       include/xpm/sobj.xpm \
+                       include/xpm/sphere.xpm \
+                       include/xpm/sphico.xpm \
+                       include/xpm/splico.xpm \
+                       include/xpm/srvico.xpm \
+                       include/xpm/stopanim.xpm \
+                       include/xpm/stoprender.xpm \
+                       include/xpm/subico.xpm \
+                       include/xpm/symico.xpm \
+                       include/xpm/torico.xpm \
+                       include/xpm/tracker.xpm \
+                       include/xpm/translate_view.xpm \
+                       include/xpm/tubico.xpm \
+                       include/xpm/txtico.xpm \
+                       include/xpm/undo.xpm \
+                       include/xpm/morpher.xpm \
+                       include/xpm/unselectarea.xpm \
+                       include/xpm/unzoomtime.xpm \
+                       include/xpm/uvwmapmode.xpm \
+                       include/xpm/vertexmode.xpm \
+                       include/xpm/vert.xpm \
+                       include/xpm/vibrate.xpm \
+                       include/xpm/wirico.xpm \
+                       include/xpm/xaxis.xpm \
+                       include/xpm/yaxis.xpm \
+                       include/xpm/zaxis.xpm \
+                       include/xpm/zoomtime.xpm \
+                       include/xpm/zoom_view.xpm \
+                       include/xpm/scale_keys.xpm \
+                       include/xpm/pick_keys.xpm \
+                       include/xpm/vertexmode_test.xpm \
+                       include/xpm/objectmode_test.xpm \
+                       include/xpm/edgemode_test.xpm \
+                       include/xpm/facemode_test.xpm \
+                       include/xpm/skinmode_test.xpm \
+                       include/xpm/uvwmapmode_test.xpm \
+                       include/xpm/axismode_test.xpm \
+                       include/xpm/pemico.xpm \
+                       include/xpm/brush_0.c \
+                       include/xpm/brush_1.c \
+                       include/xpm/brush_2.c \
+                       include/xpm/brush_3.c \
+                       include/xpm/brush_4.c \
+                       include/xpm/brush_5.c
 
 all: all-recursive
 
@@ -741,23 +663,12 @@ gloss3d-gtk3$(EXEEXT): $(gloss3d_gtk3_OBJECTS) $(gloss3d_gtk3_DEPENDENCIES) $(EX
 	@rm -f gloss3d-gtk3$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(gloss3d_gtk3_OBJECTS) $(gloss3d_gtk3_LDADD) $(LIBS)
 
-gloss3d-motif$(EXEEXT): $(gloss3d_motif_OBJECTS) $(gloss3d_motif_DEPENDENCIES) $(EXTRA_gloss3d_motif_DEPENDENCIES) 
-	@rm -f gloss3d-motif$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(gloss3d_motif_OBJECTS) $(gloss3d_motif_LDADD) $(LIBS)
-
-gloss3d-win32$(EXEEXT): $(gloss3d_win32_OBJECTS) $(gloss3d_win32_DEPENDENCIES) $(EXTRA_gloss3d_win32_DEPENDENCIES) 
-	@rm -f gloss3d-win32$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(gloss3d_win32_OBJECTS) $(gloss3d_win32_LDADD) $(LIBS)
-
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GLwDrawA.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GLwMDrawA.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -1145,10 +1056,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-		-rm -f ./$(DEPDIR)/GLwDrawA.Po
-	-rm -f ./$(DEPDIR)/GLwMDrawA.Po
-	-rm -f ./$(DEPDIR)/list.Po
-	-rm -f ./$(DEPDIR)/main.Po
+		-rm -f ./$(DEPDIR)/main.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags
@@ -1196,10 +1104,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-		-rm -f ./$(DEPDIR)/GLwDrawA.Po
-	-rm -f ./$(DEPDIR)/GLwMDrawA.Po
-	-rm -f ./$(DEPDIR)/list.Po
-	-rm -f ./$(DEPDIR)/main.Po
+		-rm -f ./$(DEPDIR)/main.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

@@ -132,198 +132,91 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_g3dui_gtk3_la_LIBADD =
-am__libgloss_g3dui_gtk3_la_SOURCES_DIST = common/g3dui.c \
-	common/g3duiboard.c common/g3duiboneedit.c \
-	common/g3duibonelinker.c common/g3duicameraedit.c \
-	common/g3duiclipboard.c common/g3duiconf.c \
-	common/g3duicoordinatesedit.c common/g3duicubeedit.c \
-	common/g3duicurrentedit.c common/g3duicylinderedit.c \
-	common/g3duiexport.c common/g3duiffdedit.c \
-	common/g3duiinstanceedit.c common/g3duikeyedit.c \
-	common/g3duilightedit.c common/g3duimain.c \
-	common/g3duimaterialboard.c common/g3duimaterialedit.c \
-	common/g3duimateriallist.c common/g3duimaterialnameedit.c \
-	common/g3duimenu.c common/g3duimeshedit.c \
-	common/g3duimeshposelist.c common/g3duimodebar.c \
-	common/g3duimousetool.c common/g3duiobjectboard.c \
-	common/g3duiobjectlist.c common/g3duiobjectedit.c \
-	common/g3duiparticleemitteredit.c common/m3duipatternlist.c \
-	common/g3duiplaneedit.c common/g3duiquad.c \
-	common/g3duirenderbuffer.c common/g3duirenderedit.c \
-	common/g3duirenderprocess.c common/g3duirenderwindow.c \
-	common/g3duisphereedit.c common/g3duisplinerevolveredit.c \
-	common/g3duisubdivideredit.c common/g3duisymmetryedit.c \
-	common/g3duitextedit.c common/g3duitextureedit.c \
-	common/g3duitimeboard.c common/g3duitimeline.c \
-	common/g3duitoolbar.c common/g3duitorusedit.c \
-	common/g3duitrackertagedit.c common/g3duitubeedit.c \
-	common/g3duiuvmapedit.c common/g3duiview.c \
-	common/g3duiviewexport.c common/g3duiweightgrouplist.c \
-	common/g3duiwireframeedit.c \
-	common/mousetool/m3duibuckettooledit.c \
-	common/mousetool/g3duicutmeshtooledit.c \
-	common/mousetool/m3duipentooledit.c \
-	common/mousetool/g3duipicktooledit.c \
-	common/mousetool/g3duisculpttooledit.c common/m3dui.c \
-	common/m3duiboard.c common/m3duicolorpicker.c \
-	common/m3duimain.c common/m3duimodebar.c common/m3duitoolbar.c \
-	common/m3duiview.c gtk3/g3dui.c gtk3/g3duiboard.c \
-	gtk3/g3duiboneedit.c gtk3/g3duicameraedit.c gtk3/g3duicom.c \
-	gtk3/g3duicoordinatesedit.c gtk3/g3duicubeedit.c \
-	gtk3/g3duicylinderedit.c gtk3/g3duiffdedit.c \
-	gtk3/g3duiinstanceedit.c gtk3/g3duikeyedit.c \
-	gtk3/g3duilightedit.c gtk3/g3duimain.c \
-	gtk3/g3duimateriallist.c gtk3/g3duimaterialedit.c \
-	gtk3/g3duimaterialboard.c gtk3/g3duimenubar.c \
-	gtk3/g3duimeshedit.c gtk3/g3duimodebar.c \
-	gtk3/g3duimorpheredit.c gtk3/g3duimorpherkeyedit.c \
-	gtk3/g3duiobjectboard.c gtk3/g3duiobjectedit.c \
-	gtk3/g3duiobjectlist.c gtk3/g3duiplaneedit.c \
-	gtk3/g3duiparticleemitteredit.c \
-	gtk3/g3duiproceduralbrickedit.c \
-	gtk3/g3duiproceduralchessedit.c \
-	gtk3/g3duiproceduralgradientedit.c \
-	gtk3/g3duiproceduralnoiseedit.c gtk3/g3duiquad.c \
-	gtk3/g3duirenderedit.c gtk3/g3duirenderwindow.c \
-	gtk3/g3duisphereedit.c gtk3/g3duisplinerevolveredit.c \
-	gtk3/g3duisubdivideredit.c gtk3/g3duisymmetryedit.c \
-	gtk3/g3duitextedit.c gtk3/g3duitextureedit.c \
-	gtk3/g3duitimeboard.c gtk3/g3duitimeline.c gtk3/g3duitoolbar.c \
-	gtk3/g3duitorusedit.c gtk3/g3duitrackertagedit.c \
-	gtk3/g3duitubeedit.c gtk3/g3duiuvmapedit.c gtk3/g3duiview.c \
-	gtk3/g3duiwireframeedit.c gtk3/q3dfilters.c gtk3/q3dpreview.c \
-	gtk3/menu/condition.c gtk3/menu/mainmenu.c \
-	gtk3/menu/materialboardmenu.c gtk3/menu/objectboardmenu.c \
-	gtk3/menu/renderwindowmenu.c gtk3/menu/timelinemenu.c \
-	gtk3/menu/uveditormenu.c gtk3/menu/uvviewmenu.c \
-	gtk3/menu/viewmenu.c gtk3/mousetool/m3duimousetooledit.c \
-	gtk3/mousetool/m3duibuckettooledit.c \
-	gtk3/mousetool/m3duipentooledit.c \
-	gtk3/mousetool/g3duimousetooledit.c \
-	gtk3/mousetool/g3duicutmeshtooledit.c \
-	gtk3/mousetool/g3duipicktooledit.c \
-	gtk3/mousetool/g3duisculpttooledit.c gtk3/m3dui.c \
-	gtk3/m3duiboard.c gtk3/m3duichannelimagecreator.c \
-	gtk3/m3duicolorpicker.c gtk3/m3duimain.c gtk3/m3duimodebar.c \
-	gtk3/m3duipatternlist.c gtk3/m3duitoolbar.c gtk3/m3duiview.c \
-	gtk3/css/default.c
 am__dirstamp = $(am__leading_dot)dirstamp
-@HAVE_GTK3_TRUE@am__objects_1 = common/g3dui.lo common/g3duiboard.lo \
-@HAVE_GTK3_TRUE@	common/g3duiboneedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duibonelinker.lo \
-@HAVE_GTK3_TRUE@	common/g3duicameraedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duiclipboard.lo common/g3duiconf.lo \
-@HAVE_GTK3_TRUE@	common/g3duicoordinatesedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duicubeedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duicurrentedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duicylinderedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duiexport.lo common/g3duiffdedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duiinstanceedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duikeyedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duilightedit.lo common/g3duimain.lo \
-@HAVE_GTK3_TRUE@	common/g3duimaterialboard.lo \
-@HAVE_GTK3_TRUE@	common/g3duimaterialedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duimateriallist.lo \
-@HAVE_GTK3_TRUE@	common/g3duimaterialnameedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duimenu.lo common/g3duimeshedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duimeshposelist.lo \
-@HAVE_GTK3_TRUE@	common/g3duimodebar.lo \
-@HAVE_GTK3_TRUE@	common/g3duimousetool.lo \
-@HAVE_GTK3_TRUE@	common/g3duiobjectboard.lo \
-@HAVE_GTK3_TRUE@	common/g3duiobjectlist.lo \
-@HAVE_GTK3_TRUE@	common/g3duiobjectedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duiparticleemitteredit.lo \
-@HAVE_GTK3_TRUE@	common/m3duipatternlist.lo \
-@HAVE_GTK3_TRUE@	common/g3duiplaneedit.lo common/g3duiquad.lo \
-@HAVE_GTK3_TRUE@	common/g3duirenderbuffer.lo \
-@HAVE_GTK3_TRUE@	common/g3duirenderedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duirenderprocess.lo \
-@HAVE_GTK3_TRUE@	common/g3duirenderwindow.lo \
-@HAVE_GTK3_TRUE@	common/g3duisphereedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duisplinerevolveredit.lo \
-@HAVE_GTK3_TRUE@	common/g3duisubdivideredit.lo \
-@HAVE_GTK3_TRUE@	common/g3duisymmetryedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duitextedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duitextureedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duitimeboard.lo \
-@HAVE_GTK3_TRUE@	common/g3duitimeline.lo common/g3duitoolbar.lo \
-@HAVE_GTK3_TRUE@	common/g3duitorusedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duitrackertagedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duitubeedit.lo \
-@HAVE_GTK3_TRUE@	common/g3duiuvmapedit.lo common/g3duiview.lo \
-@HAVE_GTK3_TRUE@	common/g3duiviewexport.lo \
-@HAVE_GTK3_TRUE@	common/g3duiweightgrouplist.lo \
-@HAVE_GTK3_TRUE@	common/g3duiwireframeedit.lo \
-@HAVE_GTK3_TRUE@	common/mousetool/m3duibuckettooledit.lo \
-@HAVE_GTK3_TRUE@	common/mousetool/g3duicutmeshtooledit.lo \
-@HAVE_GTK3_TRUE@	common/mousetool/m3duipentooledit.lo \
-@HAVE_GTK3_TRUE@	common/mousetool/g3duipicktooledit.lo \
-@HAVE_GTK3_TRUE@	common/mousetool/g3duisculpttooledit.lo \
-@HAVE_GTK3_TRUE@	common/m3dui.lo common/m3duiboard.lo \
-@HAVE_GTK3_TRUE@	common/m3duicolorpicker.lo common/m3duimain.lo \
-@HAVE_GTK3_TRUE@	common/m3duimodebar.lo common/m3duitoolbar.lo \
-@HAVE_GTK3_TRUE@	common/m3duiview.lo gtk3/g3dui.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiboard.lo gtk3/g3duiboneedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duicameraedit.lo gtk3/g3duicom.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duicoordinatesedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duicubeedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duicylinderedit.lo gtk3/g3duiffdedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiinstanceedit.lo gtk3/g3duikeyedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duilightedit.lo gtk3/g3duimain.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duimateriallist.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duimaterialedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duimaterialboard.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duimenubar.lo gtk3/g3duimeshedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duimodebar.lo gtk3/g3duimorpheredit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duimorpherkeyedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiobjectboard.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiobjectedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiobjectlist.lo gtk3/g3duiplaneedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiparticleemitteredit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiproceduralbrickedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiproceduralchessedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiproceduralgradientedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiproceduralnoiseedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiquad.lo gtk3/g3duirenderedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duirenderwindow.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duisphereedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duisplinerevolveredit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duisubdivideredit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duisymmetryedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duitextedit.lo gtk3/g3duitextureedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duitimeboard.lo gtk3/g3duitimeline.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duitoolbar.lo gtk3/g3duitorusedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duitrackertagedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duitubeedit.lo gtk3/g3duiuvmapedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/g3duiview.lo gtk3/g3duiwireframeedit.lo \
-@HAVE_GTK3_TRUE@	gtk3/q3dfilters.lo gtk3/q3dpreview.lo \
-@HAVE_GTK3_TRUE@	gtk3/menu/condition.lo gtk3/menu/mainmenu.lo \
-@HAVE_GTK3_TRUE@	gtk3/menu/materialboardmenu.lo \
-@HAVE_GTK3_TRUE@	gtk3/menu/objectboardmenu.lo \
-@HAVE_GTK3_TRUE@	gtk3/menu/renderwindowmenu.lo \
-@HAVE_GTK3_TRUE@	gtk3/menu/timelinemenu.lo \
-@HAVE_GTK3_TRUE@	gtk3/menu/uveditormenu.lo \
-@HAVE_GTK3_TRUE@	gtk3/menu/uvviewmenu.lo gtk3/menu/viewmenu.lo \
-@HAVE_GTK3_TRUE@	gtk3/mousetool/m3duimousetooledit.lo \
-@HAVE_GTK3_TRUE@	gtk3/mousetool/m3duibuckettooledit.lo \
-@HAVE_GTK3_TRUE@	gtk3/mousetool/m3duipentooledit.lo \
-@HAVE_GTK3_TRUE@	gtk3/mousetool/g3duimousetooledit.lo \
-@HAVE_GTK3_TRUE@	gtk3/mousetool/g3duicutmeshtooledit.lo \
-@HAVE_GTK3_TRUE@	gtk3/mousetool/g3duipicktooledit.lo \
-@HAVE_GTK3_TRUE@	gtk3/mousetool/g3duisculpttooledit.lo \
-@HAVE_GTK3_TRUE@	gtk3/m3dui.lo gtk3/m3duiboard.lo \
-@HAVE_GTK3_TRUE@	gtk3/m3duichannelimagecreator.lo \
-@HAVE_GTK3_TRUE@	gtk3/m3duicolorpicker.lo gtk3/m3duimain.lo \
-@HAVE_GTK3_TRUE@	gtk3/m3duimodebar.lo gtk3/m3duipatternlist.lo \
-@HAVE_GTK3_TRUE@	gtk3/m3duitoolbar.lo gtk3/m3duiview.lo \
-@HAVE_GTK3_TRUE@	gtk3/css/default.lo
-@HAVE_GTK3_TRUE@am_libgloss_g3dui_gtk3_la_OBJECTS = $(am__objects_1)
+am__objects_1 = common/g3dui.lo common/g3duiboard.lo \
+	common/g3duiboneedit.lo common/g3duibonelinker.lo \
+	common/g3duicameraedit.lo common/g3duiclipboard.lo \
+	common/g3duiconf.lo common/g3duicoordinatesedit.lo \
+	common/g3duicubeedit.lo common/g3duicurrentedit.lo \
+	common/g3duicylinderedit.lo common/g3duiexport.lo \
+	common/g3duiffdedit.lo common/g3duiinstanceedit.lo \
+	common/g3duikeyedit.lo common/g3duilightedit.lo \
+	common/g3duimain.lo common/g3duimaterialboard.lo \
+	common/g3duimaterialedit.lo common/g3duimateriallist.lo \
+	common/g3duimaterialnameedit.lo common/g3duimenu.lo \
+	common/g3duimeshedit.lo common/g3duimeshposelist.lo \
+	common/g3duimodebar.lo common/g3duimousetool.lo \
+	common/g3duiobjectboard.lo common/g3duiobjectlist.lo \
+	common/g3duiobjectedit.lo common/g3duiparticleemitteredit.lo \
+	common/m3duipatternlist.lo common/g3duiplaneedit.lo \
+	common/g3duiquad.lo common/g3duirenderbuffer.lo \
+	common/g3duirenderedit.lo common/g3duirenderprocess.lo \
+	common/g3duirenderwindow.lo common/g3duisphereedit.lo \
+	common/g3duisplinerevolveredit.lo \
+	common/g3duisubdivideredit.lo common/g3duisymmetryedit.lo \
+	common/g3duitextedit.lo common/g3duitextureedit.lo \
+	common/g3duitimeboard.lo common/g3duitimeline.lo \
+	common/g3duitoolbar.lo common/g3duitorusedit.lo \
+	common/g3duitrackertagedit.lo common/g3duitubeedit.lo \
+	common/g3duiuvmapedit.lo common/g3duiview.lo \
+	common/g3duiviewexport.lo common/g3duiweightgrouplist.lo \
+	common/g3duiwireframeedit.lo \
+	common/mousetool/m3duibuckettooledit.lo \
+	common/mousetool/g3duicutmeshtooledit.lo \
+	common/mousetool/m3duipentooledit.lo \
+	common/mousetool/g3duipicktooledit.lo \
+	common/mousetool/g3duisculpttooledit.lo common/m3dui.lo \
+	common/m3duiboard.lo common/m3duicolorpicker.lo \
+	common/m3duimain.lo common/m3duimodebar.lo \
+	common/m3duitoolbar.lo common/m3duiview.lo gtk3/g3dui.lo \
+	gtk3/g3duiboard.lo gtk3/g3duiboneedit.lo \
+	gtk3/g3duicameraedit.lo gtk3/g3duicom.lo \
+	gtk3/g3duicoordinatesedit.lo gtk3/g3duicubeedit.lo \
+	gtk3/g3duicylinderedit.lo gtk3/g3duiffdedit.lo \
+	gtk3/g3duiinstanceedit.lo gtk3/g3duikeyedit.lo \
+	gtk3/g3duilightedit.lo gtk3/g3duimain.lo \
+	gtk3/g3duimateriallist.lo gtk3/g3duimaterialedit.lo \
+	gtk3/g3duimaterialboard.lo gtk3/g3duimenubar.lo \
+	gtk3/g3duimeshedit.lo gtk3/g3duimodebar.lo \
+	gtk3/g3duimorpheredit.lo gtk3/g3duimorpherkeyedit.lo \
+	gtk3/g3duiobjectboard.lo gtk3/g3duiobjectedit.lo \
+	gtk3/g3duiobjectlist.lo gtk3/g3duiplaneedit.lo \
+	gtk3/g3duiparticleemitteredit.lo \
+	gtk3/g3duiproceduralbrickedit.lo \
+	gtk3/g3duiproceduralchessedit.lo \
+	gtk3/g3duiproceduralgradientedit.lo \
+	gtk3/g3duiproceduralnoiseedit.lo gtk3/g3duiquad.lo \
+	gtk3/g3duirenderedit.lo gtk3/g3duirenderwindow.lo \
+	gtk3/g3duisphereedit.lo gtk3/g3duisplinerevolveredit.lo \
+	gtk3/g3duisubdivideredit.lo gtk3/g3duisymmetryedit.lo \
+	gtk3/g3duitextedit.lo gtk3/g3duitextureedit.lo \
+	gtk3/g3duitimeboard.lo gtk3/g3duitimeline.lo \
+	gtk3/g3duitoolbar.lo gtk3/g3duitorusedit.lo \
+	gtk3/g3duitrackertagedit.lo gtk3/g3duitubeedit.lo \
+	gtk3/g3duiuvmapedit.lo gtk3/g3duiview.lo \
+	gtk3/g3duiwireframeedit.lo gtk3/q3dfilters.lo \
+	gtk3/q3dpreview.lo gtk3/menu/condition.lo \
+	gtk3/menu/mainmenu.lo gtk3/menu/materialboardmenu.lo \
+	gtk3/menu/objectboardmenu.lo gtk3/menu/renderwindowmenu.lo \
+	gtk3/menu/timelinemenu.lo gtk3/menu/uveditormenu.lo \
+	gtk3/menu/uvviewmenu.lo gtk3/menu/viewmenu.lo \
+	gtk3/mousetool/m3duimousetooledit.lo \
+	gtk3/mousetool/m3duibuckettooledit.lo \
+	gtk3/mousetool/m3duipentooledit.lo \
+	gtk3/mousetool/g3duimousetooledit.lo \
+	gtk3/mousetool/g3duicutmeshtooledit.lo \
+	gtk3/mousetool/g3duipicktooledit.lo \
+	gtk3/mousetool/g3duisculpttooledit.lo gtk3/m3dui.lo \
+	gtk3/m3duiboard.lo gtk3/m3duichannelimagecreator.lo \
+	gtk3/m3duicolorpicker.lo gtk3/m3duimain.lo \
+	gtk3/m3duimodebar.lo gtk3/m3duipatternlist.lo \
+	gtk3/m3duitoolbar.lo gtk3/m3duiview.lo gtk3/css/default.lo
+am_libgloss_g3dui_gtk3_la_OBJECTS = $(am__objects_1)
 libgloss_g3dui_gtk3_la_OBJECTS = $(am_libgloss_g3dui_gtk3_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-@HAVE_GTK3_TRUE@am_libgloss_g3dui_gtk3_la_rpath = -rpath $(libdir)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -492,7 +385,7 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(libgloss_g3dui_gtk3_la_SOURCES)
-DIST_SOURCES = $(am__libgloss_g3dui_gtk3_la_SOURCES_DIST)
+DIST_SOURCES = $(libgloss_g3dui_gtk3_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -612,6 +505,7 @@ datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
 exec_prefix = @exec_prefix@
+have_win32 = @have_win32@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -646,154 +540,162 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
-AM_CFLAGS = -I$(top_srcdir)/include \
-            -I$(top_srcdir) -Wimplicit-function-declaration -Wformat
+@HAVE_WIN32_TRUE@AM_LDFLAGS = -shared -no-undefined `pkg-config --libs gtk+-3.0` \
+@HAVE_WIN32_TRUE@                                       -lfontconfig \
+@HAVE_WIN32_TRUE@                                       -L../g3dmouse/.libs/ -lgloss-g3dmouse \
+@HAVE_WIN32_TRUE@                                       -L../g3durmanager/.libs/ -lgloss-g3durmanager \
+@HAVE_WIN32_TRUE@                                       -L../makeup3d/.libs/ -lgloss-makeup3d \
+@HAVE_WIN32_TRUE@                                       -L../qiss3d/.libs/ -lgloss-q3d \
+@HAVE_WIN32_TRUE@                                       -L../g3dimport/.libs/ -lgloss-g3dimport \
+@HAVE_WIN32_TRUE@                                       -L../g3dexport/.libs/ -lgloss-g3dexport \
+@HAVE_WIN32_TRUE@                                       -L../g3dengine/.libs/ -lgloss-g3dengine \
+@HAVE_WIN32_TRUE@                                       -L../list/.libs/ -lgloss-list \
+@HAVE_WIN32_TRUE@                                       -lavifil32 -lmsvfw32 -lshlwapi -lgdi32
 
-@HAVE_GTK3_TRUE@AM_LDFLAGS = -Wl,--no-as-needed `pkg-config --libs gtk+-3.0`
-@HAVE_GTK3_TRUE@lib_LTLIBRARIES = libgloss-g3dui-gtk3.la
-@HAVE_GTK3_TRUE@libgloss_g3dui_gtk3_la_SOURCES = $(LIBGLOSSG3DUI_C_FILES)
-@HAVE_GTK3_TRUE@LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
-@HAVE_GTK3_TRUE@                            common/g3duiboard.c \
-@HAVE_GTK3_TRUE@                            common/g3duiboneedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duibonelinker.c \
-@HAVE_GTK3_TRUE@                            common/g3duicameraedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duiclipboard.c \
-@HAVE_GTK3_TRUE@                            common/g3duiconf.c \
-@HAVE_GTK3_TRUE@                            common/g3duicoordinatesedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duicubeedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duicurrentedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duicylinderedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duiexport.c \
-@HAVE_GTK3_TRUE@                            common/g3duiffdedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duiinstanceedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duikeyedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duilightedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duimain.c \
-@HAVE_GTK3_TRUE@                            common/g3duimaterialboard.c \
-@HAVE_GTK3_TRUE@                            common/g3duimaterialedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duimateriallist.c \
-@HAVE_GTK3_TRUE@                            common/g3duimaterialnameedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duimenu.c \
-@HAVE_GTK3_TRUE@                            common/g3duimeshedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duimeshposelist.c \
-@HAVE_GTK3_TRUE@                            common/g3duimodebar.c \
-@HAVE_GTK3_TRUE@                            common/g3duimousetool.c \
-@HAVE_GTK3_TRUE@                            common/g3duiobjectboard.c \
-@HAVE_GTK3_TRUE@                            common/g3duiobjectlist.c \
-@HAVE_GTK3_TRUE@                            common/g3duiobjectedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duiparticleemitteredit.c \
-@HAVE_GTK3_TRUE@                            common/m3duipatternlist.c \
-@HAVE_GTK3_TRUE@                            common/g3duiplaneedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duiquad.c \
-@HAVE_GTK3_TRUE@                            common/g3duirenderbuffer.c \
-@HAVE_GTK3_TRUE@                            common/g3duirenderedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duirenderprocess.c \
-@HAVE_GTK3_TRUE@                            common/g3duirenderwindow.c \
-@HAVE_GTK3_TRUE@                            common/g3duisphereedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duisplinerevolveredit.c \
-@HAVE_GTK3_TRUE@                            common/g3duisubdivideredit.c \
-@HAVE_GTK3_TRUE@                            common/g3duisymmetryedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duitextedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duitextureedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duitimeboard.c \
-@HAVE_GTK3_TRUE@                            common/g3duitimeline.c \
-@HAVE_GTK3_TRUE@                            common/g3duitoolbar.c \
-@HAVE_GTK3_TRUE@                            common/g3duitorusedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duitrackertagedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duitubeedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duiuvmapedit.c \
-@HAVE_GTK3_TRUE@                            common/g3duiview.c \
-@HAVE_GTK3_TRUE@                            common/g3duiviewexport.c \
-@HAVE_GTK3_TRUE@                            common/g3duiweightgrouplist.c \
-@HAVE_GTK3_TRUE@                            common/g3duiwireframeedit.c \
-@HAVE_GTK3_TRUE@                            common/mousetool/m3duibuckettooledit.c \
-@HAVE_GTK3_TRUE@                            common/mousetool/g3duicutmeshtooledit.c \
-@HAVE_GTK3_TRUE@                            common/mousetool/m3duipentooledit.c \
-@HAVE_GTK3_TRUE@                            common/mousetool/g3duipicktooledit.c \
-@HAVE_GTK3_TRUE@                            common/mousetool/g3duisculpttooledit.c \
-@HAVE_GTK3_TRUE@                            common/m3dui.c \
-@HAVE_GTK3_TRUE@                            common/m3duiboard.c \
-@HAVE_GTK3_TRUE@                            common/m3duicolorpicker.c \
-@HAVE_GTK3_TRUE@                            common/m3duimain.c \
-@HAVE_GTK3_TRUE@                            common/m3duimodebar.c \
-@HAVE_GTK3_TRUE@                            common/m3duitoolbar.c \
-@HAVE_GTK3_TRUE@                            common/m3duiview.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3dui.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiboard.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiboneedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duicameraedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duicom.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duicoordinatesedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duicubeedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duicylinderedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiffdedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiinstanceedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duikeyedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duilightedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duimain.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duimateriallist.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duimaterialedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duimaterialboard.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duimenubar.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duimeshedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duimodebar.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duimorpheredit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duimorpherkeyedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiobjectboard.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiobjectedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiobjectlist.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiplaneedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiparticleemitteredit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiproceduralbrickedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiproceduralchessedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiproceduralgradientedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiproceduralnoiseedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiquad.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duirenderedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duirenderwindow.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duisphereedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duisplinerevolveredit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duisubdivideredit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duisymmetryedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duitextedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duitextureedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duitimeboard.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duitimeline.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duitoolbar.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duitorusedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duitrackertagedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duitubeedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiuvmapedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiview.c \
-@HAVE_GTK3_TRUE@                            gtk3/g3duiwireframeedit.c \
-@HAVE_GTK3_TRUE@                            gtk3/q3dfilters.c \
-@HAVE_GTK3_TRUE@                            gtk3/q3dpreview.c \
-@HAVE_GTK3_TRUE@                            gtk3/menu/condition.c \
-@HAVE_GTK3_TRUE@                            gtk3/menu/mainmenu.c \
-@HAVE_GTK3_TRUE@                            gtk3/menu/materialboardmenu.c \
-@HAVE_GTK3_TRUE@                            gtk3/menu/objectboardmenu.c \
-@HAVE_GTK3_TRUE@                            gtk3/menu/renderwindowmenu.c \
-@HAVE_GTK3_TRUE@                            gtk3/menu/timelinemenu.c \
-@HAVE_GTK3_TRUE@                            gtk3/menu/uveditormenu.c \
-@HAVE_GTK3_TRUE@                            gtk3/menu/uvviewmenu.c \
-@HAVE_GTK3_TRUE@                            gtk3/menu/viewmenu.c \
-@HAVE_GTK3_TRUE@                            gtk3/mousetool/m3duimousetooledit.c \
-@HAVE_GTK3_TRUE@                            gtk3/mousetool/m3duibuckettooledit.c \
-@HAVE_GTK3_TRUE@                            gtk3/mousetool/m3duipentooledit.c \
-@HAVE_GTK3_TRUE@                            gtk3/mousetool/g3duimousetooledit.c \
-@HAVE_GTK3_TRUE@                            gtk3/mousetool/g3duicutmeshtooledit.c \
-@HAVE_GTK3_TRUE@                            gtk3/mousetool/g3duipicktooledit.c \
-@HAVE_GTK3_TRUE@                            gtk3/mousetool/g3duisculpttooledit.c \
-@HAVE_GTK3_TRUE@                            gtk3/m3dui.c \
-@HAVE_GTK3_TRUE@                            gtk3/m3duiboard.c \
-@HAVE_GTK3_TRUE@                            gtk3/m3duichannelimagecreator.c \
-@HAVE_GTK3_TRUE@                            gtk3/m3duicolorpicker.c \
-@HAVE_GTK3_TRUE@                            gtk3/m3duimain.c \
-@HAVE_GTK3_TRUE@                            gtk3/m3duimodebar.c \
-@HAVE_GTK3_TRUE@                            gtk3/m3duipatternlist.c \
-@HAVE_GTK3_TRUE@                            gtk3/m3duitoolbar.c \
-@HAVE_GTK3_TRUE@                            gtk3/m3duiview.c \
-@HAVE_GTK3_TRUE@                            gtk3/css/default.c
+lib_LTLIBRARIES = libgloss-g3dui-gtk3.la
+libgloss_g3dui_gtk3_la_SOURCES = $(LIBGLOSSG3DUI_C_FILES)
+LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
+                        common/g3duiboard.c \
+                        common/g3duiboneedit.c \
+                        common/g3duibonelinker.c \
+                        common/g3duicameraedit.c \
+                        common/g3duiclipboard.c \
+                        common/g3duiconf.c \
+                        common/g3duicoordinatesedit.c \
+                        common/g3duicubeedit.c \
+                        common/g3duicurrentedit.c \
+                        common/g3duicylinderedit.c \
+                        common/g3duiexport.c \
+                        common/g3duiffdedit.c \
+                        common/g3duiinstanceedit.c \
+                        common/g3duikeyedit.c \
+                        common/g3duilightedit.c \
+                        common/g3duimain.c \
+                        common/g3duimaterialboard.c \
+                        common/g3duimaterialedit.c \
+                        common/g3duimateriallist.c \
+                        common/g3duimaterialnameedit.c \
+                        common/g3duimenu.c \
+                        common/g3duimeshedit.c \
+                        common/g3duimeshposelist.c \
+                        common/g3duimodebar.c \
+                        common/g3duimousetool.c \
+                        common/g3duiobjectboard.c \
+                        common/g3duiobjectlist.c \
+                        common/g3duiobjectedit.c \
+                        common/g3duiparticleemitteredit.c \
+                        common/m3duipatternlist.c \
+                        common/g3duiplaneedit.c \
+                        common/g3duiquad.c \
+                        common/g3duirenderbuffer.c \
+                        common/g3duirenderedit.c \
+                        common/g3duirenderprocess.c \
+                        common/g3duirenderwindow.c \
+                        common/g3duisphereedit.c \
+                        common/g3duisplinerevolveredit.c \
+                        common/g3duisubdivideredit.c \
+                        common/g3duisymmetryedit.c \
+                        common/g3duitextedit.c \
+                        common/g3duitextureedit.c \
+                        common/g3duitimeboard.c \
+                        common/g3duitimeline.c \
+                        common/g3duitoolbar.c \
+                        common/g3duitorusedit.c \
+                        common/g3duitrackertagedit.c \
+                        common/g3duitubeedit.c \
+                        common/g3duiuvmapedit.c \
+                        common/g3duiview.c \
+                        common/g3duiviewexport.c \
+                        common/g3duiweightgrouplist.c \
+                        common/g3duiwireframeedit.c \
+                        common/mousetool/m3duibuckettooledit.c \
+                        common/mousetool/g3duicutmeshtooledit.c \
+                        common/mousetool/m3duipentooledit.c \
+                        common/mousetool/g3duipicktooledit.c \
+                        common/mousetool/g3duisculpttooledit.c \
+                        common/m3dui.c \
+                        common/m3duiboard.c \
+                        common/m3duicolorpicker.c \
+                        common/m3duimain.c \
+                        common/m3duimodebar.c \
+                        common/m3duitoolbar.c \
+                        common/m3duiview.c \
+                        gtk3/g3dui.c \
+                        gtk3/g3duiboard.c \
+                        gtk3/g3duiboneedit.c \
+                        gtk3/g3duicameraedit.c \
+                        gtk3/g3duicom.c \
+                        gtk3/g3duicoordinatesedit.c \
+                        gtk3/g3duicubeedit.c \
+                        gtk3/g3duicylinderedit.c \
+                        gtk3/g3duiffdedit.c \
+                        gtk3/g3duiinstanceedit.c \
+                        gtk3/g3duikeyedit.c \
+                        gtk3/g3duilightedit.c \
+                        gtk3/g3duimain.c \
+                        gtk3/g3duimateriallist.c \
+                        gtk3/g3duimaterialedit.c \
+                        gtk3/g3duimaterialboard.c \
+                        gtk3/g3duimenubar.c \
+                        gtk3/g3duimeshedit.c \
+                        gtk3/g3duimodebar.c \
+                        gtk3/g3duimorpheredit.c \
+                        gtk3/g3duimorpherkeyedit.c \
+                        gtk3/g3duiobjectboard.c \
+                        gtk3/g3duiobjectedit.c \
+                        gtk3/g3duiobjectlist.c \
+                        gtk3/g3duiplaneedit.c \
+                        gtk3/g3duiparticleemitteredit.c \
+                        gtk3/g3duiproceduralbrickedit.c \
+                        gtk3/g3duiproceduralchessedit.c \
+                        gtk3/g3duiproceduralgradientedit.c \
+                        gtk3/g3duiproceduralnoiseedit.c \
+                        gtk3/g3duiquad.c \
+                        gtk3/g3duirenderedit.c \
+                        gtk3/g3duirenderwindow.c \
+                        gtk3/g3duisphereedit.c \
+                        gtk3/g3duisplinerevolveredit.c \
+                        gtk3/g3duisubdivideredit.c \
+                        gtk3/g3duisymmetryedit.c \
+                        gtk3/g3duitextedit.c \
+                        gtk3/g3duitextureedit.c \
+                        gtk3/g3duitimeboard.c \
+                        gtk3/g3duitimeline.c \
+                        gtk3/g3duitoolbar.c \
+                        gtk3/g3duitorusedit.c \
+                        gtk3/g3duitrackertagedit.c \
+                        gtk3/g3duitubeedit.c \
+                        gtk3/g3duiuvmapedit.c \
+                        gtk3/g3duiview.c \
+                        gtk3/g3duiwireframeedit.c \
+                        gtk3/q3dfilters.c \
+                        gtk3/q3dpreview.c \
+                        gtk3/menu/condition.c \
+                        gtk3/menu/mainmenu.c \
+                        gtk3/menu/materialboardmenu.c \
+                        gtk3/menu/objectboardmenu.c \
+                        gtk3/menu/renderwindowmenu.c \
+                        gtk3/menu/timelinemenu.c \
+                        gtk3/menu/uveditormenu.c \
+                        gtk3/menu/uvviewmenu.c \
+                        gtk3/menu/viewmenu.c \
+                        gtk3/mousetool/m3duimousetooledit.c \
+                        gtk3/mousetool/m3duibuckettooledit.c \
+                        gtk3/mousetool/m3duipentooledit.c \
+                        gtk3/mousetool/g3duimousetooledit.c \
+                        gtk3/mousetool/g3duicutmeshtooledit.c \
+                        gtk3/mousetool/g3duipicktooledit.c \
+                        gtk3/mousetool/g3duisculpttooledit.c \
+                        gtk3/m3dui.c \
+                        gtk3/m3duiboard.c \
+                        gtk3/m3duichannelimagecreator.c \
+                        gtk3/m3duicolorpicker.c \
+                        gtk3/m3duimain.c \
+                        gtk3/m3duimodebar.c \
+                        gtk3/m3duipatternlist.c \
+                        gtk3/m3duitoolbar.c \
+                        gtk3/m3duiview.c \
+                        gtk3/css/default.c
 
 all: all-am
 
@@ -1183,7 +1085,7 @@ gtk3/css/default.lo: gtk3/css/$(am__dirstamp) \
 	gtk3/css/$(DEPDIR)/$(am__dirstamp)
 
 libgloss-g3dui-gtk3.la: $(libgloss_g3dui_gtk3_la_OBJECTS) $(libgloss_g3dui_gtk3_la_DEPENDENCIES) $(EXTRA_libgloss_g3dui_gtk3_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(LINK) $(am_libgloss_g3dui_gtk3_la_rpath) $(libgloss_g3dui_gtk3_la_OBJECTS) $(libgloss_g3dui_gtk3_la_LIBADD) $(LIBS)
+	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libgloss_g3dui_gtk3_la_OBJECTS) $(libgloss_g3dui_gtk3_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

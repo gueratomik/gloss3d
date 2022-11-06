@@ -1369,14 +1369,14 @@ I dont't know why.
                 glActiveTextureARB ( arbid );
                 #endif
                 #ifdef __MINGW32__
-                if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
+                /*if ( ext_glActiveTextureARB ) ext_*/glActiveTextureARB ( arbid );
                 #endif
 
                 #ifdef __linux__
                 glClientActiveTextureARB ( arbid );
                 #endif
                 #ifdef __MINGW32__
-                if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );
+                /*if ( ext_glClientActiveTextureARB ) ext_*/glClientActiveTextureARB ( arbid );
                 #endif
                 glEnableClientState ( GL_TEXTURE_COORD_ARRAY );
 
@@ -1429,14 +1429,14 @@ static void unbindMaterials ( G3DMESH *mes,
                     glActiveTextureARB ( arbid );
                     #endif
                     #ifdef __MINGW32__
-                    if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
+                    /*if ( ext_glActiveTextureARB ) ext_*/glActiveTextureARB ( arbid );
                     #endif
 
                     #ifdef __linux__
                     glClientActiveTextureARB ( arbid );
                     #endif
                     #ifdef __MINGW32__
-                    if ( ext_glClientActiveTextureARB ) ext_glClientActiveTextureARB ( arbid );
+                    /*if ( ext_glClientActiveTextureARB ) ext_*/glClientActiveTextureARB ( arbid );
                     #endif
                     glDisableClientState ( GL_TEXTURE_COORD_ARRAY );
 

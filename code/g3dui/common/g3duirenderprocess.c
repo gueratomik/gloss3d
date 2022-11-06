@@ -28,6 +28,7 @@
 /******************************************************************************/
 #include <config.h>
 #include <g3dui.h>
+#include <inttypes.h>
 
 /******************************************************************************/
 void g3duirenderprocess_savejpg ( G3DUIRENDERPROCESS *rps, 

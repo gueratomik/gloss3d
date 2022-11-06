@@ -27,6 +27,7 @@
 /******************************************************************************/
 #include <config.h>
 
+
 #ifdef __linux__
 /******************************************************************************/
     #ifdef WITH_MOTIF
@@ -42,22 +43,20 @@
 #ifdef __MINGW32__
     #include <windows.h>
     #include <g3dui_gtk3.h>
+#endif
 
-char * strsep(char **sp, char *sep) {
-    char *p, *s;
 
-    if (sp == NULL || *sp == NULL || **sp == '\0') return(NULL);
+#ifdef TEST
+#include <GL/GL.h>
 
-    s = *sp;
-    p = s + strcspn(s, sep);
-
-    if (*p != '\0') *p++ = '\0';
-
-    *sp = p;
-
-    return(s);
+int main ( int argc, char *argv[] ) {
+    int i;
+    for ( i = 0; i < 10; i++ ){
+    glBegin ( GL_POINTS );
+    printf("test\n");
+    glEnd ( );
+    }
 }
-
 #endif
 
 /******************************************************************************/
@@ -93,6 +92,8 @@ static gboolean Configure ( GtkWindow *window,
 
     return TRUE;
 }
+
+
 
 /******************************************************************************/
 #ifdef __linux__
@@ -220,3 +221,4 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     return 0x00;
 }
+

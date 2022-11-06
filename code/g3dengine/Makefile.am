@@ -1,11 +1,8 @@
 ACLOCAL_AMFLAGS= -I m4
 
 if HAVE_WIN32
-    AM_CFLAGS = -g -I$(top_srcdir)/include -I/usr/src/tarball/libjpg-win32/include -Wimplicit-function-declaration -Wformat 
-else
-    AM_CFLAGS = -I$(top_srcdir)/include -Wimplicit-function-declaration -Wformat
+    AM_LDFLAGS = -L../list/.libs/ -shared -no-undefined `pkg-config --cflags glib-2.0` -lglib-2.0 -lopengl32 -lglu32 -lglew32 -ljpeg -lgloss-list
 endif
-
 
 lib_LTLIBRARIES = libgloss-g3dengine.la
 libgloss_g3dengine_la_SOURCES = $(LIBGLOSSG3D_C_FILES)

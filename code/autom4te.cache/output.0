@@ -664,6 +664,7 @@ MT_IM_GTK3_CFLAGS
 PKG_CONFIG_LIBDIR
 PKG_CONFIG_PATH
 PKG_CONFIG
+have_win32
 HAVE_EXPAT_FALSE
 HAVE_EXPAT_TRUE
 HAVE_WIN32_FALSE
@@ -806,9 +807,6 @@ with_sysroot
 enable_libtool_lock
 enable_dependency_tracking
 enable_silent_rules
-with_win32
-with_motif
-with_gtk3
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1475,9 +1473,6 @@ Optional Packages:
   --with-gnu-ld           assume the C compiler uses GNU ld @<:@default=no@:>@
   --with-sysroot@<:@=DIR@:>@    Search for dependent libraries within DIR (or the
                           compiler's sysroot if not specified).
-  --with-win32            build for Windows(gtk3)
-  --with-motif            build Motif Front-End (default)
-  --with-gtk3             build GTK+3 Front-End
 
 Some influential environment variables:
   CC          C compiler command
@@ -2655,9 +2650,6 @@ test -n "$target_alias" &&
   test "$program_prefix$program_suffix$program_transform_name" = \
     NONENONEs,x,x, &&
   program_prefix=${target_alias}-
-
-ac_config_files="$ac_config_files Makefile"
-
 ac_config_headers="$ac_config_headers include/config.h"
 
 
@@ -13571,10 +13563,6 @@ printf "%s\n" "$ac_cv_path_EGREP" >&6; }
  
 
 
-
-#Check for MingW32 (default)
-#AC_CHECK_PROG(have_win32, i386-mingw32-gcc, yes, no)
-
  if false; then
   HAVE_MOTIF_TRUE=
   HAVE_MOTIF_FALSE='#'
@@ -13608,42 +13596,57 @@ else
 fi
 
 
+#Check for MingW32 (default)
+# Extract the first word of "x86_64-w64-mingw32-cc", so it can be a program name with args.
+set dummy x86_64-w64-mingw32-cc; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_prog_have_win32+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  if test -n "$have_win32"; then
+  ac_cv_prog_have_win32="$have_win32" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_prog_have_win32="yes"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_prog_have_win32" && ac_cv_prog_have_win32="no"
+fi
+fi
+have_win32=$ac_cv_prog_have_win32
+if test -n "$have_win32"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $have_win32" >&5
+printf "%s\n" "$have_win32" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+
 if test x"$have_win32" = xyes
 then
     
-@%:@ Check whether --with-win32 was given.
-if test ${with_win32+y}
-then :
-  withval=$with_win32; 
-fi
+printf "%s\n" "@%:@define HAVE_WIN32 1" >>confdefs.h
 
-
-    if test x"$with_win32" = xyes
-    then
-        
-printf "%s\n" "@%:@define WITH_WIN32 1" >>confdefs.h
-
-
-         if false; then
-  HAVE_MOTIF_TRUE=
-  HAVE_MOTIF_FALSE='#'
-else
-  HAVE_MOTIF_TRUE='#'
-  HAVE_MOTIF_FALSE=
-fi
-
-         if false; then
-  HAVE_GTK3_TRUE=
-  HAVE_GTK3_FALSE='#'
-else
-  HAVE_GTK3_TRUE='#'
-  HAVE_GTK3_FALSE=
-fi
-
-        
-printf "%s\n" "@%:@define HAVE_EXPAT_H 1" >>confdefs.h
-
-         if true; then
+     if true; then
   HAVE_WIN32_TRUE=
   HAVE_WIN32_FALSE='#'
 else
@@ -13651,10 +13654,31 @@ else
   HAVE_WIN32_FALSE=
 fi
 
-    fi
-else
-    # Checks for expat.
-           for ac_header in expat.h
+
+    CFLAGS="$CFLAGS -I/mingw64/include -I/mingw64/include/freetype2"
+fi
+
+       for ac_header in ft2build.h
+do :
+  ac_fn_c_check_header_compile "$LINENO" "ft2build.h" "ac_cv_header_ft2build_h" "$ac_includes_default"
+if test "x$ac_cv_header_ft2build_h" = xyes
+then :
+  printf "%s\n" "@%:@define HAVE_FT2BUILD_H 1" >>confdefs.h
+ have_freetype2=yes
+else $as_nop
+  have_freetype2=no
+fi
+
+done
+
+if test x"$have_freetype2" = xyes
+then
+    CFLAGS="$CFLAGS `pkg-config --cflags freetype2`"
+    LDFLAGS="$LDFLAGS `pkg-config --libs freetype2`"
+fi
+
+# Checks for expat.
+       for ac_header in expat.h
 do :
   ac_fn_c_check_header_compile "$LINENO" "expat.h" "ac_cv_header_expat_h" "$ac_includes_default"
 if test "x$ac_cv_header_expat_h" = xyes
@@ -13666,7 +13690,7 @@ else $as_nop
 fi
 
 done
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for XML_SetElementHandler in -lexpat" >&5
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for XML_SetElementHandler in -lexpat" >&5
 printf %s "checking for XML_SetElementHandler in -lexpat... " >&6; }
 if test ${ac_cv_lib_expat_XML_SetElementHandler+y}
 then :
@@ -13709,8 +13733,17 @@ else $as_nop
 fi
 
 
-    # Checks for libjpeg.
-           for ac_header in jpeglib.h
+if test x"$have_expat" = xyes
+then
+    
+printf "%s\n" "@%:@define HAVE_EXPAT 1" >>confdefs.h
+
+    
+    LDFLAGS="$LDFLAGS -lexpat"
+fi
+
+# Checks for libjpeg.
+       for ac_header in jpeglib.h
 do :
   ac_fn_c_check_header_compile "$LINENO" "jpeglib.h" "ac_cv_header_jpeglib_h" "$ac_includes_default"
 if test "x$ac_cv_header_jpeglib_h" = xyes
@@ -13722,7 +13755,7 @@ else $as_nop
 fi
 
 done
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for jpeg_destroy_decompress in -ljpeg" >&5
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for jpeg_destroy_decompress in -ljpeg" >&5
 printf %s "checking for jpeg_destroy_decompress in -ljpeg... " >&6; }
 if test ${ac_cv_lib_jpeg_jpeg_destroy_decompress+y}
 then :
@@ -13765,8 +13798,8 @@ else $as_nop
 fi
 
 
-    # Checks for libpng.
-           for ac_header in png.h
+# Checks for libpng.
+       for ac_header in png.h
 do :
   ac_fn_c_check_header_compile "$LINENO" "png.h" "ac_cv_header_png_h" "$ac_includes_default"
 if test "x$ac_cv_header_png_h" = xyes
@@ -13778,7 +13811,7 @@ else $as_nop
 fi
 
 done
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for png_read_info in -lpng" >&5
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for png_read_info in -lpng" >&5
 printf %s "checking for png_read_info in -lpng... " >&6; }
 if test ${ac_cv_lib_png_png_read_info+y}
 then :
@@ -13821,65 +13854,8 @@ else $as_nop
 fi
 
 
-    #Check for Motif (default)
-           for ac_header in Xm/Xm.h
-do :
-  ac_fn_c_check_header_compile "$LINENO" "Xm/Xm.h" "ac_cv_header_Xm_Xm_h" "$ac_includes_default"
-if test "x$ac_cv_header_Xm_Xm_h" = xyes
-then :
-  printf "%s\n" "@%:@define HAVE_XM_XM_H 1" >>confdefs.h
- have_motif=yes
-else $as_nop
-  have_motif=no
-fi
+#Check for GTK3
 
-done
-
-    if test x"$have_motif" = xyes
-    then
-        
-@%:@ Check whether --with-motif was given.
-if test ${with_motif+y}
-then :
-  withval=$with_motif; 
-fi
-
-
-        if test x"$with_motif" = xyes
-        then
-            
-printf "%s\n" "@%:@define WITH_MOTIF 1" >>confdefs.h
-
-
-             if true; then
-  HAVE_MOTIF_TRUE=
-  HAVE_MOTIF_FALSE='#'
-else
-  HAVE_MOTIF_TRUE='#'
-  HAVE_MOTIF_FALSE=
-fi
-
-             if false; then
-  HAVE_GTK3_TRUE=
-  HAVE_GTK3_FALSE='#'
-else
-  HAVE_GTK3_TRUE='#'
-  HAVE_GTK3_FALSE=
-fi
-
-             if false; then
-  HAVE_WIN32_TRUE=
-  HAVE_WIN32_FALSE='#'
-else
-  HAVE_WIN32_TRUE='#'
-  HAVE_WIN32_FALSE=
-fi
-
-        fi
-    fi
-
-    #Check for GTK3
-    
 
 
 
@@ -14080,65 +14056,27 @@ else
 printf "%s\n" "yes" >&6; }
 	have_gtk3="yes"
 fi
-    
-@%:@ Check whether --with-gtk3 was given.
-if test ${with_gtk3+y}
-then :
-  withval=$with_gtk3; 
-fi
 
-
-    if test x"$have_gtk3" = xyes
-    then
-        if test x"$with_gtk3" = xyes
-        then
-            
-printf "%s\n" "@%:@define WITH_GTK3 1" >>confdefs.h
-
-
-             if false; then
-  HAVE_MOTIF_TRUE=
-  HAVE_MOTIF_FALSE='#'
-else
-  HAVE_MOTIF_TRUE='#'
-  HAVE_MOTIF_FALSE=
-fi
-
-             if true; then
-  HAVE_GTK3_TRUE=
-  HAVE_GTK3_FALSE='#'
-else
-  HAVE_GTK3_TRUE='#'
-  HAVE_GTK3_FALSE=
-fi
-
-             if false; then
-  HAVE_WIN32_TRUE=
-  HAVE_WIN32_FALSE='#'
-else
-  HAVE_WIN32_TRUE='#'
-  HAVE_WIN32_FALSE=
-fi
-
-
-            CFLAGS="$CFLAGS `pkg-config --cflags gtk+-3.0`"
-            LDFLAGS="$LDFLAGS `pkg-config --libs gtk+-3.0`"
-        fi
-    fi
-fi
-
-if test x"$with_gtk3" != xyes
+if test x"$have_gtk3" = xyes
 then
-    if test x"$with_motif" != xyes
-    then
-        if test x"$with_win32" != xyes
-        then
-            as_fn_error $? "No front-end chosen. Please use --with-gtk3 or --with-motif." "$LINENO" 5
-        fi
-    fi
+    
+printf "%s\n" "@%:@define HAVE_GTK3 1" >>confdefs.h
+
+
+#    LDFLAGS="$LDFLAGS `pkg-config --libs gtk+-3.0` `pkg-config --libs gdk-3.0` `pkg-config --libs pango`"
+    CFLAGS="$CFLAGS `pkg-config --cflags gtk+-3.0` `pkg-config --cflags gdk-3.0` `pkg-config --cflags pango`"
 fi
 
-ac_config_files="$ac_config_files g3dengine/Makefile g3dexport/Makefile g3dimport/Makefile g3dmouse/Makefile g3dcom/Makefile g3dui/Makefile g3durmanager/Makefile makeup3d/Makefile qiss3d/Makefile"
+if test x"$have_win32" = xyes
+then
+#    LDFLAGS="-Wl,--no-as-needed -lXpm -lglew32 -ljpeg -lpng -lm $LDFLAGS -ljpeg -lpng -lm -lpthread -lc"
+    CFLAGS="-g -I$(top_srcdir)/include $CFLAGS -Wimplicit-function-declaration -Wformat"
+else
+#    LDFLAGS="-Wl,--no-as-needed -lXpm -lGL -lGLU -lX11 $LDFLAGS -ljpeg -lpng -lm -lpthread -lc"
+    CFLAGS="-g -I$(top_srcdir)/include -L/usr/lib -L/usr/lib/i386-linux-gnu -L/usr/lib/x86_64-linux-gnu $CFLAGS -Wimplicit-function-declaration -Wformat"
+fi
+
+ac_config_files="$ac_config_files g3dengine/Makefile g3dexport/Makefile g3dimport/Makefile g3dmouse/Makefile g3dcom/Makefile g3dui/Makefile g3durmanager/Makefile makeup3d/Makefile qiss3d/Makefile list/Makefile Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -14287,38 +14225,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_EXPAT_TRUE}" && test -z "${HAVE_EXPAT_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_EXPAT\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${HAVE_MOTIF_TRUE}" && test -z "${HAVE_MOTIF_FALSE}"; then
-  as_fn_error $? "conditional \"HAVE_MOTIF\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${HAVE_GTK3_TRUE}" && test -z "${HAVE_GTK3_FALSE}"; then
-  as_fn_error $? "conditional \"HAVE_GTK3\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${HAVE_WIN32_TRUE}" && test -z "${HAVE_WIN32_FALSE}"; then
-  as_fn_error $? "conditional \"HAVE_WIN32\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${HAVE_MOTIF_TRUE}" && test -z "${HAVE_MOTIF_FALSE}"; then
-  as_fn_error $? "conditional \"HAVE_MOTIF\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${HAVE_GTK3_TRUE}" && test -z "${HAVE_GTK3_FALSE}"; then
-  as_fn_error $? "conditional \"HAVE_GTK3\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${HAVE_WIN32_TRUE}" && test -z "${HAVE_WIN32_FALSE}"; then
-  as_fn_error $? "conditional \"HAVE_WIN32\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${HAVE_MOTIF_TRUE}" && test -z "${HAVE_MOTIF_FALSE}"; then
-  as_fn_error $? "conditional \"HAVE_MOTIF\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${HAVE_GTK3_TRUE}" && test -z "${HAVE_GTK3_FALSE}"; then
-  as_fn_error $? "conditional \"HAVE_GTK3\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_WIN32_TRUE}" && test -z "${HAVE_WIN32_FALSE}"; then
@@ -15197,7 +15103,6 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
-    "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "include/config.h") CONFIG_HEADERS="$CONFIG_HEADERS include/config.h" ;;
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
@@ -15210,6 +15115,8 @@ do
     "g3durmanager/Makefile") CONFIG_FILES="$CONFIG_FILES g3durmanager/Makefile" ;;
     "makeup3d/Makefile") CONFIG_FILES="$CONFIG_FILES makeup3d/Makefile" ;;
     "qiss3d/Makefile") CONFIG_FILES="$CONFIG_FILES qiss3d/Makefile" ;;
+    "list/Makefile") CONFIG_FILES="$CONFIG_FILES list/Makefile" ;;
+    "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

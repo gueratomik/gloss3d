@@ -58,4 +58,9 @@ void   list_freenext     ( LIST *, void (*)(void *) );
 void **list_to_array     ( LIST * );
 void  *list_seekbyrank   ( LIST *, int );
 void **list_to_reversed_array ( LIST *lis );
+
+#ifdef __MINGW32__
+char * strsep(char **sp, char *sep);
+#endif
+
 #endif

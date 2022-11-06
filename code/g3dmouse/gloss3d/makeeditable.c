@@ -83,7 +83,7 @@ static uint32_t makeeditable_init  ( G3DMOUSETOOL *mou,
     }
 
     if ( obj && ( ( obj->type & MODIFIER         ) ||
-                  ( obj->type & TEXT             ) ||
+                  ( obj->type & TEXTUAL          ) ||
                   ( obj->type == G3DSYMMETRYTYPE ) ) ) {
         G3DOBJECT *commitedObj = g3dobject_commit ( obj, 
                                                     oid, 

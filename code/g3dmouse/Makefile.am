@@ -1,6 +1,11 @@
 ACLOCAL_AMFLAGS= -I m4
 
-AM_CFLAGS = -I$(top_srcdir)/include -Wimplicit-function-declaration -Wformat
+if HAVE_WIN32
+    AM_LDFLAGS = -shared -no-undefined -L../g3durmanager/.libs/ -lgloss-g3durmanager \
+                                       -L../makeup3d/.libs/ -lgloss-makeup3d         \
+                                       -L../g3dengine/.libs/ -lgloss-g3dengine       \
+                                       -L../list/.libs/ -lgloss-list
+endif
 
 lib_LTLIBRARIES = libgloss-g3dmouse.la
 libgloss_g3dmouse_la_SOURCES = $(LIBGLOSSG3DMOUSE_C_FILES)

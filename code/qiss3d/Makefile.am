@@ -1,6 +1,12 @@
 ACLOCAL_AMFLAGS= -I m4
 
-AM_CFLAGS = -I$(top_srcdir)/include -Wimplicit-function-declaration -Wformat
+if HAVE_WIN32
+    AM_LDFLAGS = -shared -no-undefined -L../g3dimport/.libs/ -lgloss-g3dimport \
+                                       -L../g3dexport/.libs/ -lgloss-g3dexport \
+                                       -L../g3dengine/.libs/ -lgloss-g3dengine \
+                                       -L../list/.libs/ -lgloss-list \
+                                       -lavifil32 -lgdi32
+endif
 
 lib_LTLIBRARIES = libgloss-q3d.la
 libgloss_q3d_la_SOURCES = $(LIBGLOSSQ3D_C_FILES)

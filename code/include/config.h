@@ -4,8 +4,17 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 /* #undef HAVE_DLFCN_H */
 
+/* Use expat */
+#define HAVE_EXPAT 1
+
 /* Define to 1 if you have the <expat.h> header file. */
 #define HAVE_EXPAT_H 1
+
+/* Define to 1 if you have the <ft2build.h> header file. */
+#define HAVE_FT2BUILD_H 1
+
+/* Use GTK+3 */
+#define HAVE_GTK3 1
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define HAVE_INTTYPES_H 1
@@ -40,8 +49,8 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
 
-/* Define to 1 if you have the <Xm/Xm.h> header file. */
-/* #undef HAVE_XM_XM_H */
+/* Build for Windows */
+#define HAVE_WIN32 1
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #define LT_OBJDIR ".libs/"
@@ -74,12 +83,3 @@
 
 /* Version number of package */
 #define VERSION "0.99.0"
-
-/* Use GTK+3 */
-#define WITH_GTK3 1
-
-/* Use Motif */
-/* #undef WITH_MOTIF */
-
-/* Build for Windows */
-/* #undef WITH_WIN32 */

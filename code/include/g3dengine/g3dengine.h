@@ -56,20 +56,23 @@
 #endif
 
 /******************************************************************************/
-#include <GL/gl.h>
-#include <GL/glu.h>
 
 #ifdef __linux__
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include <GL/glx.h>
 #include <GL/glxext.h>
 #endif
 
 #ifdef __MINGW32__
+#include <GL/glew.h>
 #include <GL/glext.h>
+/*
 PFNGLACTIVETEXTUREARBPROC       ext_glActiveTextureARB;
 PFNGLMULTITEXCOORD2FARBPROC     ext_glMultiTexCoord2fARB;
 PFNGLCLIENTACTIVETEXTUREARBPROC ext_glClientActiveTextureARB;
 void                          (*ext_glGenerateMipmap) (GLenum target);
+*/
 #endif
 
 /******************************************************************************/
@@ -201,7 +204,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define EDITABLE        ( ( uint64_t )  1 << 22 )
 #define SPLINE          ( ( uint64_t )  1 << 23 )
 #define SPLINEREVOLVER  ( ( uint64_t )  1 << 24 )
-#define TEXT            ( ( uint64_t )  1 << 25 )
+#define TEXTUAL         ( ( uint64_t )  1 << 25 )
 #define TUBE            ( ( uint64_t )  1 << 26 )
 #define MORPHER         ( ( uint64_t )  1 << 27 )
 #define SKIN            ( ( uint64_t )  1 << 28 )
@@ -232,7 +235,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DUVMAPTYPE          ( OBJECT | UVMAP )
 #define G3DPIVOTTYPE          ( OBJECT | PIVOT )
 #define G3DSPLINETYPE         ( OBJECT | SPLINE )
-#define G3DTEXTTYPE           ( OBJECT | MESH | TEXT )
+#define G3DTEXTTYPE           ( OBJECT | MESH | TEXTUAL )
 /*** we dont need the MESH bit for the morpher modifier, that way it is ***/
 /*** ignore by g3dobject_getByType(), and mororver, it doesn't use vertex ***/
 /*** list or face list or edge list ***/

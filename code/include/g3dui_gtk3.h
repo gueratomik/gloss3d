@@ -47,18 +47,6 @@
 #endif
 
 /******************************************************************************/
-#ifdef __linux__
-#include <GL/gl.h>
-#include <GL/glx.h>
-#include <GL/glu.h>
-#endif
-
-#ifdef __MINGW32__
-#include <GL/gl.h>
-#include <GL/glu.h>
-#endif
-
-/******************************************************************************/
 #include <glib.h>
 #include <glib-object.h>
 #include <cairo/cairo.h>

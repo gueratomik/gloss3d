@@ -42,25 +42,8 @@
 #endif
 
 /******************************************************************************/
-#ifdef __linux__
-#include <GL/gl.h>
-#include <GL/glx.h>
-#include <GL/glxext.h>
-#include <GL/glu.h>
-#endif
-
-#ifdef __MINGW32__
-#include <windows.h>
-#include <winbase.h>
-#include <shlwapi.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#endif
-
-/******************************************************************************/
 #include <list.h>
 #include <g3dengine/g3dengine.h>
-
 
 #ifdef __linux__
 /*#include <r3dnet.h>*/

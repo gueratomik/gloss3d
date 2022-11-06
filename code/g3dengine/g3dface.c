@@ -798,7 +798,7 @@ I dont't know why.
                     glActiveTextureARB ( arbid );
                     #endif
                     #ifdef __MINGW32__
-                    if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
+                    /*if ( ext_glActiveTextureARB ) ext_*/glActiveTextureARB ( arbid );
                     #endif
 
                     /*** this is called here because we need the matrix ***/
@@ -882,7 +882,7 @@ void g3dface_unbindMaterials ( G3DFACE *fac,
                     glActiveTextureARB ( arbid );
                     #endif
                     #ifdef __MINGW32__
-                    if ( ext_glActiveTextureARB ) ext_glActiveTextureARB ( arbid );
+                    /*if ( ext_glActiveTextureARB ) ext_*/glActiveTextureARB ( arbid );
                     #endif
 
                     glDisable ( GL_TEXTURE_2D );
@@ -1014,7 +1014,7 @@ void g3dface_draw  ( G3DFACE   *fac,
                                    texcoord[j].q[i]*/ );
             #endif
             #ifdef __MINGW32__
-            if ( ext_glMultiTexCoord2fARB ) ext_glMultiTexCoord2fARB ( texcoord[j].tid,
+            /*if ( ext_glMultiTexCoord2fARB ) ext_*/glMultiTexCoord2fARB ( texcoord[j].tid,
                                                                        texcoord[j].u[i], 
                                                                        texcoord[j].v[i]/*,
                                                                        0.0f,

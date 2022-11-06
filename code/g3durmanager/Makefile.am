@@ -1,6 +1,8 @@
 ACLOCAL_AMFLAGS= -I m4
 
-AM_CFLAGS = -I$(top_srcdir)/include -Wimplicit-function-declaration -Wformat
+if HAVE_WIN32
+    AM_LDFLAGS = -shared -no-undefined -L../g3dengine/.libs/ -lgloss-g3dengine -L../list/.libs/ -lgloss-list
+endif
 
 lib_LTLIBRARIES = libgloss-g3durmanager.la
 libgloss_g3durmanager_la_SOURCES = $(LIBGLOSSG3DURMANAGER_C_FILES)
