@@ -479,11 +479,11 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
                           view->win,
                           view->glctx ) == TRUE ) {
 #endif
+
 #ifdef __MINGW32__
     HDC dc = GetDC ( view->hWnd );
     if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
 #endif
-
     engine_flags |= gui->engine_flags;
 
     if ( sce ) {
@@ -631,6 +631,7 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
     XSync ( view->dpy, False );
 #endif
 #ifdef __MINGW32__
+
     } SwapBuffers ( dc );
 
       ReleaseDC ( view->hWnd, dc );

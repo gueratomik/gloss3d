@@ -8,7 +8,7 @@ AM_INIT_AUTOMAKE([subdir-objects])
 #AM_INIT_AUTOMAKE(gloss3d,0.99.0)
 AM_SILENT_RULES([yes])
 
-AC_PROG_CC
+AC_PROG_CC([gcc])
 AC_PROG_MAKE_SET
 
 AC_LANG(C)

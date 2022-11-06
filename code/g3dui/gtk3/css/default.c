@@ -142,7 +142,7 @@
 "    padding-right:  0px;                                      \n" \
 "    padding-left:   0px;                                      \n" \
 "    padding-bottom: 2px;                                      \n" \
-"    font-size:      12px;                                     \n" \
+"    font-size:      "FTSIZE"px;                               \n" \
 "}                                                             \n" \
 ".view_menu_bar {                                              \n" \
 "    color:          rgba("FTCOL", "FTCOL", "FTCOL", 1);       \n" \
@@ -157,7 +157,7 @@
 "    padding-right:  0px;                                      \n" \
 "    padding-left:   0px;                                      \n" \
 "    padding-bottom: 0px;                                      \n" \
-"    font-size:     12px;                                      \n" \
+"    font-size:     "FTSIZE"px;                                \n" \
 "}                                                             \n" \
 "toolbutton.g3dmain > button {                                 \n" \
 "    border-width:   1px;                                      \n" \

@@ -1,6 +1,8 @@
 ACLOCAL_AMFLAGS= -I m4
 
-AM_LDFLAGS= -Wl,-no-undefined -shared
+if HAVE_WIN32
+    AM_CFLAGS= -mconsole
+endif
 
 SUBDIRS = g3dengine \
           g3dexport \

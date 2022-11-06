@@ -27,36 +27,12 @@
 /******************************************************************************/
 #include <config.h>
 
-
 #ifdef __linux__
-/******************************************************************************/
-    #ifdef WITH_MOTIF
-        #include <g3dui_motif.h>
-    #endif
-
-/******************************************************************************/
-    #ifdef WITH_GTK3
-        #include <g3dui_gtk3.h>
-    #endif
-#endif
-
-#ifdef __MINGW32__
-    #include <windows.h>
     #include <g3dui_gtk3.h>
 #endif
 
-
-#ifdef TEST
-#include <GL/GL.h>
-
-int main ( int argc, char *argv[] ) {
-    int i;
-    for ( i = 0; i < 10; i++ ){
-    glBegin ( GL_POINTS );
-    printf("test\n");
-    glEnd ( );
-    }
-}
+#ifdef __MINGW32__
+    #include <g3dui_gtk3.h>
 #endif
 
 /******************************************************************************/
@@ -93,23 +69,12 @@ static gboolean Configure ( GtkWindow *window,
     return TRUE;
 }
 
-
-
 /******************************************************************************/
-#ifdef __linux__
 int main ( int argc, char *argv[] ) {
     static G3DUI gui;
-#endif
-
-#ifdef __MINGW32__
-int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                                            LPSTR lpCmdLine,
-                                            int nCmdShow ) {
-    int argc = 0x00;
-    char **argv = NULL;
-#endif
     char *loadFile = NULL;
     char appname[0x100];
+
     G3DSYSINFO *g3dsysinfo = g3dsysinfo_get ( );
     M3DSYSINFO *m3dsysinfo = m3dsysinfo_get ( );
     int i;
@@ -138,35 +103,7 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
 #endif
 
-#ifdef WITH_MOTIF
-    XtAppContext app;
-    Widget top;
-
-    /*** Support multi-threads. Must be called before any Xlib function ***/
-    XInitThreads ( );
-
-    XtSetLanguageProc((XtAppContext) 0, (XtLanguageProc) 0, (XtPointer) 0) ;
-
-    XtToolkitInitialize ( );
-
-    top = XtVaAppInitialize ( &app, appname, NULL, 0x00,
-                              &argc, argv, NULL, NULL );
-
-    XtVaCreateManagedWidget ( "UI", guiWidgetClass, top,
-                              XtNwidth , 1024,
-                              XtNheight, 576,
-                              XtNloadFile, loadFile,
-                              /*XmNforeground, gui->foreground.pixel,*/
-       /*  Does not work */   /*XmNfontList, gui->fontlist,*/
-                              NULL );
-
-    XtRealizeWidget ( top );
-
-
-    XtAppMainLoop ( app );
-#endif
-
-#ifdef WITH_GTK3
+#ifdef HAVE_GTK3
     GtkWidget *window, *glossui;
     GtkWidget *button;
     GTK3G3DUI gtk3gui; /**** Gloss3D ****/
@@ -178,6 +115,8 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
     /*** Support multi-threads. Must be called before any Xlib function ***/
     XInitThreads ( );
     #endif
+
+    printf("starting %s\n", appname );
 
     gtk_init ( &argc, &argv );
 
@@ -214,7 +153,6 @@ int CALLBACK WinMain ( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     gtk_main ();
 #endif
-
 
     exit ( EXIT_SUCCESS );
 

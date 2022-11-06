@@ -376,7 +376,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
-AM_LDFLAGS = -Wl,-no-undefined -shared
+@HAVE_WIN32_TRUE@AM_CFLAGS = -mconsole
 SUBDIRS = g3dengine \
           g3dexport \
           g3dimport \

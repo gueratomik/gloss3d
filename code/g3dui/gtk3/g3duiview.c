@@ -386,9 +386,43 @@ static void mapGL ( GtkWidget *widget,
     gtk3view->core.win = win;
 #endif
 #ifdef __MINGW32__
+    PIXELFORMATDESCRIPTOR pfd;
     HWND hWnd = GDK_WINDOW_HWND ( gdkwin );
-
+    HDC dc = GetDC ( hWnd );
+    int pxf;
+    
     gtk3view->core.hWnd = hWnd;
+
+    /*** prevents erasing the background ***/
+    gtk_widget_set_double_buffered (GTK_WIDGET (widget), FALSE);
+    gtk_widget_set_app_paintable (GTK_WIDGET (widget), TRUE);
+
+    memset ( &pfd, 0x00, sizeof ( PIXELFORMATDESCRIPTOR ) );
+
+    pfd.nSize        = sizeof ( PIXELFORMATDESCRIPTOR );
+    pfd.nVersion     = 0x01;
+    pfd.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+    pfd.iPixelType   = PFD_TYPE_RGBA;
+    pfd.cDepthBits   = 0x18;
+    pfd.cColorBits   = 0x20;
+
+    if ( ( pxf = ChoosePixelFormat ( dc, &pfd ) ) == 0x00 ) {
+        fprintf ( stderr, "ChoosePixelFormat failed\n" );
+
+        return 0x00;
+    }
+
+    if ( SetPixelFormat ( dc, pxf, &pfd ) == 0x00 ) {
+        fprintf ( stderr, "SetPixelFormat failed\n" );
+
+        return 0x00;
+    }
+
+    gtk3view->core.glctx = wglCreateContext ( dc );
+
+    if ( gtk3view->core.gui->sharedCtx == NULL ) gtk3view->core.gui->sharedCtx = gtk3view->core.glctx;
+
+    else wglShareLists( gtk3view->core.gui->sharedCtx, gtk3view->core.glctx );
 #endif
 
     g3duiview_initGL ( view );
@@ -531,6 +565,8 @@ gtk_widget_set_visual(glarea, visual);
 
     free (xvisual);
 #endif /* __linux__ */
+
+
 
     /*** For keyboard inputs ***/
     gtk_widget_set_can_focus ( glarea, TRUE );
