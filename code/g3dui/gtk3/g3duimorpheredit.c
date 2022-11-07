@@ -430,40 +430,6 @@ static void updateFunctionsPanel ( GTK3G3DUIMORPHEREDIT *gtk3med ) {
 }
 
 /******************************************************************************/
-static void gouraudCbk ( GtkWidget *widget,
-                         gpointer   user_data ) {
-    float gouraud = ( float ) gtk_spin_button_get_value ( GTK_SPIN_BUTTON(widget) );
-    GTK3G3DUIMORPHEREDIT *gtk3med = ( GTK3G3DUIMORPHEREDIT * ) user_data;
-    G3DUI *gui = gtk3med->core.gui;
-    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
-    uint64_t ret;
-
-    if ( gtk3med->core.gui->lock ) return;
-
-    if ( ( gouraud >= 0.0f ) && ( gouraud <= 90.0f ) ) {
-        ret = g3duimorpheredit_gouraud ( gtk3med, gouraud * M_PI / 180 );
-    } else {
-        updateFunctionsPanel ( gtk3med );
-    }
-
-    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
-} 
-
-/******************************************************************************/
-static void toggleShadingCbk ( GtkWidget *widget, gpointer user_data ) {
-    GTK3G3DUIMORPHEREDIT *gtk3med = ( GTK3G3DUIMORPHEREDIT * ) user_data;
-    G3DUI *gui = gtk3med->core.gui;
-    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
-    uint64_t ret;
-
-    if ( gtk3med->core.gui->lock ) return;
-
-    ret = g3duimorpheredit_toggleShading ( gtk3med );
-
-    gtk3_interpretUIReturnFlags ( gtk3gui, ret );
-}
-
-/******************************************************************************/
 static void optimizeCbk ( GtkWidget *widget,
                           gpointer   user_data ) {
     GTK3G3DUIMORPHEREDIT *gtk3med = ( GTK3G3DUIMORPHEREDIT * ) user_data;

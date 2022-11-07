@@ -33,7 +33,7 @@
 
 /* nice green : 1c2f31 */
 
-#define GTK3CSSSTYLE(FTFACE,FTSIZE,FTCOL,FTCOL2,GRAY0,GRAY1,GRAY2,GRAY3,GRAY4,GRAY5,GRAY6)  \
+#define GTK3CSSSTYLE(FTFACE,FTSIZE,FTCOL,FTCOL2,FTCOL3,GRAY0,GRAY1,GRAY2,GRAY3,GRAY4,GRAY5,GRAY6)  \
 "button:hover, button:checked {                                \n" \
 "    background       : "BCKGBLUE";                            \n" \
 "}                                                             \n" \
@@ -100,14 +100,14 @@
 "    background-color : rgba("GRAY1", "GRAY1", "GRAY1", 1);    \n" \
 "    min-height       : 0px;                                   \n" \
 "    margin           : 0px;                                   \n" \
-"    padding-top      : 0px;                                   \n" \
+"    padding-top      : 2px;                                   \n" \
 "    padding-right    : 8px;                                   \n" \
 "    padding-left     : 8px;                                   \n" \
-"    padding-bottom   : 0px;                                   \n" \
+"    padding-bottom   : 2px;                                   \n" \
 "}                                                             \n" \
 "notebook.g3dmain > header.top > tabs > tab:checked,           \n" \
 "notebook.g3dmain > header.top > tabs > tab:checked > label {  \n" \
-"    color            : rgba("FTCOL", "FTCOL", "FTCOL", 1);    \n" \
+"    color            : rgba("FTCOL3", "FTCOL3", "FTCOL3", 1); \n" \
 "    background-color : "BCKGBLUE";                            \n" \
 "    border-color     : blue;                                  \n" \
 "    font-weight      : 800;                                   \n" \
@@ -116,10 +116,10 @@
 "    margin-right     : 0px;                                   \n" \
 "    margin-left      : 0px;                                   \n" \
 "    margin-bottom    : 1px;                                   \n" \
-"    padding-top      : 0px;                                   \n" \
+"    padding-top      : 2px;                                   \n" \
 "    padding-right    : 8px;                                   \n" \
 "    padding-left     : 8px;                                   \n" \
-"    padding-bottom   : 0px;                                   \n" \
+"    padding-bottom   : 2px;                                   \n" \
 "}                                                             \n" \
 "menubar.g3dmain {                                             \n" \
 "    color         : rgba("FTCOL", "FTCOL", "FTCOL", 1);       \n" \
@@ -195,6 +195,7 @@
 /******************************************************************************/
 #define LFTCOL   "0"
 #define LFTCOL2 "96"
+#define LFTCOL3 "224"
 #define LGRAY0 "208"
 #define LGRAY1 "224"
 #define LGRAY2 "240"
@@ -209,6 +210,7 @@ gchar *gtk3_getLightModeCSS ( ) {
                                               "12",
                                               LFTCOL,
                                               LFTCOL2,
+                                              LFTCOL3,
                                               LGRAY0,
                                               LGRAY1,
                                               LGRAY2,
@@ -219,9 +221,10 @@ gchar *gtk3_getLightModeCSS ( ) {
 #endif
 #ifdef __MINGW32__
     static const gchar *myCSS = GTK3CSSSTYLE ("Calibri",
-                                              "10",
+                                              "12",
                                               LFTCOL,
                                               LFTCOL2,
+                                              LFTCOL3,
                                               LGRAY0,
                                               LGRAY1,
                                               LGRAY2,
@@ -238,6 +241,7 @@ gchar *gtk3_getLightModeCSS ( ) {
 /******************************************************************************/
 #define DFTCOL "240"
 #define DFTCOL2 "160"
+#define DFTCOL3 "224"
 #define DGRAY0 "96"
 #define DGRAY1 "72"
 #define DGRAY2 "90"
@@ -251,6 +255,7 @@ gchar *gtk3_getDarkModeCSS ( ) {
                                               "12",
                                               DFTCOL,
                                               DFTCOL2,
+                                              DFTCOL3,
                                               DGRAY0,
                                               DGRAY1,
                                               DGRAY2,
@@ -261,9 +266,10 @@ gchar *gtk3_getDarkModeCSS ( ) {
 #endif
 #ifdef __MINGW32__
     static const gchar *myCSS = GTK3CSSSTYLE ("Calibri",
-                                              "10",
+                                              "12",
                                               DFTCOL,
                                               DFTCOL2,
+                                              DFTCOL3,
                                               DGRAY0,
                                               DGRAY1,
                                               DGRAY2,
