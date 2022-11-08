@@ -471,6 +471,7 @@ static void createSaveOutputFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
 
     gtk_container_add ( GTK_CONTAINER(frm), fix );
 
+    gtk_widget_set_size_request ( GTK_WIDGET(fix), width, height );
     gtk_widget_set_size_request ( GTK_WIDGET(frm), width, height );
 
     gtk_fixed_put ( gtk3red->generalTab, frm, x, y );
@@ -614,6 +615,7 @@ static GtkWidget *createAliasingFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
 
     gtk_container_add ( GTK_CONTAINER(frm), fix );
 
+    gtk_widget_set_size_request ( GTK_WIDGET(fix), width, height );
     gtk_widget_set_size_request ( GTK_WIDGET(frm), width, height );
 
     gtk_fixed_put ( gtk3red->generalTab, frm, x, y );
@@ -735,6 +737,7 @@ static void createMotionBlurFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
 
     gtk_container_add (GTK_CONTAINER(frm), fix );
 
+    gtk_widget_set_size_request ( GTK_WIDGET(fix), width, height );
     gtk_widget_set_size_request ( GTK_WIDGET(frm), width, height );
 
     gtk_fixed_put ( gtk3red->effectsTab, frm, x, y );
@@ -891,6 +894,7 @@ static GtkWidget *createWireframeFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
 
     gtk_container_add ( GTK_CONTAINER(frm), fix );
 
+    gtk_widget_set_size_request ( GTK_WIDGET(fix), width, height );
     gtk_widget_set_size_request ( GTK_WIDGET(frm), width, height );
 
     gtk_fixed_put ( gtk3red->effectsTab, frm, x, y );
@@ -993,9 +997,10 @@ static void createTexturingFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
 
     gtk_container_add (GTK_CONTAINER(frm), fix );
 
-    gtk_fixed_put ( gtk3red->effectsTab, frm, x, y );
-
+    gtk_widget_set_size_request ( GTK_WIDGET(fix), width, height );
     gtk_widget_set_size_request ( GTK_WIDGET(frm), width, height );
+
+    gtk_fixed_put ( gtk3red->effectsTab, frm, x, y );
 
     gtk3red->texturingDisabledToggle =
                               ui_createToggleLabel ( fix,
@@ -1145,6 +1150,7 @@ static void createFogFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
 
     gtk_container_add (GTK_CONTAINER(frm), fix );
 
+    gtk_widget_set_size_request ( GTK_WIDGET(fix), width, height );
     gtk_widget_set_size_request ( GTK_WIDGET(frm), width, height );
 
     gtk_fixed_put ( gtk3red->effectsTab, frm, x, y );
@@ -1318,7 +1324,8 @@ static void createBackgroundFrame ( GTK3G3DUIRENDEREDIT *gtk3red,
     GtkFrame *frm = ui_gtk_frame_new ( CLASS_MAIN, EDITRENDERBACKGROUNDFRAME );
 
     gtk_widget_set_size_request ( GTK_WIDGET(fix), width, height );
-
+    gtk_widget_set_size_request ( GTK_WIDGET(frm), width, height );
+    
     gtk_container_add (GTK_CONTAINER(frm), fix );
 
     gtk_fixed_put ( gtk3red->generalTab, frm, x, y );
@@ -1464,9 +1471,9 @@ static void createGeneralPanel ( GTK3G3DUIRENDEREDIT *gtk3red,
                                                           ratioCbk );
 
 
-    createBackgroundFrame ( gtk3red, 0, 176, WINWIDTH, 48 );
-    createSaveOutputFrame ( gtk3red, 0, 248, WINWIDTH, 112 );
-    createAliasingFrame   ( gtk3red, 0, 364, WINWIDTH, 96 );
+    createBackgroundFrame ( gtk3red, 0, 176, width,  48 );
+    createSaveOutputFrame ( gtk3red, 0, 248, width, 112 );
+    createAliasingFrame   ( gtk3red, 0, 364, width,  96 );
 }
 
 /******************************************************************************/
@@ -1492,10 +1499,10 @@ static void createEffectsPanel ( GTK3G3DUIRENDEREDIT *gtk3red,
                                          width,
                                          height );
 
-    createMotionBlurFrame ( gtk3red, 0,   0, WINWIDTH,  112 );
-    createWireframeFrame  ( gtk3red, 0, 120, WINWIDTH,  96 );
-    createFogFrame        ( gtk3red, 0, 240, WINWIDTH,  96 );
-    createTexturingFrame  ( gtk3red, 0, 376, WINWIDTH,  96 );
+    createMotionBlurFrame ( gtk3red, 0,   0, width,  112 );
+    createWireframeFrame  ( gtk3red, 0, 136, width,   96 );
+    createFogFrame        ( gtk3red, 0, 252, width,   96 );
+    createTexturingFrame  ( gtk3red, 0, 408, width,   72 );
 }
 
 /******************************************************************************/
@@ -1546,8 +1553,8 @@ GTK3G3DUIRENDEREDIT* gtk3_g3duirenderedit_create ( GtkWidget   *parent,
                            0,  0, 24, 24,
                            runRenderCbk );*/
 
-    createGeneralPanel ( gtk3red, 0, 24, WINWIDTH, 360 );
-    createEffectsPanel ( gtk3red, 0, 24, WINWIDTH, 360 );
+    createGeneralPanel ( gtk3red, 0, 24, 360, 492 );
+    createEffectsPanel ( gtk3red, 0, 24, 360, 492 );
 
     gtk_widget_show ( notebook );
     gtk_widget_show ( fixed );

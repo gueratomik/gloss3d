@@ -159,7 +159,7 @@ uint64_t g3dui_setMaterial ( G3DUI *gui ) {
             }
 
             g3dui_fitUVMap ( gui );
- 
+
             ltmpselmat = ltmpselmat->next;
         }
 

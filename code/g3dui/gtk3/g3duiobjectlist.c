@@ -238,6 +238,8 @@ static void Input ( GtkWidget *widget,
 
                 gtk_container_add ( GTK_CONTAINER(box), tedit->fixed );
 
+                gtk_window_set_position ( dial, GTK_WIN_POS_CENTER );
+
                 g_signal_connect_swapped ( dial,
                                            "response",
                                            G_CALLBACK (gtk_widget_destroy),
@@ -257,6 +259,8 @@ static void Input ( GtkWidget *widget,
 
                 gtk_container_add ( GTK_CONTAINER(box), uvmedit->fixed );
 
+                gtk_window_set_position ( dial, GTK_WIN_POS_CENTER );
+
                 g_signal_connect_swapped ( dial,
                                            "response",
                                            G_CALLBACK (gtk_widget_destroy),
@@ -275,6 +279,8 @@ static void Input ( GtkWidget *widget,
                                                                     pob->obj );
 
                 gtk_container_add ( GTK_CONTAINER(box), ttedit->fixed );
+
+                gtk_window_set_position ( dial, GTK_WIN_POS_CENTER );
 
                 g_signal_connect_swapped ( dial,
                                            "response",
@@ -433,7 +439,11 @@ static void Input ( GtkWidget *widget,
                                                           GTK_MESSAGE_ERROR,
                                                           GTK_BUTTONS_CLOSE,
                                                           "Cannot alter hierarchy with rigged bones. Please unrig bones first." );
+                                                          
+                        gtk_window_set_position ( dialog, GTK_WIN_POS_CENTER );
+                                                          
                         gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+                        
                         gtk_widget_destroy ( dialog );
                     } else {
                         /** prevent scene from becoming a child object ***/
@@ -732,8 +742,8 @@ static void drawTextures ( GtkStyleContext *context,
 
     /*** Init once and for all ***/
     if ( matmap == NULL ) {
-        matmap = g3duimaterialmap_new ( LISTINDENT,
-                                        LISTINDENT );
+        matmap = g3duimaterialmap_new ( 0x10,
+                                        0x10 );
     }
 
     if ( obj->type & MESH && ( ( obj->type & MODIFIER ) == 0x00 ) ) {
@@ -994,6 +1004,7 @@ static uint32_t printObject_r ( GTK3G3DUIOBJECTLIST *gtk3objlist,
                                 uint32_t             xindent,
                                 uint32_t             yindent ) {
     static uint32_t maxheight, maxwidth, curheight;
+
     LIST *ltmpobj = obj->lchildren;
     uint32_t total_height = yindent;
     LISTEDOBJECT *lob;
@@ -1046,7 +1057,6 @@ static uint32_t printObject_r ( GTK3G3DUIOBJECTLIST *gtk3objlist,
     }
 
     maxheight = ( curheight );
-
 
     return ( ( maxheight << 0x10 ) | maxwidth );
 }

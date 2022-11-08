@@ -1406,7 +1406,7 @@ typedef struct _M3DUI {
 #endif
 
 /*************************** List widget Structures ***************************/
-#define LISTINDENT 0x10
+#define LISTINDENT 0x12
 #define GETLISTSEPARATORS (  1         )
 #define GETLISTMAXWIDTH   (  1  <<  1  )
 

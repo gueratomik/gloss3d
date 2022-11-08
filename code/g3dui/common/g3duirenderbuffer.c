@@ -97,7 +97,23 @@ static WImage *WCreateImage ( HDC      dc,
             wimg->hBmp = CreateDIBSection ( wimg->dc, wimg->bi, DIB_RGB_COLORS, &wimg->data, NULL, 0x00 );
         break;
 
-        case 0x20 :
+        case 0x18 :
+            wimg->bi = calloc ( 0x01, sizeof ( BITMAPINFO ) );
+
+            wimg->bi->bmiHeader.biSize          = sizeof ( BITMAPINFOHEADER );
+            wimg->bi->bmiHeader.biPlanes        = 0x01;
+
+            wimg->bi->bmiHeader.biBitCount      = 0x18;
+            wimg->bi->bmiHeader.biCompression   = BI_RGB;
+            wimg->bi->bmiHeader.biWidth         = width;
+            wimg->bi->bmiHeader.biHeight        = height;
+
+            wimg->hBmp = CreateDIBSection ( wimg->dc, wimg->bi, DIB_RGB_COLORS, &wimg->data, NULL, 0x00 );
+        break;
+
+        case 0x20 : {
+            uint32_t i, j;
+
             wimg->bi = calloc ( 0x01, sizeof ( BITMAPINFO ) );
 
             wimg->bi->bmiHeader.biSize          = sizeof ( BITMAPINFOHEADER );
@@ -109,7 +125,14 @@ static WImage *WCreateImage ( HDC      dc,
             wimg->bi->bmiHeader.biHeight        = height;
 
             wimg->hBmp = CreateDIBSection ( wimg->dc, wimg->bi, DIB_RGB_COLORS, &wimg->data, NULL, 0x00 );
-        break;
+            
+            /*** init alpha value to FF ***/
+            for ( i = 0x00; i < wimg->bi->bmiHeader.biHeight; i++ ) {
+                for ( j = 0x00; j < wimg->bi->bmiHeader.biWidth; j++ ) {
+                    wimg->f.put_pixel ( wimg, j, i, 0xFF000000 );
+                }
+            }
+        } break;
 
         default :
         break;
@@ -126,10 +149,13 @@ void g3duirenderbuffer_init ( G3DUIRENDERBUFFER *rbuf,
                               HWND               hWnd,
                               uint32_t           width,
                               uint32_t           height ) {
+    HDC dc = GetDC ( hWnd );
+    uint32_t depth = GetDeviceCaps ( dc, BITSPIXEL );
+
     rbuf->hWnd = hWnd;
 
     rbuf->wimg = WCreateImage ( GetDC ( hWnd ), width,
-                                    height, 24 );
+                                    height, depth );
 }
 
 /******************************************************************************/
@@ -152,13 +178,13 @@ static XImage *allocXImage ( Display         *dis,
                              uint32_t         width,
                              uint32_t         height,
                              XShmSegmentInfo *ssi ) {
-    /*XWindowAttributes wattr;*/
+    XWindowAttributes wattr;
     uint32_t imgsize;
     XImage *ximg;
     void *data;
     int shmid;
 
-    /*XGetWindowAttributes ( dis, win, &wattr );*/
+    XGetWindowAttributes ( dis, win, &wattr );
 
     if ( XShmQueryExtension ( dis ) == 0x00 ) {
         fprintf ( stderr, "filtertowindow_new: XSHM not availabale\n" );
@@ -170,7 +196,7 @@ static XImage *allocXImage ( Display         *dis,
     /*** HOW_TO_USE_THE_SHARED_MEMORY_EXTENSION ***/
     ximg = XShmCreateImage ( dis, 
                              DefaultVisual ( dis, 0x00 ),
-                             /*wattr.depth*/24,
+                             wattr.depth,
                              ZPixmap,
                              NULL,
                              ssi,

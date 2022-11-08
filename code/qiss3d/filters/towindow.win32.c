@@ -94,7 +94,7 @@ static uint32_t filtertowindow_draw ( Q3DFILTER     *fil,
                     unsigned char R = imgptr[0x00];
                     unsigned char G = imgptr[0x01];
                     unsigned char B = imgptr[0x02];
-                    uint32_t color  = ( R << 0x10 | G << 0x08 | B );
+                    uint32_t color  = ( 0xFF << 0x18 | R << 0x10 | G << 0x08 | B );
 
                     imgptr += 0x03;
 

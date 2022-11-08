@@ -60,8 +60,8 @@ void Draw ( GtkWidget *widget, cairo_t *cr, gpointer user_data ) {
      * fill the background. We don't let the double buffering doing it
      * because it causes some flickering, I don't know why.
      */
-    cairo_rectangle ( cr, 0, 0, width, height  );
-    cairo_fill ( cr );
+    /*cairo_rectangle ( cr, 0, 0, width, height  );
+    cairo_fill ( cr );*/
     /*cairo_paint ( cr );*/
 
     #ifdef __linux__

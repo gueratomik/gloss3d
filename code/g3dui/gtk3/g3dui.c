@@ -1128,6 +1128,8 @@ uint64_t gtk3_loadImageForChannel ( GTK3G3DUI  *gtk3gui,
     gtk_file_filter_add_pattern ( filter, "*.mp4" );
     gtk_file_chooser_set_filter ( GTK_FILE_CHOOSER ( dialog ), filter );
 
+    gtk_window_set_position ( dialog, GTK_WIN_POS_CENTER );
+
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
     if ( res == GTK_RESPONSE_OK ) {
@@ -1262,6 +1264,7 @@ uint64_t gtk3_newScene ( GTK3G3DUI *gtk3gui ) {
                                       GTK_BUTTONS_YES_NO,
                                       "Close scene and create a new one ?" );
 
+    gtk_window_set_position ( dialog, GTK_WIN_POS_CENTER );
 
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
@@ -1294,6 +1297,7 @@ uint64_t gtk3_importFile ( GTK3G3DUI   *gtk3gui,
                                            GTK_RESPONSE_OK,
                                            NULL );
 
+    gtk_window_set_position ( dialog, GTK_WIN_POS_CENTER );
 
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
@@ -1327,6 +1331,7 @@ gint gtk3_exit ( GTK3G3DUI *gtk3gui ) {
                                       GTK_BUTTONS_YES_NO,
                                       "Leave Gloss3D ?" );
 
+    gtk_window_set_position ( dialog, GTK_WIN_POS_CENTER );
 
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
@@ -1357,6 +1362,8 @@ uint64_t gtk3_exportFile ( GTK3G3DUI   *gtk3gui,
                                            "_Open", 
                                            GTK_RESPONSE_OK,
                                            NULL );
+
+    gtk_window_set_position ( dialog, GTK_WIN_POS_CENTER );
 
     gtk_file_chooser_set_do_overwrite_confirmation ( GTK_FILE_CHOOSER(dialog),
                                                      TRUE );
@@ -1393,6 +1400,8 @@ uint64_t gtk3_saveAs ( GTK3G3DUI *gtk3gui ) {
                                            "_Open", 
                                            GTK_RESPONSE_OK,
                                            NULL );
+
+    gtk_window_set_position ( dialog, GTK_WIN_POS_CENTER );
 
     gtk_file_chooser_set_do_overwrite_confirmation ( GTK_FILE_CHOOSER(dialog), TRUE );
 
@@ -1448,6 +1457,8 @@ uint64_t gtk3_mergeFile ( GTK3G3DUI *gtk3gui ) {
                                            GTK_RESPONSE_OK,
                                            NULL );
 
+    gtk_window_set_position ( dialog, GTK_WIN_POS_CENTER );
+
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
     if ( res == GTK_RESPONSE_OK ) {
@@ -1500,6 +1511,8 @@ uint64_t gtk3_openFile ( GTK3G3DUI *gtk3gui ) {
                                            "_Open", 
                                            GTK_RESPONSE_OK,
                                            NULL );
+
+    gtk_window_set_position ( dialog, GTK_WIN_POS_CENTER );
 
     res = gtk_dialog_run ( GTK_DIALOG ( dialog ) );
 
@@ -2083,7 +2096,9 @@ void gtk3_createRenderEdit ( GTK3G3DUI *gtk3gui ) {
 
     gtk_container_add ( GTK_CONTAINER(dial), GTK_WIDGET(gtk3redit->fixed) );
 
-    gtk_widget_show ( GTK_WIDGET(dial) );
+    gtk_window_set_position ( dial, GTK_WIN_POS_CENTER );
+
+    gtk_dialog_run ( dial );
 }
 
 /******************************************************************************/
@@ -2101,6 +2116,8 @@ uint32_t gtk3_g3dui_saveChannelImageAs ( GTK3G3DUI  *gtk3gui,
                                            "_Open", 
                                            GTK_RESPONSE_OK,
                                            NULL );
+
+    gtk_window_set_position ( dialog, GTK_WIN_POS_CENTER );
 
     gtk_file_chooser_set_do_overwrite_confirmation ( GTK_FILE_CHOOSER(dialog), TRUE );
 
@@ -2206,6 +2223,8 @@ uint64_t gtk3_g3dui_saveChannelAlteredImage ( GTK3G3DUI  *gtk3gui,
                                              NULL );
 
                     gtk_window_set_title ( GTK_WINDOW ( dial ), "Save image ?" );
+
+                    gtk_window_set_position ( dial, GTK_WIN_POS_CENTER );
 
                     response = gtk_dialog_run ( GTK_DIALOG ( dial ) );
 
@@ -2367,10 +2386,6 @@ void gtk3_interpretUIReturnFlags ( GTK3G3DUI *gtk3gui,
 
     if ( msk & RESIZERENDERWINDOW ) {
         gtk3_resizeRenderWindow ( gtk3gui );
-    }
-
-    if ( msk & CREATERENDEREDIT ) {
-        gtk3_createRenderEdit ( gtk3gui );
     }
 
     if ( msk & REDRAWOBJECTLIST ) {

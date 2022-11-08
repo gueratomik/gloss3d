@@ -164,10 +164,8 @@ uint64_t m3duiview_inputGL ( M3DUIVIEW *view, G3DEvent *g3dev ) {
     HDC dc = GetDC ( view->hWnd );
     if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
 #endif
-
     if ( mui->curmou ) {
         if ( g3dev->type == G3DButtonPress ) {
-
             /*** Note: buffers are resized via m3dui_resizeBuffers()    ***/
             /*** located in : gtk3/menu/uvviewmenu.c, gtk3/m3duiview.c  ***/
             /*** and gtk3/m3duichannelimagecreator.c                    ***/

@@ -981,10 +981,9 @@ void g3dface_draw  ( G3DFACE   *fac,
                      LIST      *ltex,
                      uint32_t   object_flags,
                      uint64_t   engine_flags ) {
+
     static G3DARBTEXCOORD texcoord[GL_MAX_TEXTURE_UNITS_ARB];
     uint32_t   nbtex = 0x00;
-    G3DVECTOR *pos[0x04];
-    G3DVECTOR  dis[0x04]; /*** displaced position ***/
     uint32_t   i, j;
 
     if ( ( ( engine_flags & NOTEXTURE  ) == 0x00 ) && ltex ) {
@@ -1037,6 +1036,7 @@ void g3dface_draw  ( G3DFACE   *fac,
          ( ( engine_flags & SELECTMODE ) == 0x00 ) && ltex && fac->luvs ) {
         g3dface_unbindMaterials ( fac, ltex, object_flags, engine_flags );
     }
+
 }
 
 /******************************************************************************/

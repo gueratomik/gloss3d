@@ -276,7 +276,7 @@ static void playCbk ( GtkWidget *widget, gpointer user_data ) {
         hdl = CreateThread ( NULL, 
                              0,
                              (LPTHREAD_START_ROUTINE) play_t, 
-                             gui,
+                             gtk3timeboard,
                              0,
                              &gui->playthreadid );
         #endif

@@ -369,6 +369,20 @@ void g3duiview_initGL ( G3DUIVIEW *view ) {
     G3DUI *gui = view->gui;
     G3DCAMERA *cam = getCamera ( view );
 
+#ifdef __MINGW32__
+    if ( glActiveTextureARB == NULL ) 
+        glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC) wglGetProcAddress("glActiveTextureARB");
+
+    if ( glMultiTexCoord2fARB == NULL ) 
+        glMultiTexCoord2fARB = (PFNGLMULTITEXCOORD2FARBPROC) wglGetProcAddress("glMultiTexCoord2fARB");
+
+    if ( glClientActiveTextureARB == NULL ) 
+        glClientActiveTextureARB = (PFNGLCLIENTACTIVETEXTUREARBPROC) wglGetProcAddress("glClientActiveTextureARB");
+
+    if ( glGenerateMipmap == NULL ) 
+        glGenerateMipmap = (void(*)(GLenum))wglGetProcAddress("glGenerateMipmap");
+#endif
+
 #ifdef __linux__
     if ( glXMakeCurrent ( view->dpy,
                           view->win,
@@ -471,7 +485,7 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
                         uint64_t      engine_flags ) {
     G3DUI *gui = view->gui;
     G3DSCENE *sce = gui->sce;
-    G3DCAMERA *cam = view->cam;
+    G3DCAMERA *cam = getCamera ( view );
     G3DUIMOUSETOOL *mou = gui->curmou;
 
 #ifdef __linux__
@@ -485,6 +499,7 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
     if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
 #endif
     engine_flags |= gui->engine_flags;
+    
 
     if ( sce ) {
         int VPX[0x04];

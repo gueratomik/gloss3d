@@ -330,6 +330,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
+@HAVE_WIN32_TRUE@AM_LDFLAGS = -shared -no-undefined
 lib_LTLIBRARIES = libgloss-g3dcom.la
 libgloss_g3dcom_la_SOURCES = $(LIBGLOSSG3DCOM_C_FILES)
 LIBGLOSSG3DCOM_C_FILES = g3dcom.c

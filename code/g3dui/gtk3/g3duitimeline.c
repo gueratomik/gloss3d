@@ -465,6 +465,8 @@ static gboolean panToolInput ( GtkWidget *widget,
 
                 gtk_container_add ( GTK_CONTAINER(box), kedit->fixed );
 
+                gtk_window_set_position ( dial, GTK_WIN_POS_CENTER );
+
                 g_signal_connect_swapped ( dial,
                                            "response",
                                            G_CALLBACK (gtk_widget_destroy),

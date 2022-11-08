@@ -1,7 +1,7 @@
 ACLOCAL_AMFLAGS= -I m4
 
 if HAVE_WIN32
-    AM_CFLAGS= -mconsole
+    AM_CFLAGS= -mwindows
 endif
 
 SUBDIRS = g3dengine \

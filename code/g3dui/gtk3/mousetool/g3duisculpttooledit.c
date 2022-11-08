@@ -89,22 +89,28 @@ static void onlyVisibleCbk  ( GtkWidget *widget, gpointer user_data ) {
 static void setCircularCbk ( GtkWidget *widget, 
                              gpointer   user_data ) {
     GTK3G3DUISCULPTTOOLEDIT *gtk3sculptedit = ( GTK3G3DUISCULPTTOOLEDIT * ) user_data;
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3sculptedit->core.gui;
 
     /*** prevents a loop ***/
     if ( gtk3sculptedit->core.gui->lock ) return;
 
     g3duisculpttooledit_setCircularCbk ( &gtk3sculptedit->core );
+    
+    gtk3_interpretUIReturnFlags ( gtk3gui, UPDATECURRENTMOUSETOOL );
 }
 
 /******************************************************************************/
 static void unsetCircularCbk ( GtkWidget *widget, 
                                gpointer   user_data ) {
     GTK3G3DUISCULPTTOOLEDIT *gtk3sculptedit = ( GTK3G3DUISCULPTTOOLEDIT * ) user_data;
-
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3sculptedit->core.gui;
+    
     /*** prevents a loop ***/
     if ( gtk3sculptedit->core.gui->lock ) return;
 
     g3duisculpttooledit_unsetCircularCbk ( &gtk3sculptedit->core );
+    
+    gtk3_interpretUIReturnFlags ( gtk3gui, UPDATECURRENTMOUSETOOL );
 }
 
 

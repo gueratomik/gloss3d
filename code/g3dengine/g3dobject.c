@@ -2081,22 +2081,31 @@ uint32_t g3dobject_default_draw ( G3DOBJECT * obj, G3DCAMERA *cam,
 
 /******************************************************************************/
 void g3dobject_default_free ( G3DOBJECT *obj ) {
+    /*** commented out : too verbose ***/
+    /*
     if ( obj->type ) {
         printf("%s unimplemented for %s\n", __func__, obj->name );
     }
+    */
 }
 
 /******************************************************************************/
 uint32_t g3dobject_default_pick ( G3DOBJECT *obj, G3DCAMERA *cam, 
                                               uint64_t engine_flags ) {
+    /*** commented out : too verbose ***/
+    /*
     if ( obj->type != G3DSCENETYPE) {
-        /*printf("%s unimplemented for %s\n", __func__, obj->name );*/
+        printf("%s unimplemented for %s\n", __func__, obj->name );
     }
+    */
 }
 
 /******************************************************************************/
 void g3dobject_default_pose ( G3DOBJECT *obj, G3DKEY *key ) {
+    /*** commented out : too verbose ***/
+    /*
     printf("%s unimplemented for %s\n", __func__, obj->name );
+    */
 }
 
 /******************************************************************************/
@@ -2105,26 +2114,33 @@ G3DOBJECT* g3dobject_default_copy ( G3DOBJECT  *obj,
                                     const char *name,
                                     uint64_t    engine_flags ) {
     G3DOBJECT *cpy = g3dobject_new ( id, name, engine_flags );
-
+    /*** commented out : too verbose ***/
+/*
     if ( obj->type ) {
         printf("%s unimplemented for %s\n", __func__, obj->name );
     }
-
+*/
     return cpy;
 }
 
 /******************************************************************************/
 void g3dobject_default_activate ( G3DOBJECT *obj, uint64_t engine_flags ) {
+    /*** commented out : too verbose ***/
+    /*
     if ( obj->type ) {
         printf("%s unimplemented for %s\n", __func__, obj->name );
     }
+    */
 }
 
 /******************************************************************************/
 void g3dobject_default_deactivate ( G3DOBJECT *obj, uint64_t engine_flags ) {
+    /*** commented out : too verbose ***/
+    /*
     if ( obj->type ) {
         printf("%s unimplemented for %s\n", __func__, obj->name );
     }
+    */
 }
 
 /******************************************************************************/
@@ -2133,9 +2149,12 @@ G3DOBJECT* g3dobject_default_commit ( G3DOBJECT *obj, uint32_t id,
                                                       uint64_t engine_flags ) {
     G3DOBJECT *com = g3dobject_new ( id, name, engine_flags );
 
+    /*** commented out : too verbose ***/
+    /*
     if ( obj->type ) {
         printf("%s unimplemented for %s\n", __func__, obj->name );
     }
+    */
 
     return com;
 }
@@ -2143,9 +2162,12 @@ G3DOBJECT* g3dobject_default_commit ( G3DOBJECT *obj, uint32_t id,
 /******************************************************************************/
 void g3dobject_default_addChild ( G3DOBJECT *obj, G3DOBJECT *child, 
                                                   uint64_t engine_flags ) {
+    /*** commented out : too verbose ***/
+    /*                                          
     if ( obj->type ) {
         printf("%s unimplemented for %s\n", __func__, obj->name );
     }
+    */
 }
 
 /******************************************************************************/
@@ -2153,9 +2175,12 @@ void g3dobject_default_setParent ( G3DOBJECT *obj,
                                    G3DOBJECT *parent, 
                                    G3DOBJECT *oldParent, 
                                    uint64_t   engine_flags ) {
+    /*** commented out : too verbose ***/
+    /*      
     if ( obj->type ) {
         printf("%s unimplemented for %s\n", __func__, obj->name );
     }
+    */
 }
 
 /******************************************************************************/

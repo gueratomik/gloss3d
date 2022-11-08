@@ -43,10 +43,16 @@
 #include <g3dengine/g3dengine.h>
 #include <g3dexportv2.h>
 
-#define PRINT_CHUNK_INFO(sig,size,level) \
-        fprintf( stderr, "%*s SIG:%08X LEN:%d - %s\n", level, "|-",\
-                                                       sig,\
-                                                       size, __func__ );
+#ifdef __MINGW32__
+/*** Print nothing: Way too slow on win32 ***/
+    #define PRINT_CHUNK_INFO(sig,size,level)
+#endif
+#ifdef __linux__
+    #define PRINT_CHUNK_INFO(sig,size,level) \
+            fprintf( stderr, "%*s SIG:%08X LEN:%d - %s\n", level, "|-",\
+                                                           sig,\
+                                                           size, __func__ )
+#endif
 
 /******************************************************************************/
 typedef struct _G3DIMPORTV2DATA {

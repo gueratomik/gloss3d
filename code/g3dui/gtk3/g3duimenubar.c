@@ -33,6 +33,7 @@
 static void menuItemCallback ( GtkWidget *widget, 
                                gpointer   user_data ) {
     GTK3G3DUIMENU *gtk3node = ( GTK3G3DUIMENU * ) user_data;
+
     G3DUI *gui = gtk3node->core.gui;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gui;
 

@@ -994,6 +994,7 @@ uint64_t gtk3_saveFile ( GTK3G3DUI *gtk3gui );
 uint64_t gtk3_mergeFile ( GTK3G3DUI *gtk3gui );
 uint64_t gtk3_exportFile ( GTK3G3DUI   *gtk3gui,
                            const gchar *filedesc );
+void gtk3_createRenderEdit ( GTK3G3DUI *gtk3gui );
 uint64_t gtk3_importFile ( GTK3G3DUI   *gtk3gui,
                            const gchar *filedesc );
 void gtk3_renderView ( GTK3G3DUI *gtk3gui );

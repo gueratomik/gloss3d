@@ -178,7 +178,9 @@ static uint64_t renderViewCbk ( G3DUIMENU *menu,
 /******************************************************************************/
 static uint64_t renderSettingsCbk ( G3DUIMENU *menu, 
                                     void      *data ) {
-    return CREATERENDEREDIT;
+    gtk3_createRenderEdit ( ( GTK3G3DUI * ) menu->gui );
+
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -975,6 +977,8 @@ static uint64_t getObjectStatsCbk ( G3DUIMENU *menu,
                                           GTK_BUTTONS_NONE,
                                           buffer,
                                           NULL );
+
+        gtk_window_set_position ( dialog, GTK_WIN_POS_CENTER );
 
         gtk_dialog_run ( GTK_DIALOG ( dialog ) );
         gtk_widget_destroy ( dialog );

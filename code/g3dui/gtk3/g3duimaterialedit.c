@@ -192,6 +192,8 @@ static void channelProceduralSettingsCbk ( GtkWidget *widget,
                                            "response",
                                            G_CALLBACK (gtk_widget_destroy),
                                            dial );
+                                           
+                gtk_window_set_position ( dial, GTK_WIN_POS_CENTER );
 
                 gtk_dialog_run ( dial );
 
