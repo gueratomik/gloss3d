@@ -1075,6 +1075,9 @@ static void updateFogFrame ( GTK3G3DUIRENDEREDIT *gtk3red ) {
 static void setFogAffectsBackgroundCbk ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIRENDEREDIT *gtk3red = ( GTK3G3DUIRENDEREDIT * ) user_data;
 
+    /*** prevents loop ***/
+    if ( gtk3red->core.gui->lock ) return;
+
     g3duirenderedit_setFogAffectsBackground ( &gtk3red->core );
 }
 

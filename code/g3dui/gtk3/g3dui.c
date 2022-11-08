@@ -2087,16 +2087,22 @@ static void gtk3_buildContextMenus ( GTK3G3DUI *gtk3gui,
 /******************************************************************************/
 void gtk3_createRenderEdit ( GTK3G3DUI *gtk3gui ) {
     G3DUI *gui = ( G3DUI * ) gtk3gui;
-    GtkWindow *dial = ui_gtk_window_new ( CLASS_MAIN, GTK_WINDOW_TOPLEVEL );
+    GtkWindow *dial = ui_gtk_dialog_new ( CLASS_MAIN );
+    GtkWidget *box = gtk_dialog_get_content_area ( dial );
     GTK3G3DUIRENDEREDIT *gtk3redit = 
                             gtk3_g3duirenderedit_create ( NULL, 
                                                           gtk3gui,
                                                           "Render edit",
                                                           gtk3gui->core.currsg );
 
-    gtk_container_add ( GTK_CONTAINER(dial), GTK_WIDGET(gtk3redit->fixed) );
+    gtk_container_add ( GTK_CONTAINER(box), GTK_WIDGET(gtk3redit->fixed) );
 
     gtk_window_set_position ( dial, GTK_WIN_POS_CENTER );
+
+    g_signal_connect_swapped ( dial,
+                               "response",
+                               G_CALLBACK (gtk_widget_destroy),
+                               dial);
 
     gtk_dialog_run ( dial );
 }

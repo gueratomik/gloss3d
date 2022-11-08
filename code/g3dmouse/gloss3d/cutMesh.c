@@ -62,7 +62,7 @@ G3DMOUSETOOLCUTMESH *g3dmousetoolcutmesh_new ( ) {
                                            cutMesh_tool,
                                            0x00 );
 
-    cm->restrict_to_selection = 0x01;
+    cm->restrict_to_selection = 0x00;
 
 
     return cm;

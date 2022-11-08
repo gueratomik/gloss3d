@@ -104,7 +104,7 @@ static uint64_t renderwindowExitCbk ( G3DUIMENU *menu, void *data ) {
     GTK3G3DUIRENDERWINDOW *gtk3rwin = ( G3DUIRENDERWINDOW * ) data;
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3rwin->core.gui;
 
-    gtk_widget_destroy ( gtk3gui->topWin );
+    gtk_widget_destroy ( gtk3rwin->topWin );
 
     return 0x00;
 }

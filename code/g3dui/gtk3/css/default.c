@@ -220,7 +220,7 @@ gchar *gtk3_getLightModeCSS ( ) {
                                               LGRAY6);
 #endif
 #ifdef __MINGW32__
-    static const gchar *myCSS = GTK3CSSSTYLE ("Calibri",
+    static const gchar *myCSS = GTK3CSSSTYLE ("Segoe UI",
                                               "12",
                                               LFTCOL,
                                               LFTCOL2,
@@ -265,7 +265,7 @@ gchar *gtk3_getDarkModeCSS ( ) {
                                               DGRAY6);
 #endif
 #ifdef __MINGW32__
-    static const gchar *myCSS = GTK3CSSSTYLE ("Calibri",
+    static const gchar *myCSS = GTK3CSSSTYLE ("Segoe UI",
                                               "12",
                                               DFTCOL,
                                               DFTCOL2,
