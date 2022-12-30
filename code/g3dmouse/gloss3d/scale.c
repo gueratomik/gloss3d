@@ -66,6 +66,10 @@ G3DMOUSETOOLSCALE *g3dmousetoolscale_new ( ) {
                                            scale_tool,
                                            0x00 );
 
+    sc->only_visible  = 0x01;
+    sc->radius        = PICKMINRADIUS;
+
+
     return sc;
 }
 
@@ -87,6 +91,9 @@ G3DMOUSETOOLSCALEUV *g3dmousetoolscaleUV_new ( ) {
                                            NULL,
                                            scaleUV_tool,
                                            0x00 );
+
+    sc->only_visible  = 0x00;
+    sc->radius        = PICKMINRADIUS;
 
     return sc;
 }
@@ -306,20 +313,19 @@ int scaleUV_tool ( G3DMOUSETOOL *mou,
                             G3DMESH   *parmes = ( G3DMESH * ) parobj;
 
                             /*** simulate click and release ***/
-                            if ( ( bev->x == mouseXpress ) && 
-                                 ( bev->y == mouseYpress ) ) {
-                                G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                                                   bev->x, VPX[0x03] - bev->y },
-                                                        .only_visible = 0x00,
-                                                        .weight = 0.0f,
-                                                        .radius = PICKMINRADIUS };
+                            if ( ( ( int ) bev->x == ( int ) mouseXpress ) && 
+                                 ( ( int ) bev->y == ( int ) mouseYpress ) ) {
+                                G3DMOUSETOOLSCALE *sc = ( G3DMOUSETOOLSCALE * ) mou;
 
-                                pickUV_tool ( ( G3DMOUSETOOL * ) &pt, 
-                                                                  sce, 
-                                                                  cam, 
-                                                                  urm, 
-                                                                  engine_flags, 
-                                                                  event );
+                                sc->coord[0x00] = sc->coord[0x02] = bev->x;
+                                sc->coord[0x01] = sc->coord[0x03] = VPX[0x03] - bev->y;
+
+                                pickUV_tool ( ( G3DMOUSETOOL * ) sc, 
+                                                                 sce, 
+                                                                 cam, 
+                                                                 urm, 
+                                                                 engine_flags, 
+                                                                 event );
 
                                 /*** cancel arrays allocated for undo-redo ***/
                                 if ( olduv ) free ( olduv );
@@ -463,20 +469,19 @@ static int scale_morpher ( G3DMORPHER       *mpr,
                         G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
                         /*** simulate click and release ***/
-                        if ( ( bev->x == mouseXpress ) && 
-                             ( bev->y == mouseYpress ) ) {
-                            G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                                               bev->x, VPX[0x03] - bev->y },
-                                                    .only_visible = 0x01,
-                                                    .weight = 0.0f,
-                                                    .radius = PICKMINRADIUS };
+                        if ( ( ( int ) bev->x == ( int ) mouseXpress ) && 
+                             ( ( int ) bev->y == ( int ) mouseYpress ) ) {
+                            G3DMOUSETOOLSCALE *sc = ( G3DMOUSETOOLSCALE * ) mou;
 
-                            pick_tool ( ( G3DMOUSETOOL * ) &pt, 
-                                                            sce, 
-                                                            cam, 
-                                                            urm, 
-                                                            engine_flags, 
-                                                            event );
+                            sc->coord[0x00] = sc->coord[0x02] = bev->x;
+                            sc->coord[0x01] = sc->coord[0x03] = VPX[0x03] - bev->y;
+
+                            pick_tool ( ( G3DMOUSETOOL * ) sc, 
+                                                           sce, 
+                                                           cam, 
+                                                           urm, 
+                                                           engine_flags, 
+                                                           event );
                         } else {
                             if ( lver ) {
                                 newpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
@@ -645,20 +650,19 @@ static int scale_mesh ( G3DMESH          *mes,
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
             /*** simulate click and release ***/
-            if ( ( bev->x == mouseXpress ) && 
-                 ( bev->y == mouseYpress ) ) {
-                G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                                   bev->x, VPX[0x03] - bev->y },
-                                        .only_visible = 0x01,
-                                        .weight = 0.0f,
-                                        .radius = PICKMINRADIUS };
+            if ( ( ( int ) bev->x == ( int ) mouseXpress ) && 
+                 ( ( int ) bev->y == ( int ) mouseYpress ) ) {
+                G3DMOUSETOOLSCALE *sc = ( G3DMOUSETOOLSCALE * ) mou;
 
-                pick_tool ( ( G3DMOUSETOOL * ) &pt, 
-                                                sce, 
-                                                cam, 
-                                                urm, 
-                                                engine_flags, 
-                                                event );
+                sc->coord[0x00] = sc->coord[0x02] = bev->x;
+                sc->coord[0x01] = sc->coord[0x03] = VPX[0x03] - bev->y;
+
+                pick_tool ( ( G3DMOUSETOOL * ) sc, 
+                                               sce, 
+                                               cam, 
+                                               urm, 
+                                               engine_flags, 
+                                               event );
             }
 
             g3dvertex_copyPositionFromList ( lver, &newpos );
@@ -845,24 +849,23 @@ static int scale_object ( LIST        *lobj,
             }
 
             /*** simulate click and release ***/
-            if ( ( bev->x == mouseXpress ) && 
-                 ( bev->y == mouseYpress ) ) {
-                G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                                   bev->x, VPX[0x03] - bev->y },
-                                        .only_visible = 0x01,
-                                        .weight = 0.0f,
-                                        .radius = PICKMINRADIUS };
+            if ( ( ( int ) bev->x == ( int ) mouseXpress ) && 
+                 ( ( int ) bev->y == ( int ) mouseYpress ) ) {
+                G3DMOUSETOOLSCALE *sc = ( G3DMOUSETOOLSCALE * ) mou;
+
+                sc->coord[0x00] = sc->coord[0x02] = bev->x;
+                sc->coord[0x01] = sc->coord[0x03] = VPX[0x03] - bev->y;
 
                 /*** FIRST UNDO the TRANSFORM that we saved at buttonPress ***/
                 /*** and that was not used at all ***/
                 g3durmanager_undo ( urm, engine_flags );
 
-                pick_tool ( ( G3DMOUSETOOL * ) &pt, 
-                                                sce, 
-                                                cam, 
-                                                urm, 
-                                                engine_flags, 
-                                                event );
+                pick_tool ( ( G3DMOUSETOOL * ) sc, 
+                                               sce, 
+                                               cam, 
+                                               urm, 
+                                               engine_flags, 
+                                               event );
             } else {
                 urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
             }
@@ -896,7 +899,7 @@ static int scale_tool ( G3DMOUSETOOL *mou,
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
             G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
                                                bev->x, VPX[0x03] - bev->y },
-                                    .only_visible = 0x01,
+                                    .only_visible = 0x00,
                                     .weight = 0.0f,
                                     .radius = PICKMINRADIUS };
 

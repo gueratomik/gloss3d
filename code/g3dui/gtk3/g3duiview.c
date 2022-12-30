@@ -195,6 +195,16 @@ static gboolean inputGL ( GtkWidget *widget,
     GTK3G3DUI     *gtk3gui = ( GTK3G3DUI * ) gui;
     GTK3G3DUIQUAD *gtk3quad = ( GTK3G3DUIQUAD * ) gui->main->quad;
 
+#ifdef __linux__
+    if ( glXMakeCurrent ( view->dpy,
+                          view->win,
+                          view->glctx ) == TRUE ) {
+#endif
+#ifdef __MINGW32__
+    HDC dc = GetDC ( view->hWnd );
+    if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
+#endif
+
     if ( gui->currentView !=  ( G3DUIVIEW * ) gtk3view ) {
         gui->currentView = ( G3DUIVIEW * ) gtk3view;
 
@@ -321,6 +331,13 @@ static gboolean inputGL ( GtkWidget *widget,
             }
         }
     }
+
+#ifdef __linux__
+    }
+#endif
+#ifdef __MINGW32__
+    } ReleaseDC ( view->hWnd, dc );
+#endif
 
     return TRUE;
 }

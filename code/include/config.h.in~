@@ -48,6 +48,9 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Build for Windows */
+#undef HAVE_WIN32
+
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
 
@@ -79,6 +82,3 @@
 
 /* Version number of package */
 #undef VERSION
-
-/* Build for Windows */
-#undef WITH_WIN32

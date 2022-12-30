@@ -646,4 +646,3 @@ GTK3M3DUIVIEW *gtk3_m3duiview_create ( GtkWidget *parent,
 
     return gtk3view;
 }
-

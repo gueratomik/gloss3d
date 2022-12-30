@@ -1131,6 +1131,11 @@ typedef struct _G3DUIPICKTOOLEDIT {
 } G3DUIPICKTOOLEDIT;
 
 /******************************************************************************/
+typedef struct _G3DUIMOVETOOLEDIT {
+    G3DUI             *gui;
+} G3DUIMOVETOOLEDIT;
+
+/******************************************************************************/
 typedef struct _G3DUISCULPTTOOLEDIT {
     G3DUI             *gui;
 } G3DUISCULPTTOOLEDIT;
@@ -1144,6 +1149,7 @@ typedef struct _G3DUICUTMESHTOOLEDIT {
 typedef struct _G3DUIMOUSETOOLEDIT {
     G3DUI                *gui;
     G3DUIPICKTOOLEDIT    *pickedit;
+    G3DUIMOVETOOLEDIT    *moveedit;
     G3DUICUTMESHTOOLEDIT *cutmeshedit;
     G3DUISCULPTTOOLEDIT  *sculptedit;
 } G3DUIMOUSETOOLEDIT;
@@ -1879,6 +1885,10 @@ G3DUIMOUSETOOL *g3duimousetool_new ( G3DMOUSETOOL *tool,
                                      G3DUIMENU    *menu,
                                      uint32_t      uiflags );
 void g3duimousetool_free ( G3DUIMOUSETOOL *mou );
+
+/****************************** g3duimovetooledit.c ***************************/
+uint64_t g3duimovetooledit_onlyVisibleCbk ( G3DUIMOVETOOLEDIT *ptedit, 
+                                            int                visible_only );
 
 /******************************** g3duiobjectedit.c ***************************/
 

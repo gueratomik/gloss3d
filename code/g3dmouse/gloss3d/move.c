@@ -463,8 +463,8 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                             G3DMESH   *parmes = ( G3DMESH * ) parobj;
 
                             /*** simulate click and release ***/
-                            if ( ( bev->x == mouseXpress ) && 
-                                 ( bev->y == mouseYpress ) ) {
+                            if ( ( ( int ) bev->x == ( int ) mouseXpress ) && 
+                                 ( ( int ) bev->y == ( int ) mouseYpress ) ) {
                                 G3DMOUSETOOLMOVE *mv = ( G3DMOUSETOOLMOVE * ) mou;
 
                                 mv->coord[0x00] = mv->coord[0x02] = bev->x;
@@ -659,8 +659,8 @@ static int move_morpher ( G3DMORPHER   *mpr,
                         G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
                         /*** simulate click and release ***/
-                        if ( ( bev->x == mouseXpress ) && 
-                             ( bev->y == mouseYpress ) ) {
+                        if ( ( ( int ) bev->x == ( int ) mouseXpress ) && 
+                             ( ( int ) bev->y == ( int ) mouseYpress ) ) {
                             G3DMOUSETOOLMOVE *mv = ( G3DMOUSETOOLMOVE * ) mou;
 
                             mv->coord[0x00] = mv->coord[0x02] = bev->x;
@@ -866,8 +866,8 @@ static int move_mesh ( G3DMESH      *mes,
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
             /*** simulate click and release ***/
-            if ( ( bev->x == mouseXpress ) && 
-                 ( bev->y == mouseYpress ) ) {
+            if ( ( ( int ) bev->x == ( int ) mouseXpress ) && 
+                 ( ( int ) bev->y == ( int ) mouseYpress ) ) {
                 G3DMOUSETOOLMOVE *mv = ( G3DMOUSETOOLMOVE * ) mou;
 
                 mv->coord[0x00] = mv->coord[0x02] = bev->x;
@@ -1150,8 +1150,8 @@ int move_object ( LIST        *lobj,
             }
 
             /*** simulate click and release ***/
-            if ( ( bev->x == mouseXpress ) && 
-                 ( bev->y == mouseYpress ) ) {
+            if ( ( ( int ) bev->x == ( int ) mouseXpress ) && 
+                 ( ( int ) bev->y == ( int ) mouseYpress ) ) {
                 G3DMOUSETOOLMOVE *mv = ( G3DMOUSETOOLMOVE * ) mou;
 
                 mv->coord[0x00] = mv->coord[0x02] = bev->x;

@@ -2,6 +2,8 @@ ACLOCAL_AMFLAGS= -I m4
 
 if HAVE_WIN32
     AM_CFLAGS= -mwindows
+else
+    AM_LDFLAGS= -Wl,--no-as-needed  `pkg-config --libs gtk+-3.0` `pkg-config --libs gdk-3.0` `pkg-config --libs pango` -lXpm -lGL -lGLU -lX11 `pkg-config --libs freetype2` -ljpeg -lpng -lm -lpthread -lc
 endif
 
 SUBDIRS = g3dengine \
@@ -12,7 +14,8 @@ SUBDIRS = g3dengine \
           g3dui \
           g3durmanager \
           makeup3d \
-          qiss3d
+          qiss3d \
+          list
 #          r3dnet
 
 
@@ -139,6 +142,7 @@ EXTRA_DIST   = include/g3dexport.h \
                        include/xpm/scnico.xpm \
                        include/xpm/sknico.xpm \
                        include/xpm/insico.xpm \
+                       include/xpm/sculptmode2.xpm \
                        include/xpm/sculptmode.xpm \
                        include/xpm/selectarea.xpm \
                        include/xpm/selectrandom.xpm \
@@ -175,9 +179,13 @@ EXTRA_DIST   = include/g3dexport.h \
                        include/xpm/scale_keys.xpm \
                        include/xpm/pick_keys.xpm \
                        include/xpm/vertexmode_test.xpm \
+                       include/xpm/vertexmode_test2.xpm \
                        include/xpm/objectmode_test.xpm \
+                       include/xpm/objectmode_test2.xpm \
                        include/xpm/edgemode_test.xpm \
+                       include/xpm/edgemode_test2.xpm \
                        include/xpm/facemode_test.xpm \
+                       include/xpm/facemode_test2.xpm \
                        include/xpm/skinmode_test.xpm \
                        include/xpm/uvwmapmode_test.xpm \
                        include/xpm/axismode_test.xpm \
@@ -197,5 +205,5 @@ backup:
 .PHONY: backup
 
 count:
-	cloc main.c list.c include g3dui g3dengine g3dmouse qiss3d makeup3d g3durmanager g3dexport g3dimport g3dcom --exclude-lang=CSS,Javascript,HTML,m4,make,Bourne\ Shell,Bourne\ Again\ Shell
+	cloc main.c list include g3dui g3dengine g3dmouse qiss3d makeup3d g3durmanager g3dexport g3dimport g3dcom --exclude-lang=CSS,Javascript,HTML,m4,make,Bourne\ Shell,Bourne\ Again\ Shell
 .PHONY: count

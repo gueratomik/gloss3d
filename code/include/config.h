@@ -2,7 +2,7 @@
 /* include/config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-/* #undef HAVE_DLFCN_H */
+#define HAVE_DLFCN_H 1
 
 /* Use expat */
 #define HAVE_EXPAT 1
@@ -11,7 +11,7 @@
 #define HAVE_EXPAT_H 1
 
 /* Define to 1 if you have the <ft2build.h> header file. */
-#define HAVE_FT2BUILD_H 1
+/* #undef HAVE_FT2BUILD_H */
 
 /* Use GTK+3 */
 #define HAVE_GTK3 1
@@ -22,14 +22,14 @@
 /* Define to 1 if you have the <jpeglib.h> header file. */
 #define HAVE_JPEGLIB_H 1
 
+/* Define to 1 if you have the <memory.h> header file. */
+#define HAVE_MEMORY_H 1
+
 /* Define to 1 if you have the <png.h> header file. */
 #define HAVE_PNG_H 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
-
-/* Define to 1 if you have the <stdio.h> header file. */
-#define HAVE_STDIO_H 1
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #define HAVE_STDLIB_H 1
@@ -50,7 +50,7 @@
 #define HAVE_UNISTD_H 1
 
 /* Build for Windows */
-#define HAVE_WIN32 1
+/* #undef HAVE_WIN32 */
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #define LT_OBJDIR ".libs/"
@@ -65,7 +65,7 @@
 #define PACKAGE_NAME "gloss3d"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "gloss3d 0.99.0"
+#define PACKAGE_STRING "gloss3d 0.99.1"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "gloss3d"
@@ -74,12 +74,10 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.99.0"
+#define PACKAGE_VERSION "0.99.1"
 
-/* Define to 1 if all of the C90 standard headers exist (not just the ones
-   required in a freestanding environment). This macro is provided for
-   backward compatibility; new code need not use it. */
+/* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "0.99.0"
+#define VERSION "0.99.1"

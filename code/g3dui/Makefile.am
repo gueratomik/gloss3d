@@ -75,6 +75,7 @@ LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
                         common/mousetool/g3duicutmeshtooledit.c \
                         common/mousetool/m3duipentooledit.c \
                         common/mousetool/g3duipicktooledit.c \
+                        common/mousetool/g3duimovetooledit.c \
                         common/mousetool/g3duisculpttooledit.c \
                         common/m3dui.c \
                         common/m3duiboard.c \
@@ -148,6 +149,7 @@ LIBGLOSSG3DUI_C_FILES = common/g3dui.c \
                         gtk3/mousetool/g3duimousetooledit.c \
                         gtk3/mousetool/g3duicutmeshtooledit.c \
                         gtk3/mousetool/g3duipicktooledit.c \
+                        gtk3/mousetool/g3duimovetooledit.c \
                         gtk3/mousetool/g3duisculpttooledit.c \
                         gtk3/m3dui.c \
                         gtk3/m3duiboard.c \

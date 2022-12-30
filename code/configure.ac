@@ -1,11 +1,11 @@
-AC_INIT([gloss3d],[0.99.0])
+AC_INIT([gloss3d],[0.99.1])
 AC_CANONICAL_TARGET
 AC_CONFIG_HEADERS([include/config.h])
 LT_INIT
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([subdir-objects])
-#AM_INIT_AUTOMAKE(gloss3d,0.99.0)
+#AM_INIT_AUTOMAKE(gloss3d,0.99.1)
 AM_SILENT_RULES([yes])
 
 AC_PROG_CC([gcc])
@@ -20,8 +20,6 @@ m4_warn([obsolete],
   ISO C90 headers unconditionally.])dnl
 # Autoupdate added the next two lines to ensure that your configure
 # script's behavior did not change.  They are probably safe to remove.
-AC_CHECK_INCLUDES_DEFAULT
-AC_PROG_EGREP
 
 AM_CONDITIONAL(HAVE_MOTIF,false)
 AM_CONDITIONAL(HAVE_GTK3,false)

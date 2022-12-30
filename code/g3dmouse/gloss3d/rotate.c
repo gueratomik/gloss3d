@@ -66,6 +66,9 @@ G3DMOUSETOOLROTATE *g3dmousetoolrotate_new ( ) {
                                            rotate_tool,
                                            0x00 );
 
+    rt->only_visible  = 0x01;
+    rt->radius        = PICKMINRADIUS;
+
     return rt;
 }
 
@@ -87,6 +90,8 @@ G3DMOUSETOOLROTATEUV *g3dmousetoolrotateUV_new ( ) {
                                            NULL,
                                            rotateUV_tool,
                                            0x00 );
+    rt->only_visible  = 0x00;
+    rt->radius        = PICKMINRADIUS;
 
     return rt;
 }
@@ -313,20 +318,19 @@ static int rotateUV_tool ( G3DMOUSETOOL *mou,
                             G3DMESH   *parmes = ( G3DMESH * ) parobj;
 
                             /*** simulate click and release ***/
-                            if ( ( bev->x == mouseXpress ) && 
-                                 ( bev->y == mouseYpress ) ) {
-                                G3DMOUSETOOLPICKUV pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                                                     bev->x, VPX[0x03] - bev->y },
-                                                          .only_visible = 0x00,
-                                                          .weight = 0.0f,
-                                                          .radius = PICKMINRADIUS };
+                            if ( ( ( int ) bev->x == ( int ) mouseXpress ) && 
+                                 ( ( int ) bev->y == ( int ) mouseYpress ) ) {
+                                G3DMOUSETOOLROTATE *rt = ( G3DMOUSETOOLROTATE * ) mou;
 
-                                pickUV_tool ( ( G3DMOUSETOOL * ) &pt, 
-                                                                  sce, 
-                                                                  cam, 
-                                                                  urm, 
-                                                                  engine_flags, 
-                                                                  event );
+                                rt->coord[0x00] = rt->coord[0x02] = bev->x;
+                                rt->coord[0x01] = rt->coord[0x03] = VPX[0x03] - bev->y;
+
+                                pickUV_tool ( ( G3DMOUSETOOL * ) rt, 
+                                                                 sce, 
+                                                                 cam, 
+                                                                 urm, 
+                                                                 engine_flags, 
+                                                                 event );
 
                                 /*** cancel arrays allocated for undo-redo ***/
                                 if ( olduv ) free ( olduv );
@@ -508,20 +512,19 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
                         G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
                         /*** simulate click and release ***/
-                        if ( ( bev->x == mouseXpress ) && 
-                             ( bev->y == mouseYpress ) ) {
-                            G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                                               bev->x, VPX[0x03] - bev->y },
-                                                    .only_visible = 0x01,
-                                                    .weight = 0.0f,
-                                                    .radius = PICKMINRADIUS };
+                        if ( ( ( int ) bev->x == ( int ) mouseXpress ) && 
+                             ( ( int ) bev->y == ( int ) mouseYpress ) ) {
+                            G3DMOUSETOOLROTATE *rt = ( G3DMOUSETOOLROTATE * ) mou;
 
-                            pick_tool ( ( G3DMOUSETOOL * ) &pt, 
-                                                            sce, 
-                                                            cam, 
-                                                            urm, 
-                                                            engine_flags, 
-                                                            event );
+                            rt->coord[0x00] = rt->coord[0x02] = bev->x;
+                            rt->coord[0x01] = rt->coord[0x03] = VPX[0x03] - bev->y;
+
+                            pick_tool ( ( G3DMOUSETOOL * ) rt, 
+                                                           sce, 
+                                                           cam, 
+                                                           urm, 
+                                                           engine_flags, 
+                                                           event );
                         } else {
                             if ( lver ) {
                                 newpos = g3dmorpher_getMeshPoseArrayFromList ( mpr, 
@@ -713,20 +716,19 @@ static int rotate_mesh ( G3DMESH          *mes,
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
             /*** simulate click and release ***/
-            if ( ( bev->x == mouseXpress ) && 
-                 ( bev->y == mouseYpress ) ) {
-                G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                                   bev->x, VPX[0x03] - bev->y },
-                                        .only_visible = 0x01,
-                                        .weight = 0.0f,
-                                        .radius = PICKMINRADIUS };
+            if ( ( ( int ) bev->x == ( int ) mouseXpress ) && 
+                 ( ( int ) bev->y == ( int ) mouseYpress ) ) {
+                G3DMOUSETOOLROTATE *rt = ( G3DMOUSETOOLROTATE * ) mou;
 
-                pick_tool ( ( G3DMOUSETOOL * ) &pt, 
-                                                sce, 
-                                                cam, 
-                                                urm, 
-                                                engine_flags, 
-                                                event );
+                rt->coord[0x00] = rt->coord[0x02] = bev->x;
+                rt->coord[0x01] = rt->coord[0x03] = VPX[0x03] - bev->y;
+
+                pick_tool ( ( G3DMOUSETOOL * ) rt, 
+                                               sce, 
+                                               cam, 
+                                               urm, 
+                                               engine_flags, 
+                                               event );
             }
 
             g3dvertex_copyPositionFromList ( lver, &newpos );
@@ -961,24 +963,23 @@ static int rotate_object ( LIST        *lobj,
             }
 
             /*** simulate click and release ***/
-            if ( ( bev->x == mouseXpress ) && 
-                 ( bev->y == mouseYpress ) ) {
-                G3DMOUSETOOLPICK pt = { .coord = { bev->x, VPX[0x03] - bev->y,
-                                                   bev->x, VPX[0x03] - bev->y },
-                                        .only_visible = 0x01,
-                                        .weight = 0.0f,
-                                        .radius = PICKMINRADIUS };
+            if ( ( ( int ) bev->x == ( int ) mouseXpress ) && 
+                 ( ( int ) bev->y == ( int ) mouseYpress ) ) {
+                G3DMOUSETOOLROTATE *rt = ( G3DMOUSETOOLROTATE * ) mou;
+
+                rt->coord[0x00] = rt->coord[0x02] = bev->x;
+                rt->coord[0x01] = rt->coord[0x03] = VPX[0x03] - bev->y;
 
                 /*** FIRST UNDO the TRANSFORM that we saved at buttonPress ***/
                 /*** and that was not used at all ***/
                 g3durmanager_undo ( urm, engine_flags );
 
-                pick_tool ( ( G3DMOUSETOOL * ) &pt, 
-                                                sce, 
-                                                cam, 
-                                                urm, 
-                                                engine_flags, 
-                                                event );
+                pick_tool ( ( G3DMOUSETOOL * ) rt, 
+                                               sce, 
+                                               cam, 
+                                               urm, 
+                                               engine_flags, 
+                                               event );
             } else {
                 urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
             }

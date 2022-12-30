@@ -273,6 +273,7 @@ typedef struct _GTK3G3DUIVIEW {
     GtkWidget *layout;
     GtkWidget *navbar;
     GtkWidget *glarea;
+    GtkWidget *invisible;
     LIST      *lmenu;
     GdkPixbuf *pix[0x04];
 } GTK3G3DUIVIEW;
@@ -864,6 +865,13 @@ typedef struct _GTK3G3DUIPICKTOOLEDIT {
     GtkWidget        *weightRadiusEntry;
     GtkWidget        *weightFrame;
 } GTK3G3DUIPICKTOOLEDIT;
+
+/******************************************************************************/
+typedef struct _GTK3G3DUIMOVETOOLEDIT {
+    G3DUIPICKTOOLEDIT core;
+    GtkFixed         *fixed;
+    GtkWidget        *visibleToggle;
+} GTK3G3DUIMOVETOOLEDIT;
 
 /******************************************************************************/
 typedef struct _GTK3G3DUISCULPTTOOLEDIT {

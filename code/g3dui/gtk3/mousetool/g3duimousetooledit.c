@@ -51,12 +51,14 @@ void gtk3_g3duimousetooledit_update ( GTK3G3DUIMOUSETOOLEDIT *gtk3mtledit ) {
     GTK3G3DUIPICKTOOLEDIT *pickedit = ( GTK3G3DUIPICKTOOLEDIT * ) gtk3mtledit->core.pickedit;
     GTK3G3DUICUTMESHTOOLEDIT *cmedit = ( GTK3G3DUICUTMESHTOOLEDIT * ) gtk3mtledit->core.cutmeshedit;
     GTK3G3DUISCULPTTOOLEDIT *sculptedit = ( GTK3G3DUISCULPTTOOLEDIT * ) gtk3mtledit->core.sculptedit;
+    GTK3G3DUIMOVETOOLEDIT *moveedit = ( GTK3G3DUIMOVETOOLEDIT * ) gtk3mtledit->core.moveedit;
     G3DUI *gui = gtk3mtledit->core.gui;
     G3DUIMOUSETOOL *mtl = gui->curmou;
 
     if ( pickedit   ) gtk_widget_hide ( pickedit->fixed   );
     if ( cmedit     ) gtk_widget_hide ( cmedit->fixed     );
     if ( sculptedit ) gtk_widget_hide ( sculptedit->fixed );
+    if ( moveedit   ) gtk_widget_hide ( moveedit->fixed   );
 
     if ( mtl ) {
         G3DMOUSETOOL *tool = mtl->tool;
@@ -66,6 +68,14 @@ void gtk3_g3duimousetooledit_update ( GTK3G3DUIMOUSETOOLEDIT *gtk3mtledit ) {
                 gtk3_g3duipicktooledit_update ( pickedit );
 
                 gtk_widget_show ( pickedit->fixed );
+            }
+
+            if ( ( strcmp ( tool->name, MOVETOOL ) == 0x00 ) ||
+                 ( strcmp ( tool->name, ROTATETOOL ) == 0x00 ) ||
+                 ( strcmp ( tool->name, SCALETOOL ) == 0x00 ) ) {
+                gtk3_g3duimovetooledit_update ( moveedit );
+
+                gtk_widget_show ( moveedit->fixed );
             }
 
             if ( strcmp ( tool->name, CUTMESHTOOL ) == 0x00 ) {
@@ -124,6 +134,20 @@ static void createPickToolEdit ( GTK3G3DUIMOUSETOOLEDIT *gtk3mtledit ) {
 }
 
 /******************************************************************************/
+static void createMoveToolEdit ( GTK3G3DUIMOUSETOOLEDIT *gtk3mtledit ) {
+    GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3mtledit->core.gui;
+    GTK3G3DUIMOVETOOLEDIT *gtk3moveedit;
+
+    gtk3moveedit = gtk3_g3duimovetooledit_create ( gtk3mtledit->mousetoolFixed,
+                                                   gtk3gui,
+                                                   "Move Tool" );
+
+    gtk_fixed_put ( GTK_FIXED(gtk3mtledit->mousetoolFixed), gtk3moveedit->fixed, 0, 0 );
+
+    gtk3mtledit->core.moveedit = ( GTK3G3DUIMOVETOOLEDIT * ) gtk3moveedit;
+}
+
+/******************************************************************************/
 static void createCutMeshToolEdit ( GTK3G3DUIMOUSETOOLEDIT *gtk3mtledit ) {
     GTK3G3DUI *gtk3gui = ( GTK3G3DUI * ) gtk3mtledit->core.gui;
     GTK3G3DUICUTMESHTOOLEDIT *gtk3cmedit;
@@ -175,6 +199,7 @@ GTK3G3DUIMOUSETOOLEDIT *gtk3_g3duimousetooledit_create ( GtkWidget *parent,
     /*** selected mousetool type showed otherwise.   ***/
 
     createPickToolEdit    ( gtk3mtledit );
+    createMoveToolEdit    ( gtk3mtledit );
     createCutMeshToolEdit ( gtk3mtledit );
     createSculptToolEdit  ( gtk3mtledit );
 
