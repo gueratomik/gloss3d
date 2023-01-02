@@ -322,6 +322,19 @@ GTK3G3DUIMAIN *gtk3_g3duimain_create ( GtkWidget *parent,
 
     gtk3main->layout = layout;
 
+    if ( getenv ( "WAYLAND_DISPLAY" ) ) {
+        GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
+        GtkWidget *dialog = gtk_message_dialog_new ( gtk3gui->topWin,
+                                                     flags,
+                                                     GTK_MESSAGE_ERROR,
+                                                     GTK_BUTTONS_CLOSE,
+                                                     "Wayland is unsupported for now. Please run Gloss3D under Xorg/X11" );
+        gtk_dialog_run ( GTK_DIALOG ( dialog ) );
+        gtk_widget_destroy ( dialog );
+
+        exit(EXIT_FAILURE);
+    }
+
     gtk3_g3duimain_createMenuBar   ( gtk3main );
     gtk3_g3duimain_createToolBar   ( gtk3main );
     gtk3_g3duimain_createModeBar   ( gtk3main );
