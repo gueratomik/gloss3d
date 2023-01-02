@@ -322,6 +322,7 @@ GTK3G3DUIMAIN *gtk3_g3duimain_create ( GtkWidget *parent,
 
     gtk3main->layout = layout;
 
+#ifdef __linux__
     if ( getenv ( "WAYLAND_DISPLAY" ) ) {
         GtkDialogFlags flags = GTK_DIALOG_DESTROY_WITH_PARENT;
         GtkWidget *dialog = gtk_message_dialog_new ( gtk3gui->topWin,
@@ -334,6 +335,7 @@ GTK3G3DUIMAIN *gtk3_g3duimain_create ( GtkWidget *parent,
 
         exit(EXIT_FAILURE);
     }
+#endif
 
     gtk3_g3duimain_createMenuBar   ( gtk3main );
     gtk3_g3duimain_createToolBar   ( gtk3main );

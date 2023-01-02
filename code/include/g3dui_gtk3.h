@@ -1415,6 +1415,11 @@ GTK3G3DUIMOUSETOOLEDIT *gtk3_g3duimousetooledit_create ( GtkWidget *parent,
                                                          GTK3G3DUI *gtk3gui,
                                                          char      *name );
 
+/*************************** g3duimousetooledit.c *****************************/
+void gtk3_g3duimovetooledit_update ( GTK3G3DUIMOVETOOLEDIT *gtk3moveedit );
+GTK3G3DUIMOVETOOLEDIT *gtk3_g3duimovetooledit_create ( GtkWidget *parent, 
+                                                       GTK3G3DUI *gtk3gui,
+                                                       char      *name );
 
 /**************************** g3duimorpheredit.c ******************************/
 GTK3G3DUIMORPHEREDIT *gtk3_g3duimorpheredit_create ( GtkWidget *parent,

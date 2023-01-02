@@ -1686,6 +1686,10 @@ uint64_t g3duicubeedit_slice ( G3DUICUBEEDIT *cubedit,
 uint64_t g3duicubeedit_radius ( G3DUICUBEEDIT *cubedit,
                                    float          radius );
 
+/**************************** g3duicutmeshtooledit.c **************************/
+uint64_t g3duicutmeshtooledit_restrictCbk ( G3DUICUTMESHTOOLEDIT *cmtedit,
+                                            int                   restricted );
+
 /****************************** g3duicurrentedit.c ****************************/
 
 
@@ -2030,6 +2034,13 @@ uint64_t g3duiparticleemitteredit_initialAccelY ( G3DUIPARTICLEEMITTEREDIT *gpee
                                                      float                     initialAccelY );
 uint64_t g3duiparticleemitteredit_initialAccelZ ( G3DUIPARTICLEEMITTEREDIT *gpeedit,
                                                      float                     initialAccelZ );
+/****************************** g3duipicktooledit.c ***************************/
+uint64_t g3duipicktooledit_onlyVisibleCbk ( G3DUIPICKTOOLEDIT *ptedit, 
+                                            int                visible_only );
+uint64_t g3duipicktooledit_paintRadiusCbk ( G3DUIPICKTOOLEDIT *ptedit,
+                                            float              radius );
+uint64_t g3duipicktooledit_setWeightCbk ( G3DUIPICKTOOLEDIT *ptedit,
+                                          float              weight );
 
 /********************************* g3duiplaneedit.c ***************************/
 
