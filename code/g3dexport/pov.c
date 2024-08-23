@@ -35,10 +35,10 @@ void g3dcamera_exportPov ( G3DCAMERA *cam, FILE *fdst, uint32_t save_flags ) {
     G3DVECTOR local  = { 0.0f, 0.0f, 0.0f, 1.0f }, pos, rot;
     G3DVECTOR lookat = { 0.0f, 0.0f,-1.0f, 1.0f }, to;
 
-    g3dvector_matrix ( &local , objcam->wmatrix, &pos );
-    g3dvector_matrix ( &lookat, objcam->wmatrix, &to  );
+    g3dvector_matrixf ( &local , objcam->worldMatrix, &pos );
+    g3dvector_matrixf ( &lookat, objcam->worldMatrix, &to  );
 
-    g3dcore_getMatrixRotation ( objcam->wmatrix, &rot );
+    g3dcore_getMatrixRotationf ( objcam->worldMatrix, &rot );
 
     fprintf ( fdst, "camera { \n" );
 
@@ -66,13 +66,13 @@ void g3dmesh_exportPov ( G3DMESH *mes, FILE *fdst, uint32_t save_flags ) {
             G3DVECTOR pos0, pos1, pos2;
             G3DVECTOR nor0, nor1, nor2;
 
-            g3dvector_matrix ( &fac->ver[0x00]->pos, objmes->wmatrix, &pos0 );
-            g3dvector_matrix ( &fac->ver[0x01]->pos, objmes->wmatrix, &pos1 );
-            g3dvector_matrix ( &fac->ver[0x02]->pos, objmes->wmatrix, &pos2 );
+            g3dvector_matrixf ( &fac->ver[0x00]->pos, objmes->worldMatrix, &pos0 );
+            g3dvector_matrixf ( &fac->ver[0x01]->pos, objmes->worldMatrix, &pos1 );
+            g3dvector_matrixf ( &fac->ver[0x02]->pos, objmes->worldMatrix, &pos2 );
 
-            g3dvector_matrix ( &fac->ver[0x00]->nor, objmes->iwmatrix, &nor0 );
-            g3dvector_matrix ( &fac->ver[0x01]->nor, objmes->iwmatrix, &nor1 );
-            g3dvector_matrix ( &fac->ver[0x02]->nor, objmes->iwmatrix, &nor2 );
+            g3dvector_matrixf ( &fac->ver[0x00]->nor, objmes->inverseWorldMatrix, &nor0 );
+            g3dvector_matrixf ( &fac->ver[0x01]->nor, objmes->inverseWorldMatrix, &nor1 );
+            g3dvector_matrixf ( &fac->ver[0x02]->nor, objmes->inverseWorldMatrix, &nor2 );
 
             g3dvector_normalize ( &nor0, NULL );
             g3dvector_normalize ( &nor1, NULL );
@@ -90,15 +90,15 @@ void g3dmesh_exportPov ( G3DMESH *mes, FILE *fdst, uint32_t save_flags ) {
             G3DVECTOR pos0, pos1, pos2, pos3;
             G3DVECTOR nor0, nor1, nor2, nor3;
 
-            g3dvector_matrix ( &fac->ver[0x00]->pos, objmes->wmatrix, &pos0 );
-            g3dvector_matrix ( &fac->ver[0x01]->pos, objmes->wmatrix, &pos1 );
-            g3dvector_matrix ( &fac->ver[0x02]->pos, objmes->wmatrix, &pos2 );
-            g3dvector_matrix ( &fac->ver[0x03]->pos, objmes->wmatrix, &pos3 );
+            g3dvector_matrixf ( &fac->ver[0x00]->pos, objmes->worldMatrix, &pos0 );
+            g3dvector_matrixf ( &fac->ver[0x01]->pos, objmes->worldMatrix, &pos1 );
+            g3dvector_matrixf ( &fac->ver[0x02]->pos, objmes->worldMatrix, &pos2 );
+            g3dvector_matrixf ( &fac->ver[0x03]->pos, objmes->worldMatrix, &pos3 );
 
-            g3dvector_matrix ( &fac->ver[0x00]->nor, objmes->iwmatrix, &nor0 );
-            g3dvector_matrix ( &fac->ver[0x01]->nor, objmes->iwmatrix, &nor1 );
-            g3dvector_matrix ( &fac->ver[0x02]->nor, objmes->iwmatrix, &nor2 );
-            g3dvector_matrix ( &fac->ver[0x03]->nor, objmes->iwmatrix, &nor3 );
+            g3dvector_matrixf ( &fac->ver[0x00]->nor, objmes->inverseWorldMatrix, &nor0 );
+            g3dvector_matrixf ( &fac->ver[0x01]->nor, objmes->inverseWorldMatrix, &nor1 );
+            g3dvector_matrixf ( &fac->ver[0x02]->nor, objmes->inverseWorldMatrix, &nor2 );
+            g3dvector_matrixf ( &fac->ver[0x03]->nor, objmes->inverseWorldMatrix, &nor3 );
 
             g3dvector_normalize ( &nor0, NULL );
             g3dvector_normalize ( &nor1, NULL );

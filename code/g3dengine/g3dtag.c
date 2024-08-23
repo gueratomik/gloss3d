@@ -191,8 +191,8 @@ static uint32_t g3dtrackertag_transform ( G3DTRACKERTAG *ttag,
                 G3DVECTOR objrot;
                 double RX[0x10];
 
-                g3dvector_matrix ( &origin, ttag->target->wmatrix, &wldpos );
-                g3dvector_matrix ( &wldpos, obj->parent->iwmatrix, &target );
+                g3dvector_matrixf ( &origin, ttag->target->worldMatrix, &wldpos );
+                g3dvector_matrixf ( &wldpos, obj->parent->inverseWorldMatrix, &target );
 
                 dir.x = target.x - obj->pos.x;
                 dir.y = target.y - obj->pos.y;

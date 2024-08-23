@@ -672,6 +672,8 @@ typedef struct _G3DUI {
     G3DUICONF          conf;
     uint64_t           engine_flags;
 
+    int                virtualMouseFD;
+
     /* context menus for all objects */
     LIST              *lObjectModeMenu;
     /* context menus for meshes */

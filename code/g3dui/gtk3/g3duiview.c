@@ -28,6 +28,7 @@
 /******************************************************************************/
 #include <config.h>
 #include <g3dui_gtk3.h>
+#include <linux/uinput.h>
 
 /******************************************************************************/
 #include <xpm/translate_view.xpm>
@@ -343,6 +344,7 @@ static gboolean inputGL ( GtkWidget *widget,
 }
 
 /******************************************************************************/
+#ifdef deprecated
 static void sizeGL ( GtkWidget     *widget,
                      GtkAllocation *allocation, 
                      gpointer       user_data ) {
@@ -367,6 +369,25 @@ static void sizeGL ( GtkWidget     *widget,
         }
    /* }*/
 }
+#endif
+
+static void sizeGL ( GtkWidget *widget,
+                     gint       width,
+                     gint       height,
+                     gpointer   user_data ) {
+    GTK3G3DUIVIEW *gtk3view =  ( GTK3G3DUIVIEW * ) user_data;
+    G3DUIVIEW     *view    = &gtk3view->core;
+    G3DUI         *gui     = view->gui;
+
+    if ( ( width > 1 ) && ( height > 1 ) ) {
+        /*** cancel renderprocess if any ***/
+        g3dui_cancelRenderByID ( gui, ( uint64_t ) widget );
+
+        g3duiview_sizeGL ( view, width, height );
+
+        /*gtk_widget_queue_draw ( widget );*/
+    }
+}
 
 /******************************************************************************/
 static void initGL ( GtkWidget *widget,
@@ -374,9 +395,16 @@ static void initGL ( GtkWidget *widget,
     GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
     G3DUIVIEW     *view    = &gtk3view->core;
 
+    gtk_gl_area_make_current ( gtk3view->glarea );
+
+    if ( gtk_gl_area_get_error ( gtk3view->glarea ) != NULL )
+    {
+        return;
+    }
 }
 
 /******************************************************************************/
+#ifdef deprecated
 static gboolean showGL ( GtkWidget *widget, 
                          cairo_t   *cr, 
                          gpointer   user_data ) {
@@ -386,6 +414,21 @@ static gboolean showGL ( GtkWidget *widget,
     g3duiview_showGL ( view, view->engine_flags );
 
     return FALSE;
+}
+#endif
+
+static gboolean showGL ( GtkGLArea *area,
+                         GdkGLContext *context,
+                         gpointer user_data ) {
+    GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
+    G3DUIVIEW     *view    = &gtk3view->core;
+
+    glClearColor (0, 0, 0, 0);
+    glClear (GL_COLOR_BUFFER_BIT);
+
+    g3duiview_showGL ( view, view->engine_flags );
+
+    return TRUE;
 }
 
 /******************************************************************************/
@@ -546,6 +589,20 @@ static void gtk3_g3duiview_createMenuBar ( GTK3G3DUIVIEW *gtk3view ) {
 /******************************************************************************/
 static void gtk3_g3duiview_createGLArea ( GTK3G3DUIVIEW *gtk3view ) {
     G3DUI *gui = gtk3view->core.gui;
+    GtkWidget *glarea = gtk_gl_area_new ( );
+
+    gtk_layout_put ( GTK_LAYOUT(gtk3view->layout), glarea, 0, 0 );
+
+    g_signal_connect ( G_OBJECT (glarea), "render" , G_CALLBACK ( showGL ), gtk3view );
+    g_signal_connect ( G_OBJECT (glarea), "realize", G_CALLBACK ( initGL ), gtk3view );
+    g_signal_connect ( G_OBJECT (glarea), "resize" , G_CALLBACK ( sizeGL ), gtk3view );
+
+    gtk_widget_show ( glarea );
+
+    gtk3view->glarea = glarea;
+
+#ifdef deprecated
+    G3DUI *gui = gtk3view->core.gui;
     GtkWidget    *glarea = gtk_drawing_area_new ( );
 GdkVisual* visual;
 GdkScreen *screen;
@@ -560,8 +617,7 @@ Window root;
     /*** the OpenGL Window ***/
     gtk_widget_set_double_buffered ( glarea, FALSE );
 
-int attributes[] = { GLX_RGBA, GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1,
-GLX_BLUE_SIZE, 1, GLX_DOUBLEBUFFER, True, GLX_DEPTH_SIZE, 12, None };
+int attributes[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
 display = gdk_x11_get_default_xdisplay ();
 xscreen = DefaultScreen (display);
 screen = gdk_screen_get_default ();
@@ -615,6 +671,8 @@ gtk_widget_set_visual(glarea, visual);
     gtk_widget_show ( glarea );
 
     gtk3view->glarea = glarea;
+#endif
+
 }
 
 /******************************************************************************/
@@ -648,13 +706,35 @@ static void ungrabPointer ( GtkWidget *widget,
     gdk_device_ungrab ( gdk_event_get_device  ( event  ), GDK_CURRENT_TIME );
 }
 
+static void emit(int fd, int type, int code, int val)
+{
+   struct input_event ie;
+
+   ie.type = type;
+   ie.code = code;
+   ie.value = val;
+   /* timestamp values below are ignored */
+   ie.time.tv_sec = 0;
+   ie.time.tv_usec = 0;
+
+   write(fd, &ie, sizeof(ie));
+}
+
 /******************************************************************************/
-static void movePointer ( GtkWidget *widget, 
+static void movePointer ( GTK3G3DUIVIEW  *gtk3view,
+                          GtkWidget *widget, 
                           GdkEvent  *event,
                           uint32_t   x,
                           uint32_t   y ) {
+    G3DUIVIEW *view = ( G3DUIVIEW * ) gtk3view;
+
+    emit( view->gui->virtualMouseFD, EV_REL, REL_X, 5 );
+    emit( view->gui->virtualMouseFD, EV_REL, REL_Y, 5 );
+
+#ifdef unused
     GtkWidget *top = gtk_widget_get_toplevel ( widget );
     gint winx, winy;
+
 
     /*** gdk_device_warp() puts the pointer into screen coordinates. ***/
     /*** We have to translate the widgets coordinates to screen ones ***/
@@ -664,6 +744,7 @@ static void movePointer ( GtkWidget *widget,
                       gtk_widget_get_screen ( widget ), winx + x, winy + y );
 
     /*printf ( "reseting mouse to %d %d\n", winx + x, winy + y );*/
+#endif
 }
 
 /******************************************************************************/
@@ -820,7 +901,7 @@ static gboolean navInput ( GtkWidget *widget,
                     /*** thing because it's also dispatched by the event loop**/
                     /*** and we absolutely want the event to be generated ***/
                     /*** right after the redrawing of the gl area ***/
-                    movePointer ( widget, mev, xori, yori );
+                    movePointer ( gtk3view, widget, mev, xori, yori );
                 }
             }
 

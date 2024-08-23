@@ -1058,40 +1058,6 @@ void g3dface_drawTriangle  ( G3DFACE *fac,
 }
 
 /******************************************************************************/
-void g3dface_drawQuadList ( LIST    *lqua,
-                            float    gouraudScalarLimit, 
-                            LIST    *ltex, 
-                            uint32_t object_flags,
-                            uint64_t engine_flags ) {
-
-    while ( lqua ) {
-        G3DFACE *fac = ( G3DFACE * ) lqua->data;
-
-        g3dface_drawQuad ( fac, gouraudScalarLimit, ltex, object_flags, engine_flags );
-
-
-        lqua = lqua->next;
-    }
-}
-
-/******************************************************************************/
-void g3dface_drawTriangleList ( LIST    *ltri,
-                                float    gouraudScalarLimit, 
-                                LIST    *ltex, 
-                                uint32_t object_flags,
-                                uint64_t engine_flags ) {
-
-    while ( ltri ) {
-        G3DFACE *fac = ( G3DFACE * ) ltri->data;
-
-        g3dface_drawTriangle ( fac, gouraudScalarLimit, ltex, object_flags, engine_flags );
-
-
-        ltri = ltri->next;
-    }
-}
-
-/******************************************************************************/
 LIST *g3dface_getEdgesFromList ( LIST *lfac ) {
     LIST *ledg = NULL;
 

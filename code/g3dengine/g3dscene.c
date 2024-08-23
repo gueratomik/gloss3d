@@ -120,7 +120,7 @@ static uint32_t g3dscene_getPositionFromSelectedObjects ( G3DSCENE  *sce,
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
         G3DVECTOR pos = { 0.0f, 0.0f, 0.0f, 1.0f }, tmpout;
 
-        g3dvector_matrix ( &pos, obj->wmatrix, &tmpout );
+        g3dvector_matrixf ( &pos, obj->worldMatrix, &tmpout );
 
         vout->x += tmpout.x;
         vout->y += tmpout.y;
@@ -235,8 +235,7 @@ static void g3dscene_getPositionFromSelectedEdges ( G3DSCENE  *sce,
 /******************************************************************************/
 uint32_t g3dscene_getPivotFromSelection ( G3DSCENE  *sce,
                                           uint64_t   engine_flags ) {
-    static uint32_t matrixSize = sizeof ( double ) * 0x10;
-    double TRX[0x10], TMPX[0x10];
+    float TRX[0x10], TMPX[0x10];
     G3DVECTOR pivot;
     uint32_t nbobj = g3dscene_getPositionFromSelectedObjects ( sce, &pivot );
 
@@ -249,35 +248,35 @@ uint32_t g3dscene_getPivotFromSelection ( G3DSCENE  *sce,
             memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR ) );
 
             memcpy ( &sce->csr.matrix, 
-                     &obj->wmatrix, sizeof ( double ) * 0x10 );
+                     &obj->worldMatrix, sizeof ( obj->worldMatrix ) );
         }
 
         if ( engine_flags & VIEWVERTEX ) {
             g3dscene_getPositionFromSelectedVertices ( sce, &sce->csr.pivot );
 
             memcpy ( sce->csr.matrix,
-                     obj->wmatrix, sizeof ( double ) * 0x10 );
+                     obj->worldMatrix, sizeof ( obj->worldMatrix ) );
         }
 
         if ( engine_flags & VIEWEDGE ) {
             g3dscene_getPositionFromSelectedEdges ( sce, &sce->csr.pivot );
 
             memcpy ( sce->csr.matrix, 
-                     obj->wmatrix, sizeof ( double ) * 0x10 );
+                     obj->worldMatrix, sizeof ( obj->worldMatrix ) );
         }
 
         if ( engine_flags & VIEWFACE ) {
             g3dscene_getPositionFromSelectedFaces ( sce, &sce->csr.pivot );
 
             memcpy ( sce->csr.matrix, 
-                     obj->wmatrix, sizeof ( double ) * 0x10 );
+                     obj->worldMatrix, sizeof ( obj->worldMatrix ) );
         }
 
         if ( engine_flags & VIEWSCULPT ) {
             g3dscene_getPositionFromSculptSelectedFaces ( sce, &sce->csr.pivot );
 
             memcpy ( sce->csr.matrix, 
-                     obj->wmatrix, sizeof ( double ) * 0x10 );
+                     obj->worldMatrix, sizeof ( obj->worldMatrix ) );
         }
 
         if ( engine_flags & VIEWUVWMAP ) {
@@ -293,7 +292,7 @@ uint32_t g3dscene_getPivotFromSelection ( G3DSCENE  *sce,
                     sce->csr.pivot.z = objmap->pos.z;
 
                     memcpy ( sce->csr.matrix, 
-                             objmap->wmatrix, sizeof ( double ) * 0x10 );
+                             objmap->worldMatrix, sizeof ( obj->worldMatrix ) );
                 }
             }
         }
@@ -639,6 +638,7 @@ void g3dscene_unregisterImage ( G3DSCENE *sce,
 uint32_t g3dscene_draw ( G3DOBJECT *obj, 
                          G3DCAMERA *curcam, 
                          uint64_t   engine_flags ) {
+#ifdef deprecated
     G3DVECTOR zero = { 0.0f, 0.0f, 0.0f, 1.0f };
     G3DSCENE *sce = ( G3DSCENE * ) obj;
     LIST *ltmp = sce->lsel;
@@ -680,7 +680,7 @@ uint32_t g3dscene_draw ( G3DOBJECT *obj,
             glPushMatrix ( );
 
             if ( selobj->parent ) {
-                glMultMatrixd ( selobj->parent->wmatrix );
+                glMultMatrixd ( selobj->parent->worldMatrix );
                 g3dobject_drawKeys ( selobj, curcam, engine_flags );
             }
 
@@ -695,6 +695,7 @@ uint32_t g3dscene_draw ( G3DOBJECT *obj,
 
         ltmp = ltmp->next;
     }
+#endif
 
     /*if ( ( flags & SELECTMODE ) == 0x00 ) g3dcursor_draw ( &sce->csr, flags );*/
     return 0x00;
@@ -787,6 +788,8 @@ void g3dscene_processAnimatedImages ( G3DSCENE *sce,
 void g3dscene_free ( G3DOBJECT *obj ) {
     G3DSCENE *sce = ( G3DSCENE * ) obj;
 
+    g3dengine_free( sce->engine );
+
     g3dscene_freeMaterials ( sce );
     /*** have to free objects too ***/
 }
@@ -857,6 +860,7 @@ G3DSCENE *g3dscene_new ( uint32_t id, char *name ) {
     ((G3DOBJECT*)sce)->anim = ANIM_CALLBACK(g3dscene_anim);
 
     sce->fps = 24;
+    sce->engine = g3dengine_new();
 
     g3dscene_resetAllLights ( sce );
 

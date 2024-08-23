@@ -75,19 +75,19 @@ G3DBONE *g3dbone_mirror ( G3DBONE *bon,
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     G3DBONE   *mir = g3dbone_clone ( bon, recurse, engine_flags );
     G3DOBJECT *objmir = ( G3DOBJECT * ) mir;
-    double smatrix[0x10];
-    double pmatrix[0x10];
+    float smatrix[0x10];
+    float pmatrix[0x10];
 
-    memcpy ( pmatrix, objmir->lmatrix, sizeof ( pmatrix ) );
+    memcpy ( pmatrix, objmir->localMatrix, sizeof ( pmatrix ) );
 
-    g3dcore_symmetryMatrix   ( smatrix, orientation );
-    g3dcore_multmatrixdirect ( pmatrix, smatrix     );
+    g3dcore_symmetryMatrixf   ( smatrix, orientation );
+    g3dcore_multmatrixdirectf ( pmatrix, smatrix     );
 
-    memcpy ( objmir->lmatrix, pmatrix, sizeof ( pmatrix ) );
+    memcpy ( objmir->localMatrix, pmatrix, sizeof ( pmatrix ) );
 
-    g3dcore_getMatrixScale       ( objmir->lmatrix, &objmir->sca );
-    g3dcore_getMatrixRotation    ( objmir->lmatrix, &objmir->rot );
-    g3dcore_getMatrixTranslation ( objmir->lmatrix, &objmir->pos );
+    g3dcore_getMatrixScalef       ( objmir->localMatrix, &objmir->sca );
+    g3dcore_getMatrixRotationf    ( objmir->localMatrix, &objmir->rot );
+    g3dcore_getMatrixTranslationf ( objmir->localMatrix, &objmir->pos );
 
 
     return mir;
@@ -105,15 +105,15 @@ void g3dbone_transform ( G3DBONE *bon,
 
         while ( ltmprig ) {
             G3DRIG *rig = ( G3DRIG * ) ltmprig->data;
-            double lmatrix[0x10];
+            float lmatrix[0x10];
 
             if ( g3dobject_isActive ( ( G3DOBJECT * ) rig->skn ) ) {
-                g3dcore_multmatrix ( objbon->wmatrix, 
-                                     rig->skn->mod.oriobj->iwmatrix, lmatrix );
+                g3dcore_multMatrixf ( objbon->worldMatrix, 
+                                     rig->skn->mod.oriobj->inverseWorldMatrix, lmatrix );
 
-                g3dcore_multmatrix ( rig->isknmatrix, 
-                                     lmatrix, 
-                                     rig->defmatrix );
+                g3dcore_multMatrixf ( rig->isknmatrix, 
+                                      lmatrix, 
+                                      rig->defmatrix );
 
                 /*** mark for update ***/
                 rig->skn->mod.mes.obj.update_flags |= UPDATESKIN;
@@ -136,7 +136,7 @@ void g3dbone_updateRigs ( G3DBONE *bon,
         while ( ltmprig ) {
             G3DRIG *rig = ( G3DRIG * ) ltmprig->data;
 
-            g3dobject_update_r ( rig->skn, engine_flags );
+            g3dobject_update_r ( ( G3DOBJECT * ) rig->skn, engine_flags );
 
             ltmprig = ltmprig->next;
         }
@@ -429,12 +429,12 @@ static void g3dbone_activate ( G3DBONE *bon,
             if ( rig->skn->mod.oriobj ) {
                 if ( rig->skn->mod.oriobj->type == G3DMESHTYPE ) {
                     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
-                    double sknmatrix[0x10];
+                    float sknmatrix[0x10];
 
-                    g3dcore_multmatrix ( objbon->wmatrix, 
-                                         rig->skn->mod.oriobj->iwmatrix, sknmatrix );
+                    g3dcore_multMatrixf ( objbon->worldMatrix, 
+                                         rig->skn->mod.oriobj->inverseWorldMatrix, sknmatrix );
 
-                    g3dcore_invertMatrix ( sknmatrix, rig->isknmatrix );
+                    g3dcore_invertMatrixf ( sknmatrix, rig->isknmatrix );
                 }
             }
         }

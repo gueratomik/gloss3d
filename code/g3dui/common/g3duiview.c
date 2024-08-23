@@ -336,6 +336,7 @@ void g3duiview_sizeGL ( G3DUIVIEW *view,
                         uint32_t   height ) {
     G3DCAMERA *cam = getCamera ( view );
 
+#ifdef deprecated
 #ifdef __linux__
     if ( glXMakeCurrent ( view->dpy,
                           view->win,
@@ -344,6 +345,7 @@ void g3duiview_sizeGL ( G3DUIVIEW *view,
 #ifdef __MINGW32__
     HDC dc = GetDC ( view->hWnd );
     if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
+#endif
 #endif
 
     if ( cam ) {
@@ -356,11 +358,13 @@ void g3duiview_sizeGL ( G3DUIVIEW *view,
         cam->ratio = ( height ) ? ( double ) width / height : 1.0f;
     }
 
+#ifdef deprecated
 #ifdef __linux__
     }
 #endif
 #ifdef __MINGW32__
     } ReleaseDC ( view->hWnd, dc );
+#endif
 #endif
 }
 
@@ -368,6 +372,7 @@ void g3duiview_sizeGL ( G3DUIVIEW *view,
 void g3duiview_initGL ( G3DUIVIEW *view ) {
     G3DUI *gui = view->gui;
     G3DCAMERA *cam = getCamera ( view );
+
 
 #ifdef __MINGW32__
     if ( glActiveTextureARB == NULL ) 
@@ -383,6 +388,7 @@ void g3duiview_initGL ( G3DUIVIEW *view ) {
         glGenerateMipmap = (void(*)(GLenum))wglGetProcAddress("glGenerateMipmap");
 #endif
 
+#ifdef deprecated
 #ifdef __linux__
     if ( glXMakeCurrent ( view->dpy,
                           view->win,
@@ -391,6 +397,7 @@ void g3duiview_initGL ( G3DUIVIEW *view ) {
 #ifdef __MINGW32__
     HDC dc = GetDC ( view->hWnd );
     if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
+#endif
 #endif
 
      /*** share textures ***/
@@ -401,6 +408,7 @@ void g3duiview_initGL ( G3DUIVIEW *view ) {
         wglShareLists( gui->sharedCtx, view->glctx );
 #endif
     }
+
 
     if ( cam ) {
         float      clearColorf = ( float ) CLEARCOLOR / 255.0f;
@@ -422,11 +430,13 @@ void g3duiview_initGL ( G3DUIVIEW *view ) {
         }
     }
 
+#ifdef deprecated
 #ifdef __linux__
     }
 #endif
 #ifdef __MINGW32__
     } ReleaseDC ( view->hWnd, dc );
+#endif
 #endif
 }
 
@@ -488,6 +498,7 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
     G3DCAMERA *cam = getCamera ( view );
     G3DUIMOUSETOOL *mou = gui->curmou;
 
+#ifdef deprecated
 #ifdef __linux__
     if ( glXMakeCurrent ( view->dpy,
                           view->win,
@@ -498,10 +509,12 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
     HDC dc = GetDC ( view->hWnd );
     if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
 #endif
+#endif
+
     engine_flags |= gui->engine_flags;
     
-
     if ( sce ) {
+
         int VPX[0x04];
         G3DVECTOR vec = { 0.0f, 0.0f, 0.0f, 1.0f };
         G3DOBJECT *selobj = g3dscene_getSelectedObject ( sce );
@@ -512,6 +525,7 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
         /*** This helps the drawarea to determine if it should draw mouse tools ***/
         /*** for example (we don't draw mousetool on all window widget. ***/
         uint32_t current = ( view == gui->currentView ) ? 0x01 : 0x00;
+
 
         sysinfo->sce = sce; /* for debugging purpose */
 
@@ -533,7 +547,7 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
                        ( float ) backgroundRGBA.b / 255.0f, 1.0f );
 
         glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
+#ifdef deprecated
         glLightModeli ( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
 
         glGetIntegerv ( GL_VIEWPORT, VPX );
@@ -615,9 +629,11 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
                 }
             }
         }
+#endif
 
         ret = g3dobject_draw_r ( ( G3DOBJECT * ) sce, cam, engine_flags /*| VIEWNORMALS*/ );
 
+#ifdef deprecated
         if ( ret & DRAW_LIGHTON ) {
             glDisable ( GL_LIGHT0 );
         } else {
@@ -637,8 +653,13 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
             /*** Re-enable real time subdivision ***/
             gui->engine_flags &= (~ONGOINGANIMATION);
         }
+#endif
     }
 
+
+
+
+#ifdef deprecated
 #ifdef __linux__
     } glXSwapBuffers ( view->dpy, view->win);
 
@@ -651,5 +672,5 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
 
       ReleaseDC ( view->hWnd, dc );
 #endif
-    
+#endif  /* deprecated */
 }

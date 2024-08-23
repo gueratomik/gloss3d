@@ -543,6 +543,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 @HAVE_WIN32_TRUE@AM_LDFLAGS = -shared -no-undefined `pkg-config --libs gtk+-3.0` \
+@HAVE_WIN32_TRUE@		                       `pkg-config --libs xkbcommon` \
 @HAVE_WIN32_TRUE@                                       -lfontconfig \
 @HAVE_WIN32_TRUE@                                       -L../g3dmouse/.libs/ -lgloss-g3dmouse \
 @HAVE_WIN32_TRUE@                                       -L../g3durmanager/.libs/ -lgloss-g3durmanager \

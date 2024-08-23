@@ -190,7 +190,30 @@ void g3dvector_matrix3 ( G3DVECTOR *vec, double *matrix, G3DVECTOR *vout) {
 }
 
 /******************************************************************************/
-void g3dvector_matrix ( G3DVECTOR *vec, double *matrix, G3DVECTOR *vout) {
+void g3dvector_matrixd ( G3DVECTOR *vec, double *matrix, G3DVECTOR *vout ) {
+    vout->x = ( ( vec->x * matrix[0x00] ) + 
+                ( vec->y * matrix[0x04] ) + 
+                ( vec->z * matrix[0x08] ) + 
+                ( /*vec->w * */matrix[0x0C] ) );
+
+    vout->y = ( ( vec->x * matrix[0x01] ) + 
+                ( vec->y * matrix[0x05] ) + 
+                ( vec->z * matrix[0x09] ) + 
+                ( /*vec->w * */matrix[0x0D] ) );
+
+    vout->z = ( ( vec->x * matrix[0x02] ) + 
+                ( vec->y * matrix[0x06] ) + 
+                ( vec->z * matrix[0x0A] ) + 
+                ( /*vec->w * */matrix[0x0E] ) );
+
+    vout->w = ( ( vec->x * matrix[0x03] ) + 
+                ( vec->y * matrix[0x07] ) + 
+                ( vec->z * matrix[0x0B] ) + 
+                ( /*vec->w * */matrix[0x0F] ) );
+}
+
+/******************************************************************************/
+void g3dvector_matrixf ( G3DVECTOR *vec, float *matrix, G3DVECTOR *vout ) {
     vout->x = ( ( vec->x * matrix[0x00] ) + 
                 ( vec->y * matrix[0x04] ) + 
                 ( vec->z * matrix[0x08] ) + 

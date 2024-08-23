@@ -818,6 +818,22 @@ typedef struct _G3DSCENE  G3DSCENE;
 #define OBJECTBROWSE_FUNC(f) ((uint32_t (*)(G3DOBJECT*,void*,uint64_t))f)
 
 /******************************************************************************/
+
+#define ENGINE_TRIANGLE_SHADER_PROGRAM_INITIALIZED ( 1ULL << 0 )
+#define ENGINE_TRIANGLE_BUFFER_INITIALIZED         ( 1ULL << 1 )
+#define ENGINE_TRIANGLE_VERTEX_SHADER_INITIALIZED  ( 1ULL << 2 )
+
+typedef struct _G3DENGINE {
+    uint64_t flags;
+    unsigned int triangleBuffer;
+    unsigned int triangleBufferArray;
+    unsigned int triangleShaderProgram;
+    unsigned int triangleVertexShader;
+    unsigned int triangleFragmentShader;
+    char log[512];
+} G3DENGINE;
+
+/******************************************************************************/
 typedef struct _G3DOBJECT {
     uint32_t id;            /*** Object ID               ***/
     uint64_t type;          /*** Flag for object type    ***/
@@ -829,12 +845,12 @@ typedef struct _G3DOBJECT {
     G3DVECTOR rotXAxis;
     G3DVECTOR rotYAxis;
     G3DVECTOR rotZAxis;
-    G3DVECTOR sca;          /*** Object's center scaling ***/
-    double  lmatrix[0x10];   /*** Local matrix, i.e relative to its parent ***/
-    double ilmatrix[0x10];  /*** Inverse local matrix ***/  
-    double  wmatrix[0x10];   /*** World matrix, i.e absolute ***/
-    double iwmatrix[0x10];  /*** Inverse World matrix, i.e absolute ***/
-    double  rmatrix[0x10];   /*** rotation matrix ***/
+    G3DVECTOR sca;                      /*** Object's center scaling ***/
+    float     localMatrix[0x10];        /*** Local matrix, i.e relative to its parent ***/
+    float     inverseLocalMatrix[0x10]; /*** Inverse local matrix ***/  
+    float     worldMatrix[0x10];        /*** World matrix, i.e absolute ***/
+    float     inverseWorldMatrix[0x10]; /*** Inverse World matrix, i.e absolute ***/
+    float     rotationMatrix[0x10];     /*** rotation matrix ***/
     /*** Drawing function ***/
     uint32_t (*draw)          ( struct _G3DOBJECT *obj, 
                                 struct _G3DCAMERA *cam, 
@@ -979,7 +995,7 @@ typedef struct G3DFACEGROUP {
 /******************************************************************************/
 typedef struct _G3DSYMMETRY {
     G3DOBJECT obj;   /*** Symmetry inherits G3DOBJECT ***/
-    double smatrix[0x10];
+    float smatrix[0x10];
     uint32_t orientation;
     uint32_t merge;
     float mergelimit;
@@ -989,7 +1005,7 @@ typedef struct _G3DSYMMETRY {
 typedef struct _G3DCURSOR {
     G3DVECTOR pivot;
     G3DVECTOR axis[0x03];
-    double    matrix[0x10];
+    float     matrix[0x10];
     float     ratio;
 } G3DCURSOR;
 
@@ -1450,8 +1466,8 @@ typedef struct _G3DSUBDIVIDER {
 
 /******************************************************************************/
 typedef struct _G3DRIG {
-    double   isknmatrix[0x10];
-    double   defmatrix[0x10];
+    float   isknmatrix[0x10];
+    float   defmatrix[0x10];
     G3DSKIN *skn;
     LIST    *lweightgroup;
 } G3DRIG;
@@ -1547,14 +1563,15 @@ typedef struct _TUBEDATASTRUCT {
 /******************************************************************************/
 typedef struct _G3DSCENE {
     G3DOBJECT obj;    /*** Scene inherits G3DOBJECT    ***/
-    LIST *lsel;       /*** Selected objects            ***/
-    LIST *lmat;       /*** list of materials           ***/
-    LIST *limg;       /*** list of images              ***/
-    uint32_t nbmat;
-    uint32_t childid; /*** Children object IDs counter ***/
+    G3DENGINE *engine;
+    LIST      *lsel;       /*** Selected objects            ***/
+    LIST      *lmat;       /*** list of materials           ***/
+    LIST      *limg;       /*** list of images              ***/
+    uint32_t  nbmat;
+    uint32_t  childid; /*** Children object IDs counter ***/
     G3DCURSOR csr;
-    LIST *lref;
-    uint32_t fps;
+    LIST      *lref;
+    uint32_t  fps;
 } G3DSCENE;
 
 /********************* a "portable" version of XRectangle *********************/
@@ -1578,8 +1595,8 @@ struct _G3DCAMERA {
     G3DVECTOR viewpos;
     G3DVECTOR viewrot;
     float focal, ratio, znear, zfar; /*** Camera's lense settings   ***/
-    double pmatrix[0x10]; /*** 4x4 projection matrix ***/
-    GLint  vmatrix[0x04]; /*** 1x4 viewport matrix    ***/
+    float pmatrix[0x10]; /*** 4x4 projection matrix ***/
+    GLint vmatrix[0x04]; /*** 1x4 viewport matrix    ***/
     G2DRECTANGLE canevas;
     uint32_t width;
     uint32_t height;
@@ -1622,22 +1639,46 @@ float g3dcore_intersect ( G3DDOUBLEVECTOR *plane,
                              G3DVECTOR *p1,
                              G3DVECTOR *p2,
                              G3DVECTOR *pout );
-void     g3dcore_multmatrix              ( double *, double *, double * );
+void     g3dcore_multMatrixd             ( double *, double *, double * );
+void     g3dcore_multMatrixf             ( float *, float *, float * );
 uint32_t g3dcore_getNumberOfCPUs         ( );
-void     g3dcore_invertMatrix            ( double *, double * );
-void     g3dcore_printMatrix             ( double *, uint32_t, uint32_t );
-void     g3dcore_transposeMatrix         ( double *, double * );
-void     g3dcore_getMatrixScale          ( double *, G3DVECTOR * );
-void     g3dcore_getMatrixRotation       ( double *, G3DVECTOR * );
-void     g3dcore_getMatrixTranslation    ( double *, G3DVECTOR * );
+void     g3dcore_invertMatrixd           ( double *, double * );
+void     g3dcore_invertMatrixf           ( float *, float * );
+void     g3dcore_printMatrixd            ( double *, uint32_t, uint32_t );
+void     g3dcore_printMatrixf            ( float *, uint32_t, uint32_t );
+void     g3dcore_transposeMatrixd        ( double *, double * );
+void     g3dcore_transposeMatrixf        ( float *, float * );
+void     g3dcore_getMatrixScaled         ( double *, G3DVECTOR * );
+void     g3dcore_getMatrixScalef         ( float *, G3DVECTOR * );
+void     g3dcore_getMatrixRotationd      ( double *, G3DVECTOR * );
+void     g3dcore_getMatrixRotationf      ( float *, G3DVECTOR * );
+void     g3dcore_getMatrixTranslationd   ( double *, G3DVECTOR * );
+void     g3dcore_getMatrixTranslationf   ( float *, G3DVECTOR * );
+void     g3dcore_scaleMatrixf            ( float *matrix,
+                                           float x,
+                                           float y,
+                                           float z );
+void      g3dcore_rotateMatrixf          ( float *matrix,
+                                           float a,
+                                           float x,
+                                           float y,
+                                           float z );
+void      g3dcore_rotateMatrixd          ( double *matrix,
+                                           float a,
+                                           float x,
+                                           float y,
+                                           float z );
+void     g3dcore_translateMatrixf( float *matrix, float x, float y, float z );
 void     g3dobject_buildRotationMatrix   ( G3DOBJECT * );
 G3DOBJECT *g3dobject_getChildByType ( G3DOBJECT *obj, 
                                       uint64_t   type );
 uint32_t g3dobject_seekByPtr_r ( G3DOBJECT *obj, 
                                  G3DOBJECT *ptr );
-void     g3dcore_identityMatrix          ( double * );
+void     g3dcore_identityMatrixd          ( double * );
+void     g3dcore_identityMatrixf          ( float * );
 void     g3dcore_multmatrixdirect        ( double *, double * );
-void     g3dcore_symmetryMatrix          ( double *, uint32_t );
+void     g3dcore_symmetryMatrixd         ( double *, uint32_t );
+void     g3dcore_symmetryMatrixf         ( float *, uint32_t );
 void     g3dcore_loadJpeg                ( const char *, uint32_t *,
                                                          uint32_t *,
                                                          uint32_t *,
@@ -2040,16 +2081,6 @@ uint32_t g3dface_initsubmem       ( G3DFACE *, G3DSUBVERTEX **,
 uint32_t g3dface_hasTextureSlot ( G3DFACE *fac, 
                                   uint32_t texSlotBit  );
 LIST    *g3dface_getEdgesFromList ( LIST * );
-void g3dface_drawTriangleList ( LIST    *ltri,
-                                float    gouraudScalarLimit, 
-                                LIST    *ltex, 
-                                uint32_t object_flags,
-                                uint64_t engine_flags );
-void g3dface_drawQuadList ( LIST    *lqua,
-                            float    gouraudScalarLimit, 
-                            LIST    *ltex, 
-                            uint32_t object_flags,
-                            uint64_t engine_flags );
 void g3dface_drawTriangle  ( G3DFACE *fac,
                              float    gouraudScalarLimit,
                              LIST    *ltex, 
@@ -2235,6 +2266,7 @@ void g3dobject_update            ( G3DOBJECT *obj,
                                    uint64_t   engine_flags );
 void g3dobject_update_r          ( G3DOBJECT *obj,
                                    uint64_t   engine_flags );
+G3DSCENE *g3dobject_getScene( G3DOBJECT *obj );
 void g3dobject_driftSelectedKeys ( G3DOBJECT *obj,
                                    float      drift,
                                    LIST     **lremovedKeys,
@@ -2609,6 +2641,9 @@ void       g3dmesh_addFaceWithEdges     ( G3DMESH *mes,
                                           G3DEDGE *edg1,
                                           G3DEDGE *edg2,
                                           G3DEDGE *edg3 );
+void       g3dmesh_drawTriangleList     ( G3DMESH *mes, uint64_t engine_flags );
+void       g3dmesh_drawQuadList         ( G3DMESH *mes, uint64_t engine_flags );
+
 void       g3dmesh_addFaceFromSplitEdge ( G3DMESH *, G3DSPLITEDGE * );
 void       g3dmesh_addMaterial          ( G3DMESH *, G3DMATERIAL  *,
                                                      G3DUVMAP     * );
@@ -3005,6 +3040,18 @@ void g3dscene_processAnimatedImages ( G3DSCENE *sce,
                                       uint64_t  engine_flags );
 
 /******************************************************************************/
+G3DENGINE* g3dengine_new ( );
+void g3dengine_free( G3DENGINE *engine );
+void g3dengine_initTriangleVertexShader( G3DENGINE *engine );
+void g3dengine_drawTriangle ( G3DENGINE *engine,
+                              G3DOBJECT *object,
+                              G3DFACE *triangle,
+                              float    gouraudScalarLimit,
+                              LIST    *ltex, 
+                              uint32_t object_flags,
+                              uint64_t engine_flags );
+
+/******************************************************************************/
 G3DCAMERA *g3dcamera_new ( uint32_t id,
                            char    *name, 
                            float    focal, 
@@ -3014,8 +3061,7 @@ G3DCAMERA *g3dcamera_new ( uint32_t id,
 void g3dcamera_setTarget ( G3DCAMERA *cam, 
                            G3DCURSOR *csr,
                            uint64_t   engine_flags );
-void g3dcamera_view ( G3DCAMERA *cam, 
-                      uint64_t   engine_flags );
+
 void g3dcamera_spin ( G3DCAMERA *cam, float diffz );
 uint32_t g3dbone_draw ( G3DOBJECT *obj, 
                         G3DCAMERA *curcam, 

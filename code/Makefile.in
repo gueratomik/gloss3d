@@ -374,7 +374,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 @HAVE_WIN32_TRUE@AM_CFLAGS = -mwindows
-@HAVE_WIN32_FALSE@AM_LDFLAGS = -Wl,--no-as-needed  `pkg-config --libs gtk+-3.0` `pkg-config --libs gdk-3.0` `pkg-config --libs pango` -lXpm -lGL -lGLU -lX11 `pkg-config --libs freetype2` -ljpeg -lpng -lm -lpthread -lc
+@HAVE_WIN32_FALSE@AM_LDFLAGS = -Wl,--no-as-needed `pkg-config --libs gtk+-3.0` `pkg-config --libs gdk-3.0` `pkg-config --libs pango` `pkg-config --libs xkbcommon` -linput  -lXpm -lGL -lGLU -lX11 `pkg-config --libs freetype2` -ljpeg -lpng -lm -lpthread -lc
 SUBDIRS = g3dengine \
           g3dexport \
           g3dimport \

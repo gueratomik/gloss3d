@@ -66,8 +66,8 @@ static G3DOBJECT *g3dffd_commit ( G3DFFD        *ffd,
 
             /*** readjust point position to keep the same matrix as the ***/
             /*** modified mesh ***/
-            g3dvector_matrix ( &origin, ffd->mod.oriobj->wmatrix, &wmespos );
-            g3dvector_matrix ( &wmespos, ffd->mod.mes.obj.iwmatrix, &lmespos );
+            g3dvector_matrix ( &origin, ffd->mod.oriobj->worldMatrix, &wmespos );
+            g3dvector_matrix ( &wmespos, ffd->mod.mes.obj.inverseWorldMatrix, &lmespos );
 
             for ( i = 0x00; i < parmes->nbver; i++ ) {
                 ffd->mod.verpos[i].x -= lmespos.x;
@@ -163,8 +163,8 @@ static uint32_t g3dffd_modify ( G3DFFD     *ffd,
             G3DMESH *orimes = ( G3DMESH * ) ffd->mod.oriobj;
             G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f }, wmespos, lmespos;
 
-            g3dvector_matrix ( &origin, ffd->mod.oriobj->wmatrix, &wmespos );
-            g3dvector_matrix ( &wmespos, ffd->mod.mes.obj.iwmatrix, &lmespos );
+            g3dvector_matrixf ( &origin, ffd->mod.oriobj->worldMatrix, &wmespos );
+            g3dvector_matrixf ( &wmespos, ffd->mod.mes.obj.inverseWorldMatrix, &lmespos );
 
             if ( orimes->nbver ) {
                 uint32_t i, j, k;
@@ -283,8 +283,8 @@ void g3dffd_activate ( G3DFFD *ffd, uint64_t engine_flags ) {
     if ( parent ) {
         G3DMESH *parmes = ( G3DMESH * ) parent;
 
-        g3dvector_matrix ( &ffd->locmin, obj->lmatrix, &ffd->parmin );
-        g3dvector_matrix ( &ffd->locmax, obj->lmatrix, &ffd->parmax );
+        g3dvector_matrixf ( &ffd->locmin, obj->localMatrix, &ffd->parmin );
+        g3dvector_matrixf ( &ffd->locmax, obj->localMatrix, &ffd->parmax );
 
         g3dmesh_modify ( parmes, 
                          G3DMODIFYOP_MODIFY, 

@@ -39,6 +39,7 @@ void g3dpivot_free ( G3DOBJECT *obj ) {
 uint32_t g3dpivot_draw ( G3DOBJECT *obj, 
                          G3DCAMERA *curcam, 
                          uint64_t   engine_flags ) {
+#ifdef need_refactor
     glPushAttrib( GL_ALL_ATTRIB_BITS );
     glDisable   ( GL_LIGHTING );
     glColor3ub  ( 0xFF, 0x00, 0xFF );
@@ -54,6 +55,7 @@ uint32_t g3dpivot_draw ( G3DOBJECT *obj,
 
     glEnd ( );
     glPopAttrib ( );
+#endif
 
     return 0x00;
 }
@@ -63,7 +65,7 @@ void g3dpivot_orbit ( G3DPIVOT *piv, float diffx, float diffy ) {
     G3DOBJECT *yaxis  = ( G3DOBJECT * ) piv,
               *xaxis  = ( G3DOBJECT * ) yaxis->lchildren->data,
               *locam  = ( G3DOBJECT * ) xaxis->lchildren->data;
-    double LCX[0x10];
+    float LCX[0x10];
 
     yaxis->rot.y -= ( diffx );
 
@@ -74,14 +76,16 @@ void g3dpivot_orbit ( G3DPIVOT *piv, float diffx, float diffy ) {
     if ( ((G3DOBJECT*)piv->cam)->parent ) {
         G3DOBJECT *parent = ((G3DOBJECT*)piv->cam)->parent;
 
-        g3dcore_multmatrix ( locam->wmatrix, parent->iwmatrix, LCX );
+        g3dcore_multMatrixf ( locam->worldMatrix,
+                              parent->inverseWorldMatrix,
+                              LCX );
     } else {
-        memcpy ( LCX, locam->wmatrix, sizeof ( LCX ) );
+        memcpy ( LCX, locam->worldMatrix, sizeof ( LCX ) );
     }
 
-    g3dcore_getMatrixTranslation ( LCX, &((G3DOBJECT*)piv->cam)->pos );
-    g3dcore_getMatrixRotation    ( LCX, &((G3DOBJECT*)piv->cam)->rot );
-    g3dcore_getMatrixScale       ( LCX, &((G3DOBJECT*)piv->cam)->sca );
+    g3dcore_getMatrixTranslationf ( LCX, &((G3DOBJECT*)piv->cam)->pos );
+    g3dcore_getMatrixRotationf    ( LCX, &((G3DOBJECT*)piv->cam)->rot );
+    g3dcore_getMatrixScalef       ( LCX, &((G3DOBJECT*)piv->cam)->sca );
 
     g3dobject_updateMatrix_r ( ( G3DOBJECT * ) piv->cam, 0x00 );
 
@@ -105,8 +109,8 @@ void g3dpivot_init ( G3DPIVOT  *piv,
     G3DVECTOR camzaxis; /*** camera world position ***/
     G3DVECTOR to_cam;
     G3DVECTOR sign;
-    double RMX[0x10];
-    double LCX[0x10];
+    float RMX[0x10];
+    float LCX[0x10];
     G3DVECTOR localpos = { csr->pivot.x, 
                            csr->pivot.y, 
                            csr->pivot.z, 
@@ -133,7 +137,7 @@ void g3dpivot_init ( G3DPIVOT  *piv,
 
     /*** The rotation matrix helps us to determine camera orientation ***/
     /*** without being altered byt the translation values ***/
-    g3dcore_extractRotationMatrix ( objcam->wmatrix, RMX );
+    g3dcore_extractRotationMatrix ( objcam->worldMatrix, RMX );
 
     /*** Get Camera's World ZAxis orientation ***/
     g3dvector_matrix ( &zaxis, RMX, &camzaxis );
@@ -158,11 +162,11 @@ void g3dpivot_init ( G3DPIVOT  *piv,
     g3dobject_updateMatrix_r ( objpiv, 0x00 );
 
     /*** find the camera's local position within the pivot Space coordinates***/
-    g3dcore_multmatrix ( objcam->wmatrix, xaxisobj->iwmatrix, LCX );
+    g3dcore_multmatrixf ( objcam->worldMatrix, xaxisobj->inverseWorldMatrix, LCX );
 
-    g3dcore_getMatrixTranslation ( LCX, &locam->pos );
-    g3dcore_getMatrixRotation    ( LCX, &locam->rot );
-    g3dcore_getMatrixScale       ( LCX, &locam->sca );
+    g3dcore_getMatrixTranslationf ( LCX, &locam->pos );
+    g3dcore_getMatrixRotationf    ( LCX, &locam->rot );
+    g3dcore_getMatrixScalef       ( LCX, &locam->sca );
 
     g3dobject_updateMatrix_r ( locam, 0x00 );
 }

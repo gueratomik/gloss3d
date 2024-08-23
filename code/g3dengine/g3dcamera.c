@@ -130,18 +130,13 @@ static void g3dcamera_pose ( G3DCAMERA *cam,
 /******************************************************************************/
 void g3dcamera_spin ( G3DCAMERA *cam, float diffz ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
-    double ROTX[0x10];
+    float ROTX[0x10];
 
-    glPushMatrix ( );
-    glLoadMatrixd ( obj->rmatrix );
+    memcpy( ROTX, obj->rotationMatrix, sizeof( obj->rotationMatrix ) );
 
-    glRotatef     ( diffz, 0.0f, 0.0f, 1.0f );
+    g3dcore_rotateMatrixf ( ROTX, diffz, 0.0f, 0.0f, 1.0f );
 
-    glGetDoublev  ( GL_MODELVIEW_MATRIX, ROTX );
-
-    g3dcore_getMatrixRotation ( ROTX, &obj->rot );
-
-    glPopMatrix ( );
+    g3dcore_getMatrixRotationf ( ROTX, &obj->rot );
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
 }
@@ -158,13 +153,13 @@ void g3dcamera_setTarget ( G3DCAMERA *cam,
     G3DVECTOR  piv2obj;
     G3DVECTOR  obj2x;
     G3DVECTOR  axis, up = { 0.0f, 1.0f, 0.0f, 1.0f };
-    double RX[0x10], TIVX[0x10];
+    float RX[0x10], TIVX[0x10];
     G3DVECTOR xaxis, yaxis;
 
-    g3dcore_identityMatrix ( RX );
+    g3dcore_identityMatrixf ( RX );
 
-    g3dvector_matrix ( &origin, objcam->wmatrix, &wobjpos );
-    g3dvector_matrix ( &csr->pivot, csr->matrix, &wpivpos );
+    g3dvector_matrixf ( &origin    , objcam->worldMatrix, &wobjpos );
+    g3dvector_matrixf ( &csr->pivot, csr->matrix        , &wpivpos );
 
     cam->target->pos.x = wpivpos.x;
     cam->target->pos.y = wpivpos.y;
@@ -174,8 +169,8 @@ void g3dcamera_setTarget ( G3DCAMERA *cam,
 
     /*wobjpos.y = wpivpos.y;*/
 
-    g3dvector_matrix ( &wobjpos, cam->target->iwmatrix, &lobjpos );
-    g3dvector_matrix ( &wpivpos, cam->target->iwmatrix, &lpivpos );
+    g3dvector_matrixf ( &wobjpos, cam->target->inverseWorldMatrix, &lobjpos );
+    g3dvector_matrixf ( &wpivpos, cam->target->inverseWorldMatrix, &lpivpos );
 
     piv2obj.x =  lobjpos.x - lpivpos.x;
     piv2obj.y =  lobjpos.y - lpivpos.y;
@@ -183,14 +178,14 @@ void g3dcamera_setTarget ( G3DCAMERA *cam,
 
     g3dvector_normalize ( &piv2obj, NULL );
 
-    g3dcore_transposeMatrix ( cam->target->iwmatrix, TIVX );
+    g3dcore_transposeMatrixf ( cam->target->inverseWorldMatrix, TIVX );
 
     g3dvector_matrix ( & ( G3DVECTOR ) { 1.0f, 
                                          0.0f, 
                                          0.0f,
-                                         1.0f }, objcam->wmatrix, &wxpos );
+                                         1.0f }, objcam->worldMatrix, &wxpos );
 
-    g3dvector_matrix ( &wxpos, cam->target->iwmatrix, &lxpos );
+    g3dvector_matrix ( &wxpos, cam->target->inverseWorldMatrix, &lxpos );
 
     xaxis.x = lxpos.x - lobjpos.x;
     xaxis.y = lxpos.y - lobjpos.y;
@@ -254,9 +249,8 @@ float g3dcamera_getDistanceToCursor ( G3DCAMERA *cam,
     G3DVECTOR csrpos;
     G3DVECTOR distance;
 
-    g3dvector_matrix ( &origin, ((G3DOBJECT*)cam)->wmatrix, &campos );
-
-    g3dvector_matrix ( &origin, csr->matrix, &csrpos );
+    g3dvector_matrixf ( &origin, ((G3DOBJECT*)cam)->worldMatrix, &campos );
+    g3dvector_matrixf ( &origin, csr->matrix, &csrpos );
 
     distance.x = ( csrpos.x - campos.x );
     distance.y = ( csrpos.y - campos.y );
@@ -294,17 +288,6 @@ void g3dcamera_grid2D_r ( float ubeg, float uend,
         glVertex3f ( ubeg, i, 0.0f );
         glVertex3f ( uend, i, 0.0f );
     }
-}
-
-/******************************************************************************/
-void g3dcamera_view ( G3DCAMERA *cam, 
-                      uint64_t   engine_flags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) cam;
-    G3DVECTOR vec;
-    G3DVECTOR rot, pos;
-
-    glLoadIdentity( );
-    glMultMatrixd( obj->iwmatrix );
 }
 
 /******************************************************************************/

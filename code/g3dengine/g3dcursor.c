@@ -90,7 +90,7 @@ void g3dcursor_init ( G3DCURSOR *csr ) {
 
     csr->pivot.w = 1.0f;
 
-    g3dcore_identityMatrix ( csr->matrix );
+    g3dcore_identityMatrixf ( csr->matrix );
 }
 
 /*****************************************************************************/

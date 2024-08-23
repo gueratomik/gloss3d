@@ -44,13 +44,13 @@ static G3DSYMMETRY *g3dsymmetry_copy ( G3DSYMMETRY *sym,
 /******************************************************************************/
 void g3dsymmetry_convert_r ( G3DOBJECT *obj,
                              G3DOBJECT *ori, /* original object */
-                             double    *MVX,
+                             float    *MVX,
                              uint64_t   engine_flags ) {
     LIST *ltmpchildren = ori->lchildren;
 
     while ( ltmpchildren ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
-        double matrix[0x10];
+        float matrix[0x10];
         G3DOBJECT *symobj;
 
         switch ( child->type ) {
@@ -72,8 +72,8 @@ void g3dsymmetry_convert_r ( G3DOBJECT *obj,
                     G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
                     G3DVECTOR pos;
 
-                    g3dvector_matrix ( &ver->pos, symobj->wmatrix, &pos );
-                    g3dvector_matrix ( &pos,        ori->iwmatrix, &ver->pos );
+                    g3dvector_matrixf ( &ver->pos, symobj->worldMatrix, &pos );
+                    g3dvector_matrixf ( &pos,        ori->inverseWorldMatrix, &ver->pos );
 
                     ltmpver = ltmpver->next;
                 }
@@ -98,7 +98,7 @@ void g3dsymmetry_convert_r ( G3DOBJECT *obj,
 
         g3dobject_addChild ( obj, symobj, engine_flags );
 
-        g3dcore_multmatrix ( child->lmatrix, MVX, matrix );
+        g3dcore_multmatrixf ( child->localMatrix, MVX, matrix );
 
         g3dsymmetry_convert_r ( symobj, child, matrix, engine_flags );
 
@@ -111,10 +111,10 @@ static G3DOBJECT *g3dsymmetry_commit ( G3DSYMMETRY *sym,
                                        uint64_t     engine_flags ) {
     G3DOBJECT *obj = g3dobject_new ( g3dobject_getID   ( ( G3DOBJECT * ) sym ),
                                      g3dobject_getName ( ( G3DOBJECT * ) sym ), 0x00 );
-    double *worldMatrix = ((G3DOBJECT*)sym)->wmatrix;
-    double  matrix[0x10];
+    float *worldMatrix = ((G3DOBJECT*)sym)->worldMatrix;
+    float  matrix[0x10];
 
-    g3dcore_multmatrix ( sym->smatrix, worldMatrix, matrix );
+    g3dcore_multmatrixf ( sym->smatrix, worldMatrix, matrix );
 
     g3dobject_importTransformations ( ( G3DOBJECT * ) obj,
                                       ( G3DOBJECT * ) sym );
@@ -162,20 +162,20 @@ G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
             LIST *lver = mes->lver;
             LIST *lfac = mes->lfac;
             uint32_t verid = 0x00;
-            double finaltmatrix[0x10]; /* Final transofmration matrix */
-            double mesinvmatrix[0x10];
-            double symmirmatrix[0x10];
+            float finaltmatrix[0x10]; /* Final transofmration matrix */
+            float mesinvmatrix[0x10];
+            float symmirmatrix[0x10];
 
-            g3dcore_invertMatrix ( symobj->wmatrix, mesinvmatrix );
+            g3dcore_invertMatrixf ( symobj->worldMatrix, mesinvmatrix );
 
             /*** Transofmr vertices to wrold coords ***/
-            memcpy ( finaltmatrix, child->wmatrix, sizeof ( finaltmatrix ) );
+            memcpy ( finaltmatrix, child->worldMatrix, sizeof ( finaltmatrix ) );
 
             /*** Divide by the inverse of world matrix to get local coords ***/
             g3dcore_multmatrixdirect ( finaltmatrix, mesinvmatrix );
 
             /*** matrix for mirrored points ***/
-            g3dcore_multmatrix ( finaltmatrix, sym->smatrix, symmirmatrix );
+            g3dcore_multMatrixf ( finaltmatrix, sym->smatrix, symmirmatrix );
 
             /*** for undo-redo purpose ***/
             list_insert ( loldobj, child );
@@ -187,7 +187,7 @@ G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
 
                 ver->id = verid++;
 
-                g3dvector_matrix ( &ver->pos, finaltmatrix, &pos );
+                g3dvector_matrixf ( &ver->pos, finaltmatrix, &pos );
 
                 oriver[ver->id] = g3dvertex_new ( pos.x, pos.y, pos.z );
 
@@ -299,8 +299,8 @@ void g3dsymmetry_childVertexChange ( G3DOBJECT *obj,
 
     if ( g3dvertex_isBoundary ( ver ) ) {
         /*** Compute parent symmetry center in child's coordinates system ***/
-        g3dvector_matrix ( &zeropos    , obj->wmatrix , &symworldpos );
-        g3dvector_matrix ( &symworldpos, kid->iwmatrix, &symlocalpos );
+        g3dvector_matrixf ( &zeropos    , obj->worldMatrix , &symworldpos );
+        g3dvector_matrixf ( &symworldpos, kid->inverseWorldMatrix, &symlocalpos );
 
         if ( sym->orientation == SYMMETRYZX ) {
             if ( ( ver->pos.y < ( symlocalpos.y + sym->mergelimit ) ) &&
@@ -344,7 +344,7 @@ uint32_t g3dsymmetry_draw ( G3DOBJECT *obj,
     uint64_t next_engine_flags = engine_flags;
     G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
     LIST *ltmpobj = obj->lchildren;
-
+#ifdef need_refactor
     /* Alternate symmety flags in case of nested symmetry objects */
     if ( engine_flags & SYMMETRYVIEW ) {
         next_engine_flags &= (~SYMMETRYVIEW);
@@ -369,7 +369,7 @@ uint32_t g3dsymmetry_draw ( G3DOBJECT *obj,
 
         glPopMatrix ( );
     }
-
+#endif
     return 0x00;
 }
 
@@ -388,7 +388,7 @@ void g3dsymmetry_setPlane ( G3DSYMMETRY *sym,
                             uint32_t     orientation  ) {
     sym->orientation = orientation;
 
-    g3dcore_symmetryMatrix ( sym->smatrix, orientation );
+    g3dcore_symmetryMatrixf ( sym->smatrix, orientation );
 }
 
 /******************************************************************************/

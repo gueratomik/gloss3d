@@ -275,9 +275,9 @@ void g3dobject_localTranslate ( G3DOBJECT *obj,
                      vecz = { .x = 0.0f, .y = 0.0f, .z = 1.0f, .w = 1.0f };
     G3DVECTOR movvecx, movvecy, movvecz;
 
-    g3dvector_matrix ( &vecx, obj->rmatrix, &movvecx );
-    g3dvector_matrix ( &vecy, obj->rmatrix, &movvecy );
-    g3dvector_matrix ( &vecz, obj->rmatrix, &movvecz );
+    g3dvector_matrixf ( &vecx, obj->rotationMatrix, &movvecx );
+    g3dvector_matrixf ( &vecy, obj->rotationMatrix, &movvecy );
+    g3dvector_matrixf ( &vecz, obj->rotationMatrix, &movvecz );
 
     obj->pos.x += ( movvecx.x * x );
     obj->pos.y += ( movvecx.y * x );
@@ -896,7 +896,7 @@ g3dquaternion_print ( &qout );
 g3dquaternion_toEulerInDegrees ( &qout, &rot );
 g3ddoublevector_print ( &rot ); */
 
-            g3dquaternion_convert ( &qout, obj->rmatrix );
+            g3dquaternion_convert ( &qout, obj->rotationMatrix );
 
             g3dquaternion_toEulerInDegrees ( &qout, &rot );
 
@@ -1582,15 +1582,17 @@ void g3dobject_removeTag ( G3DOBJECT *obj,
 
 /******************************************************************************/
 void g3dobject_importTransformations ( G3DOBJECT *dst, G3DOBJECT *src ) {
+    uint32_t matrixSize = sizeof ( dst->localMatrix );
+
     /*** import world matrix ***/
-    memcpy ( dst->wmatrix , src->wmatrix , sizeof ( dst->wmatrix  ) );
+    memcpy ( dst->worldMatrix, src->worldMatrix , matrixSize );
     /*** import inverse world matrix ***/
-    memcpy ( dst->iwmatrix, src->iwmatrix, sizeof ( dst->iwmatrix ) );
+    memcpy ( dst->inverseWorldMatrix, src->inverseWorldMatrix, matrixSize );
 
     /*** import local matrix ***/
-    memcpy ( dst->lmatrix , src->lmatrix , sizeof ( dst->lmatrix  ) );
+    memcpy ( dst->localMatrix, src->localMatrix , matrixSize );
     /*** import inverse local matrix ***/
-    memcpy ( dst->ilmatrix, src->ilmatrix, sizeof ( dst->ilmatrix ) );
+    memcpy ( dst->inverseLocalMatrix, src->inverseLocalMatrix, matrixSize );
 
     /*** import transformation vectors ***/
     memcpy ( &dst->pos, &src->pos, sizeof ( dst->pos ) );
@@ -1618,27 +1620,10 @@ void g3dobject_free ( G3DOBJECT *obj ) {
 
 /******************************************************************************/
 void g3dobject_buildRotationMatrix ( G3DOBJECT *obj ) {
-    double TMPX[0x10];
-    G3DQUATERNION qua;
-    G3DVECTOR rotX = { 1.0f, 0.0f, 0.0f, 1.0f }, matX,
-              rotY = { 0.0f, 1.0f, 0.0f, 1.0f }, matY,
-              rotZ = { 0.0f, 0.0f, 1.0f, 1.0f }, matZ;
-
-    glPushMatrix ( );
-    glLoadIdentity ( );
-
-    glRotatef ( obj->rot.z, 0.0f, 0.0f, 1.0f );
-    glRotatef ( obj->rot.y, 0.0f, 1.0f, 0.0f );
-    glRotatef ( obj->rot.x, 1.0f, 0.0f, 0.0f );
-
-    glGetDoublev ( GL_MODELVIEW_MATRIX, obj->rmatrix );
-    glPopMatrix ( );
-
-    /*printf("%s origin\n", __func__);
-    g3dcore_printMatrix ( obj->rmatrix, 4, 4 );*/
-
-    /*g3dcore_printMatrix ( obj->rmatrix, 4, 4 );
-    g3dcore_printMatrix ( TMPX, 4, 4 );*/
+    g3dcore_identityMatrixf( obj->rotationMatrix );
+    g3dcore_rotateMatrixf ( obj->rotationMatrix, obj->rot.z, 0.0f, 0.0f, 1.0f );
+    g3dcore_rotateMatrixf ( obj->rotationMatrix, obj->rot.y, 0.0f, 1.0f, 0.0f );
+    g3dcore_rotateMatrixf ( obj->rotationMatrix, obj->rot.x, 1.0f, 0.0f, 0.0f );
 }
 
 /******************************************************************************/
@@ -1660,32 +1645,40 @@ void g3dobject_updateMatrix_r ( G3DOBJECT *obj,
 
 /******************************************************************************/
 void g3dobject_updateMatrix ( G3DOBJECT *obj, uint64_t engine_flags ) {
-    glMatrixMode ( GL_MODELVIEW );
-    glPushMatrix ( );
-    glLoadIdentity ( );
-    glTranslatef ( obj->pos.x, obj->pos.y, obj->pos.z );
+    g3dcore_identityMatrixf( obj->localMatrix );
+    g3dcore_translateMatrixf( obj->localMatrix,
+                              obj->pos.x,
+                              obj->pos.y,
+                              obj->pos.z );
 
     g3dobject_buildRotationMatrix ( obj );
 
-    glMultMatrixd ( obj->rmatrix );
+    g3dcore_rotateMatrixf ( obj->localMatrix, obj->rot.z, 0.0f, 0.0f, 1.0f );
+    g3dcore_rotateMatrixf ( obj->localMatrix, obj->rot.y, 0.0f, 1.0f, 0.0f );
+    g3dcore_rotateMatrixf ( obj->localMatrix, obj->rot.x, 1.0f, 0.0f, 0.0f );
 
-    glScalef  ( obj->sca.x, obj->sca.y, obj->sca.z );
+    g3dcore_scaleMatrixf ( obj->localMatrix,
+                           obj->sca.x, 
+                           obj->sca.y,
+                           obj->sca.z );
 
-    glGetDoublev ( GL_MODELVIEW_MATRIX, obj->lmatrix );
-
-    g3dcore_invertMatrix ( obj->lmatrix, obj->ilmatrix );
+    g3dcore_invertMatrixf ( obj->localMatrix, obj->inverseLocalMatrix );
 
     if ( obj->parent ) {
-        g3dcore_multmatrix ( obj->lmatrix, obj->parent->wmatrix, obj->wmatrix );
+        g3dcore_multMatrixf ( obj->localMatrix,
+                              obj->parent->worldMatrix,
+                              obj->worldMatrix );
 
-        g3dcore_invertMatrix ( obj->wmatrix, obj->iwmatrix );
+        g3dcore_invertMatrixf ( obj->worldMatrix, obj->inverseWorldMatrix );
     } else {
-        memcpy ( obj->wmatrix , obj->lmatrix , sizeof ( obj->wmatrix  ) );
+        memcpy ( obj->worldMatrix,
+                 obj->localMatrix,
+                 sizeof ( obj->worldMatrix ) );
 
-        memcpy ( obj->iwmatrix, obj->ilmatrix, sizeof ( obj->iwmatrix ) );
+        memcpy ( obj->inverseWorldMatrix,
+                 obj->inverseLocalMatrix,
+                 sizeof ( obj->inverseWorldMatrix ) );
     }
-
-    glPopMatrix ( );
 
     if ( obj->transform ) obj->transform ( obj, engine_flags );
 
@@ -1742,13 +1735,13 @@ uint32_t g3dobject_pick ( G3DOBJECT *obj,
                           uint64_t   engine_flags ) {
     double MVX[0x10], PARENTMVX[0x10];
 
-    glPushMatrix ( );
+    g3dcore_multMatrixf ( obj->parent->worldMatrix
+                        , curcam->obj.inverseWorldMatrix
+                        , PARENTMVX );
 
-    glGetDoublev ( GL_MODELVIEW_MATRIX, PARENTMVX );
-
-    glMultMatrixd ( obj->lmatrix );
-
-    glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );
+    g3dcore_multMatrixf ( obj->worldMatrix
+                        , curcam->obj.inverseWorldMatrix
+                        , MVX );
 
     /*** if we are in the UVMAPEDITOR, we must not change the modelview ***/
     /*** matrix ***/
@@ -1770,8 +1763,6 @@ uint32_t g3dobject_pick ( G3DOBJECT *obj,
             }
         }
     }
-
-    glPopMatrix ( );
 
     return 0x00;
 }
@@ -1797,12 +1788,8 @@ uint32_t g3dobject_pick_r ( G3DOBJECT *obj,
                             G3DCAMERA *curcam, 
                             uint64_t   engine_flags ) {
     LIST *ltmpchildren = obj->lchildren;
-    double MVX[0x10];
 
     g3dobject_pick ( obj, curcam, engine_flags );
-
-    glPushMatrix ( );
-    glMultMatrixd ( obj->lmatrix );
 
     while ( ltmpchildren ) {
         G3DOBJECT *sub = ( G3DOBJECT * ) ltmpchildren->data;
@@ -1811,8 +1798,6 @@ uint32_t g3dobject_pick_r ( G3DOBJECT *obj,
 
         ltmpchildren = ltmpchildren->next;
     }
-
-    glPopMatrix ( );
 
     return 0x00;
 }
@@ -1834,9 +1819,6 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj,
         glEnable ( GL_RESCALE_NORMAL );
     /*}*/
 
-    glPushMatrix ( );
-    glMultMatrixd ( obj->lmatrix );
-
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
     else                               glFrontFace(  GL_CCW );
 
@@ -1846,8 +1828,6 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj,
 
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
     else                               glFrontFace(  GL_CW  );
-
-    glPopMatrix ( );
 
     /*if ( ( obj->sca.x != 1.0f ) ||
          ( obj->sca.y != 1.0f ) ||
@@ -1867,10 +1847,6 @@ uint32_t g3dobject_draw_r ( G3DOBJECT *obj,
 
     ret = g3dobject_draw ( obj, curcam, engine_flags );
 
-    glPushMatrix ( );
-
-    glMultMatrixd ( obj->lmatrix );
-
     /*** draw children objects after ***/
     while ( ltmpchildren ) {
         G3DOBJECT *sub = ( G3DOBJECT * ) ltmpchildren->data;
@@ -1887,8 +1863,6 @@ uint32_t g3dobject_draw_r ( G3DOBJECT *obj,
 
         ltmpchildren = ltmpchildren->next;
     }
-
-    glPopMatrix ( );
 
     return ret;
 }
@@ -2005,11 +1979,11 @@ G3DOBJECT *g3dobject_getChildByID ( G3DOBJECT *obj, uint32_t id ) {
 void g3dobject_importChild ( G3DOBJECT *newparent, 
                              G3DOBJECT *child, 
                              uint64_t   engine_flags ) {
-    double invmatrix[0x10];
-    double outmatrix[0x10];
+    float invmatrix[0x10];
+    float outmatrix[0x10];
 
-    g3dcore_invertMatrix ( newparent->wmatrix, invmatrix );
-    g3dcore_multmatrix   ( child->wmatrix    , invmatrix, outmatrix );
+    g3dcore_invertMatrixf ( newparent->worldMatrix, invmatrix );
+    g3dcore_multMatrixf   ( child->worldMatrix    , invmatrix, outmatrix );
 
     if ( child->parent ) g3dobject_removeChild ( child->parent, child, engine_flags );
 
@@ -2051,16 +2025,11 @@ G3DOBJECT *g3dobject_copy ( G3DOBJECT  *obj,
 void g3dobject_initMatrices ( G3DOBJECT *obj ) {
     uint32_t i;
 
-    /*** set identity matrix ***/
-    for ( i = 0x00; i < 0x10; i++ ) {
-        if ( ( i % 0x05 ) == 0x00 ) {
-            obj->lmatrix[i] = obj->ilmatrix[i] = 
-            obj->wmatrix[i] = obj->iwmatrix[i] = obj->rmatrix[i] = 1.0f;
-        } else {
-            obj->lmatrix[i] = obj->ilmatrix[i] = 
-            obj->wmatrix[i] = obj->iwmatrix[i] = obj->rmatrix[i] = 0.0f;
-        }
-    }
+    g3dcore_indentityMatrixf( obj->localMatrix );
+    g3dcore_indentityMatrixf( obj->inverseLocalMatrix );
+    g3dcore_indentityMatrixf( obj->worldMatrix );
+    g3dcore_indentityMatrixf( obj->inverseWorldMatrix );
+    g3dcore_indentityMatrixf( obj->rotationMatrix );
 
     obj->rotXAxis.x = obj->rotYAxis.y = obj->rotZAxis.z = 1.0f;
 
@@ -2321,6 +2290,17 @@ G3DOBJECT *g3dobject_getSelectedChild ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
+G3DSCENE *g3dobject_getScene( G3DOBJECT *obj ) {
+    while( obj ) {
+        if ( obj->type == G3DSCENETYPE ) return (G3DSCENE*)obj;
+
+        obj = obj->parent;
+    }
+
+    return NULL;
+}
+
+/******************************************************************************/
 uint32_t g3dobject_countChildren_r ( G3DOBJECT *obj ) {
     LIST *ltmp = obj->lchildren;
     uint32_t nbkid = 0x00;
@@ -2362,17 +2342,17 @@ void g3dobject_moveAxis ( G3DOBJECT *obj,
                           double    *PREVMVX, /* previous world matrix */
                           uint64_t engine_flags ) {
     LIST *ltmpchildren = obj->lchildren;
-    double DIFFMVX[0x10];
+    float DIFFMVX[0x10];
 
-    g3dcore_multmatrix ( PREVMVX, obj->iwmatrix, DIFFMVX );
+    g3dcore_multMatrixf ( PREVMVX, obj->inverseWorldMatrix, DIFFMVX );
 
     while ( ltmpchildren ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
-        double prvChildWorldMatrix[0x10];
-        double newChildLocalMatrix[0x10];
+        float prvChildWorldMatrix[0x10];
+        float newChildLocalMatrix[0x10];
 
-        g3dcore_multmatrix ( child->lmatrix, PREVMVX, prvChildWorldMatrix );
-        g3dcore_multmatrix ( prvChildWorldMatrix, obj->iwmatrix, newChildLocalMatrix );
+        g3dcore_multmatrixf ( child->localMatrix, PREVMVX, prvChildWorldMatrix );
+        g3dcore_multmatrixf ( prvChildWorldMatrix, obj->inverseWorldMatrix, newChildLocalMatrix );
 
         g3dcore_getMatrixTranslation ( newChildLocalMatrix, &child->pos );
         g3dcore_getMatrixRotation    ( newChildLocalMatrix, &child->rot );

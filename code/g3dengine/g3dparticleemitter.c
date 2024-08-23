@@ -175,8 +175,8 @@ static void g3dparticleemitter_initParticle ( G3DPARTICLEEMITTER *pem,
                                   pem->radius, 
                                  &pos );
 
-        g3dvector_matrix ( &pos, pem->obj.wmatrix, &wpos );
-        g3dvector_matrix ( &speed, pem->TIWMVX, &wspeed );
+        g3dvector_matrixf ( &pos, pem->obj.worldMatrix, &wpos );
+        g3dvector_matrixf ( &speed, pem->TIWMVX, &wspeed );
 
         g3dparticle_init ( prt,
                            g3dobject_getRandomChild ( ( G3DOBJECT * ) pem ),
@@ -305,12 +305,14 @@ static G3DPARTICLEEMITTER *g3dparticleemitter_copy ( G3DPARTICLEEMITTER *pem,
 static uint32_t g3dparticleemitter_draw ( G3DPARTICLEEMITTER *pem, 
                                           G3DCAMERA          *curcam, 
                                           uint64_t            engine_flags ) {
+#ifdef need_refactor
     if ( pem->maxParticles ) {
         uint32_t i, j;
 
         glPushMatrix ( );
 
         /** cancel world transformation, particles are in world corrdinates **/
+
         glMultMatrixd ( pem->obj.iwmatrix );
 
         if ( ( pem->obj.flags & DISPLAYPARTICLES ) == 0x00 ) {
@@ -366,7 +368,7 @@ static uint32_t g3dparticleemitter_draw ( G3DPARTICLEEMITTER *pem,
 
         glPopMatrix();
     }
-
+#endif
 
     return 0x00;
 }
@@ -426,10 +428,10 @@ static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem,
         int32_t iFrame = ( int32_t ) ( frame - pem->startAtFrame );
         int32_t localFrame = ( iFrame % ( int32_t ) pem->particleLifetime );
         int32_t i, j;
-        double IWMVX[0x10];
+        float IWMVX[0x10];
 
-        g3dcore_invertMatrix    ( pem->obj.wmatrix, IWMVX );
-        g3dcore_transposeMatrix ( IWMVX, pem->TIWMVX );
+        g3dcore_invertMatrixf    ( pem->obj.worldMatrix, IWMVX );
+        g3dcore_transposeMatrixf ( IWMVX, pem->TIWMVX );
 
         
         if ( frame == pem->startAtFrame ) {
@@ -454,26 +456,21 @@ static void g3dparticleemitter_anim ( G3DPARTICLEEMITTER *pem,
                                                       deltaFrame );
 
                     if ( engine_flags & ONGOINGRENDERING ) {
-                        glPushMatrix ( );
-                        glLoadIdentity ( );
-                        glTranslatef ( prt[j].pos.x, 
-                                       prt[j].pos.y, 
-                                       prt[j].pos.z );
-
-                        glScalef ( prt[j].sca.x, 
-                                   prt[j].sca.y, 
-                                   prt[j].sca.z );
-
-                        glGetDoublev ( GL_MODELVIEW_MATRIX, prt[j].MVX );
-
-                        glPopMatrix();
+                        g3dcore_identityMatrixf( prt[j].MVX );
+                        g3dcore_translateMatrixf( prt[j].MVX,
+                                                  prt[j].pos.x, 
+                                                  prt[j].pos.y, 
+                                                  prt[j].pos.z );
+                        g3dcore_scaleMatrixf( prt[j].MVX,
+                                              prt[j].sca.x, 
+                                              prt[j].sca.y, 
+                                              prt[j].sca.z );
                     }
                 }
             }
         }
 
     }
-
 
     pem->oldFrame = frame;
 }

@@ -64,7 +64,7 @@ static int createBone ( G3DMOUSETOOL *mou,
                         G3DURMANAGER *urm, 
                         uint64_t engine_flags, 
                         G3DEvent     *event ) {
-    static GLdouble MVX[0x10], PJX[0x10];
+    static float MVX[0x10];
     static GLint VPX[0x04];
     static double objx, objy, objz,
                   winx, winy, winz;
@@ -85,19 +85,15 @@ static int createBone ( G3DMOUSETOOL *mou,
                 par = ( G3DOBJECT * ) sce;
             }
 
-            glPushMatrix ( );
-            glMultMatrixd ( par->wmatrix );
-            glGetDoublev  ( GL_MODELVIEW_MATRIX, MVX  );
-            glPopMatrix ( );
+            g3dcore_multMatrix( par->worldMatrix, cam->obj.inverseWorldMatrix, MVX );
 
-            glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
             glGetIntegerv ( GL_VIEWPORT, VPX );
 
-            gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
+            gluProject ( 0.0f, 0.0f, 0.0f, MVX, cam->pmatrix, VPX, &winx, &winy, &winz );
             gluUnProject ( ( GLdouble ) bev->x,
                            ( GLdouble ) VPX[0x03] - bev->y,
                            ( GLdouble ) winz,
-                           MVX, PJX, VPX,
+                           MVX, cam->pmatrix, VPX,
                            &objx, &objy, &objz );
 
             bon = g3dbone_new ( pid, "Bone", 0.0f );
@@ -125,12 +121,9 @@ static int createBone ( G3DMOUSETOOL *mou,
                 float c, s, t, tx, ty, angle, a20;
                 float len;
 
-                glPushMatrix ( );
-                glMultMatrixd ( obj->parent->wmatrix );
-                glGetDoublev  ( GL_MODELVIEW_MATRIX, MVX  );
-                glPopMatrix ( );
+                g3dcore_multMatrix( par->worldMatrix, cam->obj.inverseWorldMatrix, MVX );
 
-                gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
+                gluProject ( 0.0f, 0.0f, 0.0f, MVX, cam->pmatrix, VPX, &winx, &winy, &winz );
                 gluUnProject ( ( GLdouble ) mev->x,
                                ( GLdouble ) VPX[0x03] - mev->y,
                                ( GLdouble ) winz,

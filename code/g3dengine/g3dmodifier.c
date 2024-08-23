@@ -38,8 +38,8 @@ uint32_t g3dmodifier_modpick ( G3DMODIFIER *mod,
     /*** default color for all objects ***/
     glColor3ub ( 0xFF, 0xFF, 0xFF );
 
-    glPushMatrix ( );
-    glMultMatrixd ( obj->lmatrix );
+    /*glPushMatrix ( );
+    glMultMatrixd ( obj->lmatrix );*/
 /*
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
     else                               glFrontFace(  GL_CCW );
@@ -49,7 +49,7 @@ uint32_t g3dmodifier_modpick ( G3DMODIFIER *mod,
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
     else                               glFrontFace(  GL_CW  );
 */
-    glPopMatrix ( );
+    /*glPopMatrix ( );*/
 
 
     return 0x00;
@@ -64,8 +64,8 @@ uint32_t g3dmodifier_moddraw ( G3DMODIFIER *mod,
     /*** default color for all objects ***/
     glColor3ub ( 0xFF, 0xFF, 0xFF );
 
-    glPushMatrix ( );
-    glMultMatrixd ( obj->lmatrix );
+    /*glPushMatrix ( );
+    glMultMatrixd ( obj->lmatrix );*/
 /*
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
     else                               glFrontFace(  GL_CCW );
@@ -75,7 +75,7 @@ uint32_t g3dmodifier_moddraw ( G3DMODIFIER *mod,
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
     else                               glFrontFace(  GL_CW  );
 */
-    glPopMatrix ( );
+    /*glPopMatrix ( );*/
 
 
     return 0x00;

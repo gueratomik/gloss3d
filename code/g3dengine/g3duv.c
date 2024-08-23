@@ -338,8 +338,8 @@ void g3duvmap_getSphericalUV ( G3DUVMAP  *map,
     G3DVECTOR verLocPos; /*** position in map  local coordinates ***/
     G3DVECTOR nor;
 
-    g3dvector_matrix ( lpos      , parent->wmatrix , &verWldPos );
-    g3dvector_matrix ( &verWldPos, objmap->iwmatrix, &verLocPos );
+    g3dvector_matrixf ( lpos      , parent->worldMatrix , &verWldPos );
+    g3dvector_matrixf ( &verWldPos, objmap->inverseWorldMatrix, &verLocPos );
 
     g3dvector_normalize ( &verLocPos, NULL );
 
@@ -387,8 +387,8 @@ void g3duvmap_getCylindricalUV ( G3DUVMAP  *map,
     G3DVECTOR wpos; /*** position in mesh world coordinates ***/
     G3DVECTOR mpos; /*** position in map  local coordinates ***/
 
-    g3dvector_matrix (  lpos, parent->wmatrix , &wpos );
-    g3dvector_matrix ( &wpos, objmap->iwmatrix, &mpos );
+    g3dvector_matrixf (  lpos, parent->worldMatrix , &wpos );
+    g3dvector_matrixf ( &wpos, objmap->inverseWorldMatrix, &mpos );
 
     g3dvector_normalize ( &mpos, NULL );
 
@@ -410,8 +410,8 @@ void g3duvmap_getFlatUV ( G3DUVMAP  *map,
     G3DVECTOR wpos; /*** position in mesh world coordinates ***/
     G3DVECTOR mpos; /*** position in map  local coordinates ***/
 
-    g3dvector_matrix (  lpos, parent->wmatrix , &wpos );
-    g3dvector_matrix ( &wpos, objmap->iwmatrix, &mpos );
+    g3dvector_matrix (  lpos, parent->worldMatrix , &wpos );
+    g3dvector_matrix ( &wpos, objmap->inverseWorldMatrix, &mpos );
 
     (*u) = ( mpos.x + map->pln.xradius ) / xdiameter;
     (*v) = ( mpos.y + map->pln.yradius ) / ydiameter;

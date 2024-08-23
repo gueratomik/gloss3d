@@ -1521,10 +1521,13 @@ uint64_t gtk3_openFile ( GTK3G3DUI *gtk3gui ) {
         char           *filename = gtk_file_chooser_get_filename ( chooser );
         static char     windowname[0x1000] = { 0x00 };
 
+
         if ( filename ) {
             g3dui_closeScene ( gui );
 
             g3dui_openG3DFile ( gui, filename );
+
+            gui->sce = g3dscene_new(0, "scene");
 
             snprintf ( windowname, 
                        0x1000, 
@@ -1537,6 +1540,7 @@ uint64_t gtk3_openFile ( GTK3G3DUI *gtk3gui ) {
 
             g_free    ( filename );
         }
+
     }
 
     gtk_widget_destroy ( dialog );

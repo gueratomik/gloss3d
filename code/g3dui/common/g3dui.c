@@ -29,6 +29,7 @@
 #include <config.h>
 #include <g3dui.h>
 #include <inttypes.h>
+#include <linux/uinput.h>
 
 /******************************************************************************/
 G3DCAMERA *g3dui_getMainViewCamera ( G3DUI *gui ) {
@@ -2251,6 +2252,7 @@ uint64_t g3dui_openG3DFile ( G3DUI      *gui,
             g3dobject_free ( ( G3DOBJECT * ) gui->sce );
         }
 
+
         list_free ( &gui->lrsg, LIST_FUNCDATA(q3dsettings_free) );
 
         /* import render settings module */
@@ -2329,6 +2331,7 @@ uint64_t g3dui_undo ( G3DUI *gui ) {
 /******************************************************************************/
 void g3dui_init ( G3DUI     *gui,
                   G3DUIMAIN *main ) {
+    struct uinput_setup virtualMouseSetup;
     Q3DSETTINGS *rsg;
     #ifdef __linux__
     char *home = getenv ( "HOME" );
@@ -2346,6 +2349,26 @@ void g3dui_init ( G3DUI     *gui,
     #ifdef __MINGW32__
     snprintf ( configFileName, 0x1000, "%s\\.gloss3d\\gloss3d.conf", home );
     #endif
+
+    /* virtual mouse to poisition */
+    /* the cursor in both X11 and wayland */
+    gui->virtualMouseFD = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
+    ioctl( gui->virtualMouseFD, UI_SET_EVBIT , EV_REL );
+    ioctl( gui->virtualMouseFD, UI_SET_RELBIT, REL_X  );
+    ioctl( gui->virtualMouseFD, UI_SET_RELBIT, REL_Y  );
+
+    memset( &virtualMouseSetup, 0, sizeof ( virtualMouseSetup ) );
+
+    virtualMouseSetup.id.bustype = BUS_USB;
+    virtualMouseSetup.id.vendor  = 0x1234; /* sample vendor */
+    virtualMouseSetup.id.product = 0x5678; /* sample product */
+
+    strcpy( virtualMouseSetup.name, "Gloss3D virtual mouse" );
+
+    ioctl( gui->virtualMouseFD, UI_DEV_SETUP , &virtualMouseSetup );
+    ioctl( gui->virtualMouseFD, UI_DEV_CREATE );
+    /*********************************/
+
 
     gui->main = main;
 

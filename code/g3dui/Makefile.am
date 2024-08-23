@@ -2,6 +2,7 @@ ACLOCAL_AMFLAGS= -I m4
 
 if HAVE_WIN32
     AM_LDFLAGS = -shared -no-undefined `pkg-config --libs gtk+-3.0` \
+		                       `pkg-config --libs xkbcommon` \
                                        -lfontconfig \
                                        -L../g3dmouse/.libs/ -lgloss-g3dmouse \
                                        -L../g3durmanager/.libs/ -lgloss-g3durmanager \

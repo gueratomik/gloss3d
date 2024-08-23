@@ -108,7 +108,7 @@ static void bridge_draw ( G3DMOUSETOOL *mou,
             /*** the cutting plan and find its coords, but do not ***/
             /*** forget the current matrix is the camera transformations **/
             glPushMatrix ( );
-            glMultMatrixd ( bt->obj->wmatrix );
+            glMultMatrixd ( bt->obj->worldMatrix );
 
             glBegin ( GL_LINES );
             if ( bt->obj->type & MESH ) {

@@ -56,6 +56,96 @@ void g3dcore_eulerToQuaternion ( G3DDOUBLEVECTOR *angles, G3DQUATERNION *qout ) 
 }
 
 /******************************************************************************/
+void g3dcore_rotateMatrixf( float *matrix,
+                            float a,
+                            float x,
+                            float y,
+                            float z ) {
+    float c = cos( a );
+    float s = sin( a );
+    float invc = ( 1.0f - c );
+    float xsq = ( x * x );
+    float ysq = ( y * y );
+    float zsq = ( z * z );
+
+    float xy = ( x * y );
+    float yz = ( y * z );
+    float zx = ( z * x );
+
+    float xs = ( x * s );
+    float ys = ( y * s );
+    float zs = ( z * s );
+    float rotationMatrix[] =
+ { ( xsq * invc ) + c , ( xy  * invc ) - ( zs ), ( zx  * invc ) + ( ys ), 0.0f,
+   ( xy  * invc ) + zs, ( ysq * invc ) + c     , ( yz  * invc ) - ( xs ), 0.0f,
+   ( zx  * invc ) - ys, ( yz  * invc ) + xs    , ( zsq * invc ) + c     , 0.0f,
+   0.0f               , 0.0f                   , 0.0f                   , 1.0f };
+    float resultMatrix[0x10];
+
+    g3dcore_multMatrixf( rotationMatrix, matrix, resultMatrix );
+
+    memcpy( matrix, resultMatrix, sizeof( resultMatrix ) );
+}
+
+/******************************************************************************/
+void g3dcore_rotateMatrixd( double *matrix,
+                            float a,
+                            float x,
+                            float y,
+                            float z ) {
+    float c = cos( a );
+    float s = sin( a );
+    float invc = ( 1.0f - c );
+    float xsq = ( x * x );
+    float ysq = ( y * y );
+    float zsq = ( z * z );
+
+    float xy = ( x * y );
+    float yz = ( y * z );
+    float zx = ( z * x );
+
+    float xs = ( x * s );
+    float ys = ( y * s );
+    float zs = ( z * s );
+    double rotationMatrix[] =
+ { ( xsq * invc ) + c , ( xy  * invc ) - ( zs ), ( zx  * invc ) + ( ys ), 0.0f,
+   ( xy  * invc ) + zs, ( ysq * invc ) + c     , ( yz  * invc ) - ( xs ), 0.0f,
+   ( zx  * invc ) - ys, ( yz  * invc ) + xs    , ( zsq * invc ) + c     , 0.0f,
+   0.0f               , 0.0f                   , 0.0f                   , 1.0f };
+    double resultMatrix[0x10];
+
+    g3dcore_multMatrixd( rotationMatrix, matrix, resultMatrix );
+
+    memcpy( matrix, resultMatrix, sizeof( resultMatrix ) );
+}
+
+/******************************************************************************/
+void g3dcore_scaleMatrixf( float *matrix, float x, float y, float z ) {
+    float scalingMatrix[] = { x   , 0.0f, 0.0f, 0.0f,
+                              0.0f, y   , 0.0f, 0.0f, 
+                              0.0f, 0.0f, z   , 0.0f, 
+                              0.0f, 0.0f, 0.0f, 1.0f };
+    float resultMatrix[0x10];
+
+    g3dcore_multMatrixf( scalingMatrix, matrix, resultMatrix );
+
+    memcpy( matrix, resultMatrix, sizeof( resultMatrix ) );
+}
+
+/******************************************************************************/
+void g3dcore_translateMatrixf( float *matrix, float x, float y, float z ) {
+    float translationMatrix[] = { 1.0f, 0.0f, 0.0f, x,
+                                  0.0f, 1.0f, 0.0f, y, 
+                                  0.0f, 0.0f, 1.0f, z, 
+                                  0.0f, 0.0f, 0.0f, 1.0f };
+    float resultMatrix[0x10];
+
+    g3dcore_multMatrixf( translationMatrix, matrix, resultMatrix );
+
+    memcpy( matrix, resultMatrix, sizeof( resultMatrix ) );
+}
+
+/******************************************************************************/
 void g3dcore_eulerInDegreesToQuaternion ( G3DDOUBLEVECTOR *angles, 
                                           G3DQUATERNION   *qout ) {
     G3DDOUBLEVECTOR rad = { .x = angles->x * M_PI / 180.0f,
@@ -591,7 +681,7 @@ void g3dcore_writeJpeg ( const char *filename, uint32_t      width,
 }
 
 /******************************************************************************/
-void g3dcore_symmetryMatrix ( double *matrix, uint32_t orientation ) {
+void g3dcore_symmetryMatrixd ( double *matrix, uint32_t orientation ) {
     matrix[0x00] = 1.0f;
     matrix[0x01] = 0.0f;
     matrix[0x02] = 0.0f;
@@ -623,7 +713,62 @@ void g3dcore_symmetryMatrix ( double *matrix, uint32_t orientation ) {
 }
 
 /******************************************************************************/
-void g3dcore_transposeMatrix ( double *inp, double *out ) {
+void g3dcore_symmetryMatrixf ( float *matrix, uint32_t orientation ) {
+    matrix[0x00] = 1.0f;
+    matrix[0x01] = 0.0f;
+    matrix[0x02] = 0.0f;
+    matrix[0x03] = 0.0f;
+    matrix[0x04] = 0.0f;
+    matrix[0x05] = 1.0f;
+    matrix[0x06] = 0.0f;
+    matrix[0x07] = 0.0f;
+    matrix[0x08] = 0.0f;
+    matrix[0x09] = 0.0f;
+    matrix[0x0A] = 1.0f;
+    matrix[0x0B] = 0.0f;
+    matrix[0x0C] = 0.0f;
+    matrix[0x0D] = 0.0f;
+    matrix[0x0E] = 0.0f;
+    matrix[0x0F] = 1.0f;
+
+    if ( orientation == ORIENTATIONZX ) {
+        matrix[0x05] = -1.0f;
+    }
+
+    if ( orientation == ORIENTATIONXY ) {
+        matrix[0x0A] = -1.0f;
+    }
+
+    if ( orientation == ORIENTATIONYZ ) {
+        matrix[0x00] = -1.0f;
+    }
+}
+
+/******************************************************************************/
+void g3dcore_transposeMatrixf ( float *inp, float *out ) {
+    out[0x00] = inp[0x00];
+    out[0x01] = inp[0x04];
+    out[0x02] = inp[0x08];
+    out[0x03] = inp[0x0C];
+
+    out[0x04] = inp[0x01];
+    out[0x05] = inp[0x05];
+    out[0x06] = inp[0x09];
+    out[0x07] = inp[0x0D];
+
+    out[0x08] = inp[0x02];
+    out[0x09] = inp[0x06];
+    out[0x0A] = inp[0x0A];
+    out[0x0B] = inp[0x0E];
+
+    out[0x0C] = inp[0x03];
+    out[0x0D] = inp[0x07];
+    out[0x0E] = inp[0x0B];
+    out[0x0F] = inp[0x0F];
+}
+
+/******************************************************************************/
+void g3dcore_transposeMatrixd ( double *inp, double *out ) {
     out[0x00] = inp[0x00];
     out[0x01] = inp[0x04];
     out[0x02] = inp[0x08];
@@ -646,7 +791,90 @@ void g3dcore_transposeMatrix ( double *inp, double *out ) {
 }
 
 /********* ftp://download.intel.com/design/PentiumIII/sml/24504301.pdf ********/
-void g3dcore_invertMatrix ( double *mat, double *dst ) {
+void g3dcore_invertMatrixf ( float *mat, float *dst ) {
+  float            tmp[12]; /* temp array for pairs             */
+  float            src[16]; /* array of transpose source matrix */
+  float            det;             /* determinant              */
+  int i, j;
+
+  /* transpose matrix */
+  for ( i = 0; i < 4; i++) {
+          src[i]                    = mat[i*4];
+          src[i + 4]                = mat[i*4 + 1];
+          src[i + 8]                = mat[i*4 + 2];
+          src[i + 12]               = mat[i*4 + 3];
+  }
+  /* calculate pairs for first 8 elements (cofactors) */
+  tmp[0]         =   src[10]        *   src[15];
+  tmp[1]         =   src[11]        *   src[14];
+  tmp[2]         =   src[9]         *   src[15];
+  tmp[3]         =   src[11]        *   src[13];
+  tmp[4]         =   src[9]         *   src[14];
+  tmp[5]         =   src[10]        *   src[13];
+  tmp[6]         =   src[8]         *   src[15];
+  tmp[7]         =   src[11]        *   src[12];
+  tmp[8]         =   src[8]         *   src[14];
+  tmp[9]         =   src[10]        *   src[12];
+  tmp[10]        =   src[8]         *   src[13];
+  tmp[11]        =   src[9]         *   src[12];
+  /* calculate first 8 elements (cofactors) */
+  dst[0]         =   tmp[0]*src[5]            +  tmp[3]*src[6]   + tmp[4]*src[7];
+  dst[0]       -=    tmp[1]*src[5]            +  tmp[2]*src[6]   + tmp[5]*src[7];
+  dst[1]         =   tmp[1]*src[4]            +  tmp[6]*src[6]   + tmp[9]*src[7];
+  dst[1]       -=    tmp[0]*src[4]            +  tmp[7]*src[6]   + tmp[8]*src[7];
+  dst[2]         =   tmp[2]*src[4]            +  tmp[7]*src[5]   + tmp[10]*src[7];
+  dst[2]       -=    tmp[3]*src[4]            +  tmp[6]*src[5]   + tmp[11]*src[7];
+  dst[3]         =   tmp[5]*src[4]            +  tmp[8]*src[5]   + tmp[11]*src[6];
+  dst[3]       -=    tmp[4]*src[4]            +  tmp[9]*src[5]   + tmp[10]*src[6];
+  dst[4]          =  tmp[1]*src[1]            +  tmp[2]*src[2]   + tmp[5]*src[3];
+  dst[4]       -=    tmp[0]*src[1]            +  tmp[3]*src[2]   + tmp[4]*src[3];
+  dst[5]          =  tmp[0]*src[0]            +  tmp[7]*src[2]   + tmp[8]*src[3];
+  dst[5]       -=    tmp[1]*src[0]            +  tmp[6]*src[2]   + tmp[9]*src[3];
+  dst[6]          =  tmp[3]*src[0]            +  tmp[6]*src[1]   + tmp[11]*src[3];
+  dst[6]       -=    tmp[2]*src[0]            +  tmp[7]*src[1]   + tmp[10]*src[3];
+  dst[7]          =  tmp[4]*src[0]            +  tmp[9]*src[1]   + tmp[10]*src[2];
+  dst[7]       -=    tmp[5]*src[0]            +  tmp[8]*src[1]   + tmp[11]*src[2];
+  /* calculate pairs for second 8 elements (cofactors) */
+  tmp[0]         =   src[2]*src[7];
+  tmp[1]         =   src[3]*src[6];
+  tmp[2]         =   src[1]*src[7];
+  tmp[3]         =   src[3]*src[5];
+  tmp[4]         =   src[1]*src[6];
+  tmp[5]         =   src[2]*src[5];
+  tmp[6]        =   src[0]*src[7];
+  tmp[7]        =   src[3]*src[4];
+  tmp[8]        =   src[0]*src[6];
+  tmp[9]        =   src[2]*src[4];
+  tmp[10]       =   src[0]*src[5];
+  tmp[11]       =   src[1]*src[4];
+  /* calculate second 8 elements (cofactors) */
+  dst[8] =          tmp[0]*src[13] + tmp[3]*src[14] + tmp[4]*src[15];
+  dst[8] -=         tmp[1]*src[13] + tmp[2]*src[14] + tmp[5]*src[15];
+  dst[9] =          tmp[1]*src[12] + tmp[6]*src[14] + tmp[9]*src[15];
+  dst[9] -=         tmp[0]*src[12] + tmp[7]*src[14] + tmp[8]*src[15];
+  dst[10] =         tmp[2]*src[12] + tmp[7]*src[13] + tmp[10]*src[15];
+  dst[10]-=         tmp[3]*src[12] + tmp[6]*src[13] + tmp[11]*src[15];
+  dst[11] =         tmp[5]*src[12] + tmp[8]*src[13] + tmp[11]*src[14];
+  dst[11]-=         tmp[4]*src[12] + tmp[9]*src[13] + tmp[10]*src[14];
+  dst[12] =         tmp[2]*src[10] + tmp[5]*src[11] + tmp[1]*src[9];
+  dst[12]-=         tmp[4]*src[11] + tmp[0]*src[9] + tmp[3]*src[10];
+  dst[13] =         tmp[8]*src[11] + tmp[0]*src[8] + tmp[7]*src[10];
+  dst[13]-=         tmp[6]*src[10] + tmp[9]*src[11] + tmp[1]*src[8];
+  dst[14] =         tmp[6]*src[9] + tmp[11]*src[11] + tmp[3]*src[8];
+  dst[14]-=         tmp[10]*src[11] + tmp[2]*src[8] + tmp[7]*src[9];
+  dst[15] =         tmp[10]*src[10] + tmp[4]*src[8] + tmp[9]*src[9];
+  dst[15]-=         tmp[8]*src[9] + tmp[11]*src[10] + tmp[5]*src[8];
+  /* calculate determinant */
+  det=src[0]*dst[0]+src[1]*dst[1]+src[2]*dst[2]+src[3]*dst[3];
+  /* calculate matrix inverse */
+  det = 1/det;
+
+  for ( j = 0; j < 16; j++)
+         dst[j] *= det;
+}
+
+/********* ftp://download.intel.com/design/PentiumIII/sml/24504301.pdf ********/
+void g3dcore_invertMatrixd ( double *mat, double *dst ) {
   float            tmp[12]; /* temp array for pairs             */
   float            src[16]; /* array of transpose source matrix */
   float            det;             /* determinant              */
@@ -789,8 +1017,32 @@ void g3dcore_invertMatrix ( double *inp, double *out ) {
     out[0x0F] = tmp[0x1F];
 }
 */
+
 /******************************************************************************/
-void g3dcore_multmatrix ( double *A, double *B, double *M ) {
+void g3dcore_multMatrixf ( float *A, float *B, float *M ) {
+    M[0x0] = (A[0x0]*B[0x0])+(A[0x1]*B[0x4])+(A[0x2]*B[0x8])+(A[0x3]*B[0xC]);
+    M[0x1] = (A[0x0]*B[0x1])+(A[0x1]*B[0x5])+(A[0x2]*B[0x9])+(A[0x3]*B[0xD]);
+    M[0x2] = (A[0x0]*B[0x2])+(A[0x1]*B[0x6])+(A[0x2]*B[0xA])+(A[0x3]*B[0xE]);
+    M[0x3] = (A[0x0]*B[0x3])+(A[0x1]*B[0x7])+(A[0x2]*B[0xB])+(A[0x3]*B[0xF]);
+
+    M[0x4] = (A[0x4]*B[0x0])+(A[0x5]*B[0x4])+(A[0x6]*B[0x8])+(A[0x7]*B[0xC]);
+    M[0x5] = (A[0x4]*B[0x1])+(A[0x5]*B[0x5])+(A[0x6]*B[0x9])+(A[0x7]*B[0xD]);
+    M[0x6] = (A[0x4]*B[0x2])+(A[0x5]*B[0x6])+(A[0x6]*B[0xA])+(A[0x7]*B[0xE]);
+    M[0x7] = (A[0x4]*B[0x3])+(A[0x5]*B[0x7])+(A[0x6]*B[0xB])+(A[0x7]*B[0xF]);
+
+    M[0x8] = (A[0x8]*B[0x0])+(A[0x9]*B[0x4])+(A[0xA]*B[0x8])+(A[0xB]*B[0xC]);
+    M[0x9] = (A[0x8]*B[0x1])+(A[0x9]*B[0x5])+(A[0xA]*B[0x9])+(A[0xB]*B[0xD]);
+    M[0xA] = (A[0x8]*B[0x2])+(A[0x9]*B[0x6])+(A[0xA]*B[0xA])+(A[0xB]*B[0xE]);
+    M[0xB] = (A[0x8]*B[0x3])+(A[0x9]*B[0x7])+(A[0xA]*B[0xB])+(A[0xB]*B[0xF]);
+
+    M[0xC] = (A[0xC]*B[0x0])+(A[0xD]*B[0x4])+(A[0xE]*B[0x8])+(A[0xF]*B[0xC]);
+    M[0xD] = (A[0xC]*B[0x1])+(A[0xD]*B[0x5])+(A[0xE]*B[0x9])+(A[0xF]*B[0xD]);
+    M[0xE] = (A[0xC]*B[0x2])+(A[0xD]*B[0x6])+(A[0xE]*B[0xA])+(A[0xF]*B[0xE]);
+    M[0xF] = (A[0xC]*B[0x3])+(A[0xD]*B[0x7])+(A[0xE]*B[0xB])+(A[0xF]*B[0xF]);
+}
+
+/******************************************************************************/
+void g3dcore_multMatrixd ( double *A, double *B, double *M ) {
     M[0x0] = (A[0x0]*B[0x0])+(A[0x1]*B[0x4])+(A[0x2]*B[0x8])+(A[0x3]*B[0xC]);
     M[0x1] = (A[0x0]*B[0x1])+(A[0x1]*B[0x5])+(A[0x2]*B[0x9])+(A[0x3]*B[0xD]);
     M[0x2] = (A[0x0]*B[0x2])+(A[0x1]*B[0x6])+(A[0x2]*B[0xA])+(A[0x3]*B[0xE]);
@@ -816,22 +1068,49 @@ void g3dcore_multmatrix ( double *A, double *B, double *M ) {
 void g3dcore_multmatrixdirect ( double *A, double *B ) {
     double M[0x10];
 
-    g3dcore_multmatrix ( A, B, M );
+    g3dcore_multMatrixd ( A, B, M );
 
     memcpy ( A, M, sizeof ( M ) );
 }
 
 /******************************************************************************/
-void g3dcore_identityMatrix ( double *M ) {
-    uint32_t i;
+void g3dcore_identityMatrixf ( float *M ) {
+    M[0x00] = 1.0f;
+    M[0x01] = 0.0f;
+    M[0x02] = 0.0f;
+    M[0x03] = 0.0f;
+    M[0x04] = 0.0f;
+    M[0x05] = 1.0f;
+    M[0x06] = 0.0f;
+    M[0x07] = 0.0f;
+    M[0x08] = 0.0f;
+    M[0x09] = 0.0f;
+    M[0x0A] = 1.0f;
+    M[0x0B] = 0.0f;
+    M[0x0C] = 0.0f;
+    M[0x0D] = 0.0f;
+    M[0x0E] = 0.0f;
+    M[0x0F] = 1.0f;
+}
 
-    for ( i = 0x00; i < 0x10; i++ ) {
-        if ( i % 0x05 ) {
-            M[i] = 0.0f;
-        } else {
-            M[i] = 1.0f;
-        }
-    }
+/******************************************************************************/
+void g3dcore_identityMatrixd ( double *M ) {
+    M[0x00] = 1.0f;
+    M[0x01] = 0.0f;
+    M[0x02] = 0.0f;
+    M[0x03] = 0.0f;
+    M[0x04] = 0.0f;
+    M[0x05] = 1.0f;
+    M[0x06] = 0.0f;
+    M[0x07] = 0.0f;
+    M[0x08] = 0.0f;
+    M[0x09] = 0.0f;
+    M[0x0A] = 1.0f;
+    M[0x0B] = 0.0f;
+    M[0x0C] = 0.0f;
+    M[0x0D] = 0.0f;
+    M[0x0E] = 0.0f;
+    M[0x0F] = 1.0f;
 }
 
 /******************************************************************************/
@@ -867,14 +1146,46 @@ void g3dcore_getMatrixScale ( double *matrix, G3DVECTOR *sca ) {
 }
 
 /******************************************************************************/
-void g3dcore_getMatrixRotation ( double *matrix, G3DVECTOR *rot ) {
+void g3dcore_getMatrixRotationf ( float *matrix, G3DVECTOR *rot ) {
+    float mtmp[0x10];
+    G3DVECTOR sca;
+    int i, j;
+
+    memcpy ( mtmp, matrix, sizeof ( mtmp ) );
+
+    g3dcore_getMatrixScalef ( matrix, &sca );
+
+    for ( i = 0x00; i < 0x03; i++ ) {
+        float *ptr = &mtmp[ i * 0x04];
+
+        *(ptr+0) /= sca.x;
+        *(ptr+1) /= sca.y;
+        *(ptr+2) /= sca.z;
+    }
+
+/** Many thanks to https://www.geometrictools.com/Documentation/EulerAngles.pdf ***/
+/*** Note: OpenGL Matrix indexes are inverted compared to the latter document ***/
+/*** Note2: my rotation matrix order is ZYX ***/
+
+    rot->y = asin  ( -mtmp[0x02] );
+    rot->x = atan2 (  mtmp[0x06], mtmp[0x0A] );
+    rot->z = atan2 (  mtmp[0x01], mtmp[0x00] );
+
+    rot->x = rot->x * ( 180 / M_PI );
+    rot->y = rot->y * ( 180 / M_PI );
+    rot->z = rot->z * ( 180 / M_PI );
+    rot->w = 1.0f;
+}
+
+/******************************************************************************/
+void g3dcore_getMatrixRotationd ( double *matrix, G3DVECTOR *rot ) {
     double mtmp[0x10];
     G3DVECTOR sca;
     int i, j;
 
     memcpy ( mtmp, matrix, sizeof ( mtmp ) );
 
-    g3dcore_getMatrixScale ( matrix, &sca );
+    g3dcore_getMatrixScaled ( matrix, &sca );
 
     for ( i = 0x00; i < 0x03; i++ ) {
         double *ptr = &mtmp[ i * 0x04];
@@ -892,20 +1203,6 @@ void g3dcore_getMatrixRotation ( double *matrix, G3DVECTOR *rot ) {
     rot->x = atan2 (  mtmp[0x06], mtmp[0x0A] );
     rot->z = atan2 (  mtmp[0x01], mtmp[0x00] );
 
-
-/*
-    rot->y = ( float ) asin ( mtmp[0x08] );
-
-    if ( ( mtmp[0x08] ==  1.0f ) || 
-         ( mtmp[0x08] == -1.0f ) ) {
-        rot->x = ( float ) atan2 ( -mtmp[0x01], mtmp[0x06] );
-        rot->z = 0.0f;
-    }else{
-        rot->x = ( float ) atan2 ( -mtmp[0x09], mtmp[0x0A] );
-        rot->z = ( float ) atan2 ( -mtmp[0x04], mtmp[0x00] );
-    }
-*/
-
     rot->x = rot->x * ( 180 / M_PI );
     rot->y = rot->y * ( 180 / M_PI );
     rot->z = rot->z * ( 180 / M_PI );
@@ -913,22 +1210,39 @@ void g3dcore_getMatrixRotation ( double *matrix, G3DVECTOR *rot ) {
 }
 
 /******************************************************************************/
-void g3dcore_extractRotationMatrix ( double *WMX, double *RMX ) {
+void g3dcore_extractRotationMatrixf ( float *WMX, float *RMX ) {
     G3DVECTOR rot;
 
-    g3dcore_getMatrixRotation ( WMX, &rot );
+    g3dcore_getMatrixRotationf ( WMX, &rot );
 
-    glPushMatrix ( );
-    glLoadIdentity ( );
-    glRotatef ( rot.x, 1.0f, 0.0f, 0.0f );
-    glRotatef ( rot.y, 0.0f, 1.0f, 0.0f );
-    glRotatef ( rot.z, 0.0f, 0.0f, 1.0f );
-    glGetDoublev ( GL_MODELVIEW_MATRIX, RMX );
-    glPopMatrix ( );
+    g3dcore_identityMatrixf( RMX );
+    g3dcore_rotateMatrixf( RMX, rot.x, 1.0f, 0.0f, 0.0f );
+    g3dcore_rotateMatrixf( RMX, rot.y, 0.0f, 1.0f, 0.0f );
+    g3dcore_rotateMatrixf( RMX, rot.z, 0.0f, 0.0f, 1.0f );
 }
 
 /******************************************************************************/
-void g3dcore_getMatrixTranslation ( double *matrix, G3DVECTOR *pos ) {
+void g3dcore_extractRotationMatrixd ( double *WMX, double *RMX ) {
+    G3DVECTOR rot;
+
+    g3dcore_getMatrixRotationd ( WMX, &rot );
+
+    g3dcore_identityMatrixd( RMX );
+    g3dcore_rotateMatrixd( RMX, rot.x, 1.0f, 0.0f, 0.0f );
+    g3dcore_rotateMatrixd( RMX, rot.y, 0.0f, 1.0f, 0.0f );
+    g3dcore_rotateMatrixd( RMX, rot.z, 0.0f, 0.0f, 1.0f );
+}
+
+/******************************************************************************/
+void g3dcore_getMatrixTranslationf ( float *matrix, G3DVECTOR *pos ) {
+    pos->x = matrix[0x0C];
+    pos->y = matrix[0x0D];
+    pos->z = matrix[0x0E];
+    pos->w = 1.0f;
+}
+
+/******************************************************************************/
+void g3dcore_getMatrixTranslationd ( double *matrix, G3DVECTOR *pos ) {
     pos->x = matrix[0x0C];
     pos->y = matrix[0x0D];
     pos->z = matrix[0x0E];

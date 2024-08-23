@@ -21,6 +21,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dcutface.c \
                       g3dcylinder.c \
                       g3dedge.c \
+                      g3dengine.c \
                       g3dextension.c \
                       g3dface.c \
                       g3dfacegroup.c \

@@ -139,15 +139,10 @@ static uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
 
             for ( i = 0x00; i < srv->nbsteps; i++ ) {
                 uint32_t n = ( i + 0x01 ) % srv->nbsteps;
-                double RMX[0x10];
+                float RMX[0x10];
 
-                glPushMatrix ( );
-                glLoadIdentity ( );
-                glRotatef ( (float ) 360 / srv->nbsteps * i, 0.0f, 1.0f, 0.0f );
-                /*glRotatef ( rot.y, 0.0f, 1.0f, 0.0f );
-                glRotatef ( rot.z, 0.0f, 0.0f, 1.0f );*/
-                glGetDoublev ( GL_MODELVIEW_MATRIX, RMX );
-                glPopMatrix ( );
+                g3dcore_identityMatrixf( RMX );
+                g3dcore_rotateMatrixf( RMX, 360.0f / srv->nbsteps * i, 0.0f, 1.0f, 0.0f );
 
                 LIST *ltmppt = spl->curve->lpt;
                 uint32_t ptID = 0x00;
@@ -157,8 +152,8 @@ static uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                     uint32_t offset = ( i * nbSplineVertices ) + ptID;
                     G3DVECTOR  ptLocalPos;
 
-                    g3dvector_matrix ( &pt->pos, srvobj->lmatrix, &ptLocalPos );
-                    g3dvector_matrix ( &ptLocalPos, RMX, &srvVertices[offset].ver.pos );
+                    g3dvector_matrixf ( &pt->pos, srvobj->localMatrix, &ptLocalPos );
+                    g3dvector_matrixf ( &ptLocalPos, RMX, &srvVertices[offset].ver.pos );
 
                     srvVertices[offset].ver.id = uniqueVertexId++;
                     srvVertices[offset].ver.flags |= VERTEXORIGINAL;
@@ -188,8 +183,8 @@ static uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
 
                         factor += incrementFactor;
 
-                        g3dvector_matrix ( &ptpos, srvobj->lmatrix, &ptLocalPos );
-                        g3dvector_matrix ( &ptLocalPos, RMX, &srvVertices[offset].ver.pos );
+                        g3dvector_matrixf ( &ptpos, srvobj->localMatrix, &ptLocalPos );
+                        g3dvector_matrixf ( &ptLocalPos, RMX, &srvVertices[offset].ver.pos );
 
                         srvVertices[offset].ver.id = uniqueVertexId++;
                         srvVertices[offset].ver.flags |= VERTEXORIGINAL;

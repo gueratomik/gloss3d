@@ -248,14 +248,56 @@ void g3dmesh_moveVerticesTo ( G3DMESH   *mes,
 }
 
 /******************************************************************************/
+void g3dmesh_drawQuadList ( G3DMESH *mes,
+                            uint64_t engine_flags ) {
+    G3DENGINE *engine = g3dobject_getScene( ( G3DOBJECT * ) mes )->engine;
+    LIST *ltmpqua = mes->lqua;
+
+    while ( ltmpqua ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpqua->data;
+
+        g3dengine_drawTriangle( engine,
+                ( G3DOBJECT * ) mes, 
+                                fac,
+                                mes->gouraudScalarLimit,
+                                mes->ltex,
+                                mes->obj.flags,
+                                engine_flags );
+
+        ltmpqua = ltmpqua->next;
+    }
+}
+
+/******************************************************************************/
+void g3dmesh_drawTriangleList ( G3DMESH *mes,
+                                uint64_t   engine_flags ) {
+    G3DENGINE *engine = g3dobject_getScene( ( G3DOBJECT * ) mes )->engine;
+    LIST *ltmptri = mes->ltri;
+
+    while ( ltmptri ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmptri->data;
+
+        g3dengine_drawTriangle( engine,
+                ( G3DOBJECT * ) mes, 
+                                fac,
+                                mes->gouraudScalarLimit,
+                                mes->ltex,
+                                mes->obj.flags,
+                                engine_flags );
+
+        ltmptri = ltmptri->next;
+    }
+}
+
+/******************************************************************************/
 void g3dmesh_moveAxis ( G3DMESH *mes, 
                         double  *PREVMVX, /* previous world matrix */
                         uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     LIST *ltmpver = mes->lver;
-    double DIFFMVX[0x10];
+    float DIFFMVX[0x10];
 
-    g3dcore_multmatrix ( PREVMVX, obj->iwmatrix, DIFFMVX );
+    g3dcore_multMatrixf ( PREVMVX, obj->inverseWorldMatrix, DIFFMVX );
 
     /*** move axis for children ***/
     g3dobject_moveAxis ( obj, PREVMVX, engine_flags );
@@ -267,10 +309,10 @@ void g3dmesh_moveAxis ( G3DMESH *mes,
                            .z = ver->pos.z,
                            .w = 1.0f };
 
-        g3dvector_matrix ( &pos, DIFFMVX, &ver->pos );
+        g3dvector_matrixf ( &pos, DIFFMVX, &ver->pos );
 #ifdef UNUSED
         } else {
-            double DIFFROT[0x10];
+            float DIFFROT[0x10];
 
             /*** spline handles are vectors, they are altered by rotation matrix **/
             g3dcore_extractRotationMatrix ( DIFFMVX, DIFFROT );
@@ -316,13 +358,13 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
         LIST *lfac = mes->lfac;
         uint32_t verid = 0x00;
         uint32_t edgid = 0x00;
-        double *localMatrix        = ((G3DOBJECT*)mes)->lmatrix;
-        double *inverseWorldMatrix = ((G3DOBJECT*)mes)->iwmatrix;
-        double  localSymmix[0x10];
-        double  worldSymmix[0x10];
+        float *localMatrix        = ((G3DOBJECT*)mes)->localMatrix;
+        float *inverseWorldMatrix = ((G3DOBJECT*)mes)->inverseWorldMatrix;
+        float  localSymmix[0x10];
+        float  worldSymmix[0x10];
 
-        g3dcore_multmatrix ( localMatrix, MVX, worldSymmix );
-        g3dcore_multmatrix ( worldSymmix, inverseWorldMatrix, localSymmix );
+        g3dcore_multMatrixf ( localMatrix, MVX, worldSymmix );
+        g3dcore_multMatrixf ( worldSymmix, inverseWorldMatrix, localSymmix );
 
         /*** copy and mirror vertices ***/
         while ( lver ) {
@@ -896,7 +938,7 @@ G3DMESH *g3dmesh_merge ( LIST    *lobj,
 
                     /*** Convert to World coordinates. The new ***/
                     /*** mesh's matrix is the identity matrix. ***/
-                    g3dvector_matrix ( &ver->pos, obj->wmatrix, &pos );
+                    g3dvector_matrixf ( &ver->pos, obj->worldMatrix, &pos );
 
                     newver = g3dvertex_new ( pos.x, pos.y, pos.z );
 
@@ -1635,7 +1677,7 @@ void g3dmesh_getSelectedVerticesWorldPosition ( G3DMESH *mes, G3DVECTOR *pos) {
 
     g3dmesh_getSelectedVerticesLocalPosition ( mes, &vtmp );
 
-    g3dvector_matrix ( &vtmp, ((G3DOBJECT*)mes)->wmatrix, pos );
+    g3dvector_matrixf ( &vtmp, ((G3DOBJECT*)mes)->worldMatrix, pos );
 }
 
 /******************************************************************************/
@@ -1684,7 +1726,7 @@ void g3dmesh_getSelectedEdgesWorldPosition ( G3DMESH *mes, G3DVECTOR *pos) {
 
     g3dmesh_getSelectedEdgesLocalPosition ( mes, &vtmp );
 
-    g3dvector_matrix ( &vtmp, ((G3DOBJECT*)mes)->wmatrix, pos );
+    g3dvector_matrixf ( &vtmp, ((G3DOBJECT*)mes)->worldMatrix, pos );
 }
 
 /******************************************************************************/
@@ -1725,7 +1767,7 @@ void g3dmesh_getSelectedFacesWorldPosition ( G3DMESH *mes, G3DVECTOR *pos) {
 
     g3dmesh_getSelectedFacesLocalPosition ( mes, &vtmp );
 
-    g3dvector_matrix ( &vtmp, ((G3DOBJECT*)mes)->wmatrix, pos );
+    g3dvector_matrixf ( &vtmp, ((G3DOBJECT*)mes)->worldMatrix, pos );
 }
 
 /******************************************************************************/
@@ -3441,22 +3483,14 @@ void g3dmesh_drawObject ( G3DMESH   *mes,
                           G3DCAMERA *curcam, 
                           uint64_t   engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
+    G3DENGINE *engine = g3dobject_getScene( obj )->engine;
 
     glPushAttrib ( GL_LIGHTING_BIT );
 
     if ( obj->flags & OBJECTNOSHADING ) glDisable ( GL_LIGHTING );
 
-    g3dface_drawTriangleList ( mes->ltri, 
-                               mes->gouraudScalarLimit, 
-                               mes->ltex, 
-                               obj->flags, 
-                               engine_flags & (~VIEWFACE) );
-
-    g3dface_drawQuadList     ( mes->lqua, 
-                               mes->gouraudScalarLimit, 
-                               mes->ltex, 
-                               obj->flags,
-                               engine_flags & (~VIEWFACE) );
+    g3dmesh_drawTriangleList ( mes, engine_flags & (~VIEWFACE) );
+    g3dmesh_drawQuadList     ( mes, engine_flags & (~VIEWFACE) );
 
     g3dmesh_drawSelectedUVMap ( mes, curcam, engine_flags );
 

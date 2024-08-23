@@ -134,22 +134,22 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libgloss_g3dengine_la_LIBADD =
 am__objects_1 = g2dvector.lo g3dbbox.lo g3dbone.lo g3dcamera.lo \
 	g3dchannel.lo g3dcore.lo g3dcube.lo g3dcursor.lo g3dcurve.lo \
-	g3dcutface.lo g3dcylinder.lo g3dedge.lo g3dextension.lo \
-	g3dface.lo g3dfacegroup.lo g3dffd.lo g3dheightmap.lo \
-	g3dinstance.lo g3dimage.lo g3dkey.lo g3dlight.lo g3dlookup.lo \
-	g3dmaterial.lo g3dmesh.lo g3dmorpher.lo g3dmodifier.lo \
-	g3dobject.lo g3dpick.lo g3dpivot.lo g3dplane.lo \
-	g3dparticleemitter.lo g3dprimitive.lo g3dprocedural.lo \
-	g3dproceduralbrick.lo g3dproceduralchessboard.lo \
-	g3dproceduralgradient.lo g3dproceduralnoise.lo \
-	g3dquaternion.lo g3drgba.lo g3drig.lo g3drttriangle.lo \
-	g3drttriangleuvw.lo g3drtvertex.lo g3dscene.lo g3dskin.lo \
-	g3dsphere.lo g3dspline.lo g3dsplinerevolver.lo \
-	g3dsubdivisionthread.lo g3dsubdivider.lo g3dsubdivisionV3.lo \
-	g3dsubedge.lo g3dsubface.lo g3dsubindex.lo g3dsubvertex.lo \
-	g3dsymmetry.lo g3dsysinfo.lo g3dtag.lo g3dtext.lo \
-	g3dtexture.lo g3dtorus.lo g3dtube.lo g3duv.lo g3dvector.lo \
-	g3dvertex.lo g3dweight.lo g3dwireframe.lo
+	g3dcutface.lo g3dcylinder.lo g3dedge.lo g3dengine.lo \
+	g3dextension.lo g3dface.lo g3dfacegroup.lo g3dffd.lo \
+	g3dheightmap.lo g3dinstance.lo g3dimage.lo g3dkey.lo \
+	g3dlight.lo g3dlookup.lo g3dmaterial.lo g3dmesh.lo \
+	g3dmorpher.lo g3dmodifier.lo g3dobject.lo g3dpick.lo \
+	g3dpivot.lo g3dplane.lo g3dparticleemitter.lo g3dprimitive.lo \
+	g3dprocedural.lo g3dproceduralbrick.lo \
+	g3dproceduralchessboard.lo g3dproceduralgradient.lo \
+	g3dproceduralnoise.lo g3dquaternion.lo g3drgba.lo g3drig.lo \
+	g3drttriangle.lo g3drttriangleuvw.lo g3drtvertex.lo \
+	g3dscene.lo g3dskin.lo g3dsphere.lo g3dspline.lo \
+	g3dsplinerevolver.lo g3dsubdivisionthread.lo g3dsubdivider.lo \
+	g3dsubdivisionV3.lo g3dsubedge.lo g3dsubface.lo g3dsubindex.lo \
+	g3dsubvertex.lo g3dsymmetry.lo g3dsysinfo.lo g3dtag.lo \
+	g3dtext.lo g3dtexture.lo g3dtorus.lo g3dtube.lo g3duv.lo \
+	g3dvector.lo g3dvertex.lo g3dweight.lo g3dwireframe.lo
 am_libgloss_g3dengine_la_OBJECTS = $(am__objects_1)
 libgloss_g3dengine_la_OBJECTS = $(am_libgloss_g3dengine_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -177,17 +177,18 @@ am__depfiles_remade = ./$(DEPDIR)/g2dvector.Plo \
 	./$(DEPDIR)/g3dcore.Plo ./$(DEPDIR)/g3dcube.Plo \
 	./$(DEPDIR)/g3dcursor.Plo ./$(DEPDIR)/g3dcurve.Plo \
 	./$(DEPDIR)/g3dcutface.Plo ./$(DEPDIR)/g3dcylinder.Plo \
-	./$(DEPDIR)/g3dedge.Plo ./$(DEPDIR)/g3dextension.Plo \
-	./$(DEPDIR)/g3dface.Plo ./$(DEPDIR)/g3dfacegroup.Plo \
-	./$(DEPDIR)/g3dffd.Plo ./$(DEPDIR)/g3dheightmap.Plo \
-	./$(DEPDIR)/g3dimage.Plo ./$(DEPDIR)/g3dinstance.Plo \
-	./$(DEPDIR)/g3dkey.Plo ./$(DEPDIR)/g3dlight.Plo \
-	./$(DEPDIR)/g3dlookup.Plo ./$(DEPDIR)/g3dmaterial.Plo \
-	./$(DEPDIR)/g3dmesh.Plo ./$(DEPDIR)/g3dmodifier.Plo \
-	./$(DEPDIR)/g3dmorpher.Plo ./$(DEPDIR)/g3dobject.Plo \
-	./$(DEPDIR)/g3dparticleemitter.Plo ./$(DEPDIR)/g3dpick.Plo \
-	./$(DEPDIR)/g3dpivot.Plo ./$(DEPDIR)/g3dplane.Plo \
-	./$(DEPDIR)/g3dprimitive.Plo ./$(DEPDIR)/g3dprocedural.Plo \
+	./$(DEPDIR)/g3dedge.Plo ./$(DEPDIR)/g3dengine.Plo \
+	./$(DEPDIR)/g3dextension.Plo ./$(DEPDIR)/g3dface.Plo \
+	./$(DEPDIR)/g3dfacegroup.Plo ./$(DEPDIR)/g3dffd.Plo \
+	./$(DEPDIR)/g3dheightmap.Plo ./$(DEPDIR)/g3dimage.Plo \
+	./$(DEPDIR)/g3dinstance.Plo ./$(DEPDIR)/g3dkey.Plo \
+	./$(DEPDIR)/g3dlight.Plo ./$(DEPDIR)/g3dlookup.Plo \
+	./$(DEPDIR)/g3dmaterial.Plo ./$(DEPDIR)/g3dmesh.Plo \
+	./$(DEPDIR)/g3dmodifier.Plo ./$(DEPDIR)/g3dmorpher.Plo \
+	./$(DEPDIR)/g3dobject.Plo ./$(DEPDIR)/g3dparticleemitter.Plo \
+	./$(DEPDIR)/g3dpick.Plo ./$(DEPDIR)/g3dpivot.Plo \
+	./$(DEPDIR)/g3dplane.Plo ./$(DEPDIR)/g3dprimitive.Plo \
+	./$(DEPDIR)/g3dprocedural.Plo \
 	./$(DEPDIR)/g3dproceduralbrick.Plo \
 	./$(DEPDIR)/g3dproceduralchessboard.Plo \
 	./$(DEPDIR)/g3dproceduralgradient.Plo \
@@ -396,6 +397,7 @@ LIBGLOSSG3D_C_FILES = g2dvector.c \
                       g3dcutface.c \
                       g3dcylinder.c \
                       g3dedge.c \
+                      g3dengine.c \
                       g3dextension.c \
                       g3dface.c \
                       g3dfacegroup.c \
@@ -542,6 +544,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dcutface.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dcylinder.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dedge.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dengine.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dextension.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dface.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g3dfacegroup.Plo@am__quote@ # am--include-marker
@@ -774,6 +777,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/g3dcutface.Plo
 	-rm -f ./$(DEPDIR)/g3dcylinder.Plo
 	-rm -f ./$(DEPDIR)/g3dedge.Plo
+	-rm -f ./$(DEPDIR)/g3dengine.Plo
 	-rm -f ./$(DEPDIR)/g3dextension.Plo
 	-rm -f ./$(DEPDIR)/g3dface.Plo
 	-rm -f ./$(DEPDIR)/g3dfacegroup.Plo
@@ -886,6 +890,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/g3dcutface.Plo
 	-rm -f ./$(DEPDIR)/g3dcylinder.Plo
 	-rm -f ./$(DEPDIR)/g3dedge.Plo
+	-rm -f ./$(DEPDIR)/g3dengine.Plo
 	-rm -f ./$(DEPDIR)/g3dextension.Plo
 	-rm -f ./$(DEPDIR)/g3dface.Plo
 	-rm -f ./$(DEPDIR)/g3dfacegroup.Plo

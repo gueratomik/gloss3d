@@ -144,9 +144,9 @@ void g3dspline_moveAxis ( G3DSPLINE *spl,
                           uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
     LIST *ltmppt = spl->curve->lpt;
-    double DIFFMVX[0x10];
+    float DIFFMVX[0x10];
 
-    g3dcore_multmatrix ( PREVMVX, obj->iwmatrix, DIFFMVX );
+    g3dcore_multMatrixf ( PREVMVX, obj->inverseWorldMatrix, DIFFMVX );
 
     /*** move object for children ***/
     g3dobject_moveAxis ( obj, PREVMVX, engine_flags );
@@ -161,12 +161,12 @@ void g3dspline_moveAxis ( G3DSPLINE *spl,
         g3dvector_matrix ( &pos, DIFFMVX, &pt->pos );
 #ifdef UNUSED
         } else {
-            double DIFFROT[0x10];
+            float DIFFROT[0x10];
 
             /*** spline handles are vectors, they are altered by rotation matrix **/
-            g3dcore_extractRotationMatrix ( DIFFMVX, DIFFROT );
+            g3dcore_extractRotationMatrixf ( DIFFMVX, DIFFROT );
 
-            g3dvector_matrix ( &pos, DIFFROT, &ver->pos );
+            g3dvector_matrixf ( &pos, DIFFROT, &ver->pos );
         }
 #endif 
 
@@ -184,7 +184,7 @@ uint32_t g3dspline_draw ( G3DOBJECT *obj,
     G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 
 
-
+#ifdef need_refactor
     /*** this means a modifier has taken over ***/
     if ( spl->lastmod ) {
         g3dmodifier_moddraw ( spl->lastmod, curcam, engine_flags );
@@ -239,7 +239,7 @@ uint32_t g3dspline_draw ( G3DOBJECT *obj,
 
         glPopAttrib ( );
     }
-
+#endif
 
     return 0x00;
 }

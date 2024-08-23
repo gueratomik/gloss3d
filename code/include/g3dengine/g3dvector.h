@@ -137,7 +137,8 @@ void g3dvector_free ( void * );
  * @param matrix a pointer to a 4x4 matrix.
  * @param vout a pointer to a vector (result).
  */
-void g3dvector_matrix ( G3DVECTOR *vec, double *matrix, G3DVECTOR *vout );
+void g3dvector_matrixd ( G3DVECTOR *vec, double *matrix, G3DVECTOR *vout );
+void g3dvector_matrixf ( G3DVECTOR *vec, float  *matrix, G3DVECTOR *vout );
 
 void g3dvector_matrix3 ( G3DVECTOR *vec, double *matrix, G3DVECTOR *vout );
 

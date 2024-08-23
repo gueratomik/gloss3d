@@ -3,7 +3,7 @@ ACLOCAL_AMFLAGS= -I m4
 if HAVE_WIN32
     AM_CFLAGS= -mwindows
 else
-    AM_LDFLAGS= -Wl,--no-as-needed  `pkg-config --libs gtk+-3.0` `pkg-config --libs gdk-3.0` `pkg-config --libs pango` -lXpm -lGL -lGLU -lX11 `pkg-config --libs freetype2` -ljpeg -lpng -lm -lpthread -lc
+    AM_LDFLAGS= -Wl,--no-as-needed `pkg-config --libs gtk+-3.0` `pkg-config --libs gdk-3.0` `pkg-config --libs pango` `pkg-config --libs xkbcommon` -linput  -lXpm -lGL -lGLU -lX11 `pkg-config --libs freetype2` -ljpeg -lpng -lm -lpthread -lc
 endif
 
 SUBDIRS = g3dengine \
