@@ -48,10 +48,12 @@ static uint32_t g3dexportv2bone_rigSkinMatrix ( G3DEXPORTV2DATA  *ged,
                                               uint32_t        flags, 
                                               FILE           *fdst ) {
     uint32_t size = 0x00;
-    uint32_t i;
+    uint32_t i; 
 
     for ( i = 0x00; i < 0x10; i++ ) {
-        size += g3dexportv2_fwrited ( &rig->isknmatrix[i], fdst );
+        double cell = rig->isknmatrix[i];
+
+        size += g3dexportv2_fwrited ( &cell, fdst );
     }
 
     return size;

@@ -160,8 +160,8 @@ uint64_t g3duiview_moveSideward ( G3DUIVIEW *view,
         cam->ortho.x += ( diffx * cam->ortho.z );
         cam->ortho.y -= ( diffy * cam->ortho.z );
     } else {
-        g3dvector_matrix  ( &xvec, obj->rmatrix, &camx );
-        g3dvector_matrix  ( &yvec, obj->rmatrix, &camy );
+        g3dvector_matrixf  ( &xvec, obj->rotationMatrix, &camx );
+        g3dvector_matrixf  ( &yvec, obj->rotationMatrix, &camy );
 
         obj->pos.x += ( camx.x * ( (float) ( diffx ) / 20.0f ) );
         obj->pos.y += ( camx.y * ( (float) ( diffx ) / 20.0f ) );
@@ -195,7 +195,7 @@ uint64_t g3duiview_moveForward ( G3DUIVIEW *view,
 
         if ( cam->ortho.z < 0.0f ) cam->ortho.z = 0.0f;
     } else {
-        g3dvector_matrix  ( &zvec, obj->rmatrix, &camz );
+        g3dvector_matrixf  ( &zvec, obj->rotationMatrix, &camz );
 
         obj->pos.x += ( camz.x * ( (float) ( diffx ) / 40.0f ) );
         obj->pos.y += ( camz.y * ( (float) ( diffx ) / 40.0f ) );

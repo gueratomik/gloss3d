@@ -423,9 +423,6 @@ static gboolean showGL ( GtkGLArea *area,
     GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
     G3DUIVIEW     *view    = &gtk3view->core;
 
-    glClearColor (0, 0, 0, 0);
-    glClear (GL_COLOR_BUFFER_BIT);
-
     g3duiview_showGL ( view, view->engine_flags );
 
     return TRUE;

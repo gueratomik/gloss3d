@@ -389,7 +389,7 @@ uint32_t q3dray_illumination ( Q3DRAY          *qray,
         float dot;
         uint32_t i;
 
-        q3dvector3f_matrix ( &pzero, qobjlig->obj->wmatrix, &qligwpos );
+        q3dvector3f_matrixf ( &pzero, qobjlig->obj->worldMatrix, &qligwpos );
 
         luxqray.src.x   = qray->isx.src.x;
         luxqray.src.y   = qray->isx.src.y;
@@ -779,8 +779,8 @@ static uint32_t onlyPerfectSpheres ( Q3DOBJECT *qobj, void *data ) {
 /*************** https://gamedev.stackexchange.com/questions/72528 ************/
 void q3dray_outline ( Q3DRAY *qray,
                       Q3DJOB *qjob,
-                      double  *WMVX,
-                      double  *PJX,
+                      float   *WMVX,
+                      float   *PJX,
                       int     *VPX,
                       float    zNear,
                       uint32_t wireframeThickness,
@@ -849,25 +849,25 @@ void q3dray_outline ( Q3DRAY *qray,
                             *vbf = &p[n];
                 Q3DVECTOR3D vad, vbd;
 
-                gluProject ( vaf->x, 
-                             vaf->y, 
-                             vaf->z,
-                             WMVX,
-                             PJX,
-                             VPX,
-                            &vad.x,
-                            &vad.y,
-                            &vad.z );
+                g3dcore_projectf ( vaf->x, 
+                                   vaf->y, 
+                                   vaf->z,
+                                   WMVX,
+                                   PJX,
+                                   VPX,
+                                  &vad.x,
+                                  &vad.y,
+                                  &vad.z );
 
-                gluProject ( vbf->x, 
-                             vbf->y, 
-                             vbf->z,
-                             WMVX,
-                             PJX,
-                             VPX,
-                            &vbd.x,
-                            &vbd.y,
-                            &vbd.z );
+                g3dcore_projectf ( vbf->x, 
+                                   vbf->y, 
+                                   vbf->z,
+                                   WMVX,
+                                   PJX,
+                                   VPX,
+                                  &vbd.x,
+                                  &vbd.y,
+                                  &vbd.z );
 
                 vad.y = ( qjob->qarea.height - ( int32_t ) vad.y );
                 vbd.y = ( qjob->qarea.height - ( int32_t ) vbd.y );
@@ -1022,10 +1022,10 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
 
                 if ( qhit->obj->type & MESH ) {
                     Q3DRAY locqray;
-                    double  *CWMVX = qjob->qarea.qzen.WMVX[zout.wmvxID];
-                    double   WMVX[0x10];
-                    double  IWMVX[0x10];
-                    double TIWMVX[0x10];
+                    float  *CWMVX = qjob->qarea.qzen.WMVX[zout.wmvxID];
+                    float   WMVX[0x10];
+                    float  IWMVX[0x10];
+                    float TIWMVX[0x10];
 
                     /*** this is inefficient a MUST be put ***/
                     /*** into the ZEngine matrix buffer ***/
@@ -1034,9 +1034,9 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                     /*** as the world matrix when it comes to cameras. And ***/
                     /*** as the matrix is NOT inverted, the multiplication ***/
                     /*** is the other way around. ***/
-                    g3dcore_multmatrix      ( CWMVX, qjob->qcam->qobj.obj->wmatrix, WMVX );
-                    g3dcore_invertMatrix    (  WMVX,  IWMVX );
-                    g3dcore_transposeMatrix ( IWMVX, TIWMVX );
+                    g3dcore_multMatrixf      ( CWMVX, qjob->qcam->qobj.obj->worldMatrix, WMVX );
+                    g3dcore_invertMatrixf    (  WMVX,  IWMVX );
+                    g3dcore_transposeMatrixf ( IWMVX, TIWMVX );
 
                     qmes = ( Q3DMESH * ) qhit;
 
@@ -1062,8 +1062,8 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                         memcpy ( &qray->isx.locsrc, 
                                  &locqray.isx.src, sizeof ( Q3DVECTOR3F ) );
 
-                        q3dvector3f_matrix ( &locqray.isx.src,   WMVX, &qray->isx.src );
-                        q3dvector3f_matrix ( &locqray.isx.dir, TIWMVX, &qray->isx.dir );
+                        q3dvector3f_matrixf ( &locqray.isx.src,   WMVX, &qray->isx.src );
+                        q3dvector3f_matrixf ( &locqray.isx.dir, TIWMVX, &qray->isx.dir );
 
                         q3dvector3f_normalize ( &qray->isx.dir, NULL );
 

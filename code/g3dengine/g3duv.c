@@ -410,8 +410,8 @@ void g3duvmap_getFlatUV ( G3DUVMAP  *map,
     G3DVECTOR wpos; /*** position in mesh world coordinates ***/
     G3DVECTOR mpos; /*** position in map  local coordinates ***/
 
-    g3dvector_matrix (  lpos, parent->worldMatrix , &wpos );
-    g3dvector_matrix ( &wpos, objmap->inverseWorldMatrix, &mpos );
+    g3dvector_matrixf (  lpos, parent->worldMatrix , &wpos );
+    g3dvector_matrixf ( &wpos, objmap->inverseWorldMatrix, &mpos );
 
     (*u) = ( mpos.x + map->pln.xradius ) / xdiameter;
     (*v) = ( mpos.y + map->pln.yradius ) / ydiameter;

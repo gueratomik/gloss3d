@@ -85,16 +85,31 @@ static int createBone ( G3DMOUSETOOL *mou,
                 par = ( G3DOBJECT * ) sce;
             }
 
-            g3dcore_multMatrix( par->worldMatrix, cam->obj.inverseWorldMatrix, MVX );
+            g3dcore_multMatrixf( par->worldMatrix,
+                                 cam->obj.inverseWorldMatrix,
+                                 MVX );
 
             glGetIntegerv ( GL_VIEWPORT, VPX );
 
-            gluProject ( 0.0f, 0.0f, 0.0f, MVX, cam->pmatrix, VPX, &winx, &winy, &winz );
-            gluUnProject ( ( GLdouble ) bev->x,
-                           ( GLdouble ) VPX[0x03] - bev->y,
-                           ( GLdouble ) winz,
-                           MVX, cam->pmatrix, VPX,
-                           &objx, &objy, &objz );
+            g3dcore_projectf ( 0.0f,
+                               0.0f,
+                               0.0f,
+                               MVX,
+                               cam->pmatrix,
+                               VPX,
+                              &winx,
+                              &winy,
+                              &winz );
+
+            g3dcore_unprojectf ( ( GLdouble ) bev->x,
+                                 ( GLdouble ) VPX[0x03] - bev->y,
+                                 ( GLdouble ) winz,
+                                              MVX,
+                                              cam->pmatrix,
+                                              VPX,
+                                             &objx,
+                                             &objy,
+                                             &objz );
 
             bon = g3dbone_new ( pid, "Bone", 0.0f );
 
@@ -121,14 +136,29 @@ static int createBone ( G3DMOUSETOOL *mou,
                 float c, s, t, tx, ty, angle, a20;
                 float len;
 
-                g3dcore_multMatrix( par->worldMatrix, cam->obj.inverseWorldMatrix, MVX );
+                g3dcore_multMatrixf( obj->worldMatrix,
+                                     cam->obj.inverseWorldMatrix,
+                                     MVX );
 
-                gluProject ( 0.0f, 0.0f, 0.0f, MVX, cam->pmatrix, VPX, &winx, &winy, &winz );
-                gluUnProject ( ( GLdouble ) mev->x,
-                               ( GLdouble ) VPX[0x03] - mev->y,
-                               ( GLdouble ) winz,
-                               MVX, PJX, VPX,
-                               &objx, &objy, &objz );
+                g3dcore_projectf ( 0.0f,
+                                   0.0f,
+                                   0.0f,
+                                   MVX,
+                                   cam->pmatrix,
+                                   VPX,
+                                  &winx,
+                                  &winy,
+                                  &winz );
+
+                g3dcore_unprojectf ( ( GLdouble ) mev->x,
+                                     ( GLdouble ) VPX[0x03] - mev->y,
+                                     ( GLdouble ) winz,
+                                                  MVX,
+                                                  cam->pmatrix,
+                                                  VPX,
+                                                 &objx,
+                                                 &objy,
+                                                 &objz );
 
                 nref.x = ( objx - obj->pos.x );
                 nref.y = ( objy - obj->pos.y );

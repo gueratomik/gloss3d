@@ -130,17 +130,17 @@ void g3dpivot_init ( G3DPIVOT  *piv,
 
     piv->cam = cam;
 
-    g3dvector_matrix ( &localpos, csr->matrix, &objpiv->pos );
+    g3dvector_matrixf ( &localpos, csr->matrix, &objpiv->pos );
 
     g3dobject_addChild ( yaxisobj, xaxisobj, engine_flags );
     g3dobject_addChild ( xaxisobj, locam   , engine_flags );
 
     /*** The rotation matrix helps us to determine camera orientation ***/
     /*** without being altered byt the translation values ***/
-    g3dcore_extractRotationMatrix ( objcam->worldMatrix, RMX );
+    g3dcore_extractRotationMatrixf ( objcam->worldMatrix, RMX );
 
     /*** Get Camera's World ZAxis orientation ***/
-    g3dvector_matrix ( &zaxis, RMX, &camzaxis );
+    g3dvector_matrixf ( &zaxis, RMX, &camzaxis );
 
     /*** We dont want alignment to the Y-Axis. Our YAxisObj must remain  ***/
     /*** parallel to the working XZ plane ***/
@@ -162,7 +162,9 @@ void g3dpivot_init ( G3DPIVOT  *piv,
     g3dobject_updateMatrix_r ( objpiv, 0x00 );
 
     /*** find the camera's local position within the pivot Space coordinates***/
-    g3dcore_multmatrixf ( objcam->worldMatrix, xaxisobj->inverseWorldMatrix, LCX );
+    g3dcore_multMatrixf ( objcam->worldMatrix
+                        , xaxisobj->inverseWorldMatrix
+                        , LCX );
 
     g3dcore_getMatrixTranslationf ( LCX, &locam->pos );
     g3dcore_getMatrixRotationf    ( LCX, &locam->rot );

@@ -97,13 +97,13 @@ void g3dpick_clear ( );
  * Set the modelview matrix.
  * @param MVX The modelview matrix.
  */
-void g3dpick_setModelviewMatrix  ( double *MVX );
+void g3dpick_setModelviewMatrixf  ( float *MVX );
 
 /**
  * Set the projection matrix.
  * @param MVX The projection matrix.
  */
-void g3dpick_setProjectionMatrix ( double *PJX );
+void g3dpick_setProjectionMatrixf ( float *PJX );
 
 /**
  * Set the viewport matrix.
@@ -136,12 +136,12 @@ void g3dpick_setName ( uint64_t name );
  */
 void g3dpick_setEpsilon ( float epsilon );
 
-void g3dpick_loadMatrix ( double *MVX );
+void g3dpick_loadMatrixf ( float *MVX );
 
 void g3dpick_enableDepthTest ( );
 void g3dpick_disableDepthTest ( );
 
-void g3dpick_multModelviewMatrix ( double *MVX );
+void g3dpick_multModelviewMatrixf ( float *MVX );
 
 #ifdef __cplusplus
 }

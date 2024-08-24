@@ -35,7 +35,8 @@
 /******************************************************************************/
 
 static void pick_draw ( G3DMOUSETOOL *mou, 
-                        G3DSCENE     *sce, 
+                        G3DSCENE     *sce,
+                        G3DCAMERA *, 
                         uint64_t      engine_flags );
 
 /******************************************************************************/
@@ -97,6 +98,7 @@ G3DMOUSETOOLPICKUV *g3dmousetoolpickUV_new ( ) {
 /******************************************************************************/
 static void pick_draw ( G3DMOUSETOOL *mou, 
                         G3DSCENE     *sce, 
+                        G3DCAMERA    *cam, 
                         uint64_t      engine_flags ) {
     G3DMOUSETOOLPICK *pt = ( G3DMOUSETOOLPICK * ) mou;
     int32_t *coord = pt->coord;
@@ -465,23 +467,12 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
 
     closeSelectionRectangle ( pt, cam->vmatrix /*VPX*/, engine_flags );
 
-    /*glMatrixMode ( GL_PROJECTION );
-    glPushMatrix ( );
-    glLoadIdentity ( );
-    g3dcamera_project ( cam, engine_flags );
-    glGetDoublev ( GL_PROJECTION_MATRIX, PJX );*/
-
-    glMatrixMode ( GL_MODELVIEW );
-    glPushMatrix ( );
-    glLoadIdentity ( );
-    g3dcamera_view ( cam, 0x00 );
-
     /*** Note: calling setViewportMatrix before setProjectionMatrix ***/
     /*** is mandatory ***/
 
-    g3dpick_setViewportMatrix   ( /*VPX*/ cam->vmatrix  );
-    g3dpick_setProjectionMatrix ( /*PJX*/ cam->pmatrix  );
-    g3dpick_setAreaMatrix       ( pt->coord, pt->circular );
+    g3dpick_setViewportMatrix    ( /*VPX*/ cam->vmatrix  );
+    g3dpick_setProjectionMatrixf ( /*PJX*/ cam->pmatrix  );
+    g3dpick_setAreaMatrix        ( pt->coord, pt->circular );
 
     if ( ( ( engine_flags & VIEWVERTEXUV ) == 0x00 ) &&
          ( ( engine_flags & VIEWFACEUV   ) == 0x00 ) ) {
@@ -586,7 +577,7 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                     /*** identity matrix in the UVMap Editor ***/
                     /*glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );*/
 
-                    g3dpick_setModelviewMatrix ( ((G3DOBJECT*)cam)->iwmatrix /*MVX*/ );
+                    g3dpick_setModelviewMatrixf ( ((G3DOBJECT*)cam)->inverseWorldMatrix /*MVX*/ );
                     g3dmesh_pickVertexUVs ( mes, VIEWVERTEXUV );
                 }
 
@@ -597,7 +588,7 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                     /*** opration. Our drawing call must depend on an ***/
                     /*** identity matrix in the UVMap Editor ***/
                     /*glGetDoublev ( GL_MODELVIEW_MATRIX, MVX );*/
-                    g3dpick_setModelviewMatrix ( ((G3DOBJECT*)cam)->iwmatrix /*MVX*/ );
+                    g3dpick_setModelviewMatrixf ( ((G3DOBJECT*)cam)->inverseWorldMatrix /*MVX*/ );
                     g3dmesh_pickFaceUVs ( mes, VIEWFACEUV );
                 }
 
@@ -652,7 +643,7 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
 
 	        if ( obj->type == G3DSUBDIVIDERTYPE ) {
         	    G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
-        	    MESHPICKDATA mpd = { .mes    = g3dobject_getActiveParentByType ( obj, MESH ),
+        	    MESHPICKDATA mpd = { .mes    = ( G3DMESH * ) g3dobject_getActiveParentByType ( obj, MESH ),
                         	         .weight = pt->weight,
                                      .flags = 0x00 };
 
@@ -707,8 +698,6 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
 	    }
     }
 
-    glPopMatrix ( );
-
     /*glMatrixMode ( GL_PROJECTION );
     glPopMatrix ( );*/
 }
@@ -729,15 +718,15 @@ void pick_cursor ( G3DMOUSETOOLPICK *pt,
                    G3DCAMERA        *cam,
                    uint64_t          engine_flags ) {
     static GLint  VPX[0x04];
-    static double MVX[0x10];
-    static double PJX[0x10];
+    static float MVX[0x10];
+    static float PJX[0x10];
     G3DVECTOR sca;
 
     /*g3dscene_getSelectionMatrix ( sce, MVX, engine_flags );*/
 
     /*** Extract scale factor to negate its effect on the cursor size ***/
     /*** by scaling the cursor matrix with the inverse scale factors ***/
-    g3dcore_getMatrixScale ( sce->csr.matrix, &sca );
+    g3dcore_getMatrixScalef ( sce->csr.matrix, &sca );
 
     glGetIntegerv ( GL_VIEWPORT, VPX );
 
@@ -746,6 +735,7 @@ void pick_cursor ( G3DMOUSETOOLPICK *pt,
     /*** of the picking region is radius x radius */
     closeSelectionRectangle ( pt, VPX, 0x00 );
 
+#ifdef need_refactor
     glMatrixMode ( GL_PROJECTION );
     glPushMatrix ( );
     glLoadIdentity ( );
@@ -796,6 +786,7 @@ void pick_cursor ( G3DMOUSETOOLPICK *pt,
 
     glMatrixMode ( GL_PROJECTION );
     glPopMatrix ( );
+#endif
 }
 
 /******************************************************************************/
@@ -1095,7 +1086,7 @@ int pick_tool ( G3DMOUSETOOL *mou,
 
                     if ( obj->type == G3DSUBDIVIDERTYPE ) {
                 	    G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
-                        G3DMESH *mes = g3dobject_getActiveParentByType ( obj, MESH );
+                        G3DMESH *mes = ( G3DMESH * ) g3dobject_getActiveParentByType ( obj, MESH );
 
                         if ( mes ) {
         		            if ( engine_flags & VIEWSCULPT ) {

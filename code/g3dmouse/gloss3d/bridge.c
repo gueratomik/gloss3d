@@ -39,6 +39,7 @@ static uint32_t bridge_init ( G3DMOUSETOOL *mou,
                               uint64_t      engine_flags );
 static void bridge_draw ( G3DMOUSETOOL *mou, 
                           G3DSCENE     *sce, 
+                          G3DCAMERA    *cam,
                           uint64_t      engine_flags );
 static int bridge_tool  ( G3DMOUSETOOL *mou, 
                           G3DSCENE     *sce, 
@@ -94,22 +95,24 @@ static uint32_t bridge_init ( G3DMOUSETOOL *mou,
 /******************************************************************************/
 static void bridge_draw ( G3DMOUSETOOL *mou, 
                           G3DSCENE     *sce, 
+                          G3DCAMERA    *cam,
                           uint64_t      engine_flags ) {
     G3DMOUSETOOLBRIDGE *bt = ( G3DMOUSETOOLBRIDGE * ) mou;
 
     if ( bt && bt->draw ) {
         if ( bt->obj ) {
+            float MVX[0x10];
+
             glPushAttrib( GL_ALL_ATTRIB_BITS );
             glDisable   ( GL_DEPTH_TEST );
             glDisable   ( GL_LIGHTING );
             glColor3ub  ( 0xFF, 0x00, 0x00 );
 
-            /*** We need the selected object matrix in order to create ***/
-            /*** the cutting plan and find its coords, but do not ***/
-            /*** forget the current matrix is the camera transformations **/
-            glPushMatrix ( );
-            glMultMatrixd ( bt->obj->worldMatrix );
+            g3dcore_multMatrixf( bt->obj->worldMatrix,
+                                 cam->obj.inverseWorldMatrix,
+                                 MVX );
 
+#ifdef need_refactor
             glBegin ( GL_LINES );
             if ( bt->obj->type & MESH ) {
         	if ( bt->ver[0x02] && bt->ver[0x03] ) {
@@ -129,9 +132,7 @@ static void bridge_draw ( G3DMOUSETOOL *mou,
         	}
             }
             glEnd ( );
-
-            glPopMatrix ( );
-
+#endif
             glPopAttrib ( );
         }
     }

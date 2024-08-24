@@ -180,12 +180,12 @@ void g3dcamera_setTarget ( G3DCAMERA *cam,
 
     g3dcore_transposeMatrixf ( cam->target->inverseWorldMatrix, TIVX );
 
-    g3dvector_matrix ( & ( G3DVECTOR ) { 1.0f, 
-                                         0.0f, 
-                                         0.0f,
-                                         1.0f }, objcam->worldMatrix, &wxpos );
+    g3dvector_matrixf ( & ( G3DVECTOR ) { 1.0f, 
+                                          0.0f, 
+                                          0.0f,
+                                          1.0f }, objcam->worldMatrix, &wxpos );
 
-    g3dvector_matrix ( &wxpos, cam->target->inverseWorldMatrix, &lxpos );
+    g3dvector_matrixf ( &wxpos, cam->target->inverseWorldMatrix, &lxpos );
 
     xaxis.x = lxpos.x - lobjpos.x;
     xaxis.y = lxpos.y - lobjpos.y;
@@ -209,7 +209,7 @@ void g3dcamera_setTarget ( G3DCAMERA *cam,
     RX[0x06] = yaxis.z;
     RX[0x0A] = piv2obj.z;
 
-    g3dcore_getMatrixRotation ( RX, &cam->target->rot );
+    g3dcore_getMatrixRotationf ( RX, &cam->target->rot );
 
     g3dobject_updateMatrix_r ( cam->target, engine_flags );
 
@@ -262,7 +262,7 @@ float g3dcamera_getDistanceToCursor ( G3DCAMERA *cam,
 /******************************************************************************/
 static void g3dcamera_transform ( G3DCAMERA *cam, 
                                   uint64_t   engine_flags ) {
-
+    g3dcamera_project( cam, engine_flags );
 }
 
 /******************************************************************************/
@@ -304,10 +304,17 @@ void g3dcamera_project ( G3DCAMERA *cam,
                   ( -VPX[0x03] * cam->ortho.z ) + cam->ortho.y,
                   (  VPX[0x03] * cam->ortho.z ) + cam->ortho.y, cam->znear, cam->zfar );
     } else {
+/*
         gluPerspective ( cam->focal, cam->ratio, cam->znear, cam->zfar );
+*/
     }
 
-    glGetDoublev  ( GL_PROJECTION_MATRIX, cam->pmatrix );
+    g3dcore_perpespectivef ( cam->focal,
+                             cam->ratio,
+                             cam->znear,
+                             cam->zfar,
+                             cam->pmatrix );
+
     glGetIntegerv ( GL_VIEWPORT         , cam->vmatrix );
 }
 

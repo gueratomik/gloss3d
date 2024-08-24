@@ -205,6 +205,7 @@ typedef union _G3DEvent {
 
 #define G3DMOUSE_DRAWFUNC(f) ((void(*)(G3DMOUSETOOL*, \
                                        G3DSCENE*, \
+                                       G3DCAMERA*, \
                                        uint64_t))(f))
 
 /******************************************************************************/
@@ -219,7 +220,10 @@ typedef struct _G3DMOUSETOOL {
                                G3DCAMERA *,
                                G3DURMANAGER *,
                                uint64_t );
-    void (*draw) ( struct _G3DMOUSETOOL *, G3DSCENE *, uint64_t ); /* drawing */
+    void (*draw) ( struct _G3DMOUSETOOL *,
+                           G3DSCENE *, 
+                           G3DCAMERA *,
+                           uint64_t ); /* drawing */
     int  (*event) ( struct _G3DMOUSETOOL *,
                            G3DSCENE *,
                            G3DCAMERA *,
@@ -374,6 +378,7 @@ void g3dmousetool_init ( G3DMOUSETOOL *gtool,
                                             uint64_t ),
                          void (*draw) ( G3DMOUSETOOL *,
                                         G3DSCENE *, 
+                                        G3DCAMERA *,
                                         uint64_t ),
                          int  (*event) ( G3DMOUSETOOL *, 
                                         G3DSCENE *,
@@ -392,6 +397,7 @@ void m3dmousetool_init ( M3DMOUSETOOL *ltool,
                                             uint64_t ),
                          void (*draw) ( G3DMOUSETOOL *,
                                         G3DSCENE *, 
+                                        G3DCAMERA *, 
                                         uint64_t ),
                          int  (*event) ( G3DMOUSETOOL *, 
                                         G3DSCENE *,

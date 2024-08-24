@@ -65,7 +65,7 @@ void g3dsymmetry_convert_r ( G3DOBJECT *obj,
                 g3dobject_importTransformations ( ( G3DOBJECT * ) symobj,
                                                   ( G3DOBJECT * ) child );
 
-                symmes = symobj;
+                symmes = ( G3DMESH * ) symobj;
                 LIST *ltmpver = symmes->lver;
 
                 while ( ltmpver ) {
@@ -98,7 +98,7 @@ void g3dsymmetry_convert_r ( G3DOBJECT *obj,
 
         g3dobject_addChild ( obj, symobj, engine_flags );
 
-        g3dcore_multmatrixf ( child->localMatrix, MVX, matrix );
+        g3dcore_multMatrixf ( child->localMatrix, MVX, matrix );
 
         g3dsymmetry_convert_r ( symobj, child, matrix, engine_flags );
 
@@ -114,7 +114,7 @@ static G3DOBJECT *g3dsymmetry_commit ( G3DSYMMETRY *sym,
     float *worldMatrix = ((G3DOBJECT*)sym)->worldMatrix;
     float  matrix[0x10];
 
-    g3dcore_multmatrixf ( sym->smatrix, worldMatrix, matrix );
+    g3dcore_multMatrixf ( sym->smatrix, worldMatrix, matrix );
 
     g3dobject_importTransformations ( ( G3DOBJECT * ) obj,
                                       ( G3DOBJECT * ) sym );
@@ -139,6 +139,7 @@ void g3dsymmetry_deactivate ( G3DSYMMETRY *sym,
 }
 
 /*****************************************************************************/
+#ifdef unused
 G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
                                LIST       **loldobj, 
                                uint64_t     engine_flags ) {
@@ -162,20 +163,6 @@ G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
             LIST *lver = mes->lver;
             LIST *lfac = mes->lfac;
             uint32_t verid = 0x00;
-            float finaltmatrix[0x10]; /* Final transofmration matrix */
-            float mesinvmatrix[0x10];
-            float symmirmatrix[0x10];
-
-            g3dcore_invertMatrixf ( symobj->worldMatrix, mesinvmatrix );
-
-            /*** Transofmr vertices to wrold coords ***/
-            memcpy ( finaltmatrix, child->worldMatrix, sizeof ( finaltmatrix ) );
-
-            /*** Divide by the inverse of world matrix to get local coords ***/
-            g3dcore_multmatrixdirect ( finaltmatrix, mesinvmatrix );
-
-            /*** matrix for mirrored points ***/
-            g3dcore_multMatrixf ( finaltmatrix, sym->smatrix, symmirmatrix );
 
             /*** for undo-redo purpose ***/
             list_insert ( loldobj, child );
@@ -187,9 +174,9 @@ G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
 
                 ver->id = verid++;
 
-                g3dvector_matrixf ( &ver->pos, finaltmatrix, &pos );
-
-                oriver[ver->id] = g3dvertex_new ( pos.x, pos.y, pos.z );
+                oriver[ver->id] = g3dvertex_new ( ver->pos.x,
+                                                  ver->pos.y,
+                                                  ver->pos.z );
 
                 g3dmesh_addVertex ( symmes, oriver[ver->id] );
 
@@ -201,7 +188,7 @@ G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
                 } else {
                     G3DVECTOR pos;
 
-                    g3dvector_matrix ( &ver->pos, symmirmatrix, &pos );
+                    g3dvector_matrix ( &ver->pos, sym->smatrix, &pos );
 
                     symver[ver->id] = g3dvertex_new ( pos.x, pos.y, pos.z );
 
@@ -268,6 +255,7 @@ G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
 
     return symmes;
 }
+#endif
 
 /*****************************************************************************/
 void g3dsymmetry_meshChildChange ( G3DSYMMETRY *sym, 

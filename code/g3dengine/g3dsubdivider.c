@@ -53,7 +53,7 @@ void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
 
     /*** Note : must start at 1. Level 0 means no subdivs ***/
     for ( i = 0x01; i <= level; i++ ) {
-        uint32_t (*indexes)[0x04] = g3dsubindex_get ( fac->nbver, level );
+        uint32_t (*indexes)[0x04] = ( uint32_t (*)[0x04] ) g3dsubindex_get ( fac->nbver, level );
         uint32_t nbFacesPerPolygon, 
                  nbEdgesPerPolygon,
                  nbVerticesPerPolygon;
@@ -198,7 +198,7 @@ G3DFACESCULPTEXTENSION *g3dfacesculptextension_new ( uint64_t extensionName,
         return NULL;
     }
 
-    g3dfaceextension_init ( ( G3DFACESCULPTEXTENSION * ) fse, extensionName );
+    g3dfaceextension_init ( ( G3DFACEEXTENSION * ) fse, extensionName );
 
 
     g3dfacesculptextension_adjust ( fse, fac, level, sculptMode );
@@ -258,8 +258,8 @@ void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
                 break;
             }
         } else {
-            uint32_t (*qua_indexes)[0x04] = g3dsubindex_get ( 0x04, src->level );
-            uint32_t (*tri_indexes)[0x04] = g3dsubindex_get ( 0x03, src->level );
+            uint32_t (*qua_indexes)[0x04] = ( uint32_t (*)[0x04] ) g3dsubindex_get ( 0x04, src->level );
+            uint32_t (*tri_indexes)[0x04] = ( uint32_t (*)[0x04] ) g3dsubindex_get ( 0x03, src->level );
             uint32_t (*idx)[0x04] = ( srcfac->nbver == 0x03 ) ? tri_indexes : 
                                                                 qua_indexes;
             static uint32_t default_mapping[0x04] = { 0x00, 0x01, 0x02, 0x03 };
@@ -320,8 +320,8 @@ void g3dsubdivider_setSculptResolution ( G3DSUBDIVIDER *sdr,
 
                 while ( ltmpfac ) {
                     G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
-                    G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
-                                                            ( uint64_t ) sdr );
+                    G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION * ) g3dface_getExtension ( fac,
+                                                                                         ( uint64_t ) sdr );
 
                     if ( fse ) {
                         g3dfacesculptextension_adjust ( fse,
@@ -361,8 +361,8 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
 
                 while ( ltmpfac ) {
                     G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
-                    G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
-                                                            ( uint64_t ) sdr );
+                    G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION * ) g3dface_getExtension ( fac,
+                                                                                         ( uint64_t ) sdr );
 
                     if ( fse ) {
                         uint32_t nbv = fac->nbver;
@@ -472,8 +472,8 @@ uint32_t g3dsubdivider_hasScultMaps ( G3DSUBDIVIDER *sdr ) {
 
             while ( ltmpfac ) {
                 G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
-                G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
-                                                        ( uint64_t ) sdr );
+                G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION * ) g3dface_getExtension ( fac,
+                                                                                     ( uint64_t ) sdr );
 
                 if ( fse ) return 0x01;
 
@@ -527,7 +527,7 @@ static void g3dsubdivider_modpick ( G3DSUBDIVIDER *sdr,
                                 uint32_t nbrtfac  = ( fac->nbver == 0x04 ) ? sdr->nbFacesPerQuad :
                                                                              sdr->nbFacesPerTriangle;
                                 G3DRTQUAD *rtquamem = sdr->rtquamem;
-                                uint64_t name = fac;
+                                uint64_t name = ( uint64_t ) fac;
 
                                 g3dpick_setName ( name );
 
@@ -1018,7 +1018,7 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
                                                         sdr->nbFacesPerQuad,
                                                         cpuID,
                                                         sdr->subdiv_preview,
-                                                        sdr,
+                                                        ( uint64_t ) sdr,
                                                         sdr->sculptMode,
                                                         engine_flags );
 
@@ -1050,7 +1050,7 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
                                                          sdr->nbFacesPerQuad,
                                                          cpuID,
                                                          sdr->subdiv_preview,
-                                                         sdr,
+                                                         ( uint64_t ) sdr,
                                                          sdr->sculptMode,
                                                          engine_flags | 
                                                          G3DMULTITHREADING  );

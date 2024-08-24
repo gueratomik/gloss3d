@@ -114,7 +114,7 @@ void m3duiview_init ( M3DUIVIEW *view ) {
     g3dobject_updateMatrix ( ( G3DOBJECT * ) &view->cam, view->mui->engine_flags );
 
     /*** projection matrix will never change ***/
-    g3dcore_identityMatrix ( view->cam.pmatrix );
+    g3dcore_identityMatrixf ( view->cam.pmatrix );
 }
 
 /******************************************************************************/
@@ -256,6 +256,7 @@ void m3duiview_showGL ( M3DUIVIEW    *view,
                                              GL_TEXTURE_MAG_FILTER, 
                                              GL_NEAREST );
 
+#ifdef need_refactor
                             glMatrixMode(GL_PROJECTION);
                             glLoadIdentity();
 
@@ -284,6 +285,7 @@ void m3duiview_showGL ( M3DUIVIEW    *view,
                             glTexCoord2f ( 0.0f, 1.0f );
                             glVertex3f   ( 0.0f, 1.0f, 0.0f );
                             glEnd ( );
+#endif
 
                             /*** reenable bilinear filtering ***/
                             glTexParameteri ( GL_TEXTURE_2D, 
@@ -316,11 +318,11 @@ void m3duiview_showGL ( M3DUIVIEW    *view,
 
 
     if ( seltool && ( seltool != tool ) && seltool->draw ) {
-        seltool->draw ( seltool, gui->sce, engine_flags );
+        seltool->draw ( seltool, gui->sce, &view->cam, engine_flags );
     }
 
     if ( tool && tool->draw ) {
-        tool->draw ( tool, gui->sce, engine_flags );
+        tool->draw ( tool, gui->sce, &view->cam, engine_flags );
     }
 
 #ifdef __linux__

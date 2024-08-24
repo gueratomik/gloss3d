@@ -121,13 +121,13 @@ static uint32_t q3dobject_default_intersect ( Q3DOBJECT  *qobj,
 
 /******************************************************************************/
 void q3dcore_buildLocalQRay ( Q3DRAY *qray,
-                              double *IMVX,
+                              float  *IMVX,
                               Q3DRAY *locqray ) {
     Q3DVECTOR3F dest, locdest;
 
     memcpy ( locqray, qray, sizeof ( Q3DRAY ) );
 
-    q3dvector3f_matrix ( &qray->src, IMVX, &locqray->src );
+    q3dvector3f_matrixf ( &qray->src, IMVX, &locqray->src );
 
     /*** NOTE: We could use the transpose inverse matrix to transform the   ***/
     /*** direction vector, BUT it would not work for non-uniform scaled     ***/
@@ -138,7 +138,7 @@ void q3dcore_buildLocalQRay ( Q3DRAY *qray,
     dest.y = qray->src.y + ( qray->dir.y ); 
     dest.z = qray->src.z + ( qray->dir.z );
 
-    q3dvector3f_matrix ( &dest, IMVX, &locdest );
+    q3dvector3f_matrixf ( &dest, IMVX, &locdest );
 
     locqray->dir.x = locdest.x - locqray->src.x;
     locqray->dir.y = locdest.y - locqray->src.y;
@@ -205,8 +205,8 @@ uint32_t q3dobject_intersect_r ( Q3DOBJECT  *qobj,
         memcpy ( &qray->isx.locsrc, 
                  &locqray.isx.src, sizeof ( Q3DVECTOR3F ) );
 
-        q3dvector3f_matrix ( &locqray.isx.src, qobj->obj->lmatrix, &qray->isx.src );
-        q3dvector3f_matrix ( &locqray.isx.dir, qobj->TIMVX       , &qray->isx.dir );
+        q3dvector3f_matrixf ( &locqray.isx.src, qobj->obj->localMatrix, &qray->isx.src );
+        q3dvector3f_matrixf ( &locqray.isx.dir, qobj->TIMVX           , &qray->isx.dir );
 
         q3dvector3f_normalize ( &qray->isx.dir, NULL );
 
@@ -266,13 +266,13 @@ void q3dobject_init ( Q3DOBJECT *qobj,
     qobj->free      = Free;
     qobj->intersect = Intersect;
 
-    g3dcore_invertMatrix    ( obj->lmatrix, qobj->IMVX );
-    g3dcore_transposeMatrix ( qobj->IMVX, qobj->TIMVX );
+    g3dcore_invertMatrixf    ( obj->localMatrix, qobj->IMVX );
+    g3dcore_transposeMatrixf ( qobj->IMVX, qobj->TIMVX );
     /*** When a point is multiplied by a matrix, we multiply its normal ***/
     /*** by the transpose inverse. Here, the matrix is already the inverse ***/
     /*** hence the inverse of the inverse is the matrix itself. We just ***/
     /*** transpose it. ***/
-    g3dcore_transposeMatrix ( obj->lmatrix, qobj->TMVX );
+    g3dcore_transposeMatrixf ( obj->localMatrix, qobj->TMVX );
 }
 
 /******************************************************************************/

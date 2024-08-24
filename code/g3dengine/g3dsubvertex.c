@@ -52,8 +52,8 @@ void g3dsubvertex_elevate ( G3DSUBVERTEX *subver,
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-        G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac, 
-                                                             sculptExtensionName );
+        G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION * ) g3dface_getExtension ( fac, 
+                                                                                          sculptExtensionName );
 
         if ( fse && qua_indexes && tri_indexes ) {
             uint32_t i;

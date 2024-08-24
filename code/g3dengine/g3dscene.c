@@ -206,7 +206,7 @@ static void g3dscene_getPositionFromSculptSelectedFaces ( G3DSCENE  *sce,
         switch ( obj->type ) {
             case G3DSUBDIVIDERTYPE : {
                 G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
-                G3DMESH *mes = g3dobject_getActiveParentByType ( obj, MESH );
+                G3DMESH *mes = ( G3DMESH * ) g3dobject_getActiveParentByType ( obj, MESH );
 
                 if ( mes ) {
                     g3dface_getAveragePositionFromList ( mes->lselfac, pos );
@@ -299,7 +299,7 @@ uint32_t g3dscene_getPivotFromSelection ( G3DSCENE  *sce,
     } else {
         memcpy ( &sce->csr.pivot, &pivot, sizeof ( G3DVECTOR ) );
 
-        g3dcore_identityMatrix ( sce->csr.matrix );
+        g3dcore_identityMatrixf ( sce->csr.matrix );
     }
 
     return nbobj;

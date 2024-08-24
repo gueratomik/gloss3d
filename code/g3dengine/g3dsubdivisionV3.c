@@ -250,7 +250,7 @@ static void g3dsubdivisionV3_commit ( G3DMESH       *mes,
 
     /*** Pre-step : prepare vertex IDs for edge-born vertices ***/
     for ( i = 0x00; i < nbInnerEdges; i++ ) {
-        G3DSUBVERTEX *subver = innerEdges[i].edg.ver[0x01];
+        G3DSUBVERTEX *subver = ( G3DSUBVERTEX * ) innerEdges[i].edg.ver[0x01];
         G3DSUBEDGE   *subedg = &innerEdges[i];
         uint32_t vid = subver->ver.id;
         uint32_t commitID;
@@ -443,7 +443,7 @@ static void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
     if ( subdiv_flags & SUBDIVISIONDUMP ) {
         for ( i = 0x00; i < nbInnerEdges; i++ ) {
 
-            G3DSUBVERTEX *subver = innerEdges[i].edg.ver[0x01];
+            G3DSUBVERTEX *subver = ( G3DSUBVERTEX * ) innerEdges[i].edg.ver[0x01];
             uint32_t vid = subver->ver.id;
             uint32_t dumpID;
 
@@ -1025,8 +1025,8 @@ static uint32_t g3dsubdivision_importInnerFace ( G3DSUBDIVISION *sdv,
     /*newfac->fac.rtluim  = fac->rtluim*/;
 
     if ( ( subdiv_flags & SUBDIVISIONNOELEVATE ) == 0x00 ) {
-        G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac, 
-                                                             sculptExtensionName );
+        G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION * ) g3dface_getExtension ( fac, 
+                                                                                          sculptExtensionName );
 
         if ( fse ) return 0x01;
     }
@@ -1069,8 +1069,8 @@ static uint32_t g3dsubdivision_importOuterFace ( G3DSUBDIVISION *sdv,
     }
 
     if ( ( subdiv_flags & SUBDIVISIONNOELEVATE ) == 0x00 ) {
-        G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac, 
-                                                             sculptExtensionName );
+        G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION * ) g3dface_getExtension ( fac, 
+                                                                                          sculptExtensionName );
 
         if ( fse ) return 0x01;
     }
@@ -1314,7 +1314,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
     uint32_t original_subdiv_level = subdiv_level;
     /*static int init;
     static uint32_t old_level = 0x00;*/
-    G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac, sculptExtensionName );
+    G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION * ) g3dface_getExtension ( fac, sculptExtensionName );
 
 
     /*if ( init == 0x00 || old_level != subdiv_level ) */

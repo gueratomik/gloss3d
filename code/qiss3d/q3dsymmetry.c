@@ -52,8 +52,8 @@ static uint32_t q3dsymmetry_intersect ( Q3DSYMMETRY *qsym,
     if ( ( qobjsym->obj->flags & OBJECTINACTIVE ) == 0x00 ) {
         memcpy ( &symqray, qray, sizeof ( Q3DRAY ) );
 
-        q3dvector3f_matrix ( &qray->src, qsym->ISMVX, &symqray.src );
-        q3dvector3f_matrix ( &qray->dir, qsym->TSMVX, &symqray.dir );
+        q3dvector3f_matrixf ( &qray->src, qsym->ISMVX, &symqray.src );
+        q3dvector3f_matrixf ( &qray->dir, qsym->TSMVX, &symqray.dir );
 
         while ( ltmpchildren ) {
             Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
@@ -84,8 +84,8 @@ static uint32_t q3dsymmetry_intersect ( Q3DSYMMETRY *qsym,
             qray->isx.qobj   = symqray.isx.qobj;
             qray->isx.qsur   = symqray.isx.qsur;
 
-            q3dvector3f_matrix ( &symqray.isx.src, sym->smatrix, &qray->isx.src );
-            q3dvector3f_matrix ( &symqray.isx.dir, qsym->TISMVX, &qray->isx.dir );
+            q3dvector3f_matrixf ( &symqray.isx.src, sym->smatrix, &qray->isx.src );
+            q3dvector3f_matrixf ( &symqray.isx.dir, qsym->TISMVX, &qray->isx.dir );
 
             qray->distance = symqray.distance;
         }
@@ -110,10 +110,10 @@ void q3dsymmetry_init ( Q3DSYMMETRY *qsym,
 Q3DINTERSECT_CALLBACK(q3dsymmetry_intersect) );
 
     /*g3dcore_multmatrix ( obj->lmatrix, sym->smatrix, TMPX );*/
-    g3dcore_invertMatrix    ( sym->smatrix, qsym->ISMVX  );
-    g3dcore_transposeMatrix ( qsym->ISMVX , qsym->TISMVX );
+    g3dcore_invertMatrixf    ( sym->smatrix, qsym->ISMVX  );
+    g3dcore_transposeMatrixf ( qsym->ISMVX , qsym->TISMVX );
 
-    g3dcore_transposeMatrix ( sym->smatrix, qsym->TSMVX );
+    g3dcore_transposeMatrixf ( sym->smatrix, qsym->TSMVX );
 }
 
 /******************************************************************************/

@@ -41,8 +41,8 @@ void g3dmesh_getMin ( G3DMESH *mes, float *xmin,
                          objmes->bbox.ymax,
                          objmes->bbox.zmax }, glomax;
 
-    g3dvector_matrix ( &locmin, objmes->worldMatrix, &glomin );
-    g3dvector_matrix ( &locmax, objmes->worldMatrix, &glomax );
+    g3dvector_matrixf ( &locmin, objmes->worldMatrix, &glomin );
+    g3dvector_matrixf ( &locmax, objmes->worldMatrix, &glomax );
 
     if ( glomin.x < (*xmin) ) (*xmin) = glomin.x;
     if ( glomin.y < (*ymin) ) (*ymin) = glomin.y;
@@ -96,8 +96,9 @@ void g3dmesh_exportStlA ( G3DMESH *mes, float xmin,
             G3DVECTOR v0v1, v0v2;
 
             for ( i = 0x00; i < 0x03; i++ ) {
-                g3dvector_matrix ( &fac->ver[*(id++)]->pos, objmes->worldMatrix, 
-                                   &verpos[i] );
+                g3dvector_matrixf ( &fac->ver[*(id++)]->pos,
+                                     objmes->worldMatrix, 
+                                    &verpos[i] );
             }
 
             if ( xmin < 0.0f ) {

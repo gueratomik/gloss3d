@@ -50,6 +50,7 @@ static int eraser_tool ( G3DMOUSETOOL *mou,
                          G3DEvent     *event );
 static void selector_draw ( G3DMOUSETOOL *gtool, 
                             G3DSCENE     *sce, 
+                            G3DCAMERA    *cam,
                             uint64_t engine_flags );
 
 /******************************************************************************/
@@ -156,6 +157,7 @@ M3DMOUSETOOLERASER *m3dmousetooleraser_new ( ) {
 /******************************************************************************/
 static void selector_draw ( G3DMOUSETOOL *gtool, 
                             G3DSCENE     *sce, 
+                            G3DCAMERA    *cam,
                             uint64_t engine_flags ) {
     M3DMOUSETOOLSELECTOR *sr =  ( M3DMOUSETOOLSELECTOR * ) gtool;
     M3DMOUSETOOL *ltool = ( M3DMOUSETOOL * ) sr;
@@ -164,7 +166,7 @@ static void selector_draw ( G3DMOUSETOOL *gtool,
     double sx[0x04], sy[0x04], sz[0x04];
 
     glPushAttrib ( GL_ENABLE_BIT ); 
-
+#ifdef need_refactor
     glDisable ( GL_DEPTH_TEST );
     glColor3ub ( 0xFF, 0xFF, 0xFF );
     glLineStipple ( 1, 0x5555 );
@@ -195,6 +197,7 @@ static void selector_draw ( G3DMOUSETOOL *gtool,
         ltmplin = ltmplin->next;
     }
     glEnd ( );
+#endif
 
     glPopAttrib ( );
 }

@@ -49,7 +49,7 @@ G3DRIG *g3drig_new ( G3DSKIN *skn ) {
 
     rig->skn = skn;
 
-    g3dcore_identityMatrix ( rig->isknmatrix );
+    g3dcore_identityMatrixf ( rig->isknmatrix );
 
     return rig;
 }

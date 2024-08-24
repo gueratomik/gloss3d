@@ -79,7 +79,7 @@ void g3dspline_update ( G3DSPLINE *spl,
                         uint32_t   update_flags,
                         uint64_t engine_flags );
 void g3dspline_moveAxis ( G3DSPLINE *spl, 
-                          double    *PREVMVX, /* previous world matrix */
+                          float    *PREVMVX, /* previous world matrix */
                           uint64_t engine_flags );
 
 void g3dspline_modify ( G3DSPLINE  *spl,

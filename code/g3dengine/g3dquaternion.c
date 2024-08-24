@@ -192,8 +192,8 @@ void Quaternion::FromEuler(float pitch, float yaw, float roll)
 }*/
 
 /******************************************************************************/
-void g3dquaternion_convert ( G3DQUATERNION *qua, double *matrix ) {
-    double TMPX[0x10];
+void g3dquaternion_convertf ( G3DQUATERNION *qua, float *matrix ) {
+    float TMPX[0x10];
 
     double roll2      = qua->roll  * qua->roll;
     double pitch2     = qua->pitch * qua->pitch;
@@ -222,7 +222,7 @@ void g3dquaternion_convert ( G3DQUATERNION *qua, double *matrix ) {
     matrix[0x0E] = 0.0f;
     matrix[0x0F] = 1.0f;
 
-    g3dcore_transposeMatrix ( matrix, TMPX );
+    g3dcore_transposeMatrixf ( matrix, TMPX );
     memcpy ( matrix, TMPX, sizeof ( TMPX ) );
 }
 

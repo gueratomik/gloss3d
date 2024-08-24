@@ -474,7 +474,7 @@ typedef struct _G3DUICOPIEDITEM {
     G3DKEY                 *key;
     G3DFACESCULPTEXTENSION *fse;
 /*** We nee the world matrix for parent swapping ***/
-    double                  wmatrix[0x10]; 
+    float                  worldMatrix[0x10]; 
 } G3DUICOPIEDITEM;
 
 typedef struct _G3DUICLIPBOARD {

@@ -47,8 +47,9 @@ static uint32_t g3dexportv2morpher_meshPoseSlotID ( G3DEXPORTV2DATA      *ged,
                                                   uint32_t            flags,
                                                   FILE               *fdst ) {
     uint32_t size = 0x00;
+    uint32_t slotID = mpose->slotID;
 
-    size += g3dexportv2_fwritel ( &mpose->slotID, fdst );
+    size += g3dexportv2_fwritel ( &slotID, fdst );
 
     return size;
 }

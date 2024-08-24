@@ -49,7 +49,7 @@ static void g3dskin_deformVertex ( G3DSKIN   *skn,
         G3DVECTOR tmp;
 
         if ( wei->rig ) {
-            g3dvector_matrix ( pos, wei->rig->defmatrix, &tmp );
+            g3dvector_matrixf ( pos, wei->rig->defmatrix, &tmp );
 
             dif.x += ( tmp.x * wei->weight );
             dif.y += ( tmp.y * wei->weight );

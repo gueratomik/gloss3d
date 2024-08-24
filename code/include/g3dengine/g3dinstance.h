@@ -47,7 +47,7 @@ extern "C" {
 typedef struct _G3DINSTANCE {
     G3DOBJECT  obj;
     G3DOBJECT *ref;
-    double     smatrix[0x10];
+    float      smatrix[0x10];
     uint32_t   orientation;
     G3DSCENE  *sce;
 } G3DINSTANCE;

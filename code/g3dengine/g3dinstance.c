@@ -44,7 +44,7 @@ void g3dinstance_setOrientation ( G3DINSTANCE *ins,
                                   uint32_t     orientation ) {
     ins->orientation = orientation;
 
-    g3dcore_symmetryMatrix ( ins->smatrix, orientation );
+    g3dcore_symmetryMatrixf ( ins->smatrix, orientation );
 }
 
 /******************************************************************************/
@@ -82,6 +82,7 @@ static uint32_t g3dinstance_draw ( G3DINSTANCE *ins,
     if ( ins->ref ) {
         if ( g3dscene_isObjectReferred ( ins->sce, ins->ref ) ) {
             if ( ins->ref->draw ) {
+#ifdef need_refactor
                 glPushMatrix ( );
 
                 if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
@@ -99,6 +100,7 @@ static uint32_t g3dinstance_draw ( G3DINSTANCE *ins,
                 }
 
                 glPopMatrix ( );
+#endif
             }
         }
     }
@@ -121,7 +123,7 @@ static uint32_t g3dinstance_pick ( G3DINSTANCE *ins,
             if ( ins->ref->pick ) {
                 if ( engine_flags & VIEWOBJECT ) {
                     if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
-                        g3dpick_multModelviewMatrix ( ins->smatrix );
+                        g3dpick_multModelviewMatrixf ( ins->smatrix );
                     }
 
                     ins->ref->pick ( ins->ref, 

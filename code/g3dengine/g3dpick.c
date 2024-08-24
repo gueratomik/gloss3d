@@ -57,8 +57,8 @@ typedef struct _G3DPICKHLINE {
 
 /******************************************************************************/
 typedef struct _G3DPICK {
-    double          MVX[0x10];
-    double          PJX[0x10];
+    float           MVX[0x10];
+    float           PJX[0x10];
     int             VPX[0x04];
     int             AMX[0x04]; /* pick matrix */
     float          *buffer;
@@ -71,7 +71,7 @@ typedef struct _G3DPICK {
     float           zNear;
     float           zFar;
     unsigned char  *mask;
-    G3DDOUBLEVECTOR frustrum[CLIPPINGPLANES];
+    G3DVECTOR       frustrum[CLIPPINGPLANES];
 } G3DPICK;
 
 /******************************************************************************/
@@ -103,40 +103,48 @@ void g3dpick_buildFrustrum ( ) {
                                   { .x = pick->VPX[0x02], .y = pick->VPX[0x01] },
                                   { .x = pick->VPX[0x02], .y = pick->VPX[0x03] },
                                   { .x = pick->VPX[0x00], .y = pick->VPX[0x03] } };
-        static double IDX[0x10] = { 1.0f, 0.0f, 0.0f, 0.0f,
-                                    0.0f, 1.0f, 0.0f, 0.0f,
-                                    0.0f, 0.0f, 1.0f, 0.0f,
-                                    0.0f, 0.0f, 0.0f, 1.0f };
-        G3DDOUBLEVECTOR scr3Dnear[0x04];
-        G3DDOUBLEVECTOR scr3Dfar[0x04];
+        static float IDX[0x10] = { 1.0f, 0.0f, 0.0f, 0.0f,
+                                   0.0f, 1.0f, 0.0f, 0.0f,
+                                   0.0f, 0.0f, 1.0f, 0.0f,
+                                   0.0f, 0.0f, 0.0f, 1.0f };
+        G3DVECTOR scr3Dnear[0x04];
+        G3DVECTOR scr3Dfar[0x04];
     /*G3DMESH *mes = g3dmesh_new ( 0x00, "frustrum", 0x00 );
     G3DVERTEX *ver[0x08];
     G3DFACE *fac[0x06];*/
-        double xDouble, yDouble, zDouble;
+        double worldx, worldy, worldz;
         int i;
 
         memset ( pick->frustrum, 0x00, sizeof ( pick->frustrum ) );
 
         for ( i = 0x00; i < 0x04; i++ ) {
-            gluUnProject ( ( double ) scr2D[i].x,
-                           ( double ) scr2D[i].y,
-                           ( double ) 0.0f, /* zNear */
-                           IDX,
-                           pick->PJX,
-                           pick->VPX,
-                          &scr3Dnear[i].x,
-                          &scr3Dnear[i].y,
-                          &scr3Dnear[i].z );
+            g3dcore_unprojectf ( ( double ) scr2D[i].x,
+                                 ( double ) scr2D[i].y,
+                                 ( double ) 0.0f, /* zNear */
+                                            IDX,
+                                            pick->PJX,
+                                            pick->VPX,
+                                           &worldx,
+                                           &worldy,
+                                           &worldz );
 
-            gluUnProject ( ( double ) scr2D[i].x,
-                           ( double ) scr2D[i].y,
-                           ( double ) 0.4f, /* zFar */
-                           IDX,
-                           pick->PJX,
-                           pick->VPX,
-                          &scr3Dfar[i].x,
-                          &scr3Dfar[i].y,
-                          &scr3Dfar[i].z );
+            scr3Dnear[i].x = worldx;
+            scr3Dnear[i].y = worldy;
+            scr3Dnear[i].z = worldz;
+
+            g3dcore_unprojectf ( ( double ) scr2D[i].x,
+                                 ( double ) scr2D[i].y,
+                                 ( double ) 0.4f, /* zFar */
+                                            IDX,
+                                            pick->PJX,
+                                            pick->VPX,
+                                           &worldx,
+                                           &worldy,
+                                           &worldz );
+
+            scr3Dfar[i].x = worldx;
+            scr3Dfar[i].y = worldy;
+            scr3Dfar[i].z = worldz;
         }
 #ifdef unused
         ver[0] = g3dvertex_new ( scr3Dnear[0].x, scr3Dnear[0].y, scr3Dnear[0].z );
@@ -186,36 +194,36 @@ void g3dpick_buildFrustrum ( ) {
 
         for ( i = 0x00; i < 0x04; i++ ) {
             uint32_t n = ( i + 0x01 ) % 0x04;
-            G3DDOUBLEVECTOR nearTofar  = { .x = (  scr3Dfar[i].x - scr3Dnear[i].x ),
-                                           .y = (  scr3Dfar[i].y - scr3Dnear[i].y ),
-                                           .z = (  scr3Dfar[i].z - scr3Dnear[i].z ) },
-                            nearTonear = { .x = ( scr3Dnear[i].x - scr3Dnear[n].x ),
-                                           .y = ( scr3Dnear[i].y - scr3Dnear[n].y ),
-                                           .z = ( scr3Dnear[i].z - scr3Dnear[n].z ) };
+            G3DVECTOR nearTofar  = { .x = (  scr3Dfar[i].x - scr3Dnear[i].x ),
+                                     .y = (  scr3Dfar[i].y - scr3Dnear[i].y ),
+                                     .z = (  scr3Dfar[i].z - scr3Dnear[i].z ) },
+                      nearTonear = { .x = ( scr3Dnear[i].x - scr3Dnear[n].x ),
+                                     .y = ( scr3Dnear[i].y - scr3Dnear[n].y ),
+                                     .z = ( scr3Dnear[i].z - scr3Dnear[n].z ) };
 
-            g3ddoublevector_cross ( &nearTofar,
-                                    &nearTonear,
-                                    &pick->frustrum[i+0x02] );
+            g3dvector_cross ( &nearTofar,
+                              &nearTonear,
+                              &pick->frustrum[i+0x02] );
 
-            g3ddoublevector_normalize ( &pick->frustrum[i+0x02], NULL );
+            g3dvector_normalize ( &pick->frustrum[i+0x02], NULL );
 
             /*** g3ddoublevector_cross sets w to 1.0f. Set it to 0.0f ***/
             pick->frustrum[i].w = 0.0f;
         }
 #endif
 
-        gluUnProject ( 0.0f,
-                       0.0f,
-                       0.0f, /* zNear */
-                       IDX,
-                       pick->PJX,
-                       pick->VPX,
-                      &xDouble,
-                      &yDouble,
-                      &zDouble );
+        g3dcore_unprojectf ( 0.0f,
+                             0.0f,
+                             0.0f, /* zNear */
+                             IDX,
+                             pick->PJX,
+                             pick->VPX,
+                            &worldx,
+                            &worldy,
+                            &worldz );
 
         pick->frustrum[0x00].z = -1.0f;
-        pick->frustrum[0x00].w = zDouble;
+        pick->frustrum[0x00].w = worldz;
 
         /*pick->frustrum[0x01].z =  1.0f;
         pick->frustrum[0x01].w =  pick->zFar;*/
@@ -476,9 +484,15 @@ uint32_t g3dpick_drawPoint ( float x, float y, float z ) {
         double xout, yout, zout;
         G3DPICKPOINT pt;
 
-        gluProject ( x, y, z, pick->MVX, 
-                              pick->PJX, 
-                              pick->VPX, &xout, &yout, &zout );
+        g3dcore_projectf ( x,
+                           y,
+                           z,
+                           pick->MVX, 
+                           pick->PJX, 
+                           pick->VPX,
+                          &xout,
+                          &yout,
+                          &zout );
 
         pt.x = xout;
         pt.y = yout;
@@ -500,13 +514,25 @@ uint32_t g3dpick_drawLine ( float x1, float y1, float z1,
         double x2out, y2out, z2out;
         G3DPICKPOINT pt1, pt2;
 
-        gluProject ( x1, y1, z1, pick->MVX, 
-                                 pick->PJX, 
-                                 pick->VPX, &x1out, &y1out, &z1out );
+        g3dcore_projectf ( x1,
+                           y1,
+                           z1,
+                           pick->MVX, 
+                           pick->PJX, 
+                           pick->VPX,
+                          &x1out,
+                          &y1out,
+                          &z1out );
 
-        gluProject ( x2, y2, z2, pick->MVX, 
-                                 pick->PJX, 
-                                 pick->VPX, &x2out, &y2out, &z2out );
+        g3dcore_projectf ( x2,
+                           y2,
+                           z2,
+                           pick->MVX, 
+                           pick->PJX, 
+                           pick->VPX,
+                          &x2out,
+                          &y2out,
+                          &z2out );
 
         pt1.x = x1out;
         pt1.y = y1out;
@@ -529,10 +555,10 @@ uint32_t g3dpick_drawFace ( uint32_t nbver,
                             float x1, float y1, float z1,
                             float x2, float y2, float z2,
                             float x3, float y3, float z3 ) {
-    static double IDX[0x10] = { 1.0f, 0.0f, 0.0f, 0.0f,
-                                0.0f, 1.0f, 0.0f, 0.0f,
-                                0.0f, 0.0f, 1.0f, 0.0f,
-                                0.0f, 0.0f, 0.0f, 1.0f };
+    static float IDX[0x10] = { 1.0f, 0.0f, 0.0f, 0.0f,
+                               0.0f, 1.0f, 0.0f, 0.0f,
+                               0.0f, 0.0f, 1.0f, 0.0f,
+                               0.0f, 0.0f, 0.0f, 1.0f };
     int32_t xmin = INT32_MAX,
             xmax = INT32_MIN,
             ymin = INT32_MAX,
@@ -546,18 +572,18 @@ uint32_t g3dpick_drawFace ( uint32_t nbver,
                                    { x3, y3, z3, 1.0f } };
         G3DVECTOR pworld[0x04];
         G3DVECTOR lworld[0x04][0x02]; /*** line points ***/
-        G3DDOUBLEVECTOR lscreen[0x04][0x02];
-        G3DDOUBLEVECTOR pclip[0x02]; /*** clipping points ***/
+        G3DVECTOR lscreen[0x04][0x02];
+        G3DVECTOR pclip[0x02]; /*** clipping points ***/
         uint32_t nbClip = 0x00;
         uint32_t nodraw = 0xFFFFFFFF;
         uint32_t i, j;
 
         memset ( pick->hlines, 0x00, sizeof ( G3DPICKHLINE ) * pick->VPX[0x03] );
 
-        g3dvector_matrix ( &plocal[0x00], pick->MVX, &pworld[0x00] );
-        g3dvector_matrix ( &plocal[0x01], pick->MVX, &pworld[0x01] );
-        g3dvector_matrix ( &plocal[0x02], pick->MVX, &pworld[0x02] );
-        g3dvector_matrix ( &plocal[0x03], pick->MVX, &pworld[0x03] );
+        g3dvector_matrixf ( &plocal[0x00], pick->MVX, &pworld[0x00] );
+        g3dvector_matrixf ( &plocal[0x01], pick->MVX, &pworld[0x01] );
+        g3dvector_matrixf ( &plocal[0x02], pick->MVX, &pworld[0x02] );
+        g3dvector_matrixf ( &plocal[0x03], pick->MVX, &pworld[0x03] );
 
         /*** Clip first, or else GluProject will return unwanted values ***/
         for ( i = 0x00; i < nbver; i++ ) {
@@ -608,20 +634,26 @@ uint32_t g3dpick_drawFace ( uint32_t nbver,
                                             &it );
 
                     if (  ( t > 0.0f ) && ( t < distance ) ) {
+                        double winx, winy, winz;
+
                         /*** overwrite the outside point ***/
                         memcpy ( &lworld[i][0x01], &it, sizeof ( G3DVECTOR ) );
 /*printf("Clipped %d T: %f\n", i, t);*/
                         /*** remember clipping point position for ***/
                         /*** drawing the clipping line ***/
-                        gluProject ( it.x, 
-                                     it.y,
-                                     it.z,
-                                     IDX, 
-                                     pick->PJX,
-                                     pick->VPX,
-                                    &pclip[nbClip].x, 
-                                    &pclip[nbClip].y, 
-                                    &pclip[nbClip].z );
+                        g3dcore_projectf ( it.x, 
+                                           it.y,
+                                           it.z,
+                                           IDX, 
+                                           pick->PJX,
+                                           pick->VPX,
+                                          &winx, 
+                                          &winy, 
+                                          &winz );
+
+                        pclip[nbClip].x = winx;
+                        pclip[nbClip].y = winy;
+                        pclip[nbClip].z = winz;
 
                         distance = t;
                     }
@@ -635,15 +667,21 @@ uint32_t g3dpick_drawFace ( uint32_t nbver,
 
         for ( i = 0x00; i < nbver; i++ ) {
             for ( j = 0x00; j < 0x02; j++ ) {
-                gluProject ( lworld[i][j].x, 
-                             lworld[i][j].y,
-                             lworld[i][j].z,
-                             IDX, 
-                             pick->PJX,
-                             pick->VPX,
-                            &lscreen[i][j].x, 
-                            &lscreen[i][j].y, 
-                            &lscreen[i][j].z );
+                double winx, winy, winz;
+
+                g3dcore_projectf ( lworld[i][j].x, 
+                                   lworld[i][j].y,
+                                   lworld[i][j].z,
+                                   IDX, 
+                                   pick->PJX,
+                                   pick->VPX,
+                                  &winx, 
+                                  &winy, 
+                                  &winz );
+
+                lscreen[i][j].x = winx;
+                lscreen[i][j].y = winy;
+                lscreen[i][j].z = winz;
             }
 
 /*printf("line:%d pt1.x:%f, pt1.y:%f\n", i, lscreen[i][0x00].x, 
@@ -761,24 +799,24 @@ void g3dpick_clear ( ) {
 
     /*** this is necessary for the UVMAPEDITOR because we are not going to ***/
     /*** call objects matrix building operations ***/
-    g3dcore_identityMatrix ( pick->MVX );
+    g3dcore_identityMatrixf ( pick->MVX );
 }
 
 /******************************************************************************/
-void g3dpick_setModelviewMatrix ( double *MVX ) {
+void g3dpick_setModelviewMatrixf ( float *MVX ) {
     G3DPICK *pick = g3dpick_get ( );
 
     if ( pick ) {
-        memcpy ( pick->MVX, MVX, sizeof ( double ) * 0x10 );
+        memcpy ( pick->MVX, MVX, sizeof ( float ) * 0x10 );
     }
 }
 
 /******************************************************************************/
-void g3dpick_setProjectionMatrix ( double *PJX ) {
+void g3dpick_setProjectionMatrixf ( float *PJX ) {
     G3DPICK *pick = g3dpick_get ( );
 
     if ( pick ) {
-        memcpy ( pick->PJX, PJX, sizeof ( double ) * 0x10 );
+        memcpy ( pick->PJX, PJX, sizeof ( float ) * 0x10 );
 
         g3dpick_buildFrustrum ( );
     }
@@ -846,13 +884,13 @@ void g3dpick_setViewportMatrix ( int *VPX ) {
 }
 
 /******************************************************************************/
-void g3dpick_multModelviewMatrix ( double *MVX ) {
+void g3dpick_multModelviewMatrixf ( float *MVX ) {
     G3DPICK *pick = g3dpick_get ( );
 
     if ( pick ) {
-        double TPX[0x10];
+        float TPX[0x10];
 
-        g3dcore_multmatrix ( MVX, pick->MVX, TPX );
+        g3dcore_multMatrixf ( MVX, pick->MVX, TPX );
 
         memcpy ( pick->MVX, TPX, sizeof ( TPX ) );
     }

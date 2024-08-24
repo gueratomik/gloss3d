@@ -142,7 +142,7 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
     uint64_t facID = ( name >> 0x20 );
     uint64_t rtverID = name & 0xFFFFFFFF;
     G3DFACE *fac = sdr->factab[facID];
-    G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
+    G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION * ) g3dface_getExtension ( fac,
                                             ( uint64_t ) sdr );
     URMSCULPTFACEEXTENSION *usfe = NULL;
     G3DMOUSETOOLSCULPT *mts = spd->mts;
@@ -158,7 +158,7 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
                                                         sdr->sculptResolution,
                                                         sdr->sculptMode );
 
-        g3dface_addExtension ( fac, fse );
+        g3dface_addExtension ( fac, ( G3DFACEEXTENSION * ) fse );
     }
 
     /*printf ("%d %d\n", facID, rtverID );*/
@@ -272,13 +272,14 @@ void sculpt_Item ( G3DMOUSETOOLSCULPT *pt,
                    uint64_t            engine_flags ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
     static GLint  VPX[0x04];
-    static double MVX[0x10];
-    static double PJX[0x10];
+    static float MVX[0x10];
+    static float PJX[0x10];
 
     glGetIntegerv ( GL_VIEWPORT, VPX );
 
-    closeSelectionRectangle ( pt, VPX, engine_flags );
+    closeSelectionRectangle ( ( G3DMOUSETOOLPICK * ) pt, VPX, engine_flags );
 
+#ifdef need_refactor
     glMatrixMode ( GL_PROJECTION );
     glPushMatrix ( );
     glLoadIdentity ( );
@@ -348,6 +349,7 @@ void sculpt_Item ( G3DMOUSETOOLSCULPT *pt,
 
     glMatrixMode ( GL_PROJECTION );
     glPopMatrix ( );
+#endif
 }
 
 /******************************************************************************/
@@ -396,14 +398,14 @@ int sculpt_tool ( G3DMOUSETOOL *mou,
 
                 if ( obj ) {
                     if ( directionChange ( mev->x, mev->y ) ) {
-                        list_exec ( mts->lfse, g3dfacesculptextension_clearFlags );
+                        list_exec ( mts->lfse, LIST_FUNCDATA(g3dfacesculptextension_clearFlags) );
                     } 
 
         	        if ( obj->type == G3DSUBDIVIDERTYPE ) {
         	            mts->coord[0x00] = mts->coord[0x02] = mev->x;
         	            mts->coord[0x01] = mts->coord[0x03] = VPX[0x03] - mev->y;
 
-        	            closeSelectionRectangle ( mts, VPX, engine_flags );
+        	            closeSelectionRectangle ( ( G3DMOUSETOOLPICK * ) mts, VPX, engine_flags );
 
                         sculpt_Item ( mts, sce, cam, ctrlClick, engine_flags );
         	        }

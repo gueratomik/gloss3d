@@ -76,9 +76,9 @@ static void filtersmb_merge ( Q3DFILTER     *qfil,
 static void filtersmb_empty ( FILTERSMB *fsmb ) {
     uint32_t i;
 
-    fsmb->abuffer = ( uint32_t * ) realloc  ( fsmb->abuffer,
-                                              fsmb->width * 
-                                              fsmb->height * sizeof ( uint32_t ) * 0x04 );
+    fsmb->abuffer = ( uint32_t (*)[0x04] ) realloc  ( fsmb->abuffer,
+                                                      fsmb->width * 
+                                                      fsmb->height * sizeof ( uint32_t ) * 0x04 );
 
     memset ( fsmb->abuffer, 0x00, fsmb->width  * 
                                   fsmb->height * sizeof ( uint32_t ) * 0x04 );

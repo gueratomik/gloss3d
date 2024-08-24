@@ -62,8 +62,8 @@ static uint32_t q3dinstance_intersect ( Q3DINSTANCE *qins,
             memcpy ( &insqray, qray, sizeof ( Q3DRAY ) );
 
             if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
-                q3dvector3f_matrix ( &qray->src, qins->ISMVX, &insqray.src );
-                q3dvector3f_matrix ( &qray->dir, qins->TSMVX, &insqray.dir );
+                q3dvector3f_matrixf ( &qray->src, qins->ISMVX, &insqray.src );
+                q3dvector3f_matrixf ( &qray->dir, qins->TSMVX, &insqray.dir );
             }
 
             hit = qins->qref->intersect ( qins->qref, 
@@ -91,8 +91,8 @@ static uint32_t q3dinstance_intersect ( Q3DINSTANCE *qins,
                 memcpy ( &qray->isx.dir, &insqray.isx.dir, sizeof ( Q3DVECTOR3F ) );
 
                 if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
-                    q3dvector3f_matrix ( &insqray.isx.src, ins->smatrix, &qray->isx.src );
-                    q3dvector3f_matrix ( &insqray.isx.dir, qins->TISMVX, &qray->isx.dir );
+                    q3dvector3f_matrixf ( &insqray.isx.src, ins->smatrix, &qray->isx.src );
+                    q3dvector3f_matrixf ( &insqray.isx.dir, qins->TISMVX, &qray->isx.dir );
                 }
             }
         }
@@ -107,7 +107,7 @@ static void q3dinstance_init ( Q3DINSTANCE *qins,
                                uint32_t     id,
                                uint64_t     object_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) ins;
-    double TMPX[0x10], ITMPX[0x10];
+    float TMPX[0x10], ITMPX[0x10];
 
     q3dobject_init ( ( Q3DOBJECT * ) qins,
                      ( G3DOBJECT * ) ins,
@@ -119,10 +119,10 @@ Q3DINTERSECT_CALLBACK(q3dinstance_intersect) );
     ((Q3DOBJECT*)qins)->import = Q3DIMPORT_CALLBACK(q3dinstance_import);
 
     /*g3dcore_multmatrix ( obj->lmatrix, ins->smatrix, TMPX );*/
-    g3dcore_invertMatrix    ( ins->smatrix, qins->ISMVX  );
-    g3dcore_transposeMatrix ( qins->ISMVX , qins->TISMVX );
+    g3dcore_invertMatrixf    ( ins->smatrix, qins->ISMVX  );
+    g3dcore_transposeMatrixf ( qins->ISMVX , qins->TISMVX );
 
-    g3dcore_transposeMatrix ( ins->smatrix, qins->TSMVX );
+    g3dcore_transposeMatrixf ( ins->smatrix, qins->TSMVX );
 }
 
 /******************************************************************************/

@@ -85,7 +85,7 @@ static int createVertex_tool ( G3DMOUSETOOL *mou,
                                uint64_t      engine_flags, 
                                G3DEvent     *event ) {
     /*G3DURMANAGER *urm = gdt->urm;*/
-    static GLdouble MVX[0x10], PJX[0x10];
+    static float MVX[0x10];
     static GLint VPX[0x04];
     /*static uint32_t xold, yold;*/
     static double objx, objy, objz,
@@ -106,19 +106,31 @@ static int createVertex_tool ( G3DMOUSETOOL *mou,
                 /*** We need the selected object matrix in order to create ***/
                 /*** the cutting plan and find its coords, but do not ***/
                 /*** forget the current matrix is the camera transformations **/
-                glPushMatrix ( );
-                glMultMatrixd ( obj->wmatrix );
+                g3dcore_multMatrixf ( obj->worldMatrix,
+                                      cam->obj.inverseWorldMatrix,
+                                      MVX );
 
-                glGetDoublev  ( GL_MODELVIEW_MATRIX, MVX );
-                glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
                 glGetIntegerv ( GL_VIEWPORT, VPX );
 
-                gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
-                gluUnProject ( ( GLdouble ) bev->x,
-                               ( GLdouble ) VPX[0x03] - bev->y,
-                               ( GLdouble ) winz,
-                               MVX, PJX, VPX,
-                               &objx, &objy, &objz );
+                g3dcore_projectf ( 0.0f,
+                                   0.0f,
+                                   0.0f,
+                                   MVX,
+                                   cam->pmatrix,
+                                   VPX,
+                                  &winx,
+                                  &winy,
+                                  &winz );
+
+                g3dcore_unprojectf ( ( GLdouble ) bev->x,
+                                     ( GLdouble ) VPX[0x03] - bev->y,
+                                     ( GLdouble ) winz,
+                                                  MVX,
+                                                  cam->pmatrix,
+                                                  VPX,
+                                                 &objx,
+                                                 &objy,
+                                                 &objz );
 
                 /*** hitting CTRL + click creates a vertex ***/
                 if ( /*( bev->state & G3DControlMask ) &&*/

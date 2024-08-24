@@ -30,10 +30,10 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
-static double IDX[0x10] = { 1.0f, 0.0f, 0.0f, 0.0f,
-                            0.0f, 1.0f, 0.0f, 0.0f,
-                            0.0f, 0.0f, 1.0f, 0.0f,
-                            0.0f, 0.0f, 0.0f, 1.0f };
+static float IDX[0x10] = { 1.0f, 0.0f, 0.0f, 0.0f,
+                           0.0f, 1.0f, 0.0f, 0.0f,
+                           0.0f, 0.0f, 1.0f, 0.0f,
+                           0.0f, 0.0f, 0.0f, 1.0f };
 
 /******************************************************************************/
 void q3darea_getZBuffer ( Q3DAREA *qarea, 
@@ -57,7 +57,6 @@ void q3darea_viewport ( Q3DAREA   *qarea,
                                     { qarea->x1, qarea->y2 } };
     G3DCAMERA *cam = ( G3DCAMERA * ) q3dobject_getObject ( ( Q3DOBJECT * ) qcam );
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
-    double IWMVX[0x10];
     uint32_t i;
 
     for ( i = 0x00; i < 0x04; i++ ) {
@@ -67,11 +66,15 @@ void q3darea_viewport ( Q3DAREA   *qarea,
 
         /*** Get ray's foreground coordinates ***/
         /*** Don't forget OpenGL coords are inverted in Y-Axis ***/
-        gluUnProject ( x, qarea->height - y, cam->znear,
-                       objcam->iwmatrix,
-                       qcam->PJX,
-                       qcam->VPX,
-                      &rx, &ry, &rz );
+        g3dcore_unprojectf ( x,
+                             qarea->height - y,
+                             cam->znear,
+                             objcam->inverseWorldMatrix,
+                             qcam->PJX,
+                             qcam->VPX,
+                            &rx,
+                            &ry,
+                            &rz );
 
         qarea->qseg[i].src.x = ( rx );
         qarea->qseg[i].src.y = ( ry );
@@ -80,11 +83,15 @@ void q3darea_viewport ( Q3DAREA   *qarea,
 
         /*** Get ray's background coordinates ***/
         /*** Don't forget OpenGL coords are inverted in Y-Axis ***/
-        gluUnProject ( x, qarea->height - y, 1.0f, 
-                       objcam->iwmatrix, 
-                       qcam->PJX,
-                       qcam->VPX,
-                      &rx, &ry, &rz );
+        g3dcore_unprojectf ( x,
+                             qarea->height - y,
+                             1.0f, 
+                             objcam->inverseWorldMatrix, 
+                             qcam->PJX,
+                             qcam->VPX,
+                            &rx,
+                            &ry,
+                            &rz );
 
         qarea->qseg[i].dst.x = ( rx );
         qarea->qseg[i].dst.y = ( ry );
@@ -166,7 +173,7 @@ void q3darea_init ( Q3DAREA   *qarea,
 
     q3dzengine_drawObjectWithCondition_r ( &qarea->qzen,
                             ( Q3DOBJECT * ) qsce,
-                                            objcam->iwmatrix,
+                                            objcam->inverseWorldMatrix,
                                             qcam->PJX,
                                             qcam->VPX,
                                             excludePerfectSpheres,

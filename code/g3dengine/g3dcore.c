@@ -75,16 +75,102 @@ void g3dcore_rotateMatrixf( float *matrix,
     float xs = ( x * s );
     float ys = ( y * s );
     float zs = ( z * s );
-    float rotationMatrix[] =
- { ( xsq * invc ) + c , ( xy  * invc ) - ( zs ), ( zx  * invc ) + ( ys ), 0.0f,
-   ( xy  * invc ) + zs, ( ysq * invc ) + c     , ( yz  * invc ) - ( xs ), 0.0f,
-   ( zx  * invc ) - ys, ( yz  * invc ) + xs    , ( zsq * invc ) + c     , 0.0f,
-   0.0f               , 0.0f                   , 0.0f                   , 1.0f };
     float resultMatrix[0x10];
+    /*** row major representation from OpenGL documentation
+ { ( xsq * invc ) + c , ( xy  * invc ) - zs, ( zx  * invc ) + ys, 0.0f,
+   ( xy  * invc ) + zs, ( ysq * invc ) + c , ( yz  * invc ) - xs, 0.0f,
+   ( zx  * invc ) - ys, ( yz  * invc ) + xs, ( zsq * invc ) + c , 0.0f,
+   0.0f               , 0.0f               , 0.0f               , 1.0f };
+    ***/
+    float rotationMatrix[0x10];
+
+    /*** Note: OpenGL Matrices are column major ***/
+    rotationMatrix[0x00] = ( xsq * invc ) + c;
+    rotationMatrix[0x01] = ( xy  * invc ) + zs;
+    rotationMatrix[0x02] = ( zx  * invc ) - ys;
+    rotationMatrix[0x03] = 0.0f;
+
+    rotationMatrix[0x04] = ( xy  * invc ) - zs;
+    rotationMatrix[0x05] = ( ysq * invc ) + c;
+    rotationMatrix[0x06] = ( yz  * invc ) + xs;
+    rotationMatrix[0x07] = 0.0f;
+
+    rotationMatrix[0x08] = ( zx  * invc ) + ys;
+    rotationMatrix[0x09] = ( yz  * invc ) - xs;
+    rotationMatrix[0x0A] = ( zsq * invc ) + c;
+    rotationMatrix[0x0B] = 0.0f;
+
+    rotationMatrix[0x0C] = 0.0f;
+    rotationMatrix[0x0D] = 0.0f;
+    rotationMatrix[0x0E] = 0.0f;
+    rotationMatrix[0x0F] = 1.0f;
 
     g3dcore_multMatrixf( rotationMatrix, matrix, resultMatrix );
 
     memcpy( matrix, resultMatrix, sizeof( resultMatrix ) );
+}
+
+/******************************************************************************/
+void g3dcore_convertMatrixftod( float *inMatrix, double *outMatrix  ) {
+    uint32_t i;
+
+    for( i = 0; i < 0x10; i++ ) {
+        outMatrix[i] = inMatrix[i];
+    }
+}
+
+/******************************************************************************/
+void g3dcore_unprojectf( double  x,
+                         double  y,
+                         double  z,
+                         float  *MVX,
+                         float  *PJX,
+                         int    *VPX,
+                         double *winx,
+                         double *winy,
+                         double *winz ) {
+    double MVXd[0x10];
+    double PJXd[0x10];
+
+    g3dcore_convertMatrixftod( MVX, MVXd );
+    g3dcore_convertMatrixftod( PJX, PJXd );
+
+    gluUnProject ( x,
+                   y,
+                   z,
+                   MVXd,
+                   PJXd,
+                   VPX,
+                   winx,
+                   winy,
+                   winz );
+}
+
+/******************************************************************************/
+void g3dcore_projectf( double  x,
+                       double  y,
+                       double  z,
+                       float  *MVX,
+                       float  *PJX,
+                       int    *VPX,
+                       double *winx,
+                       double *winy,
+                       double *winz ) {
+    double MVXd[0x10];
+    double PJXd[0x10];
+
+    g3dcore_convertMatrixftod( MVX, MVXd );
+    g3dcore_convertMatrixftod( PJX, PJXd );
+
+    gluProject ( x,
+                 y,
+                 z,
+                 MVXd,
+                 PJXd,
+                 VPX,
+                 winx,
+                 winy,
+                 winz );
 }
 
 /******************************************************************************/
@@ -93,26 +179,49 @@ void g3dcore_rotateMatrixd( double *matrix,
                             float x,
                             float y,
                             float z ) {
-    float c = cos( a );
-    float s = sin( a );
-    float invc = ( 1.0f - c );
-    float xsq = ( x * x );
-    float ysq = ( y * y );
-    float zsq = ( z * z );
+    double c = cos( a );
+    double s = sin( a );
+    double invc = ( 1.0f - c );
+    double xsq = ( x * x );
+    double ysq = ( y * y );
+    double zsq = ( z * z );
 
-    float xy = ( x * y );
-    float yz = ( y * z );
-    float zx = ( z * x );
+    double xy = ( x * y );
+    double yz = ( y * z );
+    double zx = ( z * x );
 
-    float xs = ( x * s );
-    float ys = ( y * s );
-    float zs = ( z * s );
-    double rotationMatrix[] =
- { ( xsq * invc ) + c , ( xy  * invc ) - ( zs ), ( zx  * invc ) + ( ys ), 0.0f,
-   ( xy  * invc ) + zs, ( ysq * invc ) + c     , ( yz  * invc ) - ( xs ), 0.0f,
-   ( zx  * invc ) - ys, ( yz  * invc ) + xs    , ( zsq * invc ) + c     , 0.0f,
-   0.0f               , 0.0f                   , 0.0f                   , 1.0f };
+    double xs = ( x * s );
+    double ys = ( y * s );
+    double zs = ( z * s );
     double resultMatrix[0x10];
+    /*** row major representation from OpenGL documentation
+ { ( xsq * invc ) + c , ( xy  * invc ) - zs, ( zx  * invc ) + ys, 0.0f,
+   ( xy  * invc ) + zs, ( ysq * invc ) + c , ( yz  * invc ) - xs, 0.0f,
+   ( zx  * invc ) - ys, ( yz  * invc ) + xs, ( zsq * invc ) + c , 0.0f,
+   0.0f               , 0.0f               , 0.0f               , 1.0f };
+    ***/
+    double rotationMatrix[0x10];
+
+    /*** Note: OpenGL Matrices are column major ***/
+    rotationMatrix[0x00] = ( xsq * invc ) + c;
+    rotationMatrix[0x01] = ( xy  * invc ) + zs;
+    rotationMatrix[0x02] = ( zx  * invc ) - ys;
+    rotationMatrix[0x03] = 0.0f;
+
+    rotationMatrix[0x04] = ( xy  * invc ) - zs;
+    rotationMatrix[0x05] = ( ysq * invc ) + c;
+    rotationMatrix[0x06] = ( yz  * invc ) + xs;
+    rotationMatrix[0x07] = 0.0f;
+
+    rotationMatrix[0x08] = ( zx  * invc ) + ys;
+    rotationMatrix[0x09] = ( yz  * invc ) - xs;
+    rotationMatrix[0x0A] = ( zsq * invc ) + c;
+    rotationMatrix[0x0B] = 0.0f;
+
+    rotationMatrix[0x0C] = 0.0f;
+    rotationMatrix[0x0D] = 0.0f;
+    rotationMatrix[0x0E] = 0.0f;
+    rotationMatrix[0x0F] = 1.0f;
 
     g3dcore_multMatrixd( rotationMatrix, matrix, resultMatrix );
 
@@ -121,6 +230,7 @@ void g3dcore_rotateMatrixd( double *matrix,
 
 /******************************************************************************/
 void g3dcore_scaleMatrixf( float *matrix, float x, float y, float z ) {
+    /*** note: row and column major are identical ***/
     float scalingMatrix[] = { x   , 0.0f, 0.0f, 0.0f,
                               0.0f, y   , 0.0f, 0.0f, 
                               0.0f, 0.0f, z   , 0.0f, 
@@ -134,11 +244,36 @@ void g3dcore_scaleMatrixf( float *matrix, float x, float y, float z ) {
 
 /******************************************************************************/
 void g3dcore_translateMatrixf( float *matrix, float x, float y, float z ) {
-    float translationMatrix[] = { 1.0f, 0.0f, 0.0f, x,
-                                  0.0f, 1.0f, 0.0f, y, 
-                                  0.0f, 0.0f, 1.0f, z, 
-                                  0.0f, 0.0f, 0.0f, 1.0f };
+    float translationMatrix[0x10];
     float resultMatrix[0x10];
+
+    /*** row major representation from OpenGL documentation
+   { 1.0f, 0.0f, 0.0f, x,
+     0.0f, 1.0f, 0.0f, y, 
+     0.0f, 0.0f, 1.0f, z, 
+     0.0f, 0.0f, 0.0f, 1.0f };
+    ***/
+
+    /*** Note: OpenGL Matrices are column major ***/
+    translationMatrix[0x00] = 1.0f;
+    translationMatrix[0x01] = 0.0f;
+    translationMatrix[0x02] = 0.0f;
+    translationMatrix[0x03] = 0.0f;
+
+    translationMatrix[0x04] = 0.0f;
+    translationMatrix[0x05] = 1.0f;
+    translationMatrix[0x06] = 0.0f;
+    translationMatrix[0x07] = 0.0f;
+
+    translationMatrix[0x08] = 0.0f;
+    translationMatrix[0x09] = 0.0f;
+    translationMatrix[0x0A] = 1.0f;
+    translationMatrix[0x0B] = 0.0f;
+
+    translationMatrix[0x0C] = x;
+    translationMatrix[0x0D] = y;
+    translationMatrix[0x0E] = z;
+    translationMatrix[0x0F] = 1.0f;
 
     g3dcore_multMatrixf( translationMatrix, matrix, resultMatrix );
 
@@ -1114,7 +1249,7 @@ void g3dcore_identityMatrixd ( double *M ) {
 }
 
 /******************************************************************************/
-void g3dcore_printMatrix ( double *MX, uint32_t nx, uint32_t ny ) {
+void g3dcore_printMatrixf ( float *MX, uint32_t nx, uint32_t ny ) {
     uint32_t i, j;
 
     for ( i = 0x00; i < ny; i++ ) {
@@ -1128,7 +1263,39 @@ void g3dcore_printMatrix ( double *MX, uint32_t nx, uint32_t ny ) {
 }
 
 /******************************************************************************/
-void g3dcore_getMatrixScale ( double *matrix, G3DVECTOR *sca ) {
+void g3dcore_printMatrixd ( double *MX, uint32_t nx, uint32_t ny ) {
+    uint32_t i, j;
+
+    for ( i = 0x00; i < ny; i++ ) {
+        for ( j = 0x00; j < nx; j++ ) {
+            printf ( "%f ", ( float ) MX[(i*nx)+j] );
+        }
+
+        printf ( "\n" );
+    }
+    printf ( "\n" );
+}
+
+/******************************************************************************/
+void g3dcore_getMatrixScaled ( double *matrix, G3DVECTOR *sca ) {
+    float xscale = 0, yscale = 0, zscale = 0;
+
+    sca->x = ( float ) sqrt ( matrix[0x00] * matrix[0x00] +
+                              matrix[0x01] * matrix[0x01] +
+                              matrix[0x02] * matrix[0x02] );
+
+    sca->y = ( float ) sqrt ( matrix[0x04] * matrix[0x04] +
+                              matrix[0x05] * matrix[0x05] +
+                              matrix[0x06] * matrix[0x06] );
+
+    sca->z = ( float ) sqrt ( matrix[0x08] * matrix[0x08] +
+                              matrix[0x09] * matrix[0x09] +
+                              matrix[0x0A] * matrix[0x0A] );
+    sca->w = 1.0f;
+}
+
+/******************************************************************************/
+void g3dcore_getMatrixScalef ( float *matrix, G3DVECTOR *sca ) {
     float xscale = 0, yscale = 0, zscale = 0;
 
     sca->x = ( float ) sqrt ( matrix[0x00] * matrix[0x00] +
@@ -1250,7 +1417,7 @@ void g3dcore_getMatrixTranslationd ( double *matrix, G3DVECTOR *pos ) {
 }
 
 /******************************************************************************/
-float g3dcore_intersect ( G3DDOUBLEVECTOR *plane,
+float g3dcore_intersect ( G3DVECTOR *plane,
                           G3DVECTOR *p1,
                           G3DVECTOR *p2,
                           G3DVECTOR *pout ) {
@@ -1287,4 +1454,35 @@ float g3dcore_intersect ( G3DDOUBLEVECTOR *plane,
     /*}*/
 
     return 0.0f;
+}
+
+/******************************************************************************/
+void g3dcore_perpespectivef ( double fovy,
+                              double aspect,
+                              double zNear,
+                              double zFar,
+                              float *projectionMatrix ) {
+    double f = 1.0f / tan ( ( double ) fovy / 2.0f * M_PI / 180.0f );
+    double zfPzn = zFar  + zNear;
+    double znMzf = zNear - zFar;
+    double zfMzn = zFar  - zNear;
+
+    /** we cannot use gluPerspective() because we are in a thread. **/
+    /* https://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml */
+    projectionMatrix[0x00] =  aspect ? ( f / aspect ) : 0.0f;
+    projectionMatrix[0x04] =  0.0f;
+    projectionMatrix[0x08] =  0.0f;
+    projectionMatrix[0x0C] =  0.0f;
+    projectionMatrix[0x01] =  0.0f;
+    projectionMatrix[0x05] =  f;
+    projectionMatrix[0x09] =  0.0f;
+    projectionMatrix[0x0D] =  0.0f;
+    projectionMatrix[0x02] =  0.0f;
+    projectionMatrix[0x06] =  0.0f;
+    projectionMatrix[0x0A] = zfPzn / znMzf;
+    projectionMatrix[0x0E] = ( 2.0f * zFar * zNear ) / znMzf;
+    projectionMatrix[0x03] =  0.0f;
+    projectionMatrix[0x07] =  0.0f;
+    projectionMatrix[0x0B] = -1.0f;
+    projectionMatrix[0x0F] =  0.0f;
 }

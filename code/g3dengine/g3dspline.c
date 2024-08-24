@@ -140,7 +140,7 @@ void g3dspline_update ( G3DSPLINE *spl,
 
 /******************************************************************************/
 void g3dspline_moveAxis ( G3DSPLINE *spl, 
-                          double    *PREVMVX, /* previous world matrix */
+                          float    *PREVMVX, /* previous world matrix */
                           uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
     LIST *ltmppt = spl->curve->lpt;
@@ -158,7 +158,7 @@ void g3dspline_moveAxis ( G3DSPLINE *spl,
                            .z = pt->pos.z,
                            .w = 1.0f };
 
-        g3dvector_matrix ( &pos, DIFFMVX, &pt->pos );
+        g3dvector_matrixf ( &pos, DIFFMVX, &pt->pos );
 #ifdef UNUSED
         } else {
             float DIFFROT[0x10];

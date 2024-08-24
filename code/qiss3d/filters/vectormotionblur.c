@@ -104,7 +104,7 @@ static void filtervmb_fillAbuffer ( Q3DFILTER    *qfil,
 static void filtervmb_import_r    ( Q3DFILTER *qfil, 
                                     Q3DCAMERA *qcam,
                                     Q3DOBJECT *qobj,
-                                    double    *MVX,
+                                    float     *MVX,
                                     int32_t    subframeID,
                                     float      frame,
                                     uint32_t   matrixmul );
@@ -693,7 +693,7 @@ static void filtervmb_drawInterpolatedObjects ( Q3DFILTER *qfil ) {
 static void vmbtriangle_init ( VMBTRIANGLE *vtri,
                                Q3DTRIANGLE *qtri,
                                Q3DVERTEX   *qver,
-                               double      *MVX,
+                               float       *MVX,
                                Q3DCAMERA   *qcam ) {
     Q3DVECTOR3D screenmax = { .x = FLT_MIN, .y = FLT_MIN, .z = FLT_MIN },
                 screenmin = { .x = FLT_MAX, .y = FLT_MAX, .z = FLT_MAX };
@@ -701,15 +701,15 @@ static void vmbtriangle_init ( VMBTRIANGLE *vtri,
     uint32_t i;
 
     for ( i = 0x00; i < 0x03; i++ ) {
-        gluProject ( qver[qtri->qverID[i]].pos.x,
-                     qver[qtri->qverID[i]].pos.y,
-                     qver[qtri->qverID[i]].pos.z,
-                     MVX,
-                     qcam->PJX,
-                     qcam->VPX,
-                    &screenpos[i].x,
-                    &screenpos[i].y,
-                    &screenpos[i].z );
+        g3dcore_projectf ( qver[qtri->qverID[i]].pos.x,
+                           qver[qtri->qverID[i]].pos.y,
+                           qver[qtri->qverID[i]].pos.z,
+                           MVX,
+                           qcam->PJX,
+                           qcam->VPX,
+                          &screenpos[i].x,
+                          &screenpos[i].y,
+                          &screenpos[i].z );
 
         if ( screenpos[i].x < screenmin.x ) screenmin.x = screenpos[i].x;
         if ( screenpos[i].y < screenmin.y ) screenmin.y = screenpos[i].y;
@@ -771,7 +771,7 @@ static VMBMESH *vmbmesh_free ( VMBMESH *vmes ) {
 static void vmbmesh_import ( VMBMESH   *vmes,
                              Q3DMESH   *qmes,
                              Q3DCAMERA *qcam,
-                             double    *MVX,
+                             float     *MVX,
                              int32_t    subframeID,
                              float      frame ) {
     Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );
@@ -796,7 +796,7 @@ static void vmbmesh_import ( VMBMESH   *vmes,
 static VMBMESH *vmbmesh_new ( Q3DMESH   *qmes,
                               uint32_t   id,
                               Q3DCAMERA *qcam,
-                              double    *MVX,
+                              float     *MVX,
                               float      frame,
                               uint32_t   nbSamples ) {
     VMBMESH *vmes = NULL;
@@ -818,15 +818,15 @@ static VMBMESH *vmbmesh_new ( Q3DMESH   *qmes,
         for ( i = 0x00; i < 0x08; i++ ) {
             Q3DVECTOR3D screenpos;
 
-            gluProject ( coord[i].x,
-                         coord[i].y,
-                         coord[i].z,
-                         MVX,
-                         qcam->PJX,
-                         qcam->VPX,
-                        &screenpos.x,
-                        &screenpos.y,
-                        &screenpos.z );
+            g3dcore_projectf ( coord[i].x,
+                               coord[i].y,
+                               coord[i].z,
+                               MVX,
+                               qcam->PJX,
+                               qcam->VPX,
+                              &screenpos.x,
+                              &screenpos.y,
+                              &screenpos.z );
 
             if ( screenpos.x < screenmin.x ) screenmin.x = screenpos.x;
             if ( screenpos.y < screenmin.y ) screenmin.y = screenpos.y;
@@ -868,15 +868,15 @@ static VMBMESH *vmbmesh_new ( Q3DMESH   *qmes,
 static void filtervmb_importSymmetry ( Q3DFILTER   *qfil, 
                                        Q3DCAMERA   *qcam,
                                        Q3DSYMMETRY *qsym,
-                                       double      *MVX,
+                                       float       *MVX,
                                        int32_t      subframeID,
                                        float        frame ) {
     Q3DOBJECT *qobj = ( Q3DOBJECT * ) qsym;
     LIST *ltmpchildren = qobj->lchildren;
     G3DSYMMETRY *sym  = ( G3DSYMMETRY * ) q3dobject_getObject ( qobj );
-    double SMVX[0x10];
+    float SMVX[0x10];
 
-    g3dcore_multmatrix ( sym->smatrix, MVX, SMVX );
+    g3dcore_multMatrixf ( sym->smatrix, MVX, SMVX );
 
     while ( ltmpchildren ) {
         Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
@@ -897,14 +897,14 @@ static void filtervmb_importSymmetry ( Q3DFILTER   *qfil,
 static void filtervmb_import_r ( Q3DFILTER *qfil, 
                                  Q3DCAMERA *qcam,
                                  Q3DOBJECT *qobj,
-                                 double    *MVX,
+                                 float     *MVX,
                                  int32_t    subframeID,
                                  float      frame,
                                  uint32_t   matrixmul ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
     LIST *ltmpchildren = qobj->lchildren;
     Q3DMESH *qmes = NULL;
-    double WMVX[0x10];
+    float WMVX[0x10];
 
 
     /*** The recursive nature insures objects always have the same ID in ***/
@@ -912,7 +912,7 @@ static void filtervmb_import_r ( Q3DFILTER *qfil,
     fvmb->vobjID++;
 
     if ( matrixmul ) {
-        g3dcore_multmatrix ( qobj->obj->lmatrix, MVX, WMVX );
+        g3dcore_multMatrixf ( qobj->obj->localMatrix, MVX, WMVX );
     } else {
         memcpy ( WMVX, MVX, sizeof ( WMVX ) );
     }
@@ -934,8 +934,8 @@ static void filtervmb_import_r ( Q3DFILTER *qfil,
                    for ( j = 0x00; j < pem->maxParticlesPerFrame; j++ ) {
                        if ( prt[j].flags & PARTICLE_ISALIVE ) {
                            if ( qprt[j].qref ) {
-                               g3dcore_multmatrix ( qprt[j].MVX,
-                                                    objcam->iwmatrix, 
+                               g3dcore_multMatrixf ( qprt[j].MVX,
+                                                     objcam->inverseWorldMatrix, 
                                                      WMVX );
 
                                filtervmb_import_r ( qfil, 
@@ -1024,7 +1024,7 @@ static void filtervmb_import_r ( Q3DFILTER *qfil,
 static void filtervmb_import ( Q3DFILTER *qfil, 
                                Q3DCAMERA *qcam,
                                Q3DOBJECT *qobj,
-                               double    *MVX,
+                               float     *MVX,
                                int32_t    subframeID,
                                float      frame ) {
     FILTERVMB *fvmb = ( FILTERVMB * ) qfil->data;
@@ -1164,7 +1164,7 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
             filtervmb_import ( qfil, 
                                befqcam,
                ( Q3DOBJECT * ) befqsce,
-                               objcam->iwmatrix,
+                               objcam->inverseWorldMatrix,
                                rank++,
                                fromFrame );
 
@@ -1207,7 +1207,7 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
         filtervmb_import ( qfil, 
                            qjob->qcam,
            ( Q3DOBJECT * ) qjob->qsce,
-                           objcam->iwmatrix,
+                           objcam->inverseWorldMatrix,
                            rank++,
                            fromFrame );
 
@@ -1231,7 +1231,7 @@ static uint32_t filtervmb_draw ( Q3DFILTER     *qfil,
             filtervmb_import ( qfil, 
                                aftqcam,
                ( Q3DOBJECT * ) aftqsce,
-                               objcam->iwmatrix,
+                               objcam->inverseWorldMatrix,
                                rank++,
                                fromFrame );
 

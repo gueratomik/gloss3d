@@ -51,7 +51,9 @@ static uint32_t g3dexportv3bone_rigSkinMatrix ( G3DEXPORTV3DATA  *ged,
     uint32_t i;
 
     for ( i = 0x00; i < 0x10; i++ ) {
-        size += g3dexportv3_fwrited ( &rig->isknmatrix[i], fdst );
+        double cell = rig->isknmatrix[i];
+
+        size += g3dexportv3_fwrited ( &cell, fdst );
     }
 
     return size;

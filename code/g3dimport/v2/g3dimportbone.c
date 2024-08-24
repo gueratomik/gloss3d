@@ -104,7 +104,11 @@ void g3dimportv2bone ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 uint32_t i;
 
                 for ( i = 0x00; i < 0x10; i++ ) {
-                    g3dimportv2_freadd ( &rig->isknmatrix[i], fsrc );
+                    double cell;
+
+                    g3dimportv2_freadd ( &cell, fsrc );
+
+                    rig->isknmatrix[i] = cell;
                 }
 
                 obj->flags |= BONEFROMFILE;

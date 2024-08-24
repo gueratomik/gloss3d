@@ -896,7 +896,7 @@ g3dquaternion_print ( &qout );
 g3dquaternion_toEulerInDegrees ( &qout, &rot );
 g3ddoublevector_print ( &rot ); */
 
-            g3dquaternion_convert ( &qout, obj->rotationMatrix );
+            g3dquaternion_convertf ( &qout, obj->rotationMatrix );
 
             g3dquaternion_toEulerInDegrees ( &qout, &rot );
 
@@ -1733,7 +1733,7 @@ uint32_t g3dobject_pickPath ( G3DOBJECT *obj,
 uint32_t g3dobject_pick ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
                           uint64_t   engine_flags ) {
-    double MVX[0x10], PARENTMVX[0x10];
+    float MVX[0x10], PARENTMVX[0x10];
 
     g3dcore_multMatrixf ( obj->parent->worldMatrix
                         , curcam->obj.inverseWorldMatrix
@@ -1745,10 +1745,10 @@ uint32_t g3dobject_pick ( G3DOBJECT *obj,
 
     /*** if we are in the UVMAPEDITOR, we must not change the modelview ***/
     /*** matrix ***/
-    if ( engine_flags & VIEWVERTEXUV ) g3dcore_identityMatrix ( MVX );
-    if ( engine_flags & VIEWFACEUV   ) g3dcore_identityMatrix ( MVX );
+    if ( engine_flags & VIEWVERTEXUV ) g3dcore_identityMatrixf ( MVX );
+    if ( engine_flags & VIEWFACEUV   ) g3dcore_identityMatrixf ( MVX );
 
-    g3dpick_setModelviewMatrix ( MVX );
+    g3dpick_setModelviewMatrixf ( MVX );
 
     if ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) {
         if ( obj->pick ) obj->pick ( obj, curcam, engine_flags );
@@ -1756,7 +1756,7 @@ uint32_t g3dobject_pick ( G3DOBJECT *obj,
 
     if ( engine_flags & VIEWPATH ) {
         if ( obj->flags & OBJECTSELECTED ) {
-            g3dpick_setModelviewMatrix ( PARENTMVX );
+            g3dpick_setModelviewMatrixf ( PARENTMVX );
 
             if ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) {
                 g3dobject_pickPath ( obj, curcam, engine_flags );
@@ -1987,9 +1987,9 @@ void g3dobject_importChild ( G3DOBJECT *newparent,
 
     if ( child->parent ) g3dobject_removeChild ( child->parent, child, engine_flags );
 
-    g3dcore_getMatrixScale       ( outmatrix, &child->sca );
-    g3dcore_getMatrixRotation    ( outmatrix, &child->rot );
-    g3dcore_getMatrixTranslation ( outmatrix, &child->pos );
+    g3dcore_getMatrixScalef       ( outmatrix, &child->sca );
+    g3dcore_getMatrixRotationf    ( outmatrix, &child->rot );
+    g3dcore_getMatrixTranslationf ( outmatrix, &child->pos );
 
     g3dobject_addChild ( newparent, child, engine_flags );
 
@@ -2025,11 +2025,11 @@ G3DOBJECT *g3dobject_copy ( G3DOBJECT  *obj,
 void g3dobject_initMatrices ( G3DOBJECT *obj ) {
     uint32_t i;
 
-    g3dcore_indentityMatrixf( obj->localMatrix );
-    g3dcore_indentityMatrixf( obj->inverseLocalMatrix );
-    g3dcore_indentityMatrixf( obj->worldMatrix );
-    g3dcore_indentityMatrixf( obj->inverseWorldMatrix );
-    g3dcore_indentityMatrixf( obj->rotationMatrix );
+    g3dcore_identityMatrixf( obj->localMatrix );
+    g3dcore_identityMatrixf( obj->inverseLocalMatrix );
+    g3dcore_identityMatrixf( obj->worldMatrix );
+    g3dcore_identityMatrixf( obj->inverseWorldMatrix );
+    g3dcore_identityMatrixf( obj->rotationMatrix );
 
     obj->rotXAxis.x = obj->rotYAxis.y = obj->rotZAxis.z = 1.0f;
 
@@ -2339,7 +2339,7 @@ void g3dobject_name ( G3DOBJECT *obj, const char *name ) {
 
 /******************************************************************************/
 void g3dobject_moveAxis ( G3DOBJECT *obj, 
-                          double    *PREVMVX, /* previous world matrix */
+                          float     *PREVMVX, /* previous world matrix */
                           uint64_t engine_flags ) {
     LIST *ltmpchildren = obj->lchildren;
     float DIFFMVX[0x10];
@@ -2351,11 +2351,11 @@ void g3dobject_moveAxis ( G3DOBJECT *obj,
         float prvChildWorldMatrix[0x10];
         float newChildLocalMatrix[0x10];
 
-        g3dcore_multmatrixf ( child->localMatrix, PREVMVX, prvChildWorldMatrix );
-        g3dcore_multmatrixf ( prvChildWorldMatrix, obj->inverseWorldMatrix, newChildLocalMatrix );
+        g3dcore_multMatrixf ( child->localMatrix, PREVMVX, prvChildWorldMatrix );
+        g3dcore_multMatrixf ( prvChildWorldMatrix, obj->inverseWorldMatrix, newChildLocalMatrix );
 
-        g3dcore_getMatrixTranslation ( newChildLocalMatrix, &child->pos );
-        g3dcore_getMatrixRotation    ( newChildLocalMatrix, &child->rot );
+        g3dcore_getMatrixTranslationf ( newChildLocalMatrix, &child->pos );
+        g3dcore_getMatrixRotationf    ( newChildLocalMatrix, &child->rot );
 
         g3dobject_updateMatrix_r ( child, engine_flags );
 

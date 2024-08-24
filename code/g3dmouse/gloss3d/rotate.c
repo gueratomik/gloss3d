@@ -107,7 +107,7 @@ static int rotate_spline ( G3DSPLINE    *spl,
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
     static double mouseXpress, mouseYpress;
-    static GLdouble MVX[0x10], PJX[0x10];
+    static float MVX[0x10];
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
     static URMMOVEPOINT *ump;
@@ -116,23 +116,11 @@ static int rotate_spline ( G3DSPLINE    *spl,
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-            glMatrixMode ( GL_PROJECTION );
-            glPushMatrix ( );
-            glLoadIdentity ( );
-            g3dcamera_project ( cam, engine_flags );
+            g3dcore_multMatrixf ( obj->worldMatrix,
+                                  cam->obj.inverseWorldMatrix,
+                                  MVX );
 
-            glMatrixMode ( GL_MODELVIEW );
-            glPushMatrix ( );
-            g3dcamera_view ( cam, HIDEGRID ); 
-            glMultMatrixd ( obj->wmatrix );
-
-            glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
-            glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
             glGetIntegerv ( GL_VIEWPORT, VPX );
-
-            glPopMatrix ( );
-            glMatrixMode ( GL_PROJECTION );
-            glPopMatrix ( );
 
             mouseXpress = bev->x;
             mouseYpress = bev->y;
@@ -157,12 +145,25 @@ static int rotate_spline ( G3DSPLINE    *spl,
                                                 REDRAWVIEW );
                 urmmovepoint_saveState ( ump, UMPSAVESTATEBEFORE );
 
-                gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
-                gluUnProject ( ( GLdouble ) bev->x,
-                               ( GLdouble ) VPX[0x03] - bev->y,
-                               ( GLdouble ) winz,
-                               MVX, PJX, VPX,
-                               &orix, &oriy, &oriz );
+                g3dcore_projectf ( 0.0f,
+                                   0.0f,
+                                   0.0f,
+                                   MVX,
+                                   cam->pmatrix,
+                                   VPX,
+                                  &winx,
+                                  &winy,
+                                  &winz );
+
+                g3dcore_unprojectf ( ( GLdouble ) bev->x,
+                                     ( GLdouble ) VPX[0x03] - bev->y,
+                                     ( GLdouble ) winz,
+                                                  MVX,
+                                                  cam->pmatrix,
+                                                  VPX,
+                                                 &orix,
+                                                 &oriy,
+                                                 &oriz );
             }
         } return REDRAWVIEW;
 
@@ -174,11 +175,15 @@ static int rotate_spline ( G3DSPLINE    *spl,
                     LIST *ltmppt = spl->curve->lselpt;
                     double difx, dify, difz;
 
-                    gluUnProject ( ( GLdouble ) mev->x,
-                               ( GLdouble ) VPX[0x03] - mev->y,
-                               ( GLdouble ) winz,
-                               MVX, PJX, VPX,
-                               &newx, &newy, &newz );
+                    g3dcore_unprojectf ( ( GLdouble ) mev->x,
+                                         ( GLdouble ) VPX[0x03] - mev->y,
+                                         ( GLdouble ) winz,
+                                                      MVX,
+                                                      cam->pmatrix,
+                                                      VPX,
+                                                     &newx,
+                                                     &newy,
+                                                     &newz );
 
                     difx = ( newx - orix );
                     dify = ( newy - oriy );
@@ -382,7 +387,7 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
     static double mouseXpress, mouseYpress;
-    static GLdouble MVX[0x10], PJX[0x10];
+    static float MVX[0x10];
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) mpr;
     static LIST *lver, *lfac, *ledg;
@@ -400,23 +405,11 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
                         G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
                         G3DVECTOR avgpos;
 
-                        glMatrixMode ( GL_PROJECTION );
-                        glPushMatrix ( );
-                        glLoadIdentity ( );
-                        g3dcamera_project ( cam, engine_flags );
+                        g3dcore_multMatrixf ( obj->worldMatrix,
+                                              cam->obj.inverseWorldMatrix,
+                                              MVX );
 
-                        glMatrixMode ( GL_MODELVIEW );
-                        glPushMatrix ( );
-                        g3dcamera_view ( cam, HIDEGRID );
-                        glMultMatrixd ( obj->wmatrix );
-
-                        glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
-                        glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
                         glGetIntegerv ( GL_VIEWPORT, VPX );
-
-                        glPopMatrix ( );
-                        glMatrixMode ( GL_PROJECTION );
-                        glPopMatrix ( );
 
                         mouseXpress = orix = bev->x;
                         mouseYpress = bev->y;
@@ -451,26 +444,24 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
                             G3DVECTOR *axis = sce->csr.axis;
                             LIST *ltmpver = lver;
                             double difx, dify, difz;
-                            double ROTX[0x10];
+                            float ROTX[0x10];
 
                             if ( ( engine_flags & XAXIS ) && axis[0].w ) difx = ( newx - orix );
                             if ( ( engine_flags & YAXIS ) && axis[1].w ) dify = ( newx - orix );
                             if ( ( engine_flags & ZAXIS ) && axis[2].w ) difz = ( newx - orix );
 
-                            glMatrixMode ( GL_MODELVIEW );
-                            glPushMatrix ( );
-                            glLoadIdentity ( );
-                            glTranslatef (  localPivot.x, 
-                                            localPivot.y, 
-                                            localPivot.z );
-                            glRotatef ( difx, 1.0f, 0.0f, 0.0f );
-                            glRotatef ( dify, 0.0f, 1.0f, 0.0f );
-                            glRotatef ( difz, 0.0f, 0.0f, 1.0f );
-                            glTranslatef ( -localPivot.x,
-                                           -localPivot.y, 
-                                           -localPivot.z );
-                            glGetDoublev ( GL_MODELVIEW_MATRIX, ROTX );
-                            glPopMatrix ( );
+                            g3dcore_identityMatrixf ( ROTX );
+                            g3dcore_translateMatrixf ( ROTX,
+                                                       localPivot.x, 
+                                                       localPivot.y, 
+                                                       localPivot.z );
+                            g3dcore_rotateMatrixf ( ROTX, difx, 1.0f, 0.0f, 0.0f );
+                            g3dcore_rotateMatrixf ( ROTX, dify, 0.0f, 1.0f, 0.0f );
+                            g3dcore_rotateMatrixf ( ROTX, difz, 0.0f, 0.0f, 1.0f );
+                            g3dcore_translateMatrixf ( ROTX,
+                                                      -localPivot.x,
+                                                      -localPivot.y, 
+                                                      -localPivot.z );
 
                             while ( ltmpver ) {
                                 G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -484,7 +475,7 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
                                                          .z = vpose->pos.z, 1.0f };
                                     G3DVECTOR newpos;
 
-                                    g3dvector_matrix ( &verpos, ROTX, &newpos );
+                                    g3dvector_matrixf ( &verpos, ROTX, &newpos );
 
                                     vpose->pos.x = newpos.x;
                                     vpose->pos.y = newpos.y;
@@ -500,7 +491,8 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
 
                             /*** update cursor matrix ***/
                             memcpy ( sce->csr.matrix, 
-                                     obj->wmatrix, sizeof ( double ) * 0x10 );
+                                     obj->worldMatrix,
+                                     sizeof ( obj->worldMatrix ) );
 
                             orix = newx;
                         }
@@ -571,7 +563,7 @@ static int rotate_mesh ( G3DMESH          *mes,
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
     static double mouseXpress, mouseYpress;
-    static GLdouble MVX[0x10], PJX[0x10];
+    static float MVX[0x10];
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     static LIST *lver, *lfac, *ledg;
@@ -584,23 +576,11 @@ static int rotate_mesh ( G3DMESH          *mes,
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
             G3DVECTOR avgpos;
 
-            glMatrixMode ( GL_PROJECTION );
-            glPushMatrix ( );
-            glLoadIdentity ( );
-            g3dcamera_project ( cam, engine_flags );
+            g3dcore_multMatrixf ( obj->worldMatrix,
+                                  cam->obj.inverseWorldMatrix,
+                                  MVX );
 
-            glMatrixMode ( GL_MODELVIEW );
-            glPushMatrix ( );
-            g3dcamera_view ( cam, HIDEGRID );
-            glMultMatrixd ( obj->wmatrix );
-
-            glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
-            glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
             glGetIntegerv ( GL_VIEWPORT, VPX );
-
-            glPopMatrix ( );
-            glMatrixMode ( GL_PROJECTION );
-            glPopMatrix ( );
 
             mouseXpress = orix = bev->x;
             mouseYpress = bev->y;
@@ -649,26 +629,25 @@ static int rotate_mesh ( G3DMESH          *mes,
                     G3DVECTOR *axis = sce->csr.axis;
                     LIST *ltmpver = lver;
                     double difx, dify, difz;
-                    double ROTX[0x10];
+                    float ROTX[0x10];
 
                     if ( ( engine_flags & XAXIS ) && axis[0].w ) difx = ( newx - orix );
                     if ( ( engine_flags & YAXIS ) && axis[1].w ) dify = ( newx - orix );
                     if ( ( engine_flags & ZAXIS ) && axis[2].w ) difz = ( newx - orix );
 
-                    glMatrixMode ( GL_MODELVIEW );
-                    glPushMatrix ( );
-                    glLoadIdentity ( );
-                    glTranslatef (  localPivot.x, 
-                                    localPivot.y, 
-                                    localPivot.z );
-                    glRotatef ( difx, 1.0f, 0.0f, 0.0f );
-                    glRotatef ( dify, 0.0f, 1.0f, 0.0f );
-                    glRotatef ( difz, 0.0f, 0.0f, 1.0f );
-                    glTranslatef ( -localPivot.x, 
-                                   -localPivot.y, 
-                                   -localPivot.z );
-                    glGetDoublev ( GL_MODELVIEW_MATRIX, ROTX );
-                    glPopMatrix ( );
+
+                    g3dcore_identityMatrixf ( ROTX );
+                    g3dcore_translateMatrixf ( ROTX,
+                                               localPivot.x, 
+                                               localPivot.y, 
+                                               localPivot.z );
+                    g3dcore_rotateMatrixf ( ROTX, difx, 1.0f, 0.0f, 0.0f );
+                    g3dcore_rotateMatrixf ( ROTX, dify, 0.0f, 1.0f, 0.0f );
+                    g3dcore_rotateMatrixf ( ROTX, difz, 0.0f, 0.0f, 1.0f );
+                    g3dcore_translateMatrixf ( ROTX,
+                                              -localPivot.x, 
+                                              -localPivot.y, 
+                                              -localPivot.z );
 
                     while ( ltmpver ) {
                         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -677,7 +656,7 @@ static int rotate_mesh ( G3DMESH          *mes,
                                              .z = ver->pos.z, 1.0f };
                         G3DVECTOR newpos;
 
-                        g3dvector_matrix ( &verpos, ROTX, &newpos );
+                        g3dvector_matrixf ( &verpos, ROTX, &newpos );
 
                         ver->pos.x = newpos.x;
                         ver->pos.y = newpos.y;
@@ -693,7 +672,7 @@ static int rotate_mesh ( G3DMESH          *mes,
 
                     /*** update cursor matrix ***/
                     memcpy ( sce->csr.matrix, 
-                             obj->wmatrix, sizeof ( double ) * 0x10 );
+                             obj->worldMatrix, sizeof ( obj->worldMatrix ) );
 
                     /*g3dmesh_modify ( mes,
                                      G3DMODIFYOP_UPDATE,
@@ -786,14 +765,14 @@ static int rotate_object ( LIST        *lobj,
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
     static double mouseXpress, mouseYpress;
-    static GLdouble MVX[0x10], PJX[0x10];
+    static float MVX[0x10];
     static GLint VPX[0x04];
     static LIST *lver, *lfac, *ledg;
     static G3DVECTOR lvecx, lvecy, lvecz;
-    static G3DDOUBLEVECTOR startpos; /*** world original pivot ***/
+    static G3DVECTOR startpos; /*** world original pivot ***/
     static uint32_t nbobj;
     static URMTRANSFORMOBJECT *uto;
-    static double PREVWMVX[0x10];
+    static float PREVWMVX[0x10];
     static G3DVECTOR xaxis, yaxis, zaxis;
 
     switch ( event->type ) {
@@ -812,29 +791,14 @@ static int rotate_object ( LIST        *lobj,
             mouseXpress = orix = bev->x;
             mouseYpress = bev->y;
 
-            glMatrixMode ( GL_PROJECTION );
-            glPushMatrix ( );
-            glLoadIdentity ( );
-            g3dcamera_project ( cam, engine_flags );
-
-            glMatrixMode ( GL_MODELVIEW );
-            glPushMatrix ( );
-            g3dcamera_view ( cam, HIDEGRID );
-
-            glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
-            glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
             glGetIntegerv ( GL_VIEWPORT, VPX );
-
-            glPopMatrix ( );
-            glMatrixMode ( GL_PROJECTION );
-            glPopMatrix ( );
 
             nbobj = list_count ( lobj );
 
             if ( nbobj == 0x01 ) {
                 G3DOBJECT *obj = ( G3DOBJECT * ) lobj->data;
                 /*** PREVWMX is used in VIEWAXIS mode to move vertices back ***/
-                memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                memcpy ( PREVWMVX, obj->worldMatrix, sizeof ( obj->worldMatrix ) );
             }
         } return REDRAWVIEW;
 
@@ -845,58 +809,72 @@ static int rotate_object ( LIST        *lobj,
             if ( mev->state & G3DButton1Mask ) {
                 G3DVECTOR dif = { 0.0f, 0.0f, 0.0f, 0.0f }; /** local pivot ***/
                 G3DVECTOR *axis = ( G3DVECTOR * ) &sce->csr.axis;
-                G3DDOUBLEVECTOR endpos;
-                double ROTX[0x10];
+                G3DVECTOR endpos;
+                float ROTX[0x10];
 
                 if ( ( engine_flags & XAXIS ) && axis[0x00].w ) dif.x = ( mev->x - orix );
                 if ( ( engine_flags & YAXIS ) && axis[0x01].w ) dif.y = ( mev->x - orix );
                 if ( ( engine_flags & ZAXIS ) && axis[0x02].w ) dif.z = ( mev->x - orix );
 
                 if ( nbobj > 0x01 ) {
-                    glMatrixMode ( GL_MODELVIEW );
-                    glPushMatrix ( );
-                    glLoadIdentity ( );
-                    glTranslatef (  sce->csr.pivot.x, 
-                                    sce->csr.pivot.y,
-                                    sce->csr.pivot.z );
-                    glRotatef ( dif.z, 0.0f, 0.0f, 1.0f );
-                    glRotatef ( dif.y, 0.0f, 1.0f, 0.0f );
-                    glRotatef ( dif.x, 1.0f, 0.0f, 0.0f );
-                    glTranslatef ( -sce->csr.pivot.x, 
-                                   -sce->csr.pivot.y, 
-                                   -sce->csr.pivot.z );
-                    glGetDoublev ( GL_MODELVIEW_MATRIX, ROTX );
-                    glPopMatrix ( );
+                    g3dcore_identityMatrixf ( ROTX );
+                    g3dcore_translateMatrixf ( ROTX,
+                                               sce->csr.pivot.x, 
+                                               sce->csr.pivot.y,
+                                               sce->csr.pivot.z );
+                    g3dcore_rotateMatrixf ( ROTX, dif.z, 0.0f, 0.0f, 1.0f );
+                    g3dcore_rotateMatrixf ( ROTX, dif.y, 0.0f, 1.0f, 0.0f );
+                    g3dcore_rotateMatrixf ( ROTX, dif.x, 1.0f, 0.0f, 0.0f );
+
+                    g3dcore_translateMatrixf ( ROTX,
+                                              -sce->csr.pivot.x, 
+                                              -sce->csr.pivot.y, 
+                                              -sce->csr.pivot.z );
                 }
 
                 while ( ltmpobj ) {
                     G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
-                    G3DDOUBLEVECTOR lstartpos, lendpos;
 
                     if ( ( obj->flags & OBJECTNOROTATION ) == 0x00 ) {
                         if ( nbobj == 0x01 ) {
-                            glPushMatrix ( );
-                            glLoadMatrixd ( obj->rmatrix );
+                            memcpy( ROTX,
+                                    obj->rotationMatrix,
+                                    sizeof( obj->rotationMatrix ) );
 
-                            glRotatef     ( dif.z, 0.0f, 0.0f, 1.0f );
-                            glRotatef     ( dif.y, 0.0f, 1.0f, 0.0f );
-                            glRotatef     ( dif.x, 1.0f, 0.0f, 0.0f );
+                            g3dcore_rotateMatrixf ( ROTX,
+                                                    dif.z,
+                                                    0.0f,
+                                                    0.0f,
+                                                    1.0f );
 
-                            glGetDoublev  ( GL_MODELVIEW_MATRIX, ROTX );
+                            g3dcore_rotateMatrixf ( ROTX,
+                                                    dif.y,
+                                                    0.0f,
+                                                    1.0f,
+                                                    0.0f );
 
-                            g3dcore_getMatrixRotation ( ROTX, &obj->rot );
+                            g3dcore_rotateMatrixf ( ROTX,
+                                                    dif.x,
+                                                    1.0f,
+                                                    0.0f,
+                                                    0.0f );
 
-
-                            glPopMatrix ( );
+                            g3dcore_getMatrixRotationf ( ROTX, &obj->rot );
                         } else {
                             G3DVECTOR cenpos = { 0.0f, 0.0f, 0.0f };
                             G3DVECTOR objpos;
                             G3DVECTOR rotpos;
                             G3DVECTOR newpos;
 
-                            g3dvector_matrix ( &cenpos, obj->wmatrix, &objpos );
-                            g3dvector_matrix ( &objpos, ROTX, &rotpos );
-                            g3dvector_matrix ( &rotpos, obj->parent->iwmatrix, &newpos );
+                            g3dvector_matrixf ( &cenpos,
+                                                 obj->worldMatrix,
+                                                &objpos );
+                            g3dvector_matrixf ( &objpos,
+                                                 ROTX,
+                                                &rotpos );
+                            g3dvector_matrixf ( &rotpos,
+                                                 obj->parent->inverseWorldMatrix,
+                                                &newpos );
 
                             obj->pos.x = newpos.x;
                             obj->pos.y = newpos.y;
@@ -907,11 +885,12 @@ static int rotate_object ( LIST        *lobj,
 
                         if ( nbobj == 0x01 ) {
                             /*** update cursor matrix ***/
-                            memcpy ( sce->csr.matrix, 
-                                     obj->wmatrix, sizeof ( double ) * 0x10 );
+                            memcpy ( sce->csr.matrix,
+                                     obj->worldMatrix,
+                                     sizeof ( obj->worldMatrix ) );
 
                             if ( obj->type == G3DBONETYPE ) {
-                                g3dbone_updateRigs ( ( G3DOBJECT * ) obj, engine_flags );
+                                g3dbone_updateRigs ( ( G3DBONE * ) obj, engine_flags );
                             }
                         }
 
@@ -924,14 +903,14 @@ static int rotate_object ( LIST        *lobj,
                                     G3DMESH *mes = ( G3DMESH * ) obj;
 
                                     g3dmesh_moveAxis ( mes, PREVWMVX, engine_flags );
-                                    memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                                    memcpy ( PREVWMVX, obj->worldMatrix, sizeof ( obj->worldMatrix ) );
                                 }
 
                                 if ( obj->type & SPLINE ) {
                                     G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 
                                     g3dspline_moveAxis ( spl, PREVWMVX, engine_flags );
-                                    memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                                    memcpy ( PREVWMVX, obj->worldMatrix, sizeof ( obj->worldMatrix ) );
                                 }
                             }
                         }
@@ -940,7 +919,7 @@ static int rotate_object ( LIST        *lobj,
                     ltmpobj = ltmpobj->next;
                 }
 
-                memcpy ( &startpos, &endpos, sizeof ( G3DDOUBLEVECTOR ) );
+                memcpy ( &startpos, &endpos, sizeof ( G3DVECTOR ) );
             }
 
             orix = mev->x;

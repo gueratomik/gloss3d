@@ -565,17 +565,17 @@ uint64_t g3dui_fitUVMap ( G3DUI *gui ) {
             vec.z = parent->bbox.zmin;
             vec.w = 1.0f;
 
-            g3dvector_matrix ( &vec, parent->wmatrix, &minpos );
+            g3dvector_matrixf ( &vec, parent->worldMatrix, &minpos );
 
             vec.x = parent->bbox.xmax;
             vec.y = parent->bbox.ymax;
             vec.z = parent->bbox.zmax;
             vec.w = 1.0f;
 
-            g3dvector_matrix ( &vec, parent->wmatrix, &maxpos );
+            g3dvector_matrixf ( &vec, parent->worldMatrix, &maxpos );
 
-            g3dvector_matrix ( &minpos, obj->iwmatrix, &locminpos );
-            g3dvector_matrix ( &maxpos, obj->iwmatrix, &locmaxpos );
+            g3dvector_matrixf ( &minpos, obj->inverseWorldMatrix, &locminpos );
+            g3dvector_matrixf ( &maxpos, obj->inverseWorldMatrix, &locmaxpos );
 
             map->pln.xradius = fabs ( locminpos.x - locmaxpos.x ) * 0.5f;
             map->pln.yradius = fabs ( locminpos.y - locmaxpos.y ) * 0.5f;

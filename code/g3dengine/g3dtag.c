@@ -189,7 +189,7 @@ static uint32_t g3dtrackertag_transform ( G3DTRACKERTAG *ttag,
                                yaxis = { 0.0f, 0.0f, 0.0f, 1.0f }, 
                                zaxis = { 0.0f, 0.0f, 0.0f, 1.0f };
                 G3DVECTOR objrot;
-                double RX[0x10];
+                float RX[0x10];
 
                 g3dvector_matrixf ( &origin, ttag->target->worldMatrix, &wldpos );
                 g3dvector_matrixf ( &wldpos, obj->parent->inverseWorldMatrix, &target );
@@ -200,7 +200,7 @@ static uint32_t g3dtrackertag_transform ( G3DTRACKERTAG *ttag,
 
                 g3dvector_normalize ( &dir, NULL );
 
-                g3dcore_identityMatrix ( RX );
+                g3dcore_identityMatrixf ( RX );
 
                 switch ( ttag->orientation ) {
                     case TARGET_XAXIS :
@@ -267,7 +267,7 @@ static uint32_t g3dtrackertag_transform ( G3DTRACKERTAG *ttag,
                     break;
                 }
 
-                g3dcore_getMatrixRotation ( RX, &objrot );
+                g3dcore_getMatrixRotationf ( RX, &objrot );
 
                 /*** Prevent a loop by preventing callbacks to be called in case ***/
                 /*** nothing was changed ***/

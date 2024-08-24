@@ -249,9 +249,26 @@ void g3dmesh_moveVerticesTo ( G3DMESH   *mes,
 
 /******************************************************************************/
 void g3dmesh_drawQuadList ( G3DMESH *mes,
+                            G3DCAMERA *cam,
                             uint64_t engine_flags ) {
     G3DENGINE *engine = g3dobject_getScene( ( G3DOBJECT * ) mes )->engine;
     LIST *ltmpqua = mes->lqua;
+    int transformLocation = glGetUniformLocation( engine->triangleShaderProgram,
+                                                  "transform" );
+    float modelview[0x10];
+    float transform[0x10];
+/*
+    g3dcore_multMatrixf( mes->obj.worldMatrix,
+                         cam->obj.inverseWorldMatrix,
+                         modelview );
+
+    g3dcore_multMatrixf( cam->pmatrix, modelview, transform );
+*/
+    g3dcore_identityMatrixf( transform );
+
+    glUseProgram( engine->triangleShaderProgram );
+
+    glUniformMatrix4fv( transformLocation, 1, GL_FALSE, transform );
 
     while ( ltmpqua ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpqua->data;
@@ -269,10 +286,27 @@ void g3dmesh_drawQuadList ( G3DMESH *mes,
 }
 
 /******************************************************************************/
-void g3dmesh_drawTriangleList ( G3DMESH *mes,
+void g3dmesh_drawTriangleList ( G3DMESH   *mes,
+                                G3DCAMERA *cam,
                                 uint64_t   engine_flags ) {
     G3DENGINE *engine = g3dobject_getScene( ( G3DOBJECT * ) mes )->engine;
     LIST *ltmptri = mes->ltri;
+    int transformLocation = glGetUniformLocation( engine->triangleShaderProgram,
+                                                  "transform" );
+    float modelview[0x10];
+    float transform[0x10];
+/*
+    g3dcore_multMatrixf( mes->obj.worldMatrix,
+                         cam->obj.inverseWorldMatrix,
+                         modelview );
+
+    g3dcore_multMatrixf( cam->pmatrix, modelview, transform );
+*/
+    g3dcore_identityMatrixf( transform );
+
+    glUseProgram( engine->triangleShaderProgram );
+
+    glUniformMatrix4fv( transformLocation, 1, GL_FALSE, transform );
 
     while ( ltmptri ) {
         G3DFACE *fac = ( G3DFACE * ) ltmptri->data;
@@ -291,7 +325,7 @@ void g3dmesh_drawTriangleList ( G3DMESH *mes,
 
 /******************************************************************************/
 void g3dmesh_moveAxis ( G3DMESH *mes, 
-                        double  *PREVMVX, /* previous world matrix */
+                        float  *PREVMVX, /* previous world matrix */
                         uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     LIST *ltmpver = mes->lver;
@@ -335,7 +369,7 @@ void g3dmesh_moveAxis ( G3DMESH *mes,
 
 /******************************************************************************/
 G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
-                                  double  *MVX,
+                                  float  *MVX,
                                   uint64_t engine_flags ) {
     uint32_t structSize = sizeof ( G3DVERTEX * );
     G3DMESH *symmes = g3dmesh_new ( 0x00, "Mesh", engine_flags );
@@ -390,7 +424,7 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
             } else {
                 G3DVECTOR pos;
 
-                g3dvector_matrix ( &ver->pos, localSymmix, &pos );
+                g3dvector_matrixf ( &ver->pos, localSymmix, &pos );
 
                 symver[ver->id] = g3dvertex_new ( pos.x, pos.y, pos.z );
 
@@ -3489,8 +3523,8 @@ void g3dmesh_drawObject ( G3DMESH   *mes,
 
     if ( obj->flags & OBJECTNOSHADING ) glDisable ( GL_LIGHTING );
 
-    g3dmesh_drawTriangleList ( mes, engine_flags & (~VIEWFACE) );
-    g3dmesh_drawQuadList     ( mes, engine_flags & (~VIEWFACE) );
+    g3dmesh_drawTriangleList ( mes, curcam, engine_flags & (~VIEWFACE) );
+    g3dmesh_drawQuadList     ( mes, curcam, engine_flags & (~VIEWFACE) );
 
     g3dmesh_drawSelectedUVMap ( mes, curcam, engine_flags );
 

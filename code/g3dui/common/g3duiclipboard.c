@@ -51,7 +51,9 @@ G3DUICOPIEDITEM *g3duicopieditem_new ( G3DOBJECT              *obj,
             /*** the future parent local coordinates. This copy is   ***/
             /*** needed because there is no guaranty the parent will ***/
             /*** will still exist when pasting.                      ***/
-            memcpy ( item->wmatrix, obj->wmatrix, sizeof ( item->wmatrix ) );
+            memcpy ( item->worldMatrix,
+                     obj->worldMatrix,
+                     sizeof ( item->worldMatrix ) );
         break;
 
         case CLIPBOARDCOPYKEY :
@@ -186,8 +188,8 @@ void g3duiclipboard_paste ( G3DUICLIPBOARD *cli,
 
                 /*** In order be sure the world matrix hasnt been affected ***/
                 /*** by some matrix transformations in between, we copy it.***/
-                memcpy ( item->obj->wmatrix,
-                         item->wmatrix, sizeof ( item->wmatrix ) );
+                memcpy ( item->obj->worldMatrix,
+                         item->worldMatrix, sizeof ( item->worldMatrix ) );
 
                 /*** We copy again. That way, the copied objects still are  ***/
                 /*** in memory and can be pasted again, until a copy occur. ***/

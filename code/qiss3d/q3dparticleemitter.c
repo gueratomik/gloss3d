@@ -49,10 +49,10 @@ static void q3dparticleemitter_import ( Q3DPARTICLEEMITTER *qpem,
                         qprt[j].qref = q3dscene_getByObject ( qsce, prt[j].ref );
 
                         memcpy ( qprt[j].MVX, 
-                                  prt[j].MVX, sizeof ( double ) * 0x10 );
+                                  prt[j].MVX, sizeof ( prt[j].MVX ) );
 
-                        g3dcore_invertMatrix    (  prt[j].MVX , qprt[j].IMVX  );
-                        g3dcore_transposeMatrix ( qprt[j].IMVX, qprt[j].TIMVX );
+                        g3dcore_invertMatrixf    (  prt[j].MVX , qprt[j].IMVX  );
+                        g3dcore_transposeMatrixf ( qprt[j].IMVX, qprt[j].TIMVX );
                     }
                 }
             }
@@ -89,7 +89,7 @@ static uint32_t q3dparticleemitter_intersect ( Q3DPARTICLEEMITTER *qpem,
     q3dvector3f_matrix ( &qray->src, qpem->qobj.obj->wmatrix, &wqray.src );
     q3dvector3f_matrix ( &qray->dir, qpem->TIWMVX, &wqray.dir );
 */
-    q3dcore_buildLocalQRay ( qray, qpem->qobj.obj->wmatrix, &wqray );
+    q3dcore_buildLocalQRay ( qray, qpem->qobj.obj->worldMatrix, &wqray );
 
     if ( pem->maxParticles ) {
         if ( pem->maxParticlesPerFrame ) {
@@ -146,8 +146,8 @@ static uint32_t q3dparticleemitter_intersect ( Q3DPARTICLEEMITTER *qpem,
                 qray->isx.qobj    = hitqray.isx.qobj;
                 qray->isx.qsur    = hitqray.isx.qsur;
 
-                q3dvector3f_matrix ( &hitqray.isx.src, hitqprt->MVX  , &wqray.isx.src );
-                q3dvector3f_matrix ( &hitqray.isx.dir, hitqprt->TIMVX, &wqray.isx.dir );
+                q3dvector3f_matrixf ( &hitqray.isx.src, hitqprt->MVX  , &wqray.isx.src );
+                q3dvector3f_matrixf ( &hitqray.isx.dir, hitqprt->TIMVX, &wqray.isx.dir );
 
                 q3dvector3f_normalize ( &qray->isx.dir, NULL );
 
@@ -156,8 +156,8 @@ static uint32_t q3dparticleemitter_intersect ( Q3DPARTICLEEMITTER *qpem,
                 /*qray->distance = hitqray.distance;*/
 
 
-    q3dvector3f_matrix ( &wqray.isx.src, qpem->qobj.obj->iwmatrix, &qray->isx.src );
-    q3dvector3f_matrix ( &wqray.isx.dir, qpem->TWMVX, &qray->isx.dir );
+    q3dvector3f_matrixf ( &wqray.isx.src, qpem->qobj.obj->inverseWorldMatrix, &qray->isx.src );
+    q3dvector3f_matrixf ( &wqray.isx.dir, qpem->TWMVX                       , &qray->isx.dir );
 
 
                 return 0x01;
@@ -174,7 +174,7 @@ static void q3dparticleemitter_init ( Q3DPARTICLEEMITTER *qpem,
                                       uint32_t     id,
                                       uint64_t     object_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) pem;
-    double IWMVX[0x10];
+    float IWMVX[0x10];
 
     q3dobject_init ( ( Q3DOBJECT * ) qpem,
                      ( G3DOBJECT * ) pem,
@@ -186,10 +186,10 @@ Q3DINTERSECT_CALLBACK(q3dparticleemitter_intersect) );
     ((Q3DOBJECT*)qpem)->import = Q3DIMPORT_CALLBACK(q3dparticleemitter_import);
 
 
-    g3dcore_invertMatrix    ( pem->obj.wmatrix, IWMVX );
-    g3dcore_transposeMatrix ( IWMVX, qpem->TIWMVX );
+    g3dcore_invertMatrixf    ( pem->obj.worldMatrix, IWMVX );
+    g3dcore_transposeMatrixf ( IWMVX, qpem->TIWMVX );
 
-    g3dcore_transposeMatrix ( pem->obj.wmatrix, qpem->TWMVX );
+    g3dcore_transposeMatrixf ( pem->obj.worldMatrix, qpem->TWMVX );
 }
 
 /******************************************************************************/

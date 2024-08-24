@@ -66,8 +66,8 @@ static G3DOBJECT *g3dffd_commit ( G3DFFD        *ffd,
 
             /*** readjust point position to keep the same matrix as the ***/
             /*** modified mesh ***/
-            g3dvector_matrix ( &origin, ffd->mod.oriobj->worldMatrix, &wmespos );
-            g3dvector_matrix ( &wmespos, ffd->mod.mes.obj.inverseWorldMatrix, &lmespos );
+            g3dvector_matrixf ( &origin, ffd->mod.oriobj->worldMatrix, &wmespos );
+            g3dvector_matrixf ( &wmespos, ffd->mod.mes.obj.inverseWorldMatrix, &lmespos );
 
             for ( i = 0x00; i < parmes->nbver; i++ ) {
                 ffd->mod.verpos[i].x -= lmespos.x;

@@ -77,13 +77,14 @@ G3DBONE *g3dbone_mirror ( G3DBONE *bon,
     G3DOBJECT *objmir = ( G3DOBJECT * ) mir;
     float smatrix[0x10];
     float pmatrix[0x10];
+    float mirrorMatrix[0x10];
 
     memcpy ( pmatrix, objmir->localMatrix, sizeof ( pmatrix ) );
 
-    g3dcore_symmetryMatrixf   ( smatrix, orientation );
-    g3dcore_multmatrixdirectf ( pmatrix, smatrix     );
+    g3dcore_symmetryMatrixf ( smatrix, orientation );
+    g3dcore_multMatrixf ( pmatrix, smatrix, mirrorMatrix );
 
-    memcpy ( objmir->localMatrix, pmatrix, sizeof ( pmatrix ) );
+    memcpy ( objmir->localMatrix, mirrorMatrix, sizeof ( mirrorMatrix ) );
 
     g3dcore_getMatrixScalef       ( objmir->localMatrix, &objmir->sca );
     g3dcore_getMatrixRotationf    ( objmir->localMatrix, &objmir->rot );

@@ -35,6 +35,7 @@
 
 static void cutMesh_draw ( G3DMOUSETOOL *mou,
                            G3DSCENE     *sce,
+                           G3DCAMERA *, 
                            uint64_t engine_flags );
 static int cutMesh_tool ( G3DMOUSETOOL *mou, 
                           G3DSCENE     *sce, 
@@ -71,6 +72,7 @@ G3DMOUSETOOLCUTMESH *g3dmousetoolcutmesh_new ( ) {
 /******************************************************************************/
 static void cutMesh_draw ( G3DMOUSETOOL *mou,
                            G3DSCENE     *sce,
+                           G3DCAMERA    *cam,
                            uint64_t engine_flags ) {
     if ( ( engine_flags & VIEWVERTEX ) ||
          ( engine_flags & VIEWEDGE   ) ||
@@ -84,7 +86,7 @@ static void cutMesh_draw ( G3DMOUSETOOL *mou,
         glDisable   ( GL_DEPTH_TEST );
         glDisable   ( GL_LIGHTING );
         glColor3ub ( 0xFF, 0x00, 0x00 );
-
+#ifdef need_refactor
         if ( cm->start && obj ) {
             glPushMatrix ( );
             glMultMatrixd ( obj->wmatrix );
@@ -94,12 +96,12 @@ static void cutMesh_draw ( G3DMOUSETOOL *mou,
             glEnd ( );
             glPopMatrix ( );
         }
-
+#endif
         glPopAttrib ( );
     }
 }
 
-/*****************************************************************************/
+/******************************************************************************/
 static int cutMesh_tool ( G3DMOUSETOOL *mou, 
                           G3DSCENE     *sce, 
                           G3DCAMERA    *cam,
@@ -107,7 +109,7 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
                           uint64_t engine_flags, 
                           G3DEvent     *event ) {
     /*** selection rectangle coords ***/
-    static GLdouble MVX[0x10], PJX[0x10];
+    static float MVX[0x10];
     static GLint VPX[0x04];
     static G3DOBJECT *obj;
     static G3DMESH *mes;
@@ -130,28 +132,36 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
                     /*** We need the selected object matrix in order to create ***/
                     /*** the cutting plan and find its coords, but do not ***/
                     /*** forget the current matrix is the camera transformations **/
-                    glPushMatrix ( );
-                    glMultMatrixd ( ((G3DOBJECT*)mes)->wmatrix );
+                    g3dcore_multMatrixf ( mes->obj.worldMatrix,
+                                          cam->obj.inverseWorldMatrix,
+                                          MVX );
 
-                    glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
-                    glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
                     glGetIntegerv ( GL_VIEWPORT, VPX );
 
-                    glPopMatrix ( );
-
-                    gluUnProject ( ( double ) bev->x,
-                                   ( double ) VPX[0x03] - bev->y, 0.000001f,
-                                    MVX, PJX, VPX, &cm->coord[0x00][0x00],
+                    g3dcore_unprojectf ( ( double ) bev->x,
+                                         ( double ) VPX[0x03] - bev->y,
+                                                    0.000001f,
+                                                    MVX,
+                                                    cam->pmatrix,
+                                                    VPX,
+                                                   &cm->coord[0x00][0x00],
                                                    &cm->coord[0x00][0x01],
                                                    &cm->coord[0x00][0x02] );
-                    gluUnProject ( ( double ) bev->x,
-                                   ( double ) VPX[0x03] - bev->y, 0.999999f,
-                                    MVX, PJX, VPX, &cm->coord[0x01][0x00],
+
+                    g3dcore_unprojectf ( ( double ) bev->x,
+                                         ( double ) VPX[0x03] - bev->y,
+                                                    0.999999f,
+                                                    MVX,
+                                                    cam->pmatrix,
+                                                    VPX,
+                                                   &cm->coord[0x01][0x00],
                                                    &cm->coord[0x01][0x01],
                                                    &cm->coord[0x01][0x02] );
 
-                    memcpy ( cm->coord[0x02], cm->coord[0x00], sizeof ( cm->coord[0x00] ) );
-                    memcpy ( cm->coord[0x03], cm->coord[0x01], sizeof ( cm->coord[0x01] ) );
+                    memcpy ( cm->coord[0x02],
+                             cm->coord[0x00], sizeof ( cm->coord[0x00] ) );
+                    memcpy ( cm->coord[0x03],
+                             cm->coord[0x01], sizeof ( cm->coord[0x01] ) );
                 }
             }
         } return REDRAWVIEW;
@@ -163,14 +173,23 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
                  ( engine_flags & VIEWEDGE   ) ||
                  ( engine_flags & VIEWFACE   ) ) {
                 if ( mes ) {
-                    gluUnProject ( ( double ) bev->x,
-                                   ( double ) VPX[0x03] - bev->y, 0.000001f,
-                                    MVX, PJX, VPX, &cm->coord[0x02][0x00],
+                    g3dcore_unprojectf ( ( double ) bev->x,
+                                         ( double ) VPX[0x03] - bev->y, 
+                                                    0.000001f,
+                                                    MVX,
+                                                    cam->pmatrix,
+                                                    VPX,
+                                                   &cm->coord[0x02][0x00],
                                                    &cm->coord[0x02][0x01],
                                                    &cm->coord[0x02][0x02] );
-                    gluUnProject ( ( double ) bev->x,
-                                   ( double ) VPX[0x03] - bev->y, 0.999999f,
-                                    MVX, PJX, VPX, &cm->coord[0x03][0x00],
+
+                    g3dcore_unprojectf ( ( double ) bev->x,
+                                         ( double ) VPX[0x03] - bev->y,
+                                                    0.999999f,
+                                                    MVX,
+                                                    cam->pmatrix,
+                                                    VPX,
+                                                   &cm->coord[0x03][0x00],
                                                    &cm->coord[0x03][0x01],
                                                    &cm->coord[0x03][0x02] );
                 } 

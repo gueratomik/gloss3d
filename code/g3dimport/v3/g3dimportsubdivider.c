@@ -77,7 +77,7 @@ void g3dimportv3subdivider ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc
                                                                 fac,
                                                                 sdr->sculptResolution,
                                                                 sdr->sculptMode );
-                g3dface_addExtension ( fac, fse );
+                g3dface_addExtension ( fac, ( G3DFACEEXTENSION * ) fse );
             } break;
 
             case SIG_OBJECT_SUBDIVIDER_SCULPTMAP_ENTRY : {

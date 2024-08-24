@@ -83,9 +83,9 @@ static void transformObject_undo ( G3DURMANAGER *urm,
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
-        double OLDWORLDMVX[0x10];
+        float OLDWORLDMVX[0x10];
 
-        memcpy ( OLDWORLDMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+        memcpy ( OLDWORLDMVX, obj->worldMatrix, sizeof ( float ) * 0x10 );
 
 	    memcpy ( &obj->pos, &uto->oldpos[i], sizeof ( G3DVECTOR ) );
 	    memcpy ( &obj->rot, &uto->oldrot[i], sizeof ( G3DVECTOR ) );
@@ -121,9 +121,9 @@ static void transformObject_redo ( G3DURMANAGER *urm,
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
-        double OLDWORLDMVX[0x10];
+        float OLDWORLDMVX[0x10];
 
-        memcpy ( OLDWORLDMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+        memcpy ( OLDWORLDMVX, obj->worldMatrix, sizeof ( float ) * 0x10 );
 
         memcpy ( &obj->pos, &uto->newpos[i], sizeof ( G3DVECTOR ) );
         memcpy ( &obj->rot, &uto->newrot[i], sizeof ( G3DVECTOR ) );

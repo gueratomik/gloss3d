@@ -108,7 +108,7 @@ static int move_path ( G3DOBJECT    *obj,
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
     static double mouseXpress, mouseYpress;
-    static GLdouble MVX[0x10], PJX[0x10];
+    static float MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static G3DVECTOR  origin = { 0.0f, 0.0f, 0.0f, 1.0f };
 
@@ -117,23 +117,11 @@ static int move_path ( G3DOBJECT    *obj,
             case G3DButtonPress : {
                 G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-                glMatrixMode ( GL_PROJECTION );
-                glPushMatrix ( );
-                glLoadIdentity ( );
-                g3dcamera_project ( cam, engine_flags );
+                g3dcore_multMatrixf ( obj->parent->worldMatrix,
+                                      cam->obj.inverseWorldMatrix,
+                                      MVX );
 
-                glMatrixMode ( GL_MODELVIEW );
-                glPushMatrix ( );
-                g3dcamera_view ( cam, HIDEGRID );
-                glMultMatrixd ( obj->parent->wmatrix );
-
-                glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
-                glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
                 glGetIntegerv ( GL_VIEWPORT, VPX );
-
-                glPopMatrix ( );
-                glMatrixMode ( GL_PROJECTION );
-                glPopMatrix ( );
 
                 mouseXpress = bev->x;
                 mouseYpress = bev->y;
@@ -149,12 +137,25 @@ static int move_path ( G3DOBJECT    *obj,
                     /*** simulate click and release ***/
                     pick_Item ( mv, sce, cam, ctrlClick, engine_flags );
 
-                    gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
-                    gluUnProject ( ( GLdouble ) bev->x,
-                                   ( GLdouble ) VPX[0x03] - bev->y,
-                                   ( GLdouble ) winz,
-                                   MVX, PJX, VPX,
-                                   &orix, &oriy, &oriz );
+                    g3dcore_projectf ( 0.0f,
+                                       0.0f,
+                                       0.0f,
+                                       MVX,
+                                       cam->pmatrix,
+                                       VPX,
+                                      &winx,
+                                      &winy,
+                                      &winz );
+
+                    g3dcore_unprojectf ( ( GLdouble ) bev->x,
+                                         ( GLdouble ) VPX[0x03] - bev->y,
+                                         ( GLdouble ) winz,
+                                                      MVX,
+                                                      cam->pmatrix,
+                                                      VPX,
+                                                     &orix,
+                                                     &oriy,
+                                                     &oriz );
                 }
             } return REDRAWVIEW;
 
@@ -167,11 +168,15 @@ static int move_path ( G3DOBJECT    *obj,
                         double difx, dify, difz;
                         uint32_t nbpt = 0x00;
 
-                        gluUnProject ( ( GLdouble ) mev->x,
-                                   ( GLdouble ) VPX[0x03] - mev->y,
-                                   ( GLdouble ) winz,
-                                   MVX, PJX, VPX,
-                                   &newx, &newy, &newz );
+                        g3dcore_unprojectf ( ( GLdouble ) mev->x,
+                                             ( GLdouble ) VPX[0x03] - mev->y,
+                                             ( GLdouble ) winz,
+                                                          MVX,
+                                                          cam->pmatrix,
+                                                          VPX,
+                                                         &newx,
+                                                         &newy,
+                                                         &newz );
 
                         difx = ( newx - orix );
                         dify = ( newy - oriy );
@@ -216,7 +221,7 @@ static int move_spline ( G3DSPLINE    *spl,
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
     static double mouseXpress, mouseYpress;
-    static GLdouble MVX[0x10], PJX[0x10];
+    static float MVX[0x10];
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
     static URMMOVEPOINT *ump;
@@ -226,23 +231,11 @@ static int move_spline ( G3DSPLINE    *spl,
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-            glMatrixMode ( GL_PROJECTION );
-            glPushMatrix ( );
-            glLoadIdentity ( );
-            g3dcamera_project ( cam, engine_flags );
+            g3dcore_multMatrixf ( obj->worldMatrix,
+                                  cam->obj.inverseWorldMatrix,
+                                  MVX );
 
-            glMatrixMode ( GL_MODELVIEW );
-            glPushMatrix ( );
-            g3dcamera_view ( cam, HIDEGRID ); 
-            glMultMatrixd ( obj->wmatrix );
-
-            glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
-            glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
             glGetIntegerv ( GL_VIEWPORT, VPX );
-
-            glPopMatrix ( );
-            glMatrixMode ( GL_PROJECTION );
-            glPopMatrix ( );
 
             mouseXpress = bev->x;
             mouseYpress = bev->y;
@@ -268,12 +261,25 @@ static int move_spline ( G3DSPLINE    *spl,
 
                 urmmovepoint_saveState ( ump, UMPSAVESTATEBEFORE );
 
-                gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
-                gluUnProject ( ( GLdouble ) bev->x,
-                               ( GLdouble ) VPX[0x03] - bev->y,
-                               ( GLdouble ) winz,
-                               MVX, PJX, VPX,
-                               &orix, &oriy, &oriz );
+                g3dcore_projectf ( 0.0f,
+                                   0.0f,
+                                   0.0f,
+                                   MVX,
+                                   cam->pmatrix,
+                                   VPX,
+                                  &winx,
+                                  &winy,
+                                  &winz );
+
+                g3dcore_unprojectf ( ( GLdouble ) bev->x,
+                                     ( GLdouble ) VPX[0x03] - bev->y,
+                                     ( GLdouble ) winz,
+                                                  MVX,
+                                                  cam->pmatrix,
+                                                  VPX,
+                                                 &orix,
+                                                 &oriy,
+                                                 &oriz );
             }
 
             g3dspline_modify ( spl,
@@ -291,11 +297,15 @@ static int move_spline ( G3DSPLINE    *spl,
                     double difx, dify, difz;
                     uint32_t nbpt = 0x00;
 
-                    gluUnProject ( ( GLdouble ) mev->x,
-                               ( GLdouble ) VPX[0x03] - mev->y,
-                               ( GLdouble ) winz,
-                               MVX, PJX, VPX,
-                               &newx, &newy, &newz );
+                    g3dcore_projectf ( ( GLdouble ) mev->x,
+                                       ( GLdouble ) VPX[0x03] - mev->y,
+                                       ( GLdouble ) winz,
+                                                    MVX,
+                                                    cam->pmatrix,
+                                                    VPX,
+                                                   &newx,
+                                                   &newy,
+                                                   &newz );
 
                     difx = ( newx - orix );
                     dify = ( newy - oriy );
@@ -374,7 +384,7 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                   winx, winy, winz;
     static double mouseXpress, mouseYpress;
     G3DOBJECT *obj = ( G3DOBJECT * ) g3dscene_getLastSelected ( sce );
-    static GLdouble MVX[0x10], PJX[0x10];
+    static float MVX[0x10];
     static int VPX[0x04];
     static float widthFactor;
     static float heightFactor;
@@ -398,19 +408,21 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                         case G3DButtonPress : {
                             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-                            glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
-                            glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
+                            g3dcore_multMatrixf ( obj->worldMatrix,
+                                                  cam->obj.inverseWorldMatrix,
+                                                  MVX );
+
                             glGetIntegerv ( GL_VIEWPORT, VPX );
 
-                            gluUnProject ( bev->x, 
-                                           bev->y, 
-                                           0.0f,
-                                           MVX,
-                                           PJX,
-                                           VPX,
-                                          &orix,
-                                          &oriy,
-                                          &oriz );
+                            g3dcore_unprojectf ( bev->x, 
+                                                 bev->y, 
+                                                 0.0f,
+                                                 MVX,
+                                                 cam->pmatrix,
+                                                 VPX,
+                                                &orix,
+                                                &oriy,
+                                                &oriz );
 
                             mouseXpress = xold = bev->x;
                             mouseYpress = yold = bev->y;
@@ -426,15 +438,15 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
 
                             if ( mev->state & G3DButton1Mask ) {
-                                gluUnProject ( mev->x, 
-                                               mev->y, 
-                                               0.0f,
-                                               MVX,
-                                               PJX,
-                                               VPX,
-                                              &newx,
-                                              &newy,
-                                              &newz );
+                                g3dcore_unprojectf ( mev->x, 
+                                                     mev->y, 
+                                                     0.0f,
+                                                     MVX,
+                                                     cam->pmatrix,
+                                                     VPX,
+                                                    &newx,
+                                                    &newy,
+                                                    &newz );
 
                                 if ( ( engine_flags & VIEWVERTEXUV ) || 
                                      ( engine_flags & VIEWFACEUV   ) ) {
@@ -528,7 +540,7 @@ static int move_morpher ( G3DMORPHER   *mpr,
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
     static double mouseXpress, mouseYpress;
-    static GLdouble MVX[0x10], PJX[0x10];
+    static float MVX[0x10];
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) mpr;
     static LIST *lver, *lfac, *ledg;
@@ -546,23 +558,11 @@ static int move_morpher ( G3DMORPHER   *mpr,
                         G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
                         G3DVECTOR avgpos;
 
-                        glMatrixMode ( GL_PROJECTION );
-                        glPushMatrix ( );
-                        glLoadIdentity ( );
-                        g3dcamera_project ( cam, engine_flags );
+                        g3dcore_multMatrixf ( obj->worldMatrix,
+                                              cam->obj.inverseWorldMatrix,
+                                              MVX );
 
-                        glMatrixMode ( GL_MODELVIEW );
-                        glPushMatrix ( );
-                        g3dcamera_view ( cam, HIDEGRID );
-                        glMultMatrixd ( obj->wmatrix );
-
-                        glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
-                        glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
                         glGetIntegerv ( GL_VIEWPORT, VPX );
-
-                        glPopMatrix ( );
-                        glMatrixMode ( GL_PROJECTION );
-                        glPopMatrix ( );
 
                         mouseXpress = bev->x;
                         mouseYpress = bev->y;
@@ -581,12 +581,25 @@ static int move_morpher ( G3DMORPHER   *mpr,
                             /*lfac = g3dvertex_getFacesFromList  ( lver );
                             ledg = g3dface_getEdgesFromList    ( lfac );*/
 
-                            gluProject ( avgpos.x, avgpos.y, avgpos.z, MVX, PJX, VPX, &winx, &winy, &winz );
-                            gluUnProject ( ( GLdouble ) bev->x,
-                                           ( GLdouble ) VPX[0x03] - bev->y,
-                                           ( GLdouble ) winz,
-                                           MVX, PJX, VPX,
-                                           &orix, &oriy, &oriz );
+                            g3dcore_projectf ( avgpos.x,
+                                               avgpos.y,
+                                               avgpos.z,
+                                               MVX,
+                                               cam->pmatrix,
+                                               VPX,
+                                              &winx,
+                                              &winy,
+                                              &winz );
+
+                            g3dcore_unprojectf ( ( GLdouble ) bev->x,
+                                                 ( GLdouble ) VPX[0x03] - bev->y,
+                                                 ( GLdouble ) winz,
+                                                              MVX,
+                                                              cam->pmatrix,
+                                                              VPX,
+                                                             &orix,
+                                                             &oriy,
+                                                             &oriz );
                         }
 
                         /*g3dobject_startUpdateModifiers_r ( mes, engine_flags );*/
@@ -603,11 +616,15 @@ static int move_morpher ( G3DMORPHER   *mpr,
                             double difx, dify, difz;
                             uint32_t nbver = 0x00;
 
-                            gluUnProject ( ( GLdouble ) mev->x,
-                                       ( GLdouble ) VPX[0x03] - mev->y,
-                                       ( GLdouble ) winz,
-                                       MVX, PJX, VPX,
-                                       &newx, &newy, &newz );
+                            g3dcore_unprojectf ( ( GLdouble ) mev->x,
+                                                 ( GLdouble ) VPX[0x03] - mev->y,
+                                                 ( GLdouble ) winz,
+                                                              MVX,
+                                                              cam->pmatrix,
+                                                              VPX,
+                                                             &newx,
+                                                             &newy,
+                                                             &newz );
 
                             difx = ( newx - orix );
                             dify = ( newy - oriy );
@@ -615,7 +632,8 @@ static int move_morpher ( G3DMORPHER   *mpr,
 
                             /*** update cursor matrix ***/
                             memcpy ( sce->csr.matrix, 
-                                     obj->wmatrix, sizeof ( double ) * 0x10 );
+                                     obj->worldMatrix,
+                                     sizeof ( obj->worldMatrix ) );
 
                             memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR ) );
 
@@ -719,7 +737,7 @@ static int move_mesh ( G3DMESH      *mes,
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
     static double mouseXpress, mouseYpress;
-    static GLdouble MVX[0x10], PJX[0x10];
+    static float MVX[0x10];
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     static LIST *lver, *lfac, *ledg;
@@ -732,23 +750,11 @@ static int move_mesh ( G3DMESH      *mes,
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
             G3DVECTOR avgpos;
 
-            glMatrixMode ( GL_PROJECTION );
-            glPushMatrix ( );
-            glLoadIdentity ( );
-            g3dcamera_project ( cam, engine_flags );
+            g3dcore_multMatrixf ( obj->worldMatrix,
+                                  cam->obj.inverseWorldMatrix,
+                                  MVX );
 
-            glMatrixMode ( GL_MODELVIEW );
-            glPushMatrix ( );
-            g3dcamera_view ( cam, HIDEGRID );
-            glMultMatrixd ( obj->wmatrix );
-
-            glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
-            glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
             glGetIntegerv ( GL_VIEWPORT, VPX );
-
-            glPopMatrix ( );
-            glMatrixMode ( GL_PROJECTION );
-            glPopMatrix ( );
 
             mouseXpress = bev->x;
             mouseYpress = bev->y;
@@ -771,12 +777,25 @@ static int move_mesh ( G3DMESH      *mes,
             lfac = g3dvertex_getFacesFromList  ( lver );
             ledg = g3dface_getEdgesFromList    ( lfac );
 
-            gluProject ( avgpos.x, avgpos.y, avgpos.z, MVX, PJX, VPX, &winx, &winy, &winz );
-            gluUnProject ( ( GLdouble ) bev->x,
-                           ( GLdouble ) VPX[0x03] - bev->y,
-                           ( GLdouble ) winz,
-                           MVX, PJX, VPX,
-                           &orix, &oriy, &oriz );
+            g3dcore_projectf ( avgpos.x,
+                               avgpos.y,
+                               avgpos.z,
+                               MVX,
+                               cam->pmatrix,
+                               VPX,
+                              &winx,
+                              &winy,
+                              &winz );
+
+            g3dcore_unprojectf ( ( GLdouble ) bev->x,
+                                 ( GLdouble ) VPX[0x03] - bev->y,
+                                 ( GLdouble ) winz,
+                                              MVX,
+                                              cam->pmatrix,
+                                              VPX,
+                                             &orix,
+                                             &oriy,
+                                             &oriz );
 
             if ( mes->onGeometryMove ) {
                 mes->onGeometryMove ( mes, lver, 
@@ -804,11 +823,15 @@ static int move_mesh ( G3DMESH      *mes,
                     double difx, dify, difz;
                     uint32_t nbver = 0x00;
 
-                    gluUnProject ( ( GLdouble ) mev->x,
-                               ( GLdouble ) VPX[0x03] - mev->y,
-                               ( GLdouble ) winz,
-                               MVX, PJX, VPX,
-                               &newx, &newy, &newz );
+                    g3dcore_unprojectf ( ( GLdouble ) mev->x,
+                                         ( GLdouble ) VPX[0x03] - mev->y,
+                                         ( GLdouble ) winz,
+                                                      MVX,
+                                                      cam->pmatrix,
+                                                      VPX,
+                                                     &newx,
+                                                     &newy,
+                                                     &newz );
 
                     difx = ( newx - orix );
                     dify = ( newy - oriy );
@@ -940,18 +963,19 @@ int move_object ( LIST        *lobj,
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
     static double mouseXpress, mouseYpress;
-    static GLdouble MVX[0x10], PJX[0x10];
+    static float MVX[0x10];
     static GLint VPX[0x04];
     static LIST *lver, *lfac, *ledg;
     static G3DVECTOR lvecx, lvecy, lvecz;
-    static G3DDOUBLEVECTOR startpos; /*** world original pivot ***/
+    static G3DVECTOR startpos; /*** world original pivot ***/
     static uint32_t nbobj;
     static URMTRANSFORMOBJECT *uto;
-    static double PREVWMVX[0x10];
+    static float PREVWMVX[0x10];
 
     switch ( event->type ) {
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+            double worldx, worldy, worldz;
 
             /*** Record and undo procedure and record the current state ***/
             if ( engine_flags & VIEWAXIS ) {
@@ -969,43 +993,45 @@ int move_object ( LIST        *lobj,
             urmtransform_saveState ( uto, UTOSAVESTATEBEFORE );
             /***/
 
-
             mouseXpress = bev->x;
             mouseYpress = bev->y;
 
-            glMatrixMode ( GL_PROJECTION );
-            glPushMatrix ( );
-            glLoadIdentity ( );
-            g3dcamera_project ( cam, engine_flags );
+            memcpy( MVX,
+                    cam->obj.inverseWorldMatrix,
+                    sizeof ( cam->obj.inverseWorldMatrix ) );
 
-            glMatrixMode ( GL_MODELVIEW );
-            glPushMatrix ( );
-            g3dcamera_view ( cam, HIDEGRID );
-
-            glGetDoublev  ( GL_MODELVIEW_MATRIX,  MVX );
-            glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
             glGetIntegerv ( GL_VIEWPORT, VPX );
 
-            glPopMatrix ( );
-            glMatrixMode ( GL_PROJECTION );
-            glPopMatrix ( );
+            g3dcore_projectf ( sce->csr.pivot.x, 
+                               sce->csr.pivot.y, 
+                               sce->csr.pivot.z,
+                               MVX,
+                               cam->pmatrix,
+                               VPX,
+                              &winx,
+                              &winy,
+                              &winz );
 
-            gluProject ( sce->csr.pivot.x, 
-                         sce->csr.pivot.y, 
-                         sce->csr.pivot.z, MVX, PJX, VPX, &winx, &winy, &winz );
+            g3dcore_unprojectf ( ( GLdouble ) bev->x,
+                                 ( GLdouble ) VPX[0x03] - bev->y,
+                                 ( GLdouble ) winz,
+                                              MVX,
+                                              cam->pmatrix,
+                                              VPX,
+                                             &worldx,
+                                             &worldy,
+                                             &worldz );
 
-            gluUnProject ( ( GLdouble ) bev->x,
-                           ( GLdouble ) VPX[0x03] - bev->y,
-                           ( GLdouble ) winz,
-                               MVX, PJX, VPX,
-                              &startpos.x, &startpos.y, &startpos.z );
+            startpos.x = worldx;
+            startpos.y = worldy;
+            startpos.z = worldz;
 
             nbobj = list_count ( lobj );
 
             if ( nbobj == 0x01 ) {
                 G3DOBJECT *obj = ( G3DOBJECT * ) lobj->data;
                 /*** PREVWMX is used in VIEWAXIS mode to move vertices back ***/
-                memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                memcpy ( PREVWMVX, obj->worldMatrix, sizeof ( obj->worldMatrix ) );
             }
         } return REDRAWVIEW;
 
@@ -1014,48 +1040,70 @@ int move_object ( LIST        *lobj,
             LIST *ltmpobj = lobj;
 
             if ( mev->state & G3DButton1Mask ) {
-                G3DDOUBLEVECTOR endpos;
+                double worldx, worldy, worldz;
+                G3DVECTOR endpos;
 
-                gluUnProject ( ( GLdouble ) mev->x,
-                               ( GLdouble ) VPX[0x03] - mev->y,
-                               ( GLdouble ) winz,
-                               MVX, PJX, VPX,
-                              &endpos.x, &endpos.y, &endpos.z );
+                g3dcore_unprojectf ( ( GLdouble ) mev->x,
+                                     ( GLdouble ) VPX[0x03] - mev->y,
+                                     ( GLdouble ) winz,
+                                                  MVX,
+                                                  cam->pmatrix,
+                                                  VPX,
+                                                 &worldx,
+                                                 &worldy,
+                                                 &worldz );
+
+                endpos.x = worldx;
+                endpos.y = worldy;
+                endpos.z = worldz;
 
                 while ( ltmpobj ) {
                     G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
-                    G3DDOUBLEVECTOR dif = { 0.0f, 0.0f, 0.0f }; /** local pivot ***/
-                    G3DDOUBLEVECTOR lstartpos, lendpos;
+                    G3DVECTOR dif = { 0.0f, 0.0f, 0.0f }; /** local pivot ***/
+                    G3DVECTOR lstartpos, lendpos;
                     G3DVECTOR sca = { 1.0f, 1.0f, 1.0f, 1.0f };
 
                     if ( nbobj == 0x01 ) {
                         /*** Helps with moving the mouse in the same ***/
                         /*** direcion as axises ***/
-                        g3ddoublevector_matrix ( &startpos, obj->iwmatrix, &lstartpos );
-                        g3ddoublevector_matrix ( &endpos  , obj->iwmatrix, &lendpos   );
+                        g3dvector_matrixf ( &startpos,
+                                             obj->inverseWorldMatrix,
+                                           &lstartpos );
 
-                        g3dvector_matrix ( &vecx, obj->rmatrix, &lvecx );
-                        g3dvector_matrix ( &vecy, obj->rmatrix, &lvecy );
-                        g3dvector_matrix ( &vecz, obj->rmatrix, &lvecz );
+                        g3dvector_matrixf ( &endpos,
+                                             obj->inverseWorldMatrix,
+                                            &lendpos );
+
+                        g3dvector_matrixf ( &vecx, obj->rotationMatrix, &lvecx );
+                        g3dvector_matrixf ( &vecy, obj->rotationMatrix, &lvecy );
+                        g3dvector_matrixf ( &vecz, obj->rotationMatrix, &lvecz );
 
                         /** adjust move amplitude with scaling factor ***/
-                        g3dcore_getMatrixScale ( obj->wmatrix, &sca );
+                        g3dcore_getMatrixScalef ( obj->worldMatrix, &sca );
 
                         if ( obj->type == G3DBONETYPE ) {
-                            g3dbone_updateRigs ( ( G3DOBJECT * ) obj, engine_flags );
+                            g3dbone_updateRigs ( ( G3DBONE * ) obj, engine_flags );
                         }
                     } else {
                         G3DVECTOR zero = { 0.0f, 0.0f, 0.0f, 1.0f }, lzero;
 
                         /** World reference for mouse gesture ***/
-                        memcpy ( &lstartpos, &startpos, sizeof ( G3DDOUBLEVECTOR ) );
-                        memcpy ( &lendpos  , &endpos  , sizeof ( G3DDOUBLEVECTOR ) );
+                        memcpy ( &lstartpos, &startpos, sizeof ( G3DVECTOR ) );
+                        memcpy ( &lendpos  , &endpos  , sizeof ( G3DVECTOR ) );
 
                         /*** build direction vectors ***/
-                        g3dvector_matrix ( &zero, obj->parent->iwmatrix, &lzero );
-                        g3dvector_matrix ( &vecx, obj->parent->iwmatrix, &lvecx );
-                        g3dvector_matrix ( &vecy, obj->parent->iwmatrix, &lvecy );
-                        g3dvector_matrix ( &vecz, obj->parent->iwmatrix, &lvecz );
+                        g3dvector_matrixf ( &zero,
+                                             obj->parent->inverseWorldMatrix,
+                                           &lzero );
+                        g3dvector_matrixf ( &vecx,
+                                             obj->parent->inverseWorldMatrix,
+                                             &lvecx );
+                        g3dvector_matrixf ( &vecy,
+                                             obj->parent->inverseWorldMatrix,
+                                            &lvecy );
+                        g3dvector_matrixf ( &vecz,
+                                             obj->parent->inverseWorldMatrix,
+                                            &lvecz );
 
                         lvecx.x -= lzero.x;
                         lvecx.y -= lzero.y;
@@ -1109,14 +1157,14 @@ int move_object ( LIST        *lobj,
                                     G3DMESH *mes = ( G3DMESH * ) obj;
 
                                     g3dmesh_moveAxis ( mes, PREVWMVX, engine_flags );
-                                    memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                                    memcpy ( PREVWMVX, obj->worldMatrix, sizeof ( obj->worldMatrix ) );
                                 }
 
                                 if ( obj->type & SPLINE ) {
                                     G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 
                                     g3dspline_moveAxis ( spl, PREVWMVX, engine_flags );
-                                    memcpy ( PREVWMVX, obj->wmatrix, sizeof ( double ) * 0x10 );
+                                    memcpy ( PREVWMVX, obj->worldMatrix, sizeof ( obj->worldMatrix ) );
                                 }
                             }
                         }
@@ -1129,7 +1177,7 @@ int move_object ( LIST        *lobj,
                 /*** but I'm too lazy to think of anything else ***/
                 g3dscene_updatePivot ( sce, engine_flags );
 
-                memcpy ( &startpos, &endpos, sizeof ( G3DDOUBLEVECTOR ) );
+                memcpy ( &startpos, &endpos, sizeof ( G3DVECTOR ) );
             }
         } return REDRAWVIEW | UPDATECOORDS;
 

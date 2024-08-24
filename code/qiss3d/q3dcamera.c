@@ -131,7 +131,7 @@ void q3dcamera_init ( Q3DCAMERA *qcam,
     Q3DFREE_CALLBACK(q3dcamera_free),
 Q3DINTERSECT_CALLBACK(q3dcamera_intersect) );
 
-    q3dvector3f_matrix ( &origin, ((G3DOBJECT*)cam)->wmatrix, &qcam->wpos );
+    q3dvector3f_matrixf ( &origin, ((G3DOBJECT*)cam)->worldMatrix, &qcam->wpos );
 
     q3dcamera_initViewport ( qcam, width, height );
 }

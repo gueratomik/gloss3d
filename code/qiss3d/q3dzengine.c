@@ -30,10 +30,10 @@
 #include <qiss3d/q3d.h>
 
 /******************************************************************************/
-static double IDX[0x10] = { 1.0f, 0.0f, 0.0f, 0.0f,
-                            0.0f, 1.0f, 0.0f, 0.0f,
-                            0.0f, 0.0f, 1.0f, 0.0f,
-                            0.0f, 0.0f, 0.0f, 1.0f };
+static float IDX[0x10] = { 1.0f, 0.0f, 0.0f, 0.0f,
+                           0.0f, 1.0f, 0.0f, 0.0f,
+                           0.0f, 0.0f, 1.0f, 0.0f,
+                           0.0f, 0.0f, 0.0f, 1.0f };
 
 /******************************************************************************/
 uint32_t q3dzengine_isOutline ( Q3DZENGINE *qzen,
@@ -70,8 +70,8 @@ uint32_t q3dzengine_isOutline ( Q3DZENGINE *qzen,
 
 /******************************************************************************/
 static void q3dzengine_recordWMAtrix ( Q3DZENGINE *qzen,
-                                       double     *WMVX ) {
-    uint32_t matrixSize = sizeof ( double ) * 0x10;
+                                       float     *WMVX ) {
+    uint32_t matrixSize = sizeof ( float ) * 0x10;
     uint32_t wmvxID = qzen->wmvxID;
 
     qzen->WMVX = realloc ( qzen->WMVX, ++qzen->wmvxID * matrixSize );
@@ -82,8 +82,8 @@ static void q3dzengine_recordWMAtrix ( Q3DZENGINE *qzen,
 /******************************************************************************/
 static void q3dzengine_buildFrustrum ( Q3DZENGINE *qzen,
                                        float       znear,
-                                       double     *MVX,
-                                       double     *PJX,
+                                       float      *MVX,
+                                       float      *PJX,
                                        int        *VPX ) {
 
     Q3DVECTOR3D scr2D[0x04] = { { .x = VPX[0x00] , .y = VPX[0x01] },
@@ -99,25 +99,25 @@ static void q3dzengine_buildFrustrum ( Q3DZENGINE *qzen,
     memset ( qzen->frustrum, 0x00, sizeof ( qzen->frustrum ) );
 
     for ( i = 0x00; i < 0x04; i++ ) {
-        gluUnProject ( ( double ) scr2D[i].x,
-                       VPX[0x03] - ( double ) scr2D[i].y,
-                       ( double ) 0.0f, /* zNear */
-                       MVX,
-                       PJX,
-                       VPX,
-                      &scr3Dnear[i].x,
-                      &scr3Dnear[i].y,
-                      &scr3Dnear[i].z );
+        g3dcore_projectf ( ( double ) scr2D[i].x,
+                           ( double ) VPX[0x03] - scr2D[i].y,
+                           ( double ) 0.0f, /* zNear */
+                                      MVX,
+                                      PJX,
+                                      VPX,
+                                     &scr3Dnear[i].x,
+                                     &scr3Dnear[i].y,
+                                     &scr3Dnear[i].z );
 
-        gluUnProject ( ( double ) scr2D[i].x,
-                       VPX[0x03] - ( double ) scr2D[i].y,
-                       ( double ) 1.0f, /* zFar */
-                       MVX,
-                       PJX,
-                       VPX,
-                      &scr3Dfar[i].x,
-                      &scr3Dfar[i].y,
-                      &scr3Dfar[i].z );
+        g3dcore_unprojectf ( ( double ) scr2D[i].x,
+                             ( double ) VPX[0x03] -  scr2D[i].y,
+                             ( double ) 1.0f, /* zFar */
+                                        MVX,
+                                        PJX,
+                                        VPX,
+                                       &scr3Dfar[i].x,
+                                       &scr3Dfar[i].y,
+                                       &scr3Dfar[i].z );
     }
 
     for ( i = 0x00; i < 0x04; i++ ) {
@@ -345,8 +345,8 @@ static uint32_t q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
                                           Q3DTRIANGLE *qtri,
                                           Q3DVERTEX   *qver,
                                           uint32_t     wmvxID,
-                                          double      *MVX,
-                                          double      *PJX,
+                                          float       *MVX,
+                                          float       *PJX,
                                           int         *VPX ) {
     uint32_t qverID0 = qtri->qverID[0x00],
              qverID1 = qtri->qverID[0x01],
@@ -367,9 +367,9 @@ static uint32_t q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
 
     /*** the clipping planes are in world coordinates, so we work in world ***/
     /*** coordinates. That's why we need the identity matrix further below ***/
-    q3dvector3f_matrix ( &qver[qverID0].pos, MVX, &pworld[0x00] );
-    q3dvector3f_matrix ( &qver[qverID1].pos, MVX, &pworld[0x01] );
-    q3dvector3f_matrix ( &qver[qverID2].pos, MVX, &pworld[0x02] );
+    q3dvector3f_matrixf ( &qver[qverID0].pos, MVX, &pworld[0x00] );
+    q3dvector3f_matrixf ( &qver[qverID1].pos, MVX, &pworld[0x01] );
+    q3dvector3f_matrixf ( &qver[qverID2].pos, MVX, &pworld[0x02] );
 
     /*** Clip first, or else GluProject will return unwanted values ***/
     for ( i = 0x00; i < 0x03; i++ ) {
@@ -421,15 +421,15 @@ static uint32_t q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
 
                     /*** remember clipping point position for ***/
                     /*** drawing the clipping line ***/
-                    gluProject ( it.x, 
-                                 it.y,
-                                 it.z,
-                                 IDX, 
-                                 PJX,
-                                 VPX,
-                                &pclip[nbClip].x, 
-                                &pclip[nbClip].y, 
-                                &pclip[nbClip].z );
+                    g3dcore_projectf ( it.x, 
+                                       it.y,
+                                       it.z,
+                                       IDX, 
+                                       PJX,
+                                       VPX,
+                                      &pclip[nbClip].x, 
+                                      &pclip[nbClip].y, 
+                                      &pclip[nbClip].z );
 
                     distance = t;
                 }
@@ -443,15 +443,15 @@ static uint32_t q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
 
     for ( i = 0x00; i < 0x03; i++ ) {
         for ( j = 0x00; j < 0x02; j++ ) {
-            gluProject ( lworld[i][j].x,
-                         lworld[i][j].y,
-                         lworld[i][j].z,
-                         IDX,
-                         PJX,
-                         VPX,
-                        &lscreen[i][j].x,
-                        &lscreen[i][j].y,
-                        &lscreen[i][j].z );
+            g3dcore_projectf ( lworld[i][j].x,
+                               lworld[i][j].y,
+                               lworld[i][j].z,
+                               IDX,
+                               PJX,
+                               VPX,
+                              &lscreen[i][j].x,
+                              &lscreen[i][j].y,
+                              &lscreen[i][j].z );
         }
 
         /* prepare 2D clipping */
@@ -530,17 +530,17 @@ static uint32_t q3dzengine_drawTriangle ( Q3DZENGINE  *qzen,
 /******************************************************************************/
 static void q3dzengine_drawSymmetry ( Q3DZENGINE  *qzen, 
                                       Q3DSYMMETRY *qsym,
-                                      double      *MVX,
-                                      double      *PJX,
+                                      float       *MVX,
+                                      float       *PJX,
                                       int         *VPX,
                                       float        frame ) {
     if ( ( qsym->qobj.obj->flags & OBJECTINACTIVE ) == 0x00 ) {
         Q3DOBJECT *qobj = ( Q3DOBJECT * ) qsym;
         LIST *ltmpchildren = qobj->lchildren;
         G3DSYMMETRY *sym  = ( G3DSYMMETRY * ) q3dobject_getObject ( qobj );
-        double SMVX[0x10];
+        float SMVX[0x10];
 
-        g3dcore_multmatrix ( sym->smatrix, MVX, SMVX );
+        g3dcore_multMatrixf ( sym->smatrix, MVX, SMVX );
 
         while ( ltmpchildren ) {
             Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
@@ -560,8 +560,8 @@ static void q3dzengine_drawSymmetry ( Q3DZENGINE  *qzen,
 /******************************************************************************/
 static void q3dzengine_drawMesh ( Q3DZENGINE *qzen, 
                                   Q3DMESH    *qmes,
-                                  double     *MVX,
-                                  double     *PJX,
+                                  float      *MVX,
+                                  float      *PJX,
                                   int        *VPX,
                                   float       frame ) {
     Q3DVERTEX *qver = q3dmesh_getVertices ( qmes, frame );
@@ -591,28 +591,28 @@ static void q3dzengine_drawMesh ( Q3DZENGINE *qzen,
 /******************************************************************************/
 static void q3dzengine_drawInstance ( Q3DZENGINE  *qzen, 
                                       Q3DINSTANCE *qins,
-                                      double      *MVX,
-                                      double      *PJX,
+                                      float       *MVX,
+                                      float       *PJX,
                                       int         *VPX,
                                       float        frame ) {
     Q3DOBJECT *qobj = ( Q3DOBJECT * ) qins;
     G3DINSTANCE *ins = ( G3DINSTANCE * ) q3dobject_getObject ( qobj );
-    double SMVX[0x10];
+    float SMVX[0x10];
     /*** backup local matrix beacuse q3dzengine_drawObject_r is going to ***/
     /*** do some maths with it, we want the matrix to have no influence ***/
     /*** so we back it up first before restoring it ***/
-    double BKPX[0x10]; 
+    float BKPX[0x10]; 
 
     if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
-        g3dcore_multmatrix ( ins->smatrix, MVX, SMVX );
+        g3dcore_multMatrixf ( ins->smatrix, MVX, SMVX );
     } else {
         memcpy ( SMVX, MVX, sizeof ( SMVX ) );
     }
 
     if (  qins->qref ) {
-        memcpy ( BKPX, qins->qref->obj->lmatrix, sizeof ( BKPX ) );
+        memcpy ( BKPX, qins->qref->obj->localMatrix, sizeof ( BKPX ) );
 
-        g3dcore_identityMatrix ( qins->qref->obj->lmatrix );
+        g3dcore_identityMatrixf ( qins->qref->obj->localMatrix );
 
         q3dzengine_drawObject ( qzen, 
                                 qins->qref,
@@ -621,15 +621,15 @@ static void q3dzengine_drawInstance ( Q3DZENGINE  *qzen,
                                 VPX,
                                 frame );
 
-        memcpy ( qins->qref->obj->lmatrix, BKPX, sizeof ( BKPX ) );
+        memcpy ( qins->qref->obj->localMatrix, BKPX, sizeof ( BKPX ) );
     }
 }
 
 /******************************************************************************/
 static void q3dzengine_drawParticleEmitter ( Q3DZENGINE         *qzen, 
                                              Q3DPARTICLEEMITTER *qpem,
-                                             double             *MVX,
-                                             double             *PJX,
+                                             float              *MVX,
+                                             float              *PJX,
                                              int                *VPX,
                                              float               frame ) {
     Q3DOBJECT *qobj = ( Q3DOBJECT * ) qpem;
@@ -638,10 +638,10 @@ static void q3dzengine_drawParticleEmitter ( Q3DZENGINE         *qzen,
     /*** backup local matrix beacuse q3dzengine_drawObject_r is going to ***/
     /*** do some maths with it, we want the matrix to have no influence ***/
     /*** so we back it up first before restoring it ***/
-    double CAMX[0x10], WMVX[0x10]; 
+    float CAMX[0x10], WMVX[0x10]; 
     uint32_t i, j;
 
-    g3dcore_multmatrix ( pem->obj.iwmatrix, MVX, CAMX );
+    g3dcore_multMatrixf ( pem->obj.inverseWorldMatrix, MVX, CAMX );
 
     if (  pem->maxParticles ) {
         for ( i = 0x00; i < pem->particleLifetime; i++ ) {
@@ -652,7 +652,7 @@ static void q3dzengine_drawParticleEmitter ( Q3DZENGINE         *qzen,
                 if ( prt[j].flags & PARTICLE_ISALIVE ) {
                     if ( prt[j].ref ) {
                        if ( prt[j].ref->type & MESH ) {
-                           g3dcore_multmatrix (  qprt[j].MVX, CAMX, WMVX );
+                           g3dcore_multMatrixf (  qprt[j].MVX, CAMX, WMVX );
 
                            q3dzengine_drawMesh ( qzen, 
                                    ( Q3DMESH * ) qprt[j].qref,
@@ -671,17 +671,17 @@ static void q3dzengine_drawParticleEmitter ( Q3DZENGINE         *qzen,
 /******************************************************************************/
 void q3dzengine_drawObjectWithCondition ( Q3DZENGINE *qzen, 
                                           Q3DOBJECT  *qobj,
-                                          double     *MVX,
-                                          double     *PJX,
+                                          float      *MVX,
+                                          float      *PJX,
                                           int        *VPX,
                                           uint32_t  (*cond)(Q3DOBJECT*,
                                                             void *),
                                           void       *condData,
                                           float       frame ) {
     if ( ( cond == NULL ) || cond ( qobj, condData ) ) {
-        double WMVX[0x10];
+        float WMVX[0x10];
 
-        g3dcore_multmatrix ( qobj->obj->lmatrix, MVX, WMVX );
+        g3dcore_multMatrixf ( qobj->obj->localMatrix, MVX, WMVX );
 
         if (   ( qobj->obj->type & MESH ) &&
              ( ( qobj->obj->type & MODIFIER ) == 0x00 ) ) {
@@ -744,15 +744,15 @@ void q3dzengine_drawObjectWithCondition ( Q3DZENGINE *qzen,
 /******************************************************************************/
 void q3dzengine_drawObjectWithCondition_r ( Q3DZENGINE *qzen, 
                                             Q3DOBJECT  *qobj,
-                                            double     *MVX,
-                                            double     *PJX,
+                                            float      *MVX,
+                                            float      *PJX,
                                             int        *VPX,
                                             uint32_t  (*cond)(Q3DOBJECT*,
                                                               void *),
                                             void       *condData,
                                             float       frame ) {
     LIST *ltmpchildren = qobj->lchildren;
-    double WMVX[0x10];
+    float WMVX[0x10];
 
     q3dzengine_drawObjectWithCondition ( qzen, 
                                          qobj,
@@ -763,7 +763,7 @@ void q3dzengine_drawObjectWithCondition_r ( Q3DZENGINE *qzen,
                                          condData,
                                          frame );
 
-    g3dcore_multmatrix ( qobj->obj->lmatrix, MVX, WMVX );
+    g3dcore_multMatrixf ( qobj->obj->localMatrix, MVX, WMVX );
 
     while ( ltmpchildren ) {
         Q3DOBJECT *qchild = ( Q3DOBJECT * ) ltmpchildren->data;
@@ -784,8 +784,8 @@ void q3dzengine_drawObjectWithCondition_r ( Q3DZENGINE *qzen,
 /******************************************************************************/
 void q3dzengine_drawObject ( Q3DZENGINE *qzen, 
                              Q3DOBJECT  *qobj,
-                             double     *MVX,
-                             double     *PJX,
+                             float      *MVX,
+                             float      *PJX,
                              int        *VPX,
                              float       frame ) {
     q3dzengine_drawObjectWithCondition ( qzen, 
@@ -801,8 +801,8 @@ void q3dzengine_drawObject ( Q3DZENGINE *qzen,
 /******************************************************************************/
 void q3dzengine_drawObject_r ( Q3DZENGINE *qzen, 
                                Q3DOBJECT  *qobj,
-                               double     *MVX,
-                               double     *PJX,
+                               float      *MVX,
+                               float      *PJX,
                                int        *VPX,
                                float       frame ) {
     q3dzengine_drawObjectWithCondition_r ( qzen, 
@@ -832,8 +832,8 @@ void q3dzengine_reset ( Q3DZENGINE *qzen ) {
 /******************************************************************************/
 void q3dzengine_init ( Q3DZENGINE *qzen,
                        float       znear,
-                       double     *MVX,
-                       double     *PJX,
+                       float      *MVX,
+                       float      *PJX,
                        int        *VPX,
                        uint32_t    width,
                        uint32_t    height ) {

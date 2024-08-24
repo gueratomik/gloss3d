@@ -86,9 +86,34 @@ float q3dvector3f_length ( Q3DVECTOR3F *vec ) {
 }
 
 /******************************************************************************/
-void q3dvector3f_matrix ( Q3DVECTOR3F *vec, 
-                          double      *matrix,
-                          Q3DVECTOR3F *vout ) {
+void q3dvector3f_matrixd ( Q3DVECTOR3F *vec, 
+                           double      *matrix,
+                           Q3DVECTOR3F *vout ) {
+    vout->x = ( ( vec->x * matrix[0x00] ) + 
+                ( vec->y * matrix[0x04] ) + 
+                ( vec->z * matrix[0x08] ) + 
+                (          matrix[0x0C] ) );
+
+    vout->y = ( ( vec->x * matrix[0x01] ) + 
+                ( vec->y * matrix[0x05] ) + 
+                ( vec->z * matrix[0x09] ) + 
+                (          matrix[0x0D] ) );
+
+    vout->z = ( ( vec->x * matrix[0x02] ) + 
+                ( vec->y * matrix[0x06] ) + 
+                ( vec->z * matrix[0x0A] ) + 
+                (          matrix[0x0E] ) );
+
+    /*vout->w = ( ( vec->x * matrix[0x03] ) + 
+                ( vec->y * matrix[0x07] ) + 
+                ( vec->z * matrix[0x0B] ) + 
+                (          matrix[0x0F] ) );*/
+}
+
+/******************************************************************************/
+void q3dvector3f_matrixf ( Q3DVECTOR3F *vec, 
+                           float       *matrix,
+                           Q3DVECTOR3F *vout ) {
     vout->x = ( ( vec->x * matrix[0x00] ) + 
                 ( vec->y * matrix[0x04] ) + 
                 ( vec->z * matrix[0x08] ) + 

@@ -467,9 +467,9 @@ typedef struct _Q3DOBJECT {
     uint32_t   id;
     uint64_t   flags;
     LIST      *lchildren;
-    double     IMVX[0x10];  /*** Inverse ModelView Matrix           ***/
-    double     TMVX[0x10];  /*** Transpose ModelView Matrix         ***/
-    double     TIMVX[0x10]; /*** Transpose Inverse ModelView Matrix ***/
+    float     IMVX[0x10];  /*** Inverse ModelView Matrix           ***/
+    float     TMVX[0x10];  /*** Transpose ModelView Matrix         ***/
+    float     TIMVX[0x10]; /*** Transpose Inverse ModelView Matrix ***/
     void     (*free)     (struct _Q3DOBJECT *);
     uint32_t (*intersect)(struct _Q3DOBJECT  *obj, 
                                   Q3DRAY     *ray, 
@@ -515,34 +515,34 @@ typedef struct _Q3DRAY {
 /******************************************************************************/
 typedef struct _Q3DSYMMETRY {
     Q3DOBJECT qobj;
-    double  ISMVX[0x10]; /* inverse symmetried modelview matrix */
-    double  TSMVX[0x10]; /* transpose symmetried modelview matrix */
-    double TISMVX[0x10]; /* transpose inverse symmetried modelview matrix */
+    float  ISMVX[0x10]; /* inverse symmetried modelview matrix */
+    float  TSMVX[0x10]; /* transpose symmetried modelview matrix */
+    float TISMVX[0x10]; /* transpose inverse symmetried modelview matrix */
 } Q3DSYMMETRY;
 
 /******************************************************************************/
 typedef struct _Q3DINSTANCE {
     Q3DOBJECT  qobj;
     Q3DOBJECT *qref;
-    double  ISMVX[0x10]; /* inverse symmetried modelview matrix */
-    double  TSMVX[0x10]; /* transpose symmetried modelview matrix */
-    double TISMVX[0x10]; /* transpose inverse symmetried modelview matrix */
+    float  ISMVX[0x10]; /* inverse symmetried modelview matrix */
+    float  TSMVX[0x10]; /* transpose symmetried modelview matrix */
+    float TISMVX[0x10]; /* transpose inverse symmetried modelview matrix */
 } Q3DINSTANCE;
 
 /******************************************************************************/
 typedef struct _Q3DPARTICLE {
     Q3DOBJECT *qref;
-    double      MVX[0x10];  /*** ModelView Matrix           ***/
-    double     IMVX[0x10];  /*** Inverse ModelView Matrix           ***/
-    double     TIMVX[0x10]; /*** Transpose Inverse ModelView Matrix ***/
+    float      MVX[0x10];  /*** ModelView Matrix           ***/
+    float     IMVX[0x10];  /*** Inverse ModelView Matrix           ***/
+    float     TIMVX[0x10]; /*** Transpose Inverse ModelView Matrix ***/
 } Q3DPARTICLE;
 
 /******************************************************************************/
 typedef struct _Q3DPARTICLEEMITTER {
     Q3DOBJECT    qobj;
     Q3DPARTICLE *qprt;
-    double       TIWMVX[0x10]; /*** Transpose Inverse World ModelView Matrix ***/
-    double       TWMVX[0x10]; /*** Transpose World ModelView Matrix ***/
+    float       TIWMVX[0x10]; /*** Transpose Inverse World ModelView Matrix ***/
+    float       TWMVX[0x10]; /*** Transpose World ModelView Matrix ***/
 } Q3DPARTICLEEMITTER;
 
 /******************************************************************************/
@@ -613,7 +613,7 @@ typedef struct _Q3DLIGHT {
 typedef struct _Q3DCAMERA {
     Q3DOBJECT   qobj;
     Q3DVECTOR3F wpos; /*** world position ***/
-    double      PJX[0x10];
+    float       PJX[0x10];
     int         VPX[0x10];
 } Q3DCAMERA;
 
@@ -681,7 +681,7 @@ typedef struct _Q3DZENGINE {
     Q3DZHLINE  *hlines;
     uint32_t    height;
     uint32_t    width;
-    double    (*WMVX)[0x10]; /*** array of world matrices, used ***/
+    float     (*WMVX)[0x10]; /*** array of world matrices, used ***/
                        /*** by the wireframe renderer e.g ***/
     uint32_t    wmvxID;
 } Q3DZENGINE;
@@ -768,8 +768,11 @@ void   q3dvector3f_cross     ( Q3DVECTOR3F *vone,
 void   q3dvector3f_normalize ( Q3DVECTOR3F *vec,
                                float       *len );
 float  q3dvector3f_length    ( Q3DVECTOR3F *vec );
-void   q3dvector3f_matrix    ( Q3DVECTOR3F *vec,
+void   q3dvector3f_matrixd    ( Q3DVECTOR3F *vec,
                                double      *matrix,
+                               Q3DVECTOR3F *vout );
+void   q3dvector3f_matrixf    ( Q3DVECTOR3F *vec,
+                               float      *matrix,
                                Q3DVECTOR3F *vout );
 void   q3dvector3d_cross     ( Q3DVECTOR3D *vone, 
                                Q3DVECTOR3D *vtwo, 
@@ -929,14 +932,14 @@ Q3DOBJECT *q3dscene_getObjectByID ( Q3DSCENE *qsce,
 /******************************************************************************/
 void q3dzengine_drawObject_r ( Q3DZENGINE *qzen, 
                                Q3DOBJECT  *qobj,
-                               double     *MVX,
-                               double     *PJX,
+                               float      *MVX,
+                               float      *PJX,
                                int        *VPX,
                                float       frame );
 void q3dzengine_drawObjectWithCondition_r ( Q3DZENGINE *qzen, 
                                             Q3DOBJECT  *qobj,
-                                            double     *MVX,
-                                            double     *PJX,
+                                            float      *MVX,
+                                            float      *PJX,
                                             int        *VPX,
                                             uint32_t  (*cond)(Q3DOBJECT*,
                                                               void *),
@@ -945,8 +948,8 @@ void q3dzengine_drawObjectWithCondition_r ( Q3DZENGINE *qzen,
 void q3dzengine_reset        ( Q3DZENGINE *qzen );
 void q3dzengine_init         ( Q3DZENGINE *qzen,
                                float       znear,
-                               double     *MVX,
-                               double     *PJX,
+                               float      *MVX,
+                               float      *PJX,
                                int        *VPX,
                                uint32_t    width,
                                uint32_t    height );
@@ -1201,15 +1204,15 @@ void       q3dcamera_init ( Q3DCAMERA *qcam,
 /******************************************************************************/
 void q3dzengine_drawObject ( Q3DZENGINE *qzen, 
                              Q3DOBJECT  *qobj,
-                             double     *MVX,
-                             double     *PJX,
+                             float      *MVX,
+                             float      *PJX,
                              int        *VPX,
                              float       frame );
 
 void q3dzengine_drawObjectWithCondition ( Q3DZENGINE *qzen, 
                                           Q3DOBJECT  *qobj,
-                                          double     *MVX,
-                                          double     *PJX,
+                                          float      *MVX,
+                                          float      *PJX,
                                           int        *VPX,
                                           uint32_t  (*cond)(Q3DOBJECT*,
                                                             void *),
@@ -1226,6 +1229,17 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                           float       frame,
                           uint32_t    nbhop,
                           uint32_t    query_flags );
+
+void q3dray_outline ( Q3DRAY *qray,
+                      Q3DJOB *qjob,
+                      float   *WMVX,
+                      float   *PJX,
+                      int     *VPX,
+                      float    zNear,
+                      uint32_t wireframeThickness,
+                      Q3DRGBA *diffuse,
+                      uint32_t wireframeColor,
+                      float    frame  );
 
 uint32_t q3dray_getSurfaceColor ( Q3DRAY      *qray,
                                   Q3DMESH     *qmes,
@@ -1259,7 +1273,7 @@ void q3darea_viewport ( Q3DAREA   *qarea,
 void q3darea_averageSoftShadows ( Q3DAREA *qarea );
 
 void q3dcore_buildLocalQRay ( Q3DRAY *qray,
-                              double *IMVX,
+                              float  *IMVX,
                               Q3DRAY *locqray );
 
 Q3DPARTICLEEMITTER *q3dparticleemitter_new ( G3DPARTICLEEMITTER *pem,

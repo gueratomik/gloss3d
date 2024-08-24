@@ -147,8 +147,8 @@ static uint32_t g3dexportv3subdivider_sculptmaps ( G3DEXPORTV3DATA *ged,
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
-        G3DFACESCULPTEXTENSION *fse = g3dface_getExtension ( fac,
-                                                ( uint64_t ) sdr );
+        G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION  * ) g3dface_getExtension ( fac,
+                                                                              ( uint64_t ) sdr );
 
         if ( fse ) {
             G3DEXPORTSCULPTMAP esm = { .fac = fac,
