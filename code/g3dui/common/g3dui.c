@@ -2097,7 +2097,7 @@ void g3dui_resetDefaultCameras ( G3DUI *gui ) {
                                {        0.0f,        0.0f,        0.0f, 1.0f },
                                {        0.0f,        0.0f,        0.0f, 1.0f },
                                {        0.0f,        0.0f,        0.0f, 1.0f } },
-              camrot[0x04] = { {    -12.516f,        45.0,        0.0f, 1.0f },
+              camrot[0x04] = { {    -12.516f,       45.0f,        0.0f, 1.0f },
                                {        0.0f,        0.0f,        0.0f, 1.0f },
                                {        0.0f,      -90.0f,        0.0f, 1.0f },
                                {      -90.0f,        0.0f,        0.0f, 1.0f } },
@@ -2109,7 +2109,8 @@ void g3dui_resetDefaultCameras ( G3DUI *gui ) {
     uint32_t i;
 
     for ( i = 0x00; i < 0x04; i++ ) {
-        G3DCAMERA *cam = gui->defaultCameras[i];
+        G3DUIVIEW *view = gui->main->quad->view[i];
+        G3DCAMERA *cam = &view->defcam;
         G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
 
         cam->focal = camfoc[i];
@@ -2127,11 +2128,10 @@ void g3dui_resetDefaultCameras ( G3DUI *gui ) {
         if ( gui->main->quad ) {
             if ( gui->main->quad->view[i] ) {
                 G3DUIVIEW *view = gui->main->quad->view[i];
-                G3DCAMERA *cam = gui->defaultCameras[i];
+                G3DCAMERA *cam = &view->defcam;
                 G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
 
                 view->cam    = cam;
-                view->defcam = cam;
 
                 g3dobject_updateMatrix_r ( ( G3DOBJECT * ) cam, 0x00 );
 
@@ -2146,7 +2146,7 @@ void g3dui_resetDefaultCameras ( G3DUI *gui ) {
 
                 view->defcamfoc = cam->focal;
 
-                g3duiview_initGL ( view );
+                /*g3duiview_initGL ( view );*/
             }
         }
     }
@@ -2157,43 +2157,10 @@ void g3dui_resetDefaultCameras ( G3DUI *gui ) {
 void g3dui_createDefaultCameras ( G3DUI *gui ) {
     uint32_t ptrSize = sizeof ( G3DCAMERA * );
     G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
-    G3DUIVIEW *currentView = NULL;
-    int i;
 
-    gui->defaultCameras = ( G3DCAMERA ** ) calloc ( 0x04, ptrSize );
-
-
-    gui->defaultCameras[0x00] = g3dcamera_new ( 0x00, 
-                                                "Camera",
-                                                0.0f,
-                                                1.0f,
-                                                0.1f,
-                                                1000.0f );
-
-    gui->defaultCameras[0x01] = g3dcamera_new ( 0x01, 
-                                                "Camera",
-                                                0.0f,
-                                                1.0f,
-                                               -1000.0f,
-                                                1000.0f );
-
-    gui->defaultCameras[0x02] = g3dcamera_new ( 0x02,
-                                                "Camera",
-                                                0.0f,
-                                                1.0f,
-                                               -1000.0f,
-                                                1000.0f );
-
-    gui->defaultCameras[0x03] = g3dcamera_new ( 0x03,
-                                                "Camera",
-                                                0.0f,
-                                                1.0f,
-                                               -1000.0f,
-                                                1000.0f );
-
-    g3dui_resetDefaultCameras ( gui );
-
+#ifdef need_refactor
     sysinfo->defaultCamera = gui->defaultCameras[0x00];
+#endif
 }
 
 /******************************************************************************/
@@ -2375,6 +2342,7 @@ void g3dui_init ( G3DUI     *gui,
     g3dui_loadConfiguration    ( gui, configFileName );
 
     g3dui_createDefaultCameras ( gui );
+    g3dui_resetDefaultCameras( gui );
 
     /*** undo redo manager ***/
     gui->urm = g3durmanager_new ( gui->conf.undolevel );

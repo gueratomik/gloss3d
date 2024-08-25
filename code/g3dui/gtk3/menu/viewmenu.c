@@ -116,9 +116,9 @@ static uint32_t useDefaultCameraCond ( G3DUIMENU *menu,
                                        void      *data ) {
     G3DUIVIEW *view = ( G3DUIVIEW * ) data;
 
-    return ( view->cam == view->defcam ) ? MENU_CONDITION_SENSITIVE |
-                                           MENU_CONDITION_ACTIVE :
-                                           MENU_CONDITION_SENSITIVE;
+    return ( view->cam == &view->defcam ) ? MENU_CONDITION_SENSITIVE |
+                                            MENU_CONDITION_ACTIVE :
+                                            MENU_CONDITION_SENSITIVE;
 }
 
 /******************************************************************************/
@@ -126,7 +126,7 @@ static uint64_t useDefaultCameraCbk ( G3DUIMENU *menu,
                                       void      *data ) {
     G3DUIVIEW *view = ( G3DUIVIEW * ) data;
 
-    view->cam = view->defcam;
+    view->cam = &view->defcam;
 
 
     return UPDATEVIEWMENU | REDRAWVIEW;

@@ -37,6 +37,7 @@ typedef struct _CAMERAKEYDATA {
 /******************************************************************************/
 static uint32_t drawTarget ( G3DOBJECT *obj,
                              G3DCAMERA *curcam, 
+                             G3DENGINE *engine, 
                              uint64_t   engine_flags ) {
     glDisable ( GL_LIGHTING );
     glBegin ( GL_LINES );
@@ -153,7 +154,7 @@ void g3dcamera_setTarget ( G3DCAMERA *cam,
     G3DVECTOR  piv2obj;
     G3DVECTOR  obj2x;
     G3DVECTOR  axis, up = { 0.0f, 1.0f, 0.0f, 1.0f };
-    float RX[0x10], TIVX[0x10];
+    float RX[0x10];
     G3DVECTOR xaxis, yaxis;
 
     g3dcore_identityMatrixf ( RX );
@@ -177,8 +178,6 @@ void g3dcamera_setTarget ( G3DCAMERA *cam,
     piv2obj.z =  lobjpos.z - lpivpos.z;
 
     g3dvector_normalize ( &piv2obj, NULL );
-
-    g3dcore_transposeMatrixf ( cam->target->inverseWorldMatrix, TIVX );
 
     g3dvector_matrixf ( & ( G3DVECTOR ) { 1.0f, 
                                           0.0f, 
@@ -299,21 +298,33 @@ void g3dcamera_project ( G3DCAMERA *cam,
 
         glGetIntegerv ( GL_VIEWPORT, VPX );
 
+        g3dcore_orthof( ( -VPX[0x02] * cam->ortho.z ) + cam->ortho.x,
+                        (  VPX[0x02] * cam->ortho.z ) + cam->ortho.x,
+                        ( -VPX[0x03] * cam->ortho.z ) + cam->ortho.y,
+                        (  VPX[0x03] * cam->ortho.z ) + cam->ortho.y,
+                        cam->znear,
+                        cam->zfar,
+                        cam->pmatrix );
+
+/*
         glOrtho ( ( -VPX[0x02] * cam->ortho.z ) + cam->ortho.x,
                   (  VPX[0x02] * cam->ortho.z ) + cam->ortho.x,
                   ( -VPX[0x03] * cam->ortho.z ) + cam->ortho.y,
                   (  VPX[0x03] * cam->ortho.z ) + cam->ortho.y, cam->znear, cam->zfar );
+*/
     } else {
+        g3dcore_perpespectivef ( cam->focal * M_PI / 180.0f,
+                                 cam->ratio,
+                                 cam->znear,
+                                 cam->zfar,
+                                 cam->pmatrix );
+
 /*
         gluPerspective ( cam->focal, cam->ratio, cam->znear, cam->zfar );
 */
     }
 
-    g3dcore_perpespectivef ( cam->focal,
-                             cam->ratio,
-                             cam->znear,
-                             cam->zfar,
-                             cam->pmatrix );
+
 
     glGetIntegerv ( GL_VIEWPORT         , cam->vmatrix );
 }
@@ -395,6 +406,7 @@ uint32_t g3dcamera_pick ( G3DCAMERA *cam,
 /******************************************************************************/
 uint32_t g3dcamera_draw ( G3DOBJECT *obj,
                           G3DCAMERA *curcam, 
+                          G3DENGINE *engine,
                           uint64_t   engine_flags ) {
     G3DCAMERA *cam = ( G3DCAMERA * ) obj;
     GLfloat pnt[0x08][0x03] = { {  0.25,  0.5,  0.5 },
@@ -527,21 +539,14 @@ void g3dcamera_setOrtho ( G3DCAMERA *cam,
 }
 
 /******************************************************************************/
-G3DCAMERA *g3dcamera_new ( uint32_t id,
-                           char    *name, 
-                           float    focal, 
-                           float    ratio,
-                           float    znear, 
-                           float    zfar ) {
-
-    G3DCAMERA *cam = ( G3DCAMERA * ) calloc ( 0x01, sizeof ( G3DCAMERA ) );
-    G3DOBJECT *obj = ( G3DOBJECT * ) cam;
-
-    if ( cam == NULL ) {
-        fprintf ( stderr, "g3dcamera_new: calloc failed\n" );
-
-        return NULL;
-    }
+void g3dcamera_init( G3DCAMERA *cam,
+                     uint32_t id,
+                     char    *name, 
+                     float    focal, 
+                     float    ratio,
+                     float    znear, 
+                     float    zfar ) {
+    G3DOBJECT *obj = ( G3DOBJECT  * ) cam;
 
     g3dobject_init ( obj, G3DCAMERATYPE, id, name, 0x00,
                                      DRAW_CALLBACK(g3dcamera_draw),
@@ -577,6 +582,26 @@ G3DCAMERA *g3dcamera_new ( uint32_t id,
     cam->target = g3dobject_new ( 0x00, "target", 0x00 );
 
     cam->target->draw = drawTarget;
+}
+
+/******************************************************************************/
+G3DCAMERA *g3dcamera_new ( uint32_t id,
+                           char    *name, 
+                           float    focal, 
+                           float    ratio,
+                           float    znear, 
+                           float    zfar ) {
+
+    G3DCAMERA *cam = ( G3DCAMERA * ) calloc ( 0x01, sizeof ( G3DCAMERA ) );
+    G3DOBJECT *obj = ( G3DOBJECT * ) cam;
+
+    if ( cam == NULL ) {
+        fprintf ( stderr, "g3dcamera_new: calloc failed\n" );
+
+        return NULL;
+    }
+
+    g3dcamera_init( cam, id, name, focal, ratio, znear, zfar );
 
     return cam;
 }

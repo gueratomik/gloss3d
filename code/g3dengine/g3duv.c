@@ -611,6 +611,7 @@ void g3duvmap_applyProjection ( G3DUVMAP *map, G3DMESH *mes ) {
 /******************************************************************************/
 uint32_t g3duvmap_draw ( G3DOBJECT *obj, 
                          G3DCAMERA *curcam, 
+                         G3DENGINE *engine, 
                          uint64_t   engine_flags ) {
     G3DUVMAP *map = ( G3DUVMAP * ) obj;
 

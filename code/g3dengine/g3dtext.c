@@ -1021,10 +1021,11 @@ void g3dtext_configure ( G3DTEXT *txt,
 /******************************************************************************/
 static uint32_t g3dtext_draw ( G3DOBJECT *obj, 
                                G3DCAMERA *curcam, 
+                               G3DENGINE *engine, 
                                uint64_t engine_flags ) {
-    g3dmesh_draw ( obj, curcam, engine_flags & (~VIEWVERTEX)
-                                             & (~VIEWFACE)
-                                             & (~VIEWEDGE) );
+    g3dmesh_draw ( obj, curcam, engine, engine_flags & (~VIEWVERTEX)
+                                                     & (~VIEWFACE)
+                                                     & (~VIEWEDGE) );
 }
 
 /******************************************************************************/

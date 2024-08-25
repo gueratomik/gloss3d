@@ -1647,7 +1647,12 @@ GTK3G3DUIUVMAPEDIT* gtk3_g3duiuvmapedit_create ( GtkWidget *parent,
 /****************************** g3duiview.c ***********************************/
 GTK3G3DUIVIEW *gtk3_g3duiview_create ( GtkWidget *parent, 
                                        GTK3G3DUI *gtk3gui,
-                                       char      *name );
+                                       char      *name,
+                                       uint32_t   camID,
+                                       float      focal, 
+                                       float      ratio,
+                                       float      znear, 
+                                       float      zfar );
 void gtk3_g3duiview_updateMenuBar ( GTK3G3DUIVIEW *gtk3view );
 void gtk3_g3duiview_resize ( GTK3G3DUIVIEW *gtk3view,
                              uint32_t       width,

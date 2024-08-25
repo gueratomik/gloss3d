@@ -405,6 +405,7 @@ void g3dffd_shape ( G3DFFD *ffd, uint32_t nbx,
 /******************************************************************************/
 static uint32_t g3dffd_draw ( G3DFFD    *ffd,
                               G3DCAMERA *cam, 
+                              G3DENGINE *engine, 
                               uint64_t   engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
 

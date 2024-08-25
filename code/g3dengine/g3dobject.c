@@ -1646,6 +1646,7 @@ void g3dobject_updateMatrix_r ( G3DOBJECT *obj,
 /******************************************************************************/
 void g3dobject_updateMatrix ( G3DOBJECT *obj, uint64_t engine_flags ) {
     g3dcore_identityMatrixf( obj->localMatrix );
+
     g3dcore_translateMatrixf( obj->localMatrix,
                               obj->pos.x,
                               obj->pos.y,
@@ -1665,9 +1666,9 @@ void g3dobject_updateMatrix ( G3DOBJECT *obj, uint64_t engine_flags ) {
     g3dcore_invertMatrixf ( obj->localMatrix, obj->inverseLocalMatrix );
 
     if ( obj->parent ) {
-        g3dcore_multMatrixf ( obj->localMatrix,
-                              obj->parent->worldMatrix,
-                              obj->worldMatrix );
+        g3dcore_multMatrixf ( obj->parent->worldMatrix,
+                              obj->localMatrix,
+                              obj->worldMatrix ); /* revised */
 
         g3dcore_invertMatrixf ( obj->worldMatrix, obj->inverseWorldMatrix );
     } else {
@@ -1805,9 +1806,13 @@ uint32_t g3dobject_pick_r ( G3DOBJECT *obj,
 /******************************************************************************/
 uint32_t g3dobject_draw ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
+                          G3DENGINE *engine,
                           uint64_t   engine_flags ) {
     uint32_t ret = 0x00;
 
+        if ( obj->draw ) ret = obj->draw ( obj, curcam, engine, engine_flags );
+
+#ifdef need_refactor
     /*** default color for all objects ***/
     glColor3ub ( 0xFF, 0xFF, 0xFF );
 
@@ -1823,7 +1828,7 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj,
     else                               glFrontFace(  GL_CCW );
 
     if ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) {
-        if ( obj->draw ) ret = obj->draw ( obj, curcam, engine_flags );
+        if ( obj->draw ) ret = obj->draw ( obj, curcam, engine, engine_flags );
     }
 
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
@@ -1834,6 +1839,7 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj,
          ( obj->sca.z != 1.0f ) ) {*/
         glDisable ( GL_RESCALE_NORMAL );
     /*}*/
+#endif
 
     return ret;
 }
@@ -1841,11 +1847,12 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj,
 /******************************************************************************/
 uint32_t g3dobject_draw_r ( G3DOBJECT *obj, 
                             G3DCAMERA *curcam, 
+                            G3DENGINE *engine, 
                             uint64_t   engine_flags ) {
     LIST *ltmpchildren = obj->lchildren;
     uint32_t ret = 0x00;
 
-    ret = g3dobject_draw ( obj, curcam, engine_flags );
+    ret = g3dobject_draw ( obj, curcam, engine, engine_flags );
 
     /*** draw children objects after ***/
     while ( ltmpchildren ) {
@@ -1855,10 +1862,10 @@ uint32_t g3dobject_draw_r ( G3DOBJECT *obj,
             /*** Do not draw objects that are not     ***/
             /*** concerned by symmetry, e.g modifiers ***/
             if ( ( sub->flags & OBJECTNOSYMMETRY ) == 0x00 ) {
-                ret |= g3dobject_draw_r ( sub, curcam, engine_flags );
+                ret |= g3dobject_draw_r ( sub, curcam, engine, engine_flags );
             }
         } else {
-            ret |= g3dobject_draw_r ( sub, curcam, engine_flags );
+            ret |= g3dobject_draw_r ( sub, curcam, engine, engine_flags );
         }
 
         ltmpchildren = ltmpchildren->next;
@@ -2038,8 +2045,10 @@ void g3dobject_initMatrices ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-uint32_t g3dobject_default_draw ( G3DOBJECT * obj, G3DCAMERA *cam,
-                                                   uint64_t engine_flags ) {
+uint32_t g3dobject_default_draw ( G3DOBJECT * obj,
+                                  G3DCAMERA *cam,
+                                  G3DENGINE *engine,
+                                  uint64_t engine_flags ) {
     /*** commented out : too verbose ***/
     /*if ( obj->type ) {
         printf("%s unimplemented for %s\n", __func__, obj->name );
@@ -2158,8 +2167,10 @@ void g3dobject_init ( G3DOBJECT   *obj,
                       uint32_t     id,
                       const char  *name,
                       uint32_t     object_flags,
-                      uint32_t   (*Draw)      ( G3DOBJECT *, G3DCAMERA *, 
-                                                             uint64_t ),
+                      uint32_t   (*Draw)      ( G3DOBJECT *,
+                                                G3DCAMERA *, 
+                                                G3DENGINE *, 
+                                                uint64_t ),
                       void       (*Free)      ( G3DOBJECT * ),
                       uint32_t   (*Pick)      ( G3DOBJECT *, G3DCAMERA *, 
                                                              uint64_t ),

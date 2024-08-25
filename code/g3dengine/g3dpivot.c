@@ -38,6 +38,7 @@ void g3dpivot_free ( G3DOBJECT *obj ) {
 /******************************************************************************/
 uint32_t g3dpivot_draw ( G3DOBJECT *obj, 
                          G3DCAMERA *curcam, 
+                         G3DENGINE *engine, 
                          uint64_t   engine_flags ) {
 #ifdef need_refactor
     glPushAttrib( GL_ALL_ATTRIB_BITS );
@@ -76,9 +77,9 @@ void g3dpivot_orbit ( G3DPIVOT *piv, float diffx, float diffy ) {
     if ( ((G3DOBJECT*)piv->cam)->parent ) {
         G3DOBJECT *parent = ((G3DOBJECT*)piv->cam)->parent;
 
-        g3dcore_multMatrixf ( locam->worldMatrix,
-                              parent->inverseWorldMatrix,
-                              LCX );
+        g3dcore_multMatrixf ( parent->inverseWorldMatrix,
+                              locam->worldMatrix,
+                              LCX ); /* revised */
     } else {
         memcpy ( LCX, locam->worldMatrix, sizeof ( LCX ) );
     }
@@ -162,9 +163,9 @@ void g3dpivot_init ( G3DPIVOT  *piv,
     g3dobject_updateMatrix_r ( objpiv, 0x00 );
 
     /*** find the camera's local position within the pivot Space coordinates***/
-    g3dcore_multMatrixf ( objcam->worldMatrix
-                        , xaxisobj->inverseWorldMatrix
-                        , LCX );
+    g3dcore_multMatrixf ( xaxisobj->inverseWorldMatrix,
+                          objcam->worldMatrix,
+                          LCX ); /* revised */
 
     g3dcore_getMatrixTranslationf ( LCX, &locam->pos );
     g3dcore_getMatrixRotationf    ( LCX, &locam->rot );

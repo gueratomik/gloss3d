@@ -250,36 +250,46 @@ void g3dmesh_moveVerticesTo ( G3DMESH   *mes,
 /******************************************************************************/
 void g3dmesh_drawQuadList ( G3DMESH *mes,
                             G3DCAMERA *cam,
+                            G3DENGINE *engine,
                             uint64_t engine_flags ) {
-    G3DENGINE *engine = g3dobject_getScene( ( G3DOBJECT * ) mes )->engine;
     LIST *ltmpqua = mes->lqua;
-    int transformLocation = glGetUniformLocation( engine->triangleShaderProgram,
-                                                  "transform" );
-    float modelview[0x10];
-    float transform[0x10];
-/*
-    g3dcore_multMatrixf( mes->obj.worldMatrix,
-                         cam->obj.inverseWorldMatrix,
-                         modelview );
+    int posMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
+                                                  "posMatrix" );
+    int norMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
+                                                  "norMatrix" );
+    float mvp[0x10];
+    float inv[0x10];
+    float nor[0x10];
+    float mod[0x10];
 
-    g3dcore_multMatrixf( cam->pmatrix, modelview, transform );
-*/
-    g3dcore_identityMatrixf( transform );
+    /*g3dcore_identityMatrixf( cam->pmatrix );*/
+    /*g3dcore_identityMatrixf( cam->obj.inverseWorldMatrix );*/
+
+    g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
+                         mes->obj.worldMatrix,
+                         mod );
+
+    /*** the matrix by which vertices coords are transformed ***/
+    g3dcore_multMatrixf( cam->pmatrix, mod, mvp );
+    /*** the matrix by which vertices normals are transformed ***/
+    g3dcore_invertMatrixf   ( mod, inv );
+    g3dcore_transposeMatrixf( inv, nor );
 
     glUseProgram( engine->triangleShaderProgram );
 
-    glUniformMatrix4fv( transformLocation, 1, GL_FALSE, transform );
+    glUniformMatrix4fv( posMatrixLocation, 1, GL_FALSE, mvp );
+    glUniformMatrix4fv( norMatrixLocation, 1, GL_FALSE, nor );
 
     while ( ltmpqua ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpqua->data;
 
-        g3dengine_drawTriangle( engine,
-                ( G3DOBJECT * ) mes, 
-                                fac,
-                                mes->gouraudScalarLimit,
-                                mes->ltex,
-                                mes->obj.flags,
-                                engine_flags );
+        g3dengine_drawQuad( engine,
+            ( G3DOBJECT * ) mes, 
+                            fac,
+                            mes->gouraudScalarLimit,
+                            mes->ltex,
+                            mes->obj.flags,
+                            engine_flags );
 
         ltmpqua = ltmpqua->next;
     }
@@ -288,25 +298,35 @@ void g3dmesh_drawQuadList ( G3DMESH *mes,
 /******************************************************************************/
 void g3dmesh_drawTriangleList ( G3DMESH   *mes,
                                 G3DCAMERA *cam,
+                                G3DENGINE *engine,
                                 uint64_t   engine_flags ) {
-    G3DENGINE *engine = g3dobject_getScene( ( G3DOBJECT * ) mes )->engine;
     LIST *ltmptri = mes->ltri;
-    int transformLocation = glGetUniformLocation( engine->triangleShaderProgram,
-                                                  "transform" );
-    float modelview[0x10];
-    float transform[0x10];
-/*
-    g3dcore_multMatrixf( mes->obj.worldMatrix,
-                         cam->obj.inverseWorldMatrix,
-                         modelview );
+    int posMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
+                                                  "posMatrix" );
+    int norMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
+                                                  "norMatrix" );
+    float mvp[0x10];
+    float inv[0x10];
+    float nor[0x10];
+    float mod[0x10];
 
-    g3dcore_multMatrixf( cam->pmatrix, modelview, transform );
-*/
-    g3dcore_identityMatrixf( transform );
+    /*g3dcore_identityMatrixf( cam->pmatrix );*/
+    /*g3dcore_identityMatrixf( cam->obj.inverseWorldMatrix );*/
+
+    g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
+                         mes->obj.worldMatrix,
+                         mod );
+
+    /*** the matrix by which vertices coords are transformed ***/
+    g3dcore_multMatrixf( cam->pmatrix, mod, mvp );
+    /*** the matrix by which vertices normals are transformed ***/
+    g3dcore_invertMatrixf   ( mod, inv );
+    g3dcore_transposeMatrixf( inv, nor );
 
     glUseProgram( engine->triangleShaderProgram );
 
-    glUniformMatrix4fv( transformLocation, 1, GL_FALSE, transform );
+    glUniformMatrix4fv( posMatrixLocation, 1, GL_FALSE, mvp );
+    glUniformMatrix4fv( norMatrixLocation, 1, GL_FALSE, nor );
 
     while ( ltmptri ) {
         G3DFACE *fac = ( G3DFACE * ) ltmptri->data;
@@ -3282,12 +3302,16 @@ void g3dmesh_drawVertexUVs ( G3DMESH *mes,
 /******************************************************************************/
 void g3dmesh_drawSelectedUVMap ( G3DMESH   *mes,
                                  G3DCAMERA *curcam,
+                                 G3DENGINE *engine,
                                  uint64_t engine_flags ) {
     if ( engine_flags & VIEWUVWMAP ) {
         if ( mes->lseluvmap ) {
             G3DUVMAP *uvmap = ( G3DUVMAP * ) mes->lseluvmap->data;
 
-            g3dobject_draw ( ( G3DOBJECT * ) uvmap, curcam, engine_flags );
+            g3dobject_draw ( ( G3DOBJECT * ) uvmap,
+                                             curcam,
+                                             engine,
+                                             engine_flags );
         }
     }
 }
@@ -3515,18 +3539,18 @@ void g3dmesh_drawModified ( G3DMESH   *mes,
 /******************************************************************************/
 void g3dmesh_drawObject ( G3DMESH   *mes, 
                           G3DCAMERA *curcam, 
+                          G3DENGINE *engine,
                           uint64_t   engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    G3DENGINE *engine = g3dobject_getScene( obj )->engine;
 
     glPushAttrib ( GL_LIGHTING_BIT );
 
     if ( obj->flags & OBJECTNOSHADING ) glDisable ( GL_LIGHTING );
 
-    g3dmesh_drawTriangleList ( mes, curcam, engine_flags & (~VIEWFACE) );
-    g3dmesh_drawQuadList     ( mes, curcam, engine_flags & (~VIEWFACE) );
+    g3dmesh_drawTriangleList ( mes, curcam, engine, engine_flags & (~VIEWFACE) );
+    g3dmesh_drawQuadList     ( mes, curcam, engine, engine_flags & (~VIEWFACE) );
 
-    g3dmesh_drawSelectedUVMap ( mes, curcam, engine_flags );
+    g3dmesh_drawSelectedUVMap ( mes, curcam, engine, engine_flags );
 
     glPopAttrib ( );
 }
@@ -3589,6 +3613,7 @@ uint32_t g3dmesh_pick ( G3DMESH   *mes,
 /******************************************************************************/
 uint32_t g3dmesh_draw ( G3DOBJECT *obj, 
                         G3DCAMERA *curcam, 
+                        G3DENGINE *engine, 
                         uint64_t   engine_flags ) {
     uint32_t viewSkin = 0x00;
     G3DMESH *mes = ( G3DMESH * ) obj;
@@ -3656,15 +3681,15 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
             }
 
             if ( engine_flags & VIEWOBJECT ) {
-                g3dmesh_drawObject ( mes, curcam, engine_flags );
+                g3dmesh_drawObject ( mes, curcam, engine, engine_flags );
             }
 
             if ( engine_flags & VIEWAXIS   ) {
-                g3dmesh_drawObject ( mes, curcam, engine_flags );
+                g3dmesh_drawObject ( mes, curcam, engine, engine_flags );
             }
 
             if ( engine_flags & VIEWUVWMAP ) {
-                g3dmesh_drawObject ( mes, curcam, engine_flags );
+                g3dmesh_drawObject ( mes, curcam, engine, engine_flags );
             }
 
             if ( engine_flags & VIEWFACE ) {
@@ -3673,12 +3698,12 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
             }
 
             if ( engine_flags & VIEWEDGE ) {
-                g3dmesh_drawObject ( mes, curcam, engine_flags );
+                g3dmesh_drawObject ( mes, curcam, engine, engine_flags );
                 g3dmesh_drawEdges    ( mes, obj->flags, engine_flags );
             }
 
             if ( engine_flags & VIEWVERTEX ) {
-                g3dmesh_drawObject ( mes, curcam, engine_flags );
+                g3dmesh_drawObject ( mes, curcam, engine, engine_flags );
                 g3dmesh_drawEdges    ( mes, obj->flags, engine_flags );
                 g3dmesh_drawVertices ( mes, engine_flags );
             }
@@ -3698,10 +3723,10 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
             }
 
             if ( SYMMETRYVIEW ) {
-                g3dmesh_drawObject ( mes, curcam, engine_flags );
+                g3dmesh_drawObject ( mes, curcam, engine, engine_flags );
             }
         } else {
-            g3dmesh_drawObject ( mes, curcam, engine_flags );
+            g3dmesh_drawObject ( mes, curcam, engine, engine_flags );
         }
     }
 

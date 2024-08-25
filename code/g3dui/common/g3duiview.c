@@ -95,7 +95,7 @@ static G3DCAMERA *getCamera ( G3DUIVIEW *view ) {
         }
     }
 
-    return view->defcam;
+    return &view->defcam;
 }
 
 /******************************************************************************/
@@ -107,7 +107,7 @@ uint64_t g3duiview_orbit ( G3DUIVIEW *view,
 
     g3dpivot_orbit ( piv, diffx, diffy );
 
-    if ( view->defcam != cam ) return UPDATECOORDS;
+    if ( &view->defcam != cam ) return UPDATECOORDS;
 
     return 0x00;
 }
@@ -125,7 +125,7 @@ uint64_t g3duiview_spin ( G3DUIVIEW *view,
 
     g3dcamera_spin ( cam, diffx );
 
-    if ( view->defcam != cam ) return UPDATECOORDS;
+    if ( &view->defcam != cam ) return UPDATECOORDS;
 
     return 0x00;
 }
@@ -140,7 +140,7 @@ uint64_t g3duiview_zoom ( G3DUIVIEW *view,
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
 
-    if ( view->defcam != cam ) return UPDATECOORDS;
+    if ( &view->defcam != cam ) return UPDATECOORDS;
 
     return 0x00;
 }
@@ -174,7 +174,7 @@ uint64_t g3duiview_moveSideward ( G3DUIVIEW *view,
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
 
-    if ( view->defcam != cam ) return UPDATECOORDS;
+    if ( &view->defcam != cam ) return UPDATECOORDS;
 
     return 0x00;
 }
@@ -211,7 +211,7 @@ uint64_t g3duiview_moveForward ( G3DUIVIEW *view,
 
     g3dobject_updateMatrix_r ( obj, 0x00 );
 
-    if ( view->defcam != cam ) return UPDATECOORDS;
+    if ( &view->defcam != cam ) return UPDATECOORDS;
 
     return 0x00;
 }
@@ -289,14 +289,18 @@ void g3duiview_releaseButton ( G3DUIVIEW *view ) {
 }
 
 /******************************************************************************/
+/* unused 
 void g3duiview_init ( G3DUIVIEW *view,
                       uint32_t   width,
                       uint32_t   height,
                       uint32_t   menuHeight ) {
     g3duiview_resize ( view, width, height, menuHeight );
 
+    
+
     view->pressedButtonID = -1;
 }
+*/
 
 /******************************************************************************/
 void g3duiview_resize ( G3DUIVIEW *view, 
@@ -373,7 +377,8 @@ void g3duiview_initGL ( G3DUIVIEW *view ) {
     G3DUI *gui = view->gui;
     G3DCAMERA *cam = getCamera ( view );
 
-
+    view->engine = g3dengine_new();
+printf("%s %d\n", __func__, cam );
 #ifdef __MINGW32__
     if ( glActiveTextureARB == NULL ) 
         glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC) wglGetProcAddress("glActiveTextureARB");
@@ -388,18 +393,7 @@ void g3duiview_initGL ( G3DUIVIEW *view ) {
         glGenerateMipmap = (void(*)(GLenum))wglGetProcAddress("glGenerateMipmap");
 #endif
 
-#ifdef deprecated
-#ifdef __linux__
-    if ( glXMakeCurrent ( view->dpy,
-                          view->win,
-                          view->glctx ) == TRUE ) {
-#endif
-#ifdef __MINGW32__
-    HDC dc = GetDC ( view->hWnd );
-    if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
-#endif
-#endif
-
+#ifdef need_refactor
      /*** share textures ***/
     if ( gui->sharedCtx == NULL ) {
         gui->sharedCtx = view->glctx;
@@ -408,7 +402,7 @@ void g3duiview_initGL ( G3DUIVIEW *view ) {
         wglShareLists( gui->sharedCtx, view->glctx );
 #endif
     }
-
+#endif
 
     if ( cam ) {
         float      clearColorf = ( float ) CLEARCOLOR / 255.0f;
@@ -423,21 +417,14 @@ void g3duiview_initGL ( G3DUIVIEW *view ) {
         }*/
 
         /*** Temp, this must be done by the camera in the future ***/
+
         if ( cam && ((G3DOBJECT*)cam)->id == 0x00 ) {
             g3duiview_init3D ( view );
         } else {
             g3duiview_init2D ( view );
         }
-    }
 
-#ifdef deprecated
-#ifdef __linux__
     }
-#endif
-#ifdef __MINGW32__
-    } ReleaseDC ( view->hWnd, dc );
-#endif
-#endif
 }
 
 /******************************************************************************/
@@ -497,6 +484,7 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
     G3DSCENE *sce = gui->sce;
     G3DCAMERA *cam = getCamera ( view );
     G3DUIMOUSETOOL *mou = gui->curmou;
+    G3DENGINE *engine = view->engine;
 
 #ifdef deprecated
 #ifdef __linux__
@@ -547,7 +535,8 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
                        ( float ) backgroundRGBA.b / 255.0f, 1.0f );
 
         glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-#ifdef deprecated
+
+#ifdef need_refactor
         glLightModeli ( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
 
         glGetIntegerv ( GL_VIEWPORT, VPX );
@@ -631,9 +620,12 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
         }
 #endif
 
-        ret = g3dobject_draw_r ( ( G3DOBJECT * ) sce, cam, engine_flags /*| VIEWNORMALS*/ );
+        ret = g3dobject_draw_r ( ( G3DOBJECT * ) sce,
+                                                 cam,
+                                                 engine,
+                                                 engine_flags /*| VIEWNORMALS*/ );
 
-#ifdef deprecated
+#ifdef need_refactor
         if ( ret & DRAW_LIGHTON ) {
             glDisable ( GL_LIGHT0 );
         } else {

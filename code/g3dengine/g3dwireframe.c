@@ -570,6 +570,7 @@ static void g3dwireframe_deactivate ( G3DWIREFRAME *wir,
 /******************************************************************************/
 static uint32_t g3dwireframe_moddraw ( G3DWIREFRAME *wir, 
                                        G3DCAMERA    *cam, 
+                                       G3DENGINE    *engine, 
                                        uint64_t      engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) wir;
     uint32_t forbidden_modes = 0x00;
@@ -587,9 +588,10 @@ static uint32_t g3dwireframe_moddraw ( G3DWIREFRAME *wir,
         /* is selected */
         if ( viewSkin ) obj->flags |= OBJECTSELECTED;
 
-        g3dmesh_draw ( ( G3DOBJECT * ) wir, 
-                                     cam, 
-                                     engine_flags & (~forbidden_modes) );
+        g3dmesh_draw ( ( G3DOBJECT * ) wir,
+                                       cam,
+                                       engine,
+                                       engine_flags & (~forbidden_modes) );
 
         if ( viewSkin ) obj->flags &= (~OBJECTSELECTED);
     }

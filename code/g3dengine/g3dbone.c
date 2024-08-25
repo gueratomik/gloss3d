@@ -215,6 +215,7 @@ static uint32_t g3dbone_pick ( G3DBONE *bon,
 /******************************************************************************/
 uint32_t g3dbone_draw ( G3DOBJECT *obj, 
                         G3DCAMERA *curcam, 
+                        G3DENGINE *engine, 
                         uint64_t   engine_flags ) {
     G3DBONE *bon = ( G3DBONE * ) obj;
     float ybase = bon->len * 0.1f;

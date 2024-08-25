@@ -636,7 +636,8 @@ void g3dscene_unregisterImage ( G3DSCENE *sce,
 
 /******************************************************************************/
 uint32_t g3dscene_draw ( G3DOBJECT *obj, 
-                         G3DCAMERA *curcam, 
+                         G3DCAMERA *curcam,
+                         G3DENGINE *engine,
                          uint64_t   engine_flags ) {
 #ifdef deprecated
     G3DVECTOR zero = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -788,8 +789,6 @@ void g3dscene_processAnimatedImages ( G3DSCENE *sce,
 void g3dscene_free ( G3DOBJECT *obj ) {
     G3DSCENE *sce = ( G3DSCENE * ) obj;
 
-    g3dengine_free( sce->engine );
-
     g3dscene_freeMaterials ( sce );
     /*** have to free objects too ***/
 }
@@ -860,7 +859,6 @@ G3DSCENE *g3dscene_new ( uint32_t id, char *name ) {
     ((G3DOBJECT*)sce)->anim = ANIM_CALLBACK(g3dscene_anim);
 
     sce->fps = 24;
-    sce->engine = g3dengine_new();
 
     g3dscene_resetAllLights ( sce );
 

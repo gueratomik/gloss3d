@@ -709,7 +709,6 @@ typedef struct _G3DUI {
     G3DUIRECTANGLE     quadrec;
     G3DUIRECTANGLE     timerec;
     G3DUIRECTANGLE     inforec;
-    G3DCAMERA        **defaultCameras;
 #ifdef __linux__
     GLXContext         sharedCtx; /* shared context for textures */
     pthread_t          playthreadid;
@@ -1349,7 +1348,7 @@ typedef struct _G3DUIVIEW {
     Pixmap         armpix[NBVIEWBUTTON];*/
     int32_t        pressedButtonID; /**** Currently clicked button = -1 if none ***/
     G3DCAMERA     *cam;
-    G3DCAMERA     *defcam;
+    G3DCAMERA      defcam;
     G3DVECTOR      defcampos; /*** Default camera position ***/
     G3DVECTOR      defcamrot; /*** Default camera rotation ***/
     G3DVECTOR      defcamsca; /*** Default camera scaling  ***/
@@ -1358,6 +1357,7 @@ typedef struct _G3DUIVIEW {
     uint32_t       mode;   /*** wireframe, flat, fill ***/
     uint64_t       engine_flags;
     void         (*grid)( uint64_t );
+    G3DENGINE     *engine; /* context with shaders */
 #ifdef __linux__
     Display       *dpy;
     Window         win;

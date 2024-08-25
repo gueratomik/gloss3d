@@ -29,6 +29,7 @@
 #include <config.h>
 #include <g3dui_gtk3.h>
 
+#define WINDOWCOUNT 0x04
 
 /******************************************************************************/
 static GTK3G3DUIQUAD *g3tk_g3duiquad_new ( GTK3G3DUI *gtk3gui ) {
@@ -66,7 +67,7 @@ printf("quad %d %d\n", event.width, event.height );
     if ( gtk3quad->core.magnified == NULL ) {
         uint32_t i;
 
-        for ( i = 0x00; i < 0x04; i++ ) {
+        for ( i = 0x00; i < WINDOWCOUNT; i++ ) {
             GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) gtk3quad->core.view[i];
 
             if ( gtk3view ) {
@@ -130,7 +131,7 @@ drawingContext = gdk_window_begin_draw_frame (window,cairoRegion);*/
     if ( gtk3quad->core.magnified == NULL ) {
         uint32_t i;
 
-        for ( i = 0x00; i < 0x04; i++ ) {
+        for ( i = 0x00; i < WINDOWCOUNT; i++ ) {
             GdkRectangle gdkrec = { gtk3quad->core.rect[i].x,
                                     gtk3quad->core.rect[i].y,
                                     gtk3quad->core.rect[i].width,
@@ -196,7 +197,7 @@ void gtk3_g3duiquad_rearrange ( GTK3G3DUIQUAD *gtk3quad,
     gtk_widget_get_allocation ( gtk3quad->layout, &qalloc );
 
     if ( quad->magnified == magnified ) {
-        for ( i = 0x00; i < 0x04; i++ ) {
+        for ( i = 0x00; i < WINDOWCOUNT; i++ ) {
             GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) gtk3quad->core.view[i];
 
             if ( gtk3view != magnified ) gtk_widget_show ( gtk3view->layout );
@@ -205,7 +206,7 @@ void gtk3_g3duiquad_rearrange ( GTK3G3DUIQUAD *gtk3quad,
 
         quad->magnified = NULL;
     } else {
-        for ( i = 0x00; i < 0x04; i++ ) {
+        for ( i = 0x00; i < WINDOWCOUNT; i++ ) {
             GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) gtk3quad->core.view[i];
 
             if ( gtk3view != magnified ) gtk_widget_hide ( gtk3view->layout );
@@ -228,10 +229,15 @@ static void gtk3_g3duiquad_createViews ( GTK3G3DUIQUAD *gtk3quad ) {
                                      g3dcore_gridZX };
     int i;
 
-    for ( i = 0x00; i < 0x04; i++ ) {
+    for ( i = 0x00; i < WINDOWCOUNT; i++ ) {
         GTK3G3DUIVIEW *gtk3view = gtk3_g3duiview_create ( gtk3quad->layout,
                                                           gtk3gui,
-                                                          "view" );
+                                                          "view",
+                                                          i,
+                                                          2.0f,
+                                                          1.0f,
+                                                          0.1f,
+                                                       1000.0f );
 
         list_insert ( &gtk3gui->core.lview, gtk3view );
 
@@ -257,7 +263,7 @@ void gtk3_g3duiquad_resize ( GTK3G3DUIQUAD *gtk3quad,
     if ( gtk3quad->core.magnified == NULL ) {
         uint32_t i;
 
-        for ( i = 0x00; i < 0x04; i++ ) {
+        for ( i = 0x00; i < WINDOWCOUNT; i++ ) {
             GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) gtk3quad->core.view[i];
 
             if ( gtk3view ) {

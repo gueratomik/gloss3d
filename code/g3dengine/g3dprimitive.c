@@ -105,9 +105,11 @@ static uint32_t g3dprimitive_pick ( G3DPRIMITIVE *pri,
 /******************************************************************************/
 uint32_t g3dprimitive_draw ( G3DPRIMITIVE *pri, 
                              G3DCAMERA    *curcam, 
+                             G3DENGINE    *engine, 
                              uint64_t      engine_flags ) {
     g3dmesh_draw ( ( G3DOBJECT * ) pri, 
                                  curcam, 
+                                 engine, 
                                  engine_flags & (~MODEMASK) | VIEWOBJECT );
 
     return 0x00;

@@ -1527,8 +1527,6 @@ uint64_t gtk3_openFile ( GTK3G3DUI *gtk3gui ) {
 
             g3dui_openG3DFile ( gui, filename );
 
-            gui->sce = g3dscene_new(0, "scene");
-
             snprintf ( windowname, 
                        0x1000, 
                       "%s %s (%s)", 

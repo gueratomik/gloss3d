@@ -57,12 +57,13 @@ void g3dcore_eulerToQuaternion ( G3DDOUBLEVECTOR *angles, G3DQUATERNION *qout ) 
 
 /******************************************************************************/
 void g3dcore_rotateMatrixf( float *matrix,
-                            float a,
+                            float aDeg,
                             float x,
                             float y,
                             float z ) {
-    float c = cos( a );
-    float s = sin( a );
+    float aRad = aDeg * M_PI / 180.0f;
+    float c = cos( aRad );
+    float s = sin( aRad );
     float invc = ( 1.0f - c );
     float xsq = ( x * x );
     float ysq = ( y * y );
@@ -105,7 +106,7 @@ void g3dcore_rotateMatrixf( float *matrix,
     rotationMatrix[0x0E] = 0.0f;
     rotationMatrix[0x0F] = 1.0f;
 
-    g3dcore_multMatrixf( rotationMatrix, matrix, resultMatrix );
+    g3dcore_multMatrixf( matrix, rotationMatrix, resultMatrix ); /* revised */
 
     memcpy( matrix, resultMatrix, sizeof( resultMatrix ) );
 }
@@ -223,7 +224,7 @@ void g3dcore_rotateMatrixd( double *matrix,
     rotationMatrix[0x0E] = 0.0f;
     rotationMatrix[0x0F] = 1.0f;
 
-    g3dcore_multMatrixd( rotationMatrix, matrix, resultMatrix );
+    g3dcore_multMatrixd( matrix, rotationMatrix, resultMatrix ); /* revised */
 
     memcpy( matrix, resultMatrix, sizeof( resultMatrix ) );
 }
@@ -237,7 +238,7 @@ void g3dcore_scaleMatrixf( float *matrix, float x, float y, float z ) {
                               0.0f, 0.0f, 0.0f, 1.0f };
     float resultMatrix[0x10];
 
-    g3dcore_multMatrixf( scalingMatrix, matrix, resultMatrix );
+    g3dcore_multMatrixf( matrix, scalingMatrix, resultMatrix ); /* revised */
 
     memcpy( matrix, resultMatrix, sizeof( resultMatrix ) );
 }
@@ -275,7 +276,7 @@ void g3dcore_translateMatrixf( float *matrix, float x, float y, float z ) {
     translationMatrix[0x0E] = z;
     translationMatrix[0x0F] = 1.0f;
 
-    g3dcore_multMatrixf( translationMatrix, matrix, resultMatrix );
+    g3dcore_multMatrixf( matrix, translationMatrix, resultMatrix ); /* revised */
 
     memcpy( matrix, resultMatrix, sizeof( resultMatrix ) );
 }
@@ -925,87 +926,134 @@ void g3dcore_transposeMatrixd ( double *inp, double *out ) {
     out[0x0F] = inp[0x0F];
 }
 
-/********* ftp://download.intel.com/design/PentiumIII/sml/24504301.pdf ********/
-void g3dcore_invertMatrixf ( float *mat, float *dst ) {
-  float            tmp[12]; /* temp array for pairs             */
-  float            src[16]; /* array of transpose source matrix */
-  float            det;             /* determinant              */
-  int i, j;
+/******************************************************************************/
+void g3dcore_invertMatrixf ( float *m, float *invOut ) {
+    float inv[16], det;
+    int i;
 
-  /* transpose matrix */
-  for ( i = 0; i < 4; i++) {
-          src[i]                    = mat[i*4];
-          src[i + 4]                = mat[i*4 + 1];
-          src[i + 8]                = mat[i*4 + 2];
-          src[i + 12]               = mat[i*4 + 3];
-  }
-  /* calculate pairs for first 8 elements (cofactors) */
-  tmp[0]         =   src[10]        *   src[15];
-  tmp[1]         =   src[11]        *   src[14];
-  tmp[2]         =   src[9]         *   src[15];
-  tmp[3]         =   src[11]        *   src[13];
-  tmp[4]         =   src[9]         *   src[14];
-  tmp[5]         =   src[10]        *   src[13];
-  tmp[6]         =   src[8]         *   src[15];
-  tmp[7]         =   src[11]        *   src[12];
-  tmp[8]         =   src[8]         *   src[14];
-  tmp[9]         =   src[10]        *   src[12];
-  tmp[10]        =   src[8]         *   src[13];
-  tmp[11]        =   src[9]         *   src[12];
-  /* calculate first 8 elements (cofactors) */
-  dst[0]         =   tmp[0]*src[5]            +  tmp[3]*src[6]   + tmp[4]*src[7];
-  dst[0]       -=    tmp[1]*src[5]            +  tmp[2]*src[6]   + tmp[5]*src[7];
-  dst[1]         =   tmp[1]*src[4]            +  tmp[6]*src[6]   + tmp[9]*src[7];
-  dst[1]       -=    tmp[0]*src[4]            +  tmp[7]*src[6]   + tmp[8]*src[7];
-  dst[2]         =   tmp[2]*src[4]            +  tmp[7]*src[5]   + tmp[10]*src[7];
-  dst[2]       -=    tmp[3]*src[4]            +  tmp[6]*src[5]   + tmp[11]*src[7];
-  dst[3]         =   tmp[5]*src[4]            +  tmp[8]*src[5]   + tmp[11]*src[6];
-  dst[3]       -=    tmp[4]*src[4]            +  tmp[9]*src[5]   + tmp[10]*src[6];
-  dst[4]          =  tmp[1]*src[1]            +  tmp[2]*src[2]   + tmp[5]*src[3];
-  dst[4]       -=    tmp[0]*src[1]            +  tmp[3]*src[2]   + tmp[4]*src[3];
-  dst[5]          =  tmp[0]*src[0]            +  tmp[7]*src[2]   + tmp[8]*src[3];
-  dst[5]       -=    tmp[1]*src[0]            +  tmp[6]*src[2]   + tmp[9]*src[3];
-  dst[6]          =  tmp[3]*src[0]            +  tmp[6]*src[1]   + tmp[11]*src[3];
-  dst[6]       -=    tmp[2]*src[0]            +  tmp[7]*src[1]   + tmp[10]*src[3];
-  dst[7]          =  tmp[4]*src[0]            +  tmp[9]*src[1]   + tmp[10]*src[2];
-  dst[7]       -=    tmp[5]*src[0]            +  tmp[8]*src[1]   + tmp[11]*src[2];
-  /* calculate pairs for second 8 elements (cofactors) */
-  tmp[0]         =   src[2]*src[7];
-  tmp[1]         =   src[3]*src[6];
-  tmp[2]         =   src[1]*src[7];
-  tmp[3]         =   src[3]*src[5];
-  tmp[4]         =   src[1]*src[6];
-  tmp[5]         =   src[2]*src[5];
-  tmp[6]        =   src[0]*src[7];
-  tmp[7]        =   src[3]*src[4];
-  tmp[8]        =   src[0]*src[6];
-  tmp[9]        =   src[2]*src[4];
-  tmp[10]       =   src[0]*src[5];
-  tmp[11]       =   src[1]*src[4];
-  /* calculate second 8 elements (cofactors) */
-  dst[8] =          tmp[0]*src[13] + tmp[3]*src[14] + tmp[4]*src[15];
-  dst[8] -=         tmp[1]*src[13] + tmp[2]*src[14] + tmp[5]*src[15];
-  dst[9] =          tmp[1]*src[12] + tmp[6]*src[14] + tmp[9]*src[15];
-  dst[9] -=         tmp[0]*src[12] + tmp[7]*src[14] + tmp[8]*src[15];
-  dst[10] =         tmp[2]*src[12] + tmp[7]*src[13] + tmp[10]*src[15];
-  dst[10]-=         tmp[3]*src[12] + tmp[6]*src[13] + tmp[11]*src[15];
-  dst[11] =         tmp[5]*src[12] + tmp[8]*src[13] + tmp[11]*src[14];
-  dst[11]-=         tmp[4]*src[12] + tmp[9]*src[13] + tmp[10]*src[14];
-  dst[12] =         tmp[2]*src[10] + tmp[5]*src[11] + tmp[1]*src[9];
-  dst[12]-=         tmp[4]*src[11] + tmp[0]*src[9] + tmp[3]*src[10];
-  dst[13] =         tmp[8]*src[11] + tmp[0]*src[8] + tmp[7]*src[10];
-  dst[13]-=         tmp[6]*src[10] + tmp[9]*src[11] + tmp[1]*src[8];
-  dst[14] =         tmp[6]*src[9] + tmp[11]*src[11] + tmp[3]*src[8];
-  dst[14]-=         tmp[10]*src[11] + tmp[2]*src[8] + tmp[7]*src[9];
-  dst[15] =         tmp[10]*src[10] + tmp[4]*src[8] + tmp[9]*src[9];
-  dst[15]-=         tmp[8]*src[9] + tmp[11]*src[10] + tmp[5]*src[8];
-  /* calculate determinant */
-  det=src[0]*dst[0]+src[1]*dst[1]+src[2]*dst[2]+src[3]*dst[3];
-  /* calculate matrix inverse */
-  det = 1/det;
+    inv[0] = m[5]  * m[10] * m[15] - 
+             m[5]  * m[11] * m[14] - 
+             m[9]  * m[6]  * m[15] + 
+             m[9]  * m[7]  * m[14] +
+             m[13] * m[6]  * m[11] - 
+             m[13] * m[7]  * m[10];
 
-  for ( j = 0; j < 16; j++)
-         dst[j] *= det;
+    inv[4] = -m[4]  * m[10] * m[15] + 
+              m[4]  * m[11] * m[14] + 
+              m[8]  * m[6]  * m[15] - 
+              m[8]  * m[7]  * m[14] - 
+              m[12] * m[6]  * m[11] + 
+              m[12] * m[7]  * m[10];
+
+    inv[8] = m[4]  * m[9] * m[15] - 
+             m[4]  * m[11] * m[13] - 
+             m[8]  * m[5] * m[15] + 
+             m[8]  * m[7] * m[13] + 
+             m[12] * m[5] * m[11] - 
+             m[12] * m[7] * m[9];
+
+    inv[12] = -m[4]  * m[9] * m[14] + 
+               m[4]  * m[10] * m[13] +
+               m[8]  * m[5] * m[14] - 
+               m[8]  * m[6] * m[13] - 
+               m[12] * m[5] * m[10] + 
+               m[12] * m[6] * m[9];
+
+    inv[1] = -m[1]  * m[10] * m[15] + 
+              m[1]  * m[11] * m[14] + 
+              m[9]  * m[2] * m[15] - 
+              m[9]  * m[3] * m[14] - 
+              m[13] * m[2] * m[11] + 
+              m[13] * m[3] * m[10];
+
+    inv[5] = m[0]  * m[10] * m[15] - 
+             m[0]  * m[11] * m[14] - 
+             m[8]  * m[2] * m[15] + 
+             m[8]  * m[3] * m[14] + 
+             m[12] * m[2] * m[11] - 
+             m[12] * m[3] * m[10];
+
+    inv[9] = -m[0]  * m[9] * m[15] + 
+              m[0]  * m[11] * m[13] + 
+              m[8]  * m[1] * m[15] - 
+              m[8]  * m[3] * m[13] - 
+              m[12] * m[1] * m[11] + 
+              m[12] * m[3] * m[9];
+
+    inv[13] = m[0]  * m[9] * m[14] - 
+              m[0]  * m[10] * m[13] - 
+              m[8]  * m[1] * m[14] + 
+              m[8]  * m[2] * m[13] + 
+              m[12] * m[1] * m[10] - 
+              m[12] * m[2] * m[9];
+
+    inv[2] = m[1]  * m[6] * m[15] - 
+             m[1]  * m[7] * m[14] - 
+             m[5]  * m[2] * m[15] + 
+             m[5]  * m[3] * m[14] + 
+             m[13] * m[2] * m[7] - 
+             m[13] * m[3] * m[6];
+
+    inv[6] = -m[0]  * m[6] * m[15] + 
+              m[0]  * m[7] * m[14] + 
+              m[4]  * m[2] * m[15] - 
+              m[4]  * m[3] * m[14] - 
+              m[12] * m[2] * m[7] + 
+              m[12] * m[3] * m[6];
+
+    inv[10] = m[0]  * m[5] * m[15] - 
+              m[0]  * m[7] * m[13] - 
+              m[4]  * m[1] * m[15] + 
+              m[4]  * m[3] * m[13] + 
+              m[12] * m[1] * m[7] - 
+              m[12] * m[3] * m[5];
+
+    inv[14] = -m[0]  * m[5] * m[14] + 
+               m[0]  * m[6] * m[13] + 
+               m[4]  * m[1] * m[14] - 
+               m[4]  * m[2] * m[13] - 
+               m[12] * m[1] * m[6] + 
+               m[12] * m[2] * m[5];
+
+    inv[3] = -m[1] * m[6] * m[11] + 
+              m[1] * m[7] * m[10] + 
+              m[5] * m[2] * m[11] - 
+              m[5] * m[3] * m[10] - 
+              m[9] * m[2] * m[7] + 
+              m[9] * m[3] * m[6];
+
+    inv[7] = m[0] * m[6] * m[11] - 
+             m[0] * m[7] * m[10] - 
+             m[4] * m[2] * m[11] + 
+             m[4] * m[3] * m[10] + 
+             m[8] * m[2] * m[7] - 
+             m[8] * m[3] * m[6];
+
+    inv[11] = -m[0] * m[5] * m[11] + 
+               m[0] * m[7] * m[9] + 
+               m[4] * m[1] * m[11] - 
+               m[4] * m[3] * m[9] - 
+               m[8] * m[1] * m[7] + 
+               m[8] * m[3] * m[5];
+
+    inv[15] = m[0] * m[5] * m[10] - 
+              m[0] * m[6] * m[9] - 
+              m[4] * m[1] * m[10] + 
+              m[4] * m[2] * m[9] + 
+              m[8] * m[1] * m[6] - 
+              m[8] * m[2] * m[5];
+
+    det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
+
+    if (det == 0)
+        /*return false;*/
+
+    det = 1.0 / det;
+
+    for (i = 0; i < 16; i++)
+        invOut[i] = inv[i] * det;
+
+    /*return true;*/
 }
 
 /********* ftp://download.intel.com/design/PentiumIII/sml/24504301.pdf ********/
@@ -1155,48 +1203,116 @@ void g3dcore_invertMatrix ( double *inp, double *out ) {
 
 /******************************************************************************/
 void g3dcore_multMatrixf ( float *A, float *B, float *M ) {
-    M[0x0] = (A[0x0]*B[0x0])+(A[0x1]*B[0x4])+(A[0x2]*B[0x8])+(A[0x3]*B[0xC]);
-    M[0x1] = (A[0x0]*B[0x1])+(A[0x1]*B[0x5])+(A[0x2]*B[0x9])+(A[0x3]*B[0xD]);
-    M[0x2] = (A[0x0]*B[0x2])+(A[0x1]*B[0x6])+(A[0x2]*B[0xA])+(A[0x3]*B[0xE]);
-    M[0x3] = (A[0x0]*B[0x3])+(A[0x1]*B[0x7])+(A[0x2]*B[0xB])+(A[0x3]*B[0xF]);
+/*** column-major arrangement ***/
+#define M00(m) m[0x0]
+#define M01(m) m[0x4]
+#define M02(m) m[0x8]
+#define M03(m) m[0xC]
+#define M10(m) m[0x1]
+#define M11(m) m[0x5]
+#define M12(m) m[0x9]
+#define M13(m) m[0xD]
+#define M20(m) m[0x2]
+#define M21(m) m[0x6]
+#define M22(m) m[0xA]
+#define M23(m) m[0xE]
+#define M30(m) m[0x3]
+#define M31(m) m[0x7]
+#define M32(m) m[0xB]
+#define M33(m) m[0xF]
+    /*** first row ***/
+    M00(M) = (M00(A)*M00(B))+(M01(A)*M10(B))+(M02(A)*M20(B))+(M03(A)*M30(B));
+    M01(M) = (M00(A)*M01(B))+(M01(A)*M11(B))+(M02(A)*M21(B))+(M03(A)*M31(B));
+    M02(M) = (M00(A)*M02(B))+(M01(A)*M12(B))+(M02(A)*M22(B))+(M03(A)*M32(B));
+    M03(M) = (M00(A)*M03(B))+(M01(A)*M13(B))+(M02(A)*M23(B))+(M03(A)*M33(B));
+    /*** second row ***/
+    M10(M) = (M10(A)*M00(B))+(M11(A)*M10(B))+(M12(A)*M20(B))+(M13(A)*M30(B));
+    M11(M) = (M10(A)*M01(B))+(M11(A)*M11(B))+(M12(A)*M21(B))+(M13(A)*M31(B));
+    M12(M) = (M10(A)*M02(B))+(M11(A)*M12(B))+(M12(A)*M22(B))+(M13(A)*M32(B));
+    M13(M) = (M10(A)*M03(B))+(M11(A)*M13(B))+(M12(A)*M23(B))+(M13(A)*M33(B));
 
-    M[0x4] = (A[0x4]*B[0x0])+(A[0x5]*B[0x4])+(A[0x6]*B[0x8])+(A[0x7]*B[0xC]);
-    M[0x5] = (A[0x4]*B[0x1])+(A[0x5]*B[0x5])+(A[0x6]*B[0x9])+(A[0x7]*B[0xD]);
-    M[0x6] = (A[0x4]*B[0x2])+(A[0x5]*B[0x6])+(A[0x6]*B[0xA])+(A[0x7]*B[0xE]);
-    M[0x7] = (A[0x4]*B[0x3])+(A[0x5]*B[0x7])+(A[0x6]*B[0xB])+(A[0x7]*B[0xF]);
+    M20(M) = (M20(A)*M00(B))+(M21(A)*M10(B))+(M22(A)*M20(B))+(M23(A)*M30(B));
+    M21(M) = (M20(A)*M01(B))+(M21(A)*M11(B))+(M22(A)*M21(B))+(M23(A)*M31(B));
+    M22(M) = (M20(A)*M02(B))+(M21(A)*M12(B))+(M22(A)*M22(B))+(M23(A)*M32(B));
+    M23(M) = (M20(A)*M03(B))+(M21(A)*M13(B))+(M22(A)*M23(B))+(M23(A)*M33(B));
 
-    M[0x8] = (A[0x8]*B[0x0])+(A[0x9]*B[0x4])+(A[0xA]*B[0x8])+(A[0xB]*B[0xC]);
-    M[0x9] = (A[0x8]*B[0x1])+(A[0x9]*B[0x5])+(A[0xA]*B[0x9])+(A[0xB]*B[0xD]);
-    M[0xA] = (A[0x8]*B[0x2])+(A[0x9]*B[0x6])+(A[0xA]*B[0xA])+(A[0xB]*B[0xE]);
-    M[0xB] = (A[0x8]*B[0x3])+(A[0x9]*B[0x7])+(A[0xA]*B[0xB])+(A[0xB]*B[0xF]);
-
-    M[0xC] = (A[0xC]*B[0x0])+(A[0xD]*B[0x4])+(A[0xE]*B[0x8])+(A[0xF]*B[0xC]);
-    M[0xD] = (A[0xC]*B[0x1])+(A[0xD]*B[0x5])+(A[0xE]*B[0x9])+(A[0xF]*B[0xD]);
-    M[0xE] = (A[0xC]*B[0x2])+(A[0xD]*B[0x6])+(A[0xE]*B[0xA])+(A[0xF]*B[0xE]);
-    M[0xF] = (A[0xC]*B[0x3])+(A[0xD]*B[0x7])+(A[0xE]*B[0xB])+(A[0xF]*B[0xF]);
+    M30(M) = (M30(A)*M00(B))+(M31(A)*M10(B))+(M32(A)*M20(B))+(M33(A)*M30(B));
+    M31(M) = (M30(A)*M01(B))+(M31(A)*M11(B))+(M32(A)*M21(B))+(M33(A)*M31(B));
+    M32(M) = (M30(A)*M02(B))+(M31(A)*M12(B))+(M32(A)*M22(B))+(M33(A)*M32(B));
+    M33(M) = (M30(A)*M03(B))+(M31(A)*M13(B))+(M32(A)*M23(B))+(M33(A)*M33(B));
+#undef M00
+#undef M01
+#undef M02
+#undef M03
+#undef M10
+#undef M11
+#undef M12
+#undef M13
+#undef M20
+#undef M21
+#undef M22
+#undef M23
+#undef M30
+#undef M31
+#undef M32
+#undef M33
 }
 
 /******************************************************************************/
 void g3dcore_multMatrixd ( double *A, double *B, double *M ) {
-    M[0x0] = (A[0x0]*B[0x0])+(A[0x1]*B[0x4])+(A[0x2]*B[0x8])+(A[0x3]*B[0xC]);
-    M[0x1] = (A[0x0]*B[0x1])+(A[0x1]*B[0x5])+(A[0x2]*B[0x9])+(A[0x3]*B[0xD]);
-    M[0x2] = (A[0x0]*B[0x2])+(A[0x1]*B[0x6])+(A[0x2]*B[0xA])+(A[0x3]*B[0xE]);
-    M[0x3] = (A[0x0]*B[0x3])+(A[0x1]*B[0x7])+(A[0x2]*B[0xB])+(A[0x3]*B[0xF]);
+/*** column-major arrangement ***/
+#define M00(m) m[0x0]
+#define M01(m) m[0x4]
+#define M02(m) m[0x8]
+#define M03(m) m[0xC]
+#define M10(m) m[0x1]
+#define M11(m) m[0x5]
+#define M12(m) m[0x9]
+#define M13(m) m[0xD]
+#define M20(m) m[0x2]
+#define M21(m) m[0x6]
+#define M22(m) m[0xA]
+#define M23(m) m[0xE]
+#define M30(m) m[0x3]
+#define M31(m) m[0x7]
+#define M32(m) m[0xB]
+#define M33(m) m[0xF]
+    /*** first row ***/
+    M00(M) = (M00(A)*M00(B))+(M01(A)*M10(B))+(M02(A)*M20(B))+(M03(A)*M30(B));
+    M01(M) = (M00(A)*M01(B))+(M01(A)*M11(B))+(M02(A)*M21(B))+(M03(A)*M31(B));
+    M02(M) = (M00(A)*M02(B))+(M01(A)*M12(B))+(M02(A)*M22(B))+(M03(A)*M32(B));
+    M03(M) = (M00(A)*M03(B))+(M01(A)*M13(B))+(M02(A)*M23(B))+(M03(A)*M33(B));
+    /*** second row ***/
+    M10(M) = (M10(A)*M00(B))+(M11(A)*M10(B))+(M12(A)*M20(B))+(M13(A)*M30(B));
+    M11(M) = (M10(A)*M01(B))+(M11(A)*M11(B))+(M12(A)*M21(B))+(M13(A)*M31(B));
+    M12(M) = (M10(A)*M02(B))+(M11(A)*M12(B))+(M12(A)*M22(B))+(M13(A)*M32(B));
+    M13(M) = (M10(A)*M03(B))+(M11(A)*M13(B))+(M12(A)*M23(B))+(M13(A)*M33(B));
 
-    M[0x4] = (A[0x4]*B[0x0])+(A[0x5]*B[0x4])+(A[0x6]*B[0x8])+(A[0x7]*B[0xC]);
-    M[0x5] = (A[0x4]*B[0x1])+(A[0x5]*B[0x5])+(A[0x6]*B[0x9])+(A[0x7]*B[0xD]);
-    M[0x6] = (A[0x4]*B[0x2])+(A[0x5]*B[0x6])+(A[0x6]*B[0xA])+(A[0x7]*B[0xE]);
-    M[0x7] = (A[0x4]*B[0x3])+(A[0x5]*B[0x7])+(A[0x6]*B[0xB])+(A[0x7]*B[0xF]);
+    M20(M) = (M20(A)*M00(B))+(M21(A)*M10(B))+(M22(A)*M20(B))+(M23(A)*M30(B));
+    M21(M) = (M20(A)*M01(B))+(M21(A)*M11(B))+(M22(A)*M21(B))+(M23(A)*M31(B));
+    M22(M) = (M20(A)*M02(B))+(M21(A)*M12(B))+(M22(A)*M22(B))+(M23(A)*M32(B));
+    M23(M) = (M20(A)*M03(B))+(M21(A)*M13(B))+(M22(A)*M23(B))+(M23(A)*M33(B));
 
-    M[0x8] = (A[0x8]*B[0x0])+(A[0x9]*B[0x4])+(A[0xA]*B[0x8])+(A[0xB]*B[0xC]);
-    M[0x9] = (A[0x8]*B[0x1])+(A[0x9]*B[0x5])+(A[0xA]*B[0x9])+(A[0xB]*B[0xD]);
-    M[0xA] = (A[0x8]*B[0x2])+(A[0x9]*B[0x6])+(A[0xA]*B[0xA])+(A[0xB]*B[0xE]);
-    M[0xB] = (A[0x8]*B[0x3])+(A[0x9]*B[0x7])+(A[0xA]*B[0xB])+(A[0xB]*B[0xF]);
-
-    M[0xC] = (A[0xC]*B[0x0])+(A[0xD]*B[0x4])+(A[0xE]*B[0x8])+(A[0xF]*B[0xC]);
-    M[0xD] = (A[0xC]*B[0x1])+(A[0xD]*B[0x5])+(A[0xE]*B[0x9])+(A[0xF]*B[0xD]);
-    M[0xE] = (A[0xC]*B[0x2])+(A[0xD]*B[0x6])+(A[0xE]*B[0xA])+(A[0xF]*B[0xE]);
-    M[0xF] = (A[0xC]*B[0x3])+(A[0xD]*B[0x7])+(A[0xE]*B[0xB])+(A[0xF]*B[0xF]);
+    M30(M) = (M30(A)*M00(B))+(M31(A)*M10(B))+(M32(A)*M20(B))+(M33(A)*M30(B));
+    M31(M) = (M30(A)*M01(B))+(M31(A)*M11(B))+(M32(A)*M21(B))+(M33(A)*M31(B));
+    M32(M) = (M30(A)*M02(B))+(M31(A)*M12(B))+(M32(A)*M22(B))+(M33(A)*M32(B));
+    M33(M) = (M30(A)*M03(B))+(M31(A)*M13(B))+(M32(A)*M23(B))+(M33(A)*M33(B));
+#undef M00
+#undef M01
+#undef M02
+#undef M03
+#undef M10
+#undef M11
+#undef M12
+#undef M13
+#undef M20
+#undef M21
+#undef M22
+#undef M23
+#undef M30
+#undef M31
+#undef M32
+#undef M33
 }
 
 /******************************************************************************/
@@ -1249,31 +1365,21 @@ void g3dcore_identityMatrixd ( double *M ) {
 }
 
 /******************************************************************************/
-void g3dcore_printMatrixf ( float *MX, uint32_t nx, uint32_t ny ) {
-    uint32_t i, j;
-
-    for ( i = 0x00; i < ny; i++ ) {
-        for ( j = 0x00; j < nx; j++ ) {
-            printf ( "%f ", ( float ) MX[(i*nx)+j] );
-        }
-
-        printf ( "\n" );
-    }
-    printf ( "\n" );
+void g3dcore_printMatrixf ( float *M ) {
+    printf("%f %f %f %f\n", M[0x00], M[0x04], M[0x08], M[0x0C] );
+    printf("%f %f %f %f\n", M[0x01], M[0x05], M[0x09], M[0x0D] );
+    printf("%f %f %f %f\n", M[0x02], M[0x06], M[0x0A], M[0x0E] );
+    printf("%f %f %f %f\n", M[0x03], M[0x07], M[0x0B], M[0x0F] );
+    printf("\n");
 }
 
 /******************************************************************************/
-void g3dcore_printMatrixd ( double *MX, uint32_t nx, uint32_t ny ) {
-    uint32_t i, j;
-
-    for ( i = 0x00; i < ny; i++ ) {
-        for ( j = 0x00; j < nx; j++ ) {
-            printf ( "%f ", ( float ) MX[(i*nx)+j] );
-        }
-
-        printf ( "\n" );
-    }
-    printf ( "\n" );
+void g3dcore_printMatrixd ( double *M ) {
+    printf("%f %f %f %f\n", M[0x00], M[0x04], M[0x08], M[0x0C] );
+    printf("%f %f %f %f\n", M[0x01], M[0x05], M[0x09], M[0x0D] );
+    printf("%f %f %f %f\n", M[0x02], M[0x06], M[0x0A], M[0x0E] );
+    printf("%f %f %f %f\n", M[0x03], M[0x07], M[0x0B], M[0x0F] );
+    printf("\n");
 }
 
 /******************************************************************************/
@@ -1457,12 +1563,53 @@ float g3dcore_intersect ( G3DVECTOR *plane,
 }
 
 /******************************************************************************/
+void g3dcore_copyMatrixf( float *inM, float *outM ) {
+    memcpy( outM, inM, sizeof( float ) * 0x10 );
+}
+
+/******************************************************************************/
+void g3dcore_orthof( double left,
+                     double right,
+                     double bottom,
+                     double top,
+                     double nearVal,
+                     double farVal,
+                     float *M ) {
+    float tx = - ( float ) ( right + left     ) / ( right  - left    );
+    float ty = - ( float ) ( top   + bottom   ) / ( top    - bottom  );
+    float tz = - ( float ) ( farVal + nearVal ) / ( farVal - nearVal );
+
+    /** note: OpenGL matrices are column-major */
+    M[0x00] = 2.0f / ( right - left );
+    M[0x01] = 0.0f;
+    M[0x02] = 0.0f;
+    M[0x03] = 0.0f;
+
+    M[0x04] = 0.0f;
+    M[0x05] = 2.0f / ( top - bottom );
+    M[0x06] = 0.0f;
+    M[0x07] = 0.0f;
+
+    M[0x08] = 0.0f;
+    M[0x09] = 0.0f;
+    M[0x0A] = -2.0f / ( farVal - nearVal );
+    M[0x0B] = 0.0f;
+
+    M[0x0C] = tx;
+    M[0x0D] = ty;
+    M[0x0E] = tz;
+    M[0x0F] = 1.0f;
+}
+
+/******************************************************************************/
 void g3dcore_perpespectivef ( double fovy,
                               double aspect,
                               double zNear,
                               double zFar,
                               float *projectionMatrix ) {
-    double f = 1.0f / tan ( ( double ) fovy / 2.0f * M_PI / 180.0f );
+    /*double f = 1.0f / tan ( ( double ) fovy / 2.0f );*/
+    double x = fovy / 2.0f;
+    double f = cos ( x ) / sin ( x );
     double zfPzn = zFar  + zNear;
     double znMzf = zNear - zFar;
     double zfMzn = zFar  - zNear;
@@ -1470,19 +1617,19 @@ void g3dcore_perpespectivef ( double fovy,
     /** we cannot use gluPerspective() because we are in a thread. **/
     /* https://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml */
     projectionMatrix[0x00] =  aspect ? ( f / aspect ) : 0.0f;
-    projectionMatrix[0x04] =  0.0f;
-    projectionMatrix[0x08] =  0.0f;
-    projectionMatrix[0x0C] =  0.0f;
     projectionMatrix[0x01] =  0.0f;
-    projectionMatrix[0x05] =  f;
-    projectionMatrix[0x09] =  0.0f;
-    projectionMatrix[0x0D] =  0.0f;
     projectionMatrix[0x02] =  0.0f;
-    projectionMatrix[0x06] =  0.0f;
-    projectionMatrix[0x0A] = zfPzn / znMzf;
-    projectionMatrix[0x0E] = ( 2.0f * zFar * zNear ) / znMzf;
     projectionMatrix[0x03] =  0.0f;
+    projectionMatrix[0x04] =  0.0f;
+    projectionMatrix[0x05] =  f;
+    projectionMatrix[0x06] =  0.0f;
     projectionMatrix[0x07] =  0.0f;
+    projectionMatrix[0x08] =  0.0f;
+    projectionMatrix[0x09] =  0.0f;
+    projectionMatrix[0x0A] = znMzf ? zfPzn / znMzf : 0.0f;
     projectionMatrix[0x0B] = -1.0f;
+    projectionMatrix[0x0C] =  0.0f;
+    projectionMatrix[0x0D] =  0.0f;
+    projectionMatrix[0x0E] = znMzf ? ( 2.0f * zFar * zNear ) / znMzf : 0.0f;
     projectionMatrix[0x0F] =  0.0f;
 }

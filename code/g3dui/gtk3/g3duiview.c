@@ -379,6 +379,8 @@ static void sizeGL ( GtkWidget *widget,
     G3DUIVIEW     *view    = &gtk3view->core;
     G3DUI         *gui     = view->gui;
 
+    gtk_gl_area_make_current ( gtk3view->glarea );
+
     if ( ( width > 1 ) && ( height > 1 ) ) {
         /*** cancel renderprocess if any ***/
         g3dui_cancelRenderByID ( gui, ( uint64_t ) widget );
@@ -396,11 +398,17 @@ static void initGL ( GtkWidget *widget,
     G3DUIVIEW     *view    = &gtk3view->core;
 
     gtk_gl_area_make_current ( gtk3view->glarea );
-
+/*
+    gtk_gl_area_set_has_depth_buffer(gtk3view->glarea,1);
+    gtk_gl_area_set_has_alpha(gtk3view->glarea,0);
+    gtk_gl_area_set_auto_render(gtk3view->glarea,0);
+*/
     if ( gtk_gl_area_get_error ( gtk3view->glarea ) != NULL )
     {
         return;
     }
+
+    g3duiview_initGL ( view );
 }
 
 /******************************************************************************/
@@ -486,7 +494,12 @@ static void mapGL ( GtkWidget *widget,
 }
 
 /******************************************************************************/
-static GTK3G3DUIVIEW *gtk3_g3duiview_new ( GTK3G3DUI *gtk3gui ) {
+static GTK3G3DUIVIEW *gtk3_g3duiview_new ( GTK3G3DUI *gtk3gui,
+                                           uint32_t   viewID,      
+                                           float      focal, 
+                                           float      ratio,
+                                           float      znear, 
+                                           float      zfar ) {
     uint32_t memSize =  sizeof ( GTK3G3DUIVIEW );
     GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) calloc ( 0x01, memSize );
 
@@ -500,6 +513,15 @@ static GTK3G3DUIVIEW *gtk3_g3duiview_new ( GTK3G3DUI *gtk3gui ) {
     gtk3view->core.gui = ( G3DUI * ) gtk3gui;
     gtk3view->core.pressedButtonID = -1;
 
+    gtk3view->core.cam = &gtk3view->core.defcam;
+
+    g3dcamera_init( &gtk3view->core.defcam,
+                     viewID,
+                     "default camera",
+                     focal,
+                     ratio,
+                     znear,
+                     zfar );
 
     return gtk3view;
 }
@@ -549,6 +571,8 @@ static gboolean SizeAllocate ( GtkWidget        *self,
 static void Destroy ( GtkWidget *widget, gpointer user_data ) {
     GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
 
+    g3dengine_free( gtk3view->core.engine );
+
     free ( gtk3view );
 }
 
@@ -590,13 +614,18 @@ static void gtk3_g3duiview_createGLArea ( GTK3G3DUIVIEW *gtk3view ) {
 
     gtk_layout_put ( GTK_LAYOUT(gtk3view->layout), glarea, 0, 0 );
 
+    /*gtk_gl_area_set_has_depth_buffer(glarea,1);
+    gtk_gl_area_set_has_alpha(glarea,0);
+    gtk_gl_area_set_auto_render(glarea,0);
+    gtk_gl_area_set_required_version( glarea, 3, 3 );*/
+
+    gtk3view->glarea = glarea;
+
     g_signal_connect ( G_OBJECT (glarea), "render" , G_CALLBACK ( showGL ), gtk3view );
     g_signal_connect ( G_OBJECT (glarea), "realize", G_CALLBACK ( initGL ), gtk3view );
     g_signal_connect ( G_OBJECT (glarea), "resize" , G_CALLBACK ( sizeGL ), gtk3view );
 
     gtk_widget_show ( glarea );
-
-    gtk3view->glarea = glarea;
 
 #ifdef deprecated
     G3DUI *gui = gtk3view->core.gui;
@@ -724,11 +753,11 @@ static void movePointer ( GTK3G3DUIVIEW  *gtk3view,
                           uint32_t   x,
                           uint32_t   y ) {
     G3DUIVIEW *view = ( G3DUIVIEW * ) gtk3view;
-
+#ifdef unused
     emit( view->gui->virtualMouseFD, EV_REL, REL_X, 5 );
     emit( view->gui->virtualMouseFD, EV_REL, REL_Y, 5 );
+#endif
 
-#ifdef unused
     GtkWidget *top = gtk_widget_get_toplevel ( widget );
     gint winx, winy;
 
@@ -741,7 +770,7 @@ static void movePointer ( GTK3G3DUIVIEW  *gtk3view,
                       gtk_widget_get_screen ( widget ), winx + x, winy + y );
 
     /*printf ( "reseting mouse to %d %d\n", winx + x, winy + y );*/
-#endif
+
 }
 
 /******************************************************************************/
@@ -806,7 +835,7 @@ static void motionNotify ( GTK3G3DUIVIEW  *gtk3view,
                 g3duiview_moveForward ( view, difx );
             }
 
-            if ( view->cam != view->defcam ) {
+            if ( view->cam != &view->defcam ) {
                 /*** update camera focal value ***/
                 gtk3_interpretUIReturnFlags ( gtk3view->core.gui, UPDATECURRENTOBJECT ); 
             }
@@ -1077,8 +1106,18 @@ void gtk3_g3duiview_resize ( GTK3G3DUIVIEW *gtk3view,
 /******************************************************************************/
 GTK3G3DUIVIEW *gtk3_g3duiview_create ( GtkWidget *parent,
                                        GTK3G3DUI *gtk3gui,
-                                       char      *name ) {
-    GTK3G3DUIVIEW *gtk3view = gtk3_g3duiview_new ( gtk3gui );
+                                       char      *name,
+                                       uint32_t   camID,
+                                       float      focal, 
+                                       float      ratio,
+                                       float      znear, 
+                                       float      zfar ) {
+    GTK3G3DUIVIEW *gtk3view = gtk3_g3duiview_new ( gtk3gui,
+                                                   camID,
+                                                   focal, 
+                                                   ratio,
+                                                   znear, 
+                                                   zfar );
     GtkWidget    *layout = ui_gtk_layout_new ( CLASS_MAIN, NULL, NULL );
 
     gtk3view->layout = layout;

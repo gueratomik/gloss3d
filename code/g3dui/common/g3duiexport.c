@@ -223,11 +223,11 @@ static uint32_t g3duiview_entry ( G3DEXPORTV3DATA *ged,
     size += g3dexportv3_writeChunk ( SIG_G3DUI_VIEW_CAMERA,
                    EXPORTV3_CALLBACK(g3duiview_camera),
                                      ged,
-                                     view->defcam,
+                                    &view->defcam,
                                      0xFFFFFFFF,
                                      fdst );
 
-    if ( view->cam != view->defcam ) {
+    if ( view->cam != &view->defcam ) {
         if ( g3dscene_isObjectReferred ( ged->currentScene, ( G3DOBJECT * ) view->cam ) ) {
             size += g3dexportv3_writeChunk ( SIG_G3DUI_VIEW_USECAMERA,
                            EXPORTV3_CALLBACK(g3duiview_useCamera),
@@ -483,43 +483,43 @@ void g3dui_read ( G3DIMPORTV3DATA *gid,
 
             case SIG_G3DUI_VIEW_CAMERA_POSITION :
                 if ( view ) {
-                    obj = ( G3DOBJECT * ) view->defcam;
+                    obj = ( G3DOBJECT * ) &view->defcam;
 
                     g3dimportv3_freadf ( &obj->pos.x, fsrc );
                     g3dimportv3_freadf ( &obj->pos.y, fsrc );
                     g3dimportv3_freadf ( &obj->pos.z, fsrc );
 
-                    g3dobject_updateMatrix ( ( G3DOBJECT * ) view->defcam, gui->engine_flags );
+                    g3dobject_updateMatrix ( ( G3DOBJECT * ) &view->defcam, gui->engine_flags );
                 }
             break;
 
             case SIG_G3DUI_VIEW_CAMERA_ROTATION :
                 if ( view ) {
-                    obj = ( G3DOBJECT * ) view->defcam;
+                    obj = ( G3DOBJECT * ) &view->defcam;
 
                     g3dimportv3_freadf ( &obj->rot.x, fsrc );
                     g3dimportv3_freadf ( &obj->rot.y, fsrc );
                     g3dimportv3_freadf ( &obj->rot.z, fsrc );
 
-                    g3dobject_updateMatrix ( ( G3DOBJECT * ) view->defcam, gui->engine_flags );
+                    g3dobject_updateMatrix ( ( G3DOBJECT * ) &view->defcam, gui->engine_flags );
                 }
             break;
 
             case SIG_G3DUI_VIEW_CAMERA_SCALING :
                 if ( view ) {
-                    obj = ( G3DOBJECT * ) view->defcam;
+                    obj = ( G3DOBJECT * ) &view->defcam;
 
                     g3dimportv3_freadf ( &obj->sca.x, fsrc );
                     g3dimportv3_freadf ( &obj->sca.y, fsrc );
                     g3dimportv3_freadf ( &obj->sca.z, fsrc );
 
-                    g3dobject_updateMatrix ( ( G3DOBJECT * ) view->defcam, gui->engine_flags );
+                    g3dobject_updateMatrix ( ( G3DOBJECT * ) &view->defcam, gui->engine_flags );
                 }
             break;
 
             case SIG_G3DUI_VIEW_CAMERA_FOCAL :
                 if ( view ) {
-                    g3dimportv3_freadf ( &view->defcam->focal, fsrc );
+                    g3dimportv3_freadf ( &view->defcam.focal, fsrc );
                 }
             break;
 
