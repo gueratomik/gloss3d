@@ -230,10 +230,10 @@ static void g3duiview_init2D ( G3DUIVIEW *view ) {
 
     /*** I still have to understand this below ***/
     /*** I got it from Internet for avoiding Z-Fighting ***/
-    glPolygonOffset ( -1.0f, -1.0f );
-    glEnable(GL_POLYGON_OFFSET_FILL);
+    //glPolygonOffset ( -1.0f, -1.0f );
+    //glEnable(GL_POLYGON_OFFSET_FILL);
 
-    glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
+    //glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
 
     view->mode = GLVIEWWIREFRAME;
 }
@@ -249,14 +249,14 @@ static void g3duiview_init3D ( G3DUIVIEW *view ) {
     glLightfv ( GL_LIGHT0, GL_SPECULAR, ( const float * ) spec );
 
     glEnable ( GL_DEPTH_TEST );
+    glDisable( GL_CULL_FACE );
 
     /*** I still have to understand this below ***/
     /*** I got it from Internet for avoiding Z-Fighting ***/
-    glPolygonOffset ( 1.0f, 1.0f );
-    glEnable(GL_POLYGON_OFFSET_FILL);
+    //glPolygonOffset ( 1.0f, 1.0f );
+    //glEnable(GL_POLYGON_OFFSET_FILL);
 
-    glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL );
-    /*glLightModeli ( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );*/
+    //glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL );
 
     view->mode = GLVIEWGOURAUD;
 }

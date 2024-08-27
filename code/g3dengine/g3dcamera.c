@@ -313,7 +313,7 @@ void g3dcamera_project ( G3DCAMERA *cam,
                   (  VPX[0x03] * cam->ortho.z ) + cam->ortho.y, cam->znear, cam->zfar );
 */
     } else {
-        g3dcore_perpespectivef ( cam->focal * M_PI / 180.0f,
+        g3dcore_perpespectivef ( cam->focal,
                                  cam->ratio,
                                  cam->znear,
                                  cam->zfar,

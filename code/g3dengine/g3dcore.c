@@ -1608,12 +1608,29 @@ void g3dcore_perpespectivef ( double fovy,
                               double zFar,
                               float *projectionMatrix ) {
     /*double f = 1.0f / tan ( ( double ) fovy / 2.0f );*/
-    double x = fovy / 2.0f;
+    double x = ( fovy  * M_PI / 180.0f ) / 2.0f;
     double f = cos ( x ) / sin ( x );
     double zfPzn = zFar  + zNear;
     double znMzf = zNear - zFar;
     double zfMzn = zFar  - zNear;
-
+/*
+    projectionMatrix[0x00] =  aspect ? ( f / aspect ) : 0.0f;
+    projectionMatrix[0x04] =  0.0f;
+    projectionMatrix[0x08] =  0.0f;
+    projectionMatrix[0x0C] =  0.0f;
+    projectionMatrix[0x01] =  0.0f;
+    projectionMatrix[0x05] =  f;
+    projectionMatrix[0x09] =  0.0f;
+    projectionMatrix[0x0D] =  0.0f;
+    projectionMatrix[0x02] =  0.0f;
+    projectionMatrix[0x06] =  0.0f;
+    projectionMatrix[0x0A] = znMzf ? zfPzn / znMzf : 0.0f;
+    projectionMatrix[0x0E] = -1.0f;
+    projectionMatrix[0x03] =  0.0f;
+    projectionMatrix[0x07] =  0.0f;
+    projectionMatrix[0x0B] = znMzf ? ( 2.0f * zFar * zNear ) / znMzf : 0.0f;
+    projectionMatrix[0x0F] =  0.0f;
+*/
     /** we cannot use gluPerspective() because we are in a thread. **/
     /* https://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml */
     projectionMatrix[0x00] =  aspect ? ( f / aspect ) : 0.0f;

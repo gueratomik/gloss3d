@@ -272,8 +272,8 @@ void g3dmesh_drawQuadList ( G3DMESH *mes,
     /*** the matrix by which vertices coords are transformed ***/
     g3dcore_multMatrixf( cam->pmatrix, mod, mvp );
     /*** the matrix by which vertices normals are transformed ***/
-    g3dcore_invertMatrixf   ( mod, inv );
-    g3dcore_transposeMatrixf( inv, nor );
+    g3dcore_transposeMatrixf   ( mod, inv );
+    g3dcore_invertMatrixf( inv, nor );
 
     glUseProgram( engine->triangleShaderProgram );
 
@@ -282,10 +282,46 @@ void g3dmesh_drawQuadList ( G3DMESH *mes,
 
     while ( ltmpqua ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpqua->data;
+        SHADERVERTEX vertices[0x04] = { { fac->ver[0x00]->pos.x, 
+                                          fac->ver[0x00]->pos.y,
+                                          fac->ver[0x00]->pos.z,
+                                          fac->ver[0x00]->nor.x,
+                                          fac->ver[0x00]->nor.y,
+                                          fac->ver[0x00]->nor.z,
+                                          0.5f            ,
+                                          0.5f            ,
+                                          0.5f },
+                                        { fac->ver[0x01]->pos.x,
+                                          fac->ver[0x01]->pos.y,
+                                          fac->ver[0x01]->pos.z,
+                                          fac->ver[0x01]->nor.x,
+                                          fac->ver[0x01]->nor.y,
+                                          fac->ver[0x01]->nor.z,
+                                          0.5f            ,
+                                          0.5f            ,
+                                          0.5f },
+                                        { fac->ver[0x02]->pos.x,
+                                          fac->ver[0x02]->pos.y,
+                                          fac->ver[0x02]->pos.z,
+                                          fac->ver[0x02]->nor.x,
+                                          fac->ver[0x02]->nor.y,
+                                          fac->ver[0x02]->nor.z,
+                                          0.5f            ,
+                                          0.5f            ,
+                                          0.5f },
+                                        { fac->ver[0x03]->pos.x,
+                                          fac->ver[0x03]->pos.y,
+                                          fac->ver[0x03]->pos.z,
+                                          fac->ver[0x03]->nor.x,
+                                          fac->ver[0x03]->nor.y,
+                                          fac->ver[0x03]->nor.z,
+                                          0.5f            ,
+                                          0.5f            ,
+                                          0.5f } };
 
         g3dengine_drawQuad( engine,
             ( G3DOBJECT * ) mes, 
-                            fac,
+                            vertices,
                             mes->gouraudScalarLimit,
                             mes->ltex,
                             mes->obj.flags,
@@ -293,6 +329,8 @@ void g3dmesh_drawQuadList ( G3DMESH *mes,
 
         ltmpqua = ltmpqua->next;
     }
+
+    glUseProgram( 0 );
 }
 
 /******************************************************************************/
@@ -320,8 +358,8 @@ void g3dmesh_drawTriangleList ( G3DMESH   *mes,
     /*** the matrix by which vertices coords are transformed ***/
     g3dcore_multMatrixf( cam->pmatrix, mod, mvp );
     /*** the matrix by which vertices normals are transformed ***/
-    g3dcore_invertMatrixf   ( mod, inv );
-    g3dcore_transposeMatrixf( inv, nor );
+    g3dcore_transposeMatrixf   ( mod, inv );
+    g3dcore_invertMatrixf( inv, nor );
 
     glUseProgram( engine->triangleShaderProgram );
 
@@ -330,10 +368,37 @@ void g3dmesh_drawTriangleList ( G3DMESH   *mes,
 
     while ( ltmptri ) {
         G3DFACE *fac = ( G3DFACE * ) ltmptri->data;
+        SHADERVERTEX vertices[0x03] = { { fac->ver[0x00]->pos.x, 
+                                          fac->ver[0x00]->pos.y,
+                                          fac->ver[0x00]->pos.z,
+                                          fac->ver[0x00]->nor.x,
+                                          fac->ver[0x00]->nor.y,
+                                          fac->ver[0x00]->nor.z,
+                                          0.5f            ,
+                                          0.5f            ,
+                                          0.5f },
+                                        { fac->ver[0x01]->pos.x,
+                                          fac->ver[0x01]->pos.y,
+                                          fac->ver[0x01]->pos.z,
+                                          fac->ver[0x01]->nor.x,
+                                          fac->ver[0x01]->nor.y,
+                                          fac->ver[0x01]->nor.z,
+                                          0.5f            ,
+                                          0.5f            ,
+                                          0.5f },
+                                        { fac->ver[0x02]->pos.x,
+                                          fac->ver[0x02]->pos.y,
+                                          fac->ver[0x02]->pos.z,
+                                          fac->ver[0x02]->nor.x,
+                                          fac->ver[0x02]->nor.y,
+                                          fac->ver[0x02]->nor.z,
+                                          0.5f            ,
+                                          0.5f            ,
+                                          0.5f } };
 
         g3dengine_drawTriangle( engine,
                 ( G3DOBJECT * ) mes, 
-                                fac,
+                                vertices,
                                 mes->gouraudScalarLimit,
                                 mes->ltex,
                                 mes->obj.flags,
@@ -341,6 +406,8 @@ void g3dmesh_drawTriangleList ( G3DMESH   *mes,
 
         ltmptri = ltmptri->next;
     }
+
+    glUseProgram( 0 );
 }
 
 /******************************************************************************/
@@ -2872,14 +2939,70 @@ void g3dmesh_updateFaceIndex ( G3DMESH *mes ) {
     }
 }
 
-
 /******************************************************************************/
-void g3dmesh_drawFaceNormal ( G3DMESH *mes,
+void g3dmesh_drawFaceNormal ( G3DMESH   *mes,
+                              G3DCAMERA *cam, 
+                              G3DENGINE *engine,
                               uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    LIST *ltmp = mes->lfac;
     float scaling = g3dvector_length ( &obj->sca );
     float nratio =  0.1f / scaling;
+    LIST *ltmpfac = mes->lfac;
+    int posMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                  "posMatrix" );
+    float mvp[0x10];
+    float inv[0x10];
+    float nor[0x10];
+    float mod[0x10];
+
+    /*g3dcore_identityMatrixf( cam->pmatrix );*/
+    /*g3dcore_identityMatrixf( cam->obj.inverseWorldMatrix );*/
+
+    g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
+                         mes->obj.worldMatrix,
+                         mod );
+
+    /*** the matrix by which vertices coords are transformed ***/
+    g3dcore_multMatrixf( cam->pmatrix, mod, mvp );
+
+    glUseProgram( engine->coloredShaderProgram );
+
+    glUniformMatrix4fv( posMatrixLocation, 1, GL_FALSE, mvp );
+
+    while ( ltmpfac ) {
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+        SHADERVERTEX vertices[0x04] = { { fac->pos.x, 
+                                          fac->pos.y,
+                                          fac->pos.z,
+                                          0.0f,
+                                          0.0f,
+                                          0.0f,
+                                          0.0f,
+                                          1.0f,
+                                          1.0f },
+                                        { fac->pos.x + fac->nor.x * nratio,
+                                          fac->pos.y + fac->nor.y * nratio,
+                                          fac->pos.z + fac->nor.z * nratio,
+                                          0.0f,
+                                          0.0f,
+                                          0.0f,
+                                          0.0f,
+                                          1.0f,
+                                          1.0f } };
+
+        g3dengine_drawLine( engine,
+            ( G3DOBJECT * ) mes, 
+                            vertices,
+                            mes->obj.flags,
+                            engine_flags );
+
+        ltmpfac = ltmpfac->next;
+    }
+
+    glUseProgram( 0 );
+
+
+/*
 
     glPushAttrib( GL_ALL_ATTRIB_BITS );
 
@@ -2889,6 +3012,7 @@ void g3dmesh_drawFaceNormal ( G3DMESH *mes,
     glBegin ( GL_LINES );
     while ( ltmp ) {
         G3DFACE *fac = ( G3DFACE * ) ltmp->data;
+
 
         glVertex3f ( fac->pos.x, fac->pos.y, fac->pos.z );
         glVertex3f ( ( fac->pos.x + fac->nor.x * nratio ),
@@ -2900,6 +3024,7 @@ void g3dmesh_drawFaceNormal ( G3DMESH *mes,
     glEnd ( );
 
     glPopAttrib ( );
+*/
 }
 
 /******************************************************************************/
@@ -2944,32 +3069,62 @@ void g3dmesh_drawSelectedVertices ( G3DMESH *mes,
 
 /******************************************************************************/
 void g3dmesh_drawVertexNormal ( G3DMESH *mes,
+                                G3DCAMERA *cam, 
+                                G3DENGINE *engine,
                                 uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    LIST *ltmp = mes->lver;
     float scaling = g3dvector_length ( &obj->sca );
     float nratio =  0.1f / scaling;
+    LIST *ltmpver = mes->lver;
+    int posMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                  "posMatrix" );
+    float mvp[0x10];
+    float inv[0x10];
+    float nor[0x10];
+    float mod[0x10];
 
-    glPushAttrib( GL_ALL_ATTRIB_BITS );
+    g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
+                         mes->obj.worldMatrix,
+                         mod );
 
-    glDisable   ( GL_LIGHTING );
-    glColor3ub  ( 0xFF, 0x00, 0xFF );
+    /*** the matrix by which vertices coords are transformed ***/
+    g3dcore_multMatrixf( cam->pmatrix, mod, mvp );
 
-    glBegin ( GL_LINES );
-    while ( ltmp ) {
-        G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
-        G3DVECTOR *pos = &ver->pos;
+    glUseProgram( engine->coloredShaderProgram );
 
-        glVertex3fv ( ( GLfloat * ) pos );
-        glVertex3f  ( ( pos->x + ver->nor.x * nratio ),
-                      ( pos->y + ver->nor.y * nratio ),
-                      ( pos->z + ver->nor.z * nratio ) );
+    glUniformMatrix4fv( posMatrixLocation, 1, GL_FALSE, mvp );
 
-        ltmp = ltmp->next;
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+        SHADERVERTEX vertices[0x04] = { { ver->pos.x, 
+                                          ver->pos.y,
+                                          ver->pos.z,
+                                          0.0f,
+                                          0.0f,
+                                          0.0f,
+                                          1.0f,
+                                          0.0f,
+                                          1.0f },
+                                        { ver->pos.x + ver->nor.x * nratio,
+                                          ver->pos.y + ver->nor.y * nratio,
+                                          ver->pos.z + ver->nor.z * nratio,
+                                          0.0f,
+                                          0.0f,
+                                          0.0f,
+                                          1.0f,
+                                          0.0f,
+                                          1.0f } };
+
+        g3dengine_drawLine( engine,
+            ( G3DOBJECT * ) mes, 
+                            vertices,
+                            mes->obj.flags,
+                            engine_flags );
+
+        ltmpver = ltmpver->next;
     }
-    glEnd ( );
 
-    glPopAttrib ( );
+    glUseProgram( 0 );
 }
 
 /******************************************************************************/
@@ -3715,11 +3870,11 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
             }
 
             if ( engine_flags & VIEWFACENORMAL ) {
-                g3dmesh_drawFaceNormal ( mes, engine_flags );
+                g3dmesh_drawFaceNormal ( mes, curcam, engine, engine_flags );
             } 
 
             if ( engine_flags & VIEWVERTEXNORMAL ) {
-                g3dmesh_drawVertexNormal ( mes, engine_flags );
+                g3dmesh_drawVertexNormal ( mes, curcam, engine, engine_flags );
             }
 
             if ( SYMMETRYVIEW ) {

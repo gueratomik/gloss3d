@@ -821,21 +821,39 @@ typedef struct _G3DENGINE G3DENGINE;
 
 /******************************************************************************/
 
-#define ENGINE_TRIANGLE_SHADER_PROGRAM_INITIALIZED  ( 1ULL << 0 )
-#define ENGINE_TRIANGLE_BUFFER_INITIALIZED          ( 1ULL << 1 )
-#define ENGINE_TRIANGLE_VERTEX_SHADER_INITIALIZED   ( 1ULL << 2 )
-#define ENGINE_TRIANGLE_FRAGMENT_SHADER_INITIALIZED ( 1ULL << 3 )
+
+#define ENGINE_VERTEX_BUFFER_INITIALIZED            ( 1ULL << 0 )
+
+#define ENGINE_COLORED_SHADER_PROGRAM_INITIALIZED   ( 1ULL << 1 )
+#define ENGINE_COLORED_VERTEX_SHADER_INITIALIZED    ( 1ULL << 2 )
+#define ENGINE_COLORED_FRAGMENT_SHADER_INITIALIZED  ( 1ULL << 3 )
+
+#define ENGINE_TRIANGLE_SHADER_PROGRAM_INITIALIZED  ( 1ULL << 4 )
+#define ENGINE_TRIANGLE_VERTEX_SHADER_INITIALIZED   ( 1ULL << 5 )
+#define ENGINE_TRIANGLE_FRAGMENT_SHADER_INITIALIZED ( 1ULL << 6 )
 
 typedef struct _G3DENGINE {
     uint64_t flags;
-    unsigned int triangleBuffer;
-    unsigned int triangleBufferArray;
+    unsigned int vertexBuffer;
+    unsigned int vertexArray;
+
     unsigned int triangleShaderProgram;
     unsigned int triangleVertexShader;
     unsigned int triangleFragmentShader;
-    unsigned int triangleVertexArray;
+
+    unsigned int coloredShaderProgram;
+    unsigned int coloredVertexShader;
+    unsigned int coloredFragmentShader;
+
     char log[512];
 } G3DENGINE;
+
+/******************************************************************************/
+typedef struct _SHADERVERTEX {
+    float pos[0x03];
+    float nor[0x03];
+    float col[0x03];
+} SHADERVERTEX;
 
 /******************************************************************************/
 typedef struct _G3DOBJECT {
@@ -2750,6 +2768,8 @@ void g3dmesh_drawFaces ( G3DMESH *mes,
                          uint32_t object_flags, 
                          uint64_t engine_flags );
 void g3dmesh_drawFaceNormal ( G3DMESH *mes,
+                              G3DCAMERA *curcam, 
+                              G3DENGINE *engine,
                               uint64_t engine_flags );
 void g3dmesh_drawObject ( G3DMESH   *mes, 
                           G3DCAMERA *curcam,
@@ -2758,6 +2778,8 @@ void g3dmesh_drawObject ( G3DMESH   *mes,
 void g3dmesh_drawSelectedVertices ( G3DMESH *mes,
                                     uint64_t engine_flags );
 void g3dmesh_drawVertexNormal ( G3DMESH *mes,
+                                G3DCAMERA *cam, 
+                                G3DENGINE *engine,
                                 uint64_t engine_flags );
 void g3dmesh_drawVertices  ( G3DMESH *mes,
                              uint64_t engine_flags );
@@ -3094,23 +3116,29 @@ void g3dscene_processAnimatedImages ( G3DSCENE *sce,
                                       uint64_t  engine_flags );
 
 /******************************************************************************/
-G3DENGINE* g3dengine_new ( );
-void g3dengine_free( G3DENGINE *engine );
-void g3dengine_initShaders ( G3DENGINE *engine );
-void g3dengine_drawTriangle ( G3DENGINE *engine,
-                              G3DOBJECT *object,
-                              G3DFACE *triangle,
-                              float    gouraudScalarLimit,
-                              LIST    *ltex, 
-                              uint32_t object_flags,
-                              uint64_t engine_flags );
-void g3dengine_drawQuad     ( G3DENGINE *engine,
-                              G3DOBJECT *object,
-                              G3DFACE *triangle,
-                              float    gouraudScalarLimit,
-                              LIST    *ltex, 
-                              uint32_t object_flags,
-                              uint64_t engine_flags );
+G3DENGINE* g3dengine_new    ( );
+void g3dengine_free         ( G3DENGINE *engine );
+void g3dengine_initShaders  ( G3DENGINE *engine );
+void g3dengine_drawTriangle ( G3DENGINE     *engine,
+                              G3DOBJECT     *object,
+                              SHADERVERTEX  *vertices,
+                              float          gouraudScalarLimit,
+                              LIST          *ltex, 
+                              uint32_t       object_flags,
+                              uint64_t       engine_flags );
+void g3dengine_drawQuad     ( G3DENGINE    *engine,
+                              G3DOBJECT    *object,
+                              SHADERVERTEX *vertices,
+                              float         gouraudScalarLimit,
+                              LIST         *ltex, 
+                              uint32_t      object_flags,
+                              uint64_t      engine_flags );
+void g3dengine_drawLine     ( G3DENGINE    *engine,
+                              G3DOBJECT    *object,
+                              SHADERVERTEX *vertices,
+                              uint32_t      object_flags,
+                              uint64_t      engine_flags );
+
 /******************************************************************************/
 G3DCAMERA *g3dcamera_new ( uint32_t id,
                            char    *name, 

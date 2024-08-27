@@ -59,16 +59,85 @@ void g3dengine_free( G3DENGINE *engine ) {
   * xxd -i < triangleVertexShader.glsl > triangleVertexShader.xxd
   */
 
+static char *coloredVertexShaderSource = & ( char[] ) {
+#include "glsl/coloredVertexShader.xxd"
+, 0x00 };
+
+/** the xxd file is generated with the following command :
+  * xxd -i < triangleFragmentShader.glsl > triangleFragmentShader.xxd
+  */
+static char *coloredFragmentShaderSource = & ( char[] ) {
+#include "glsl/coloredFragmentShader.xxd"
+, 0x00 };
+
 static char *triangleVertexShaderSource = & ( char[] ) {
-#include "glsl/triangleVertexShader.xxd"
+#include "glsl/shadedVertexShader.xxd"
 , 0x00 };
 
 /** the xxd file is generated with the following command :
   * xxd -i < triangleFragmentShader.glsl > triangleFragmentShader.xxd
   */
 static char *triangleFragmentShaderSource = & ( char[] ) {
-#include "glsl/triangleFragmentShader.xxd"
+#include "glsl/shadedFragmentShader.xxd"
 , 0x00 };
+
+/******************************************************************************/
+static void g3dengine_initColoredVertexShader( G3DENGINE *engine ) {
+    int compileStatus;
+
+    engine->coloredVertexShader = glCreateShader( GL_VERTEX_SHADER );
+
+    glShaderSource( engine->coloredVertexShader,
+                    0x01,
+                   &coloredVertexShaderSource,
+                    NULL );
+
+    glCompileShader( engine->coloredVertexShader );
+
+    glGetShaderiv( engine->coloredVertexShader,
+                   GL_COMPILE_STATUS,
+                   &compileStatus );
+
+    if ( compileStatus == GL_FALSE ) {
+        glGetShaderInfoLog( engine->coloredVertexShader,
+                            sizeof( engine->log ),
+                            NULL,
+                            engine->log );
+
+        fprintf( stderr, "GLSL compilation failed. Error is:\n%s", engine->log );
+    } else {
+        engine->flags |= ENGINE_COLORED_VERTEX_SHADER_INITIALIZED;
+    }
+}
+
+/******************************************************************************/
+static void g3dengine_initColoredFragmentShader( G3DENGINE *engine ) {
+    int compileStatus;
+
+    engine->coloredFragmentShader = glCreateShader( GL_FRAGMENT_SHADER );
+
+    glShaderSource( engine->coloredFragmentShader,
+                    0x01,
+                   &coloredFragmentShaderSource,
+                    NULL );
+
+    glCompileShader( engine->coloredFragmentShader );
+
+    glGetShaderiv( engine->coloredFragmentShader,
+                   GL_COMPILE_STATUS,
+                   &compileStatus );
+
+    if ( compileStatus == GL_FALSE ) {
+        glGetShaderInfoLog( engine->coloredFragmentShader,
+                            sizeof( engine->log ),
+                            NULL,
+                            engine->log );
+
+        fprintf( stderr, "GLSL compilation failed. Error is:\n%s", engine->log );
+    } else {
+        engine->flags |= ENGINE_COLORED_FRAGMENT_SHADER_INITIALIZED;
+    }
+}
 
 /******************************************************************************/
 static void g3dengine_initTriangleVertexShader( G3DENGINE *engine ) {
@@ -129,7 +198,7 @@ static void g3dengine_initTriangleFragmentShader( G3DENGINE *engine ) {
 }
 
 /******************************************************************************/
-void g3dengine_initShaders ( G3DENGINE *engine ) {
+static void g3dengine_initTriangleShaderProgram ( G3DENGINE *engine ) {
     int linkingStatus;
 
     g3dengine_initTriangleVertexShader( engine );
@@ -159,21 +228,69 @@ void g3dengine_initShaders ( G3DENGINE *engine ) {
         fprintf( stderr, "GLSL linking failed. Error is:\n%s", engine->log );
     } else {
         if( engine->flags & ENGINE_TRIANGLE_VERTEX_SHADER_INITIALIZED ) {
-            /*glDeleteShader( engine->triangleVertexShader );*/
+            glDeleteShader( engine->triangleVertexShader );
         }
 
         if( engine->flags & ENGINE_TRIANGLE_FRAGMENT_SHADER_INITIALIZED ) {
-            /*glDeleteShader( engine->triangleFragmentShader );*/
+            glDeleteShader( engine->triangleFragmentShader );
         }
 
         engine->flags |= ENGINE_TRIANGLE_SHADER_PROGRAM_INITIALIZED;
     }
+}
 
-    glGenVertexArrays ( 1, &engine->triangleVertexArray );
-    glBindVertexArray ( engine->triangleVertexArray );
+/******************************************************************************/
+static void g3dengine_initColoredShaderProgram ( G3DENGINE *engine ) {
+    int linkingStatus;
 
-    glGenBuffers( 1, &engine->triangleBuffer );
-    glBindBuffer( GL_ARRAY_BUFFER, engine->triangleBuffer ); 
+    g3dengine_initColoredVertexShader( engine );
+    g3dengine_initColoredFragmentShader( engine );
+
+    engine->coloredShaderProgram = glCreateProgram();
+
+    glAttachShader( engine->coloredShaderProgram,
+                    engine->coloredVertexShader );
+
+    glAttachShader( engine->coloredShaderProgram,
+                    engine->coloredFragmentShader );
+
+    glLinkProgram( engine->coloredShaderProgram );
+
+    /* check for linking errors */
+    glGetProgramiv( engine->coloredShaderProgram,
+                    GL_LINK_STATUS,
+                   &linkingStatus );
+
+    if ( linkingStatus == GL_FALSE ) {
+        glGetProgramInfoLog( engine->coloredShaderProgram,
+                             512,
+                             NULL,
+                             engine->log );
+
+        fprintf( stderr, "GLSL linking failed. Error is:\n%s", engine->log );
+    } else {
+        if( engine->flags & ENGINE_COLORED_VERTEX_SHADER_INITIALIZED ) {
+            glDeleteShader( engine->coloredVertexShader );
+        }
+
+        if( engine->flags & ENGINE_COLORED_FRAGMENT_SHADER_INITIALIZED ) {
+            glDeleteShader( engine->coloredFragmentShader );
+        }
+
+        engine->flags |= ENGINE_COLORED_SHADER_PROGRAM_INITIALIZED;
+    }
+}
+
+/******************************************************************************/
+void g3dengine_initShaders ( G3DENGINE *engine ) {
+    g3dengine_initTriangleShaderProgram( engine );
+    g3dengine_initColoredShaderProgram( engine );
+
+    glGenVertexArrays ( 1, &engine->vertexArray );
+    glBindVertexArray ( engine->vertexArray );
+
+    glGenBuffers( 1, &engine->vertexBuffer );
+    glBindBuffer( GL_ARRAY_BUFFER, engine->vertexBuffer ); 
     glBufferData( GL_ARRAY_BUFFER,
                   sizeof( float ) * 36, /* enough for quads as well */
                   NULL,
@@ -184,7 +301,7 @@ void g3dengine_initShaders ( G3DENGINE *engine ) {
                            0x03,
                            GL_FLOAT,
                            GL_FALSE,
-                           9 * sizeof( float ),
+                           sizeof( SHADERVERTEX ),
                            (void*) 0 );
     glEnableVertexAttribArray( 0x00 );
 
@@ -192,7 +309,7 @@ void g3dengine_initShaders ( G3DENGINE *engine ) {
                            0x03,
                            GL_FLOAT,
                            GL_FALSE,
-                           9 * sizeof( float ),
+                           sizeof( SHADERVERTEX ),
                            (void*) 12 );
     glEnableVertexAttribArray( 0x01 );
 
@@ -200,70 +317,58 @@ void g3dengine_initShaders ( G3DENGINE *engine ) {
                            0x03,
                            GL_FLOAT,
                            GL_FALSE,
-                           9 * sizeof( float ),
+                           sizeof( SHADERVERTEX ),
                            (void*) 24 );
     glEnableVertexAttribArray( 0x02 );
 
     glBindVertexArray(0);
 
-    engine->flags |= ENGINE_TRIANGLE_BUFFER_INITIALIZED;
+    engine->flags |= ENGINE_VERTEX_BUFFER_INITIALIZED;
 }
 
 /******************************************************************************/
-void g3dengine_drawTriangle ( G3DENGINE *engine,
-                              G3DOBJECT *object,
-                              G3DFACE *triangle,
-                              float    gouraudScalarLimit,
-                              LIST    *ltex, 
-                              uint32_t object_flags,
-                              uint64_t engine_flags ) {
-    G3DVERTEX **ver = triangle->ver;
-
-    float vertices[] = { ver[0x00]->pos.x, ver[0x00]->pos.y, ver[0x00]->pos.z,
-                         ver[0x00]->nor.x, ver[0x00]->nor.y, ver[0x00]->nor.z,
-                         0.5f            , 0.5f            , 0.5f            ,
-                         ver[0x01]->pos.x, ver[0x01]->pos.y, ver[0x01]->pos.z,
-                         ver[0x01]->nor.x, ver[0x01]->nor.y, ver[0x01]->nor.z,
-                         0.5f            , 0.5f            , 0.5f            ,
-                         ver[0x02]->pos.x, ver[0x02]->pos.y, ver[0x02]->pos.z,
-                         ver[0x02]->nor.x, ver[0x02]->nor.y, ver[0x02]->nor.z,
-                         0.5f            , 0.5f            , 0.5f             };
-
-    glBindVertexArray( engine->triangleVertexArray );
-    glBindBuffer( GL_ARRAY_BUFFER, engine->triangleBuffer ); 
+void g3dengine_drawTriangle ( G3DENGINE    *engine,
+                              G3DOBJECT    *object,
+                              SHADERVERTEX *vertices,
+                              float         gouraudScalarLimit,
+                              LIST         *ltex, 
+                              uint32_t      object_flags,
+                              uint64_t      engine_flags ) {
+    glBindVertexArray( engine->vertexArray );
+    glBindBuffer( GL_ARRAY_BUFFER, engine->vertexBuffer ); 
     glBufferSubData( GL_ARRAY_BUFFER,
-                     0, sizeof(vertices), vertices);
+                     0, sizeof( SHADERVERTEX ) * 3, vertices);
 
     glDrawArrays( GL_TRIANGLES, 0x00, 0x03 );
 }
 
 /******************************************************************************/
-void g3dengine_drawQuad ( G3DENGINE *engine,
-                          G3DOBJECT *object,
-                          G3DFACE *triangle,
-                          float    gouraudScalarLimit,
-                          LIST    *ltex, 
-                          uint32_t object_flags,
-                          uint64_t engine_flags ) {
-    G3DVERTEX **ver = triangle->ver;
-
-    float vertices[] = { ver[0x00]->pos.x, ver[0x00]->pos.y, ver[0x00]->pos.z,
-                         ver[0x00]->nor.x, ver[0x00]->nor.y, ver[0x00]->nor.z,
-                         0.5f            , 0.5f            , 0.5f            ,
-                         ver[0x01]->pos.x, ver[0x01]->pos.y, ver[0x01]->pos.z,
-                         ver[0x01]->nor.x, ver[0x01]->nor.y, ver[0x01]->nor.z,
-                         0.5f            , 0.5f            , 0.5f            ,
-                         ver[0x02]->pos.x, ver[0x02]->pos.y, ver[0x02]->pos.z,
-                         ver[0x02]->nor.x, ver[0x02]->nor.y, ver[0x02]->nor.z,
-                         0.5f            , 0.5f            , 0.5f            ,
-                         ver[0x03]->pos.x, ver[0x03]->pos.y, ver[0x03]->pos.z,
-                         ver[0x03]->nor.x, ver[0x03]->nor.y, ver[0x03]->nor.z,
-                         0.5f            , 0.5f            , 0.5f             };
-
-    glBindVertexArray( engine->triangleVertexArray );
-    glBindBuffer( GL_ARRAY_BUFFER, engine->triangleBuffer ); 
+void g3dengine_drawQuad ( G3DENGINE    *engine,
+                          G3DOBJECT    *object,
+                          SHADERVERTEX *vertices,
+                          float         gouraudScalarLimit,
+                          LIST         *ltex, 
+                          uint32_t      object_flags,
+                          uint64_t      engine_flags ) {
+    glBindVertexArray( engine->vertexArray );
+    glBindBuffer( GL_ARRAY_BUFFER, engine->vertexBuffer ); 
     glBufferSubData( GL_ARRAY_BUFFER,
-                     0, sizeof(vertices), vertices);
+                     0, sizeof( SHADERVERTEX ) * 4, vertices);
 
     glDrawArrays( GL_TRIANGLE_FAN, 0x00, 0x04 );
+}
+
+
+/******************************************************************************/
+void g3dengine_drawLine ( G3DENGINE    *engine,
+                          G3DOBJECT    *object,
+                          SHADERVERTEX *vertices,
+                          uint32_t      object_flags,
+                          uint64_t      engine_flags ) {
+    glBindVertexArray( engine->vertexArray );
+    glBindBuffer( GL_ARRAY_BUFFER, engine->vertexBuffer ); 
+    glBufferSubData( GL_ARRAY_BUFFER,
+                     0, sizeof( SHADERVERTEX ) * 2, vertices);
+
+    glDrawArrays( GL_LINES, 0x00, 0x02 );
 }
