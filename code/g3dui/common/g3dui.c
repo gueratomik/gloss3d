@@ -2232,7 +2232,7 @@ uint64_t g3dui_openG3DFile ( G3DUI      *gui,
                                               gui );
 
         list_insert ( &lext, r3dext   );
-        list_insert ( &lext, g3duiext );
+        /*list_insert ( &lext, g3duiext );*/
 
         gui->sce = g3dscene_importv3 ( filename, NULL, lext, gui->engine_flags );
     }

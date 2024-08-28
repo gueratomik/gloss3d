@@ -328,7 +328,6 @@ void g3dengine_initShaders ( G3DENGINE *engine ) {
 
 /******************************************************************************/
 void g3dengine_drawTriangle ( G3DENGINE    *engine,
-                              G3DOBJECT    *object,
                               SHADERVERTEX *vertices,
                               float         gouraudScalarLimit,
                               LIST         *ltex, 
@@ -337,14 +336,19 @@ void g3dengine_drawTriangle ( G3DENGINE    *engine,
     glBindVertexArray( engine->vertexArray );
     glBindBuffer( GL_ARRAY_BUFFER, engine->vertexBuffer ); 
     glBufferSubData( GL_ARRAY_BUFFER,
-                     0, sizeof( SHADERVERTEX ) * 3, vertices);
+                     0, sizeof( SHADERVERTEX ) * 3, vertices );
 
-    glDrawArrays( GL_TRIANGLES, 0x00, 0x03 );
+    if ( engine_flags & FILLINGGOURAUD ) {
+        glDrawArrays( GL_TRIANGLES, 0x00, 0x03 );
+    }
+
+    if ( engine_flags & FILLINGWIREFRAME ) {
+        glDrawArrays( GL_LINE_STRIP, 0x00, 0x03 );
+    }
 }
 
 /******************************************************************************/
 void g3dengine_drawQuad ( G3DENGINE    *engine,
-                          G3DOBJECT    *object,
                           SHADERVERTEX *vertices,
                           float         gouraudScalarLimit,
                           LIST         *ltex, 
@@ -353,22 +357,41 @@ void g3dengine_drawQuad ( G3DENGINE    *engine,
     glBindVertexArray( engine->vertexArray );
     glBindBuffer( GL_ARRAY_BUFFER, engine->vertexBuffer ); 
     glBufferSubData( GL_ARRAY_BUFFER,
-                     0, sizeof( SHADERVERTEX ) * 4, vertices);
+                     0, sizeof( SHADERVERTEX ) * 4, vertices );
 
-    glDrawArrays( GL_TRIANGLE_FAN, 0x00, 0x04 );
+
+    if ( engine_flags & FILLINGGOURAUD ) {
+        glDrawArrays( GL_TRIANGLE_FAN, 0x00, 0x04 );
+    }
+
+    if ( engine_flags & FILLINGWIREFRAME ) {
+        glDrawArrays( GL_LINE_STRIP, 0x00, 0x04 );
+    }
 }
 
 
 /******************************************************************************/
 void g3dengine_drawLine ( G3DENGINE    *engine,
-                          G3DOBJECT    *object,
                           SHADERVERTEX *vertices,
                           uint32_t      object_flags,
                           uint64_t      engine_flags ) {
     glBindVertexArray( engine->vertexArray );
     glBindBuffer( GL_ARRAY_BUFFER, engine->vertexBuffer ); 
     glBufferSubData( GL_ARRAY_BUFFER,
-                     0, sizeof( SHADERVERTEX ) * 2, vertices);
+                     0, sizeof( SHADERVERTEX ) * 2, vertices );
 
     glDrawArrays( GL_LINES, 0x00, 0x02 );
+}
+
+/******************************************************************************/
+void g3dengine_drawPoint ( G3DENGINE    *engine,
+                           SHADERVERTEX *vertex,
+                           uint32_t      object_flags,
+                           uint64_t      engine_flags ) {
+    glBindVertexArray( engine->vertexArray );
+    glBindBuffer( GL_ARRAY_BUFFER, engine->vertexBuffer ); 
+    glBufferSubData( GL_ARRAY_BUFFER,
+                     0, sizeof( SHADERVERTEX ) * 1, vertex );
+
+    glDrawArrays( GL_POINTS, 0x00, 0x01 );
 }

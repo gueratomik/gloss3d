@@ -33,53 +33,38 @@
 uint64_t g3duiview_setShading ( G3DUIVIEW *view,
                                 char      *shading ) {
     G3DUI *gui = view->gui;
-#ifdef __linux__
-    if ( glXMakeCurrent ( view->dpy,
-                          view->win,
-                          view->glctx ) == TRUE ) {
-#endif
-#ifdef __MINGW32__
-    HDC dc = GetDC ( view->hWnd );
-    if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
-#endif
 
     if ( strcmp ( shading, SHADINGMENU_GOURAUD ) == 0x00 ) {
-        glEnable      ( GL_LIGHTING );
-        glShadeModel  ( GL_SMOOTH );
         glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL );
 
         /*** The no texture flags is VIEW dependent, not GUI dependent ***/
         view->engine_flags &= (~NOTEXTURE);
-        view->mode          = GLVIEWGOURAUD;
+
+        view->engine_flags &= (~FILLINGMASK);
+        view->engine_flags |= FILLINGGOURAUD;
     }
 
     if ( strcmp ( shading, SHADINGMENU_FLAT ) == 0x00 ) {
-        glEnable      ( GL_LIGHTING );
-        glShadeModel  ( GL_FLAT );
         glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL );
 
         /*** The no texture flags is VIEW dependent, not GUI dependent ***/
         view->engine_flags &= (~NOTEXTURE);
-        view->mode          = GLVIEWFLAT;
+
+        view->engine_flags &= (~FILLINGMASK);
+        view->engine_flags |= FILLINGFLAT;
     }
 
     if ( strcmp ( shading, SHADINGMENU_WIREFRAME ) == 0x00 ) {
-        glDisable     ( GL_LIGHTING );
         glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
 
         /*g3dui_disableTextureImages ( gui );*/
 
         /*** The no texture flags is VIEW dependent, not GUI dependent ***/
         view->engine_flags |= NOTEXTURE;
-        view->mode          = GLVIEWWIREFRAME;
-    }
 
-#ifdef __linux__
+        view->engine_flags &= (~FILLINGMASK);
+        view->engine_flags |= FILLINGWIREFRAME;
     }
-#endif
-#ifdef __MINGW32__
-    } ReleaseDC ( view->hWnd, dc );
-#endif
 
     return REDRAWVIEW | UPDATEVIEWMENU;
 }
@@ -230,12 +215,12 @@ static void g3duiview_init2D ( G3DUIVIEW *view ) {
 
     /*** I still have to understand this below ***/
     /*** I got it from Internet for avoiding Z-Fighting ***/
-    //glPolygonOffset ( -1.0f, -1.0f );
-    //glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset ( -1.0f, -1.0f );
+    glEnable(GL_POLYGON_OFFSET_FILL);
 
-    //glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
+    /*glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );*/
 
-    view->mode = GLVIEWWIREFRAME;
+    view->engine_flags |= FILLINGWIREFRAME;
 }
 
 /******************************************************************************/
@@ -249,16 +234,16 @@ static void g3duiview_init3D ( G3DUIVIEW *view ) {
     glLightfv ( GL_LIGHT0, GL_SPECULAR, ( const float * ) spec );
 
     glEnable ( GL_DEPTH_TEST );
-    glDisable( GL_CULL_FACE );
+    /*glDisable( GL_CULL_FACE );*/
 
     /*** I still have to understand this below ***/
     /*** I got it from Internet for avoiding Z-Fighting ***/
-    //glPolygonOffset ( 1.0f, 1.0f );
-    //glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset ( 1.0f, 1.0f );
+    glEnable(GL_POLYGON_OFFSET_FILL);
 
-    //glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL );
+    /*glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL );*/
 
-    view->mode = GLVIEWGOURAUD;
+    view->engine_flags = FILLINGGOURAUD;
 }
 
 /******************************************************************************/
@@ -404,6 +389,8 @@ printf("%s %d\n", __func__, cam );
     }
 #endif
 
+    glCullFace( GL_CW );
+
     if ( cam ) {
         float      clearColorf = ( float ) CLEARCOLOR / 255.0f;
 
@@ -485,19 +472,6 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
     G3DCAMERA *cam = getCamera ( view );
     G3DUIMOUSETOOL *mou = gui->curmou;
     G3DENGINE *engine = view->engine;
-
-#ifdef deprecated
-#ifdef __linux__
-    if ( glXMakeCurrent ( view->dpy,
-                          view->win,
-                          view->glctx ) == TRUE ) {
-#endif
-
-#ifdef __MINGW32__
-    HDC dc = GetDC ( view->hWnd );
-    if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
-#endif
-#endif
 
     engine_flags |= gui->engine_flags;
     
@@ -606,19 +580,20 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
 
         glMatrixMode ( GL_MODELVIEW );
         glLoadIdentity ( );
-
+#endif
         if ( cam ) {
-            g3dcamera_view ( cam, engine_flags );
-
             if ( ( engine_flags & HIDEGRID ) == 0x00 ) {
-                if ( view->cam != view->defcam ) {
-                    g3dcore_grid3D ( engine_flags );
+                if ( view->cam != &view->defcam ) {
+                    g3dcore_grid3D ( cam, engine, engine_flags );
                 } else {
-                    if ( view->grid ) view->grid ( engine_flags );
+                    if ( view->grid ) view->grid ( cam, engine, engine_flags );
                 }
             }
         }
-#endif
+
+glEnable(GL_CULL_FACE);
+glCullFace(GL_BACK);
+glFrontFace(GL_CCW);
 
         ret = g3dobject_draw_r ( ( G3DOBJECT * ) sce,
                                                  cam,

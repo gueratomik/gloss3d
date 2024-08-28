@@ -174,10 +174,6 @@ along with GLOSS3D.  If not, see http://www.gnu.org/licenses/." \
 #define VERTOOLBUTTONSIZE 0x20
 #define FACTOOLBUTTONSIZE 0x20
 
-#define GLVIEWGOURAUD    0x00 /*** Default viewing mode ***/
-#define GLVIEWFLAT       0x01
-#define GLVIEWWIREFRAME  0x02
-
 /*** object extra flags - uses the last 4 bits ***/
 #define OBJECTCOLLAPSED ( 1 << 28 )
 
@@ -540,7 +536,7 @@ typedef struct _M3DUIVIEW {
     G3DVECTOR      defcamsca; /*** Default camera scaling  ***/
     float          defcamfoc; /*** Default camera focal    ***/
 
-    void         (*grid)( uint64_t );
+    void         (*grid)( G3DCAMERA *cam, G3DENGINE *engine, uint64_t );
 #ifdef __linux__
     Display       *dpy;
     Window         win;
@@ -1356,7 +1352,7 @@ typedef struct _G3DUIVIEW {
     /*Widget ogl;*/ /*** OpenGL Widget ***/
     uint32_t       mode;   /*** wireframe, flat, fill ***/
     uint64_t       engine_flags;
-    void         (*grid)( uint64_t );
+    void           (*grid)( G3DCAMERA *cam, G3DENGINE *engine, uint64_t );
     G3DENGINE     *engine; /* context with shaders */
 #ifdef __linux__
     Display       *dpy;

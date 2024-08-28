@@ -1580,10 +1580,10 @@ uint64_t gtk3_setMouseTool ( GTK3G3DUI *gtk3gui,
                              char      *toolName ) {
     G3DUI * gui = ( G3DUI * ) gtk3gui;
     G3DUIMOUSETOOL *mou = g3dui_getMouseTool ( gui, toolName );
-    G3DCAMERA *cam = gui->currentView->cam;
+    /*G3DCAMERA *cam = gui->currentView->cam;*/
 
     if ( mou ) {
-        g3dui_setMouseTool ( gui, cam, mou );
+        g3dui_setMouseTool ( gui, NULL, mou );
 
         if ( ( mou->tool->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
             /*** Remember that widget ID, for example to be unset when a toggle button 

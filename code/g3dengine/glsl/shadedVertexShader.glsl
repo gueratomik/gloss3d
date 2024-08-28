@@ -19,7 +19,7 @@ void main() {
     vec3 light1WorldPosition  = vec3(  100.0f,  100.0f,  100.0f );
 
     vec4 vertexWorldPosition = posMatrix * vec4( vertexLocalPosition, 1.0 );
-    vec4 vertexWorldNormal   = norMatrix * vec4( vertexLocalNormal  , 1.0 );
+    vec4 vertexWorldNormal   = norMatrix * vec4( vertexLocalNormal  , 0.0 );
 
     // Get a lighting direction vector from the light to the vertex.
     vec3 light0Vector = normalize( light0WorldPosition - vertexWorldPosition.xyz );

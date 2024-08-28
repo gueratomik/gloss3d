@@ -196,15 +196,7 @@ static gboolean inputGL ( GtkWidget *widget,
     GTK3G3DUI     *gtk3gui = ( GTK3G3DUI * ) gui;
     GTK3G3DUIQUAD *gtk3quad = ( GTK3G3DUIQUAD * ) gui->main->quad;
 
-#ifdef __linux__
-    if ( glXMakeCurrent ( view->dpy,
-                          view->win,
-                          view->glctx ) == TRUE ) {
-#endif
-#ifdef __MINGW32__
-    HDC dc = GetDC ( view->hWnd );
-    if ( wglMakeCurrent ( dc, view->glctx ) == TRUE ) {
-#endif
+    gtk_gl_area_make_current ( gtk3view->glarea );
 
     if ( gui->currentView !=  ( G3DUIVIEW * ) gtk3view ) {
         gui->currentView = ( G3DUIVIEW * ) gtk3view;
@@ -332,13 +324,6 @@ static gboolean inputGL ( GtkWidget *widget,
             }
         }
     }
-
-#ifdef __linux__
-    }
-#endif
-#ifdef __MINGW32__
-    } ReleaseDC ( view->hWnd, dc );
-#endif
 
     return TRUE;
 }
@@ -627,89 +612,12 @@ static void gtk3_g3duiview_createGLArea ( GTK3G3DUIVIEW *gtk3view ) {
 
     gtk_widget_show ( glarea );
 
-#ifdef deprecated
-    G3DUI *gui = gtk3view->core.gui;
-    GtkWidget    *glarea = gtk_drawing_area_new ( );
-GdkVisual* visual;
-GdkScreen *screen;
-
-#ifdef __linux__
-XVisualInfo *xvisual;
-Colormap xcolormap;
-Display *display;
-int xscreen;
-Window root;
-
-    /*** the OpenGL Window ***/
-    gtk_widget_set_double_buffered ( glarea, FALSE );
-
-int attributes[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
-display = gdk_x11_get_default_xdisplay ();
-xscreen = DefaultScreen (display);
-screen = gdk_screen_get_default ();
-xvisual = glXChooseVisual (display, xscreen, attributes);
-visual = gdk_x11_screen_lookup_visual (screen, xvisual->visualid);
-root = RootWindow (display, xscreen);
-xcolormap = XCreateColormap (display, root, xvisual->visual, AllocNone);
-gtk_widget_set_visual(glarea, visual);
-
-
-    gtk3view->core.glctx = glXCreateContext ( display, 
-                                              xvisual, 
-                                              gui->sharedCtx,
-                                              TRUE);
-
-    /*** share textures ***/
-    if ( gui->sharedCtx == NULL ) gui->sharedCtx = gtk3view->core.glctx;
-
-    free (xvisual);
-#endif /* __linux__ */
-
-
-
-    /*** For keyboard inputs ***/
-    gtk_widget_set_can_focus ( glarea, TRUE );
-
-    /*** Drawing area does not receive mous events by defaults ***/
-    gtk_widget_set_events ( glarea, 
-                            gtk_widget_get_events ( glarea ) |
-                            GDK_KEY_PRESS_MASK                         |
-			                GDK_KEY_RELEASE_MASK                       |
-                            GDK_BUTTON_PRESS_MASK                      |
-                            GDK_BUTTON_RELEASE_MASK                    |
-                            GDK_POINTER_MOTION_MASK                    |
-                            GDK_POINTER_MOTION_HINT_MASK );
-
-    g_signal_connect ( G_OBJECT (glarea), "size-allocate"     , G_CALLBACK (sizeGL ), gtk3view );
-    g_signal_connect ( G_OBJECT (glarea), "realize"           , G_CALLBACK (initGL ), gtk3view );
-    g_signal_connect ( G_OBJECT (glarea), "draw"              , G_CALLBACK (showGL ), gtk3view );
-    g_signal_connect ( G_OBJECT (glarea), "map"               , G_CALLBACK (mapGL  ), gtk3view );
-
-    g_signal_connect ( G_OBJECT (glarea), "motion_notify_event" , G_CALLBACK (inputGL), gtk3view );
-    g_signal_connect ( G_OBJECT (glarea), "key_press_event"     , G_CALLBACK (inputGL), gtk3view );
-    g_signal_connect ( G_OBJECT (glarea), "key_release_event"   , G_CALLBACK (inputGL), gtk3view );
-    g_signal_connect ( G_OBJECT (glarea), "button_press_event"  , G_CALLBACK (inputGL), gtk3view );
-    g_signal_connect ( G_OBJECT (glarea), "button_release_event", G_CALLBACK (inputGL), gtk3view );
-
-
-    gtk_layout_put ( GTK_LAYOUT(gtk3view->layout), glarea, 0, 0 );
-
-    gtk_widget_show ( glarea );
-
-    gtk3view->glarea = glarea;
-#endif
-
+    /* TODO: share contexts*/
 }
 
 /******************************************************************************/
 static void redrawGLArea ( GTK3G3DUIVIEW  *gtk3view ) {
-    GdkWindow *window = gtk_widget_get_window ( gtk3view->glarea );
-    /*GdkRectangle arec;
-
-    arec.x = arec.y = 0x00;
-    arec.width = arec.height = 1;*/
-
-    gdk_window_invalidate_rect ( window, NULL, FALSE );
+    gtk_gl_area_queue_render ( gtk3view->glarea );
 }
 
 /******************************************************************************/
@@ -871,6 +779,8 @@ static gboolean navInput ( GtkWidget *widget,
     G3DSCENE *sce = gui->sce;
     static uint32_t grabbing;
     static int xori, yori, xold, yold;
+
+    gtk_gl_area_make_current ( gtk3view->glarea );
 
     switch ( event->type ) {
         case GDK_BUTTON_PRESS : {

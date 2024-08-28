@@ -293,7 +293,9 @@ void g3dcore_eulerInDegreesToQuaternion ( G3DDOUBLEVECTOR *angles,
 }
 
 /******************************************************************************/
-void g3dcore_gridZX ( uint64_t engine_flags ) {
+void g3dcore_gridZX ( G3DCAMERA *cam,
+                      G3DENGINE *engine, 
+                      uint64_t engine_flags ) {
     double zmax, xmax, zmin, xmin, yval;
     GLdouble MVX[0x10], PJX[0x10];
     GLint    VPX[0x04];
@@ -355,7 +357,9 @@ void g3dcore_gridZX ( uint64_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dcore_gridYZ ( uint64_t engine_flags ) {
+void g3dcore_gridYZ ( G3DCAMERA *cam,
+                      G3DENGINE *engine, 
+                      uint64_t engine_flags ) {
     double ymax, zmax, ymin, zmin, xval;
     GLdouble MVX[0x10], PJX[0x10];
     GLint    VPX[0x04];
@@ -417,7 +421,9 @@ void g3dcore_gridYZ ( uint64_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dcore_gridXY ( uint64_t engine_flags ) {
+void g3dcore_gridXY ( G3DCAMERA *cam,
+                      G3DENGINE *engine, 
+                      uint64_t engine_flags ) {
     double xmax, ymax, xmin, ymin, zval;
     GLdouble MVX[0x10], PJX[0x10];
     GLint    VPX[0x04];
@@ -479,27 +485,52 @@ void g3dcore_gridXY ( uint64_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dcore_grid3D ( uint64_t engine_flags ) {
+void g3dcore_grid3D ( G3DCAMERA *cam,
+                      G3DENGINE *engine, 
+                      uint64_t engine_flags ) {
+    int posMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                  "posMatrix" );
+    float mvp[0x10];
     float x1, x2, z1, z2;
     int i;
 
-    glPushAttrib( GL_ALL_ATTRIB_BITS );
-    glDisable   ( GL_LIGHTING );
-    glBegin ( GL_LINES );
+    glUseProgram( engine->coloredShaderProgram );
+
+    /*** the matrix by which vertices coords are transformed ***/
+    g3dcore_multMatrixf( cam->pmatrix
+                       , cam->obj.inverseWorldMatrix, mvp );
+
+    glUniformMatrix4fv( posMatrixLocation, 1, GL_FALSE, mvp );
 
     x1 = -10.0f;
     z1 = -10.0f;
     z2 =  10.0f;
 
     for ( i = 0x00; i < 0x15; i++ ) {
+        SHADERVERTEX vertices[0x02];
+
+        vertices[0x00].pos[0] = x1;
+        vertices[0x00].pos[1] = 0.0f;
+        vertices[0x00].pos[2] = z1;
+
+        vertices[0x01].pos[0] = x1;
+        vertices[0x01].pos[1] = 0.0f;
+        vertices[0x01].pos[2] = z2;
+
         if ( i % 0x05 ) {
-            glColor3ub ( 0x80, 0x80, 0x80 );
+            vertices[0x00].col[0] = vertices[0x01].col[0] = 0.5f;
+            vertices[0x00].col[1] = vertices[0x01].col[1] = 0.5f;
+            vertices[0x00].col[2] = vertices[0x01].col[2] = 0.5f;
         } else {
-            glColor3ub ( 0x00, 0x00, 0x00 );
+            vertices[0x00].col[0] = vertices[0x01].col[0] = 0.0f;
+            vertices[0x00].col[1] = vertices[0x01].col[1] = 0.0f;
+            vertices[0x00].col[2] = vertices[0x01].col[2] = 0.0f;
         }
 
-        glVertex3f ( x1, 0.0f, z1 );
-        glVertex3f ( x1, 0.0f, z2 );
+        g3dengine_drawLine( engine,
+                            vertices,
+                            0x00,
+                            engine_flags );
 
         x1 = ( x1 + 1.0f );
     }
@@ -507,22 +538,37 @@ void g3dcore_grid3D ( uint64_t engine_flags ) {
     z1 = -10.0f;
     x1 = -10.0f;
     x2 =  10.0f;
+
     for ( i = 0x00; i < 0x15; i++ ) {
+        SHADERVERTEX vertices[0x02];
+
+        vertices[0x00].pos[0] = x1;
+        vertices[0x00].pos[1] = 0.0f;
+        vertices[0x00].pos[2] = z1;
+
+        vertices[0x01].pos[0] = x2;
+        vertices[0x01].pos[1] = 0.0f;
+        vertices[0x01].pos[2] = z1;
+
         if ( i % 0x05 ) {
-            glColor3ub ( 0x80, 0x80, 0x80 );
+            vertices[0x00].col[0] = vertices[0x01].col[0] = 0.5f;
+            vertices[0x00].col[1] = vertices[0x01].col[1] = 0.5f;
+            vertices[0x00].col[2] = vertices[0x01].col[2] = 0.5f;
         } else {
-            glColor3ub ( 0x00, 0x00, 0x00 );
+            vertices[0x00].col[0] = vertices[0x01].col[0] = 0.0f;
+            vertices[0x00].col[1] = vertices[0x01].col[1] = 0.0f;
+            vertices[0x00].col[2] = vertices[0x01].col[2] = 0.0f;
         }
 
-        glVertex3f ( x1, 0.0f, z1 );
-        glVertex3f ( x2, 0.0f, z1 );
+        g3dengine_drawLine( engine,
+                            vertices,
+                            0x00,
+                            engine_flags );
 
         z1 = ( z1 + 1.0f );
     }
 
-    glEnd ( );
-
-    glPopAttrib ( );
+    glUseProgram( 0 );
 }
 
 /******************************************************************************/
@@ -1203,6 +1249,7 @@ void g3dcore_invertMatrix ( double *inp, double *out ) {
 
 /******************************************************************************/
 void g3dcore_multMatrixf ( float *A, float *B, float *M ) {
+    float T[0x10];
 /*** column-major arrangement ***/
 #define M00(m) m[0x0]
 #define M01(m) m[0x4]
@@ -1221,25 +1268,27 @@ void g3dcore_multMatrixf ( float *A, float *B, float *M ) {
 #define M32(m) m[0xB]
 #define M33(m) m[0xF]
     /*** first row ***/
-    M00(M) = (M00(A)*M00(B))+(M01(A)*M10(B))+(M02(A)*M20(B))+(M03(A)*M30(B));
-    M01(M) = (M00(A)*M01(B))+(M01(A)*M11(B))+(M02(A)*M21(B))+(M03(A)*M31(B));
-    M02(M) = (M00(A)*M02(B))+(M01(A)*M12(B))+(M02(A)*M22(B))+(M03(A)*M32(B));
-    M03(M) = (M00(A)*M03(B))+(M01(A)*M13(B))+(M02(A)*M23(B))+(M03(A)*M33(B));
+    M00(T) = (M00(A)*M00(B))+(M01(A)*M10(B))+(M02(A)*M20(B))+(M03(A)*M30(B));
+    M01(T) = (M00(A)*M01(B))+(M01(A)*M11(B))+(M02(A)*M21(B))+(M03(A)*M31(B));
+    M02(T) = (M00(A)*M02(B))+(M01(A)*M12(B))+(M02(A)*M22(B))+(M03(A)*M32(B));
+    M03(T) = (M00(A)*M03(B))+(M01(A)*M13(B))+(M02(A)*M23(B))+(M03(A)*M33(B));
     /*** second row ***/
-    M10(M) = (M10(A)*M00(B))+(M11(A)*M10(B))+(M12(A)*M20(B))+(M13(A)*M30(B));
-    M11(M) = (M10(A)*M01(B))+(M11(A)*M11(B))+(M12(A)*M21(B))+(M13(A)*M31(B));
-    M12(M) = (M10(A)*M02(B))+(M11(A)*M12(B))+(M12(A)*M22(B))+(M13(A)*M32(B));
-    M13(M) = (M10(A)*M03(B))+(M11(A)*M13(B))+(M12(A)*M23(B))+(M13(A)*M33(B));
+    M10(T) = (M10(A)*M00(B))+(M11(A)*M10(B))+(M12(A)*M20(B))+(M13(A)*M30(B));
+    M11(T) = (M10(A)*M01(B))+(M11(A)*M11(B))+(M12(A)*M21(B))+(M13(A)*M31(B));
+    M12(T) = (M10(A)*M02(B))+(M11(A)*M12(B))+(M12(A)*M22(B))+(M13(A)*M32(B));
+    M13(T) = (M10(A)*M03(B))+(M11(A)*M13(B))+(M12(A)*M23(B))+(M13(A)*M33(B));
 
-    M20(M) = (M20(A)*M00(B))+(M21(A)*M10(B))+(M22(A)*M20(B))+(M23(A)*M30(B));
-    M21(M) = (M20(A)*M01(B))+(M21(A)*M11(B))+(M22(A)*M21(B))+(M23(A)*M31(B));
-    M22(M) = (M20(A)*M02(B))+(M21(A)*M12(B))+(M22(A)*M22(B))+(M23(A)*M32(B));
-    M23(M) = (M20(A)*M03(B))+(M21(A)*M13(B))+(M22(A)*M23(B))+(M23(A)*M33(B));
+    M20(T) = (M20(A)*M00(B))+(M21(A)*M10(B))+(M22(A)*M20(B))+(M23(A)*M30(B));
+    M21(T) = (M20(A)*M01(B))+(M21(A)*M11(B))+(M22(A)*M21(B))+(M23(A)*M31(B));
+    M22(T) = (M20(A)*M02(B))+(M21(A)*M12(B))+(M22(A)*M22(B))+(M23(A)*M32(B));
+    M23(T) = (M20(A)*M03(B))+(M21(A)*M13(B))+(M22(A)*M23(B))+(M23(A)*M33(B));
 
-    M30(M) = (M30(A)*M00(B))+(M31(A)*M10(B))+(M32(A)*M20(B))+(M33(A)*M30(B));
-    M31(M) = (M30(A)*M01(B))+(M31(A)*M11(B))+(M32(A)*M21(B))+(M33(A)*M31(B));
-    M32(M) = (M30(A)*M02(B))+(M31(A)*M12(B))+(M32(A)*M22(B))+(M33(A)*M32(B));
-    M33(M) = (M30(A)*M03(B))+(M31(A)*M13(B))+(M32(A)*M23(B))+(M33(A)*M33(B));
+    M30(T) = (M30(A)*M00(B))+(M31(A)*M10(B))+(M32(A)*M20(B))+(M33(A)*M30(B));
+    M31(T) = (M30(A)*M01(B))+(M31(A)*M11(B))+(M32(A)*M21(B))+(M33(A)*M31(B));
+    M32(T) = (M30(A)*M02(B))+(M31(A)*M12(B))+(M32(A)*M22(B))+(M33(A)*M32(B));
+    M33(T) = (M30(A)*M03(B))+(M31(A)*M13(B))+(M32(A)*M23(B))+(M33(A)*M33(B));
+
+    memcpy ( M, T, sizeof ( T ) );
 #undef M00
 #undef M01
 #undef M02
@@ -1260,6 +1309,7 @@ void g3dcore_multMatrixf ( float *A, float *B, float *M ) {
 
 /******************************************************************************/
 void g3dcore_multMatrixd ( double *A, double *B, double *M ) {
+    double T[0x10];
 /*** column-major arrangement ***/
 #define M00(m) m[0x0]
 #define M01(m) m[0x4]
@@ -1278,25 +1328,27 @@ void g3dcore_multMatrixd ( double *A, double *B, double *M ) {
 #define M32(m) m[0xB]
 #define M33(m) m[0xF]
     /*** first row ***/
-    M00(M) = (M00(A)*M00(B))+(M01(A)*M10(B))+(M02(A)*M20(B))+(M03(A)*M30(B));
-    M01(M) = (M00(A)*M01(B))+(M01(A)*M11(B))+(M02(A)*M21(B))+(M03(A)*M31(B));
-    M02(M) = (M00(A)*M02(B))+(M01(A)*M12(B))+(M02(A)*M22(B))+(M03(A)*M32(B));
-    M03(M) = (M00(A)*M03(B))+(M01(A)*M13(B))+(M02(A)*M23(B))+(M03(A)*M33(B));
+    M00(T) = (M00(A)*M00(B))+(M01(A)*M10(B))+(M02(A)*M20(B))+(M03(A)*M30(B));
+    M01(T) = (M00(A)*M01(B))+(M01(A)*M11(B))+(M02(A)*M21(B))+(M03(A)*M31(B));
+    M02(T) = (M00(A)*M02(B))+(M01(A)*M12(B))+(M02(A)*M22(B))+(M03(A)*M32(B));
+    M03(T) = (M00(A)*M03(B))+(M01(A)*M13(B))+(M02(A)*M23(B))+(M03(A)*M33(B));
     /*** second row ***/
-    M10(M) = (M10(A)*M00(B))+(M11(A)*M10(B))+(M12(A)*M20(B))+(M13(A)*M30(B));
-    M11(M) = (M10(A)*M01(B))+(M11(A)*M11(B))+(M12(A)*M21(B))+(M13(A)*M31(B));
-    M12(M) = (M10(A)*M02(B))+(M11(A)*M12(B))+(M12(A)*M22(B))+(M13(A)*M32(B));
-    M13(M) = (M10(A)*M03(B))+(M11(A)*M13(B))+(M12(A)*M23(B))+(M13(A)*M33(B));
+    M10(T) = (M10(A)*M00(B))+(M11(A)*M10(B))+(M12(A)*M20(B))+(M13(A)*M30(B));
+    M11(T) = (M10(A)*M01(B))+(M11(A)*M11(B))+(M12(A)*M21(B))+(M13(A)*M31(B));
+    M12(T) = (M10(A)*M02(B))+(M11(A)*M12(B))+(M12(A)*M22(B))+(M13(A)*M32(B));
+    M13(T) = (M10(A)*M03(B))+(M11(A)*M13(B))+(M12(A)*M23(B))+(M13(A)*M33(B));
 
-    M20(M) = (M20(A)*M00(B))+(M21(A)*M10(B))+(M22(A)*M20(B))+(M23(A)*M30(B));
-    M21(M) = (M20(A)*M01(B))+(M21(A)*M11(B))+(M22(A)*M21(B))+(M23(A)*M31(B));
-    M22(M) = (M20(A)*M02(B))+(M21(A)*M12(B))+(M22(A)*M22(B))+(M23(A)*M32(B));
-    M23(M) = (M20(A)*M03(B))+(M21(A)*M13(B))+(M22(A)*M23(B))+(M23(A)*M33(B));
+    M20(T) = (M20(A)*M00(B))+(M21(A)*M10(B))+(M22(A)*M20(B))+(M23(A)*M30(B));
+    M21(T) = (M20(A)*M01(B))+(M21(A)*M11(B))+(M22(A)*M21(B))+(M23(A)*M31(B));
+    M22(T) = (M20(A)*M02(B))+(M21(A)*M12(B))+(M22(A)*M22(B))+(M23(A)*M32(B));
+    M23(T) = (M20(A)*M03(B))+(M21(A)*M13(B))+(M22(A)*M23(B))+(M23(A)*M33(B));
 
-    M30(M) = (M30(A)*M00(B))+(M31(A)*M10(B))+(M32(A)*M20(B))+(M33(A)*M30(B));
-    M31(M) = (M30(A)*M01(B))+(M31(A)*M11(B))+(M32(A)*M21(B))+(M33(A)*M31(B));
-    M32(M) = (M30(A)*M02(B))+(M31(A)*M12(B))+(M32(A)*M22(B))+(M33(A)*M32(B));
-    M33(M) = (M30(A)*M03(B))+(M31(A)*M13(B))+(M32(A)*M23(B))+(M33(A)*M33(B));
+    M30(T) = (M30(A)*M00(B))+(M31(A)*M10(B))+(M32(A)*M20(B))+(M33(A)*M30(B));
+    M31(T) = (M30(A)*M01(B))+(M31(A)*M11(B))+(M32(A)*M21(B))+(M33(A)*M31(B));
+    M32(T) = (M30(A)*M02(B))+(M31(A)*M12(B))+(M32(A)*M22(B))+(M33(A)*M32(B));
+    M33(T) = (M30(A)*M03(B))+(M31(A)*M13(B))+(M32(A)*M23(B))+(M33(A)*M33(B));
+
+    memcpy ( M, T, sizeof ( T ) );
 #undef M00
 #undef M01
 #undef M02
@@ -1607,9 +1659,8 @@ void g3dcore_perpespectivef ( double fovy,
                               double zNear,
                               double zFar,
                               float *projectionMatrix ) {
-    /*double f = 1.0f / tan ( ( double ) fovy / 2.0f );*/
     double x = ( fovy  * M_PI / 180.0f ) / 2.0f;
-    double f = cos ( x ) / sin ( x );
+    double f = 1.0f / tan ( x / 2.0f );
     double zfPzn = zFar  + zNear;
     double znMzf = zNear - zFar;
     double zfMzn = zFar  - zNear;

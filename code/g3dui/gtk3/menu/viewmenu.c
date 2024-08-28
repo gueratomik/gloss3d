@@ -34,9 +34,9 @@ static uint32_t gouraudActiveCond ( G3DUIMENU *menu,
                                     void      *data ) {
     G3DUIVIEW *view = ( G3DUIVIEW * ) data;
 
-    return ( view->mode == GLVIEWGOURAUD ) ? MENU_CONDITION_SENSITIVE |
-                                             MENU_CONDITION_ACTIVE :
-                                             MENU_CONDITION_SENSITIVE;
+    return ( view->engine_flags == FILLINGGOURAUD ) ? MENU_CONDITION_SENSITIVE |
+                                                      MENU_CONDITION_ACTIVE :
+                                                      MENU_CONDITION_SENSITIVE;
 }
 
 /******************************************************************************/
@@ -44,9 +44,9 @@ static uint32_t flatActiveCond ( G3DUIMENU *menu,
                                  void      *data ) {
     G3DUIVIEW *view = ( G3DUIVIEW * ) data;
 
-    return ( view->mode == GLVIEWFLAT ) ? MENU_CONDITION_SENSITIVE |
-                                          MENU_CONDITION_ACTIVE : 
-                                          MENU_CONDITION_SENSITIVE;
+    return ( view->engine_flags == FILLINGFLAT ) ? MENU_CONDITION_SENSITIVE |
+                                                   MENU_CONDITION_ACTIVE : 
+                                                   MENU_CONDITION_SENSITIVE;
 }
 
 /******************************************************************************/
@@ -54,15 +54,18 @@ static uint32_t wireframeActiveCond ( G3DUIMENU *menu,
                                       void      *data ) {
     G3DUIVIEW *view = ( G3DUIVIEW * ) data;
 
-    return ( view->mode == GLVIEWWIREFRAME ) ? MENU_CONDITION_SENSITIVE |
-                                               MENU_CONDITION_ACTIVE :
-                                               MENU_CONDITION_SENSITIVE;
+    return ( view->engine_flags == FILLINGWIREFRAME ) ? MENU_CONDITION_SENSITIVE |
+                                                        MENU_CONDITION_ACTIVE :
+                                                        MENU_CONDITION_SENSITIVE;
 }
 
 /******************************************************************************/
 static uint64_t setShadingCbk ( G3DUIMENU *menu, 
                                 void      *data ) {
     G3DUIVIEW *view = ( G3DUIVIEW * ) data;
+    GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) view;
+    
+    gtk_gl_area_make_current ( gtk3view->glarea );
 
     return g3duiview_setShading ( view, menu->name );
 }

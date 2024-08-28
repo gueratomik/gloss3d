@@ -114,44 +114,64 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 /******************************* Engine Flags *********************************/
 
 
-#define VIEWOBJECT         ((uint64_t)1        )
-#define VIEWVERTEX         ((uint64_t)1  <<  1 )
-#define VIEWEDGE           ((uint64_t)1  <<  2 )
-#define VIEWFACE           ((uint64_t)1  <<  3 )
-#define VIEWFACENORMAL     ((uint64_t)1  <<  4 )
-#define VIEWVERTEXNORMAL   ((uint64_t)1  <<  5 )
-#define VIEWNORMALS        ((uint64_t)VIEWFACENORMAL | VIEWVERTEXNORMAL )
-#define VIEWSKIN           ((uint64_t)1  <<  6 )
-#define VIEWUVWMAP         ((uint64_t)1  <<  7 )
+#define VIEWOBJECT         ( 1ULL        )
+#define VIEWVERTEX         ( 1ULL  <<  1 )
+#define VIEWEDGE           ( 1ULL  <<  2 )
+#define VIEWFACE           ( 1ULL  <<  3 )
+#define VIEWFACENORMAL     ( 1ULL  <<  4 )
+#define VIEWVERTEXNORMAL   ( 1ULL  <<  5 )
+#define VIEWNORMALS        ( VIEWFACENORMAL | VIEWVERTEXNORMAL )
+#define VIEWSKIN           ( 1ULL  <<  6 )
+#define VIEWUVWMAP         ( 1ULL  <<  7 )
+#define VIEWAXIS           ( 1ULL  <<  9 )
+#define VIEWSCULPT         ( 1ULL  << 10 )
+#define VIEWPATH           ( 1ULL  << 11 )
 
-#define VIEWAXIS           ((uint64_t)1  <<  9 )
-#define VIEWSCULPT         ((uint64_t)1  << 10 )
-#define VIEWPATH           ((uint64_t)1  << 11 )
-#define VIEWDETAILS        ((uint64_t)VIEWUVWMAP | VIEWSKIN | \
-                                      VIEWVERTEX | VIEWEDGE | VIEWFACE | \
-                                      VIEWFACENORMAL | VIEWVERTEXNORMAL )
-#define MODEMASK           ((uint64_t)VIEWOBJECT | VIEWUVWMAP | VIEWSKIN | \
-                                      VIEWVERTEX | VIEWEDGE   | VIEWFACE | \
-                                      VIEWPATH   | VIEWAXIS   | VIEWSCULPT )
-#define SELECTMODE         ((uint64_t)1  << 12 )
-#define XAXIS              ((uint64_t)1  << 13 )
-#define YAXIS              ((uint64_t)1  << 14 ) 
-#define ZAXIS              ((uint64_t)1  << 15 )
-#define G3DMULTITHREADING  ((uint64_t)1  << 16 )
-#define KEEPVISIBLEONLY    ((uint64_t)1  << 17 )
-#define SYMMETRYVIEW       ((uint64_t)1  << 18 )
-#define ONGOINGANIMATION   ((uint64_t)1  << 19 ) /*** This helps us to ***/
+#define VIEWDETAILS        ( VIEWUVWMAP       | \
+                             VIEWSKIN         | \
+                             VIEWVERTEX       | \
+                             VIEWEDGE         | \
+                             VIEWFACE         | \
+                             VIEWFACENORMAL   | \
+                             VIEWVERTEXNORMAL )
+
+#define MODEMASK           ( VIEWOBJECT | \
+                             VIEWUVWMAP | \
+                             VIEWSKIN   | \
+                             VIEWVERTEX | \
+                             VIEWEDGE   | \
+                             VIEWFACE   | \
+                             VIEWPATH   | \
+                             VIEWAXIS   | \
+                             VIEWSCULPT )
+
+#define FILLINGGOURAUD     ( 1ULL  << 12 )
+#define FILLINGFLAT        ( 1ULL  << 13 )
+#define FILLINGWIREFRAME   ( 1ULL  << 14 )
+
+#define FILLINGMASK        ( FILLINGGOURAUD | \
+                             FILLINGFLAT    | \
+                             FILLINGWIREFRAME )
+
+#define SELECTMODE         ( 1ULL  << 15 )
+#define XAXIS              ( 1ULL  << 16 )
+#define YAXIS              ( 1ULL  << 17 ) 
+#define ZAXIS              ( 1ULL  << 18 )
+#define G3DMULTITHREADING  ( 1ULL  << 19 )
+#define KEEPVISIBLEONLY    ( 1ULL  << 20 )
+#define SYMMETRYVIEW       ( 1ULL  << 21 )
+#define ONGOINGANIMATION   ( 1ULL  << 22 ) /*** This helps us to ***/
                                        /*** forbid buffered subdivision ***/
-#define HIDEBONES          ((uint64_t)1  << 20 )
-#define HIDEGRID           ((uint64_t)1  << 21 )
-#define NOLIGHTING         ((uint64_t)1  << 22 )
-#define NODISPLACEMENT     ((uint64_t)1  << 23 )
-#define NOTEXTURE          ((uint64_t)1  << 24 )
-#define LOADFULLRESIMAGES  ((uint64_t)1  << 25 ) /* used by the renderer especially for animated textures */
-#define NODRAWPOLYGON      ((uint64_t)1  << 26 )
-#define NOBACKGROUNDIMAGE  ((uint64_t)1  << 27 )
-#define MODIFIERTOOKOVER   ((uint64_t)1  << 28 )
-#define ONGOINGRENDERING   ((uint64_t)1  << 29 )
+#define HIDEBONES          ( 1ULL  << 23 )
+#define HIDEGRID           ( 1ULL  << 24 )
+#define NOLIGHTING         ( 1ULL  << 25 )
+#define NODISPLACEMENT     ( 1ULL  << 26 )
+#define NOTEXTURE          ( 1ULL  << 27 )
+#define LOADFULLRESIMAGES  ( 1ULL  << 28 ) /* used by the renderer especially for animated textures */
+#define NODRAWPOLYGON      ( 1ULL  << 29 )
+#define NOBACKGROUNDIMAGE  ( 1ULL  << 30 )
+#define MODIFIERTOOKOVER   ( 1ULL  << 31 )
+#define ONGOINGRENDERING   ( 1ULL  << 32 )
 
 /************************ G3DOBJECT's draw callback return flags **************/
 #define DRAW_LIGHTON          ( 1 << 0 )
@@ -1653,10 +1673,18 @@ void g3dquaternion_multiply ( G3DQUATERNION *qua0,
 void g3dcore_eulerToQuaternion ( G3DDOUBLEVECTOR *angles, G3DQUATERNION *qout );
 void g3dcore_eulerInDegreesToQuaternion ( G3DDOUBLEVECTOR *angles, 
                                           G3DQUATERNION *qout );
-void       g3dcore_grid3D   ( uint64_t engine_flags );
-void       g3dcore_gridXY   ( uint64_t engine_flags );
-void       g3dcore_gridYZ   ( uint64_t engine_flags );
-void       g3dcore_gridZX   ( uint64_t engine_flags );
+void       g3dcore_grid3D   ( G3DCAMERA *cam,
+                              G3DENGINE *engine, 
+                              uint64_t engine_flags );
+void       g3dcore_gridXY   ( G3DCAMERA *cam,
+                              G3DENGINE *engine,
+                              uint64_t engine_flags );
+void       g3dcore_gridYZ   ( G3DCAMERA *cam,
+                              G3DENGINE *engine,
+                              uint64_t engine_flags );
+void       g3dcore_gridZX   ( G3DCAMERA *cam,
+                              G3DENGINE *engine,
+                              uint64_t engine_flags );
 float g3dcore_intersect ( G3DVECTOR *plane,
                           G3DVECTOR *p1,
                           G3DVECTOR *p2,
@@ -2761,6 +2789,8 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
                         G3DENGINE *engine,
                         uint64_t engine_flags );
 void g3dmesh_drawEdges ( G3DMESH *mes,
+                         G3DCAMERA *cam,
+                         G3DENGINE *engine,
                          uint32_t object_flags, 
                          uint64_t engine_flags );
 void       g3dmesh_drawFace             ( G3DMESH *, uint32_t );
@@ -2781,8 +2811,10 @@ void g3dmesh_drawVertexNormal ( G3DMESH *mes,
                                 G3DCAMERA *cam, 
                                 G3DENGINE *engine,
                                 uint64_t engine_flags );
-void g3dmesh_drawVertices  ( G3DMESH *mes,
-                             uint64_t engine_flags );
+void g3dmesh_drawVertices  ( G3DMESH   *mes,
+                             G3DCAMERA *cam,
+                             G3DENGINE *engine,
+                             uint64_t   engine_flags );
 void       g3dmesh_empty                ( G3DMESH * );
 void       g3dmesh_extrude              ( G3DMESH *, LIST **, 
                                                      LIST **,
@@ -3120,22 +3152,23 @@ G3DENGINE* g3dengine_new    ( );
 void g3dengine_free         ( G3DENGINE *engine );
 void g3dengine_initShaders  ( G3DENGINE *engine );
 void g3dengine_drawTriangle ( G3DENGINE     *engine,
-                              G3DOBJECT     *object,
                               SHADERVERTEX  *vertices,
                               float          gouraudScalarLimit,
                               LIST          *ltex, 
                               uint32_t       object_flags,
                               uint64_t       engine_flags );
 void g3dengine_drawQuad     ( G3DENGINE    *engine,
-                              G3DOBJECT    *object,
                               SHADERVERTEX *vertices,
                               float         gouraudScalarLimit,
                               LIST         *ltex, 
                               uint32_t      object_flags,
                               uint64_t      engine_flags );
 void g3dengine_drawLine     ( G3DENGINE    *engine,
-                              G3DOBJECT    *object,
                               SHADERVERTEX *vertices,
+                              uint32_t      object_flags,
+                              uint64_t      engine_flags );
+void g3dengine_drawPoint    ( G3DENGINE    *engine,
+                              SHADERVERTEX *vertex,
                               uint32_t      object_flags,
                               uint64_t      engine_flags );
 
