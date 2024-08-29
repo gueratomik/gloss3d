@@ -215,8 +215,8 @@ static void g3duiview_init2D ( G3DUIVIEW *view ) {
 
     /*** I still have to understand this below ***/
     /*** I got it from Internet for avoiding Z-Fighting ***/
-    glPolygonOffset ( -1.0f, -1.0f );
-    glEnable(GL_POLYGON_OFFSET_FILL);
+    /*glPolygonOffset ( -1.0f, -1.0f );
+    glEnable(GL_POLYGON_OFFSET_FILL);*/
 
     /*glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );*/
 
@@ -238,8 +238,8 @@ static void g3duiview_init3D ( G3DUIVIEW *view ) {
 
     /*** I still have to understand this below ***/
     /*** I got it from Internet for avoiding Z-Fighting ***/
-    glPolygonOffset ( 1.0f, 1.0f );
-    glEnable(GL_POLYGON_OFFSET_FILL);
+    /*glPolygonOffset ( 1.0f, 1.0f );
+    glEnable(GL_POLYGON_OFFSET_FILL);*/
 
     /*glPolygonMode ( GL_FRONT_AND_BACK, GL_FILL );*/
 
@@ -474,7 +474,7 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
     G3DENGINE *engine = view->engine;
 
     engine_flags |= gui->engine_flags;
-    
+
     if ( sce ) {
 
         int VPX[0x04];
@@ -590,11 +590,11 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
                 }
             }
         }
-
-glEnable(GL_CULL_FACE);
+/*
+glDisable(GL_CULL_FACE);
 glCullFace(GL_BACK);
-glFrontFace(GL_CCW);
-
+glFrontFace(GL_CW);
+*/
         ret = g3dobject_draw_r ( ( G3DOBJECT * ) sce,
                                                  cam,
                                                  engine,

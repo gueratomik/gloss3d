@@ -597,6 +597,10 @@ static void gtk3_g3duiview_createGLArea ( GTK3G3DUIVIEW *gtk3view ) {
     G3DUI *gui = gtk3view->core.gui;
     GtkWidget *glarea = gtk_gl_area_new ( );
 
+    /* Note: by default GTK GL Area does not add a depth buffer.*/
+    /* I lost something like 8 hours because of that. */
+    gtk_gl_area_set_has_depth_buffer( glarea, TRUE );
+
     gtk_layout_put ( GTK_LAYOUT(gtk3view->layout), glarea, 0, 0 );
 
     /*gtk_gl_area_set_has_depth_buffer(glarea,1);

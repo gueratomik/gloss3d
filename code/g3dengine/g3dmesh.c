@@ -256,31 +256,34 @@ void g3dmesh_drawQuadList ( G3DMESH *mes,
     float mvp[0x10];
     float inv[0x10];
     float nor[0x10];
-    float mod[0x10];
+    float mvw[0x10];
 
     /*g3dcore_identityMatrixf( cam->pmatrix );*/
     /*g3dcore_identityMatrixf( cam->obj.inverseWorldMatrix );*/
 
     g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
                          mes->obj.worldMatrix,
-                         mod );
+                         mvw );
 
     /*** the matrix by which vertices coords are transformed ***/
-    g3dcore_multMatrixf( cam->pmatrix, mod, mvp );
+    g3dcore_multMatrixf( cam->pmatrix, mvw, mvp );
 
     if( engine_flags & FILLINGGOURAUD ) {
-        int posMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
-                                                      "posMatrix" );
+        int mvwMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
+                                                      "mvwMatrix" );
+        int mvpMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
+                                                      "mvpMatrix" );
         int norMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
                                                       "norMatrix" );
 
         /*** the matrix by which vertices normals are transformed ***/
-        g3dcore_transposeMatrixf   ( mod, inv );
-        g3dcore_invertMatrixf( inv, nor );
+        g3dcore_invertMatrixf   ( mvw, inv );
+        g3dcore_transposeMatrixf( inv, nor );
 
         glUseProgram( engine->triangleShaderProgram );
 
-        glUniformMatrix4fv( posMatrixLocation, 1, GL_FALSE, mvp );
+        glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
+        glUniformMatrix4fv( mvwMatrixLocation, 1, GL_FALSE, mvw );
         glUniformMatrix4fv( norMatrixLocation, 1, GL_FALSE, nor );
     }
 
@@ -351,35 +354,37 @@ void g3dmesh_drawTriangleList ( G3DMESH   *mes,
                                 G3DENGINE *engine,
                                 uint64_t   engine_flags ) {
     LIST *ltmptri = mes->ltri;
-
     float mvp[0x10];
     float inv[0x10];
     float nor[0x10];
-    float mod[0x10];
+    float mvw[0x10];
 
     /*g3dcore_identityMatrixf( cam->pmatrix );*/
     /*g3dcore_identityMatrixf( cam->obj.inverseWorldMatrix );*/
 
     g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
                          mes->obj.worldMatrix,
-                         mod );
+                         mvw );
 
     /*** the matrix by which vertices coords are transformed ***/
-    g3dcore_multMatrixf( cam->pmatrix, mod, mvp );
+    g3dcore_multMatrixf( cam->pmatrix, mvw, mvp );
 
     if( engine_flags & FILLINGGOURAUD ) {
-        int posMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
-                                                      "posMatrix" );
+        int mvwMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
+                                                      "mvwMatrix" );
+        int mvpMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
+                                                      "mvpMatrix" );
         int norMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
                                                       "norMatrix" );
 
         /*** the matrix by which vertices normals are transformed ***/
-        g3dcore_transposeMatrixf   ( mod, inv );
-        g3dcore_invertMatrixf( inv, nor );
+        g3dcore_invertMatrixf   ( mvw, inv );
+        g3dcore_transposeMatrixf( inv, nor );
 
         glUseProgram( engine->triangleShaderProgram );
 
-        glUniformMatrix4fv( posMatrixLocation, 1, GL_FALSE, mvp );
+        glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
+        glUniformMatrix4fv( mvwMatrixLocation, 1, GL_FALSE, mvw );
         glUniformMatrix4fv( norMatrixLocation, 1, GL_FALSE, nor );
     }
 
@@ -3525,7 +3530,7 @@ void g3dmesh_drawVertices  ( G3DMESH   *mes,
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
     glPointSize ( 4.0f );
-    glDisable( GL_DEPTH_TEST );
+    /*glDepthFunc( GL_EQUAL );*/
 
     g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
                          mes->obj.worldMatrix,
