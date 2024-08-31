@@ -54,6 +54,93 @@ void g3dengine_free( G3DENGINE *engine ) {
 }
 
 /******************************************************************************/
+unsigned int g3dengine_bindSubdivVertexArray( G3DENGINE *engine ) {
+    if ( ( engine->flags & ENGINE_SUBDIV_VERTEX_ARRAY_INITIALIZED ) == 0x00 ) {
+        glGenVertexArrays( 1, &engine->subdivVertexArray );
+
+        engine->flags |= ENGINE_SUBDIV_VERTEX_ARRAY_INITIALIZED;
+    }
+
+    glBindVertexArray ( engine->subdivVertexArray );
+
+    return engine->subdivVertexArray;
+}
+
+/******************************************************************************/
+unsigned int g3dengine_bindSubdivVertexBuffer( G3DENGINE *engine,
+                                               uint32_t   maxSubdivVertexCount ) {
+    uint32_t memSize = sizeof( SHADERVERTEX ) * maxSubdivVertexCount;
+
+    if ( ( engine->flags & ENGINE_SUBDIV_VERTEX_BUFFER_INITIALIZED ) == 0x00 ) {
+        glGenBuffers( 1, &engine->subdivVertexBuffer );
+        glBindBuffer( GL_ARRAY_BUFFER, engine->subdivVertexBuffer );
+        glVertexAttribPointer( 0x00, /* attrib 0 is vertex position as vec3 */
+                               0x03,
+                               GL_FLOAT,
+                               GL_FALSE,
+                               sizeof( SHADERVERTEX ),
+                               (void*) 0 );
+        glEnableVertexAttribArray( 0x00 );
+
+        glVertexAttribPointer( 0x01,
+                               0x03,
+                               GL_FLOAT,
+                               GL_FALSE,
+                               sizeof( SHADERVERTEX ),
+                               (void*) 12 );
+        glEnableVertexAttribArray( 0x01 );
+
+        glVertexAttribPointer( 0x02,
+                               0x03,
+                               GL_FLOAT,
+                               GL_FALSE,
+                               sizeof( SHADERVERTEX ),
+                               (void*) 24 );
+        glEnableVertexAttribArray( 0x02 );
+
+        engine->flags |= ENGINE_SUBDIV_VERTEX_BUFFER_INITIALIZED;
+    } else {
+        glBindBuffer( GL_ARRAY_BUFFER, engine->subdivVertexBuffer );
+    }
+
+    if( engine->subdivVertexBufferSize < memSize ) {
+        glBufferData( GL_ARRAY_BUFFER,
+                      memSize,
+                      NULL,
+                      GL_DYNAMIC_DRAW );
+
+        engine->subdivVertexBufferSize = memSize;
+    }
+
+    return engine->subdivVertexBuffer;
+}
+
+/******************************************************************************/
+unsigned int g3dengine_bindSubdivIndexBuffer( G3DENGINE *engine,
+                                              uint32_t   maxSubdivIndexCount ) {
+    uint32_t memSize = sizeof( uint32_t ) * maxSubdivIndexCount;
+
+    if ( ( engine->flags & ENGINE_SUBDIV_INDEX_BUFFER_INITIALIZED ) == 0x00 ) {
+        glGenBuffers( 1, &engine->subdivIndexBuffer );
+
+        engine->flags |= ENGINE_SUBDIV_INDEX_BUFFER_INITIALIZED;
+    }
+
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, engine->subdivIndexBuffer );
+
+    if( engine->subdivIndexBufferSize < memSize ) {
+        glBufferData( GL_ELEMENT_ARRAY_BUFFER,
+                      memSize,
+                      NULL,
+                      GL_DYNAMIC_DRAW );
+
+        engine->subdivIndexBufferSize = memSize;
+    }
+
+    return engine->subdivIndexBuffer;
+}
+
+/******************************************************************************/
 
 /** the xxd file is generated with the following command :
   * xxd -i < triangleVertexShader.glsl > triangleVertexShader.xxd
@@ -292,7 +379,7 @@ void g3dengine_initShaders ( G3DENGINE *engine ) {
     glGenBuffers( 1, &engine->vertexBuffer );
     glBindBuffer( GL_ARRAY_BUFFER, engine->vertexBuffer ); 
     glBufferData( GL_ARRAY_BUFFER,
-                  sizeof( float ) * 36, /* enough for quads as well */
+                  sizeof( SHADERVERTEX ) * 4, /* enough for quads as well */
                   NULL,
                   GL_DYNAMIC_DRAW );
 

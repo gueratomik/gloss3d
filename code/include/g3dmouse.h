@@ -294,7 +294,7 @@ typedef struct _G3DMOUSETOOLPICK {
 /******************************************************************************/
 typedef struct _SCULPTFACE {
     G3DFACE *fac;
-    G3DRTVERTEX *rtvermem;
+    SHADERVERTEX *rtvermem;
 } SCULPTFACE;
 
 /******************************************************************************/

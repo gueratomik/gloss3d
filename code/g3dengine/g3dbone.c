@@ -214,50 +214,101 @@ static uint32_t g3dbone_pick ( G3DBONE *bon,
 
 /******************************************************************************/
 uint32_t g3dbone_draw ( G3DOBJECT *obj, 
-                        G3DCAMERA *curcam, 
+                        G3DCAMERA *cam, 
                         G3DENGINE *engine, 
                         uint64_t   engine_flags ) {
     G3DBONE *bon = ( G3DBONE * ) obj;
     float ybase = bon->len * 0.1f;
     float xbase = ybase;
     float zbase = ybase;
-    float ver[0x04][0x03] = { {  xbase, ybase,  zbase },
+    G3DVECTOR3F ver[0x04] = { {  xbase, ybase,  zbase },
                               {  xbase, ybase, -zbase },
                               { -xbase, ybase, -zbase },
                               { -xbase, ybase,  zbase } };
-    int i;
+    int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                  "mvpMatrix" );
+    G3DCOLOR3F col = { 0.0f, 0.0f, 0.0f };
+    float mvp[0x10];
+    float mvw[0x10];
+    uint32_t i, j;
+
+    g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
+                         bon->obj.worldMatrix,
+                         mvw );
+
+    /*** the matrix by which vertices coords are transformed ***/
+    g3dcore_multMatrixf( cam->pmatrix, mvw, mvp );
+
+    glUseProgram( engine->coloredShaderProgram );
+
+    glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
 
     /*** displaying bones could be annoying ***/
     if ( engine_flags & HIDEBONES ) return 0x00;
 
-    glPushAttrib( GL_ALL_ATTRIB_BITS );
-    glDisable   ( GL_LIGHTING );
-    glDisable   ( GL_DEPTH_TEST );
-    glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
+    glPushAttrib ( GL_ALL_ATTRIB_BITS );
+    glDisable    ( GL_DEPTH_TEST );
 
     if ( obj->flags & OBJECTSELECTED ) {
-        glColor3ub  ( 0xFF, 0xFF, 0x00 );
+        col.r = 1.0f;
     } else {
-        glColor3ub  ( 0x00, 0xFF, 0xFF );
+        col.b = 1.0f;
     }
-
-    glBegin ( GL_TRIANGLES );
 
     for ( i = 0x00; i < 0x04; i++ ) {
         int n = ( i + 0x01 ) % 0x04;
+        SHADERVERTEX vertices[0x02] = { { .pos = { ver[i].x, 
+                                                   ver[i].y,
+                                                   ver[i].z },
+                                          .nor = { 0.0f,
+                                                   0.0f,
+                                                   0.0f },
+                                          .col = { col.r,
+                                                   col.g,
+                                                   col.b } },
+                                        { .pos = { ver[n].x,
+                                                   ver[n].y,
+                                                   ver[n].z },
+                                          .nor = { 0.0f,
+                                                   0.0f,
+                                                   0.0f },
+                                          .col = { col.r,
+                                                   col.g,
+                                                   col.b } } };
 
-        glVertex3f  ( 0.0f, 0.0f, 0.0f );
-        glVertex3fv ( ver[i] );
-        glVertex3fv ( ver[n] );
-
-        glVertex3fv ( ver[n] );
-        glVertex3fv ( ver[i] );
-        glVertex3f  ( 0.0f, bon->len, 0.0f );
+        g3dengine_drawLine ( engine, vertices, 0, engine_flags );
     }
 
-    glEnd ( );
+    for ( i = 0x00; i < 0x04; i++ ) {
+        SHADERVERTEX vertices[0x02] = { { .pos = { ver[i].x, 
+                                                   ver[i].y,
+                                                   ver[i].z },
+                                          .nor = { 0.0f,
+                                                   0.0f,
+                                                   0.0f },
+                                          .col = { col.r,
+                                                   col.g,
+                                                   col.b } },
+                                        { .pos = { 0.0f,
+                                                   bon->len,
+                                                   0.0f },
+                                          .nor = { 0.0f,
+                                                   0.0f,
+                                                   0.0f },
+                                          .col = { col.r,
+                                                   col.g,
+                                                   col.b } } };
+
+        g3dengine_drawLine ( engine, vertices, 0, engine_flags );
+
+        vertices[0x01].pos.y = 0.0f;
+
+        g3dengine_drawLine ( engine, vertices, 0, engine_flags );
+    }
 
     glPopAttrib ( );
+
+    glUseProgram( 0 );
 
     return 0x00;
 }

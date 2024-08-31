@@ -606,7 +606,6 @@ if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
 #include <g3dengine/g3dcolor.h>
 #include <g3dengine/g3drgba.h>
 #include <g3dengine/g2dvector.h>
-#include <g3dengine/g3dtinyvector.h>
 #include <g3dengine/g3dvector.h>
 #include <g3dengine/g3dpick.h>
 
@@ -736,13 +735,13 @@ typedef struct _G3DMATERIAL {
 } G3DMATERIAL;
 
 /******************************************************************************/
-typedef struct _G3DRTVERTEX {
-    float         r, g, b;
-    G3DTINYVECTOR nor;
-    G3DTINYVECTOR pos;
-    uint32_t      id;
-    uint32_t       flags;
-} G3DRTVERTEX;
+typedef struct _SHADERVERTEX {
+    G3DVECTOR3F pos;
+    G3DVECTOR3F nor;
+    G3DCOLOR3F  col;
+    uint32_t    id;
+    uint32_t    flags;
+} SHADERVERTEX;
 
 /******************************************************************************/
 typedef struct _G3DVERTEX {
@@ -758,7 +757,7 @@ typedef struct _G3DVERTEX {
     uint32_t     nbedg;   /*** number of connected edges                    ***/
     uint32_t     nbwei;   /*** number of weights                            ***/
     float        weight;  /*** weight value used when editing weight groups ***/
-    G3DRTVERTEX *rtvermem;/*** Vertex buffer in buffered mode               ***/
+    SHADERVERTEX *rtvermem;/*** Vertex buffer in buffered mode               ***/
     LIST        *lext;    /*** list of vertex extensions                    ***/
     struct _G3DSUBVERTEX *subver;
 } G3DVERTEX;
@@ -852,6 +851,10 @@ typedef struct _G3DENGINE G3DENGINE;
 #define ENGINE_TRIANGLE_VERTEX_SHADER_INITIALIZED   ( 1ULL << 5 )
 #define ENGINE_TRIANGLE_FRAGMENT_SHADER_INITIALIZED ( 1ULL << 6 )
 
+#define ENGINE_SUBDIV_VERTEX_ARRAY_INITIALIZED      ( 1ULL << 7 )
+#define ENGINE_SUBDIV_VERTEX_BUFFER_INITIALIZED     ( 1ULL << 8 )
+#define ENGINE_SUBDIV_INDEX_BUFFER_INITIALIZED      ( 1ULL << 9 )
+
 typedef struct _G3DENGINE {
     uint64_t flags;
     unsigned int vertexBuffer;
@@ -865,15 +868,15 @@ typedef struct _G3DENGINE {
     unsigned int coloredVertexShader;
     unsigned int coloredFragmentShader;
 
+    unsigned int subdivVertexArray;
+    unsigned int subdivVertexBuffer;
+    unsigned int subdivIndexBuffer;
+
+    uint32_t subdivVertexBufferSize;
+    uint32_t subdivIndexBufferSize;
+
     char log[512];
 } G3DENGINE;
-
-/******************************************************************************/
-typedef struct _SHADERVERTEX {
-    float pos[0x03];
-    float nor[0x03];
-    float col[0x03];
-} SHADERVERTEX;
 
 /******************************************************************************/
 typedef struct _G3DOBJECT {
@@ -1074,7 +1077,10 @@ typedef struct _G3DRTEDGE {
 /*** Interleaved vertex arrays for buffered subdivided mesh. ***/
 /*** GL_C4F_N3F_V3F ***/
 typedef struct _G3DRTQUAD {
-    uint32_t rtver[0x04];
+    /* Note: Modern OpenGL only deals with triangles. */
+    /* Our quad is then 2 set of 2 triangles. The first 4 still */
+    /* form the original quad */
+    uint16_t rtver[0x06];
 } G3DRTQUAD;
 
 /******************************************************************************/
@@ -1143,7 +1149,8 @@ typedef struct _G3DFACE {
     float            surface;/*** used by the raytracer               ***/
     LIST            *lfacgrp; /*** list of facegroups it belong s to ***/
     LIST            *lext;    /*** list of face extensions                  ***/
-    G3DRTVERTEX     *rtvermem;
+    SHADERVERTEX    *rtvermem;
+    G3DRTQUAD       *rtquamem;
 } G3DFACE;
 
 #include <g3dengine/g3dcurve.h>
@@ -1427,6 +1434,7 @@ struct _G3DKEY {
                                                 uint64_t))f)
 #define MODDRAW_CALLBACK(f)      ((uint32_t(*) (G3DMODIFIER*, \
                                                 G3DCAMERA*,  \
+                                                G3DENGINE*, \
                                                 uint64_t))f)
 #define MODPICK_CALLBACK(f)      ((uint32_t(*) (G3DMODIFIER*, \
                                                 G3DCAMERA*,  \
@@ -1440,6 +1448,7 @@ typedef struct _G3DMODIFIER {
                                      uint64_t     engine_flags );
     uint32_t (*moddraw)    ( struct _G3DMODIFIER *mod,
                                      G3DCAMERA   *curcam,
+                                     G3DENGINE   *engine,
                                      uint64_t     engine_flags );
     uint32_t (*modpick)    ( struct _G3DMODIFIER *mod,
                                      G3DCAMERA   *curcam,
@@ -1489,7 +1498,7 @@ typedef struct _G3DSUBDIVIDER {
     uint32_t     nbrtfac;
     G3DRTEDGE   *rtedgmem;
     uint32_t     nbrtedg;
-    G3DRTVERTEX *rtvermem;
+    SHADERVERTEX *rtvermem;
     uint32_t     nbrtver;
     G3DRTUV     *rtluim;
     uint32_t     nbrtuv;
@@ -1925,10 +1934,10 @@ void g3dvertex_clearAdaptiveFaces ( G3DVERTEX * );
 void g3dvertex_markAdaptiveTopology ( G3DVERTEX * );
 void g3dvertex_clearAdaptiveTopology ( G3DVERTEX * );
 void g3dvertex_getAveragePositionFromList ( LIST *, G3DVECTOR * );
-void g3drtvertex_init ( G3DRTVERTEX *rtver, 
-                        G3DVERTEX   *ver,
-                        uint32_t     facsel,
-                        uint64_t     engine_flags );
+void shadervertex_init ( SHADERVERTEX *rtver, 
+                         G3DVERTEX   *ver,
+                         uint32_t     facsel,
+                         uint64_t     engine_flags );
 void g3dvertex_renumberList ( LIST *, uint32_t );
 void g3dvertex_edgePosition ( G3DVERTEX *, uint32_t );
 G3DVERTEX *g3dvertex_seekVertexByPosition ( LIST *, float, float, float, float );
@@ -3171,6 +3180,11 @@ void g3dengine_drawPoint    ( G3DENGINE    *engine,
                               SHADERVERTEX *vertex,
                               uint32_t      object_flags,
                               uint64_t      engine_flags );
+unsigned int g3dengine_bindSubdivVertexBuffer( G3DENGINE *engine,
+                                               uint32_t   maxSubdivVertexCount );
+unsigned int g3dengine_bindSubdivVertexArray( G3DENGINE *engine );
+unsigned int g3dengine_bindSubdivIndexBuffer( G3DENGINE *engine,
+                                              uint32_t   maxSubdivIndexCount );
 
 /******************************************************************************/
 G3DCAMERA *g3dcamera_new ( uint32_t id,
@@ -3474,6 +3488,7 @@ void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
 /******************************************************************************/
 uint32_t g3dmodifier_moddraw ( G3DMODIFIER *mod,
                                G3DCAMERA   *curcam, 
+                               G3DENGINE   *engine, 
                                uint64_t     engine_flags );
 uint32_t g3dmodifier_modpick ( G3DMODIFIER *mod,
                                G3DCAMERA   *curcam, 

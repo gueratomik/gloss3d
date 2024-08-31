@@ -198,12 +198,15 @@ static gboolean inputGL ( GtkWidget *widget,
 
     gtk_gl_area_make_current ( gtk3view->glarea );
 
-    if ( gui->currentView !=  ( G3DUIVIEW * ) gtk3view ) {
-        gui->currentView = ( G3DUIVIEW * ) gtk3view;
+    gui->currentView = ( G3DUIVIEW * ) gtk3view;
 
+        /*** foirce redrawing the frame around the current view ***/
+#ifdef need_refactor
+    if ( gui->currentView !=  ( G3DUIVIEW * ) gtk3view ) {
         /*** foirce redrawing the frame around the current view ***/
         gtk_widget_queue_draw ( gtk3quad->layout );
     }
+#endif
 
     if ( gdkev->type == GDK_BUTTON_PRESS ) {
         GdkEventButton *bev = ( GdkEventButton * ) gdkev;
@@ -496,17 +499,13 @@ static GTK3G3DUIVIEW *gtk3_g3duiview_new ( GTK3G3DUI *gtk3gui,
     }
 
     gtk3view->core.gui = ( G3DUI * ) gtk3gui;
-    gtk3view->core.pressedButtonID = -1;
 
-    gtk3view->core.cam = &gtk3view->core.defcam;
-
-    g3dcamera_init( &gtk3view->core.defcam,
-                     viewID,
-                     "default camera",
-                     focal,
-                     ratio,
-                     znear,
-                     zfar );
+    g3duiview_init( ( G3DUIVIEW * ) gtk3view,
+                                    viewID,
+                                    focal,
+                                    ratio,
+                                    znear,
+                                    zfar );
 
     return gtk3view;
 }
@@ -565,8 +564,6 @@ static void Destroy ( GtkWidget *widget, gpointer user_data ) {
 static void Realize ( GtkWidget *widget, 
                       gpointer   user_data ) {
     GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) user_data;
-
-
 }
 
 /******************************************************************************/
@@ -785,6 +782,8 @@ static gboolean navInput ( GtkWidget *widget,
     static int xori, yori, xold, yold;
 
     gtk_gl_area_make_current ( gtk3view->glarea );
+
+    gui->currentView = ( G3DUIVIEW * ) gtk3view;
 
     switch ( event->type ) {
         case GDK_BUTTON_PRESS : {

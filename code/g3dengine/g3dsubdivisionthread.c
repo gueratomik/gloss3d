@@ -39,7 +39,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
                                  G3DMESH              *mes,
                                  G3DVECTOR            *stkpos,
                                  G3DVECTOR            *stknor,
-                                 G3DRTVERTEX          *rtvermem,
+                                 SHADERVERTEX          *rtvermem,
                                  uint32_t              nbrtver,
                                  G3DRTEDGE            *rtedgmem,
                                  uint32_t              nbrtedg,
@@ -67,7 +67,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
     std->nbrtedg               = nbrtedg;
     std->rtquamem              = rtquamem;
     std->nbrtfac               = nbrtfac;
-    std->rtluim               = rtluim;
+    std->rtluim                = rtluim;
     std->nbrtuv                = nbrtuv;
     std->nbVerticesPerTriangle = nbVerticesPerTriangle;
     std->nbVerticesPerQuad     = nbVerticesPerQuad;
@@ -92,7 +92,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
 G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
                                                  G3DVECTOR   *stkpos,
                                                  G3DVECTOR   *stknor,
-                                                 G3DRTVERTEX *rtvermem,
+                                                 SHADERVERTEX *rtvermem,
                                                  uint32_t     nbrtver,
                                                  G3DRTEDGE   *rtedgmem,
                                                  uint32_t     nbrtedg,
@@ -159,7 +159,7 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
 
     while ( ( fac = g3dmesh_getNextFace ( sdt->mes, NULL ) ) ) {
         G3DRTUV     *rtluim  = NULL;
-        G3DRTVERTEX *rtvermem = NULL;
+        SHADERVERTEX *rtvermem = NULL;
         G3DRTEDGE   *rtedgmem = NULL;
         G3DRTQUAD   *rtquamem = NULL;
 
@@ -168,18 +168,19 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
         if ( fac->nbver == 0x03 ) {
             rtvermem = sdt->rtvermem + ( fac->typeID * sdt->nbVerticesPerTriangle );
             rtquamem = sdt->rtquamem + ( fac->typeID * sdt->nbFacesPerTriangle );
-            rtluim  = sdt->rtluim  + ( fac->typeID * sdt->nbVerticesPerTriangle * nbuvmap );
+            rtluim   = sdt->rtluim   + ( fac->typeID * sdt->nbVerticesPerTriangle * nbuvmap );
         } else {
             rtvermem = sdt->rtvermem + ( mes->nbtri  * sdt->nbVerticesPerTriangle ) + 
                                        ( fac->typeID * sdt->nbVerticesPerQuad );
             rtquamem = sdt->rtquamem + ( mes->nbtri  * sdt->nbFacesPerTriangle ) + 
                                        ( fac->typeID * sdt->nbFacesPerQuad );
-            rtluim  = sdt->rtluim  + ( mes->nbtri  * sdt->nbVerticesPerTriangle * nbuvmap ) +
+            rtluim   = sdt->rtluim   + ( mes->nbtri  * sdt->nbVerticesPerTriangle * nbuvmap ) +
                                        ( fac->typeID * sdt->nbVerticesPerQuad * nbuvmap );
 
         }
 
         fac->rtvermem = rtvermem;
+        fac->rtquamem = rtquamem;
 
         g3dsubdivisionV3_subdivide ( sdv, 
                                      mes,

@@ -29,7 +29,6 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
-
 /******************************************************************************/
 /**
  * This function initialize the G3DRTVERTEX structure depending on the
@@ -38,38 +37,38 @@
  * belongs to a face that has been selected for example.
  */
 /******************************************************************************/
-void g3drtvertex_init ( G3DRTVERTEX *rtver, 
-                        G3DVERTEX   *ver,
-                        uint32_t     facsel,
-                        uint64_t     engine_flags ) {
+void shadervertex_init ( SHADERVERTEX *shdver,
+                         G3DVERTEX    *ver,
+                         uint32_t      facsel,
+                         uint64_t      engine_flags ) {
     if ( engine_flags & VIEWSKIN ) {
-        rtver->r = 1.0f;
-        rtver->g = /*( ver->flags & VERTEXPAINTED ) ? */ver->weight/* : 0.0f*/;
-        rtver->b = 0.0f;
+        shdver->col.r = 1.0f;
+        shdver->col.g = /*( ver->flags & VERTEXPAINTED ) ? */ver->weight/* : 0.0f*/;
+        shdver->col.b = 0.0f;
     } else {
         if ( ver->nbfac == 0x00 ) {
             if ( ver->flags & VERTEXSELECTED ) {
-                rtver->r = 1.0f;
-                rtver->g = 0.0f;
-                rtver->b = 0.0f;
+                shdver->col.r = 1.0f;
+                shdver->col.g = 0.0f;
+                shdver->col.b = 0.0f;
             } else {
-                rtver->r = 0.0f;
-                rtver->g = 0.0f;
-                rtver->b = 1.0f;
+                shdver->col.r = 0.0f;
+                shdver->col.g = 0.0f;
+                shdver->col.b = 1.0f;
             }
         } else {
             if ( facsel ) {
-                rtver->r = 1.0f;
-                rtver->g = 0.5f;
-                rtver->b = 0.0f;
+                shdver->col.r = 1.0f;
+                shdver->col.g = 0.5f;
+                shdver->col.b = 0.0f;
             } else {
-                rtver->r = rtver->g = rtver->b = MESHCOLORF;
+                shdver->col.r = shdver->col.g = shdver->col.b = MESHCOLORF;
             }
         }
     }
 
-    rtver->flags = ver->flags;
+    shdver->flags = ver->flags;
 
-    memcpy ( &rtver->nor, &ver->nor, sizeof ( G3DTINYVECTOR ) );
-    memcpy ( &rtver->pos, &ver->pos, sizeof ( G3DTINYVECTOR ) );
+    memcpy ( &shdver->nor, &ver->nor, sizeof ( G3DVECTOR3F ) );
+    memcpy ( &shdver->pos, &ver->pos, sizeof ( G3DVECTOR3F ) );
 }

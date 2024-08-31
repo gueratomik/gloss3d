@@ -76,7 +76,7 @@ static void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
                                                G3DRTTRIANGLE *rtTriangles,
                                                G3DRTQUAD     *rtQuads,
                                                G3DRTEDGE     *rtEdges,
-                                               G3DRTVERTEX   *rtVertices,
+                                               SHADERVERTEX   *rtVertices,
                                                G3DRTUV       *rtUVs,
                                                uint32_t       subdiv_level,
                                                uint32_t       subdiv_flags,
@@ -391,7 +391,7 @@ static void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
                                                G3DRTTRIANGLE *rtTriangles,
                                                G3DRTQUAD     *rtQuads,
                                                G3DRTEDGE     *rtEdges,
-                                               G3DRTVERTEX   *rtVertices,
+                                               SHADERVERTEX   *rtVertices,
                                                G3DRTUV       *rtUVs,
                                                uint32_t       subdiv_level,
                                                uint32_t       subdiv_flags,
@@ -490,17 +490,22 @@ static void g3dsubdivisionV3_convertToRTFACE ( G3DMESH       *mes,
             }
         }
 
-        g3drtvertex_init ( &rtVertices[vid], &innerVertices[i].ver, 0, engine_flags );
+        shadervertex_init ( &rtVertices[vid], &innerVertices[i].ver, 0, engine_flags );
     }
 
     if ( rtQuads ) {
         for ( i = 0x00; i < nbInnerFaces; i++ ) {
             LIST *ltmpuvs = innerFaces[i].fac.luvs;
 
+            /* Note: Modern OpenGL only deals with triangles. */
+            /* Our quad is then 2 set of 2 triangles. The first 4 still */
+            /* form the original quad */
             rtQuads[i].rtver[0x00] = innerFaces[i].fac.ver[0x00]->id;
             rtQuads[i].rtver[0x01] = innerFaces[i].fac.ver[0x01]->id;
             rtQuads[i].rtver[0x02] = innerFaces[i].fac.ver[0x02]->id;
             rtQuads[i].rtver[0x03] = innerFaces[i].fac.ver[0x03]->id;
+            rtQuads[i].rtver[0x04] = innerFaces[i].fac.ver[0x00]->id;
+            rtQuads[i].rtver[0x05] = innerFaces[i].fac.ver[0x02]->id;
 
             while ( ltmpuvs ) {
                 G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
@@ -1294,7 +1299,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       G3DRTTRIANGLE  *rtTriangles,
                                       G3DRTQUAD      *rtQuads,
                                       G3DRTEDGE      *rtEdges,
-                                      G3DRTVERTEX    *rtVertices,
+                                      SHADERVERTEX    *rtVertices,
                                       G3DRTUV        *rtUVs,
                                       G3DVERTEX     **commitVertices,
                                       G3DEDGE       **commitEdges,

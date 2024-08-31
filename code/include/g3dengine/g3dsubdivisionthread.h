@@ -48,7 +48,7 @@ typedef struct _G3DSUBDIVISIONTHREAD {
     G3DMESH     *mes;
     G3DVECTOR   *stkpos;
     G3DVECTOR   *stknor;
-    G3DRTVERTEX *rtvermem;
+    SHADERVERTEX *rtvermem;
     uint32_t     nbrtver;
     G3DRTEDGE   *rtedgmem;
     uint32_t     nbrtedg;
@@ -82,7 +82,7 @@ void g3dsubdivisionthread_free ( G3DSUBDIVISIONTHREAD * );
  * Init a G3DSUBDIVISIONTHREAD structure.
  * @param std a pointer to the G3DSUBDIVISIONTHREAD structure.
  * @param mes a pointer to the G3DMESH.
- * @param rtvermem G3DRTVERTEX array to fill.
+ * @param rtvermem SHADERVERTEX array to fill.
  * @param nbrtver number of vertices in the array.
  * @param rtedgmem G3DRTEDGE array to fill. Indexes vertices by Id.
  * @param nbrtedg number of edges in the array.
@@ -104,7 +104,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
                                  G3DMESH              *mes,
                                  G3DVECTOR            *stkpos,
                                  G3DVECTOR            *stknor,
-                                 G3DRTVERTEX          *rtvermem,
+                                 SHADERVERTEX          *rtvermem,
                                  uint32_t              nbrtver,
                                  G3DRTEDGE            *rtedgmem,
                                  uint32_t              nbrtedg,
@@ -127,7 +127,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
 /**
  * Create mesa new G3DSUBDIVISIONTHREAD structure.
  * @param mes a pointer to the G3DMESH.
- * @param rtvermem G3DRTVERTEX array to fill.
+ * @param rtvermem SHADERVERTEX array to fill.
  * @param nbrtver number of vertices in the array.
  * @param rtedgmem G3DRTEDGE array to fill. Indexes vertices by Id.
  * @param nbrtedg number of edges in the array.
@@ -149,7 +149,7 @@ void g3dsubdivisionthread_init ( G3DSUBDIVISIONTHREAD *std,
 G3DSUBDIVISIONTHREAD *g3dsubdivisionthread_new ( G3DMESH     *mes,
                                                  G3DVECTOR   *stkpos,
                                                  G3DVECTOR   *stknor,
-                                                 G3DRTVERTEX *rtvermem,
+                                                 SHADERVERTEX *rtvermem,
                                                  uint32_t     nbrtver,
                                                  G3DRTEDGE   *rtedgmem,
                                                  uint32_t     nbrtedg,

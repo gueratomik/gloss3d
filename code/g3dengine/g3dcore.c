@@ -488,8 +488,8 @@ void g3dcore_gridXY ( G3DCAMERA *cam,
 void g3dcore_grid3D ( G3DCAMERA *cam,
                       G3DENGINE *engine, 
                       uint64_t engine_flags ) {
-    int posMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
-                                                  "posMatrix" );
+    int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                  "mvpMatrix" );
     float mvp[0x10];
     float x1, x2, z1, z2;
     int i;
@@ -500,7 +500,7 @@ void g3dcore_grid3D ( G3DCAMERA *cam,
     g3dcore_multMatrixf( cam->pmatrix
                        , cam->obj.inverseWorldMatrix, mvp );
 
-    glUniformMatrix4fv( posMatrixLocation, 1, GL_FALSE, mvp );
+    glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
 
     x1 = -10.0f;
     z1 = -10.0f;
@@ -509,22 +509,22 @@ void g3dcore_grid3D ( G3DCAMERA *cam,
     for ( i = 0x00; i < 0x15; i++ ) {
         SHADERVERTEX vertices[0x02];
 
-        vertices[0x00].pos[0] = x1;
-        vertices[0x00].pos[1] = 0.0f;
-        vertices[0x00].pos[2] = z1;
+        vertices[0x00].pos.x = x1;
+        vertices[0x00].pos.y = 0.0f;
+        vertices[0x00].pos.z = z1;
 
-        vertices[0x01].pos[0] = x1;
-        vertices[0x01].pos[1] = 0.0f;
-        vertices[0x01].pos[2] = z2;
+        vertices[0x01].pos.x = x1;
+        vertices[0x01].pos.y = 0.0f;
+        vertices[0x01].pos.z = z2;
 
         if ( i % 0x05 ) {
-            vertices[0x00].col[0] = vertices[0x01].col[0] = 0.5f;
-            vertices[0x00].col[1] = vertices[0x01].col[1] = 0.5f;
-            vertices[0x00].col[2] = vertices[0x01].col[2] = 0.5f;
+            vertices[0x00].col.r = vertices[0x01].col.r = 0.5f;
+            vertices[0x00].col.g = vertices[0x01].col.g = 0.5f;
+            vertices[0x00].col.b = vertices[0x01].col.b = 0.5f;
         } else {
-            vertices[0x00].col[0] = vertices[0x01].col[0] = 0.0f;
-            vertices[0x00].col[1] = vertices[0x01].col[1] = 0.0f;
-            vertices[0x00].col[2] = vertices[0x01].col[2] = 0.0f;
+            vertices[0x00].col.r = vertices[0x01].col.r = 0.0f;
+            vertices[0x00].col.g = vertices[0x01].col.g = 0.0f;
+            vertices[0x00].col.b = vertices[0x01].col.b = 0.0f;
         }
 
         g3dengine_drawLine( engine,
@@ -542,22 +542,22 @@ void g3dcore_grid3D ( G3DCAMERA *cam,
     for ( i = 0x00; i < 0x15; i++ ) {
         SHADERVERTEX vertices[0x02];
 
-        vertices[0x00].pos[0] = x1;
-        vertices[0x00].pos[1] = 0.0f;
-        vertices[0x00].pos[2] = z1;
+        vertices[0x00].pos.x = x1;
+        vertices[0x00].pos.y = 0.0f;
+        vertices[0x00].pos.z = z1;
 
-        vertices[0x01].pos[0] = x2;
-        vertices[0x01].pos[1] = 0.0f;
-        vertices[0x01].pos[2] = z1;
+        vertices[0x01].pos.x = x2;
+        vertices[0x01].pos.y = 0.0f;
+        vertices[0x01].pos.z = z1;
 
         if ( i % 0x05 ) {
-            vertices[0x00].col[0] = vertices[0x01].col[0] = 0.5f;
-            vertices[0x00].col[1] = vertices[0x01].col[1] = 0.5f;
-            vertices[0x00].col[2] = vertices[0x01].col[2] = 0.5f;
+            vertices[0x00].col.r = vertices[0x01].col.r = 0.5f;
+            vertices[0x00].col.g = vertices[0x01].col.g = 0.5f;
+            vertices[0x00].col.b = vertices[0x01].col.b = 0.5f;
         } else {
-            vertices[0x00].col[0] = vertices[0x01].col[0] = 0.0f;
-            vertices[0x00].col[1] = vertices[0x01].col[1] = 0.0f;
-            vertices[0x00].col[2] = vertices[0x01].col[2] = 0.0f;
+            vertices[0x00].col.r = vertices[0x01].col.r = 0.0f;
+            vertices[0x00].col.g = vertices[0x01].col.g = 0.0f;
+            vertices[0x00].col.b = vertices[0x01].col.b = 0.0f;
         }
 
         g3dengine_drawLine( engine,

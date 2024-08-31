@@ -409,61 +409,76 @@ uint32_t g3dcamera_draw ( G3DOBJECT *obj,
                           G3DENGINE *engine,
                           uint64_t   engine_flags ) {
     G3DCAMERA *cam = ( G3DCAMERA * ) obj;
-    GLfloat pnt[0x08][0x03] = { {  0.25,  0.5,  0.5 },
-                                {  0.25, -0.5,  0.5 },
-                                { -0.25, -0.5,  0.5 },
-                                { -0.25,  0.5,  0.5 },
+    G3DVECTOR3F box[0x08] = { { -0.25f,   0.5f,  0.5f },
+                              {  0.25f,   0.5f,  0.5f },
+                              {  0.25f,  -0.5f,  0.5f },
+                              { -0.25f,  -0.5f,  0.5f },
 
-                                {  0.25, -0.5, -0.5 },
-                                {  0.25,  0.5, -0.5 },
-                                { -0.25,  0.5, -0.5 },
-                                { -0.25, -0.5, -0.5 } } ;
+                              { -0.25f,   0.5f, -0.5f },
+                              {  0.25f,   0.5f, -0.5f },
+                              {  0.25f,  -0.5f, -0.5f },
+                              { -0.25f,  -0.5f, -0.5f } };
 
-    GLfloat lns[0x08][0x03] = { {  0.1,  0.1, -0.5 },
-                                {  0.1, -0.1, -0.5 },
-                                { -0.1, -0.1, -0.5 },
-                                { -0.1,  0.1, -0.5 },
+    G3DVECTOR3F lns[0x08] = { {  -0.1f,   0.1f, -0.5f },
+                              {   0.1f,   0.1f, -0.5f },
+                              {   0.1f,  -0.1f, -0.5f },
+                              {  -0.1f,  -0.1f, -0.5f },
 
-                                {  0.25, -0.25, -0.7 },
-                                {  0.25,  0.25, -0.7 },
-                                { -0.25,  0.25, -0.7 },
-                                { -0.25, -0.25, -0.7 } } ;
+                              { -0.25f,  0.25f, -0.7f },
+                              {  0.25f,  0.25f, -0.7f },
+                              {  0.25f, -0.25f, -0.7f },
+                              { -0.25f, -0.25f, -0.7f } };
 
-    uint32_t index[0x06][0x04] = { { 0x00, 0x01, 0x02, 0x03 },
-                                   { 0x04, 0x05, 0x06, 0x07 },
-                                   { 0x03, 0x02, 0x07, 0x06 },
-                                   { 0x05, 0x04, 0x01, 0x00 },
-                                   { 0x01, 0x04, 0x07, 0x02 },
-                                   { 0x05, 0x00, 0x03, 0x06 } };
+    uint32_t idx[0x0C][0x02] = { { 0x00, 0x01 },
+                                 { 0x01, 0x02 },
+                                 { 0x02, 0x03 },
+                                 { 0x03, 0x00 },
+                                 { 0x04, 0x05 },
+                                 { 0x05, 0x06 },
+                                 { 0x06, 0x07 },
+                                 { 0x07, 0x04 },
+                                 { 0x00, 0x04 },
+                                 { 0x01, 0x05 },
+                                 { 0x02, 0x06 },
+                                 { 0x03, 0x07 }  };
+    int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                  "mvpMatrix" );
+    float mvp[0x10];
+    float mvw[0x10];
     uint32_t i;
 
-    /*** dont draw itself because the current cam is always at 0,0,0 ***/
-    if ( cam == curcam ) return 0x00;
+    if( curcam == cam ) return 0x00;
 
-    glPushAttrib( GL_ALL_ATTRIB_BITS );
-    glDisable   ( GL_LIGHTING );
-    glPolygonMode ( GL_FRONT_AND_BACK, GL_LINE );
-    glColor3ub  ( 0x00, 0xFF, 0x00 );
+    g3dcore_multMatrixf( curcam->obj.inverseWorldMatrix,
+                         cam->obj.worldMatrix,
+                         mvw );
 
-    glBegin ( GL_QUADS );
-    for ( i = 0x00; i < 0x06; i++ ) {
-        uint32_t v0 = index[i][0x00],
-                 v1 = index[i][0x01],
-                 v2 = index[i][0x02],
-                 v3 = index[i][0x03];
+    /*** the matrix by which vertices coords are transformed ***/
+    g3dcore_multMatrixf( cam->pmatrix, mvw, mvp );
 
-        glVertex3fv ( pnt[v0] );
-        glVertex3fv ( pnt[v1] );
-        glVertex3fv ( pnt[v2] );
-        glVertex3fv ( pnt[v3] );
+    glUseProgram( engine->coloredShaderProgram );
 
-        glVertex3fv ( lns[v0] );
-        glVertex3fv ( lns[v1] );
-        glVertex3fv ( lns[v2] );
-        glVertex3fv ( lns[v3] );
+    glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
+
+    for ( i = 0x00; i < 0x0C; i++ ) {
+        SHADERVERTEX verbox[0x02] = { 0 };
+        SHADERVERTEX verlns[0x02] = { 0 };
+
+        verbox[0x00].pos = box[idx[i][0x00]];
+        verbox[0x01].pos = box[idx[i][0x01]];
+        verbox[0x00].col.g = 1.0f;
+        verbox[0x01].col.g = 1.0f;
+g3dvector_print( &verbox[0x00].pos );
+g3dvector_print( &verbox[0x01].pos );
+        verlns[0x00].pos = lns[idx[i][0x00]];
+        verlns[0x01].pos = lns[idx[i][0x01]];
+        verlns[0x00].col.g = 1.0f;
+        verlns[0x01].col.g = 1.0f;
+
+        g3dengine_drawLine( engine, verbox, 0, engine_flags );
+        g3dengine_drawLine( engine, verlns, 0, engine_flags );
     }
-    glEnd ( );
-
+/*
     if ( obj->flags & CAMERADOF ) {
         G3DVECTOR vec[0x04] = { { .x =  1.0f, .y =  1.0f, .z = -cam->dof.farBlur },
                                 { .x =  1.0f, .y = -1.0f, .z = -cam->dof.farBlur },
@@ -512,8 +527,9 @@ uint32_t g3dcamera_draw ( G3DOBJECT *obj,
 
         glEnd ( );
     }
+*/
 
-    glPopAttrib ( );
+    glUseProgram( 0 );
 
     return 0x00;
 }

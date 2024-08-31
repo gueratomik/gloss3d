@@ -288,52 +288,52 @@ void g3dmesh_drawQuadList ( G3DMESH *mes,
     }
 
     if( engine_flags & FILLINGWIREFRAME ) {
-        int posMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
-                                                      "posMatrix" );
+        int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                      "mvpMatrix" );
 
         glUseProgram( engine->coloredShaderProgram );
 
-        glUniformMatrix4fv( posMatrixLocation, 1, GL_FALSE, mvp );
+        glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
     }
 
     while ( ltmpqua ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpqua->data;
-        SHADERVERTEX vertices[0x04] = { { fac->ver[0x00]->pos.x, 
-                                          fac->ver[0x00]->pos.y,
-                                          fac->ver[0x00]->pos.z,
-                                          fac->ver[0x00]->nor.x,
-                                          fac->ver[0x00]->nor.y,
-                                          fac->ver[0x00]->nor.z,
-                                          0.5f            ,
-                                          0.5f            ,
-                                          0.5f },
-                                        { fac->ver[0x01]->pos.x,
-                                          fac->ver[0x01]->pos.y,
-                                          fac->ver[0x01]->pos.z,
-                                          fac->ver[0x01]->nor.x,
-                                          fac->ver[0x01]->nor.y,
-                                          fac->ver[0x01]->nor.z,
-                                          0.5f            ,
-                                          0.5f            ,
-                                          0.5f },
-                                        { fac->ver[0x02]->pos.x,
-                                          fac->ver[0x02]->pos.y,
-                                          fac->ver[0x02]->pos.z,
-                                          fac->ver[0x02]->nor.x,
-                                          fac->ver[0x02]->nor.y,
-                                          fac->ver[0x02]->nor.z,
-                                          0.5f            ,
-                                          0.5f            ,
-                                          0.5f },
-                                        { fac->ver[0x03]->pos.x,
-                                          fac->ver[0x03]->pos.y,
-                                          fac->ver[0x03]->pos.z,
-                                          fac->ver[0x03]->nor.x,
-                                          fac->ver[0x03]->nor.y,
-                                          fac->ver[0x03]->nor.z,
-                                          0.5f            ,
-                                          0.5f            ,
-                                          0.5f } };
+        SHADERVERTEX vertices[0x04] = { { .pos = { fac->ver[0x00]->pos.x, 
+                                                   fac->ver[0x00]->pos.y,
+                                                   fac->ver[0x00]->pos.z },
+                                          .nor = { fac->ver[0x00]->nor.x,
+                                                   fac->ver[0x00]->nor.y,
+                                                   fac->ver[0x00]->nor.z },
+                                          .col = { 0.5f            ,
+                                                   0.5f            ,
+                                                   0.5f } },
+                                        { .pos = { fac->ver[0x01]->pos.x, 
+                                                   fac->ver[0x01]->pos.y,
+                                                   fac->ver[0x01]->pos.z },
+                                          .nor = { fac->ver[0x01]->nor.x,
+                                                   fac->ver[0x01]->nor.y,
+                                                   fac->ver[0x01]->nor.z },
+                                          .col = { 0.5f            ,
+                                                   0.5f            ,
+                                                   0.5f } },
+                                        { .pos = { fac->ver[0x02]->pos.x, 
+                                                   fac->ver[0x02]->pos.y,
+                                                   fac->ver[0x02]->pos.z },
+                                          .nor = { fac->ver[0x02]->nor.x,
+                                                   fac->ver[0x02]->nor.y,
+                                                   fac->ver[0x02]->nor.z },
+                                          .col = { 0.5f            ,
+                                                   0.5f            ,
+                                                   0.5f } },
+                                        { .pos = { fac->ver[0x03]->pos.x, 
+                                                   fac->ver[0x03]->pos.y,
+                                                   fac->ver[0x03]->pos.z },
+                                          .nor = { fac->ver[0x03]->nor.x,
+                                                   fac->ver[0x03]->nor.y,
+                                                   fac->ver[0x03]->nor.z },
+                                          .col = { 0.5f            ,
+                                                   0.5f            ,
+                                                   0.5f } } };
 
         g3dengine_drawQuad( engine,
                             vertices,
@@ -389,43 +389,43 @@ void g3dmesh_drawTriangleList ( G3DMESH   *mes,
     }
 
     if( engine_flags & FILLINGWIREFRAME ) {
-        int posMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
-                                                      "posMatrix" );
+        int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                      "mvpMatrix" );
 
         glUseProgram( engine->coloredShaderProgram );
 
-        glUniformMatrix4fv( posMatrixLocation, 1, GL_FALSE, mvp );
+        glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
     }
 
     while ( ltmptri ) {
         G3DFACE *fac = ( G3DFACE * ) ltmptri->data;
-        SHADERVERTEX vertices[0x03] = { { fac->ver[0x00]->pos.x, 
-                                          fac->ver[0x00]->pos.y,
-                                          fac->ver[0x00]->pos.z,
-                                          fac->ver[0x00]->nor.x,
-                                          fac->ver[0x00]->nor.y,
-                                          fac->ver[0x00]->nor.z,
-                                          0.5f            ,
-                                          0.5f            ,
-                                          0.5f },
-                                        { fac->ver[0x01]->pos.x,
-                                          fac->ver[0x01]->pos.y,
-                                          fac->ver[0x01]->pos.z,
-                                          fac->ver[0x01]->nor.x,
-                                          fac->ver[0x01]->nor.y,
-                                          fac->ver[0x01]->nor.z,
-                                          0.5f            ,
-                                          0.5f            ,
-                                          0.5f },
-                                        { fac->ver[0x02]->pos.x,
-                                          fac->ver[0x02]->pos.y,
-                                          fac->ver[0x02]->pos.z,
-                                          fac->ver[0x02]->nor.x,
-                                          fac->ver[0x02]->nor.y,
-                                          fac->ver[0x02]->nor.z,
-                                          0.5f            ,
-                                          0.5f            ,
-                                          0.5f } };
+        SHADERVERTEX vertices[0x03] = { { .pos = { fac->ver[0x00]->pos.x, 
+                                                   fac->ver[0x00]->pos.y,
+                                                   fac->ver[0x00]->pos.z },
+                                          .nor = { fac->ver[0x00]->nor.x,
+                                                   fac->ver[0x00]->nor.y,
+                                                   fac->ver[0x00]->nor.z },
+                                          .col = { 0.5f            ,
+                                                   0.5f            ,
+                                                   0.5f } },
+                                        { .pos = { fac->ver[0x01]->pos.x, 
+                                                   fac->ver[0x01]->pos.y,
+                                                   fac->ver[0x01]->pos.z },
+                                          .nor = { fac->ver[0x01]->nor.x,
+                                                   fac->ver[0x01]->nor.y,
+                                                   fac->ver[0x01]->nor.z },
+                                          .col = { 0.5f            ,
+                                                   0.5f            ,
+                                                   0.5f } },
+                                        { .pos = { fac->ver[0x02]->pos.x, 
+                                                   fac->ver[0x02]->pos.y,
+                                                   fac->ver[0x02]->pos.z },
+                                          .nor = { fac->ver[0x02]->nor.x,
+                                                   fac->ver[0x02]->nor.y,
+                                                   fac->ver[0x02]->nor.z },
+                                          .col = { 0.5f            ,
+                                                   0.5f            ,
+                                                   0.5f } } };
 
         g3dengine_drawTriangle( engine,
                                 vertices,
@@ -2978,8 +2978,8 @@ void g3dmesh_drawFaceNormal ( G3DMESH   *mes,
     float scaling = g3dvector_length ( &obj->sca );
     float nratio =  0.1f / scaling;
     LIST *ltmpfac = mes->lfac;
-    int posMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
-                                                  "posMatrix" );
+    int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                  "mvpMatrix" );
     float mvp[0x10];
     float inv[0x10];
     float nor[0x10];
@@ -2997,7 +2997,7 @@ void g3dmesh_drawFaceNormal ( G3DMESH   *mes,
 
     glUseProgram( engine->coloredShaderProgram );
 
-    glUniformMatrix4fv( posMatrixLocation, 1, GL_FALSE, mvp );
+    glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -3103,8 +3103,8 @@ void g3dmesh_drawVertexNormal ( G3DMESH *mes,
     float scaling = g3dvector_length ( &obj->sca );
     float nratio =  0.1f / scaling;
     LIST *ltmpver = mes->lver;
-    int posMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
-                                                  "posMatrix" );
+    int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                  "mvpMatrix" );
     float mvp[0x10];
     float inv[0x10];
     float nor[0x10];
@@ -3119,7 +3119,7 @@ void g3dmesh_drawVertexNormal ( G3DMESH *mes,
 
     glUseProgram( engine->coloredShaderProgram );
 
-    glUniformMatrix4fv( posMatrixLocation, 1, GL_FALSE, mvp );
+    glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -3523,8 +3523,8 @@ void g3dmesh_drawVertices  ( G3DMESH   *mes,
 
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     LIST *ltmpver = mes->lver;
-    int posMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
-                                                  "posMatrix" );
+    int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                  "mvpMatrix" );
     float mvp[0x10];
     float mod[0x10];
 
@@ -3541,21 +3541,21 @@ void g3dmesh_drawVertices  ( G3DMESH   *mes,
 
     glUseProgram( engine->coloredShaderProgram );
 
-    glUniformMatrix4fv( posMatrixLocation, 1, GL_FALSE, mvp );
+    glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-        G3DVECTOR3F col = ( ver->flags & VERTEXSELECTED ) ? ( G3DVECTOR3F ) { 1.0f, 0.0f, 0.0f } 
-                                                          : ( G3DVECTOR3F ) { 0.0f, 0.0f, 1.0f };
-        SHADERVERTEX vertex =  { ver->pos.x, 
-                                 ver->pos.y,
-                                 ver->pos.z,
-                                 0.0f,
-                                 0.0f,
-                                 0.0f,
-                                 col.x,
-                                 col.y,
-                                 col.z };
+        G3DCOLOR3F col = ( ver->flags & VERTEXSELECTED ) ? ( G3DCOLOR3F ) { 1.0f, 0.0f, 0.0f } 
+                                                         : ( G3DCOLOR3F ) { 0.0f, 0.0f, 1.0f };
+        SHADERVERTEX vertex =  { .pos = { ver->pos.x, 
+                                          ver->pos.y,
+                                          ver->pos.z },
+                                 .nor = { 0.0f,
+                                          0.0f,
+                                          0.0f },
+                                 .col = { col.r,
+                                          col.g,
+                                          col.b } };
 
         g3dengine_drawPoint( engine,
                             &vertex,
@@ -3631,8 +3631,8 @@ void g3dmesh_drawEdges ( G3DMESH   *mes,
                          uint64_t   engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     LIST *ltmpedg = mes->ledg;
-    int posMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
-                                                  "posMatrix" );
+    int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                  "mvpMatrix" );
     float mvp[0x10];
     float mod[0x10];
 
@@ -3648,7 +3648,7 @@ void g3dmesh_drawEdges ( G3DMESH   *mes,
 
     glUseProgram( engine->coloredShaderProgram );
 
-    glUniformMatrix4fv( posMatrixLocation, 1, GL_FALSE, mvp );
+    glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
 
     while ( ltmpedg ) {
         G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
@@ -3944,7 +3944,7 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
 
     /*** this means a modifier has taken over ***/
     if ( mes->lastmod ) {
-        g3dmodifier_moddraw ( mes->lastmod, curcam, engine_flags );
+        g3dmodifier_moddraw ( mes->lastmod, curcam, engine, engine_flags );
 
         if ( obj->flags & OBJECTSELECTED ) {
             if ( engine_flags & VIEWVERTEXUV ) {

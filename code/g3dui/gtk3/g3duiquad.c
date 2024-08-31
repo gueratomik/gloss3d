@@ -247,6 +247,8 @@ static void gtk3_g3duiquad_createViews ( GTK3G3DUIQUAD *gtk3quad ) {
 
         gtk_layout_put ( GTK_LAYOUT(gtk3quad->layout), gtk3view->layout, 0, 0 );
     }
+
+    gtk3gui->core.currentView = gtk3quad->core.view[0];
 }
 
 /******************************************************************************/

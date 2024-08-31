@@ -357,7 +357,7 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
                 G3DSYSINFO *sif = g3dsysinfo_get ( );
                 /*** Get the temporary subdivision arrays for CPU #0 ***/
                 G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, 0x00 );
-                G3DRTVERTEX *rtvermem = NULL;
+                SHADERVERTEX *rtvermem = NULL;
 
                 while ( ltmpfac ) {
                     G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
@@ -370,7 +370,7 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
 
                         switch ( sculptMode ) {
                             case SCULPTMODE_SCULPT : {
-                                rtvermem = realloc ( rtvermem, fse->nbver * sizeof ( G3DRTVERTEX ) );
+                                rtvermem = realloc ( rtvermem, fse->nbver * sizeof ( SHADERVERTEX ) );
 
                                 g3dsubdivisionV3_subdivide ( sdv, 
                                                              mes,
@@ -503,7 +503,7 @@ static void g3dsubdivider_modpick ( G3DSUBDIVIDER *sdr,
                             G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
                             uint32_t nbrtver = ( fac->nbver == 0x03 ) ? sdr->nbVerticesPerTriangle :
                                                                         sdr->nbVerticesPerQuad;
-                            G3DRTVERTEX *rtvermem = fac->rtvermem;
+                            SHADERVERTEX *rtvermem = fac->rtvermem;
                             uint32_t nbrtqua;
                             uint32_t i, j;
 
@@ -513,7 +513,7 @@ static void g3dsubdivider_modpick ( G3DSUBDIVIDER *sdr,
                                 for ( i = 0x00; i < nbrtver; i++ ) {
                                     uint64_t name = ( ( uint64_t ) fac->id << 0x20 ) |
                                                       ( uint64_t ) i;
-                                    G3DRTVERTEX *rtver = &rtvermem[i];
+                                    SHADERVERTEX *rtver = &rtvermem[i];
 
                                     g3dpick_setName ( name );
 
@@ -537,7 +537,7 @@ static void g3dsubdivider_modpick ( G3DSUBDIVIDER *sdr,
                                     uint32_t ID1 = rtfac->rtver[0x01];
                                     uint32_t ID2 = rtfac->rtver[0x02];
                                     uint32_t ID3 = rtfac->rtver[0x03];
-                                    G3DRTVERTEX *rtver0 = &rtvermem[ID0],
+                                    SHADERVERTEX *rtver0 = &rtvermem[ID0],
                                                 *rtver1 = &rtvermem[ID1],
                                                 *rtver2 = &rtvermem[ID2],
                                                 *rtver3 = &rtvermem[ID3];
@@ -568,7 +568,7 @@ static void g3dsubdivider_modpick ( G3DSUBDIVIDER *sdr,
                                     uint32_t ID1 = rtfac->rtver[0x01];
                                     uint32_t ID2 = rtfac->rtver[0x02];
                                     uint32_t ID3 = rtfac->rtver[0x03];
-                                    G3DRTVERTEX *rtver0 = &rtvermem[ID0],
+                                    SHADERVERTEX *rtver0 = &rtvermem[ID0],
                                                 *rtver1 = &rtvermem[ID1],
                                                 *rtver2 = &rtvermem[ID2],
                                                 *rtver3 = &rtvermem[ID3];
@@ -710,7 +710,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
         G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, 0x00 );
         G3DMESH     *mes      = ( G3DMESH * ) parent;
         G3DRTUV     *rtluim  = NULL;
-        G3DRTVERTEX *rtvermem = NULL;
+        SHADERVERTEX *rtvermem = NULL;
         G3DRTEDGE   *rtedgmem = NULL;
         G3DRTQUAD   *rtquamem = NULL;
         LIST *ltmpfac = mes->lfac;
@@ -755,7 +755,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                                                         nbFacesPerQuad;
             uint32_t nbrtfac, i;
 
-            rtvermem = realloc ( rtvermem, nbVerticesPerFace * sizeof ( G3DRTVERTEX ) );
+            rtvermem = realloc ( rtvermem, nbVerticesPerFace * sizeof ( SHADERVERTEX ) );
             rtedgmem = realloc ( rtedgmem, nbEdgesPerFace    * sizeof ( G3DRTEDGE   ) );
             rtquamem = realloc ( rtquamem, nbFacesPerFace    * sizeof ( G3DRTQUAD   ) );
 
@@ -804,14 +804,14 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                 memset ( &dumpFac, 0x00, sizeof ( G3DFACE ) );
 
                 for ( j = 0x00; j < 0x04; j++ ) {
-                    G3DRTVERTEX *rtver = &rtvermem[rtquamem[i].rtver[j]];
+                    SHADERVERTEX *rtver = &rtvermem[rtquamem[i].rtver[j]];
 
                     memset ( &dumpVer[j], 0x00, sizeof ( G3DVERTEX ) );
 
                     dumpVer[j].id = rtver->id;
 
-                    memcpy ( &dumpVer[j].pos, &rtver->pos, sizeof ( G3DTINYVECTOR ) );
-                    memcpy ( &dumpVer[j].nor, &rtver->nor, sizeof ( G3DTINYVECTOR ) );
+                    memcpy ( &dumpVer[j].pos, &rtver->pos, sizeof ( G3DVECTOR3F ) );
+                    memcpy ( &dumpVer[j].nor, &rtver->nor, sizeof ( G3DVECTOR3F ) );
                 }
 
                 dumpFac.nbver = 0x04;
@@ -1108,7 +1108,7 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
 
             sdr->rtedgmem = realloc ( sdr->rtedgmem, ( sdr->nbrtedg * sizeof ( G3DRTEDGE   ) ) );
 
-            sdr->rtvermem = realloc ( sdr->rtvermem, ( sdr->nbrtver * sizeof ( G3DRTVERTEX ) ) );
+            sdr->rtvermem = realloc ( sdr->rtvermem, ( sdr->nbrtver * sizeof ( SHADERVERTEX ) ) );
 
             sdr->rtluim   = realloc ( sdr->rtluim  , ( sdr->nbrtuv  * sizeof ( G3DRTUV     ) ) );
 
@@ -1457,11 +1457,35 @@ static void unbindMaterials ( G3DMESH *mes,
 /******************************************************************************/
 static uint32_t g3dsubdivider_moddraw ( G3DSUBDIVIDER *sdr,
                                         G3DCAMERA     *cam,
+                                        G3DENGINE     *engine,
                                         uint64_t       engine_flags ) {
+    int mvwMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
+                                                  "mvwMatrix" );
+    int mvpMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
+                                                  "mvpMatrix" );
+    int norMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
+                                                  "norMatrix" );
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = sdr->mod.oriobj;
     uint64_t viewSkin = ( ( engine_flags  & VIEWSKIN       ) &&
                           ( parent->flags & OBJECTSELECTED ) ) ? 0x01: 0x00;
+    float mvp[0x10];
+    float inv[0x10];
+    float nor[0x10];
+    float mvw[0x10];
+
+    g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
+                         parent->worldMatrix,
+                         mvw );
+
+    /*** the matrix by which vertices coords are transformed ***/
+    g3dcore_multMatrixf( cam->pmatrix, mvw, mvp );
+
+    /*** the matrix by which vertices normals are transformed ***/
+    g3dcore_invertMatrixf   ( mvw, inv );
+    g3dcore_transposeMatrixf( inv, nor );
+
+    glUseProgram( engine->triangleShaderProgram );
 
     if ( obj->flags & OBJECTINACTIVE ) return 0x00;
 
@@ -1473,94 +1497,91 @@ static uint32_t g3dsubdivider_moddraw ( G3DSUBDIVIDER *sdr,
     }
 
     if ( parent ) {
+
         G3DMESH *mes = ( G3DMESH * ) parent;
         uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
         LIST *ltmpfac = mes->lfac;
 
+        glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
+        glUniformMatrix4fv( mvwMatrixLocation, 1, GL_FALSE, mvw );
+        glUniformMatrix4fv( norMatrixLocation, 1, GL_FALSE, nor );
+
         while ( ltmpfac ) {
             G3DFACE     *fac      = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
-            G3DRTVERTEX *rtvermem = NULL;
+            SHADERVERTEX *rtvermem = NULL;
             G3DRTEDGE   *rtedgmem = NULL;
             G3DRTQUAD   *rtquamem = NULL;
             G3DRTUV     *rtluim  = NULL;
             uint32_t     nbrtfac;
+            uint32_t     nbrtver;
             GLint arbid = GL_TEXTURE0_ARB;
             LIST *ltmptex = mes->ltex;
             LIST *ltmpuvs = fac->luvs;
 
             if ( fac->nbver == 0x03 ) {
                 nbrtfac  = sdr->nbFacesPerTriangle;
+                nbrtver  = sdr->nbVerticesPerTriangle;
+/*
                 rtvermem = sdr->rtvermem + ( fac->typeID * sdr->nbVerticesPerTriangle );
                 rtquamem = sdr->rtquamem + ( fac->typeID * sdr->nbFacesPerTriangle );
                 rtluim  = sdr->rtluim  + ( fac->typeID * sdr->nbVerticesPerTriangle * nbuvmap );
+*/
             } else {
                 nbrtfac  = sdr->nbFacesPerQuad;
+                nbrtver  = sdr->nbVerticesPerQuad;
+/*
                 rtvermem = sdr->rtvermem + ( mes->nbtri  * sdr->nbVerticesPerTriangle ) + 
                                            ( fac->typeID * sdr->nbVerticesPerQuad );
                 rtquamem = sdr->rtquamem + ( mes->nbtri  * sdr->nbFacesPerTriangle ) + 
                                            ( fac->typeID * sdr->nbFacesPerQuad );
-                rtluim  = sdr->rtluim  + ( mes->nbtri  * sdr->nbVerticesPerTriangle * nbuvmap ) +
+                rtluim  = sdr->rtluim    + ( mes->nbtri  * sdr->nbVerticesPerTriangle * nbuvmap ) +
                                            ( fac->typeID * sdr->nbVerticesPerQuad * nbuvmap );
+*/
             }
 
+#ifdef need_refactor
             if ( ( engine_flags & VIEWSKIN ) == 0x00 ) {
                 if ( ( engine_flags & NOTEXTURE ) == 0x00 ) {
                     bindMaterials ( sdr, mes, fac, rtluim, engine_flags );
                 }
  
-                glEnableClientState ( GL_NORMAL_ARRAY );
+                /*glEnableClientState ( GL_NORMAL_ARRAY );*/
             }
+#endif
 
-            glEnableClientState ( GL_VERTEX_ARRAY );
-            glEnableClientState ( GL_COLOR_ARRAY  );
-            glColorPointer  ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)rtvermem)      );
-            glNormalPointer (    GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)rtvermem) + 12 );
-            glVertexPointer ( 3, GL_FLOAT, sizeof ( G3DRTVERTEX ), ((char*)rtvermem) + 24 );
-            glDrawElements ( GL_QUADS, nbrtfac * 4, GL_UNSIGNED_INT, rtquamem );
-            glDisableClientState ( GL_VERTEX_ARRAY );
-            glDisableClientState ( GL_COLOR_ARRAY  );
+            g3dengine_bindSubdivVertexArray ( engine );
+            g3dengine_bindSubdivVertexBuffer( engine, nbrtver );
+            /*** Note: quads are made of 2 triangles because modern OpenGL  ***/
+            /*** does not support quads anymore. Hence the 6 (because 3x2 ) ***/
+            g3dengine_bindSubdivIndexBuffer ( engine, nbrtfac * 6 );
 
+            glBufferSubData( GL_ARRAY_BUFFER,
+                             0,
+                             sizeof( SHADERVERTEX ) * nbrtver,
+                             fac->rtvermem );
+
+            glBufferSubData( GL_ELEMENT_ARRAY_BUFFER,
+                             0,
+                             sizeof( G3DRTQUAD    ) * nbrtfac,
+                             fac->rtquamem );
+
+            glDrawElements ( GL_TRIANGLES,
+                             nbrtfac * 6,
+                             GL_UNSIGNED_SHORT,
+                             NULL );
+
+            glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+            glBindBuffer( GL_ARRAY_BUFFER, 0 );
+
+#ifdef need_refactor
             if ( ( engine_flags & VIEWSKIN ) == 0x00 ) {
-                glDisableClientState ( GL_NORMAL_ARRAY );
+                /*glDisableClientState ( GL_NORMAL_ARRAY );*/
 
                 if ( ( engine_flags & NOTEXTURE ) == 0x00 ) {
                     unbindMaterials ( mes, fac, rtluim, engine_flags );
                 }
             }
-
-/******************************/
-/*        uint32_t i;
-        glPushAttrib ( GL_ALL_ATTRIB_BITS );
-        glDisable    ( GL_LIGHTING );
-        glPointSize ( 3.0f );
-
-printf("Face ------- \n");
-        for ( i = 0x00; i < sdr->nbFacesPerQuad; i++ ) {
-printf("%d %d %d %d\n", rtquamem[i].rtver[0x00],  
-                        rtquamem[i].rtver[0x01],
-                        rtquamem[i].rtver[0x02],
-                        rtquamem[i].rtver[0x03]);
-        }
-
-        for ( i = 0x00; i < sdr->nbVerticesPerQuad; i++ ) {
-
-            if ( i == 25 ) glColor3ub ( 0xFF, 0xFF, 0x00 );
-            else 
-            if ( i == 0   ) glColor3ub ( 0xFF, 0xFF, 0xFF );
-            else 
-            if ( i == 1   ) glColor3ub ( 0x00, 0x00, 0x00 );
-            else            glColor3ub ( 0x00, 0xFF, 0xFF );
-
-            glBegin ( GL_POINTS );
-            glVertex3f ( fac->rtvermem[i].pos.x, 
-                         fac->rtvermem[i].pos.y, 
-                         fac->rtvermem[i].pos.z );
-            glPopAttrib ( );
-            glEnd ( );
-        }*/
-/******************************/
-
-
+#endif
             _NEXTFACE(mes,ltmpfac);
         }
     }
@@ -1568,6 +1589,8 @@ printf("%d %d %d %d\n", rtquamem[i].rtver[0x00],
     if ( viewSkin ) {
         glPopAttrib ( );
     }
+
+    glUseProgram( 0 );
 
     return 0x00;
 }

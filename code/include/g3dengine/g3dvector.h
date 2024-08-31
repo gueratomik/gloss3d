@@ -78,6 +78,7 @@ typedef struct _G3DQUATERNION {
     double w;
 } G3DQUATERNION;
 
+
 /******************************************************************************/
 /**
  * Init a 3D vector.
@@ -121,6 +122,7 @@ void g3dvector_cross ( G3DVECTOR *, G3DVECTOR *, G3DVECTOR * );
  * @param len the returned length of the vector. Can be NULL.
  */
 void g3dvector_normalize ( G3DVECTOR *vec, float *len );
+void g3dvector3f_normalize ( G3DVECTOR3F *vec, float *len );
 
 /**
  * Return the scalar product of two 2D vectors.
@@ -156,8 +158,9 @@ void g3dvector_free ( void * );
  * @param matrix a pointer to a 4x4 matrix.
  * @param vout a pointer to a vector (result).
  */
-void g3dvector_matrixd ( G3DVECTOR *vec, double *matrix, G3DVECTOR *vout );
-void g3dvector_matrixf ( G3DVECTOR *vec, float  *matrix, G3DVECTOR *vout );
+void g3dvector_matrixd   ( G3DVECTOR *vec, double *matrix, G3DVECTOR *vout );
+void g3dvector_matrixf   ( G3DVECTOR *vec, float  *matrix, G3DVECTOR *vout );
+void g3dvector3f_matrixf ( G3DVECTOR3F *vec, float *matrix, G3DVECTOR3F *vout );
 
 void g3dvector_matrix3 ( G3DVECTOR *vec, double *matrix, G3DVECTOR *vout );
 
@@ -167,6 +170,7 @@ void g3dvector_matrix3 ( G3DVECTOR *vec, double *matrix, G3DVECTOR *vout );
  * @return the length of the vector.
  */
 float g3dvector_length ( G3DVECTOR *vec );
+float g3dvector3f_length ( G3DVECTOR3F *vec );
 
 /**
  * Get the angle between formed by vectors (in radians).

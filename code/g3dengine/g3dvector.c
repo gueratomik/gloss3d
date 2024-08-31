@@ -116,10 +116,14 @@ double g3ddoublevector_scalar ( G3DDOUBLEVECTOR *v0, G3DDOUBLEVECTOR *v1 ) {
 /******************************************************************************/
 void g3ddoublevector_cross ( G3DDOUBLEVECTOR *vone, G3DDOUBLEVECTOR *vtwo, 
                                                     G3DDOUBLEVECTOR *vout ) {
-    vout->x = ( vone->y * vtwo->z ) - ( vone->z * vtwo->y );
-    vout->y = ( vone->z * vtwo->x ) - ( vone->x * vtwo->z );
-    vout->z = ( vone->x * vtwo->y ) - ( vone->y * vtwo->x );
-    vout->w = 1.0f;
+    G3DVECTOR tmp;
+
+    tmp.x = ( vone->y * vtwo->z ) - ( vone->z * vtwo->y );
+    tmp.y = ( vone->z * vtwo->x ) - ( vone->x * vtwo->z );
+    tmp.z = ( vone->x * vtwo->y ) - ( vone->y * vtwo->x );
+    tmp.w = 1.0f;
+
+    memcpy( vout, &tmp, sizeof ( tmp ) );
 }
 
 /******************************************************************************/
@@ -128,111 +132,103 @@ float g3dvector_scalar ( G3DVECTOR *v0, G3DVECTOR *v1 ) {
 }
 
 /******************************************************************************/
-/** Multiply vector "vec" by a 4x4 "matrix" and returns the result in "vout" **/
-/******************************************************************************/
-
-
-/******************************************************************************/
-float g3dtinyvector_length ( G3DTINYVECTOR *vec ) {
-    float len = sqrt ( ( vec->x * vec->x ) +
-                       ( vec->y * vec->y ) +
-                       ( vec->z * vec->z ) );
-    return len;
-}
-
-/******************************************************************************/
-void g3dtinyvector_normalize ( G3DTINYVECTOR *vec, float *len ) {
-    float LEN = g3dtinyvector_length ( vec );
-
-    if ( len ) (*len) = LEN;
-
-    if ( LEN /*( len > NORMMAX ) || ( len < NORMMIN )*/ ) {
-        vec->x = vec->x / LEN;
-        vec->y = vec->y / LEN;
-        vec->z = vec->z / LEN;
-    }
-}
-
-/******************************************************************************/
-void g3dtinyvector_matrix ( G3DTINYVECTOR *vec, double *matrix,
-                                                G3DTINYVECTOR *vout ) {
-    vout->x = ( ( vec->x * matrix[0x00] ) + 
-                ( vec->y * matrix[0x04] ) + 
-                ( vec->z * matrix[0x08] ) + 
-                (          matrix[0x0C] ) );
-
-    vout->y = ( ( vec->x * matrix[0x01] ) + 
-                ( vec->y * matrix[0x05] ) + 
-                ( vec->z * matrix[0x09] ) + 
-                (          matrix[0x0D] ) );
-
-    vout->z = ( ( vec->x * matrix[0x02] ) + 
-                ( vec->y * matrix[0x06] ) + 
-                ( vec->z * matrix[0x0A] ) + 
-                (          matrix[0x0E] ) );
-}
-
-/******************************************************************************/
 void g3dvector_matrix3 ( G3DVECTOR *vec, double *matrix, G3DVECTOR *vout) {
-    vout->x = ( ( vec->x * matrix[0x00] ) + 
-                ( vec->y * matrix[0x03] ) + 
-                ( vec->z * matrix[0x06] ) );
+    G3DVECTOR tmp;
 
-    vout->y = ( ( vec->x * matrix[0x01] ) + 
-                ( vec->y * matrix[0x04] ) + 
-                ( vec->z * matrix[0x07] ) );
+    tmp.x = ( ( vec->x * matrix[0x00] ) + 
+              ( vec->y * matrix[0x03] ) + 
+              ( vec->z * matrix[0x06] ) );
 
-    vout->z = ( ( vec->x * matrix[0x02] ) + 
-                ( vec->y * matrix[0x05] ) + 
-                ( vec->z * matrix[0x08] ) );
+    tmp.y = ( ( vec->x * matrix[0x01] ) + 
+              ( vec->y * matrix[0x04] ) + 
+              ( vec->z * matrix[0x07] ) );
 
-    vout->w = 1.0f;
+    tmp.z = ( ( vec->x * matrix[0x02] ) + 
+              ( vec->y * matrix[0x05] ) + 
+              ( vec->z * matrix[0x08] ) );
+
+    tmp.w = 1.0f;
+
+    memcpy( vout, &tmp, sizeof ( tmp ) );
 }
 
 /******************************************************************************/
 void g3dvector_matrixd ( G3DVECTOR *vec, double *matrix, G3DVECTOR *vout ) {
-    vout->x = ( ( vec->x * matrix[0x00] ) + 
-                ( vec->y * matrix[0x04] ) + 
-                ( vec->z * matrix[0x08] ) + 
-                ( /*vec->w * */matrix[0x0C] ) );
+    G3DVECTOR tmp;
 
-    vout->y = ( ( vec->x * matrix[0x01] ) + 
-                ( vec->y * matrix[0x05] ) + 
-                ( vec->z * matrix[0x09] ) + 
-                ( /*vec->w * */matrix[0x0D] ) );
+    tmp.x = ( ( vec->x * matrix[0x00] ) + 
+              ( vec->y * matrix[0x04] ) + 
+              ( vec->z * matrix[0x08] ) + 
+              ( /*vec->w * */matrix[0x0C] ) );
 
-    vout->z = ( ( vec->x * matrix[0x02] ) + 
-                ( vec->y * matrix[0x06] ) + 
-                ( vec->z * matrix[0x0A] ) + 
-                ( /*vec->w * */matrix[0x0E] ) );
+    tmp.y = ( ( vec->x * matrix[0x01] ) + 
+              ( vec->y * matrix[0x05] ) + 
+              ( vec->z * matrix[0x09] ) + 
+              ( /*vec->w * */matrix[0x0D] ) );
 
-    vout->w = ( ( vec->x * matrix[0x03] ) + 
-                ( vec->y * matrix[0x07] ) + 
-                ( vec->z * matrix[0x0B] ) + 
-                ( /*vec->w * */matrix[0x0F] ) );
+    tmp.z = ( ( vec->x * matrix[0x02] ) + 
+              ( vec->y * matrix[0x06] ) + 
+              ( vec->z * matrix[0x0A] ) + 
+              ( /*vec->w * */matrix[0x0E] ) );
+
+    tmp.w = ( ( vec->x * matrix[0x03] ) + 
+              ( vec->y * matrix[0x07] ) + 
+              ( vec->z * matrix[0x0B] ) + 
+              ( /*vec->w * */matrix[0x0F] ) );
+
+    memcpy( vout, &tmp, sizeof ( tmp ) );
 }
 
 /******************************************************************************/
 void g3dvector_matrixf ( G3DVECTOR *vec, float *matrix, G3DVECTOR *vout ) {
-    vout->x = ( ( vec->x * matrix[0x00] ) + 
-                ( vec->y * matrix[0x04] ) + 
-                ( vec->z * matrix[0x08] ) + 
-                ( /*vec->w * */matrix[0x0C] ) );
+    G3DVECTOR tmp;
 
-    vout->y = ( ( vec->x * matrix[0x01] ) + 
-                ( vec->y * matrix[0x05] ) + 
-                ( vec->z * matrix[0x09] ) + 
-                ( /*vec->w * */matrix[0x0D] ) );
+    tmp.x = ( ( vec->x * matrix[0x00] ) + 
+              ( vec->y * matrix[0x04] ) + 
+              ( vec->z * matrix[0x08] ) + 
+              ( /*vec->w * */matrix[0x0C] ) );
 
-    vout->z = ( ( vec->x * matrix[0x02] ) + 
-                ( vec->y * matrix[0x06] ) + 
-                ( vec->z * matrix[0x0A] ) + 
-                ( /*vec->w * */matrix[0x0E] ) );
+    tmp.y = ( ( vec->x * matrix[0x01] ) + 
+              ( vec->y * matrix[0x05] ) + 
+              ( vec->z * matrix[0x09] ) + 
+              ( /*vec->w * */matrix[0x0D] ) );
 
-    vout->w = ( ( vec->x * matrix[0x03] ) + 
-                ( vec->y * matrix[0x07] ) + 
-                ( vec->z * matrix[0x0B] ) + 
-                ( /*vec->w * */matrix[0x0F] ) );
+    tmp.z = ( ( vec->x * matrix[0x02] ) + 
+              ( vec->y * matrix[0x06] ) + 
+              ( vec->z * matrix[0x0A] ) + 
+              ( /*vec->w * */matrix[0x0E] ) );
+
+    tmp.w = ( ( vec->x * matrix[0x03] ) + 
+              ( vec->y * matrix[0x07] ) + 
+              ( vec->z * matrix[0x0B] ) + 
+              ( /*vec->w * */matrix[0x0F] ) );
+
+
+    memcpy( vout, &tmp, sizeof ( tmp ) );
+}
+
+/******************************************************************************/
+void g3dvector3f_matrixf ( G3DVECTOR3F *vec,
+                           float       *matrix,
+                           G3DVECTOR3F *vout ) {
+    G3DVECTOR3F tmp;
+
+    tmp.x = ( ( vec->x * matrix[0x00] ) + 
+              ( vec->y * matrix[0x04] ) + 
+              ( vec->z * matrix[0x08] ) + 
+              (          matrix[0x0C] ) );
+
+    tmp.y = ( ( vec->x * matrix[0x01] ) + 
+              ( vec->y * matrix[0x05] ) + 
+              ( vec->z * matrix[0x09] ) + 
+              (          matrix[0x0D] ) );
+
+    tmp.z = ( ( vec->x * matrix[0x02] ) + 
+              ( vec->y * matrix[0x06] ) + 
+              ( vec->z * matrix[0x0A] ) + 
+              (          matrix[0x0E] ) );
+
+    memcpy( vout, &tmp, sizeof ( tmp ) );
 }
 
 /******************************************************************************/
@@ -266,18 +262,26 @@ int g3dvector_sameside ( G3DVECTOR *v0, G3DVECTOR *v1,
 
 /******************************************************************************/
 void g3dvector_average ( G3DVECTOR *vone, G3DVECTOR *vtwo, G3DVECTOR *vout ) {
-    vout->x = ( vone->x + vtwo->x ) / 2.0f;
-    vout->y = ( vone->y + vtwo->y ) / 2.0f;
-    vout->z = ( vone->z + vtwo->z ) / 2.0f;
-    vout->w = ( vone->w + vtwo->w ) / 2.0f;
+    G3DVECTOR tmp;
+
+    tmp.x = ( vone->x + vtwo->x ) / 2.0f;
+    tmp.y = ( vone->y + vtwo->y ) / 2.0f;
+    tmp.z = ( vone->z + vtwo->z ) / 2.0f;
+    tmp.w = ( vone->w + vtwo->w ) / 2.0f;
+
+    memcpy( vout, &tmp, sizeof ( tmp ) );
 }
 
 /******************************************************************************/
 void g3dvector_cross ( G3DVECTOR *vone, G3DVECTOR *vtwo, G3DVECTOR *vout ) {
-    vout->x = ( vone->y * vtwo->z ) - ( vone->z * vtwo->y );
-    vout->y = ( vone->z * vtwo->x ) - ( vone->x * vtwo->z );
-    vout->z = ( vone->x * vtwo->y ) - ( vone->y * vtwo->x );
-    vout->w = 1.0f;
+    G3DVECTOR tmp;
+
+    tmp.x = ( vone->y * vtwo->z ) - ( vone->z * vtwo->y );
+    tmp.y = ( vone->z * vtwo->x ) - ( vone->x * vtwo->z );
+    tmp.z = ( vone->x * vtwo->y ) - ( vone->y * vtwo->x );
+    tmp.w = 1.0f;
+
+    memcpy( vout, &tmp, sizeof ( tmp ) );
 }
 
 /******************************************************************************/
@@ -294,21 +298,14 @@ float g3dvector_length ( G3DVECTOR *vec ) {
                 ( vec->y * vec->y ) +
                 ( vec->z * vec->z );
 
-    /*if ( ( len < NORMMAX ) && ( len > NORMMIN ) ) return 1.0f;*/
+    return sqrt ( len );
+}
 
-/** commented out: not accurate enough for spline point rounding. ***/
-/** must be made optional ***/
-/*** http://bits.stephan-brumme.com/squareRoot.html ***/
-
-  /*unsigned int i = *(unsigned int*) &len;
-
-  // adjust bias
-  i  += 127 << 23;
-  // approximation of square root
-  i >>= 1;
-
-  return *(float*) &i;*/
-/******************************************************/
+/******************************************************************************/
+float g3dvector3f_length ( G3DVECTOR3F *vec ) {
+    float len = ( vec->x * vec->x ) +
+                ( vec->y * vec->y ) +
+                ( vec->z * vec->z );
 
     return sqrt ( len );
 }
@@ -353,6 +350,19 @@ void g3dvector_normalize ( G3DVECTOR *vec, float *len ) {
         vec->y = vec->y / LEN;
         vec->z = vec->z / LEN;
         vec->w = 1.0f;
+    }
+}
+
+/******************************************************************************/
+void g3dvector3f_normalize ( G3DVECTOR3F *vec, float *len ) {
+    float LEN = g3dvector3f_length ( vec );
+
+    if ( len ) (*len) = LEN;
+
+    if ( LEN ) {
+        vec->x = vec->x / LEN;
+        vec->y = vec->y / LEN;
+        vec->z = vec->z / LEN;
     }
 }
 

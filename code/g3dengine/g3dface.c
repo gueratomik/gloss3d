@@ -1357,9 +1357,9 @@ uint32_t g3dface_convert ( G3DFACE        *fac,
             if (   ( fac->flags & FACESELECTED   ) &&
                    ( engine_flags & VIEWFACE     ) &&
                  ( ( engine_flags & SYMMETRYVIEW ) == 0x00 ) ) {
-                g3drtvertex_init ( rtver, ver, 0x01, engine_flags );
+                shadervertex_init ( rtver, ver, 0x01, engine_flags );
             } else {
-                g3drtvertex_init ( rtver, ver, 0x00, engine_flags );
+                shadervertex_init ( rtver, ver, 0x00, engine_flags );
             }
 
             /*if ( engine_flags & VIEWSKIN ) {

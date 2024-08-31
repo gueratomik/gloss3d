@@ -58,6 +58,7 @@ uint32_t g3dmodifier_modpick ( G3DMODIFIER *mod,
 /*****************************************************************************/
 uint32_t g3dmodifier_moddraw ( G3DMODIFIER *mod,
                                G3DCAMERA   *curcam, 
+                               G3DENGINE   *engine, 
                                uint64_t     engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mod;
 
@@ -70,7 +71,7 @@ uint32_t g3dmodifier_moddraw ( G3DMODIFIER *mod,
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
     else                               glFrontFace(  GL_CCW );
 */
-    if ( mod->moddraw ) mod->moddraw ( mod, curcam, engine_flags );
+    if ( mod->moddraw ) mod->moddraw ( mod, curcam, engine, engine_flags );
 /*
     if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
     else                               glFrontFace(  GL_CW  );

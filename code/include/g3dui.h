@@ -2337,9 +2337,11 @@ void g3duiview_pressButton ( G3DUIVIEW *view,
                              int        y );
 void g3duiview_releaseButton ( G3DUIVIEW *view );
 void g3duiview_init ( G3DUIVIEW *view,
-                      uint32_t   width,
-                      uint32_t   height,
-                      uint32_t   menuHeight );
+                      uint32_t   viewID,      
+                      float      focal, 
+                      float      ratio,
+                      float      znear, 
+                      float      zfar );
 void g3duiview_resize ( G3DUIVIEW *view, 
                         uint32_t   width, 
                         uint32_t   height,

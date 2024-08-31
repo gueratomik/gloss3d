@@ -274,18 +274,27 @@ void g3duiview_releaseButton ( G3DUIVIEW *view ) {
 }
 
 /******************************************************************************/
-/* unused 
 void g3duiview_init ( G3DUIVIEW *view,
-                      uint32_t   width,
-                      uint32_t   height,
-                      uint32_t   menuHeight ) {
-    g3duiview_resize ( view, width, height, menuHeight );
+                      uint32_t   viewID,      
+                      float      focal, 
+                      float      ratio,
+                      float      znear, 
+                      float      zfar ) {
+    /*g3duiview_resize ( view, width, height, menuHeight );*/
 
-    
+    view->cam = &view->defcam;
+
+    g3dcamera_init( &view->defcam,
+                     viewID,
+                     "default camera",
+                     focal,
+                     ratio,
+                     znear,
+                     zfar );
 
     view->pressedButtonID = -1;
 }
-*/
+
 
 /******************************************************************************/
 void g3duiview_resize ( G3DUIVIEW *view, 

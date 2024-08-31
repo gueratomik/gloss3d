@@ -48,7 +48,13 @@ typedef struct _G3DCOLOR {
     float g; /*!< Green channel (0-1) */
     float b; /*!< Blue channel (0-1) */
     float a; /*!< Alpha channel (0-1) */
-} G3DCOLOR;
+} G3DCOLOR, G3DCOLOR4F;
+
+typedef struct _G3DCOLOR3F {
+    float r; /*!< Red channel (0-1) */
+    float g; /*!< Green channel (0-1) */
+    float b; /*!< Blue channel (0-1) */
+} G3DCOLOR3F;
 
 #ifdef __cplusplus
 }

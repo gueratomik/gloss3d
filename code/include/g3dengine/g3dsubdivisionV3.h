@@ -103,7 +103,7 @@ G3DSUBDIVISION *g3dsubdivisionV3_new ( );
  * @param output G3DRTTRIANGLE array. Filled only if subdivision level is 0.
  * @param output G3DRTQUAD array. Indexes vertices by Id.
  * @param output G3DRTEDGE array. Indexes vertices by Id.
- * @param output G3DRTVERTEX array.
+ * @param output SHADERVERTEX array.
  * @param output G3DRTUVS array.
  * @param output G3DVERTEX array.
  * @param output G3DEDGE array.
@@ -126,7 +126,7 @@ uint32_t g3dsubdivisionV3_subdivide ( G3DSUBDIVISION *sdv,
                                       G3DRTTRIANGLE  *rtTriangles,
                                       G3DRTQUAD      *rtQuads,
                                       G3DRTEDGE      *rtEdges,
-                                      G3DRTVERTEX    *rtVertices,
+                                      SHADERVERTEX   *rtVertices,
                                       G3DRTUV        *rtUVs,
                                       G3DVERTEX     **commitVertices,
                                       G3DEDGE       **commitEdges,
