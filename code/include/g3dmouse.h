@@ -190,22 +190,22 @@ typedef union _G3DEvent {
 } G3DEvent;
 
 #define G3DMOUSE_INITFUNC(f) ((uint32_t(*)(G3DMOUSETOOL*, \
-                                           G3DSCENE*, \
-                                           G3DCAMERA*, \
+                                           G3DSCENE*,     \
                                            G3DURMANAGER*, \
                                            uint64_t))(f))
 
 
-#define G3DMOUSE_TOOLFUNC(f)  ((int(*)(G3DMOUSETOOL*, \
-                                       G3DSCENE*, \
-                                       G3DCAMERA*, \
+#define G3DMOUSE_EVENTFUNC(f)  ((int(*)(G3DMOUSETOOL*, \
+                                       G3DSCENE*,     \
+                                       G3DCAMERA*,    \
                                        G3DURMANAGER*, \
-                                       uint64_t, \
+                                       uint64_t,      \
                                        G3DEvent*))(f))
 
 #define G3DMOUSE_DRAWFUNC(f) ((void(*)(G3DMOUSETOOL*, \
-                                       G3DSCENE*, \
-                                       G3DCAMERA*, \
+                                       G3DSCENE*,     \
+                                       G3DCAMERA*,    \
+                                       G3DENGINE*,    \
                                        uint64_t))(f))
 
 /******************************************************************************/
@@ -217,13 +217,13 @@ typedef struct _G3DMOUSETOOL {
     /*** init function is called when tool is selected ***/
     uint32_t (*init) ( struct _G3DMOUSETOOL *,
                                G3DSCENE *,
-                               G3DCAMERA *,
                                G3DURMANAGER *,
                                uint64_t );
     void (*draw) ( struct _G3DMOUSETOOL *,
-                           G3DSCENE *, 
+                           G3DSCENE *,
                            G3DCAMERA *,
-                           uint64_t ); /* drawing */
+                           G3DENGINE *,
+                           uint64_t ); /* drawing flags */
     int  (*event) ( struct _G3DMOUSETOOL *,
                            G3DSCENE *,
                            G3DCAMERA *,
@@ -337,10 +337,11 @@ typedef struct _G3DMOUSETOOLSMOOTH {
 
 /******************************************************************************/
 typedef struct _G3DMOUSETOOLCUTMESH {
-    G3DMOUSETOOL  tool;
-    int start;
-    GLdouble coord[0x04][0x03];
-    uint32_t restrict_to_selection; /*** true or false ***/
+    G3DMOUSETOOL tool;
+    G3DOBJECT   *obj;
+    int          start;
+    G3DVECTOR3F  coord[0x04];
+    uint32_t     restrict_to_selection; /*** true or false ***/
 } G3DMOUSETOOLCUTMESH;
 
 /******************************************************************************/
@@ -370,41 +371,46 @@ typedef struct _M3DMOUSETOOLBUCKET {
 
 /******************************************************************************/
 void g3dmousetool_init ( G3DMOUSETOOL *gtool,
-                         char *name, char key, const char **icon,
-                         uint32_t (*init) ( G3DMOUSETOOL *,
-                                            G3DSCENE *, 
-                                            G3DCAMERA *,
-                                            G3DURMANAGER *, 
-                                            uint64_t ),
-                         void (*draw) ( G3DMOUSETOOL *,
-                                        G3DSCENE *, 
-                                        G3DCAMERA *,
-                                        uint64_t ),
-                         int  (*event) ( G3DMOUSETOOL *, 
-                                        G3DSCENE *,
-                                        G3DCAMERA *, 
-                                        G3DURMANAGER *,
-                                        uint64_t,
-                                        G3DEvent * ),
-                         uint32_t flags );
+                         char         *name,
+                         char          key,
+                         const char  **icon,
+                         uint32_t    (*init)  ( G3DMOUSETOOL *,
+                                                G3DSCENE *, 
+                                                G3DURMANAGER *, 
+                                                uint64_t ),
+                         void        (*draw)  ( G3DMOUSETOOL *,
+                                                G3DSCENE *, 
+                                                G3DCAMERA *,
+                                                G3DENGINE *,
+                                                uint64_t ),
+                         int         (*event) ( G3DMOUSETOOL *, 
+                                                G3DSCENE *,
+                                                G3DCAMERA *, 
+                                                G3DURMANAGER *,
+                                                uint64_t,
+                                                G3DEvent * ),
+                         uint32_t     flags );
 
+/******************************************************************************/
 void m3dmousetool_init ( M3DMOUSETOOL *ltool,
-                         char *name, char key, const char **icon,
+                         char         *name,
+                         char          key,
+                         const char  **icon,
                          uint32_t (*init) ( G3DMOUSETOOL *,
-                                            G3DSCENE *, 
-                                            G3DCAMERA *,
+                                            G3DSCENE *,
                                             G3DURMANAGER *, 
                                             uint64_t ),
-                         void (*draw) ( G3DMOUSETOOL *,
-                                        G3DSCENE *, 
-                                        G3DCAMERA *, 
-                                        uint64_t ),
-                         int  (*event) ( G3DMOUSETOOL *, 
-                                        G3DSCENE *,
-                                        G3DCAMERA *, 
-                                        G3DURMANAGER *,
-                                        uint64_t,
-                                        G3DEvent * ),
+                         void     (*draw) ( G3DMOUSETOOL *,
+                                            G3DSCENE *,
+                                            G3DCAMERA *,
+                                            G3DENGINE  *,
+                                            uint64_t ),
+                         int     (*event) ( G3DMOUSETOOL *, 
+                                            G3DSCENE *,
+                                            G3DCAMERA *, 
+                                            G3DURMANAGER *,
+                                            uint64_t,
+                                            G3DEvent * ),
                          uint32_t flags );
 
 /******************************************************************************/

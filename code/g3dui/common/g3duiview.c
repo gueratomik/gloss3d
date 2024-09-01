@@ -520,18 +520,6 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
         glClear ( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 #ifdef need_refactor
-        glLightModeli ( GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE );
-
-        glGetIntegerv ( GL_VIEWPORT, VPX );
-
-        glMatrixMode ( GL_PROJECTION );
-        glLoadIdentity ( );
-
-        glOrtho ( VPX[0], VPX[2], VPX[3], VPX[1], 0.0f, 1.0f );
-
-        glMatrixMode ( GL_MODELVIEW );
-        glLoadIdentity ( );
-
         g3duiview_showRenderingArea ( view, engine_flags );
 
         glDepthMask ( GL_FALSE );
@@ -541,6 +529,8 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
             glDisable ( GL_LIGHTING );
             glEnable ( GL_COLOR_MATERIAL );
             glColor3ub ( 0xFF, 0xFF, 0xFF );
+
+/* TOODO:  modern OpenGL matrix stuff here */
 
             if ( rsg ) {
                 if ( rsg->background.mode & BACKGROUND_IMAGE ) {
@@ -582,13 +572,6 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
 
         glDepthMask ( GL_TRUE );
 
-        glMatrixMode ( GL_PROJECTION );
-        glLoadIdentity ( );
-
-        if ( cam ) g3dcamera_project ( cam, engine_flags );
-
-        glMatrixMode ( GL_MODELVIEW );
-        glLoadIdentity ( );
 #endif
         if ( cam ) {
             if ( ( engine_flags & HIDEGRID ) == 0x00 ) {
@@ -599,11 +582,7 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
                 }
             }
         }
-/*
-glDisable(GL_CULL_FACE);
-glCullFace(GL_BACK);
-glFrontFace(GL_CW);
-*/
+
         ret = g3dobject_draw_r ( ( G3DOBJECT * ) sce,
                                                  cam,
                                                  engine,
@@ -615,13 +594,14 @@ glFrontFace(GL_CW);
         } else {
             glEnable ( GL_LIGHT0 );
         }
+#endif
 
-        g3dscene_draw ( ( G3DOBJECT * ) sce, cam, engine_flags );
+        g3dscene_draw ( ( G3DOBJECT * ) sce, cam, engine, engine_flags );
 
         /*** draw the mouse tool only in the current workspace window ***/
         if ( current ) {
             if ( mou && mou->tool->draw ) {
-                mou->tool->draw ( mou->tool, sce, engine_flags );
+                mou->tool->draw ( mou->tool, sce, cam, engine, engine_flags );
             }
         }
 
@@ -629,24 +609,5 @@ glFrontFace(GL_CW);
             /*** Re-enable real time subdivision ***/
             gui->engine_flags &= (~ONGOINGANIMATION);
         }
-#endif
     }
-
-
-
-
-#ifdef deprecated
-#ifdef __linux__
-    } glXSwapBuffers ( view->dpy, view->win);
-
-    XFlush ( view->dpy );
-    XSync ( view->dpy, False );
-#endif
-#ifdef __MINGW32__
-
-    } SwapBuffers ( dc );
-
-      ReleaseDC ( view->hWnd, dc );
-#endif
-#endif  /* deprecated */
 }

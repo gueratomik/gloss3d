@@ -2041,7 +2041,6 @@ void g3dui_addMouseTool ( G3DUI          *gui,
 
 /******************************************************************************/
 uint64_t g3dui_setMouseTool ( G3DUI          *gui, 
-                              G3DCAMERA      *cam, 
                               G3DUIMOUSETOOL *mou ) {
     uint64_t ret = 0x00;
 
@@ -2049,9 +2048,8 @@ uint64_t g3dui_setMouseTool ( G3DUI          *gui,
     /*** can be used by this function to initialize some values ***/
     if ( mou ) {
         if ( mou->tool->init ) {
-            ret = mou->tool->init ( mou->tool, 
-                                    gui->sce, 
-                                    cam, 
+            ret = mou->tool->init ( mou->tool,
+                                    gui->sce,
                                     gui->urm,
                                     gui->engine_flags );
         }

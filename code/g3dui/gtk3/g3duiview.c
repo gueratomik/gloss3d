@@ -597,6 +597,10 @@ static void gtk3_g3duiview_createGLArea ( GTK3G3DUIVIEW *gtk3view ) {
     /* Note: by default GTK GL Area does not add a depth buffer.*/
     /* I lost something like 8 hours because of that. */
     gtk_gl_area_set_has_depth_buffer( glarea, TRUE );
+    gtk_widget_add_events( glarea,
+                           GDK_BUTTON_PRESS_MASK   | 
+                           GDK_BUTTON_RELEASE_MASK | 
+                           GDK_POINTER_MOTION_MASK );
 
     gtk_layout_put ( GTK_LAYOUT(gtk3view->layout), glarea, 0, 0 );
 
@@ -610,6 +614,12 @@ static void gtk3_g3duiview_createGLArea ( GTK3G3DUIVIEW *gtk3view ) {
     g_signal_connect ( G_OBJECT (glarea), "render" , G_CALLBACK ( showGL ), gtk3view );
     g_signal_connect ( G_OBJECT (glarea), "realize", G_CALLBACK ( initGL ), gtk3view );
     g_signal_connect ( G_OBJECT (glarea), "resize" , G_CALLBACK ( sizeGL ), gtk3view );
+    /* mouse events */
+    g_signal_connect ( G_OBJECT (glarea), "motion_notify_event" , G_CALLBACK ( inputGL ), gtk3view );
+    g_signal_connect ( G_OBJECT (glarea), "key_press_event"     , G_CALLBACK ( inputGL ), gtk3view );
+    g_signal_connect ( G_OBJECT (glarea), "key_release_event"   , G_CALLBACK ( inputGL ), gtk3view );
+    g_signal_connect ( G_OBJECT (glarea), "button_press_event"  , G_CALLBACK ( inputGL ), gtk3view );
+    g_signal_connect ( G_OBJECT (glarea), "button_release_event", G_CALLBACK ( inputGL ), gtk3view );
 
     gtk_widget_show ( glarea );
 

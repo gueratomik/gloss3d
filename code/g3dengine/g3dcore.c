@@ -1619,6 +1619,15 @@ void g3dcore_copyMatrixf( float *inM, float *outM ) {
 }
 
 /******************************************************************************/
+void g3dcore_ortho2Df( double left,
+                       double right,
+                       double bottom,
+                       double top,
+                       float *M ) {
+    g3dcore_orthof( left, right, bottom, top, -1.0f, 1.0f, M );
+}
+
+/******************************************************************************/
 void g3dcore_orthof( double left,
                      double right,
                      double bottom,

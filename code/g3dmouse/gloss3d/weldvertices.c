@@ -36,12 +36,10 @@
 
 static uint32_t weldVertices_init  ( G3DMOUSETOOL *mou, 
                                      G3DSCENE     *sce, 
-                                     G3DCAMERA    *cam,
                                      G3DURMANAGER *urm, 
                                      uint64_t      engine_flags );
 static uint32_t weldNeighbours_init ( G3DMOUSETOOL *mou, 
                                       G3DSCENE     *sce, 
-                                      G3DCAMERA    *cam,
                                       G3DURMANAGER *urm, 
                                       uint64_t      engine_flags );
 
@@ -88,10 +86,9 @@ G3DMOUSETOOLWELDNEIGHBOURS *g3dmousetoolweldneighbours_new ( ) {
 }
 
 /******************************************************************************/
-static uint32_t weldVertices_init  ( G3DMOUSETOOL *mou, 
-                                     G3DSCENE     *sce, 
-                                     G3DCAMERA    *cam,
-                                     G3DURMANAGER *urm, 
+static uint32_t weldVertices_init  ( G3DMOUSETOOL *mou,
+                                     G3DSCENE     *sce,
+                                     G3DURMANAGER *urm,
                                      uint64_t      engine_flags ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
@@ -108,10 +105,9 @@ static uint32_t weldVertices_init  ( G3DMOUSETOOL *mou,
 }
 
 /******************************************************************************/
-static uint32_t weldNeighbours_init ( G3DMOUSETOOL *mou, 
-                                      G3DSCENE     *sce, 
-                                      G3DCAMERA    *cam,
-                                      G3DURMANAGER *urm, 
+static uint32_t weldNeighbours_init ( G3DMOUSETOOL *mou,
+                                      G3DSCENE     *sce,
+                                      G3DURMANAGER *urm,
                                       uint64_t      engine_flags ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 

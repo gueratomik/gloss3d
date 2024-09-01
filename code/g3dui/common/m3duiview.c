@@ -315,14 +315,14 @@ void m3duiview_showGL ( M3DUIVIEW    *view,
         }
     }
 
-
+/* TOOD: replace NULL with engine */
 
     if ( seltool && ( seltool != tool ) && seltool->draw ) {
-        seltool->draw ( seltool, gui->sce, &view->cam, engine_flags );
+        seltool->draw ( seltool, gui->sce, &view->cam, NULL, engine_flags );
     }
 
     if ( tool && tool->draw ) {
-        tool->draw ( tool, gui->sce, &view->cam, engine_flags );
+        tool->draw ( tool, gui->sce, &view->cam, NULL, engine_flags );
     }
 
 #ifdef __linux__

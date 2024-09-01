@@ -1499,7 +1499,6 @@ G3DUIMOUSETOOL     *g3dui_getMouseTool ( G3DUI      *gui,
 uint64_t            g3dui_copySelection ( G3DUI *gui );
 uint64_t            g3dui_pasteSelection ( G3DUI *gui );
 uint64_t            g3dui_setMouseTool ( G3DUI          *gui, 
-                                         G3DCAMERA      *cam, 
                                          G3DUIMOUSETOOL *mou );
 void                g3dui_setFileName ( G3DUI      *gui, 
                                         const char *filename );
@@ -2416,7 +2415,6 @@ uint64_t m3dui_setUVMouseTool ( M3DUI          *mui,
 G3DIMAGE *m3dui_getWorkingImage ( M3DUI *mui );
 G3DCHANNEL *m3dui_getWorkingChannel ( M3DUI *mui );
 uint64_t m3dui_setMouseTool ( M3DUI          *mui, 
-                              G3DCAMERA      *cam, 
                               G3DUIMOUSETOOL *mou );
 
 /******************************* m3duiboard.c *********************************/

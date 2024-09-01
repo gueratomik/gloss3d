@@ -1691,27 +1691,7 @@ void g3dobject_drawKeys ( G3DOBJECT *obj,
                           G3DCAMERA *cam, 
                           G3DENGINE *engine, 
                           uint64_t   engine_flags ) {
-    int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
-                                                  "mvpMatrix" );
-    float mvp[0x10];
-    float mvw[0x10];
-
-    g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
-                         obj->parent->worldMatrix,
-                         mvw );
-
-    /*** the matrix by which vertices coords are transformed ***/
-    g3dcore_multMatrixf( cam->pmatrix, mvw, mvp );
-
-    glUseProgram( engine->coloredShaderProgram );
-
-    glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
-
-    glPushAttrib( GL_ALL_ATTRIB_BITS );
-
     g3dcurve_draw ( obj->curve[0x00], obj, cam, engine, engine_flags );
-
-    glPopAttrib ( );
 }
 
 #define PIOVER180 0.01745329252
@@ -1732,31 +1712,33 @@ uint32_t g3dobject_pick ( G3DOBJECT *obj,
                           uint64_t   engine_flags ) {
     float MVX[0x10], PARENTMVX[0x10];
 
-    g3dcore_multMatrixf ( obj->parent->worldMatrix
-                        , curcam->obj.inverseWorldMatrix
-                        , PARENTMVX );
+    if( obj->parent ) {
+        g3dcore_multMatrixf ( curcam->obj.inverseWorldMatrix
+                            , obj->parent->worldMatrix
+                            , PARENTMVX );
 
-    g3dcore_multMatrixf ( obj->worldMatrix
-                        , curcam->obj.inverseWorldMatrix
-                        , MVX );
+        g3dcore_multMatrixf ( curcam->obj.inverseWorldMatrix
+                            , obj->worldMatrix
+                            , MVX );
 
-    /*** if we are in the UVMAPEDITOR, we must not change the modelview ***/
-    /*** matrix ***/
-    if ( engine_flags & VIEWVERTEXUV ) g3dcore_identityMatrixf ( MVX );
-    if ( engine_flags & VIEWFACEUV   ) g3dcore_identityMatrixf ( MVX );
+        /*** if we are in the UVMAPEDITOR, we must not change the modelview ***/
+        /*** matrix ***/
+        if ( engine_flags & VIEWVERTEXUV ) g3dcore_identityMatrixf ( MVX );
+        if ( engine_flags & VIEWFACEUV   ) g3dcore_identityMatrixf ( MVX );
 
-    g3dpick_setModelviewMatrixf ( MVX );
+        g3dpick_setModelviewMatrixf ( MVX );
 
-    if ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) {
-        if ( obj->pick ) obj->pick ( obj, curcam, engine_flags );
-    }
+        if ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) {
+            if ( obj->pick ) obj->pick ( obj, curcam, engine_flags );
+        }
 
-    if ( engine_flags & VIEWPATH ) {
-        if ( obj->flags & OBJECTSELECTED ) {
-            g3dpick_setModelviewMatrixf ( PARENTMVX );
+        if ( engine_flags & VIEWPATH ) {
+            if ( obj->flags & OBJECTSELECTED ) {
+                g3dpick_setModelviewMatrixf ( PARENTMVX );
 
-            if ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) {
-                g3dobject_pickPath ( obj, curcam, engine_flags );
+                if ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) {
+                    g3dobject_pickPath ( obj, curcam, engine_flags );
+                }
             }
         }
     }

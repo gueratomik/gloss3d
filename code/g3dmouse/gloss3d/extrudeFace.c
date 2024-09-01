@@ -36,20 +36,18 @@
 
 static uint32_t extrudeFace_init ( G3DMOUSETOOL *mou, 
                                    G3DSCENE     *sce, 
-                                   G3DCAMERA    *cam,
                                    G3DURMANAGER *urm, 
                                    uint64_t      engine_flags );
 static uint32_t extrudeInner_init ( G3DMOUSETOOL *mou,
                                     G3DSCENE     *sce, 
-                                    G3DCAMERA    *cam,
                                     G3DURMANAGER *urm, 
                                     uint64_t      engine_flags );
-static int extrudeFace_tool  ( G3DMOUSETOOL *mou, 
-                               G3DSCENE     *sce, 
-                               G3DCAMERA    *cam,
-                               G3DURMANAGER *urm, 
-                               uint64_t      engine_flags,
-                               G3DEvent     *event );
+static int extrudeFace_event  ( G3DMOUSETOOL *mou, 
+                                G3DSCENE     *sce,
+                                G3DCAMERA    *cam,
+                                G3DURMANAGER *urm, 
+                                uint64_t      engine_flags,
+                                G3DEvent     *event );
 
 /******************************************************************************/
 G3DMOUSETOOLEXTRUDEFACE *g3dmousetoolextrudeface_new ( ) {
@@ -67,7 +65,7 @@ G3DMOUSETOOLEXTRUDEFACE *g3dmousetoolextrudeface_new ( ) {
                                            NULL,
                                            extrudeFace_init,
                                            NULL,
-                                           extrudeFace_tool,
+                                           extrudeFace_event,
                                            0x00 );
 
     return ef;
@@ -89,7 +87,7 @@ G3DMOUSETOOLEXTRUDEFACE *g3dmousetoolextrudeinner_new ( ) {
                                            NULL,
                                            extrudeInner_init,
                                            NULL,
-                                           extrudeFace_tool,
+                                           extrudeFace_event,
                                            0x00 );
 
     return ef;
@@ -98,7 +96,6 @@ G3DMOUSETOOLEXTRUDEFACE *g3dmousetoolextrudeinner_new ( ) {
 /******************************************************************************/
 static uint32_t extrudeFace_init ( G3DMOUSETOOL *mou, 
                                    G3DSCENE     *sce, 
-                                   G3DCAMERA    *cam,
                                    G3DURMANAGER *urm, 
                                    uint64_t      engine_flags ) {
     G3DMOUSETOOLEXTRUDEFACE *ef = ( G3DMOUSETOOLEXTRUDEFACE * ) mou;
@@ -111,7 +108,6 @@ static uint32_t extrudeFace_init ( G3DMOUSETOOL *mou,
 /******************************************************************************/
 static uint32_t extrudeInner_init ( G3DMOUSETOOL *mou,
                                     G3DSCENE     *sce, 
-                                    G3DCAMERA    *cam,
                                     G3DURMANAGER *urm, 
                                     uint64_t      engine_flags ) {
     G3DMOUSETOOLEXTRUDEFACE *ef = ( G3DMOUSETOOLEXTRUDEFACE * ) mou;
@@ -122,12 +118,12 @@ static uint32_t extrudeInner_init ( G3DMOUSETOOL *mou,
 }
 
 /******************************************************************************/
-static int extrudeFace_tool  ( G3DMOUSETOOL *mou, 
-                               G3DSCENE     *sce, 
-                               G3DCAMERA    *cam,
-                               G3DURMANAGER *urm, 
-                               uint64_t      engine_flags,
-                               G3DEvent     *event ) {
+static int extrudeFace_event  ( G3DMOUSETOOL *mou, 
+                                G3DSCENE     *sce, 
+                                G3DCAMERA    *cam,
+                                G3DURMANAGER *urm, 
+                                uint64_t      engine_flags,
+                                G3DEvent     *event ) {
     static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static int32_t xold, yold;

@@ -40,7 +40,6 @@ void m3dui_init ( M3DUI *mui, G3DUI *gui )  {
 
 /******************************************************************************/
 uint64_t m3dui_setMouseTool ( M3DUI          *mui, 
-                              G3DCAMERA      *cam, 
                               G3DUIMOUSETOOL *mou ) {
     G3DUI        *gui = mui->gui;
     uint64_t ret = 0x00;
@@ -49,9 +48,8 @@ uint64_t m3dui_setMouseTool ( M3DUI          *mui,
     /*** can be used by this function to initialize some values ***/
     if ( mou ) {
         if ( mou->tool->init ) {
-            ret = mou->tool->init ( mou->tool, 
-                                    gui->sce, 
-                                    cam, 
+            ret = mou->tool->init ( mou->tool,
+                                    gui->sce,
                                     gui->urm,
                                     mui->engine_flags );
         }
@@ -125,7 +123,6 @@ uint64_t m3dui_setUVMouseTool ( M3DUI          *mui,
         if ( mou->tool->init ) {
             msk = mou->tool->init ( mou->tool, 
                                     gui->sce,
-                                    cam,
                                     gui->urm, 
                                     mui->engine_flags );
         }

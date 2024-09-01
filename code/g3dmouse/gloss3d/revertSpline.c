@@ -37,7 +37,6 @@
 /******************************************************************************/
 static uint32_t revertSpline_init ( G3DMOUSETOOL *mou, 
                                     G3DSCENE     *sce, 
-                                    G3DCAMERA    *cam,
                                     G3DURMANAGER *urm, 
                                     uint64_t      engine_flags );
 
@@ -66,7 +65,6 @@ G3DMOUSETOOLREVERTSPLINE *g3dmousetoolrevertspline_new ( ) {
 /******************************************************************************/
 static uint32_t revertSpline_init ( G3DMOUSETOOL *mou, 
                                     G3DSCENE     *sce, 
-                                    G3DCAMERA    *cam,
                                     G3DURMANAGER *urm, 
                                     uint64_t      engine_flags ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );

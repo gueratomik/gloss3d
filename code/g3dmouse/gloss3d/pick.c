@@ -36,7 +36,8 @@
 
 static void pick_draw ( G3DMOUSETOOL *mou, 
                         G3DSCENE     *sce,
-                        G3DCAMERA *, 
+                        G3DCAMERA    *curcam,
+                        G3DENGINE    *engine, 
                         uint64_t      engine_flags );
 
 /******************************************************************************/
@@ -96,9 +97,10 @@ G3DMOUSETOOLPICKUV *g3dmousetoolpickUV_new ( ) {
 }
 
 /******************************************************************************/
-static void pick_draw ( G3DMOUSETOOL *mou, 
-                        G3DSCENE     *sce, 
-                        G3DCAMERA    *cam, 
+static void pick_draw ( G3DMOUSETOOL *mou,
+                        G3DSCENE     *sce,
+                        G3DCAMERA    *curcam,
+                        G3DENGINE    *engine,
                         uint64_t      engine_flags ) {
     G3DMOUSETOOLPICK *pt = ( G3DMOUSETOOLPICK * ) mou;
     int32_t *coord = pt->coord;
@@ -111,38 +113,38 @@ static void pick_draw ( G3DMOUSETOOL *mou,
                                        { coord[0x02], coord[0x01] },   /*x2,y1*/
                                        { coord[0x02], coord[0x03] },   /*x1,y2*/
                                        { coord[0x00], coord[0x03] } }; /*x2,y2*/
+        int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                      "mvpMatrix" );
+        float mvp[0x10];
+        float pjx[0x10];
 
-        glGetIntegerv ( GL_VIEWPORT, VPX );
+        glGetIntegerv( GL_VIEWPORT, VPX );
+
+        g3dcore_ortho2Df (VPX[0x00], VPX[0x02], VPX[0x01], VPX[0x03], pjx );
+
+        glUseProgram( engine->coloredShaderProgram );
+
+        glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, pjx );
 
         glPushAttrib( GL_ALL_ATTRIB_BITS );
         glDisable   ( GL_DEPTH_TEST );
-        glDisable   ( GL_LIGHTING );
-        glColor3ub  ( 0xFF, 0x00, 0x00 );
 
-        glMatrixMode ( GL_PROJECTION );
-        glPushMatrix ( );
-        glLoadIdentity ( );
-        gluOrtho2D (VPX[0x00],  VPX[0x02],  VPX[0x01],  VPX[0x03] );
-
-        glMatrixMode ( GL_MODELVIEW );
-        glPushMatrix ( );
-        glLoadIdentity ( );
-
-        glBegin ( GL_LINES );
         for ( i = 0x00; i < 0x04; i++ ) {
+            SHADERVERTEX vertices[0x02] = { 0 };
             int n = ( i + 0x01 ) % 0x04;
 
-            glVertex2f ( index[i][0x00], index[i][0x01] );
-            glVertex2f ( index[n][0x00], index[n][0x01] );
+            vertices[0x00].pos.x = index[i][0x00];
+            vertices[0x00].pos.y = index[i][0x01];
+            vertices[0x00].col.r = 1.0f;
+
+            vertices[0x01].pos.x = index[n][0x00];
+            vertices[0x01].pos.y = index[n][0x01];
+            vertices[0x01].col.r = 1.0f;
+
+            g3dengine_drawLine ( engine, vertices, 0, engine_flags );
         }
-        glEnd ( );
 
         glPopAttrib ( );
-
-        glPopMatrix ( );
-
-        glMatrixMode ( GL_PROJECTION );
-        glPopMatrix ( );
     }
 }
 

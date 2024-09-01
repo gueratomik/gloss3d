@@ -34,14 +34,14 @@
 /******************************************************************************/
 static uint32_t bridge_init ( G3DMOUSETOOL *mou, 
                               G3DSCENE     *sce, 
-                              G3DCAMERA    *cam,
                               G3DURMANAGER *urm, 
                               uint64_t      engine_flags );
 static void bridge_draw ( G3DMOUSETOOL *mou, 
                           G3DSCENE     *sce, 
                           G3DCAMERA    *cam,
+                          G3DENGINE    *engine,
                           uint64_t      engine_flags );
-static int bridge_tool  ( G3DMOUSETOOL *mou, 
+static int bridge_event ( G3DMOUSETOOL *mou, 
                           G3DSCENE     *sce, 
                           G3DCAMERA    *cam,
                           G3DURMANAGER *urm, 
@@ -64,7 +64,7 @@ G3DMOUSETOOLBRIDGE *g3dmousetoolbridge_new ( ) {
                         NULL,
                         bridge_init,
                         bridge_draw,
-                        bridge_tool,
+                        bridge_event,
                         0x00 );
 
     return bt;
@@ -73,7 +73,6 @@ G3DMOUSETOOLBRIDGE *g3dmousetoolbridge_new ( ) {
 /******************************************************************************/
 static uint32_t bridge_init ( G3DMOUSETOOL *mou, 
                               G3DSCENE     *sce, 
-                              G3DCAMERA    *cam,
                               G3DURMANAGER *urm, 
                               uint64_t      engine_flags ) {
     G3DMOUSETOOLBRIDGE *bt = ( G3DMOUSETOOLBRIDGE * ) mou;
@@ -95,45 +94,73 @@ static uint32_t bridge_init ( G3DMOUSETOOL *mou,
 /******************************************************************************/
 static void bridge_draw ( G3DMOUSETOOL *mou, 
                           G3DSCENE     *sce, 
-                          G3DCAMERA    *cam,
+                          G3DCAMERA    *curcam,
+                          G3DENGINE    *engine,
                           uint64_t      engine_flags ) {
     G3DMOUSETOOLBRIDGE *bt = ( G3DMOUSETOOLBRIDGE * ) mou;
 
     if ( bt && bt->draw ) {
         if ( bt->obj ) {
-            float MVX[0x10];
+            int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                          "mvpMatrix" );
+            float mvp[0x10];
+            float mvw[0x10];
+
+            g3dcore_multMatrixf( curcam->obj.inverseWorldMatrix,
+                                 bt->obj->worldMatrix,
+                                 mvw );
+
+            /*** the matrix by which vertices coords are transformed ***/
+            g3dcore_multMatrixf( curcam->pmatrix, mvw, mvp );
+
+            glUseProgram( engine->coloredShaderProgram );
+
+            glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
 
             glPushAttrib( GL_ALL_ATTRIB_BITS );
             glDisable   ( GL_DEPTH_TEST );
-            glDisable   ( GL_LIGHTING );
-            glColor3ub  ( 0xFF, 0x00, 0x00 );
 
-            g3dcore_multMatrixf( bt->obj->worldMatrix,
-                                 cam->obj.inverseWorldMatrix,
-                                 MVX );
-
-#ifdef need_refactor
-            glBegin ( GL_LINES );
             if ( bt->obj->type & MESH ) {
-        	if ( bt->ver[0x02] && bt->ver[0x03] ) {
-                    glVertex3fv ( ( GLfloat * ) &bt->ver[0x02]->pos );
-                    glVertex3fv ( ( GLfloat * ) &bt->ver[0x03]->pos );
-        	}
+        	    if ( bt->ver[0x02] && bt->ver[0x03] ) {
+                    SHADERVERTEX vertices[0x02] = { 0 };
 
-        	if ( bt->ver[0x00] && bt->ver[0x01] ) {
-                    glVertex3fv ( ( GLfloat * ) &bt->ver[0x00]->pos );
-                    glVertex3fv ( ( GLfloat * ) &bt->ver[0x01]->pos );
-        	}
+                    vertices[0x00].pos   = bt->ver[0x02]->pos;
+                    vertices[0x00].col.r = 1.0f;
+                    vertices[0x01].pos   = bt->ver[0x03]->pos;
+                    vertices[0x01].col.r = 1.0f;
+
+                    g3dengine_drawLine ( engine, vertices, 0, engine_flags );
+        	    }
+
+        	    if ( bt->ver[0x00] && bt->ver[0x01] ) {
+                    SHADERVERTEX vertices[0x02] = { 0 };
+
+                    vertices[0x00].pos   = bt->ver[0x00]->pos;
+                    vertices[0x00].col.r = 1.0f;
+                    vertices[0x01].pos   = bt->ver[0x01]->pos;
+                    vertices[0x01].col.r = 1.0f;
+
+                    g3dengine_drawLine ( engine, vertices, 0, engine_flags );
+        	    }
+
             }
+
             if ( bt->obj->type & SPLINE ) {
-        	if ( bt->pt[0x00] && bt->pt[0x01] ) {
-                    glVertex3fv ( ( GLfloat * ) &bt->pt[0x00]->pos );
-                    glVertex3fv ( ( GLfloat * ) &bt->pt[0x01]->pos );
-        	}
+        	    if ( bt->pt[0x00] && bt->pt[0x01] ) {
+                    SHADERVERTEX vertices[0x02] = { 0 };
+
+                    vertices[0x00].pos   = bt->ver[0x00]->pos;
+                    vertices[0x00].col.r = 1.0f;
+                    vertices[0x01].pos   = bt->ver[0x01]->pos;
+                    vertices[0x01].col.r = 1.0f;
+
+                    g3dengine_drawLine ( engine, vertices, 0, engine_flags );
+        	    }
             }
-            glEnd ( );
-#endif
+
             glPopAttrib ( );
+
+            glUseProgram( 0 );
         }
     }
 }
@@ -407,10 +434,10 @@ static int bridge_mesh  ( G3DMESH      *mes,
 }
 
 /******************************************************************************/
-static int bridge_tool  ( G3DMOUSETOOL *mou, 
-                          G3DSCENE     *sce, 
+static int bridge_event ( G3DMOUSETOOL *mou,
+                          G3DSCENE     *sce,
                           G3DCAMERA    *cam,
-                          G3DURMANAGER *urm, 
+                          G3DURMANAGER *urm,
                           uint64_t      engine_flags,
                           G3DEvent     *event ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );

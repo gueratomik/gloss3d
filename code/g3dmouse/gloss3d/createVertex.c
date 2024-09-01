@@ -33,17 +33,16 @@
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
 
-static uint32_t createVertex_init ( G3DMOUSETOOL *mou, 
-                                    G3DSCENE     *sce, 
-                                    G3DCAMERA    *cam,
-                                    G3DURMANAGER *urm, 
+static uint32_t createVertex_init ( G3DMOUSETOOL *mou,
+                                    G3DSCENE     *sce,
+                                    G3DURMANAGER *urm,
                                     uint64_t      engine_flags );
-static int createVertex_tool ( G3DMOUSETOOL *mou, 
-                               G3DSCENE     *sce, 
-                               G3DCAMERA    *cam,
-                               G3DURMANAGER *urm, 
-                               uint64_t      engine_flags, 
-                               G3DEvent     *event );
+static int createVertex_event ( G3DMOUSETOOL *mou, 
+                                G3DSCENE     *sce, 
+                                G3DCAMERA    *cam,
+                                G3DURMANAGER *urm, 
+                                uint64_t      engine_flags, 
+                                G3DEvent     *event );
 
 /******************************************************************************/
 G3DMOUSETOOLCREATEVERTEX *g3dmousetoolcreatevertex_new ( ) {
@@ -55,13 +54,13 @@ G3DMOUSETOOLCREATEVERTEX *g3dmousetoolcreatevertex_new ( ) {
         fprintf ( stderr, "%s: Memory allocation failed\n", __func__ );
     }
 
-    g3dmousetool_init ( cv,
+    g3dmousetool_init ( ( G3DMOUSETOOL * ) cv,
                         CREATEVERTEXTOOL,
                         's',
                         NULL,
                         createVertex_init,
                         NULL,
-                        createVertex_tool,
+                        createVertex_event,
                         0x00 );
 
     return cv;
@@ -70,7 +69,6 @@ G3DMOUSETOOLCREATEVERTEX *g3dmousetoolcreatevertex_new ( ) {
 /******************************************************************************/
 static uint32_t createVertex_init ( G3DMOUSETOOL *mou, 
                                     G3DSCENE     *sce, 
-                                    G3DCAMERA    *cam,
                                     G3DURMANAGER *urm, 
                                     uint64_t      engine_flags ) {
 
@@ -78,12 +76,12 @@ static uint32_t createVertex_init ( G3DMOUSETOOL *mou,
 }
 
 /******************************************************************************/
-static int createVertex_tool ( G3DMOUSETOOL *mou, 
-                               G3DSCENE     *sce, 
-                               G3DCAMERA    *cam,
-                               G3DURMANAGER *urm, 
-                               uint64_t      engine_flags, 
-                               G3DEvent     *event ) {
+static int createVertex_event ( G3DMOUSETOOL *mou, 
+                                G3DSCENE     *sce, 
+                                G3DCAMERA    *cam,
+                                G3DURMANAGER *urm, 
+                                uint64_t      engine_flags, 
+                                G3DEvent     *event ) {
     /*G3DURMANAGER *urm = gdt->urm;*/
     static float MVX[0x10];
     static GLint VPX[0x04];
@@ -106,8 +104,8 @@ static int createVertex_tool ( G3DMOUSETOOL *mou,
                 /*** We need the selected object matrix in order to create ***/
                 /*** the cutting plan and find its coords, but do not ***/
                 /*** forget the current matrix is the camera transformations **/
-                g3dcore_multMatrixf ( obj->worldMatrix,
-                                      cam->obj.inverseWorldMatrix,
+                g3dcore_multMatrixf ( cam->obj.inverseWorldMatrix,
+                                      obj->worldMatrix,
                                       MVX );
 
                 glGetIntegerv ( GL_VIEWPORT, VPX );
@@ -203,8 +201,6 @@ static int createVertex_tool ( G3DMOUSETOOL *mou,
                         g3durm_mesh_addVertex ( urm, mes, ver, REDRAWVIEW );
                     }
                 }
-
-                glPopMatrix ( );
             }
         } return REDRAWVIEW;
 

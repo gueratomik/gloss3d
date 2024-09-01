@@ -308,78 +308,64 @@ void g3dcurvepoint_free ( G3DCURVEPOINT *pt ) {
 
 /******************************************************************************/
 void g3dcurvepoint_roundCubicSegments ( G3DCURVEPOINT *pt ) {
-#ifdef need_refactor
     if ( pt->nbseg == 0x02 ) {
         G3DVECTOR3F avg = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
         G3DCUBICHANDLE *han[0x02] = { NULL, NULL };
         LIST *ltmpseg = pt->lseg;
-        G3DVECTOR4F segvec[0x02];
-        uint32_t nbseg = 0x00;
-        G3DVECTOR3F nor, hanvec[0x02];
+        G3DVECTOR3F segvec[0x02];
+        uint32_t segCount = 0x00;
+        G3DVECTOR3F nor, hanvec;
         float len[0x02];
 
         while ( ltmpseg ) {
             G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) ltmpseg->data;
 
             if ( csg->seg.pt[P0IDX] == pt ) {
-                segvec[nbseg].x = csg->seg.pt[P1IDX]->pos.x - csg->seg.pt[P0IDX]->pos.x;
-                segvec[nbseg].y = csg->seg.pt[P1IDX]->pos.y - csg->seg.pt[P0IDX]->pos.y;
-                segvec[nbseg].z = csg->seg.pt[P1IDX]->pos.z - csg->seg.pt[P0IDX]->pos.z;
-                segvec[nbseg].w = 1.0f;
+                segvec[segCount].x = csg->seg.pt[P1IDX]->pos.x - csg->seg.pt[P0IDX]->pos.x;
+                segvec[segCount].y = csg->seg.pt[P1IDX]->pos.y - csg->seg.pt[P0IDX]->pos.y;
+                segvec[segCount].z = csg->seg.pt[P1IDX]->pos.z - csg->seg.pt[P0IDX]->pos.z;
 
-                han[nbseg] = csg->seg.pt[P0HANDLEIDX];
+                han[segCount] = csg->seg.pt[P0HANDLEIDX];
             } else {
-                segvec[nbseg].x = csg->seg.pt[P0IDX]->pos.x - csg->seg.pt[P1IDX]->pos.x;
-                segvec[nbseg].y = csg->seg.pt[P0IDX]->pos.y - csg->seg.pt[P1IDX]->pos.y;
-                segvec[nbseg].z = csg->seg.pt[P0IDX]->pos.z - csg->seg.pt[P1IDX]->pos.z;
-                segvec[nbseg].w = -1.0f;
+                segvec[segCount].x = csg->seg.pt[P0IDX]->pos.x - csg->seg.pt[P1IDX]->pos.x;
+                segvec[segCount].y = csg->seg.pt[P0IDX]->pos.y - csg->seg.pt[P1IDX]->pos.y;
+                segvec[segCount].z = csg->seg.pt[P0IDX]->pos.z - csg->seg.pt[P1IDX]->pos.z;
 
-                han[nbseg] = csg->seg.pt[P1HANDLEIDX];
+                han[segCount] = csg->seg.pt[P1HANDLEIDX];
             }
 
-            /*** note: our G3DVECTOR4F are here considered as ***/
-            /*** G3DVECTOR3F because we want to ignore the w member. ***/
-            g3dvector3f_normalize ( &segvec[nbseg], &len[nbseg] );
+            len[segCount] = g3dvector3f_normalize ( &segvec[segCount] ) * 0.25f;
 
-            len[nbseg] *= 0.25f;
+            avg.x += segvec[segCount].x;
+            avg.y += segvec[segCount].y;
+            avg.z += segvec[segCount].z;
 
-            avg.x += segvec[nbseg].x;
-            avg.y += segvec[nbseg].y;
-            avg.z += segvec[nbseg].z;
-
-            nbseg++;
+            segCount++;
 
             ltmpseg = ltmpseg->next;
         }
 
-        g3dvector3f_cross ( &segvec[0], &segvec[1], &nor          );
-        g3dvector3f_cross ( &nor      , &avg      , &hanvec[0x00] );
+        g3dvector3f_cross ( &segvec[0], &segvec[1], &nor    );
+        g3dvector3f_cross ( &nor      , &avg      , &hanvec );
 
-        g3dvector_normalize ( &hanvec[0x00], NULL );
+        g3dvector3f_normalize ( &hanvec );
 
-        if ( g3dvector3f_scalar ( )
-        hanvec[0x01].x = -hanvec[0x00].x;
-        hanvec[0x01].y = -hanvec[0x00].y;
-        hanvec[0x01].z = -hanvec[0x00].z;
-
-
-        if ( g3dvector_angle ( &hanvec[0x00], &segvec[0] ) > 1.5708f ) {
+        if ( g3dvector3f_scalar ( &segvec[0x00], &hanvec ) < 0.0f ) {
             len[0] = -len[0];
         }
 
-        if ( g3dvector_angle ( &hanvec[0x01], &segvec[1] ) > 1.5708f ) {
+        if ( g3dvector3f_scalar ( &segvec[0x01], &hanvec ) < 0.0f ) {
             len[1] = -len[1];
         }
 
-        han[0]->pos.x = ( hanvec[0x00].x * len[0] /** sin ( segAngle * 0.5f )*/ );
-        han[0]->pos.y = ( hanvec[0x00].y * len[0] /** sin ( segAngle * 0.5f )*/ );
-        han[0]->pos.z = ( hanvec[0x00].z * len[0] /** sin ( segAngle * 0.5f )*/ );
+        han[0]->pos.x = ( hanvec.x * len[0] );
+        han[0]->pos.y = ( hanvec.y * len[0] );
+        han[0]->pos.z = ( hanvec.z * len[0] );
 
-        han[1]->pos.x = ( hanvec[0x01].x * len[1] /** sin ( segAngle * 0.5f )*/ );
-        han[1]->pos.y = ( hanvec[0x01].y * len[1] /** sin ( segAngle * 0.5f )*/ );
-        han[1]->pos.z = ( hanvec[0x01].z * len[1] /** sin ( segAngle * 0.5f )*/ );
+        han[1]->pos.x = ( hanvec.x * len[1] );
+        han[1]->pos.y = ( hanvec.y * len[1] );
+        han[1]->pos.z = ( hanvec.z * len[1] );
     }
-#endif
 }
 
 /******************************************************************************/
@@ -1088,16 +1074,16 @@ void g3dcurve_insertPointWithinSegment ( G3DCURVE        *curve,
                                                  seg->pt[P0HANDLEIDX]->pos.x,
                                                  seg->pt[P0HANDLEIDX]->pos.y,
                                                  seg->pt[P0HANDLEIDX]->pos.z,
-                                                 pt->x,
-                                                 pt->y,
-                                                 pt->z );
+                                                 pt->pos.x,
+                                                 pt->pos.y,
+                                                 pt->pos.z );
 
             newSeg[0x01] = ( G3DCURVESEGMENT * ) 
                            g3dcubicsegment_new ( pt,
                                                  seg->pt[P1IDX],
-                                                 pt->x,
-                                                 pt->y,
-                                                 pt->z 
+                                                 pt->pos.x,
+                                                 pt->pos.y,
+                                                 pt->pos.z,
                                                  seg->pt[P1HANDLEIDX]->pos.x,
                                                  seg->pt[P1HANDLEIDX]->pos.y,
                                                  seg->pt[P1HANDLEIDX]->pos.z );

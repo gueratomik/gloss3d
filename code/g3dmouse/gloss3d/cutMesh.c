@@ -35,14 +35,15 @@
 
 static void cutMesh_draw ( G3DMOUSETOOL *mou,
                            G3DSCENE     *sce,
-                           G3DCAMERA *, 
+                           G3DCAMERA    *curcam,
+                           G3DENGINE    *engine,
                            uint64_t engine_flags );
-static int cutMesh_tool ( G3DMOUSETOOL *mou, 
-                          G3DSCENE     *sce, 
-                          G3DCAMERA    *cam,
-                          G3DURMANAGER *urm, 
-                          uint64_t engine_flags, 
-                          G3DEvent     *event );
+static int cutMesh_event ( G3DMOUSETOOL *mou, 
+                           G3DSCENE     *sce, 
+                           G3DCAMERA    *cam,
+                           G3DURMANAGER *urm, 
+                           uint64_t engine_flags, 
+                           G3DEvent     *event );
 
 /******************************************************************************/
 G3DMOUSETOOLCUTMESH *g3dmousetoolcutmesh_new ( ) {
@@ -60,7 +61,7 @@ G3DMOUSETOOLCUTMESH *g3dmousetoolcutmesh_new ( ) {
                                            NULL,
                                            NULL,
                                            cutMesh_draw,
-                                           cutMesh_tool,
+                                           cutMesh_event,
                                            0x00 );
 
     cm->restrict_to_selection = 0x00;
@@ -72,55 +73,69 @@ G3DMOUSETOOLCUTMESH *g3dmousetoolcutmesh_new ( ) {
 /******************************************************************************/
 static void cutMesh_draw ( G3DMOUSETOOL *mou,
                            G3DSCENE     *sce,
-                           G3DCAMERA    *cam,
+                           G3DCAMERA    *curcam,
+                           G3DENGINE    *engine,
                            uint64_t engine_flags ) {
     if ( ( engine_flags & VIEWVERTEX ) ||
          ( engine_flags & VIEWEDGE   ) ||
          ( engine_flags & VIEWFACE   ) ) {
         G3DMOUSETOOLCUTMESH *cm = ( G3DMOUSETOOLCUTMESH * ) mou;
         /*** two dimensions array [4][3](x,y,z), relative to object ***/
-        GLdouble (*coord)[0x03] = cm->coord;
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
         glPushAttrib( GL_ALL_ATTRIB_BITS );
         glDisable   ( GL_DEPTH_TEST );
-        glDisable   ( GL_LIGHTING );
-        glColor3ub ( 0xFF, 0x00, 0x00 );
-#ifdef need_refactor
-        if ( cm->start && obj ) {
-            glPushMatrix ( );
-            glMultMatrixd ( obj->wmatrix );
-            glBegin ( GL_LINES );
-            glVertex3dv ( ( GLdouble * ) &coord[0x00] );
-            glVertex3dv ( ( GLdouble * ) &coord[0x02] );
-            glEnd ( );
-            glPopMatrix ( );
+
+        if ( cm->start && cm->obj ) {
+            int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                          "mvpMatrix" );
+            float mvp[0x10];
+            float mvw[0x10];
+            SHADERVERTEX vertices[2] = { 0 };
+
+            g3dcore_multMatrixf( curcam->obj.inverseWorldMatrix,
+                                 cm->obj->worldMatrix,
+                                 mvw );
+
+            /*** the matrix by which vertices coords are transformed ***/
+            g3dcore_multMatrixf( curcam->pmatrix, mvw, mvp );
+
+            glUseProgram( engine->coloredShaderProgram );
+
+            glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
+
+            vertices[0x00].pos   = cm->coord[0x00];
+            vertices[0x00].col.r = 1.0f;
+            vertices[0x01].pos   = cm->coord[0x02];
+            vertices[0x01].col.r = 1.0f;
+
+            g3dengine_drawLine( engine, vertices, 0, engine_flags );
+
+            glUseProgram( 0 );
         }
-#endif
+
         glPopAttrib ( );
     }
 }
 
 /******************************************************************************/
-static int cutMesh_tool ( G3DMOUSETOOL *mou, 
-                          G3DSCENE     *sce, 
-                          G3DCAMERA    *cam,
-                          G3DURMANAGER *urm, 
-                          uint64_t engine_flags, 
-                          G3DEvent     *event ) {
+static int cutMesh_event ( G3DMOUSETOOL *mou, 
+                           G3DSCENE     *sce, 
+                           G3DCAMERA    *cam,
+                           G3DURMANAGER *urm, 
+                           uint64_t engine_flags, 
+                           G3DEvent     *event ) {
     /*** selection rectangle coords ***/
     static float MVX[0x10];
     static GLint VPX[0x04];
-    static G3DOBJECT *obj;
-    static G3DMESH *mes;
     G3DMOUSETOOLCUTMESH *cm = ( G3DMOUSETOOLCUTMESH * ) mou;
 
     switch ( event->type ) {
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+            G3DOBJECT *obj = ( G3DOBJECT * ) g3dscene_getLastSelected ( sce );
 
-            obj = ( G3DOBJECT * ) g3dscene_getLastSelected ( sce );
-
+            cm->obj   = obj;
             cm->start = 0x01;
 
             if ( ( engine_flags & VIEWVERTEX ) ||
@@ -128,7 +143,9 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
                  ( engine_flags & VIEWFACE   ) ) {
                 if ( obj && ( ( obj->type == G3DMESHTYPE   ) ||
                               ( obj->type == G3DSPLINETYPE ) ) ) {
-                    mes = ( G3DMESH * ) obj;
+                    G3DMESH *mes = ( G3DMESH * ) obj;
+                    double worldx, worldy, worldz;
+
                     /*** We need the selected object matrix in order to create ***/
                     /*** the cutting plan and find its coords, but do not ***/
                     /*** forget the current matrix is the camera transformations **/
@@ -144,9 +161,13 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
                                                     MVX,
                                                     cam->pmatrix,
                                                     VPX,
-                                                   &cm->coord[0x00][0x00],
-                                                   &cm->coord[0x00][0x01],
-                                                   &cm->coord[0x00][0x02] );
+                                                   &worldx,
+                                                   &worldy,
+                                                   &worldz );
+                    /* double to float */
+                    cm->coord[0x00].x = cm->coord[0x02].x = worldx;
+                    cm->coord[0x00].y = cm->coord[0x02].y = worldy;
+                    cm->coord[0x00].z = cm->coord[0x02].z = worldz;
 
                     g3dcore_unprojectf ( ( double ) bev->x,
                                          ( double ) VPX[0x03] - bev->y,
@@ -154,14 +175,13 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
                                                     MVX,
                                                     cam->pmatrix,
                                                     VPX,
-                                                   &cm->coord[0x01][0x00],
-                                                   &cm->coord[0x01][0x01],
-                                                   &cm->coord[0x01][0x02] );
-
-                    memcpy ( cm->coord[0x02],
-                             cm->coord[0x00], sizeof ( cm->coord[0x00] ) );
-                    memcpy ( cm->coord[0x03],
-                             cm->coord[0x01], sizeof ( cm->coord[0x01] ) );
+                                                   &worldx,
+                                                   &worldy,
+                                                   &worldz );
+                    /* double to float */
+                    cm->coord[0x01].x = cm->coord[0x03].x = worldx;
+                    cm->coord[0x01].y = cm->coord[0x03].y = worldy;
+                    cm->coord[0x01].z = cm->coord[0x03].z = worldz;
                 }
             }
         } return REDRAWVIEW;
@@ -172,16 +192,22 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
             if ( ( engine_flags & VIEWVERTEX ) ||
                  ( engine_flags & VIEWEDGE   ) ||
                  ( engine_flags & VIEWFACE   ) ) {
-                if ( mes ) {
+                if ( cm->obj ) {
+                    double worldx, worldy, worldz;
+
                     g3dcore_unprojectf ( ( double ) bev->x,
                                          ( double ) VPX[0x03] - bev->y, 
                                                     0.000001f,
                                                     MVX,
                                                     cam->pmatrix,
                                                     VPX,
-                                                   &cm->coord[0x02][0x00],
-                                                   &cm->coord[0x02][0x01],
-                                                   &cm->coord[0x02][0x02] );
+                                                   &worldx,
+                                                   &worldy,
+                                                   &worldz );
+                    /* double to float */
+                    cm->coord[0x02].x = worldx;
+                    cm->coord[0x02].y = worldy;
+                    cm->coord[0x02].z = worldz;
 
                     g3dcore_unprojectf ( ( double ) bev->x,
                                          ( double ) VPX[0x03] - bev->y,
@@ -189,10 +215,14 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
                                                     MVX,
                                                     cam->pmatrix,
                                                     VPX,
-                                                   &cm->coord[0x03][0x00],
-                                                   &cm->coord[0x03][0x01],
-                                                   &cm->coord[0x03][0x02] );
-                } 
+                                                   &worldx,
+                                                   &worldy,
+                                                   &worldz );
+                    /* double to float */
+                    cm->coord[0x03].x = worldx;
+                    cm->coord[0x03].y = worldy;
+                    cm->coord[0x03].z = worldz;
+                }
             }
         } return REDRAWVIEW;
 
@@ -205,26 +235,18 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
             if ( ( engine_flags & VIEWVERTEX ) ||
                  ( engine_flags & VIEWEDGE   ) ||
                  ( engine_flags & VIEWFACE   ) ) {
-                if ( mes ) {
-                    /*gluUnProject ( ( double ) bev->x, ( double ) bev->y, 0.001f,
-                                    MVX, PJX, VPX, &coord[0x02][0x00],
-                                                   &coord[0x02][0x01],
-                                                   &coord[0x02][0x02] );
-                    gluUnProject ( ( double ) bev->x, ( double ) bev->y, 0.999f,
-                                    MVX, PJX, VPX, &coord[0x03][0x00],
-                                                   &coord[0x03][0x01],
-                                                   &coord[0x03][0x02] );*/
-
+                if ( cm->obj ) {
                     for ( i = 0x00; i < 0x04; i++ ) {
-                        ver[i] = g3dvertex_new ( cm->coord[i][0x00],
-                                                 cm->coord[i][0x01],
-                                                 cm->coord[i][0x02] );
+                        ver[i] = g3dvertex_new ( cm->coord[i].x,
+                                                 cm->coord[i].y,
+                                                 cm->coord[i].z );
                     }
 
                     knife = g3dquad_new ( ver[0x00], ver[0x01],
                                           ver[0x03], ver[0x02] );
 
-                    if ( obj->type == G3DMESHTYPE ) {
+                    if ( cm->obj->type == G3DMESHTYPE ) {
+                        G3DMESH *mes = ( G3DMESH * ) cm->obj;
 
                         g3durm_mesh_cut ( urm, 
                                           mes, 
@@ -234,8 +256,8 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
                                           REDRAWVIEW );
                     }
 
-                    if ( obj->type == G3DSPLINETYPE ) {
-                        G3DSPLINE *spline = ( G3DSPLINE * ) obj;
+                    if ( cm->obj->type == G3DSPLINETYPE ) {
+                        G3DSPLINE *spline = ( G3DSPLINE * ) cm->obj;
 
                         g3durm_spline_cut ( urm,
                                             spline, 
@@ -253,9 +275,8 @@ static int cutMesh_tool ( G3DMOUSETOOL *mou,
             }
 
             cm->start = 0x00;
+            cm->obj = NULL;
 
-            obj = NULL;
-            mes = NULL;
         } return REDRAWVIEW;
 
         default :

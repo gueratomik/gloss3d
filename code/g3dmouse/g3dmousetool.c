@@ -31,24 +31,24 @@
 
 /******************************************************************************/
 void g3dmousetool_init ( G3DMOUSETOOL *gtool,
-                         char         *name, 
-                         char          key, 
-                         const char **icon,
+                         char         *name,
+                         char          key,
+                         const char  **icon,
                          uint32_t (*init) ( G3DMOUSETOOL *, 
                                             G3DSCENE *, 
-                                            G3DCAMERA *,
                                             G3DURMANAGER *, 
                                             uint64_t ),
-                         void (*draw) ( G3DMOUSETOOL *,
-                                        G3DSCENE *, 
-                                        G3DCAMERA *,
-                                        uint64_t ),
-                         int  (*event) ( G3DMOUSETOOL *, 
-                                        G3DSCENE *,
-                                        G3DCAMERA *, 
-                                        G3DURMANAGER *,
-                                        uint64_t,
-                                        G3DEvent * ),
+                         void     (*draw) ( G3DMOUSETOOL *,
+                                            G3DSCENE *, 
+                                            G3DCAMERA *,
+                                            G3DENGINE  *,
+                                            uint64_t ),
+                         int     (*event) ( G3DMOUSETOOL *, 
+                                            G3DSCENE *,
+                                            G3DCAMERA *, 
+                                            G3DURMANAGER *,
+                                            uint64_t,
+                                            G3DEvent * ),
                          uint32_t flags ) {
 
     int len = ( name ) ? strlen ( name ) : 0x00;
@@ -60,29 +60,31 @@ void g3dmousetool_init ( G3DMOUSETOOL *gtool,
     gtool->icon  = icon;
     gtool->init  = G3DMOUSE_INITFUNC(init);
     gtool->draw  = G3DMOUSE_DRAWFUNC(draw);
-    gtool->event = G3DMOUSE_TOOLFUNC(event);
+    gtool->event = G3DMOUSE_EVENTFUNC(event);
     gtool->key   = key;
     gtool->flags = flags;
 }
 
 /******************************************************************************/
 void m3dmousetool_init ( M3DMOUSETOOL *ltool,
-                         char *name, char key, const char **icon,
+                         char         *name,
+                         char          key,
+                         const char  **icon,
                          uint32_t (*init) ( G3DMOUSETOOL *,
-                                            G3DSCENE *, 
-                                            G3DCAMERA *,
+                                            G3DSCENE *,
                                             G3DURMANAGER *, 
                                             uint64_t ),
-                         void (*draw) ( G3DMOUSETOOL *,
-                                        G3DSCENE *, 
-                                        G3DCAMERA *, 
-                                        uint64_t ),
-                         int  (*event) ( G3DMOUSETOOL *, 
-                                        G3DSCENE *,
-                                        G3DCAMERA *, 
-                                        G3DURMANAGER *,
-                                        uint64_t,
-                                        G3DEvent * ),
+                         void     (*draw) ( G3DMOUSETOOL *,
+                                            G3DSCENE *, 
+                                            G3DCAMERA *,
+                                            G3DENGINE  *,
+                                            uint64_t ),
+                         int     (*event) ( G3DMOUSETOOL *, 
+                                            G3DSCENE *,
+                                            G3DCAMERA *, 
+                                            G3DURMANAGER *,
+                                            uint64_t,
+                                            G3DEvent * ),
                          uint32_t flags ) {
     g3dmousetool_init ( &ltool->gtool,
                          name,

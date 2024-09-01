@@ -36,7 +36,6 @@
 
 static uint32_t roundSplinePoint_init  ( G3DMOUSETOOL *mou,
                                          G3DSCENE     *sce, 
-                                         G3DCAMERA    *cam,
                                          G3DURMANAGER *urm, 
                                          uint64_t engine_flags );
 
@@ -63,9 +62,8 @@ G3DMOUSETOOLROUNDSPLINEPOINT *g3dmousetoolroundsplinepoint_new ( ) {
 
 /******************************************************************************/
 static uint32_t roundSplinePoint_init  ( G3DMOUSETOOL *mou,
-                                         G3DSCENE     *sce, 
-                                         G3DCAMERA    *cam,
-                                         G3DURMANAGER *urm, 
+                                         G3DSCENE     *sce,
+                                         G3DURMANAGER *urm,
                                          uint64_t engine_flags ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 

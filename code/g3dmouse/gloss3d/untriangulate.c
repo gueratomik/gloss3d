@@ -34,10 +34,9 @@
 /* only or TRUE to redraw all OGL Widgets                                     */
 /******************************************************************************/
 
-static uint32_t untriangulate_init  ( G3DMOUSETOOL *mou, 
-                                      G3DSCENE     *sce, 
-                                      G3DCAMERA    *cam,
-                                      G3DURMANAGER *urm, 
+static uint32_t untriangulate_init  ( G3DMOUSETOOL *mou,
+                                      G3DSCENE     *sce,
+                                      G3DURMANAGER *urm,
                                       uint64_t engine_flags );
 
 /******************************************************************************/
@@ -62,10 +61,9 @@ G3DMOUSETOOLUNTRIANGULATE *g3dmousetooluntriangulate_new ( ) {
 }
 
 /******************************************************************************/
-static uint32_t untriangulate_init  ( G3DMOUSETOOL *mou, 
-                                      G3DSCENE     *sce, 
-                                      G3DCAMERA    *cam,
-                                      G3DURMANAGER *urm, 
+static uint32_t untriangulate_init  ( G3DMOUSETOOL *mou,
+                                      G3DSCENE     *sce,
+                                      G3DURMANAGER *urm,
                                       uint64_t engine_flags ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 

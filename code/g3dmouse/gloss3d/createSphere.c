@@ -66,11 +66,10 @@ G3DMOUSETOOLCREATESPHERE *g3dmousetoolcreatesphere_new ( ) {
 /******************************************************************************/
 static int createSphere ( G3DMOUSETOOL *mou, 
                           G3DSCENE     *sce, 
-                          G3DCAMERA    *cam,
+                          G3DCAMERA    *curcam,
                           G3DURMANAGER *urm, 
                           uint64_t engine_flags, 
                           G3DEvent     *event ) {
-    static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static double objx, objy, objz,
                   winx, winy, winz;
@@ -83,16 +82,27 @@ static int createSphere ( G3DMOUSETOOL *mou,
             uint32_t pid = g3dscene_getNextObjectID ( sce );
 
             /** we dont need to get the mvx as we use the world matrix from the scene object ***/
-            glGetDoublev  ( GL_MODELVIEW_MATRIX, MVX  );
-            glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
             glGetIntegerv ( GL_VIEWPORT, VPX );
 
-            gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
-            gluUnProject ( ( GLdouble ) bev->x,
-                           ( GLdouble ) VPX[0x03] - bev->y,
-                           ( GLdouble ) winz,
-                           MVX, PJX, VPX,
-                           &objx, &objy, &objz );
+            g3dcore_projectf ( 0.0f,
+                               0.0f,
+                               0.0f,
+                               curcam->obj.inverseWorldMatrix,
+                               curcam->pmatrix,
+                               VPX,
+                              &winx,
+                              &winy,
+                              &winz );
+
+            g3dcore_unprojectf ( ( GLdouble ) bev->x,
+                                 ( GLdouble ) VPX[0x03] - bev->y,
+                                 ( GLdouble ) winz,
+                                              curcam->obj.inverseWorldMatrix,
+                                              curcam->pmatrix,
+                                              VPX,
+                                             &objx,
+                                             &objy,
+                                             &objz );
 
             pri = g3dsphere_new ( pid, "Sphere" );
 
@@ -117,12 +127,25 @@ static int createSphere ( G3DMOUSETOOL *mou,
                 SPHEREDATASTRUCT *data = ( SPHEREDATASTRUCT * ) pri->data;
                 float radius;
 
-                gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
-                gluUnProject ( ( GLdouble ) mev->x,
-                               ( GLdouble ) VPX[0x03] - mev->y,
-                               ( GLdouble ) winz,
-                               MVX, PJX, VPX,
-                               &objx, &objy, &objz );
+                g3dcore_projectf ( 0.0f,
+                                   0.0f,
+                                   0.0f,
+                                   curcam->obj.inverseWorldMatrix,
+                                   curcam->pmatrix,
+                                   VPX,
+                                  &winx,
+                                  &winy,
+                                  &winz );
+
+                g3dcore_unprojectf ( ( GLdouble ) mev->x,
+                                     ( GLdouble ) VPX[0x03] - mev->y,
+                                     ( GLdouble ) winz,
+                                                 curcam->obj.inverseWorldMatrix,
+                                                 curcam->pmatrix,
+                                                 VPX,
+                                                 &objx,
+                                                 &objy,
+                                                 &objz );
 
                 radius = sqrt ( ( objx - obj->pos.x ) * ( objx - obj->pos.x ) +
                                 ( objy - obj->pos.y ) * ( objy - obj->pos.y ) +

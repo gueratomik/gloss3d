@@ -1705,6 +1705,12 @@ void g3dcore_orthof( double left,
                      double nearVal,
                      double farVal,
                      float *M );
+void g3dcore_ortho2Df( double left,
+                       double right,
+                       double bottom,
+                       double top,
+                       float *M );
+
 void     g3dcore_copyMatrixf( float *inM, float *outM );
 void     g3dcore_multMatrixd             ( double *, double *, double * );
 void     g3dcore_multMatrixf             ( float *, float *, float * );
