@@ -93,7 +93,7 @@ void g3dimportv2morpher ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) 
                 for ( i = 0x00; i < nbver; i++ ) {
                     G3DMORPHERVERTEXPOSE *vpose;
                     uint32_t verID;
-                    G3DVECTOR vpos;
+                    G3DVECTOR3F vpos;
 
                     g3dimportv2_freadl ( &verID, fsrc );
                     g3dimportv2_freadf ( &vpos.x, fsrc );

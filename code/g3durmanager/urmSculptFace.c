@@ -69,9 +69,9 @@ URMSCULPTFACEEXTENSION *urmsculptfaceextension_new ( G3DFACESCULPTEXTENSION *fse
     usf->fse = fse;
     usf->fac = fac;
 
-    usf->pos = calloc ( fse->nbver, sizeof ( G3DVECTOR ) );
-    usf->nor = calloc ( fse->nbver, sizeof ( G3DVECTOR ) );
-    usf->hei = calloc ( fse->nbver, sizeof ( G3DHEIGHT ) );
+    usf->pos = calloc ( fse->nbver, sizeof ( G3DVECTOR4F ) );
+    usf->nor = calloc ( fse->nbver, sizeof ( G3DVECTOR3F ) );
+    usf->hei = calloc ( fse->nbver, sizeof ( G3DHEIGHT   ) );
 
     return usf;
 }
@@ -125,19 +125,19 @@ void sculptFace_undo ( G3DURMANAGER *urm,
 
             switch ( usf->sdr->sculptMode ) {
                 case SCULPTMODE_SCULPT : {
-                    G3DVECTOR *tmp = calloc ( usfe->fse->nbver, sizeof ( G3DVECTOR ) );
+                    G3DVECTOR4F *tmp = calloc ( usfe->fse->nbver, sizeof ( G3DVECTOR4F ) );
 
                     memcpy ( tmp, 
                              usfe->fse->pos, 
-                             usfe->fse->nbver * sizeof ( G3DVECTOR ) );
+                             usfe->fse->nbver * sizeof ( G3DVECTOR4F ) );
 
                     memcpy ( usfe->fse->pos,
                              usfe->pos,
-                             usfe->fse->nbver * sizeof ( G3DVECTOR ) );
+                             usfe->fse->nbver * sizeof ( G3DVECTOR4F ) );
 
                     memcpy ( usfe->pos, 
                              tmp, 
-                             usfe->fse->nbver * sizeof ( G3DVECTOR ) );
+                             usfe->fse->nbver * sizeof ( G3DVECTOR4F ) );
 
                     free ( tmp );
                 } break;

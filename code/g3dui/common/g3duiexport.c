@@ -102,7 +102,7 @@ static uint32_t g3duiview_flags ( G3DEXPORTV3DATA *ged,
 
 /******************************************************************************/
 static uint32_t g3duiview_cameraPosition ( G3DEXPORTV3DATA *ged,
-                                           G3DVECTOR     *pos,
+                                           G3DVECTOR3F     *pos,
                                            uint32_t       flags, 
                                            FILE          *fdst ) {
     uint32_t size = 0x00;
@@ -116,7 +116,7 @@ static uint32_t g3duiview_cameraPosition ( G3DEXPORTV3DATA *ged,
 
 /******************************************************************************/
 static uint32_t g3duiview_cameraRotation ( G3DEXPORTV3DATA *ged,
-                                           G3DVECTOR     *rot,
+                                           G3DVECTOR3F     *rot,
                                            uint32_t       flags, 
                                            FILE          *fdst ) {
     uint32_t size = 0x00;
@@ -130,7 +130,7 @@ static uint32_t g3duiview_cameraRotation ( G3DEXPORTV3DATA *ged,
 
 /******************************************************************************/
 static uint32_t g3duiview_cameraScaling ( G3DEXPORTV3DATA *ged,
-                                          G3DVECTOR     *sca,
+                                          G3DVECTOR3F     *sca,
                                           uint32_t       flags, 
                                           FILE          *fdst ) {
     uint32_t size = 0x00;

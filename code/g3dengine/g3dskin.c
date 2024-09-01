@@ -31,13 +31,13 @@
 
 /******************************************************************************/
 static void g3dskin_deformVertex ( G3DSKIN   *skn,
-                                   G3DVECTOR *pos,
+                                   G3DVECTOR3F *pos,
                                    LIST      *lwei,
-                                   G3DVECTOR *def ) {
-    G3DVECTOR dif = { 0.0f, 0.0f, 0.0f };
+                                   G3DVECTOR3F *def ) {
+    G3DVECTOR3F dif = { 0.0f, 0.0f, 0.0f };
     LIST *ltmpwei = lwei;
     float tot = 0.0f;
-    G3DVECTOR loc;
+    G3DVECTOR3F loc;
 
     def->x = pos->x;
     def->y = pos->y;
@@ -45,11 +45,11 @@ static void g3dskin_deformVertex ( G3DSKIN   *skn,
 
     while ( ltmpwei ) {
         G3DWEIGHT *wei = ( G3DWEIGHT * ) ltmpwei->data;
-        G3DVECTOR wld;
-        G3DVECTOR tmp;
+        G3DVECTOR3F wld;
+        G3DVECTOR3F tmp;
 
         if ( wei->rig ) {
-            g3dvector_matrixf ( pos, wei->rig->defmatrix, &tmp );
+            g3dvector3f_matrixf ( pos, wei->rig->defmatrix, &tmp );
 
             dif.x += ( tmp.x * wei->weight );
             dif.y += ( tmp.y * wei->weight );
@@ -119,17 +119,17 @@ static uint32_t g3dskin_modify ( G3DSKIN    *skn,
             LIST *ltmpver = orimes->lver;
 
             if ( op == G3DMODIFYOP_MODIFY ) {
-                skn->mod.verpos = ( G3DVECTOR * ) realloc ( skn->mod.verpos, 
+                skn->mod.verpos = ( G3DVECTOR3F * ) realloc ( skn->mod.verpos, 
                                                             orimes->nbver * 
-                                                            sizeof ( G3DVECTOR ) );
-                skn->mod.vernor = ( G3DVECTOR * ) realloc ( skn->mod.vernor, 
+                                                            sizeof ( G3DVECTOR3F ) );
+                skn->mod.vernor = ( G3DVECTOR3F * ) realloc ( skn->mod.vernor, 
                                                             orimes->nbver *  
-                                                            sizeof ( G3DVECTOR ) );
+                                                            sizeof ( G3DVECTOR3F ) );
             }
 
             while ( ltmpver ) {
                 G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-                G3DVECTOR *stkpos = g3dvertex_getModifiedPosition ( ver,
+                G3DVECTOR3F *stkpos = g3dvertex_getModifiedPosition ( ver,
                                                                     skn->mod.stkpos );
 
                 g3dskin_deformVertex ( skn, 

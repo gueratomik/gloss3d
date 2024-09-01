@@ -102,10 +102,10 @@ uint64_t g3duiview_spin ( G3DUIVIEW *view,
                           float      diffx ) {
     G3DCAMERA *cam = getCamera ( view );
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
-    G3DVECTOR xvec = { 1.0f, 0.0f, 0.0f, 1.0f },
-              yvec = { 0.0f, 1.0f, 0.0f, 1.0f },
-              zvec = { 0.0f, 0.0f, 1.0f, 1.0f }, camx, camy, camz;
-    G3DVECTOR ovec = { 0.0f, 0.0f, 0.0f, 1.0f }, camp;
+    G3DVECTOR3F xvec = { 1.0f, 0.0f, 0.0f },
+                yvec = { 0.0f, 1.0f, 0.0f },
+                zvec = { 0.0f, 0.0f, 1.0f }, camx, camy, camz;
+    G3DVECTOR3F ovec = { 0.0f, 0.0f, 0.0f }, camp;
     GLdouble MVX[0x10];
 
     g3dcamera_spin ( cam, diffx );
@@ -136,17 +136,17 @@ uint64_t g3duiview_moveSideward ( G3DUIVIEW *view,
                                   float diffy ) {
     G3DCAMERA *cam = getCamera ( view );
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
-    G3DVECTOR xvec = { 1.0f, 0.0f, 0.0f, 1.0f },
-              yvec = { 0.0f, 1.0f, 0.0f, 1.0f },
-              zvec = { 0.0f, 0.0f, 1.0f, 1.0f }, camx, camy, camz;
+    G3DVECTOR3F xvec = { 1.0f, 0.0f, 0.0f },
+                yvec = { 0.0f, 1.0f, 0.0f },
+                zvec = { 0.0f, 0.0f, 1.0f }, camx, camy, camz;
     float posx, posy, posz;
 
     if ( obj->flags & CAMERAORTHOGRAPHIC ) {
         cam->ortho.x += ( diffx * cam->ortho.z );
         cam->ortho.y -= ( diffy * cam->ortho.z );
     } else {
-        g3dvector_matrixf  ( &xvec, obj->rotationMatrix, &camx );
-        g3dvector_matrixf  ( &yvec, obj->rotationMatrix, &camy );
+        g3dvector3f_matrixf  ( &xvec, obj->rotationMatrix, &camx );
+        g3dvector3f_matrixf  ( &yvec, obj->rotationMatrix, &camy );
 
         obj->pos.x += ( camx.x * ( (float) ( diffx ) / 20.0f ) );
         obj->pos.y += ( camx.y * ( (float) ( diffx ) / 20.0f ) );
@@ -170,9 +170,9 @@ uint64_t g3duiview_moveForward ( G3DUIVIEW *view,
                                  float      diffx ) {
     G3DCAMERA *cam = getCamera ( view );
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
-    G3DVECTOR xvec = { 1.0f, 0.0f, 0.0f, 1.0f },
-              yvec = { 0.0f, 1.0f, 0.0f, 1.0f },
-              zvec = { 0.0f, 0.0f, 1.0f, 1.0f }, camx, camy, camz;
+    G3DVECTOR3F xvec = { 1.0f, 0.0f, 0.0f },
+                yvec = { 0.0f, 1.0f, 0.0f },
+                zvec = { 0.0f, 0.0f, 1.0f }, camx, camy, camz;
     float posx, posy, posz;
 
     if ( obj->flags & CAMERAORTHOGRAPHIC ) {
@@ -180,7 +180,7 @@ uint64_t g3duiview_moveForward ( G3DUIVIEW *view,
 
         if ( cam->ortho.z < 0.0f ) cam->ortho.z = 0.0f;
     } else {
-        g3dvector_matrixf  ( &zvec, obj->rotationMatrix, &camz );
+        g3dvector3f_matrixf  ( &zvec, obj->rotationMatrix, &camz );
 
         obj->pos.x += ( camz.x * ( (float) ( diffx ) / 40.0f ) );
         obj->pos.y += ( camz.y * ( (float) ( diffx ) / 40.0f ) );
@@ -372,7 +372,7 @@ void g3duiview_initGL ( G3DUIVIEW *view ) {
     G3DCAMERA *cam = getCamera ( view );
 
     view->engine = g3dengine_new();
-printf("%s %d\n", __func__, cam );
+
 #ifdef __MINGW32__
     if ( glActiveTextureARB == NULL ) 
         glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC) wglGetProcAddress("glActiveTextureARB");
@@ -487,7 +487,7 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
     if ( sce ) {
 
         int VPX[0x04];
-        G3DVECTOR vec = { 0.0f, 0.0f, 0.0f, 1.0f };
+        G3DVECTOR3F vec = { 0.0f, 0.0f, 0.0f };
         G3DOBJECT *selobj = g3dscene_getSelectedObject ( sce );
         G3DSYSINFO *sysinfo = g3dsysinfo_get ( );
         Q3DSETTINGS *rsg = gui->currsg;
@@ -548,7 +548,7 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
                         float renderRatio  = ( float ) rsg->output.width / 
                                                        rsg->output.height;
                         float color[] = { 0.25f, 0.25f, 0.25f, 1.0f };
-                        G3DVECTOR uv[0x04] = { { .x =     0, .y =     0, .z = 0.0f },
+                        G3DVECTOR3F uv[0x04] = { { .x =     0, .y =     0, .z = 0.0f },
                                                { .x =  1.0f, .y =     0, .z = 0.0f },
                                                { .x =  1.0f, .y =  1.0f, .z = 0.0f },
                                                { .x =     0, .y =  1.0f, .z = 0.0f } }; 

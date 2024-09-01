@@ -85,21 +85,22 @@ void g3dimportv3uvmap ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_UVMAP_TRANSFORMATION : {
                 G3DOBJECT *obj = ( G3DOBJECT * ) gid->currentUVMap;
                 G3DMESH *mes = ( G3DMESH * ) gid->currentObject;
+                float wignored;
 
                 g3dimportv3_freadf ( &obj->pos.x, fsrc );
                 g3dimportv3_freadf ( &obj->pos.y, fsrc );
                 g3dimportv3_freadf ( &obj->pos.z, fsrc );
-                g3dimportv3_freadf ( &obj->pos.w, fsrc );
+                g3dimportv3_freadf ( &wignored  , fsrc );
 
                 g3dimportv3_freadf ( &obj->rot.x, fsrc );
                 g3dimportv3_freadf ( &obj->rot.y, fsrc );
                 g3dimportv3_freadf ( &obj->rot.z, fsrc );
-                g3dimportv3_freadf ( &obj->rot.w, fsrc );
+                g3dimportv3_freadf ( &wignored  , fsrc );
 
                 g3dimportv3_freadf ( &obj->sca.x, fsrc );
                 g3dimportv3_freadf ( &obj->sca.y, fsrc );
                 g3dimportv3_freadf ( &obj->sca.z, fsrc );
-                g3dimportv3_freadf ( &obj->sca.w, fsrc );
+                g3dimportv3_freadf ( &wignored  , fsrc );
 
                 g3dobject_updateMatrix_r ( obj, gid->engineFlags );
 

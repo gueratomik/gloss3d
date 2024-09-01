@@ -146,25 +146,25 @@ unsigned int g3dengine_bindSubdivIndexBuffer( G3DENGINE *engine,
   * xxd -i < triangleVertexShader.glsl > triangleVertexShader.xxd
   */
 
-static char *coloredVertexShaderSource = & ( char[] ) {
+static const char *coloredVertexShaderSource =  ( const char[] ) {
 #include "glsl/coloredVertexShader.xxd"
 , 0x00 };
 
 /** the xxd file is generated with the following command :
   * xxd -i < triangleFragmentShader.glsl > triangleFragmentShader.xxd
   */
-static char *coloredFragmentShaderSource = & ( char[] ) {
+static const char *coloredFragmentShaderSource =  ( const char[] ) {
 #include "glsl/coloredFragmentShader.xxd"
 , 0x00 };
 
-static char *triangleVertexShaderSource = & ( char[] ) {
+static const char *triangleVertexShaderSource =  ( const char[] ) {
 #include "glsl/shadedVertexShader.xxd"
 , 0x00 };
 
 /** the xxd file is generated with the following command :
   * xxd -i < triangleFragmentShader.glsl > triangleFragmentShader.xxd
   */
-static char *triangleFragmentShaderSource = & ( char[] ) {
+static const char *triangleFragmentShaderSource =  ( const char[] ) {
 #include "glsl/shadedFragmentShader.xxd"
 , 0x00 };
 
@@ -251,7 +251,7 @@ static void g3dengine_initTriangleVertexShader( G3DENGINE *engine ) {
 
         fprintf( stderr, "GLSL compilation failed. Error is:\n%s", engine->log );
     } else {
-        engine->flags |= ENGINE_TRIANGLE_VERTEX_SHADER_INITIALIZED;
+        engine->flags |= ENGINE_SHADED_VERTEX_SHADER_INITIALIZED;
     }
 }
 
@@ -280,7 +280,7 @@ static void g3dengine_initTriangleFragmentShader( G3DENGINE *engine ) {
 
         fprintf( stderr, "GLSL compilation failed. Error is:\n%s", engine->log );
     } else {
-        engine->flags |= ENGINE_TRIANGLE_FRAGMENT_SHADER_INITIALIZED;
+        engine->flags |= ENGINE_SHADED_FRAGMENT_SHADER_INITIALIZED;
     }
 }
 
@@ -314,15 +314,15 @@ static void g3dengine_initTriangleShaderProgram ( G3DENGINE *engine ) {
 
         fprintf( stderr, "GLSL linking failed. Error is:\n%s", engine->log );
     } else {
-        if( engine->flags & ENGINE_TRIANGLE_VERTEX_SHADER_INITIALIZED ) {
+        if( engine->flags & ENGINE_SHADED_VERTEX_SHADER_INITIALIZED ) {
             glDeleteShader( engine->triangleVertexShader );
         }
 
-        if( engine->flags & ENGINE_TRIANGLE_FRAGMENT_SHADER_INITIALIZED ) {
+        if( engine->flags & ENGINE_SHADED_FRAGMENT_SHADER_INITIALIZED ) {
             glDeleteShader( engine->triangleFragmentShader );
         }
 
-        engine->flags |= ENGINE_TRIANGLE_SHADER_PROGRAM_INITIALIZED;
+        engine->flags |= ENGINE_SHADED_SHADER_PROGRAM_INITIALIZED;
     }
 }
 
@@ -379,10 +379,10 @@ void g3dengine_initShaders ( G3DENGINE *engine ) {
     glGenBuffers( 1, &engine->vertexBuffer );
     glBindBuffer( GL_ARRAY_BUFFER, engine->vertexBuffer ); 
     glBufferData( GL_ARRAY_BUFFER,
-                  sizeof( SHADERVERTEX ) * 4, /* enough for quads as well */
+                  /* enough space for point, quad, tri and bezier as well */
+                  sizeof( SHADERVERTEX ) * SEGMENTDIV,
                   NULL,
                   GL_DYNAMIC_DRAW );
-
 
     glVertexAttribPointer( 0x00, /* attrib 0 is vertex position as vec3 */
                            0x03,
@@ -423,7 +423,9 @@ void g3dengine_drawTriangle ( G3DENGINE    *engine,
     glBindVertexArray( engine->vertexArray );
     glBindBuffer( GL_ARRAY_BUFFER, engine->vertexBuffer ); 
     glBufferSubData( GL_ARRAY_BUFFER,
-                     0, sizeof( SHADERVERTEX ) * 3, vertices );
+                     0,
+                     sizeof( SHADERVERTEX ) * 0x03,
+                     vertices );
 
     if ( engine_flags & FILLINGGOURAUD ) {
         glDrawArrays( GL_TRIANGLES, 0x00, 0x03 );
@@ -444,7 +446,9 @@ void g3dengine_drawQuad ( G3DENGINE    *engine,
     glBindVertexArray( engine->vertexArray );
     glBindBuffer( GL_ARRAY_BUFFER, engine->vertexBuffer ); 
     glBufferSubData( GL_ARRAY_BUFFER,
-                     0, sizeof( SHADERVERTEX ) * 4, vertices );
+                     0,
+                     sizeof( SHADERVERTEX ) * 0x04,
+                     vertices );
 
 
     if ( engine_flags & FILLINGGOURAUD ) {
@@ -456,6 +460,20 @@ void g3dengine_drawQuad ( G3DENGINE    *engine,
     }
 }
 
+/******************************************************************************/
+void g3dengine_drawSegment ( G3DENGINE    *engine,
+                             SHADERVERTEX *vertices,
+                             uint32_t      object_flags,
+                             uint64_t      engine_flags ) {
+    glBindVertexArray( engine->vertexArray );
+    glBindBuffer( GL_ARRAY_BUFFER, engine->vertexBuffer ); 
+    glBufferSubData( GL_ARRAY_BUFFER,
+                     0,
+                     sizeof( SHADERVERTEX ) * SEGMENTDIV,
+                     vertices );
+
+    glDrawArrays( GL_POINTS, 0x00, 0x01 );
+}
 
 /******************************************************************************/
 void g3dengine_drawLine ( G3DENGINE    *engine,
@@ -465,7 +483,9 @@ void g3dengine_drawLine ( G3DENGINE    *engine,
     glBindVertexArray( engine->vertexArray );
     glBindBuffer( GL_ARRAY_BUFFER, engine->vertexBuffer ); 
     glBufferSubData( GL_ARRAY_BUFFER,
-                     0, sizeof( SHADERVERTEX ) * 2, vertices );
+                     0,
+                     sizeof( SHADERVERTEX ) * 0x02,
+                     vertices );
 
     glDrawArrays( GL_LINES, 0x00, 0x02 );
 }
@@ -478,7 +498,9 @@ void g3dengine_drawPoint ( G3DENGINE    *engine,
     glBindVertexArray( engine->vertexArray );
     glBindBuffer( GL_ARRAY_BUFFER, engine->vertexBuffer ); 
     glBufferSubData( GL_ARRAY_BUFFER,
-                     0, sizeof( SHADERVERTEX ) * 1, vertex );
+                     0,
+                     sizeof( SHADERVERTEX ) * 1,
+                     vertex );
 
     glDrawArrays( GL_POINTS, 0x00, 0x01 );
 }

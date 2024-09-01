@@ -70,25 +70,25 @@ void g3dkey_disableData ( G3DKEY *key ) {
 }
 
 /******************************************************************************/
-void g3dkey_recordPosCurvePoint ( G3DKEY *key, G3DVECTOR *pos ) {
-    memcpy ( &key->curvePoint[0x00].pos, pos, sizeof ( G3DVECTOR ) );
+void g3dkey_recordPosCurvePoint ( G3DKEY *key, G3DVECTOR3F *pos ) {
+    memcpy ( &key->curvePoint[0x00].pos, pos, sizeof ( G3DVECTOR3F ) );
 }
 
 /******************************************************************************/
-void g3dkey_recordRotCurvePoint ( G3DKEY *key, G3DVECTOR *rot ) {
-    memcpy ( &key->curvePoint[0x01].pos, rot, sizeof ( G3DVECTOR ) );
+void g3dkey_recordRotCurvePoint ( G3DKEY *key, G3DVECTOR3F *rot ) {
+    memcpy ( &key->curvePoint[0x01].pos, rot, sizeof ( G3DVECTOR3F ) );
 }
 
 /******************************************************************************/
-void g3dkey_recordScaCurvePoint ( G3DKEY *key, G3DVECTOR *sca ) {
-    memcpy ( &key->curvePoint[0x02].pos, sca, sizeof ( G3DVECTOR ) );
+void g3dkey_recordScaCurvePoint ( G3DKEY *key, G3DVECTOR3F *sca ) {
+    memcpy ( &key->curvePoint[0x02].pos, sca, sizeof ( G3DVECTOR3F ) );
 }
 
 /******************************************************************************/
 void g3dkey_recordAllCurvePoint ( G3DKEY    *key, 
-                                  G3DVECTOR *pos, 
-                                  G3DVECTOR *rot, 
-                                  G3DVECTOR *sca ) {
+                                  G3DVECTOR3F *pos, 
+                                  G3DVECTOR3F *rot, 
+                                  G3DVECTOR3F *sca ) {
     if ( pos ) g3dkey_recordPosCurvePoint ( key, pos );
     if ( rot ) g3dkey_recordRotCurvePoint ( key, rot );
     if ( sca ) g3dkey_recordScaCurvePoint ( key, sca );
@@ -260,17 +260,17 @@ uint32_t g3dkey_getLoopFrameFromList ( LIST *lkey, float *loopFrame ) {
 }
 
 /******************************************************************************/
-void g3dkey_setTransformationFromList ( LIST *lkey, G3DVECTOR *pos,
-                                                    G3DVECTOR *rot,
-                                                    G3DVECTOR *sca ) {
+void g3dkey_setTransformationFromList ( LIST *lkey, G3DVECTOR3F *pos,
+                                                    G3DVECTOR3F *rot,
+                                                    G3DVECTOR3F *sca ) {
     LIST *ltmpkey = lkey;
 
     while ( ltmpkey ) {
         G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
 
-        memcpy ( &key->pos, pos, sizeof ( G3DVECTOR ) );
-        memcpy ( &key->rot, pos, sizeof ( G3DVECTOR ) );
-        memcpy ( &key->sca, pos, sizeof ( G3DVECTOR ) );
+        memcpy ( &key->pos, pos, sizeof ( G3DVECTOR3F ) );
+        memcpy ( &key->rot, pos, sizeof ( G3DVECTOR3F ) );
+        memcpy ( &key->sca, pos, sizeof ( G3DVECTOR3F ) );
 
 
         ltmpkey = ltmpkey->next;
@@ -278,15 +278,16 @@ void g3dkey_setTransformationFromList ( LIST *lkey, G3DVECTOR *pos,
 }
 
 /******************************************************************************/
-void g3dkey_getTransformationFromList ( LIST *lkey, G3DVECTOR *pos,
-                                                    G3DVECTOR *rot,
-                                                    G3DVECTOR *sca ) {
+void g3dkey_getTransformationFromList ( LIST        *lkey, 
+                                        G3DVECTOR3F *pos,
+                                        G3DVECTOR3F *rot,
+                                        G3DVECTOR3F *sca ) {
     uint32_t nbkey = 0x00;
     LIST *ltmpkey = lkey;
 
-    g3dvector_init ( pos, 0.0f, 0.0f, 0.0f, 1.0f );
-    g3dvector_init ( rot, 0.0f, 0.0f, 0.0f, 1.0f );
-    g3dvector_init ( sca, 0.0f, 0.0f, 0.0f, 1.0f );
+    g3dvector3f_init ( pos, 0.0f, 0.0f, 0.0f );
+    g3dvector3f_init ( rot, 0.0f, 0.0f, 0.0f );
+    g3dvector3f_init ( sca, 0.0f, 0.0f, 0.0f );
 
     while ( ltmpkey ) {
         G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
@@ -333,23 +334,23 @@ void g3dkey_free ( G3DKEY *key ) {
 
 /******************************************************************************/
 void g3dkey_init ( G3DKEY *key, float frame, 
-                                G3DVECTOR *pos,
-                                G3DVECTOR *rot,
-                                G3DVECTOR *sca, uint32_t key_flags ) {
+                                G3DVECTOR3F *pos,
+                                G3DVECTOR3F *rot,
+                                G3DVECTOR3F *sca, uint32_t key_flags ) {
     key->frame = frame;
     key->flags = key_flags;
 
-    memcpy ( &key->pos, pos, sizeof ( G3DVECTOR ) );
-    memcpy ( &key->rot, rot, sizeof ( G3DVECTOR ) );
-    memcpy ( &key->sca, sca, sizeof ( G3DVECTOR ) );
+    memcpy ( &key->pos, pos, sizeof ( G3DVECTOR3F ) );
+    memcpy ( &key->rot, rot, sizeof ( G3DVECTOR3F ) );
+    memcpy ( &key->sca, sca, sizeof ( G3DVECTOR3F ) );
 
     g3dkey_recordAllCurvePoint ( key, pos, rot, sca );
 }
 
 /******************************************************************************/
-G3DKEY *g3dkey_new ( float frame, G3DVECTOR *pos,
-                                  G3DVECTOR *rot,
-                                  G3DVECTOR *sca, uint32_t key_flags ) {
+G3DKEY *g3dkey_new ( float frame, G3DVECTOR3F *pos,
+                                  G3DVECTOR3F *rot,
+                                  G3DVECTOR3F *sca, uint32_t key_flags ) {
     G3DKEY *key = ( G3DKEY * ) calloc ( 0x01, sizeof ( G3DKEY ) );
 
     if ( key == NULL ) {

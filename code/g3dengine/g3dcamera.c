@@ -147,20 +147,22 @@ void g3dcamera_setTarget ( G3DCAMERA *cam,
                            G3DCURSOR *csr,
                            uint64_t   engine_flags ) {
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
-    G3DVECTOR  origin = { 0.0f, 0.0f, 0.0f, 1.0f },
+    G3DVECTOR3F  origin = { 0.0f, 0.0f, 0.0f },
                wxpos, lxpos,
                wobjpos, lobjpos;
-    G3DVECTOR  wpivpos = { 0.0f, 0.0f, 0.0f, 1.0f }, lpivpos;
-    G3DVECTOR  piv2obj;
-    G3DVECTOR  obj2x;
-    G3DVECTOR  axis, up = { 0.0f, 1.0f, 0.0f, 1.0f };
+    G3DVECTOR3F  wpivpos = { 0.0f, 0.0f, 0.0f }, lpivpos;
+    G3DVECTOR3F  piv2obj;
+    G3DVECTOR3F  obj2x;
+    G3DVECTOR3F  axis, up = { 0.0f, 1.0f, 0.0f };
     float RX[0x10];
-    G3DVECTOR xaxis, yaxis;
+    G3DVECTOR3F xaxis, yaxis;
 
     g3dcore_identityMatrixf ( RX );
 
-    g3dvector_matrixf ( &origin    , objcam->worldMatrix, &wobjpos );
-    g3dvector_matrixf ( &csr->pivot, csr->matrix        , &wpivpos );
+    g3dvector3f_matrixf ( &origin, objcam->worldMatrix, &wobjpos );
+    g3dvector3f_matrixf ( ( G3DVECTOR3F * ) &csr->pivot,
+                                             csr->matrix,
+                                            &wpivpos );
 
     cam->target->pos.x = wpivpos.x;
     cam->target->pos.y = wpivpos.y;
@@ -170,31 +172,32 @@ void g3dcamera_setTarget ( G3DCAMERA *cam,
 
     /*wobjpos.y = wpivpos.y;*/
 
-    g3dvector_matrixf ( &wobjpos, cam->target->inverseWorldMatrix, &lobjpos );
-    g3dvector_matrixf ( &wpivpos, cam->target->inverseWorldMatrix, &lpivpos );
+    g3dvector3f_matrixf ( &wobjpos, cam->target->inverseWorldMatrix, &lobjpos );
+    g3dvector3f_matrixf ( &wpivpos, cam->target->inverseWorldMatrix, &lpivpos );
 
     piv2obj.x =  lobjpos.x - lpivpos.x;
     piv2obj.y =  lobjpos.y - lpivpos.y;
     piv2obj.z =  lobjpos.z - lpivpos.z;
 
-    g3dvector_normalize ( &piv2obj, NULL );
+    g3dvector3f_normalize ( &piv2obj );
 
-    g3dvector_matrixf ( & ( G3DVECTOR ) { 1.0f, 
-                                          0.0f, 
-                                          0.0f,
-                                          1.0f }, objcam->worldMatrix, &wxpos );
+    g3dvector3f_matrixf ( & ( G3DVECTOR3F ) { 1.0f, 
+                                              0.0f, 
+                                              0.0f },
+                          objcam->worldMatrix,
+                         &wxpos );
 
-    g3dvector_matrixf ( &wxpos, cam->target->inverseWorldMatrix, &lxpos );
+    g3dvector3f_matrixf ( &wxpos, cam->target->inverseWorldMatrix, &lxpos );
 
     xaxis.x = lxpos.x - lobjpos.x;
     xaxis.y = lxpos.y - lobjpos.y;
     xaxis.z = lxpos.z - lobjpos.z;
 
-    g3dvector_normalize ( &xaxis, NULL );
+    g3dvector3f_normalize ( &xaxis );
 
-    g3dvector_cross ( &piv2obj, &xaxis, &yaxis );
+    g3dvector3f_cross ( &piv2obj, &xaxis, &yaxis );
 
-    g3dvector_normalize ( &yaxis, NULL );
+    g3dvector3f_normalize ( &yaxis );
 
     RX[0x00] = xaxis.x;
     RX[0x04] = yaxis.x;
@@ -243,19 +246,19 @@ G3DCAMERA *g3dcamera_copy ( G3DCAMERA *cam,
 /******************************************************************************/
 float g3dcamera_getDistanceToCursor ( G3DCAMERA *cam, 
                                       G3DCURSOR *csr ) {
-    G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f };
-    G3DVECTOR campos;
-    G3DVECTOR csrpos;
-    G3DVECTOR distance;
+    G3DVECTOR3F origin = { 0.0f, 0.0f, 0.0f };
+    G3DVECTOR3F campos;
+    G3DVECTOR3F csrpos;
+    G3DVECTOR3F distance;
 
-    g3dvector_matrixf ( &origin, ((G3DOBJECT*)cam)->worldMatrix, &campos );
-    g3dvector_matrixf ( &origin, csr->matrix, &csrpos );
+    g3dvector3f_matrixf ( &origin, ((G3DOBJECT*)cam)->worldMatrix, &campos );
+    g3dvector3f_matrixf ( &origin, csr->matrix, &csrpos );
 
     distance.x = ( csrpos.x - campos.x );
     distance.y = ( csrpos.y - campos.y );
     distance.z = ( csrpos.z - campos.z );
 
-    return g3dvector_length ( &distance );
+    return g3dvector3f_length ( &distance );
 }
 
 /******************************************************************************/
@@ -468,8 +471,7 @@ uint32_t g3dcamera_draw ( G3DOBJECT *obj,
         verbox[0x01].pos = box[idx[i][0x01]];
         verbox[0x00].col.g = 1.0f;
         verbox[0x01].col.g = 1.0f;
-g3dvector_print( &verbox[0x00].pos );
-g3dvector_print( &verbox[0x01].pos );
+
         verlns[0x00].pos = lns[idx[i][0x00]];
         verlns[0x01].pos = lns[idx[i][0x01]];
         verlns[0x00].col.g = 1.0f;
@@ -480,7 +482,7 @@ g3dvector_print( &verbox[0x01].pos );
     }
 /*
     if ( obj->flags & CAMERADOF ) {
-        G3DVECTOR vec[0x04] = { { .x =  1.0f, .y =  1.0f, .z = -cam->dof.farBlur },
+        G3DVECTOR3F vec[0x04] = { { .x =  1.0f, .y =  1.0f, .z = -cam->dof.farBlur },
                                 { .x =  1.0f, .y = -1.0f, .z = -cam->dof.farBlur },
                                 { .x = -1.0f, .y = -1.0f, .z = -cam->dof.farBlur },
                                 { .x = -1.0f, .y =  1.0f, .z = -cam->dof.farBlur } };

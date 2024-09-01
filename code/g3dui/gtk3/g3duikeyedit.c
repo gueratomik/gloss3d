@@ -300,7 +300,7 @@ void gtk3_g3duikeyedit_update ( GTK3G3DUIKEYEDIT *gtk3ked ) {
         G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
         if ( obj && obj->lselkey ) {
-            G3DVECTOR keypos, keyrot, keysca;
+            G3DVECTOR3F keypos, keyrot, keysca;
             uint32_t keyloop = 0x00;
             float loopFrame;
             uint32_t loopFlag;

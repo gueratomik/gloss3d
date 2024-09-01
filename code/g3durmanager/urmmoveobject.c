@@ -87,9 +87,9 @@ static void transformObject_undo ( G3DURMANAGER *urm,
 
         memcpy ( OLDWORLDMVX, obj->worldMatrix, sizeof ( float ) * 0x10 );
 
-	    memcpy ( &obj->pos, &uto->oldpos[i], sizeof ( G3DVECTOR ) );
-	    memcpy ( &obj->rot, &uto->oldrot[i], sizeof ( G3DVECTOR ) );
-	    memcpy ( &obj->sca, &uto->oldsca[i], sizeof ( G3DVECTOR ) );
+	    memcpy ( &obj->pos, &uto->oldpos[i], sizeof ( G3DVECTOR3F ) );
+	    memcpy ( &obj->rot, &uto->oldrot[i], sizeof ( G3DVECTOR3F ) );
+	    memcpy ( &obj->sca, &uto->oldsca[i], sizeof ( G3DVECTOR3F ) );
 
 	    g3dobject_updateMatrix_r ( obj, 0x00 );
 
@@ -125,9 +125,9 @@ static void transformObject_redo ( G3DURMANAGER *urm,
 
         memcpy ( OLDWORLDMVX, obj->worldMatrix, sizeof ( float ) * 0x10 );
 
-        memcpy ( &obj->pos, &uto->newpos[i], sizeof ( G3DVECTOR ) );
-        memcpy ( &obj->rot, &uto->newrot[i], sizeof ( G3DVECTOR ) );
-        memcpy ( &obj->sca, &uto->newsca[i], sizeof ( G3DVECTOR ) );
+        memcpy ( &obj->pos, &uto->newpos[i], sizeof ( G3DVECTOR3F ) );
+        memcpy ( &obj->rot, &uto->newrot[i], sizeof ( G3DVECTOR3F ) );
+        memcpy ( &obj->sca, &uto->newsca[i], sizeof ( G3DVECTOR3F ) );
 
         g3dobject_updateMatrix_r ( obj, 0x00 );
 
@@ -153,16 +153,16 @@ static void transformObject_redo ( G3DURMANAGER *urm,
 void urmtransform_saveState ( URMTRANSFORMOBJECT *uto, uint32_t save_time ) {
 
     uint32_t nbobj   = list_count ( uto->lobj );
-    uint32_t vecsize = sizeof ( G3DVECTOR );
+    uint32_t vecsize = sizeof ( G3DVECTOR3F );
     LIST    *ltmpobj = uto->lobj;
     uint32_t i       = 0x00;
 
-    uto->oldpos = ( G3DVECTOR * ) realloc ( uto->oldpos, vecsize * nbobj );
-    uto->newpos = ( G3DVECTOR * ) realloc ( uto->newpos, vecsize * nbobj );
-    uto->oldrot = ( G3DVECTOR * ) realloc ( uto->oldrot, vecsize * nbobj );
-    uto->newrot = ( G3DVECTOR * ) realloc ( uto->newrot, vecsize * nbobj );
-    uto->oldsca = ( G3DVECTOR * ) realloc ( uto->oldsca, vecsize * nbobj );
-    uto->newsca = ( G3DVECTOR * ) realloc ( uto->newsca, vecsize * nbobj );
+    uto->oldpos = ( G3DVECTOR3F * ) realloc ( uto->oldpos, vecsize * nbobj );
+    uto->newpos = ( G3DVECTOR3F * ) realloc ( uto->newpos, vecsize * nbobj );
+    uto->oldrot = ( G3DVECTOR3F * ) realloc ( uto->oldrot, vecsize * nbobj );
+    uto->newrot = ( G3DVECTOR3F * ) realloc ( uto->newrot, vecsize * nbobj );
+    uto->oldsca = ( G3DVECTOR3F * ) realloc ( uto->oldsca, vecsize * nbobj );
+    uto->newsca = ( G3DVECTOR3F * ) realloc ( uto->newsca, vecsize * nbobj );
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;

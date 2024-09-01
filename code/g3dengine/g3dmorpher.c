@@ -199,7 +199,7 @@ static LIST *g3dmoprher_getMeshPoseVertices ( G3DMORPHER         *mpr,
 
 /******************************************************************************/
 void g3dmorpher_getAveragePositionFromSelectedVertices ( G3DMORPHER *mpr,
-                                                         G3DVECTOR  *pos ) {
+                                                         G3DVECTOR3F  *pos ) {
     LIST *ltmpver = mpr->lver;
     uint32_t count = 0x00;
 
@@ -446,7 +446,7 @@ int32_t g3dmorpher_getAvailableSlot ( G3DMORPHER *mpr ) {
 }
 
 /******************************************************************************/
-G3DVECTOR *g3dmorpher_getMeshPoseArrayFromList ( G3DMORPHER         *mpr,
+G3DVECTOR3F *g3dmorpher_getMeshPoseArrayFromList ( G3DMORPHER         *mpr,
                                                  G3DMORPHERMESHPOSE *mpose,
                                                  LIST               *lver ) {
     if ( mpose == NULL ) mpose = mpr->selmpose;
@@ -455,7 +455,7 @@ G3DVECTOR *g3dmorpher_getMeshPoseArrayFromList ( G3DMORPHER         *mpr,
         uint32_t nbver = list_count ( lver );
 
         if ( nbver ) {
-            G3DVECTOR *pos = ( G3DVECTOR * ) calloc ( nbver, sizeof ( G3DVECTOR ) );
+            G3DVECTOR3F *pos = ( G3DVECTOR3F * ) calloc ( nbver, sizeof ( G3DVECTOR3F ) );
             uint32_t verID = 0x00;
             LIST *ltmpver = lver;
 
@@ -466,7 +466,7 @@ G3DVECTOR *g3dmorpher_getMeshPoseArrayFromList ( G3DMORPHER         *mpr,
                                                                          mpose,
                                                                          NULL );
 
-                memcpy ( &pos[verID++], &vpose->pos, sizeof ( G3DVECTOR ) );
+                memcpy ( &pos[verID++], &vpose->pos, sizeof ( G3DVECTOR3F ) );
 
                 ltmpver = ltmpver->next;
             }
@@ -714,7 +714,7 @@ G3DMORPHERVERTEXPOSE *g3dmorpher_getVertexPose ( G3DMORPHER         *mpr,
 void g3dmorpher_addVertexPose ( G3DMORPHER         *mpr,
                                 G3DVERTEX          *ver,
                                 G3DMORPHERMESHPOSE *mpose,
-                                G3DVECTOR          *vpos ) {
+                                G3DVECTOR3F          *vpos ) {
     VERTEXPOSEEXTENSION *vxt = ( VERTEXPOSEEXTENSION * ) g3dvertex_getExtension ( ver, 
                                                                                   mpr->extensionName );
 
@@ -811,18 +811,18 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr,
         uint32_t nbCurrPose = 0x00;
         uint32_t nbPrevPose = 0x00;
         uint32_t nbNextPose = 0x00;
-        G3DVECTOR currpos, currnor;
-        G3DVECTOR prevpos, prevnor;
-        G3DVECTOR nextpos, nextnor;
-        G3DVECTOR *verpos = g3dvertex_getModifiedPosition ( ver,
+        G3DVECTOR3F currpos, currnor;
+        G3DVECTOR3F prevpos, prevnor;
+        G3DVECTOR3F nextpos, nextnor;
+        G3DVECTOR3F *verpos = g3dvertex_getModifiedPosition ( ver,
                                                             mpr->mod.stkpos );
 
-        memset ( &currpos, 0x00, sizeof ( G3DVECTOR ) );
-        memset ( &currnor, 0x00, sizeof ( G3DVECTOR ) );
-        memset ( &prevpos, 0x00, sizeof ( G3DVECTOR ) );
-        memset ( &prevnor, 0x00, sizeof ( G3DVECTOR ) );
-        memset ( &nextpos, 0x00, sizeof ( G3DVECTOR ) );
-        memset ( &nextnor, 0x00, sizeof ( G3DVECTOR ) );
+        memset ( &currpos, 0x00, sizeof ( G3DVECTOR3F ) );
+        memset ( &currnor, 0x00, sizeof ( G3DVECTOR3F ) );
+        memset ( &prevpos, 0x00, sizeof ( G3DVECTOR3F ) );
+        memset ( &prevnor, 0x00, sizeof ( G3DVECTOR3F ) );
+        memset ( &nextpos, 0x00, sizeof ( G3DVECTOR3F ) );
+        memset ( &nextnor, 0x00, sizeof ( G3DVECTOR3F ) );
 
         while ( ltmpmpose ) {
             G3DMORPHERMESHPOSE *mpose = ( G3DMORPHERMESHPOSE * ) ltmpmpose->data;
@@ -835,7 +835,7 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr,
                     if ( mpose->vpose[vxt->verID].enabled ) {
                         float crate = g3dmorpherkey_getMeshPoseRate ( currKey, mpose->slotID );
                         float cinvRate = 1.0f - crate;
-                        G3DVECTOR pos = { .x = mpose->vpose[vxt->verID].pos.x,
+                        G3DVECTOR3F pos = { .x = mpose->vpose[vxt->verID].pos.x,
                                           .y = mpose->vpose[vxt->verID].pos.y,
                                           .z = mpose->vpose[vxt->verID].pos.z };
 
@@ -865,7 +865,7 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr,
                         if ( mpose->vpose[vxt->verID].enabled ) {
                             float prate = g3dmorpherkey_getMeshPoseRate ( prevKey, mpose->slotID );
                             float pinvRate = 1.0f - prate;
-                            G3DVECTOR pos = { .x = mpose->vpose[vxt->verID].pos.x,
+                            G3DVECTOR3F pos = { .x = mpose->vpose[vxt->verID].pos.x,
                                               .y = mpose->vpose[vxt->verID].pos.y,
                                               .z = mpose->vpose[vxt->verID].pos.z };
 
@@ -889,7 +889,7 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr,
                         if ( mpose->vpose[vxt->verID].enabled ) {
                             float nrate = g3dmorpherkey_getMeshPoseRate ( nextKey, mpose->slotID );
                             float ninvRate = 1.0f - nrate;
-                            G3DVECTOR pos = { .x = mpose->vpose[vxt->verID].pos.x,
+                            G3DVECTOR3F pos = { .x = mpose->vpose[vxt->verID].pos.x,
                                               .y = mpose->vpose[vxt->verID].pos.y,
                                               .z = mpose->vpose[vxt->verID].pos.z };
 
@@ -924,8 +924,8 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr,
                 currnor.y /= nbCurrPose;
                 currnor.z /= nbCurrPose;
 
-                memcpy ( &mpr->mod.verpos[ver->id], &currpos, sizeof ( G3DVECTOR ) );
-                /*memcpy (  vernor, &currnor, sizeof ( G3DVECTOR ) );*/
+                memcpy ( &mpr->mod.verpos[ver->id], &currpos, sizeof ( G3DVECTOR3F ) );
+                /*memcpy (  vernor, &currnor, sizeof ( G3DVECTOR3F ) );*/
             }
         } else {
             if ( prevKey && nextKey ) {
@@ -954,13 +954,13 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr,
                 }
 
                 if ( nbPrevPose && nbNextPose ) {
-                    G3DVECTOR tmppos;
+                    G3DVECTOR3F tmppos;
 
                     tmppos.x = ( prevpos.x * pRatio ) + ( nextpos.x * nRatio );
                     tmppos.y = ( prevpos.y * pRatio ) + ( nextpos.y * nRatio );
                     tmppos.z = ( prevpos.z * pRatio ) + ( nextpos.z * nRatio );
 
-                    memcpy ( &mpr->mod.verpos[ver->id], &tmppos, sizeof ( G3DVECTOR ) );
+                    memcpy ( &mpr->mod.verpos[ver->id], &tmppos, sizeof ( G3DVECTOR3F ) );
 
                     /*ver->nor.x = ( prevnor.x * pRatio ) + ( nextnor.x * nRatio );
                     ver->nor.y = ( prevnor.y * pRatio ) + ( nextnor.y * nRatio );
@@ -1066,22 +1066,22 @@ static uint32_t g3dmorpher_modify ( G3DMORPHER *mpr,
             LIST *ltmpver = orimes->lver;
 
             if ( op == G3DMODIFYOP_MODIFY ) {
-                mpr->mod.verpos = ( G3DVECTOR * ) realloc ( mpr->mod.verpos, 
+                mpr->mod.verpos = ( G3DVECTOR3F * ) realloc ( mpr->mod.verpos, 
                                                             orimes->nbver * 
-                                                            sizeof ( G3DVECTOR ) );
-                mpr->mod.vernor = ( G3DVECTOR * ) realloc ( mpr->mod.vernor, 
+                                                            sizeof ( G3DVECTOR3F ) );
+                mpr->mod.vernor = ( G3DVECTOR3F * ) realloc ( mpr->mod.vernor, 
                                                             orimes->nbver *  
-                                                            sizeof ( G3DVECTOR ) );
+                                                            sizeof ( G3DVECTOR3F ) );
             }
 
             while ( ltmpver ) {
                 G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
                 if ( g3dvertex_getExtension ( ver, 
                                               mpr->extensionName ) == NULL ) {
-                    G3DVECTOR *verpos = g3dvertex_getModifiedPosition ( ver,
+                    G3DVECTOR3F *verpos = g3dvertex_getModifiedPosition ( ver,
                                                                         mpr->mod.stkpos );
 
-                    memcpy ( &mpr->mod.verpos[ver->id], verpos, sizeof ( G3DVECTOR ) );
+                    memcpy ( &mpr->mod.verpos[ver->id], verpos, sizeof ( G3DVECTOR3F ) );
                 }
 
                 ltmpver = ltmpver->next;
@@ -1147,7 +1147,7 @@ static void g3dmorpher_pickObject ( G3DMORPHER *mpr,
             g3dpick_setName (  ( uint64_t ) mpr );
 
             while ( ltmpfac ) {
-                G3DVECTOR *pos[0x04] = { NULL, NULL, NULL, NULL };
+                G3DVECTOR3F *pos[0x04] = { NULL, NULL, NULL, NULL };
                 G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
                 uint32_t i;
 
@@ -1225,7 +1225,7 @@ static void g3dmorpher_pickVertices ( G3DMORPHER *mpr,
                                         vpose->pos.y, 
                                         vpose->pos.z );
                 } else {
-                    G3DVECTOR *verpos = g3dvertex_getModifiedPosition ( ver,
+                    G3DVECTOR3F *verpos = g3dvertex_getModifiedPosition ( ver,
                                                                         mpr->mod.stkpos );
 
                     g3dpick_drawPoint ( verpos->x, 

@@ -190,9 +190,9 @@ void g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
     uint32_t height = matmap->height;
     uint32_t winx, winy;
     /*** 2 lights vector ***/
-    G3DVECTOR luxpos[0x02] = { {  200.0f,  200.0f, -400.0f, 1.0f },
-                               { -400.0f, -400.0f,    0.0f, 1.0f } };
-    G3DVECTOR campos = { 0.0f, 0.0f, -1.0f, 1.0f };
+    G3DVECTOR3F luxpos[0x02] = { {  200.0f,  200.0f, -400.0f },
+                                 { -400.0f, -400.0f,    0.0f } };
+    G3DVECTOR3F campos = { 0.0f, 0.0f, -1.0f };
     G3DUIMATERIALPIXEL *pixel = matmap->pixel;
     G3DRGBA rgba;
 
@@ -215,17 +215,17 @@ void g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
                 p->pos.y = p->nor.y = objy;
                 p->pos.z = p->nor.z = objz;
 
-                g3dvector_normalize ( &p->nor, NULL );
+                g3dvector3f_normalize ( &p->nor );
 
         /*** http://en.wikipedia.org/wiki/UV_mapping#Finding_UV_on_a_sphere ***/
                 p->u =   ( atan2f( p->nor.z, p->nor.x ) / ( 2.0f * M_PI ) ) + 0.5f;
                 p->v = - ( asin  ( p->nor.y )           / ( M_PI        ) ) + 0.5f;
 
                 if ( mat->bump.flags & USECHANNEL ) {
-                    G3DVECTOR tangent;
-                    G3DVECTOR binomial;
-                    G3DVECTOR bumpnor, finbump;
-                    double TBN[0x09];
+                    G3DVECTOR3F tangent;
+                    G3DVECTOR3F binomial;
+                    G3DVECTOR3F bumpnor, finbump;
+                    float TBN[0x10];
                     float strength = mat->bump.solid.r;
 
                     tangent.x = p->nor.x + 0.1f;
@@ -233,18 +233,25 @@ void g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
                     tangent.z = - ( ( ( tangent.x * p->nor.x ) +
                                       ( tangent.y * p->nor.y ) ) / p->nor.z );
 
-                    g3dvector_normalize ( &tangent, NULL );
-                    g3dvector_cross     ( &p->nor, &tangent, &binomial );
+                    g3dvector3f_normalize ( &tangent );
+                    g3dvector3f_cross     ( &p->nor, &tangent, &binomial );
 
                     TBN[0x00] = tangent.x;
-                    TBN[0x01] = tangent.y;
-                    TBN[0x02] = tangent.z;
-                    TBN[0x03] = binomial.x;
-                    TBN[0x04] = binomial.y;
-                    TBN[0x05] = binomial.z;
-                    TBN[0x06] = p->nor.x;
-                    TBN[0x07] = p->nor.y;
-                    TBN[0x08] = p->nor.z;
+                    TBN[0x04] = tangent.y;
+                    TBN[0x08] = tangent.z;
+                    TBN[0x0C] = 0.0f;
+                    TBN[0x01] = binomial.x;
+                    TBN[0x05] = binomial.y;
+                    TBN[0x09] = binomial.z;
+                    TBN[0x0D] = 0.0f;
+                    TBN[0x02] = p->nor.x;
+                    TBN[0x08] = p->nor.y;
+                    TBN[0x0A] = p->nor.z;
+                    TBN[0x0E] = 0.0f;
+                    TBN[0x03] = 0.0f;
+                    TBN[0x07] = 0.0f;
+                    TBN[0x0B] = 0.0f;
+                    TBN[0x0F] = 1.0f;
 
                     g3dchannel_getNormal ( &mat->bump, 
                                             p->u,
@@ -255,7 +262,7 @@ void g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
                                             0.01f,
                                             0x00 );
 
-                    g3dvector_matrix3 ( &bumpnor, TBN, &finbump );
+                    g3dvector3f_matrixf ( &bumpnor, TBN, &finbump );
 
                     p->nor.x = ( p->nor.x * ( 1.0f - strength ) ) + ( finbump.x * strength );
                     p->nor.y = ( p->nor.y * ( 1.0f - strength ) ) + ( finbump.y * strength );
@@ -267,36 +274,36 @@ void g3duimaterialmap_buildSphere ( G3DUIMATERIALMAP *matmap,
 
                 /*** there are 2 sources of light ***/
                 for ( i = 0x00; i < 0x02; i++ ) {
-                    G3DVECTOR ptolux = { ( luxpos[i].x - p->pos.x ),
+                    G3DVECTOR3F ptolux = { ( luxpos[i].x - p->pos.x ),
                                          ( luxpos[i].y - p->pos.y ),
                                          ( luxpos[i].z - p->pos.z ) };
-                    G3DVECTOR ptocam = { ( campos.x - p->pos.x ),
+                    G3DVECTOR3F ptocam = { ( campos.x - p->pos.x ),
                                          ( campos.y - p->pos.y ),
                                          ( campos.z - p->pos.z ) };
-                    G3DVECTOR refray;
-                    G3DVECTOR raydir;
+                    G3DVECTOR3F refray;
+                    G3DVECTOR3F raydir;
                     float spec;
                     float diff;
 
-                    g3dvector_normalize ( &ptolux, NULL );
+                    g3dvector3f_normalize ( &ptolux );
 
                     raydir.x = - ptolux.x;
                     raydir.y = - ptolux.y;
                     raydir.z = - ptolux.z;
 
                     /*** Specular reflection ***/
-                    if ( g3dvector_reflect ( &raydir, &p->nor, &refray ) ) {
-                        g3dvector_normalize ( &refray, NULL );
-                        g3dvector_normalize ( &ptocam, NULL );
+                    if ( g3dvector3f_reflect ( &raydir, &p->nor, &refray ) ) {
+                        g3dvector3f_normalize ( &refray );
+                        g3dvector3f_normalize ( &ptocam );
 
-                        spec = g3dvector_scalar  ( &refray, &ptocam );
+                        spec = g3dvector3f_scalar  ( &refray, &ptocam );
 
                         if ( spec > 0.0f ) p->spec += spec;
                     }
 
 
                     /***************************/
-                    diff = g3dvector_scalar  ( &ptolux, &p->nor );
+                    diff = g3dvector3f_scalar  ( &ptolux, &p->nor );
 
                     if ( diff > 0.0f ) p->diff += diff;
                 }

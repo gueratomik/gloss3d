@@ -720,7 +720,7 @@ void pick_cursor ( G3DMOUSETOOLPICK *pt,
     static GLint  VPX[0x04];
     static float MVX[0x10];
     static float PJX[0x10];
-    G3DVECTOR sca;
+    G3DVECTOR3F sca;
 
     /*g3dscene_getSelectionMatrix ( sce, MVX, engine_flags );*/
 
@@ -998,7 +998,7 @@ int pick_tool ( G3DMOUSETOOL *mou,
             } return 0x00;
 
             case G3DButtonRelease : {
-        	    G3DVECTOR vec = { 0.f, 0.f, 0.f, 1.0f };
+        	    G3DVECTOR3F vec = { 0.f, 0.f, 0.f };
         	    G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
         	    G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
         	    LIST *lselold = NULL;

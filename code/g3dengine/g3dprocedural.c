@@ -44,7 +44,7 @@
 void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
                                float          u,
                                float          v,
-                               G3DVECTOR     *nor,
+                               G3DVECTOR3F     *nor,
                                float          precU,
                                float          precV,
                                uint32_t       fromBuffer ) {
@@ -64,7 +64,7 @@ void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
         uint32_t n = (bu*2);
         /*** we divide the image in 4 areas to pick the right pattern ***/
         uint32_t patidx = ( m * 0x02 ) + n;
-        G3DVECTOR pattern[0x04][0x03] = { { { .x =   0.0f, .y =   0.0f },
+        G3DVECTOR3F pattern[0x04][0x03] = { { { .x =   0.0f, .y =   0.0f },
                                             { .x =  precU, .y =   0.0f },
                                             { .x =   0.0f, .y =  precV } },
                                           { { .x =   0.0f, .y =   0.0f },
@@ -76,8 +76,8 @@ void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
                                           { { .x =   0.0f, .y =   0.0f },
                                             { .x = -precU, .y =   0.0f },
                                             { .x =   0.0f, .y = -precV } } };
-        G3DVECTOR *curpat = pattern[patidx];
-        G3DVECTOR pt[0x03] = { { .x = bu + curpat[0].x, 
+        G3DVECTOR3F *curpat = pattern[patidx];
+        G3DVECTOR3F pt[0x03] = { { .x = bu + curpat[0].x, 
                                  .y = bv + curpat[0].y },
                                { .x = bu + curpat[1].x,
                                  .y = bv + curpat[1].y },
@@ -86,7 +86,7 @@ void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
         G3DCOLOR color0, color1, color2;
         G3DRGBA rgba0, rgba1, rgba2;
         int32_t AVG0, AVG1, AVG2;
-        G3DVECTOR vec[0x02];
+        G3DVECTOR3F vec[0x02];
 
         proc->getColor ( proc, pt[0x00].x, 
                                pt[0x00].y, 0.0f, &color0 );
@@ -114,9 +114,9 @@ void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
         /*** Note: negated to use blacks as creases ***/
         vec[0x01].z = ( float ) ( AVG2 - AVG0 ) / 255.0f;
 
-        g3dvector_cross ( &vec[0x00], &vec[0x01], nor );
+        g3dvector3f_cross ( &vec[0x00], &vec[0x01], nor );
 
-        g3dvector_normalize ( nor, NULL );
+        g3dvector3f_normalize ( nor );
     }
 }
 

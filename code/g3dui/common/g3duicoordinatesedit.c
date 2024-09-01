@@ -61,10 +61,10 @@ uint64_t g3duicoordinatesedit_pos ( G3DUICOORDINATESEDIT *coordedit,
             if ( obj->type == G3DMESHTYPE ) {
                 G3DMESH *mes = ( G3DMESH * ) obj;
                 uint32_t axis_flags = 0x00;
-                G3DVECTOR *oldpos = NULL;
-                G3DVECTOR *newpos = NULL;
-                G3DVECTOR avg;
-                G3DVECTOR to;
+                G3DVECTOR3F *oldpos = NULL;
+                G3DVECTOR3F *newpos = NULL;
+                G3DVECTOR3F avg;
+                G3DVECTOR3F to;
 
                 g3dvertex_getAveragePositionFromList ( mes->lselver, &avg );
 

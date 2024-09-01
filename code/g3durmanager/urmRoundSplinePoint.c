@@ -34,7 +34,7 @@
 URMROUNDSPLINEPOINT *urmRoundSplinePoint_new ( G3DSPLINE  *spline,
                                                LIST       *lselectedPoints,
                                                LIST       *lsegments,
-                                               G3DVECTOR (*pos)[0x02] ) {
+                                               G3DVECTOR3F (*pos)[0x02] ) {
     uint32_t size = sizeof ( URMROUNDSPLINEPOINT );
 
     URMROUNDSPLINEPOINT *rsp = ( URMROUNDSPLINEPOINT * ) calloc ( 0x01, size );
@@ -112,7 +112,7 @@ void g3durm_spline_roundSelectedPoints ( G3DURMANAGER     *urm,
     uint32_t nbseg = list_count ( lsegments );
 
     if ( nbseg ) {
-        G3DVECTOR (*pos)[0x02] = calloc ( nbseg, sizeof ( G3DVECTOR ) * 0x02 );
+        G3DVECTOR3F (*pos)[0x02] = calloc ( nbseg, sizeof ( G3DVECTOR3F ) * 0x02 );
         LIST *lselectedPoints = g3dcurve_getSelectedPoints ( spline->curve );
         URMROUNDSPLINEPOINT *rsp;
 

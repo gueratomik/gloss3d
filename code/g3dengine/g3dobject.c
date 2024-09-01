@@ -270,14 +270,14 @@ void g3dobject_localTranslate ( G3DOBJECT *obj,
                                 float      y,
                                 float      z,
                                 uint64_t   engine_flags ) {
-    static G3DVECTOR vecx = { .x = 1.0f, .y = 0.0f, .z = 0.0f, .w = 1.0f },
-                     vecy = { .x = 0.0f, .y = 1.0f, .z = 0.0f, .w = 1.0f },
-                     vecz = { .x = 0.0f, .y = 0.0f, .z = 1.0f, .w = 1.0f };
-    G3DVECTOR movvecx, movvecy, movvecz;
+    static G3DVECTOR3F vecx = { .x = 1.0f, .y = 0.0f, .z = 0.0f },
+                       vecy = { .x = 0.0f, .y = 1.0f, .z = 0.0f },
+                       vecz = { .x = 0.0f, .y = 0.0f, .z = 1.0f };
+    G3DVECTOR3F movvecx, movvecy, movvecz;
 
-    g3dvector_matrixf ( &vecx, obj->rotationMatrix, &movvecx );
-    g3dvector_matrixf ( &vecy, obj->rotationMatrix, &movvecy );
-    g3dvector_matrixf ( &vecz, obj->rotationMatrix, &movvecz );
+    g3dvector3f_matrixf ( &vecx, obj->rotationMatrix, &movvecx );
+    g3dvector3f_matrixf ( &vecy, obj->rotationMatrix, &movvecy );
+    g3dvector3f_matrixf ( &vecz, obj->rotationMatrix, &movvecz );
 
     obj->pos.x += ( movvecx.x * x );
     obj->pos.y += ( movvecx.y * x );
@@ -414,7 +414,7 @@ void g3dobject_removeSelectedKeys ( G3DOBJECT *obj,
 
 /******************************************************************************/
 /*** Find orientation based on up vector ( Y-Axis ) ***/
-void g3dobject_findOrientation ( G3DOBJECT *obj, G3DVECTOR *vec ) {
+void g3dobject_findOrientation ( G3DOBJECT *obj, G3DVECTOR3F *vec ) {
 
 
 }
@@ -827,7 +827,7 @@ void g3dobject_anim_position ( G3DOBJECT *obj,
                                    0x00 );
 
     if ( framekey ) {
-        memcpy ( &obj->pos, &framekey->pos, sizeof ( G3DVECTOR ) );
+        memcpy ( &obj->pos, &framekey->pos, sizeof ( G3DVECTOR3F ) );
     } else {
         if ( prevkey && nextkey ) {
             G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * )  g3dcurve_seekSegment ( obj->curve[0x00], 
@@ -864,7 +864,7 @@ void g3dobject_anim_rotation ( G3DOBJECT *obj,
                                    0x00 );
 
     if ( framekey ) {
-        memcpy ( &obj->rot, &framekey->rot, sizeof ( G3DVECTOR ) );
+        memcpy ( &obj->rot, &framekey->rot, sizeof ( G3DVECTOR3F ) );
     } else {
         if ( prevkey && nextkey ) {
             G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) g3dcurve_seekSegment ( obj->curve[0x01], 
@@ -873,13 +873,13 @@ void g3dobject_anim_rotation ( G3DOBJECT *obj,
             float ratio = ( ( updframe       - prevkey->frame ) /
                             ( nextkey->frame - prevkey->frame ) );
             G3DQUATERNION qsrc, qdst, qout;
-            G3DDOUBLEVECTOR prevrot = { prevkey->rot.x,
-                                        prevkey->rot.y,
-                                        prevkey->rot.z },
-                            nextrot = { nextkey->rot.x,
-                                        nextkey->rot.y,
-                                        nextkey->rot.z };
-            G3DDOUBLEVECTOR rot;
+            G3DVECTOR3D prevrot = { prevkey->rot.x,
+                                    prevkey->rot.y,
+                                    prevkey->rot.z },
+                        nextrot = { nextkey->rot.x,
+                                    nextkey->rot.y,
+                                    nextkey->rot.z };
+            G3DVECTOR3D rot;
 
             g3dcore_eulerInDegreesToQuaternion ( &prevrot,
                                                  &qsrc );
@@ -925,7 +925,7 @@ void g3dobject_anim_scaling ( G3DOBJECT *obj,
                                    0x00 );
 
     if ( framekey ) {
-        memcpy ( &obj->sca, &framekey->sca, sizeof ( G3DVECTOR ) );
+        memcpy ( &obj->sca, &framekey->sca, sizeof ( G3DVECTOR3F ) );
     } else {
         if ( prevkey && nextkey ) {
             G3DCUBICSEGMENT *csg = ( G3DCUBICSEGMENT * ) g3dcurve_seekSegment ( obj->curve[0x02], 
@@ -1378,9 +1378,9 @@ G3DKEY *g3dobject_addKey ( G3DOBJECT *obj,
 /*** aved into the file. g3dobject_pose does the ordering by itself ***/
 G3DKEY *g3dobject_pose ( G3DOBJECT  *obj, 
                          float       frame,
-                         G3DVECTOR  *pos,
-                         G3DVECTOR  *rot,
-                         G3DVECTOR  *sca, 
+                         G3DVECTOR3F  *pos,
+                         G3DVECTOR3F  *rot,
+                         G3DVECTOR3F  *sca, 
                          G3DKEY    **overwrittenKey,
                          uint32_t    key_flags,
                          LIST     **laddedPosSegments, 
@@ -1689,31 +1689,27 @@ void g3dobject_updateMatrix ( G3DOBJECT *obj, uint64_t engine_flags ) {
 /******************************************************************************/
 void g3dobject_drawKeys ( G3DOBJECT *obj, 
                           G3DCAMERA *cam, 
+                          G3DENGINE *engine, 
                           uint64_t   engine_flags ) {
-    LIST *ltmp = obj->lkey;
+    int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                  "mvpMatrix" );
+    float mvp[0x10];
+    float mvw[0x10];
+
+    g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
+                         obj->parent->worldMatrix,
+                         mvw );
+
+    /*** the matrix by which vertices coords are transformed ***/
+    g3dcore_multMatrixf( cam->pmatrix, mvw, mvp );
+
+    glUseProgram( engine->coloredShaderProgram );
+
+    glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
 
     glPushAttrib( GL_ALL_ATTRIB_BITS );
-    glDisable   ( GL_LIGHTING );
-    glColor3ub ( 0xFF, 0x7F, 0x00 );
-    glPointSize ( 2.0f );
 
-    if ( engine_flags & VIEWPATH ) {
-        g3dcurve_drawSegments ( obj->curve[0x00], engine_flags );
-        g3dcurve_drawHandles  ( obj->curve[0x00], engine_flags );
-        g3dcurve_drawPoints   ( obj->curve[0x00], engine_flags );
-    }
-
-    g3dcurve_draw ( obj->curve[0x00], engine_flags );
-
-    /*glBegin ( GL_LINE_STRIP );
-    while ( ltmp ) {
-        G3DKEY *key = ( G3DKEY * ) ltmp->data;
-
-        glVertex3f ( key->pos.x, key->pos.y, key->pos.z );
-
-        ltmp = ltmp->next;
-    } 
-    glEnd ( );*/
+    g3dcurve_draw ( obj->curve[0x00], obj, cam, engine, engine_flags );
 
     glPopAttrib ( );
 }
@@ -2217,9 +2213,9 @@ void g3dobject_init ( G3DOBJECT   *obj,
     obj->addChild   = ( AddChild   ) ? AddChild   : g3dobject_default_addChild;
     obj->setParent  = ( SetParent  ) ? SetParent  : g3dobject_default_setParent;
 
-    g3dvector_init ( &obj->pos, 0.0f, 0.0f, 0.0f, 1.0f );
-    g3dvector_init ( &obj->rot, 0.0f, 0.0f, 0.0f, 1.0f );
-    g3dvector_init ( &obj->sca, 1.0f, 1.0f, 1.0f, 1.0f );
+    g3dvector3f_init ( &obj->pos, 0.0f, 0.0f, 0.0f );
+    g3dvector3f_init ( &obj->rot, 0.0f, 0.0f, 0.0f );
+    g3dvector3f_init ( &obj->sca, 1.0f, 1.0f, 1.0f );
 
     g3dobject_initMatrices ( obj );
 
@@ -2415,4 +2411,85 @@ G3DOBJECT *g3dobject_new ( uint32_t id, const char *name, uint32_t object_flags 
                                             NULL );
 
     return obj;
+}
+
+/******************************************************************************/
+#define BBOXLEN 0.2f
+void g3dobject_drawBBox ( G3DOBJECT *obj,
+                          G3DCAMERA *curcam,
+                          G3DENGINE *engine,
+                          uint64_t   engine_flags ) {
+    G3DBBOX *bbox = &obj->bbox;
+    float xlen = ( bbox->xmax - bbox->xmin ) * BBOXLEN,
+          ylen = ( bbox->ymax - bbox->ymin ) * BBOXLEN,
+          zlen = ( bbox->zmax - bbox->zmin ) * BBOXLEN;
+
+    float ver[0x08][0x03] = { { bbox->xmin, bbox->ymin, bbox->zmin },
+                              { bbox->xmin, bbox->ymin, bbox->zmax },
+                              { bbox->xmin, bbox->ymax, bbox->zmin },
+                              { bbox->xmin, bbox->ymax, bbox->zmax },
+                              { bbox->xmax, bbox->ymin, bbox->zmin },
+                              { bbox->xmax, bbox->ymin, bbox->zmax },
+                              { bbox->xmax, bbox->ymax, bbox->zmin },
+                              { bbox->xmax, bbox->ymax, bbox->zmax } };
+    float vec[0x08][0x03] = { {  xlen,  ylen,  zlen },
+                              {  xlen,  ylen, -zlen },
+                              {  xlen, -ylen,  zlen },
+                              {  xlen, -ylen, -zlen },
+                              { -xlen,  ylen,  zlen },
+                              { -xlen,  ylen, -zlen },
+                              { -xlen, -ylen,  zlen },
+                              { -xlen, -ylen, -zlen } };
+    int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
+                                                  "mvpMatrix" );
+    float mvp[0x10];
+    float mvw[0x10];
+    uint32_t i;
+
+    g3dcore_multMatrixf( curcam->obj.inverseWorldMatrix,
+                         obj->worldMatrix,
+                         mvw );
+
+    /*** the matrix by which vertices coords are transformed ***/
+    g3dcore_multMatrixf( curcam->pmatrix, mvw, mvp );
+
+    glUseProgram( engine->coloredShaderProgram );
+
+    glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
+
+    glPushAttrib ( GL_ALL_ATTRIB_BITS );
+    glDisable ( GL_DEPTH_TEST );
+
+    for ( i = 0x00; i < 0x08; i++ ) {
+        SHADERVERTEX vertices[0x06] = { { .pos = { ver[i][0x00],
+                                                   ver[i][0x01],
+                                                   ver[i][0x02] },
+                                          .col = { 1.0f, 0.0f, 0.0f } }, 
+                                        { .pos = { ver[i][0x00] + vec[i][0x00],
+                                                   ver[i][0x01],
+                                                   ver[i][0x02] }, 
+                                          .col = { 1.0f, 0.0f, 0.0f } },
+                                        { .pos = { ver[i][0x00],
+                                                   ver[i][0x01],
+                                                   ver[i][0x02] },
+                                          .col = { 1.0f, 0.0f, 0.0f } }, 
+                                        { .pos = { ver[i][0x00],
+                                                   ver[i][0x01] + vec[i][0x01],
+                                                   ver[i][0x02] }, 
+                                          .col = { 1.0f, 0.0f, 0.0f } },
+                                        { .pos = { ver[i][0x00],
+                                                   ver[i][0x01],
+                                                   ver[i][0x02] },
+                                          .col = { 1.0f, 0.0f, 0.0f } }, 
+                                        { .pos = { ver[i][0x00],
+                                                   ver[i][0x01],
+                                                   ver[i][0x02] + vec[i][0x02] }, 
+                                          .col = { 1.0f, 0.0f, 0.0f } } };
+
+        g3dengine_drawLine( engine, &vertices[0x00], 0, engine_flags );
+        g3dengine_drawLine( engine, &vertices[0x02], 0, engine_flags );
+        g3dengine_drawLine( engine, &vertices[0x04], 0, engine_flags );
+    }
+
+    glPopAttrib ( );
 }

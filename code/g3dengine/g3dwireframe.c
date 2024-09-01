@@ -88,11 +88,11 @@ void g3dwireframe_setThickness ( G3DWIREFRAME *wir,
 
                 for ( j = 0x00; j < fac->nbver; j++ ) {
                     if ( ver == fac->ver[j] ) {
-                        G3DVECTOR dir = { .x = ( fac->pos.x - fac->ver[j]->pos.x ),
+                        G3DVECTOR3F dir = { .x = ( fac->pos.x - fac->ver[j]->pos.x ),
                                           .y = ( fac->pos.y - fac->ver[j]->pos.y ),
                                           .z = ( fac->pos.z - fac->ver[j]->pos.z ) };
 
-                        g3dvector_normalize ( &dir, NULL );
+                        g3dvector3f_normalize ( &dir );
 
                         wir->modver[verOffset+j].ver.pos.x = fac->ver[j]->pos.x + ( dir.x * wir->thickness );
                         wir->modver[verOffset+j].ver.pos.y = fac->ver[j]->pos.y + ( dir.y * wir->thickness );
@@ -203,8 +203,8 @@ static uint32_t g3dwireframe_opUpdate ( G3DWIREFRAME *wir,
             while ( ltmpver ) {
                 G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
                 LIST *ltmpfac = ver->lfac;
-                G3DVECTOR *verpos = ( wir->mod.stkpos ) ? &wir->mod.stkpos[ver->id] : &ver->pos;
-                G3DVECTOR *vernor = ( wir->mod.stknor ) ? &wir->mod.stknor[ver->id] : &ver->nor;
+                G3DVECTOR3F *verpos = ( wir->mod.stkpos ) ? &wir->mod.stkpos[ver->id] : &ver->pos;
+                G3DVECTOR3F *vernor = ( wir->mod.stknor ) ? &wir->mod.stknor[ver->id] : &ver->nor;
 
                 wir->modver[((ver->id)*2)+0].ver.pos.x = verpos->x + ( vernor->x * wir->thickness );
                 wir->modver[((ver->id)*2)+0].ver.pos.y = verpos->y + ( vernor->y * wir->thickness );
@@ -220,7 +220,7 @@ static uint32_t g3dwireframe_opUpdate ( G3DWIREFRAME *wir,
 
                 while ( ltmpfac ) {
                     G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-                    G3DVECTOR facpos;
+                    G3DVECTOR3F facpos;
                     uint32_t verOffset, j;
 
                     verOffset = ( mes->nbver * 0x02 ) + ( fac->id * nbVerPerFace );
@@ -231,8 +231,8 @@ static uint32_t g3dwireframe_opUpdate ( G3DWIREFRAME *wir,
 
                     for ( j = 0x00; j < fac->nbver; j++ ) {
                         if ( ver == fac->ver[j] ) {
-                            G3DVECTOR *verpos;
-                            G3DVECTOR dir;
+                            G3DVECTOR3F *verpos;
+                            G3DVECTOR3F dir;
 
                             verpos = g3dvertex_getModifiedPosition ( fac->ver[j], 
                                                                      wir->mod.stkpos );
@@ -241,7 +241,7 @@ static uint32_t g3dwireframe_opUpdate ( G3DWIREFRAME *wir,
                             dir.y = ( fac->pos.y - verpos->y );
                             dir.z = ( fac->pos.z - verpos->z );
 
-                            g3dvector_normalize ( &dir, NULL );
+                            g3dvector3f_normalize ( &dir );
 
                             wir->modver[verOffset+j].ver.pos.x = verpos->x + ( dir.x * wir->thickness );
                             wir->modver[verOffset+j].ver.pos.y = verpos->y + ( dir.y * wir->thickness );
@@ -307,7 +307,7 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
             /*** original vertex split ***/
             while ( ltmpver ) {
                 G3DVERTEX *ver = _GETVERTEX(mes,ltmpver);
-                G3DVECTOR *verpos;
+                G3DVECTOR3F *verpos;
 
                 ver->id = vertexId++;
 
@@ -373,7 +373,7 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
 
             while ( ltmpfac ) {
                 G3DFACE *fac = _GETFACE(mes,ltmpfac);
-                G3DVECTOR facpos;
+                G3DVECTOR3F facpos;
                 uint32_t verOffset, edgOffset, facOffset;
                 uint32_t i;
 
@@ -388,8 +388,8 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
                 /*** Face new vertices creation ***/
 
                 for ( i = 0x00; i < fac->nbver; i++ ) {
-                    G3DVECTOR *verpos;
-                    G3DVECTOR dir;
+                    G3DVECTOR3F *verpos;
+                    G3DVECTOR3F dir;
 
                     verpos = g3dvertex_getModifiedPosition ( fac->ver[i],
                                                              wir->mod.stkpos );
@@ -398,7 +398,7 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
                     dir.y = ( fac->pos.y - verpos->y );
                     dir.z = ( fac->pos.z - verpos->z );
 
-                    g3dvector_normalize ( &dir, NULL );
+                    g3dvector3f_normalize ( &dir );
 
                     wir->modver[verOffset+i].ver.pos.x = verpos->x + ( dir.x * wir->thickness );
                     wir->modver[verOffset+i].ver.pos.y = verpos->y + ( dir.y * wir->thickness );

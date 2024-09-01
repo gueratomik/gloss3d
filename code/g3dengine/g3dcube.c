@@ -42,7 +42,7 @@ void g3dcube_computeNormals ( G3DPRIMITIVE *pri ) {
     for ( i = 0x00; i < pri->nbver; i++ ) {
         G3DVERTEX *ver = &pri->ver[i];
 
-        memcpy ( &ver->nor, &ver->pos, sizeof ( G3DVECTOR ) );
+        memcpy ( &ver->nor, &ver->pos, sizeof ( G3DVECTOR3F ) );
 
         g3dvector_normalize ( &ver->nor, NULL );
     }
@@ -208,7 +208,7 @@ void g3dcube_build ( G3DPRIMITIVE *pri, int nbslicex,
                              g3dvertex_new (  radius,  radius, -radius ),
                              g3dvertex_new (  radius, -radius, -radius ),
                              g3dvertex_new ( -radius, -radius, -radius ) };
-    G3DVECTOR nor[0x08] = { { .x = -0.577f, .y =  0.577f, .z =  0.577f },
+    G3DVECTOR3F nor[0x08] = { { .x = -0.577f, .y =  0.577f, .z =  0.577f },
                             { .x =  0.577f, .y =  0.577f, .z =  0.577f },
                             { .x =  0.577f, .y = -0.577f, .z =  0.577f },
                             { .x = -0.577f, .y = -0.577f, .z =  0.577f },
@@ -234,7 +234,7 @@ void g3dcube_build ( G3DPRIMITIVE *pri, int nbslicex,
     for ( i = 0x00; i < 0x08; i++ ) {
         g3dmesh_addVertex ( mes, ver[i] );
 
-        g3dvector_init ( &ver[i]->nor, nor[i].x, nor[i].y, nor[i].z, 1.0f );
+        g3dvector3f_init ( &ver[i]->nor, nor[i].x, nor[i].y, nor[i].z );
     }
 
     /****** 4 X-Axis edges ******/

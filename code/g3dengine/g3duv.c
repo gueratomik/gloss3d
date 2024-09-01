@@ -299,8 +299,8 @@ void g3duvset_mapFaceWithBackgroundProjection ( G3DUVSET *uvs,
     for ( i = 0x00; i < fac->nbver; i++ ) {
         G3DVERTEX *ver = fac->ver[i];
         double winX, winY, winZ;
-        G3DVECTOR verwpos;
-        G3DVECTOR locpos;
+        G3DVECTOR3F verwpos;
+        G3DVECTOR3F locpos;
 
         /*
          * we could use the VPX and PJX of the final render camera
@@ -329,19 +329,19 @@ void g3duvset_mapFaceWithBackgroundProjection ( G3DUVSET *uvs,
 /******************************************************************************/
 void g3duvmap_getSphericalUV ( G3DUVMAP  *map, 
                                G3DMESH   *mes, 
-                               G3DVECTOR *lpos,
+                               G3DVECTOR3F *lpos,
                                float     *u, 
                                float     *v ) {
     G3DOBJECT *objmap  = ( G3DOBJECT * ) map;
     G3DOBJECT *parent  = ( G3DOBJECT * ) mes;
-    G3DVECTOR verWldPos; /*** position in mesh world coordinates ***/
-    G3DVECTOR verLocPos; /*** position in map  local coordinates ***/
-    G3DVECTOR nor;
+    G3DVECTOR3F verWldPos; /*** position in mesh world coordinates ***/
+    G3DVECTOR3F verLocPos; /*** position in map  local coordinates ***/
+    G3DVECTOR3F nor;
 
-    g3dvector_matrixf ( lpos      , parent->worldMatrix , &verWldPos );
-    g3dvector_matrixf ( &verWldPos, objmap->inverseWorldMatrix, &verLocPos );
+    g3dvector3f_matrixf ( lpos      , parent->worldMatrix , &verWldPos );
+    g3dvector3f_matrixf ( &verWldPos, objmap->inverseWorldMatrix, &verLocPos );
 
-    g3dvector_normalize ( &verLocPos, NULL );
+    g3dvector3f_normalize ( &verLocPos );
 
     /*** Why did I do that ?? I don't remember ***/
     verLocPos.x = ( float ) ( ( int ) ( verLocPos.x * 10000 ) ) / 10000;
@@ -377,20 +377,20 @@ void g3duvmap_getSphericalUV ( G3DUVMAP  *map,
 /******************************************************************************/
 void g3duvmap_getCylindricalUV ( G3DUVMAP  *map, 
                                  G3DMESH   *mes, 
-                                 G3DVECTOR *lpos,
+                                 G3DVECTOR3F *lpos,
                                  float     *u, 
                                  float     *v ) {
     float xdiameter = map->pln.xradius * 2.0f,
           ydiameter = map->pln.yradius * 2.0f;
     G3DOBJECT *objmap  = ( G3DOBJECT * ) map;
     G3DOBJECT *parent  = ( G3DOBJECT * ) mes;
-    G3DVECTOR wpos; /*** position in mesh world coordinates ***/
-    G3DVECTOR mpos; /*** position in map  local coordinates ***/
+    G3DVECTOR3F wpos; /*** position in mesh world coordinates ***/
+    G3DVECTOR3F mpos; /*** position in map  local coordinates ***/
 
-    g3dvector_matrixf (  lpos, parent->worldMatrix , &wpos );
-    g3dvector_matrixf ( &wpos, objmap->inverseWorldMatrix, &mpos );
+    g3dvector3f_matrixf (  lpos, parent->worldMatrix , &wpos );
+    g3dvector3f_matrixf ( &wpos, objmap->inverseWorldMatrix, &mpos );
 
-    g3dvector_normalize ( &mpos, NULL );
+    g3dvector3f_normalize ( &mpos );
 
     /*** http://en.wikipedia.org/wiki/UV_mapping#Finding_UV_on_a_sphere ***/
     (*u) = ( atan2f( mpos.z, mpos.x ) / ( 2.0f * M_PI ) ) + 0.5f;
@@ -400,18 +400,18 @@ void g3duvmap_getCylindricalUV ( G3DUVMAP  *map,
 /******************************************************************************/
 void g3duvmap_getFlatUV ( G3DUVMAP  *map, 
                           G3DMESH   *mes, 
-                          G3DVECTOR *lpos,
+                          G3DVECTOR3F *lpos,
                           float     *u, 
                           float     *v ) {
     float xdiameter = map->pln.xradius * 2.0f,
           ydiameter = map->pln.yradius * 2.0f;
     G3DOBJECT *objmap  = ( G3DOBJECT * ) map;
     G3DOBJECT *parent  = ( G3DOBJECT * ) mes;
-    G3DVECTOR wpos; /*** position in mesh world coordinates ***/
-    G3DVECTOR mpos; /*** position in map  local coordinates ***/
+    G3DVECTOR3F wpos; /*** position in mesh world coordinates ***/
+    G3DVECTOR3F mpos; /*** position in map  local coordinates ***/
 
-    g3dvector_matrixf (  lpos, parent->worldMatrix , &wpos );
-    g3dvector_matrixf ( &wpos, objmap->inverseWorldMatrix, &mpos );
+    g3dvector3f_matrixf (  lpos, parent->worldMatrix , &wpos );
+    g3dvector3f_matrixf ( &wpos, objmap->inverseWorldMatrix, &mpos );
 
     (*u) = ( mpos.x + map->pln.xradius ) / xdiameter;
     (*v) = ( mpos.y + map->pln.yradius ) / ydiameter;

@@ -386,9 +386,9 @@ static int scale_morpher ( G3DMORPHER       *mpr,
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) mpr;
     static LIST *lver, *lfac, *ledg;
-    static G3DVECTOR *oldpos;
-    static G3DVECTOR *newpos;
-    static G3DVECTOR localPivot;
+    static G3DVECTOR3F *oldpos;
+    static G3DVECTOR3F *newpos;
+    static G3DVECTOR3F localPivot;
 
     if ( obj->parent->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) obj->parent;
@@ -398,7 +398,7 @@ static int scale_morpher ( G3DMORPHER       *mpr,
                 case G3DButtonPress : {
                     if ( engine_flags & VIEWVERTEX ) {
                         G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-                        G3DVECTOR avgpos;
+                        G3DVECTOR3F avgpos;
 
                         glGetIntegerv ( GL_VIEWPORT, VPX );
 
@@ -426,7 +426,7 @@ static int scale_morpher ( G3DMORPHER       *mpr,
 
                     if ( mev->state & G3DButton1Mask ) {
                         if ( engine_flags & VIEWVERTEX ) {
-                            G3DVECTOR *axis = sce->csr.axis;
+                            G3DVECTOR4F *axis = sce->csr.axis;
                             LIST *ltmpver = lver;
                             double difx, dify, difz;
                             uint32_t verID = 0x00;
@@ -521,14 +521,14 @@ static int scale_mesh ( G3DMESH          *mes,
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     static LIST *lver, *lfac, *ledg;
-    static G3DVECTOR *oldpos;
-    static G3DVECTOR *newpos;
-    static G3DVECTOR localPivot;
+    static G3DVECTOR3F *oldpos;
+    static G3DVECTOR3F *newpos;
+    static G3DVECTOR3F localPivot;
 
     switch ( event->type ) {
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-            G3DVECTOR avgpos;
+            G3DVECTOR3F avgpos;
 
             glGetIntegerv ( GL_VIEWPORT, VPX );
 
@@ -577,7 +577,7 @@ static int scale_mesh ( G3DMESH          *mes,
                 if ( ( engine_flags & VIEWVERTEX ) ||
                      ( engine_flags & VIEWEDGE   ) ||
                      ( engine_flags & VIEWFACE   ) ) {
-                    G3DVECTOR *axis = sce->csr.axis;
+                    G3DVECTOR4F *axis = sce->csr.axis;
                     LIST *ltmpver = lver;
                     double difx, dify, difz;
                     uint32_t verID = 0x00;
@@ -696,7 +696,7 @@ static int scale_object ( LIST        *lobj,
     static float MVX[0x10];
     static GLint VPX[0x04];
     static LIST *lver, *lfac, *ledg;
-    static G3DVECTOR lvecx, lvecy, lvecz;
+    static G3DVECTOR3F lvecx, lvecy, lvecz;
     static uint32_t nbobj;
     static URMTRANSFORMOBJECT *uto;
     static float PREVWMVX[0x10];
@@ -737,8 +737,8 @@ static int scale_object ( LIST        *lobj,
             LIST *ltmpobj = lobj;
 
             if ( mev->state & G3DButton1Mask ) {
-                G3DVECTOR dif = { 0.0f, 0.0f, 0.0f }; /** local pivot ***/
-                G3DVECTOR *axis = ( G3DVECTOR * ) &sce->csr.axis;
+                G3DVECTOR3F dif = { 0.0f, 0.0f, 0.0f }; /** local pivot ***/
+                G3DVECTOR4F *axis = ( G3DVECTOR4F * ) &sce->csr.axis;
 
                 if ( ( engine_flags & XAXIS ) && axis[0x00].w ) dif.x = ( mev->x - orix );
                 if ( ( engine_flags & YAXIS ) && axis[0x01].w ) dif.y = ( mev->x - orix );

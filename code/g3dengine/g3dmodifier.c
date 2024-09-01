@@ -90,8 +90,8 @@ uint32_t g3dmodifier_default_dump ( G3DMODIFIER *mod,
                                                    uint32_t, /* nbuv */
                                                    void * ),
                                     void (*Dump) ( G3DFACE *,
-                                                   G3DVECTOR *,
-                                                   G3DVECTOR *,
+                                                   G3DVECTOR3F *,
+                                                   G3DVECTOR3F *,
                                                    void * ),
                                     void *data,
                                     uint64_t engine_flags ) {
@@ -143,8 +143,8 @@ void g3dmodifier_modifyChildren ( G3DMODIFIER *mod,
 /******************************************************************************/
 G3DMODIFIER *g3dmodifier_modify_r ( G3DMODIFIER *mod,
                                     G3DOBJECT   *oriobj,
-                                    G3DVECTOR   *stkpos,
-                                    G3DVECTOR   *stknor,
+                                    G3DVECTOR3F   *stkpos,
+                                    G3DVECTOR3F   *stknor,
                                     G3DMODIFYOP  op,
                                     uint64_t     engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mod;

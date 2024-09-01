@@ -78,14 +78,14 @@ void movePoint_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
 	while ( ltmppt ) {
             G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
 
-            memcpy ( &pt->pos, &ump->oldpos[i++], sizeof ( G3DVECTOR ) );
+            memcpy ( &pt->pos, &ump->oldpos[i++], sizeof ( G3DVECTOR3F ) );
 
             ltmppt = ltmppt->next;
 	}
     }
 
     if ( ump->save_type & UMPSAVECURRENTHANDLE ) {
-        memcpy ( &ump->curhan->pos, &ump->oldhanpos, sizeof ( G3DVECTOR ) );
+        memcpy ( &ump->curhan->pos, &ump->oldhanpos, sizeof ( G3DVECTOR3F ) );
     }
 
     /*** update faces and subdivided faces ***/
@@ -103,14 +103,14 @@ void movePoint_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
 	while ( ltmppt ) {
             G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
 
-            memcpy ( &pt->pos, &ump->newpos[i++], sizeof ( G3DVECTOR ) );
+            memcpy ( &pt->pos, &ump->newpos[i++], sizeof ( G3DVECTOR3F ) );
 
             ltmppt = ltmppt->next;
 	}
     }
 
     if ( ump->save_type & UMPSAVECURRENTHANDLE ) {
-        memcpy ( &ump->curhan->pos, &ump->newhanpos, sizeof ( G3DVECTOR ) );
+        memcpy ( &ump->curhan->pos, &ump->newhanpos, sizeof ( G3DVECTOR3F ) );
     }
 
     /*** update faces and subdivided faces ***/
@@ -119,31 +119,31 @@ void movePoint_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
 
 /******************************************************************************/
 void urmmovepoint_saveState ( URMMOVEPOINT *ump, uint32_t save_time ) {
-    uint32_t vecsize = sizeof ( G3DVECTOR );
+    uint32_t vecsize = sizeof ( G3DVECTOR3F );
     uint32_t nbpt = list_count ( ump->lpt );
     LIST    *ltmppt = ump->lpt;
     uint32_t i = 0x00;
 
     if ( ump->save_type & UMPSAVESELECTEDPOINTS ) {
-        ump->oldpos = ( G3DVECTOR * ) realloc ( ump->oldpos, vecsize * nbpt );
-        ump->newpos = ( G3DVECTOR * ) realloc ( ump->newpos, vecsize * nbpt );
+        ump->oldpos = ( G3DVECTOR3F * ) realloc ( ump->oldpos, vecsize * nbpt );
+        ump->newpos = ( G3DVECTOR3F * ) realloc ( ump->newpos, vecsize * nbpt );
     }
 
     /*** only one handle position is saveable, no need to malloc anything ***/
     if ( save_time == UMPSAVESTATEBEFORE ) {
-	if ( ump->save_type & UMPSAVECURRENTHANDLE ) {
-            if ( ump->curhan ) {
-        	memcpy ( &ump->oldhanpos, &ump->curhan->pos, sizeof ( G3DVECTOR ) );
-            }
-	}
+	    if ( ump->save_type & UMPSAVECURRENTHANDLE ) {
+                if ( ump->curhan ) {
+        	        memcpy ( &ump->oldhanpos, &ump->curhan->pos, sizeof ( G3DVECTOR3F ) );
+                }
+	    }
     }
 
     if ( save_time == UMPSAVESTATEAFTER ) {
-	if ( ump->save_type & UMPSAVECURRENTHANDLE ) {
-            if ( ump->curhan ) {
-        	memcpy ( &ump->newhanpos, &ump->curhan->pos, sizeof ( G3DVECTOR ) );
-            }
-	}
+	    if ( ump->save_type & UMPSAVECURRENTHANDLE ) {
+                if ( ump->curhan ) {
+        	        memcpy ( &ump->newhanpos, &ump->curhan->pos, sizeof ( G3DVECTOR3F ) );
+                }
+	    }
     }
 
     while ( ltmppt ) {

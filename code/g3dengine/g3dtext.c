@@ -623,7 +623,7 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
                                                     tessData[j][0],
                                                     tessData[j][1],
                                                     tessData[j][2] );
-
+#ifdef need_refactor
                         g3dcurvesegment_draw ( ( G3DCURVESEGMENT * ) &qsg, 
                                                  0.0f, 
                                                  1.0f, 
@@ -632,7 +632,7 @@ G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
                            ( double (*)[0x03] )  coords[nbStepsPerSegment*handleID++],
                                                  DRAW_FOR_TESSELLATION,
                                                  engine_flags );
-
+#endif
                         if ( maxSteps > nbStepsPerSegment ) {
                             maxSteps -= nbStepsPerSegment;
                         } else {

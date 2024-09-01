@@ -71,7 +71,7 @@ typedef struct _G3DPICK {
     float           zNear;
     float           zFar;
     unsigned char  *mask;
-    G3DVECTOR       frustrum[CLIPPINGPLANES];
+    G3DVECTOR4F     frustrum[CLIPPINGPLANES];
 } G3DPICK;
 
 /******************************************************************************/
@@ -95,7 +95,7 @@ static G3DPICK *g3dpick_get ( ) {
 void g3dpick_buildFrustrum ( ) {
     G3DPICK *pick = g3dpick_get ( );
     /*static int frustrum = 0x00;
-    G3DVECTOR znear = { 0.0f, 0.0f, -1.0f, 1.0f },
+    G3DVECTOR3F znear = { 0.0f, 0.0f, -1.0f, 1.0f },
               zfar  = { 0.0f, 0.0f,  1.0f, 1.0f };*/
 
     if ( pick ) {
@@ -107,8 +107,8 @@ void g3dpick_buildFrustrum ( ) {
                                    0.0f, 1.0f, 0.0f, 0.0f,
                                    0.0f, 0.0f, 1.0f, 0.0f,
                                    0.0f, 0.0f, 0.0f, 1.0f };
-        G3DVECTOR scr3Dnear[0x04];
-        G3DVECTOR scr3Dfar[0x04];
+        G3DVECTOR3F scr3Dnear[0x04];
+        G3DVECTOR3F scr3Dfar[0x04];
     /*G3DMESH *mes = g3dmesh_new ( 0x00, "frustrum", 0x00 );
     G3DVERTEX *ver[0x08];
     G3DFACE *fac[0x06];*/
@@ -194,7 +194,7 @@ void g3dpick_buildFrustrum ( ) {
 
         for ( i = 0x00; i < 0x04; i++ ) {
             uint32_t n = ( i + 0x01 ) % 0x04;
-            G3DVECTOR nearTofar  = { .x = (  scr3Dfar[i].x - scr3Dnear[i].x ),
+            G3DVECTOR3F nearTofar  = { .x = (  scr3Dfar[i].x - scr3Dnear[i].x ),
                                      .y = (  scr3Dfar[i].y - scr3Dnear[i].y ),
                                      .z = (  scr3Dfar[i].z - scr3Dnear[i].z ) },
                       nearTonear = { .x = ( scr3Dnear[i].x - scr3Dnear[n].x ),
@@ -566,35 +566,35 @@ uint32_t g3dpick_drawFace ( uint32_t nbver,
     G3DPICK *pick = g3dpick_get ( );
 
     if ( pick ) {
-        G3DVECTOR plocal[0x04] = { { x0, y0, z0, 1.0f },
-                                   { x1, y1, z1, 1.0f },
-                                   { x2, y2, z2, 1.0f },
-                                   { x3, y3, z3, 1.0f } };
-        G3DVECTOR pworld[0x04];
-        G3DVECTOR lworld[0x04][0x02]; /*** line points ***/
-        G3DVECTOR lscreen[0x04][0x02];
-        G3DVECTOR pclip[0x02]; /*** clipping points ***/
+        G3DVECTOR3F plocal[0x04] = { { x0, y0, z0 },
+                                     { x1, y1, z1 },
+                                     { x2, y2, z2 },
+                                     { x3, y3, z3 } };
+        G3DVECTOR3F pworld[0x04];
+        G3DVECTOR3F lworld[0x04][0x02]; /*** line points ***/
+        G3DVECTOR3F lscreen[0x04][0x02];
+        G3DVECTOR3F pclip[0x02]; /*** clipping points ***/
         uint32_t nbClip = 0x00;
         uint32_t nodraw = 0xFFFFFFFF;
         uint32_t i, j;
 
         memset ( pick->hlines, 0x00, sizeof ( G3DPICKHLINE ) * pick->VPX[0x03] );
 
-        g3dvector_matrixf ( &plocal[0x00], pick->MVX, &pworld[0x00] );
-        g3dvector_matrixf ( &plocal[0x01], pick->MVX, &pworld[0x01] );
-        g3dvector_matrixf ( &plocal[0x02], pick->MVX, &pworld[0x02] );
-        g3dvector_matrixf ( &plocal[0x03], pick->MVX, &pworld[0x03] );
+        g3dvector3f_matrixf ( &plocal[0x00], pick->MVX, &pworld[0x00] );
+        g3dvector3f_matrixf ( &plocal[0x01], pick->MVX, &pworld[0x01] );
+        g3dvector3f_matrixf ( &plocal[0x02], pick->MVX, &pworld[0x02] );
+        g3dvector3f_matrixf ( &plocal[0x03], pick->MVX, &pworld[0x03] );
 
         /*** Clip first, or else GluProject will return unwanted values ***/
         for ( i = 0x00; i < nbver; i++ ) {
             uint32_t n = ( i + 0x01 ) % nbver;
-            G3DVECTOR *p1 = &pworld[i],
+            G3DVECTOR3F *p1 = &pworld[i],
                       *p2 = &pworld[n];
             float distance = FLT_MAX;
             float s1, s2;
 
-            memcpy ( &lworld[i][0x00], p1, sizeof ( G3DVECTOR ) );
-            memcpy ( &lworld[i][0x01], p2, sizeof ( G3DVECTOR ) );
+            memcpy ( &lworld[i][0x00], p1, sizeof ( G3DVECTOR3F ) );
+            memcpy ( &lworld[i][0x01], p2, sizeof ( G3DVECTOR3F ) );
 
             for ( j = 0x00; j < CLIPPINGPLANES; j++ ) {
                 /* Check if both points are inside the frustrum */
@@ -613,31 +613,29 @@ uint32_t g3dpick_drawFace ( uint32_t nbver,
                 }
 
                 if ( ( s1 * s2 ) < 0x00 ) {
-                    G3DVECTOR it; /*** intersection ***/
-                    float t;
+                    G3DVECTOR4F it; /*** intersection ***/
 
                     nodraw &= (~( 1 << i ));
 
                     /*if ( s2 < 0.0f ) {
-                        memcpy ( &lworld[i][0x00], p1, sizeof ( G3DVECTOR ) );
-                        memcpy ( &lworld[i][0x01], p2, sizeof ( G3DVECTOR ) );
+                        memcpy ( &lworld[i][0x00], p1, sizeof ( G3DVECTOR3F ) );
+                        memcpy ( &lworld[i][0x01], p2, sizeof ( G3DVECTOR3F ) );
                     }*/
 
                     if ( s1 < 0.0f ) {
-                        memcpy ( &lworld[i][0x00], p2, sizeof ( G3DVECTOR ) );
-                        memcpy ( &lworld[i][0x01], p1, sizeof ( G3DVECTOR ) );
+                        memcpy ( &lworld[i][0x00], p2, sizeof ( G3DVECTOR3F ) );
+                        memcpy ( &lworld[i][0x01], p1, sizeof ( G3DVECTOR3F ) );
                     }
 
-                    t = g3dcore_intersect ( &pick->frustrum[j],
-                                            &lworld[i][0x00],
-                                            &lworld[i][0x01],
-                                            &it );
-
-                    if (  ( t > 0.0f ) && ( t < distance ) ) {
+                    if ( g3dcore_intersect ( &pick->frustrum[j],
+                                             &lworld[i][0x00],
+                                             &lworld[i][0x01],
+                                             &it ) ) {
                         double winx, winy, winz;
+                        float t = it.w;
 
                         /*** overwrite the outside point ***/
-                        memcpy ( &lworld[i][0x01], &it, sizeof ( G3DVECTOR ) );
+                        memcpy ( &lworld[i][0x01], &it, sizeof ( G3DVECTOR3F ) );
 /*printf("Clipped %d T: %f\n", i, t);*/
                         /*** remember clipping point position for ***/
                         /*** drawing the clipping line ***/

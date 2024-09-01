@@ -391,9 +391,9 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) mpr;
     static LIST *lver, *lfac, *ledg;
-    static G3DVECTOR *oldpos;
-    static G3DVECTOR *newpos;
-    static G3DVECTOR localPivot;
+    static G3DVECTOR3F *oldpos;
+    static G3DVECTOR3F *newpos;
+    static G3DVECTOR3F localPivot;
 
     if ( obj->parent->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) obj->parent;
@@ -403,7 +403,7 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
                 case G3DButtonPress : {
                     if ( engine_flags & VIEWVERTEX ) {
                         G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-                        G3DVECTOR avgpos;
+                        G3DVECTOR3F avgpos;
 
                         g3dcore_multMatrixf ( obj->worldMatrix,
                                               cam->obj.inverseWorldMatrix,
@@ -441,7 +441,7 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
 
                     if ( mev->state & G3DButton1Mask ) {
                         if ( engine_flags & VIEWVERTEX ) {
-                            G3DVECTOR *axis = sce->csr.axis;
+                            G3DVECTOR4F *axis = sce->csr.axis;
                             LIST *ltmpver = lver;
                             double difx, dify, difz;
                             float ROTX[0x10];
@@ -470,12 +470,12 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
                                 vpose = g3dmorpher_getVertexPose ( mpr, ver, NULL, NULL );
 
                                 if ( vpose ) {
-                                    G3DVECTOR verpos = { .x = vpose->pos.x,
-                                                         .y = vpose->pos.y,
-                                                         .z = vpose->pos.z, 1.0f };
-                                    G3DVECTOR newpos;
+                                    G3DVECTOR3F verpos = { .x = vpose->pos.x,
+                                                           .y = vpose->pos.y,
+                                                           .z = vpose->pos.z };
+                                    G3DVECTOR3F newpos;
 
-                                    g3dvector_matrixf ( &verpos, ROTX, &newpos );
+                                    g3dvector3f_matrixf ( &verpos, ROTX, &newpos );
 
                                     vpose->pos.x = newpos.x;
                                     vpose->pos.y = newpos.y;
@@ -567,14 +567,14 @@ static int rotate_mesh ( G3DMESH          *mes,
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     static LIST *lver, *lfac, *ledg;
-    static G3DVECTOR *oldpos;
-    static G3DVECTOR *newpos;
-    static G3DVECTOR localPivot;
+    static G3DVECTOR3F *oldpos;
+    static G3DVECTOR3F *newpos;
+    static G3DVECTOR3F localPivot;
 
     switch ( event->type ) {
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-            G3DVECTOR avgpos;
+            G3DVECTOR3F avgpos;
 
             g3dcore_multMatrixf ( obj->worldMatrix,
                                   cam->obj.inverseWorldMatrix,
@@ -626,7 +626,7 @@ static int rotate_mesh ( G3DMESH          *mes,
                 if ( ( engine_flags & VIEWVERTEX ) ||
                      ( engine_flags & VIEWEDGE   ) ||
                      ( engine_flags & VIEWFACE   ) ) {
-                    G3DVECTOR *axis = sce->csr.axis;
+                    G3DVECTOR4F *axis = sce->csr.axis;
                     LIST *ltmpver = lver;
                     double difx, dify, difz;
                     float ROTX[0x10];
@@ -651,12 +651,12 @@ static int rotate_mesh ( G3DMESH          *mes,
 
                     while ( ltmpver ) {
                         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-                        G3DVECTOR verpos = { .x = ver->pos.x,
-                                             .y = ver->pos.y,
-                                             .z = ver->pos.z, 1.0f };
-                        G3DVECTOR newpos;
+                        G3DVECTOR3F verpos = { .x = ver->pos.x,
+                                               .y = ver->pos.y,
+                                               .z = ver->pos.z };
+                        G3DVECTOR3F newpos;
 
-                        g3dvector_matrixf ( &verpos, ROTX, &newpos );
+                        g3dvector3f_matrixf ( &verpos, ROTX, &newpos );
 
                         ver->pos.x = newpos.x;
                         ver->pos.y = newpos.y;
@@ -768,12 +768,12 @@ static int rotate_object ( LIST        *lobj,
     static float MVX[0x10];
     static GLint VPX[0x04];
     static LIST *lver, *lfac, *ledg;
-    static G3DVECTOR lvecx, lvecy, lvecz;
-    static G3DVECTOR startpos; /*** world original pivot ***/
+    static G3DVECTOR3F lvecx, lvecy, lvecz;
+    static G3DVECTOR3F startpos; /*** world original pivot ***/
     static uint32_t nbobj;
     static URMTRANSFORMOBJECT *uto;
     static float PREVWMVX[0x10];
-    static G3DVECTOR xaxis, yaxis, zaxis;
+    static G3DVECTOR3F xaxis, yaxis, zaxis;
 
     switch ( event->type ) {
         case G3DButtonPress : {
@@ -807,9 +807,9 @@ static int rotate_object ( LIST        *lobj,
             LIST *ltmpobj = lobj;
 
             if ( mev->state & G3DButton1Mask ) {
-                G3DVECTOR dif = { 0.0f, 0.0f, 0.0f, 0.0f }; /** local pivot ***/
-                G3DVECTOR *axis = ( G3DVECTOR * ) &sce->csr.axis;
-                G3DVECTOR endpos;
+                G3DVECTOR3F dif = { 0.0f, 0.0f, 0.0f }; /** local pivot ***/
+                G3DVECTOR4F *axis = ( G3DVECTOR4F * ) &sce->csr.axis;
+                G3DVECTOR3F endpos;
                 float ROTX[0x10];
 
                 if ( ( engine_flags & XAXIS ) && axis[0x00].w ) dif.x = ( mev->x - orix );
@@ -861,20 +861,20 @@ static int rotate_object ( LIST        *lobj,
 
                             g3dcore_getMatrixRotationf ( ROTX, &obj->rot );
                         } else {
-                            G3DVECTOR cenpos = { 0.0f, 0.0f, 0.0f };
-                            G3DVECTOR objpos;
-                            G3DVECTOR rotpos;
-                            G3DVECTOR newpos;
+                            G3DVECTOR3F cenpos = { 0.0f, 0.0f, 0.0f };
+                            G3DVECTOR3F objpos;
+                            G3DVECTOR3F rotpos;
+                            G3DVECTOR3F newpos;
 
-                            g3dvector_matrixf ( &cenpos,
-                                                 obj->worldMatrix,
-                                                &objpos );
-                            g3dvector_matrixf ( &objpos,
-                                                 ROTX,
-                                                &rotpos );
-                            g3dvector_matrixf ( &rotpos,
-                                                 obj->parent->inverseWorldMatrix,
-                                                &newpos );
+                            g3dvector3f_matrixf ( &cenpos,
+                                                   obj->worldMatrix,
+                                                  &objpos );
+                            g3dvector3f_matrixf ( &objpos,
+                                                   ROTX,
+                                                  &rotpos );
+                            g3dvector3f_matrixf ( &rotpos,
+                                                   obj->parent->inverseWorldMatrix,
+                                                  &newpos );
 
                             obj->pos.x = newpos.x;
                             obj->pos.y = newpos.y;
@@ -919,7 +919,7 @@ static int rotate_object ( LIST        *lobj,
                     ltmpobj = ltmpobj->next;
                 }
 
-                memcpy ( &startpos, &endpos, sizeof ( G3DVECTOR ) );
+                memcpy ( &startpos, &endpos, sizeof ( G3DVECTOR3F ) );
             }
 
             orix = mev->x;

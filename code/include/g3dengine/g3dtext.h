@@ -70,7 +70,7 @@ typedef struct _G3DTEXT {
     LIST         *lchr; /*** list of characters for the current font ***/
     uint32_t      nbchr;
     G3DCHARACTER *currentCharacter; /*** current character being generated ***/
-    G3DVECTOR     nextCharacterPosition;
+    G3DVECTOR3F   nextCharacterPosition;
     float height;
 } G3DTEXT;
 

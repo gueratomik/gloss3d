@@ -203,13 +203,13 @@ void g3dmesh_setGeometryInArrays ( G3DMESH *mes, G3DVERTEX *ver,
 /******************************************************************************/
 void g3dmesh_moveVerticesTo ( G3DMESH   *mes, 
                               LIST      *lver, 
-                              G3DVECTOR *avg,
-                              G3DVECTOR *to,
+                              G3DVECTOR3F *avg,
+                              G3DVECTOR3F *to,
                               uint32_t   absolute,
                               uint32_t   axis_flags,
                               uint64_t   engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    G3DVECTOR difpos;
+    G3DVECTOR3F difpos;
     LIST *ltmpver = lver;
 
     if ( absolute == 0x00 ) {
@@ -455,12 +455,11 @@ void g3dmesh_moveAxis ( G3DMESH *mes,
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-        G3DVECTOR  pos = { .x = ver->pos.x,
-                           .y = ver->pos.y,
-                           .z = ver->pos.z,
-                           .w = 1.0f };
+        G3DVECTOR3F  pos = { .x = ver->pos.x,
+                             .y = ver->pos.y,
+                             .z = ver->pos.z };
 
-        g3dvector_matrixf ( &pos, DIFFMVX, &ver->pos );
+        g3dvector3f_matrixf ( &pos, DIFFMVX, &ver->pos );
 #ifdef UNUSED
         } else {
             float DIFFROT[0x10];
@@ -468,7 +467,7 @@ void g3dmesh_moveAxis ( G3DMESH *mes,
             /*** spline handles are vectors, they are altered by rotation matrix **/
             g3dcore_extractRotationMatrix ( DIFFMVX, DIFFROT );
 
-            g3dvector_matrix ( &pos, DIFFROT, &ver->pos );
+            g3dvector3f_matrix ( &pos, DIFFROT, &ver->pos );
         }
 #endif 
 
@@ -520,7 +519,7 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
         /*** copy and mirror vertices ***/
         while ( lver ) {
             G3DVERTEX *ver = ( G3DVERTEX * ) lver->data;
-            G3DVECTOR pos;
+            G3DVECTOR3F pos;
 
             ver->id = verid++;
 
@@ -539,9 +538,9 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
                  ( ver->flags & VERTEXSYMZX ) ) {
                 symver[ver->id] = oriver[ver->id];
             } else {
-                G3DVECTOR pos;
+                G3DVECTOR3F pos;
 
-                g3dvector_matrixf ( &ver->pos, localSymmix, &pos );
+                g3dvector3f_matrixf ( &ver->pos, localSymmix, &pos );
 
                 symver[ver->id] = g3dvertex_new ( pos.x, pos.y, pos.z );
 
@@ -964,8 +963,8 @@ void g3dmesh_dump ( G3DMESH *mes,
                                    uint32_t, /* nbuv */
                                    void * ),
                     void (*Dump) ( G3DFACE *,
-                                   G3DVECTOR *,
-                                   G3DVECTOR *,
+                                   G3DVECTOR3F *,
+                                   G3DVECTOR3F *,
                                    void * ),
                     void *data,
                     uint64_t engine_flags ) {
@@ -998,8 +997,8 @@ uint32_t g3dmesh_default_dump ( G3DMESH *mes,
                                                uint32_t, /* nbuv */
                                                void * ),
                                 void (*Dump) ( G3DFACE *,
-                                               G3DVECTOR *,
-                                               G3DVECTOR *,
+                                               G3DVECTOR3F *,
+                                               G3DVECTOR3F *,
                                                void * ),
                                 void *data,
                                 uint64_t engine_flags ) {
@@ -1085,11 +1084,11 @@ G3DMESH *g3dmesh_merge ( LIST    *lobj,
                 while ( ltmpver ) {
                     G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
                     G3DVERTEX *newver;
-                    G3DVECTOR  pos;
+                    G3DVECTOR3F  pos;
 
                     /*** Convert to World coordinates. The new ***/
                     /*** mesh's matrix is the identity matrix. ***/
-                    g3dvector_matrixf ( &ver->pos, obj->worldMatrix, &pos );
+                    g3dvector3f_matrixf ( &ver->pos, obj->worldMatrix, &pos );
 
                     newver = g3dvertex_new ( pos.x, pos.y, pos.z );
 
@@ -1642,7 +1641,7 @@ typedef struct _WELDCOUNTER {
 static void weldifneighbour ( G3DVERTEX   *ver, 
                               G3DVERTEX   *cmp, 
                               WELDCOUNTER *wcr ) {
-    G3DVECTOR tmp = { .x = ( ver->pos.x - cmp->pos.x ),
+    G3DVECTOR3F tmp = { .x = ( ver->pos.x - cmp->pos.x ),
                       .y = ( ver->pos.y - cmp->pos.y ),
                       .z = ( ver->pos.z - cmp->pos.z ) };
 
@@ -1650,7 +1649,7 @@ static void weldifneighbour ( G3DVERTEX   *ver,
     if ( ver->subver == NULL ) {
 	/*** check if weldable ***/
 
-        if ( g3dvector_length ( &tmp ) < wcr->distance ) {
+        if ( g3dvector3f_length ( &tmp ) < wcr->distance ) {
                 /*** weld it ****/
                 if ( wcr->newver == NULL ) {
         	    wcr->newver = g3dvertex_new ( 0.0f, 0.0f, 0.0f );
@@ -1823,29 +1822,28 @@ G3DVERTEX *g3dmesh_weldSelectedVertices ( G3DMESH *mes, uint32_t type,
 }
 
 /******************************************************************************/
-void g3dmesh_getSelectedVerticesWorldPosition ( G3DMESH *mes, G3DVECTOR *pos) {
-    G3DVECTOR vtmp;
+void g3dmesh_getSelectedVerticesWorldPosition ( G3DMESH *mes, G3DVECTOR3F *pos) {
+    G3DVECTOR3F vtmp;
 
     g3dmesh_getSelectedVerticesLocalPosition ( mes, &vtmp );
 
-    g3dvector_matrixf ( &vtmp, ((G3DOBJECT*)mes)->worldMatrix, pos );
+    g3dvector3f_matrixf ( &vtmp, ((G3DOBJECT*)mes)->worldMatrix, pos );
 }
 
 /******************************************************************************/
-void g3dmesh_getSelectedVerticesLocalPosition ( G3DMESH *mes, G3DVECTOR *vout ) {
+void g3dmesh_getSelectedVerticesLocalPosition ( G3DMESH *mes, G3DVECTOR3F *vout ) {
     LIST *ltmp = mes->lselver;
     uint32_t nbver = 0x00;
 
     vout->x = 0.0f;
     vout->y = 0.0f;
     vout->z = 0.0f;
-    vout->w = 1.0f;
 
     while ( ltmp ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
-        G3DVECTOR *pos = &ver->pos;
+        G3DVECTOR3F *pos = &ver->pos;
 
-        if ( ver->flags & VERTEXSUBDIVIDED ) pos = ( G3DVECTOR * ) &ver->rtvermem->pos;
+        if ( ver->flags & VERTEXSUBDIVIDED ) pos = ( G3DVECTOR3F * ) &ver->rtvermem->pos;
 
         /*if ( ver->flags & VERTEXHANDLE ) {
             G3DCUBICHANDLE *handle = ( G3DCUBICHANDLE * ) ver;
@@ -1872,16 +1870,16 @@ void g3dmesh_getSelectedVerticesLocalPosition ( G3DMESH *mes, G3DVECTOR *vout ) 
 }
 
 /******************************************************************************/
-void g3dmesh_getSelectedEdgesWorldPosition ( G3DMESH *mes, G3DVECTOR *pos) {
-    G3DVECTOR vtmp;
+void g3dmesh_getSelectedEdgesWorldPosition ( G3DMESH *mes, G3DVECTOR3F *pos) {
+    G3DVECTOR3F vtmp;
 
     g3dmesh_getSelectedEdgesLocalPosition ( mes, &vtmp );
 
-    g3dvector_matrixf ( &vtmp, ((G3DOBJECT*)mes)->worldMatrix, pos );
+    g3dvector3f_matrixf ( &vtmp, ((G3DOBJECT*)mes)->worldMatrix, pos );
 }
 
 /******************************************************************************/
-void g3dmesh_getSelectedEdgesLocalPosition ( G3DMESH *mes, G3DVECTOR *pos ) {
+void g3dmesh_getSelectedEdgesLocalPosition ( G3DMESH *mes, G3DVECTOR3F *pos ) {
     LIST *ltmp = mes->lseledg;
     uint32_t nbedg = 0x00;
     uint32_t i;
@@ -1889,11 +1887,10 @@ void g3dmesh_getSelectedEdgesLocalPosition ( G3DMESH *mes, G3DVECTOR *pos ) {
     pos->x = 0.0f;
     pos->y = 0.0f;
     pos->z = 0.0f;
-    pos->w = 1.0f;
 
     while ( ltmp ) {
         G3DEDGE *edg = ( G3DEDGE * ) ltmp->data;
-        G3DVECTOR *pos0 = &edg->ver[0x00]->pos,
+        G3DVECTOR3F *pos0 = &edg->ver[0x00]->pos,
                   *pos1 = &edg->ver[0x01]->pos;
 
         pos->x += ( ( pos0->x + pos1->x ) / 2.0f );
@@ -1913,23 +1910,22 @@ void g3dmesh_getSelectedEdgesLocalPosition ( G3DMESH *mes, G3DVECTOR *pos ) {
 }
 
 /******************************************************************************/
-void g3dmesh_getSelectedFacesWorldPosition ( G3DMESH *mes, G3DVECTOR *pos) {
-    G3DVECTOR vtmp;
+void g3dmesh_getSelectedFacesWorldPosition ( G3DMESH *mes, G3DVECTOR3F *pos) {
+    G3DVECTOR3F vtmp;
 
     g3dmesh_getSelectedFacesLocalPosition ( mes, &vtmp );
 
-    g3dvector_matrixf ( &vtmp, ((G3DOBJECT*)mes)->worldMatrix, pos );
+    g3dvector3f_matrixf ( &vtmp, ((G3DOBJECT*)mes)->worldMatrix, pos );
 }
 
 /******************************************************************************/
-void g3dmesh_getSelectedFacesLocalPosition ( G3DMESH *mes, G3DVECTOR *pos ) {
+void g3dmesh_getSelectedFacesLocalPosition ( G3DMESH *mes, G3DVECTOR3F *pos ) {
     LIST *ltmp = mes->lselfac;
     uint32_t nbfac = 0x00;
 
     pos->x = 0.0f;
     pos->y = 0.0f;
     pos->z = 0.0f;
-    pos->w = 1.0f;
 
     while ( ltmp ) {
         G3DFACE *fac = ( G3DFACE * ) ltmp->data;
@@ -1998,7 +1994,7 @@ void g3dmesh_getSelectedFacesTranslation ( G3DMESH *mes, double *tmatrix ) {
 void g3dmesh_getSelectedEdgesTranslation ( G3DMESH *mes, double *tmatrix ) {
     uint32_t nbedg = 0x00;
     LIST *ltmp = mes->lseledg;
-    G3DVECTOR pos;
+    G3DVECTOR3F pos;
 
     tmatrix[0x00] = 1.0f;
     tmatrix[0x04] = 0.0f;
@@ -2031,7 +2027,7 @@ void g3dmesh_getSelectedEdgesTranslation ( G3DMESH *mes, double *tmatrix ) {
 void g3dmesh_getSelectedVerticesTranslation ( G3DMESH *mes, double *tmatrix ) {
     uint32_t nbver = 0x00;
     LIST *ltmp = mes->lselver;
-    G3DVECTOR pos;
+    G3DVECTOR3F pos;
 
     tmatrix[0x00] = 1.0f;
     tmatrix[0x04] = 0.0f;
@@ -2257,7 +2253,7 @@ void g3dmesh_attachFaceEdges ( G3DMESH *mes, G3DFACE *fac ) {
 
 /******************************************************************************/
 void g3dmesh_clone ( G3DMESH   *mes,
-                     G3DVECTOR *verpos,
+                     G3DVECTOR3F *verpos,
                      G3DMESH   *cpymes,
                      uint64_t engine_flags ) {
     uint32_t nbver  = mes->nbver;
@@ -2283,7 +2279,7 @@ void g3dmesh_clone ( G3DMESH   *mes,
 
     while ( ltmpver ) {
         G3DVERTEX *oriver = _GETVERTEX(mes,ltmpver);
-        G3DVECTOR *oripos;
+        G3DVECTOR3F *oripos;
         G3DVERTEX *cpyver;
 
         /*** indexing ***/
@@ -2658,7 +2654,7 @@ void g3dmesh_cut ( G3DMESH *mes,
 
     while ( ltmpedg ) {
         G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
-        G3DVECTOR vout;
+        G3DVECTOR3F vout;
 
         /*** Find if edge intersect the knife ***/
         if ( g3dface_intersect ( knife, &edg->ver[0x00]->pos,
@@ -2746,11 +2742,11 @@ void g3dmesh_faceNormal ( G3DMESH *mes ) {
 }
 
 /******************************************************************************/
-void g3dmesh_getCenterFromVertexList ( LIST *lver, G3DVECTOR *vout ) {
+void g3dmesh_getCenterFromVertexList ( LIST *lver, G3DVECTOR3F *vout ) {
     LIST *ltmp = lver;
     uint32_t nbver = 0x00;
 
-    g3dvector_init ( vout, 0.0f, 0.0f, 0.0f, 1.0f );
+    g3dvector3f_init ( vout, 0.0f, 0.0f, 0.0f );
 
     while ( ltmp ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
@@ -2975,7 +2971,7 @@ void g3dmesh_drawFaceNormal ( G3DMESH   *mes,
                               G3DENGINE *engine,
                               uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    float scaling = g3dvector_length ( &obj->sca );
+    float scaling = g3dvector3f_length ( &obj->sca );
     float nratio =  0.1f / scaling;
     LIST *ltmpfac = mes->lfac;
     int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
@@ -3066,9 +3062,9 @@ static void g3dmesh_drawVertexList ( G3DMESH *mes,
     glBegin ( GL_POINTS );
     while ( ltmp ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
-        G3DVECTOR *pos =  &ver->pos;
+        G3DVECTOR3F *pos =  &ver->pos;
 
-        if ( ver->flags & VERTEXSUBDIVIDED ) pos = ( G3DVECTOR * ) &ver->rtvermem->pos;
+        if ( ver->flags & VERTEXSUBDIVIDED ) pos = ( G3DVECTOR3F * ) &ver->rtvermem->pos;
 
         glVertex3fv ( ( GLfloat * ) pos );
 
@@ -3100,7 +3096,7 @@ void g3dmesh_drawVertexNormal ( G3DMESH *mes,
                                 G3DENGINE *engine,
                                 uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    float scaling = g3dvector_length ( &obj->sca );
+    float scaling = g3dvector3f_length ( &obj->sca );
     float nratio =  0.1f / scaling;
     LIST *ltmpver = mes->lver;
     int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
@@ -3583,7 +3579,7 @@ void g3dmesh_drawVertices  ( G3DMESH   *mes,
     glBegin ( GL_POINTS );
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-        G3DVECTOR *pos = &ver->pos;
+        G3DVECTOR3F *pos = &ver->pos;
 
         if ( ver->flags & VERTEXSELECTED ) {
             glColor3ub ( 0xFF, 0x00, 0x00 );
@@ -3819,8 +3815,8 @@ static void g3dmesh_pickObject ( G3DMESH *mes,
 /******************************************************************************/
 void g3dmesh_drawModified ( G3DMESH   *mes,
                             G3DCAMERA *cam, 
-                            G3DVECTOR *verpos,
-                            G3DVECTOR *vernor,
+                            G3DVECTOR3F *verpos,
+                            G3DVECTOR3F *vernor,
                             uint64_t   engine_flags ) {
     LIST *ltmpfac = mes->lfac;
 
@@ -4739,9 +4735,9 @@ G3DVERTEX *g3dmesh_getVertexByID ( G3DMESH *mes, uint32_t id ) {
 #ifdef NOT_USED
 uint32_t g3dmesh_world_intersect ( G3DMESH *mes, LIST *llig,/* list of lights */
                                    /*** start and end of our ray ***/
-                                   G3DVECTOR *vo, G3DVECTOR *vf,
+                                   G3DVECTOR3F *vo, G3DVECTOR3F *vf,
                                    /*** vout = intersection coords ***/
-                                   G3DVECTOR *vout ) {
+                                   G3DVECTOR3F *vout ) {
     LIST *ltmp = mes->lfac;
 
     while ( ltmp ) {

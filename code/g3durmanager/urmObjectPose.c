@@ -50,9 +50,9 @@ URMOBJECTPOSE *urmObjectPose_new ( G3DOBJECT *obj,
     op->key   = key;
     op->overwrittenKey = overwrittenKey;
 
-    memcpy ( &op->keypos, &obj->pos, sizeof ( G3DVECTOR ) );
-    memcpy ( &op->keyrot, &obj->rot, sizeof ( G3DVECTOR ) );
-    memcpy ( &op->keysca, &obj->sca, sizeof ( G3DVECTOR ) );
+    memcpy ( &op->keypos, &obj->pos, sizeof ( G3DVECTOR3F ) );
+    memcpy ( &op->keyrot, &obj->rot, sizeof ( G3DVECTOR3F ) );
+    memcpy ( &op->keysca, &obj->sca, sizeof ( G3DVECTOR3F ) );
 
     return op;
 }

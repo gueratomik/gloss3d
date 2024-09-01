@@ -531,9 +531,9 @@ typedef struct _M3DUIVIEW {
     G3DUIRECTANGLE menurec;
     int32_t        pressedButtonID; /**** Currently clicked button = -1 if none ***/
     G3DCAMERA      cam;
-    G3DVECTOR      defcampos; /*** Default camera position ***/
-    G3DVECTOR      defcamrot; /*** Default camera rotation ***/
-    G3DVECTOR      defcamsca; /*** Default camera scaling  ***/
+    G3DVECTOR3F      defcampos; /*** Default camera position ***/
+    G3DVECTOR3F      defcamrot; /*** Default camera rotation ***/
+    G3DVECTOR3F      defcamsca; /*** Default camera scaling  ***/
     float          defcamfoc; /*** Default camera focal    ***/
 
     void         (*grid)( G3DCAMERA *cam, G3DENGINE *engine, uint64_t );
@@ -1021,8 +1021,8 @@ typedef struct _G3DUIPARTICLEEMITTEREDIT {
 #define VECNORMMIN 0.999f
 typedef struct _G3DUIMATERIALPIXEL {
     uint32_t used;
-    G3DVECTOR pos;
-    G3DVECTOR nor;
+    G3DVECTOR3F pos;
+    G3DVECTOR3F nor;
     float     diff;
     float     spec; /*** specular reflection dot product ***/
     float     u, v;
@@ -1345,9 +1345,9 @@ typedef struct _G3DUIVIEW {
     int32_t        pressedButtonID; /**** Currently clicked button = -1 if none ***/
     G3DCAMERA     *cam;
     G3DCAMERA      defcam;
-    G3DVECTOR      defcampos; /*** Default camera position ***/
-    G3DVECTOR      defcamrot; /*** Default camera rotation ***/
-    G3DVECTOR      defcamsca; /*** Default camera scaling  ***/
+    G3DVECTOR3F      defcampos; /*** Default camera position ***/
+    G3DVECTOR3F      defcamrot; /*** Default camera rotation ***/
+    G3DVECTOR3F      defcamsca; /*** Default camera scaling  ***/
     float          defcamfoc; /*** Default camera focal    ***/
     /*Widget ogl;*/ /*** OpenGL Widget ***/
     uint32_t       mode;   /*** wireframe, flat, fill ***/

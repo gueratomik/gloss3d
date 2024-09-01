@@ -103,7 +103,7 @@ void g3dtorus_build ( G3DPRIMITIVE *pri, int orientation,
             float posu, posv, posw;
             float noru, norv, norw;
             float cenu, cenv, cenw;
-            G3DVECTOR nor, pos;
+            G3DVECTOR3F nor, pos;
 
             posu = ( cos ( sliang ) * radius );
             posv = ( sin ( sliang ) * radius );
@@ -119,18 +119,18 @@ void g3dtorus_build ( G3DPRIMITIVE *pri, int orientation,
 
             switch ( tds->orientation ) {
                 case TORUSXY :
-                    g3dvector_init ( &pos, posu, posv, posw, 1.0f );
-                    g3dvector_init ( &nor, noru, norv, norw, 1.0f );
+                    g3dvector3f_init ( &pos, posu, posv, posw );
+                    g3dvector3f_init ( &nor, noru, norv, norw );
                 break;
 
                 case TORUSYZ :
-                    g3dvector_init ( &pos, posw, posu, posv, 1.0f );
-                    g3dvector_init ( &nor, norw, noru, norv, 1.0f );
+                    g3dvector3f_init ( &pos, posw, posu, posv );
+                    g3dvector3f_init ( &nor, norw, noru, norv );
                 break;
 
                 case TORUSZX :
-                    g3dvector_init ( &pos, posv, posw, posu, 1.0f );
-                    g3dvector_init ( &nor, norv, norw, noru, 1.0f );
+                    g3dvector3f_init ( &pos, posv, posw, posu );
+                    g3dvector3f_init ( &nor, norv, norw, noru  );
                 break;
 
                 default :
@@ -138,7 +138,7 @@ void g3dtorus_build ( G3DPRIMITIVE *pri, int orientation,
             }
 
             ver[vid] = g3dvertex_new ( pos.x, pos.y, pos.z );
-            g3dvector_init    ( &ver[vid]->nor, nor.x, nor.y, nor.z, 1.0f );
+            g3dvector3f_init    ( &ver[vid]->nor, nor.x, nor.y, nor.z );
             g3dmesh_addVertex ( mes, ver[vid] );
         }
     }

@@ -253,7 +253,7 @@ void g3duiclipboard_paste ( G3DUICLIPBOARD *cli,
                                         case SCULPTMODE_SCULPT :
                                             memcpy ( fse->pos, 
                                                item->fse->pos, 
-                                                     fse->nbver * sizeof ( G3DVECTOR ) );
+                                                     fse->nbver * sizeof ( G3DVECTOR3F ) );
                                         break;
 
                                         default :
@@ -310,7 +310,7 @@ void g3duiclipboard_copyFaceSculptExtension ( G3DUICLIPBOARD *cli,
         switch ( sdr->sculptMode ) {
             case SCULPTMODE_SCULPT :
                 memcpy ( item->fse->pos, 
-                               fse->pos, fse->nbver * sizeof ( G3DVECTOR ) );
+                               fse->pos, fse->nbver * sizeof ( G3DVECTOR4F ) );
             break;
 
             default :

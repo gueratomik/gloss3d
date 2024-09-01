@@ -50,7 +50,7 @@ void g3dimportv3subdivider ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc
                 switch ( sdr->sculptMode ) {
                     case SCULPTMODE_SCULPT :
                         g3dimportv3_fread ( fse->pos, 
-                                            sizeof ( G3DVECTOR ), 
+                                            sizeof ( G3DVECTOR4F ), 
                                             fse->nbver,
                                             fsrc );
                     break;

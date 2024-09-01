@@ -136,7 +136,7 @@ void gtk3_g3duicoordinatesedit_update ( GTK3G3DUICOORDINATESEDIT *gtk3cedit ) {
         G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
         if ( obj ) {
-            G3DVECTOR pos = { .x = obj->pos.x, 
+            G3DVECTOR3F pos = { .x = obj->pos.x, 
                               .y = obj->pos.y,
                               .z = obj->pos.z },
                       rot = { .x = obj->rot.x, 

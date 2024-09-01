@@ -240,10 +240,10 @@ static void Alloc ( uint32_t nbver,
 }
 
 /******************************************************************************/
-static void Dump ( G3DFACE   *fac, 
-                   G3DVECTOR *stkpos,
-                   G3DVECTOR *stknor,
-                   void      *data ) {
+static void Dump ( G3DFACE     *fac, 
+                   G3DVECTOR3F *stkpos,
+                   G3DVECTOR3F *stknor,
+                   void        *data ) {
     uint32_t polyCount = ( fac->nbver == 0x03 ) ? 0x01 : 0x02;
     Q3DDUMP *qdump = ( Q3DDUMP * ) data;
     Q3DMESH *qmes  = qdump->qmes;
@@ -267,11 +267,11 @@ static void Dump ( G3DFACE   *fac,
 
         for ( j = 0x00; j < 0x03; j++ ) {
             G3DVERTEX *ver = fac->ver[idx[i][j]];
-            float scalar = fabs ( g3dvector_scalar ( g3dvertex_getModifiedNormal ( ver, stknor ),
-                                                     &fac->nor ) );
+            float scalar = fabs ( g3dvector3f_scalar ( g3dvertex_getModifiedNormal ( ver, stknor ),
+                                                      &fac->nor ) );
             float gouraudScalarLimit = mes->gouraudScalarLimit;
-            G3DVECTOR *pos = g3dvertex_getModifiedPosition ( ver, stkpos ),
-                      *nor = g3dvertex_getModifiedNormal ( ver, stknor );
+            G3DVECTOR3F *pos = g3dvertex_getModifiedPosition ( ver, stkpos ),
+                        *nor = g3dvertex_getModifiedNormal ( ver, stknor );
 
             Q3DVERTEX *curqver = qver[j];
 

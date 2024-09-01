@@ -108,13 +108,13 @@ typedef struct _G3DTAG {
 /******************************************************************************/
 typedef struct _G3DVIBRATORTAG {
     G3DTAG tag;
-    G3DVECTOR posAmp; /* Amplitude */
-    G3DVECTOR rotAmp; /* Amplitude */
-    G3DVECTOR scaAmp; /* Amplitude */
-    uint32_t  freq;
-    G3DVECTOR pos;
-    G3DVECTOR rot;
-    G3DVECTOR sca;
+    G3DVECTOR3F posAmp; /* Amplitude */
+    G3DVECTOR3F rotAmp; /* Amplitude */
+    G3DVECTOR3F scaAmp; /* Amplitude */
+    uint32_t    freq;
+    G3DVECTOR3F pos;
+    G3DVECTOR3F rot;
+    G3DVECTOR3F sca;
 } G3DVIBRATORTAG;
 
 /******************************************************************************/

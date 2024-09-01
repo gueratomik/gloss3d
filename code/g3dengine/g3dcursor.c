@@ -39,7 +39,7 @@ void g3dcursor_pick ( G3DCURSOR *csr,
                       G3DCAMERA *cam, 
                       uint64_t   engine_flags ) {
     float ratio = 1.0f;
-    G3DVECTOR campos, oripos = { 0.0f, 0.0f, 0.0f };
+    G3DVECTOR3F campos, oripos = { 0.0f, 0.0f, 0.0f };
     uint32_t i;
 
     /*** Commented out: this part is computed in the draw function ***/
@@ -84,9 +84,9 @@ void g3dcursor_init ( G3DCURSOR *csr ) {
         return NULL;
     }*/
 
-    g3dvector_init ( &csr->axis[0x00], 1.0f, 0.0f, 0.0f, 1.0f );
-    g3dvector_init ( &csr->axis[0x01], 0.0f, 1.0f, 0.0f, 1.0f );
-    g3dvector_init ( &csr->axis[0x02], 0.0f, 0.0f, 1.0f, 1.0f );
+    g3dvector4f_init ( &csr->axis[0x00], 1.0f, 0.0f, 0.0f, 1.0f );
+    g3dvector4f_init ( &csr->axis[0x01], 0.0f, 1.0f, 0.0f, 1.0f );
+    g3dvector4f_init ( &csr->axis[0x02], 0.0f, 0.0f, 1.0f, 1.0f );
 
     csr->pivot.w = 1.0f;
 
@@ -102,11 +102,37 @@ void g3dcursor_reset ( G3DCURSOR *csr ) {
 /*****************************************************************************/
 void g3dcursor_draw ( G3DCURSOR *csr, 
                       G3DCAMERA *cam,
+                      G3DENGINE *engine,
                       uint64_t   engine_flags ) {
     int name[0x03] = { CURSORXAXIS, CURSORYAXIS, CURSORZAXIS };
-    G3DVECTOR oripos = { 0.0f, 0.0f, 0.0f, 1.0f }, campos;
+    G3DVECTOR3F oripos = { 0.0f, 0.0f, 0.0f }, campos;
     float ratio = 1.0f;
     uint32_t i;
+
+
+#ifdef need_refactor
+-------------------- added recently as base for new desgin ------------------
+    /*** Extract scale factor to negate its effect on the cursor size ***/
+    /*** by scaling the cursor matrix with the inverse scale factors ***/
+    g3dcore_getMatrixScalef ( sce->csr.matrix, &sca );
+
+    /*g3dvector_matrix ( &zero, matrix, &curcam->pivot );*/
+
+    glPushMatrix ( );
+
+    glMultMatrixd ( sce->csr.matrix );
+
+    glTranslatef ( sce->csr.pivot.x, 
+                   sce->csr.pivot.y, 
+                   sce->csr.pivot.z );
+
+    /*** scale cursor to object's scale ***/
+    glScalef ( 1.0f / sca.x,
+               1.0f / sca.y,
+               1.0f / sca.z );
+
+
+--------------------------------------
 
 
 
@@ -143,4 +169,5 @@ void g3dcursor_draw ( G3DCURSOR *csr,
     }
 
     glPopAttrib ( );
+#endif
 }

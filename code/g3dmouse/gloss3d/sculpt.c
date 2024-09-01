@@ -174,10 +174,10 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
             switch ( sdr->sculptMode ) {
                 case SCULPTMODE_SCULPT :
                     memcpy ( &usfe->pos[i],
-                             &fse->pos[i], sizeof ( G3DVECTOR ) );
+                             &fse->pos[i], sizeof ( G3DVECTOR4F ) );
 
                     memcpy ( &usfe->nor[i],
-                             &fac->rtvermem[i].nor, sizeof ( G3DVECTOR ) );
+                             &fac->rtvermem[i].nor, sizeof ( G3DVECTOR3F ) );
                 break;
 
                 default :

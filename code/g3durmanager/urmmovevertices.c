@@ -36,8 +36,8 @@ static URMMOVEVERTICES *urmmovevertices_new ( G3DMESH *mes,
                                               LIST *ledg,
                                               LIST *lfac,
                                               LIST *lsub,
-                                              G3DVECTOR *oldpos,
-                                              G3DVECTOR *newpos ) {
+                                              G3DVECTOR3F *oldpos,
+                                              G3DVECTOR3F *newpos ) {
     uint32_t structsize = sizeof ( URMMOVEVERTICES );
 
     URMMOVEVERTICES *mvs = ( URMMOVEVERTICES * ) calloc ( 0x01, structsize );
@@ -94,7 +94,7 @@ static void moveVertices_undo ( G3DURMANAGER *urm,
     while ( ltmp ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
 
-        memcpy ( &ver->pos, &mvs->oldpos[i++], sizeof ( G3DVECTOR ) );
+        memcpy ( &ver->pos, &mvs->oldpos[i++], sizeof ( G3DVECTOR3F ) );
 
         ltmp = ltmp->next;
     }
@@ -136,7 +136,7 @@ static void moveVertices_redo ( G3DURMANAGER *urm,
     while ( ltmp ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
 
-        memcpy ( &ver->pos, &mvs->newpos[i++], sizeof ( G3DVECTOR ) );
+        memcpy ( &ver->pos, &mvs->newpos[i++], sizeof ( G3DVECTOR3F ) );
 
         ltmp = ltmp->next;
     }
@@ -173,8 +173,8 @@ void g3durm_mesh_moveVertexList ( G3DURMANAGER *urm,
                                   LIST *ledg,
                                   LIST *lfac,
                                   LIST *lsub,
-                                  G3DVECTOR *oldpos,
-                                  G3DVECTOR *newpos,
+                                  G3DVECTOR3F *oldpos,
+                                  G3DVECTOR3F *newpos,
                                   uint32_t return_flags ) {
     URMMOVEVERTICES *mvs;
 

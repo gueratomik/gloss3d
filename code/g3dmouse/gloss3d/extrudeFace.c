@@ -133,7 +133,7 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
     static int32_t xold, yold;
     static double objx, objy, objz,
                   winx, winy, winz;
-    static G3DVECTOR center;
+    static G3DVECTOR3F center;
     static G3DOBJECT *obj;
     static G3DMESH *mes;
     static LIST *ldir; /*** list of rail vectors ***/
@@ -143,8 +143,8 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
     static LIST *lnewver = NULL;
     static LIST *lnewfac = NULL;
     /*** Remember the position for undoing-redoing ***/
-    static G3DVECTOR *oldpos;
-    static G3DVECTOR *newpos;
+    static G3DVECTOR3F *oldpos;
+    static G3DVECTOR3F *newpos;
     /*** for updating mesh precomputed values (catmull-clark) ***/
     static LIST *lselver = NULL,
                 *lseledg = NULL,
@@ -206,7 +206,7 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
 
                     while ( ltmpver ) {
                         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-                        G3DVECTOR dir;
+                        G3DVECTOR3F dir;
 
                         if ( ef->inner ) {
                             /*dir.x = ( pivot.x - ver->pos.x );
@@ -218,9 +218,9 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
                             g3dvertex_getNormalFromSelectedFaces ( ver, &dir );
                         } 
 
-                        list_append ( &ldir, g3dvector_new ( dir.x,
-                                                             dir.y,
-                                                             dir.z, 1.0f ) );
+                        list_append ( &ldir, g3dvector3f_new ( dir.x,
+                                                               dir.y,
+                                                               dir.z ) );
 
                         ltmpver = ltmpver->next;
                     }
@@ -239,11 +239,11 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
                     LIST *ltmpver = lver, *ltmpdir = ldir;
                     float diff = ( float ) mev->x - xold;
 
-                    memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR ) );
+                    memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR3F ) );
 
                     while ( ltmpver ) {
                         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-                        G3DVECTOR *dir = ( G3DVECTOR * ) ltmpdir->data;
+                        G3DVECTOR3F *dir = ( G3DVECTOR3F * ) ltmpdir->data;
 
 
                         ver->pos.x = ver->pos.x + ( dir->x * diff / factor );
@@ -318,7 +318,7 @@ static int extrudeFace_tool  ( G3DMOUSETOOL *mou,
             list_free ( &lselsub, NULL );
 
             /*list_free ( &lver, NULL           );*/
-            list_free ( &ldir, g3dvector_free );
+            list_free ( &ldir, LIST_FUNCDATA(g3dvector3f_free) );
 
             obj = NULL;
         } return REDRAWVIEW;

@@ -35,7 +35,7 @@ typedef struct _URMREMOVEVERTEXPOSE {
     G3DMORPHER         *mpr;
     G3DMORPHERMESHPOSE *mpose;
     LIST               *lver;
-    G3DVECTOR          *pos;
+    G3DVECTOR3F          *pos;
 } URMREMOVEVERTEXPOSE;
 
 /******************************************************************************/
@@ -87,7 +87,7 @@ static void removeVertexPose_undo ( G3DURMANAGER *urm,
     if ( ((G3DOBJECT*)rvp->mpr)->parent->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)rvp->mpr)->parent;
         LIST *ltmpver = rvp->lver;
-        G3DVECTOR *pos = rvp->pos;
+        G3DVECTOR3F *pos = rvp->pos;
 
         while ( ltmpver ) {
             G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;

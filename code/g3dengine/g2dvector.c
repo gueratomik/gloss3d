@@ -35,14 +35,13 @@ int32_t g2dvector_scalar ( G2DVECTOR *v0, G2DVECTOR *v1 ) {
 }
 
 /******************************************************************************/
-int32_t g2dvector_cross ( G2DVECTOR *vone, G2DVECTOR *vtwo, G3DVECTOR *vout ) {
+int32_t g2dvector_cross ( G2DVECTOR *vone, G2DVECTOR *vtwo, G3DVECTOR3F *vout ) {
     int32_t z = ( vone->x * vtwo->y ) - ( vone->y * vtwo->x );
 
     if ( vout ) {
         vout->x = 0.0f;
         vout->y = 0.0f;
         vout->z = ( float ) z;
-        vout->w = 1.0f;
     }
 
     return z;

@@ -39,7 +39,7 @@
 extern "C" {
 #endif
 
-typedef struct _G3DVECTOR G3DVECTOR;
+typedef struct _G3DVECTOR3F G3DVECTOR3F;
 
 /**
  * @struct G2DVECTOR
@@ -68,7 +68,7 @@ int32_t g2dvector_scalar ( G2DVECTOR *v0, G2DVECTOR *v1 );
  * @param vout a pointer to a vector (result).
  * @return the value of the Z member.
  */
-int32_t g2dvector_cross ( G2DVECTOR *v0, G2DVECTOR *v1, G3DVECTOR *vout );
+int32_t g2dvector_cross ( G2DVECTOR *v0, G2DVECTOR *v1, G3DVECTOR3F *vout );
 
 /**
  * Compute the mean value of two 2D vectors.

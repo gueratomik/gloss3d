@@ -106,7 +106,7 @@ G3DWEIGHT *g3dvertex_getWeight ( G3DVERTEX      *ver,
 /******************************************************************************/
 /*
 void vertex_elevate ( G3DVERTEX *ver ) {
-    G3DVECTOR pos = { 0.0f, 0.0f, 0.0f, 1.0f };
+    G3DVECTOR3F pos = { 0.0f, 0.0f, 0.0f, 1.0f };
     LIST *ltmpfac = ver->lfac;
 
     while ( ltmpfac ) {
@@ -204,8 +204,8 @@ void g3dvertex_renumberList ( LIST *lver, uint32_t id ) {
 }
 
 /******************************************************************************/
-void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex, G3DVECTOR *pos ) {
-    G3DVECTOR  displaced = { .x = 0.0f, .y = 0.0f, .z = 0.0f, .w = 1.0f };
+void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex, G3DVECTOR3F *pos ) {
+    G3DVECTOR3F  displaced = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
     LIST      *ltmpfac = ver->lfac;
     LIST      *ltmptex = ltex;
     uint32_t   nbuv = 0x00;
@@ -213,7 +213,6 @@ void g3dvertex_displace ( G3DVERTEX *ver, LIST *ltex, G3DVECTOR *pos ) {
     pos->x = ver->pos.x;
     pos->y = ver->pos.y;
     pos->z = ver->pos.z;
-    pos->w = ver->pos.w;
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -493,14 +492,14 @@ LIST *g3dvertex_getFacesFromList ( LIST *lver ) {
 }
 
 /******************************************************************************/
-void g3dvertex_setPositionFromList ( LIST *lver, G3DVECTOR *pos ) {
+void g3dvertex_setPositionFromList ( LIST *lver, G3DVECTOR3F *pos ) {
     LIST *ltmp = lver;
     uint32_t i = 0x00;
 
     while ( ltmp ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
 
-        memcpy ( &ver->pos, &pos[i++], sizeof ( G3DVECTOR ) );
+        memcpy ( &ver->pos, &pos[i++], sizeof ( G3DVECTOR3F ) );
 
 
         ltmp = ltmp->next;
@@ -508,7 +507,7 @@ void g3dvertex_setPositionFromList ( LIST *lver, G3DVECTOR *pos ) {
 }
 
 /******************************************************************************/
-void g3dvertex_getAveragePositionFromList ( LIST *lver, G3DVECTOR *pos ) {
+void g3dvertex_getAveragePositionFromList ( LIST *lver, G3DVECTOR3F *pos ) {
     uint32_t nb = 0x00;
     LIST *ltmp = lver;
 
@@ -611,18 +610,18 @@ G3DSPLITVERTEX *g3dsplitvertex_seek ( LIST *lis, G3DVERTEX *ver ) {
 
 /******************************************************************************/
 uint32_t g3dvertex_copyPositionFromList ( LIST *lver, 
-                                          G3DVECTOR **vec ) {
+                                          G3DVECTOR3F **vec ) {
     uint32_t nbver = list_count ( lver );
 
 
     if ( nbver ) {
-        G3DVECTOR *vecptr = (*vec) = ( G3DVECTOR * ) calloc ( nbver,
-                                                         sizeof ( G3DVECTOR ) );
+        G3DVECTOR3F *vecptr = (*vec) = ( G3DVECTOR3F * ) calloc ( nbver,
+                                                         sizeof ( G3DVECTOR3F ) );
 
         while ( lver ) {
             G3DVERTEX *ver = ( G3DVERTEX * ) lver->data;
 
-            memcpy ( vecptr++, &ver->pos, sizeof ( G3DVECTOR ) );
+            memcpy ( vecptr++, &ver->pos, sizeof ( G3DVECTOR3F ) );
 
             lver = lver->next;
         }
@@ -637,11 +636,11 @@ G3DVERTEX *g3dvertex_copy ( G3DVERTEX *ver,
     G3DVERTEX *cpy = g3dvertex_new ( 0.0f, 0.0f, 0.0f );
 
     if ( engine_flags & SETPOSITION ) {
-        memcpy ( &cpy->pos, &ver->pos, sizeof ( G3DVECTOR ) );
+        memcpy ( &cpy->pos, &ver->pos, sizeof ( G3DVECTOR3F ) );
     }
 
     if ( engine_flags & SETNORMAL ) {
-        memcpy ( &cpy->nor, &ver->nor, sizeof ( G3DVECTOR ) );
+        memcpy ( &cpy->nor, &ver->nor, sizeof ( G3DVECTOR3F ) );
     }
 
     if ( engine_flags & SETEDGELIST ) {
@@ -725,21 +724,21 @@ G3DVERTEX *g3dvertex_weldList ( LIST *lver ) {
 }
 
 /******************************************************************************/
-G3DVECTOR *g3dvertex_getModifiedPosition ( G3DVERTEX *ver,
-                                           G3DVECTOR *stkpos ) {
+G3DVECTOR3F *g3dvertex_getModifiedPosition ( G3DVERTEX *ver,
+                                           G3DVECTOR3F *stkpos ) {
     return ( stkpos ) ? &stkpos[ver->id] : &ver->pos;
 }
 
 /******************************************************************************/
-G3DVECTOR *g3dvertex_getModifiedNormal ( G3DVERTEX *ver,
-                                         G3DVECTOR *stknor ) {
+G3DVECTOR3F *g3dvertex_getModifiedNormal ( G3DVERTEX *ver,
+                                         G3DVECTOR3F *stknor ) {
     return ( stknor ) ? &stknor[ver->id] : &ver->nor;
 }
 
 /******************************************************************************/
 uint32_t g3dvertex_getAverageModifiedFacePoint ( G3DVERTEX *ver, 
-                                                 G3DVECTOR *verpos,
-                                                 G3DVECTOR *facavg ) {
+                                                 G3DVECTOR3F *verpos,
+                                                 G3DVECTOR3F *facavg ) {
     LIST *ltmpfac = ver->lfac;
     uint32_t nb = 0x00;
 
@@ -747,7 +746,7 @@ uint32_t g3dvertex_getAverageModifiedFacePoint ( G3DVERTEX *ver,
 
     while ( ltmpfac ) {
         G3DFACE  *fac = ( G3DFACE * ) ltmpfac->data;
-        G3DVECTOR facpos;
+        G3DVECTOR3F facpos;
 
         g3dface_computeModifiedPosition ( fac, verpos, &facpos );
 
@@ -771,14 +770,14 @@ uint32_t g3dvertex_getAverageModifiedFacePoint ( G3DVERTEX *ver,
 
 /******************************************************************************/
 uint32_t g3dvertex_getAverageFacePoint ( G3DVERTEX *ver, 
-                                         G3DVECTOR *facavg ) {
+                                         G3DVECTOR3F *facavg ) {
     g3dvertex_getAverageModifiedFacePoint ( ver, NULL, facavg );
 }
 
 /******************************************************************************/
 uint32_t g3dvertex_getAverageModifiedMidPoint ( G3DVERTEX *ver, 
-                                                G3DVECTOR *verpos,
-                                                G3DVECTOR *midavg ) {
+                                                G3DVECTOR3F *verpos,
+                                                G3DVECTOR3F *midavg ) {
     LIST *ltmpedg = ver->ledg;
     uint32_t nb = 0x00;
 
@@ -786,7 +785,7 @@ uint32_t g3dvertex_getAverageModifiedMidPoint ( G3DVERTEX *ver,
 
     while ( ltmpedg ) {
         G3DEDGE  *edg = ( G3DEDGE * ) ltmpedg->data;
-        G3DVECTOR mid;
+        G3DVECTOR3F mid;
 
         g3dedge_getAverageModifiedPosition ( edg, verpos, &mid );
 
@@ -810,12 +809,12 @@ uint32_t g3dvertex_getAverageModifiedMidPoint ( G3DVERTEX *ver,
 
 /******************************************************************************/
 uint32_t g3dvertex_getAverageMidPoint ( G3DVERTEX *ver,
-                                        G3DVECTOR *midavg ) {
+                                        G3DVECTOR3F *midavg ) {
     return g3dvertex_getAverageModifiedMidPoint ( ver, NULL, midavg );
 }
 
 /******************************************************************************/
-void g3dvertex_getPositionFromEdges ( G3DVERTEX *ver, G3DVECTOR *pos ) {
+void g3dvertex_getPositionFromEdges ( G3DVERTEX *ver, G3DVECTOR3F *pos ) {
     LIST *ltmpedg = ver->ledg;
 
     pos->x = pos->y = pos->z = 0.0f;
@@ -843,22 +842,20 @@ void g3dvertex_position ( G3DVERTEX *ver, float x, float y, float z ) {
     ver->pos.x = x;
     ver->pos.y = y;
     ver->pos.z = z;
-    ver->pos.w = 1.0f;
 }
 
 /*****************************************************************************/
 void g3dvertex_copyPos ( G3DVERTEX *dst, G3DVERTEX *src ) {
-    memcpy ( &dst->pos, &src->pos, sizeof ( G3DVECTOR ) );
+    memcpy ( &dst->pos, &src->pos, sizeof ( G3DVECTOR3F ) );
 }
 
 /*****************************************************************************/
-void g3dvertex_computeNormal ( G3DVERTEX *ver, 
-                               G3DVECTOR *nor,
-                               uint64_t   engine_flags ) {
+void g3dvertex_computeNormal ( G3DVERTEX   *ver, 
+                               G3DVECTOR3F *nor,
+                               uint64_t     engine_flags ) {
     float norx = 0.0f, posx = 0.0f,
           nory = 0.0f, posy = 0.0f,
-          norz = 0.0f, posz = 0.0f,
-          norw = 1.0f, posw = 0.0f;
+          norz = 0.0f, posz = 0.0f;
     LIST *ltmp;
     float surface = 0.0f;
 
@@ -870,7 +867,6 @@ void g3dvertex_computeNormal ( G3DVERTEX *ver,
             norx = ( norx + fac->nor.x );
             nory = ( nory + fac->nor.y );
             norz = ( norz + fac->nor.z );
-            /*norw = ( norw + cen->nor.w );*/
         }
 
         ltmp = ltmp->next;
@@ -891,11 +887,10 @@ void g3dvertex_computeNormal ( G3DVERTEX *ver,
             nor->x = norx * nbfacdiv;
             nor->y = nory * nbfacdiv;
             nor->z = norz * nbfacdiv;
-            nor->w = 1.0f;
         }
 
         if ( ( engine_flags & NOVERTEXNORMAL ) == 0x00 ) {
-            g3dvector_normalize ( nor, NULL );
+            g3dvector3f_normalize ( nor );
         }
     }
 }
@@ -907,9 +902,9 @@ void g3dvertex_normal ( G3DVERTEX *ver,
 }
 
 /******************************************************************************/
-void g3dvertex_getNormalFromSelectedFaces ( G3DVERTEX *ver, G3DVECTOR *vout ) {
+void g3dvertex_getNormalFromSelectedFaces ( G3DVERTEX *ver, G3DVECTOR3F *vout ) {
     LIST *ltmp = ver->lfac;
-    G3DVECTOR nor = { .x = 0.0f, .y = 0.0f, .z = 0.0f, .w = 1.0f };
+    G3DVECTOR3F nor = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
     uint32_t nbfac = 0x00;
 
     while ( ltmp ) {
@@ -932,14 +927,14 @@ void g3dvertex_getNormalFromSelectedFaces ( G3DVERTEX *ver, G3DVECTOR *vout ) {
         vout->y = ( nor.y / nbfac );
         vout->z = ( nor.z / nbfac );
 
-        g3dvector_normalize ( vout, NULL );
+        g3dvector3f_normalize ( vout );
     }
 }
 
 /******************************************************************************/
-void g3dvertex_getVectorFromSelectedFaces ( G3DVERTEX *ver, G3DVECTOR *vout ) {
+void g3dvertex_getVectorFromSelectedFaces ( G3DVERTEX *ver, G3DVECTOR3F *vout ) {
     LIST *ltmp = ver->lfac;
-    G3DVECTOR nor = { .x = 0.0f, .y = 0.0f, .z = 0.0f, .w = 1.0f };
+    G3DVECTOR3F nor = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
     uint32_t nbfac = 0x00;
 
     while ( ltmp ) {
@@ -962,7 +957,7 @@ void g3dvertex_getVectorFromSelectedFaces ( G3DVERTEX *ver, G3DVECTOR *vout ) {
         vout->y = ( nor.y / nbfac );
         vout->z = ( nor.z / nbfac );
 
-        g3dvector_normalize ( vout, NULL );
+        g3dvector3f_normalize ( vout );
     }
 }
 
@@ -1019,7 +1014,6 @@ G3DVERTEX *g3dvertex_new ( float x, float y, float z ) {
     ver->pos.x = x;
     ver->pos.y = y;
     ver->pos.z = z;
-    ver->pos.w = 1.0f;
 
     /*ver->id = id;*/ /* this is now set by the object receiving the vertex */
 

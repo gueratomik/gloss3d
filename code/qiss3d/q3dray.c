@@ -164,8 +164,8 @@ void q3dray_bump ( Q3DRAY      *qray,
                     float strength = mat->bump.solid.r;
                     Q3DVECTOR3F tangent;
                     Q3DVECTOR3F binomial;
-                    G3DVECTOR bumpnor;
-                    G3DVECTOR finbump;
+                    G3DVECTOR3F bumpnor;
+                    G3DVECTOR3F finbump;
                     Q3DMESH *qmes = ( Q3DMESH * ) qray->isx.qobj;
                     Q3DVERTEX *qver = q3dmesh_getVertices ( qmes, frame );
                     Q3DVECTOR3F *p0 = &qver[qray->isx.qsur->tri.qverID[0x00]].pos,
@@ -175,7 +175,7 @@ void q3dray_bump ( Q3DRAY      *qray,
                     Q3DUV *w0 = &quvs->uv[0x00],
                           *w1 = &quvs->uv[0x01],
                           *w2 = &quvs->uv[0x02];
-                    double TBN[0x09];
+                    float TBN[0x09];
                 /*** see "Computing Tangent Space Basis Vectors for an Arbitrary Mesh" ***/
                     /*** XYZ system ***/
                     float x1 = p1->x - p0->x;
@@ -202,14 +202,21 @@ void q3dray_bump ( Q3DRAY      *qray,
                     q3dvector3f_normalize ( &binomial, NULL );
 
                     TBN[0x00] = tangent.x;
-                    TBN[0x01] = tangent.y;
-                    TBN[0x02] = tangent.z;
-                    TBN[0x03] = binomial.x;
-                    TBN[0x04] = binomial.y;
-                    TBN[0x05] = binomial.z;
-                    TBN[0x06] = qray->isx.dir.x;
-                    TBN[0x07] = qray->isx.dir.y;
-                    TBN[0x08] = qray->isx.dir.z;
+                    TBN[0x04] = tangent.y;
+                    TBN[0x08] = tangent.z;
+                    TBN[0x0C] = 0.0f;
+                    TBN[0x01] = binomial.x;
+                    TBN[0x05] = binomial.y;
+                    TBN[0x09] = binomial.z;
+                    TBN[0x0D] = 0.0f;
+                    TBN[0x02] = qray->isx.dir.x;
+                    TBN[0x06] = qray->isx.dir.y;
+                    TBN[0x0A] = qray->isx.dir.z;
+                    TBN[0x0E] = 0.0f;
+                    TBN[0x03] = 0.0f;
+                    TBN[0x07] = 0.0f;
+                    TBN[0x0B] = 0.0f;
+                    TBN[0x0F] = 1.0f;
 
                     g3dchannel_getNormal ( &mat->bump,
                                             avgu,
@@ -220,7 +227,7 @@ void q3dray_bump ( Q3DRAY      *qray,
                                             0.01f,
                                             0x00 );
 
-                    g3dvector_matrix3 ( &bumpnor, TBN, &finbump );
+                    g3dvector3f_matrixf ( &bumpnor, TBN, &finbump );
 
                     totbump.x += ( qray->isx.dir.x * ( 1.0f - strength ) ) + ( finbump.x * strength );
                     totbump.y += ( qray->isx.dir.y * ( 1.0f - strength ) ) + ( finbump.y * strength );

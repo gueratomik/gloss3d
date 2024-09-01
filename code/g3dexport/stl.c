@@ -34,15 +34,15 @@ void g3dmesh_getMin ( G3DMESH *mes, float *xmin,
                                     float *ymin, 
                                     float *zmin ) {
     G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
-    G3DVECTOR locmin = { objmes->bbox.xmin, 
-                         objmes->bbox.ymin,
-                         objmes->bbox.zmin }, glomin,
-              locmax = { objmes->bbox.xmax, 
-                         objmes->bbox.ymax,
-                         objmes->bbox.zmax }, glomax;
+    G3DVECTOR3F locmin = { objmes->bbox.xmin, 
+                           objmes->bbox.ymin,
+                           objmes->bbox.zmin }, glomin,
+                locmax = { objmes->bbox.xmax, 
+                           objmes->bbox.ymax,
+                           objmes->bbox.zmax }, glomax;
 
-    g3dvector_matrixf ( &locmin, objmes->worldMatrix, &glomin );
-    g3dvector_matrixf ( &locmax, objmes->worldMatrix, &glomax );
+    g3dvector3f_matrixf ( &locmin, objmes->worldMatrix, &glomin );
+    g3dvector3f_matrixf ( &locmax, objmes->worldMatrix, &glomax );
 
     if ( glomin.x < (*xmin) ) (*xmin) = glomin.x;
     if ( glomin.y < (*ymin) ) (*ymin) = glomin.y;
@@ -89,16 +89,16 @@ void g3dmesh_exportStlA ( G3DMESH *mes, float xmin,
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
         uint32_t i, j, index[0x06] = { 0x00, 0x01, 0x02, 0x02, 0x03, 0x00 };
         uint32_t *id = index;
-        G3DVECTOR facnor;
+        G3DVECTOR3F facnor;
 
         for ( j = 0x00; j < fac->nbver; j += 0x03 ) {
-            G3DVECTOR verpos[0x03];
-            G3DVECTOR v0v1, v0v2;
+            G3DVECTOR3F verpos[0x03];
+            G3DVECTOR3F v0v1, v0v2;
 
             for ( i = 0x00; i < 0x03; i++ ) {
-                g3dvector_matrixf ( &fac->ver[*(id++)]->pos,
-                                     objmes->worldMatrix, 
-                                    &verpos[i] );
+                g3dvector3f_matrixf ( &fac->ver[*(id++)]->pos,
+                                       objmes->worldMatrix, 
+                                      &verpos[i] );
             }
 
             if ( xmin < 0.0f ) {
@@ -127,7 +127,7 @@ void g3dmesh_exportStlA ( G3DMESH *mes, float xmin,
             v0v2.y = verpos[0x02].y - verpos[0x00].y;
             v0v2.z = verpos[0x02].z - verpos[0x00].z;
 
-            g3dvector_cross ( &v0v1, &v0v2, &facnor );
+            g3dvector3f_cross ( &v0v1, &v0v2, &facnor );
 
             fprintf ( fdst, "facet normal %e %e %e\n", facnor.x, 
                                                        facnor.y, 

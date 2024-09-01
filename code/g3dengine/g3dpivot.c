@@ -105,17 +105,16 @@ void g3dpivot_init ( G3DPIVOT  *piv,
     G3DOBJECT *yaxisobj = objpiv;
     G3DOBJECT *xaxisobj = g3dobject_new ( 0x00, "XAxis", 0x00 );
     G3DOBJECT *locam    = g3dobject_new ( 0x00, "Local Camera", 0x00 );
-    G3DVECTOR origin    = { 0.0f, 0.0f, 0.0f, 1.0f };
-    G3DVECTOR  zaxis    = { 0.0f, 0.0f, 1.0f, 1.0f };
-    G3DVECTOR camzaxis; /*** camera world position ***/
-    G3DVECTOR to_cam;
-    G3DVECTOR sign;
+    G3DVECTOR3F origin    = { 0.0f, 0.0f, 0.0f };
+    G3DVECTOR3F  zaxis    = { 0.0f, 0.0f, 1.0f };
+    G3DVECTOR3F camzaxis; /*** camera world position ***/
+    G3DVECTOR3F to_cam;
+    G3DVECTOR3F sign;
     float RMX[0x10];
     float LCX[0x10];
-    G3DVECTOR localpos = { csr->pivot.x, 
-                           csr->pivot.y, 
-                           csr->pivot.z, 
-                           1.0f };
+    G3DVECTOR3F localpos = { csr->pivot.x, 
+                             csr->pivot.y, 
+                             csr->pivot.z };
 
     g3dobject_init ( objpiv, G3DPIVOTTYPE, 0x00, "YAxis", 0x00,
                                                           g3dpivot_draw,
@@ -131,7 +130,7 @@ void g3dpivot_init ( G3DPIVOT  *piv,
 
     piv->cam = cam;
 
-    g3dvector_matrixf ( &localpos, csr->matrix, &objpiv->pos );
+    g3dvector3f_matrixf ( &localpos, csr->matrix, &objpiv->pos );
 
     g3dobject_addChild ( yaxisobj, xaxisobj, engine_flags );
     g3dobject_addChild ( xaxisobj, locam   , engine_flags );
@@ -141,21 +140,21 @@ void g3dpivot_init ( G3DPIVOT  *piv,
     g3dcore_extractRotationMatrixf ( objcam->worldMatrix, RMX );
 
     /*** Get Camera's World ZAxis orientation ***/
-    g3dvector_matrixf ( &zaxis, RMX, &camzaxis );
+    g3dvector3f_matrixf ( &zaxis, RMX, &camzaxis );
 
     /*** We dont want alignment to the Y-Axis. Our YAxisObj must remain  ***/
     /*** parallel to the working XZ plane ***/
     camzaxis.y = 0.0f;
 
     /*** Get ready for g3dvector_angle() ***/
-    g3dvector_normalize ( &camzaxis, NULL );
+    g3dvector3f_normalize ( &camzaxis );
 
     /*** Align pivot's ZAxis with camera's World ZAxis ***/
-    objpiv->rot.y = g3dvector_angle ( &camzaxis, &zaxis ) * 180 / M_PI;
+    objpiv->rot.y = g3dvector3f_angle ( &camzaxis, &zaxis ) * 180 / M_PI;
 
     /*** Determine which side of the scene we are on, so we get 360deg ***/
     /*** instead of 180deg ***/
-    g3dvector_cross ( &camzaxis, &zaxis, &sign );
+    g3dvector3f_cross ( &camzaxis, &zaxis, &sign );
 
     if ( sign.y > 0.0f ) objpiv->rot.y = -objpiv->rot.y;
 

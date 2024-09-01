@@ -94,22 +94,22 @@ void g3dplane_build ( G3DPRIMITIVE *pri, int orientation,
         posv = -radv;
 
         for ( j = 0x00; j <= nbv; j++, posv += difv, vid++ ) {
-            G3DVECTOR nor, pos;
+            G3DVECTOR3F nor, pos;
 
             switch ( data->orientation ) {
                 case PLANEXY :
-                    g3dvector_init ( &nor, 0.0f, 0.0f, 1.0f, 1.0f );
-                    g3dvector_init ( &pos, posu, posv, 0.0f, 1.0f );
+                    g3dvector3f_init ( &nor, 0.0f, 0.0f, 1.0f );
+                    g3dvector3f_init ( &pos, posu, posv, 0.0f );
                 break;
 
                 case PLANEYZ :
-                    g3dvector_init ( &nor, 1.0f, 0.0f, 0.0f, 1.0f );
-                    g3dvector_init ( &pos, 0.0f, posu, posv, 1.0f );
+                    g3dvector3f_init ( &nor, 1.0f, 0.0f, 0.0f );
+                    g3dvector3f_init ( &pos, 0.0f, posu, posv );
                 break;
 
                 case PLANEZX :
-                    g3dvector_init ( &nor, 0.0f, 1.0f, 0.0f, 1.0f );
-                    g3dvector_init ( &pos, posv, 0.0f, posu, 1.0f );
+                    g3dvector3f_init ( &nor, 0.0f, 1.0f, 0.0f );
+                    g3dvector3f_init ( &pos, posv, 0.0f, posu );
                 break;
 
                 default :
@@ -117,7 +117,7 @@ void g3dplane_build ( G3DPRIMITIVE *pri, int orientation,
             }
 
             ver[vid] = g3dvertex_new ( pos.x, pos.y, pos.z );
-            g3dvector_init    ( &ver[vid]->nor, nor.x, nor.y, nor.z, 1.0f );
+            g3dvector3f_init ( &ver[vid]->nor, nor.x, nor.y, nor.z );
             g3dmesh_addVertex ( mes, ver[vid] );
         }
     }

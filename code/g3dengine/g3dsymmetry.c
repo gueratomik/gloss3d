@@ -70,17 +70,17 @@ void g3dsymmetry_convert_r ( G3DOBJECT *obj,
 
                 while ( ltmpver ) {
                     G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-                    G3DVECTOR pos;
+                    G3DVECTOR3F pos;
 
-                    g3dvector_matrixf ( &ver->pos, symobj->worldMatrix, &pos );
-                    g3dvector_matrixf ( &pos,        ori->inverseWorldMatrix, &ver->pos );
+                    g3dvector3f_matrixf ( &ver->pos, symobj->worldMatrix, &pos );
+                    g3dvector3f_matrixf ( &pos,        ori->inverseWorldMatrix, &ver->pos );
 
                     ltmpver = ltmpver->next;
                 }
 
-                g3dvector_init ( &symobj->pos, 0.0f, 0.0f, 0.0f, 1.0f );
-                g3dvector_init ( &symobj->rot, 0.0f, 0.0f, 0.0f, 1.0f );
-                g3dvector_init ( &symobj->sca, 1.0f, 1.0f, 1.0f, 1.0f );
+                g3dvector3f_init ( &symobj->pos, 0.0f, 0.0f, 0.0f );
+                g3dvector3f_init ( &symobj->rot, 0.0f, 0.0f, 0.0f );
+                g3dvector3f_init ( &symobj->sca, 1.0f, 1.0f, 1.0f );
 
                 g3dobject_initMatrices ( symobj );
 
@@ -170,7 +170,7 @@ G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
             /*** copy and mirror vertices ***/
             while ( lver ) {
                 G3DVERTEX *ver = ( G3DVERTEX * ) lver->data;
-                G3DVECTOR pos;
+                G3DVECTOR3F pos;
 
                 ver->id = verid++;
 
@@ -186,7 +186,7 @@ G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
                      ( ver->flags & VERTEXSYMZX ) ) {
                     symver[ver->id] = oriver[ver->id];
                 } else {
-                    G3DVECTOR pos;
+                    G3DVECTOR3F pos;
 
                     g3dvector_matrix ( &ver->pos, sym->smatrix, &pos );
 
@@ -277,18 +277,18 @@ void g3dsymmetry_childVertexChange ( G3DOBJECT *obj,
                                      G3DOBJECT *kid,
                                      G3DVERTEX *ver ) {
     G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
-    G3DVECTOR zeropos = { 0.0f, 0.0f, 0.0f, 1.0f };
-    G3DVECTOR verworldpos;
-    G3DVECTOR symworldpos;
-    G3DVECTOR symlocalpos;
-    G3DVECTOR kidpos;
-    G3DVECTOR sympos;
-    G3DVECTOR newpos;
+    G3DVECTOR3F zeropos = { 0.0f, 0.0f, 0.0f };
+    G3DVECTOR3F verworldpos;
+    G3DVECTOR3F symworldpos;
+    G3DVECTOR3F symlocalpos;
+    G3DVECTOR3F kidpos;
+    G3DVECTOR3F sympos;
+    G3DVECTOR3F newpos;
 
     if ( g3dvertex_isBoundary ( ver ) ) {
         /*** Compute parent symmetry center in child's coordinates system ***/
-        g3dvector_matrixf ( &zeropos    , obj->worldMatrix , &symworldpos );
-        g3dvector_matrixf ( &symworldpos, kid->inverseWorldMatrix, &symlocalpos );
+        g3dvector3f_matrixf ( &zeropos    , obj->worldMatrix , &symworldpos );
+        g3dvector3f_matrixf ( &symworldpos, kid->inverseWorldMatrix, &symlocalpos );
 
         if ( sym->orientation == SYMMETRYZX ) {
             if ( ( ver->pos.y < ( symlocalpos.y + sym->mergelimit ) ) &&

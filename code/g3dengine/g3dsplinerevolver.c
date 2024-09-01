@@ -150,10 +150,10 @@ static uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                     G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
 
                     uint32_t offset = ( i * nbSplineVertices ) + ptID;
-                    G3DVECTOR  ptLocalPos;
+                    G3DVECTOR3F  ptLocalPos;
 
-                    g3dvector_matrixf ( &pt->pos, srvobj->localMatrix, &ptLocalPos );
-                    g3dvector_matrixf ( &ptLocalPos, RMX, &srvVertices[offset].ver.pos );
+                    g3dvector3f_matrixf ( &pt->pos, srvobj->localMatrix, &ptLocalPos );
+                    g3dvector3f_matrixf ( &ptLocalPos, RMX, &srvVertices[offset].ver.pos );
 
                     srvVertices[offset].ver.id = uniqueVertexId++;
                     srvVertices[offset].ver.flags |= VERTEXORIGINAL;
@@ -174,8 +174,8 @@ static uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
                         uint32_t offset = ( nbSplineVertices * srv->nbsteps ) +
                                           ( nbSplineSegments * srv->nbdivis * i ) +
                                           ( segmentID        * srv->nbdivis ) + j;
-                        G3DVECTOR  ptLocalPos;
-                        G3DVECTOR  ptpos;
+                        G3DVECTOR3F  ptLocalPos;
+                        G3DVECTOR3F  ptpos;
 
                         g3dcubicsegment_getPoint ( ( G3DCUBICSEGMENT * ) seg, 
                                                                          factor,
@@ -183,8 +183,8 @@ static uint32_t g3dsplinerevolver_shape ( G3DSPLINEREVOLVER *srv,
 
                         factor += incrementFactor;
 
-                        g3dvector_matrixf ( &ptpos, srvobj->localMatrix, &ptLocalPos );
-                        g3dvector_matrixf ( &ptLocalPos, RMX, &srvVertices[offset].ver.pos );
+                        g3dvector3f_matrixf ( &ptpos, srvobj->localMatrix, &ptLocalPos );
+                        g3dvector3f_matrixf ( &ptLocalPos, RMX, &srvVertices[offset].ver.pos );
 
                         srvVertices[offset].ver.id = uniqueVertexId++;
                         srvVertices[offset].ver.flags |= VERTEXORIGINAL;
@@ -360,8 +360,8 @@ static void g3dsplinerevolver_transform ( G3DSPLINEREVOLVER *srv,
 /******************************************************************************/
 static uint32_t g3dsplinerevolver_modify ( G3DSPLINEREVOLVER *srv,
                                            G3DOBJECT  *oriobj,
-                                           G3DVECTOR  *oripos,
-                                           G3DVECTOR  *orinor,
+                                           G3DVECTOR3F  *oripos,
+                                           G3DVECTOR3F  *orinor,
                                            G3DMODIFYOP op,
                                            uint64_t engine_flags ) {
     if ( srv->mod.oriobj ) {

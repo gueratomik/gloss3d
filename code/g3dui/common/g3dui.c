@@ -395,7 +395,7 @@ uint64_t g3dui_mirrorHeightmap ( G3DUI      *gui,
                     if ( fac != selfac ) {
                         if ( fac->nbver == selfac->nbver ) {
                             uint32_t mirror = 0x00;
-                            G3DVECTOR factor = { 1.0f, 1.0f, 1.0f, 0.0f };
+                            G3DVECTOR3F factor = { 1.0f, 1.0f, 1.0f };
 
                             if ( orientation == ORIENTATIONXY ) {
                                 if ( compareFloat ( fac->pos.x,  selfac->pos.x ) &&
@@ -549,7 +549,7 @@ uint64_t g3dui_fitUVMap ( G3DUI *gui ) {
         if ( map ) {
             G3DOBJECT *obj = ( G3DOBJECT * ) map;
             G3DOBJECT *parent = obj->parent;
-            G3DVECTOR vec, minpos, maxpos, locminpos, locmaxpos;
+            G3DVECTOR3F vec, minpos, maxpos, locminpos, locmaxpos;
             float parx = ( parent->bbox.xmax + parent->bbox.xmin ) / 2.0f,
                   pary = ( parent->bbox.ymax + parent->bbox.ymin ) / 2.0f,
                   parz = ( parent->bbox.zmax + parent->bbox.zmin ) / 2.0f;
@@ -563,19 +563,17 @@ uint64_t g3dui_fitUVMap ( G3DUI *gui ) {
             vec.x = parent->bbox.xmin;
             vec.y = parent->bbox.ymin;
             vec.z = parent->bbox.zmin;
-            vec.w = 1.0f;
 
-            g3dvector_matrixf ( &vec, parent->worldMatrix, &minpos );
+            g3dvector3f_matrixf ( &vec, parent->worldMatrix, &minpos );
 
             vec.x = parent->bbox.xmax;
             vec.y = parent->bbox.ymax;
             vec.z = parent->bbox.zmax;
-            vec.w = 1.0f;
 
-            g3dvector_matrixf ( &vec, parent->worldMatrix, &maxpos );
+            g3dvector3f_matrixf ( &vec, parent->worldMatrix, &maxpos );
 
-            g3dvector_matrixf ( &minpos, obj->inverseWorldMatrix, &locminpos );
-            g3dvector_matrixf ( &maxpos, obj->inverseWorldMatrix, &locmaxpos );
+            g3dvector3f_matrixf ( &minpos, obj->inverseWorldMatrix, &locminpos );
+            g3dvector3f_matrixf ( &maxpos, obj->inverseWorldMatrix, &locmaxpos );
 
             map->pln.xradius = fabs ( locminpos.x - locmaxpos.x ) * 0.5f;
             map->pln.yradius = fabs ( locminpos.y - locmaxpos.y ) * 0.5f;
@@ -744,7 +742,7 @@ uint64_t g3dui_addBone ( G3DUI *gui ) {
     G3DBONE *bon = g3dbone_new ( oid, "Bone", 1.0f );
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
-    if ( obj == NULL ) obj = sce;
+    if ( obj == NULL ) obj = ( G3DOBJECT * ) sce;
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
@@ -827,7 +825,7 @@ uint64_t g3dui_addFFDBox ( G3DUI *gui ) {
         if ( obj->type & MESH ) {
             G3DMESH  *mes = ( G3DMESH * ) obj;
             float xSize, ySize, zSize;
-            G3DVECTOR pos;
+            G3DVECTOR3F pos;
 
             g3dbbox_getSize ( &obj->bbox, &xSize, &ySize, &zSize );
 
@@ -2093,18 +2091,18 @@ void g3dui_resetDefaultCameras ( G3DUI *gui ) {
                                 CAMERAORTHOGRAPHIC | CAMERAXY | OBJECTNOROTATION,
                                 CAMERAORTHOGRAPHIC | CAMERAYZ | OBJECTNOROTATION,
                                 CAMERAORTHOGRAPHIC | CAMERAZX | OBJECTNOROTATION };
-    G3DVECTOR campos[0x04] = { {       10.0f,        3.0f,       10.0f, 1.0f },
-                               {        0.0f,        0.0f,        0.0f, 1.0f },
-                               {        0.0f,        0.0f,        0.0f, 1.0f },
-                               {        0.0f,        0.0f,        0.0f, 1.0f } },
-              camrot[0x04] = { {    -12.516f,       45.0f,        0.0f, 1.0f },
-                               {        0.0f,        0.0f,        0.0f, 1.0f },
-                               {        0.0f,      -90.0f,        0.0f, 1.0f },
-                               {      -90.0f,        0.0f,        0.0f, 1.0f } },
-              camsca[0x04] = { {        1.0f,        1.0f,        1.0f, 1.0f },
-                               {        1.0f,        1.0f,        1.0f, 1.0f },
-                               {        1.0f,        1.0f,        1.0f, 1.0f },
-                               {        1.0f,        1.0f,        1.0f, 1.0f } };
+    G3DVECTOR3F campos[0x04] = { {       10.0f,        3.0f,       10.0f },
+                                 {        0.0f,        0.0f,        0.0f },
+                                 {        0.0f,        0.0f,        0.0f },
+                                 {        0.0f,        0.0f,        0.0f } },
+                camrot[0x04] = { {    -12.516f,       45.0f,        0.0f },
+                                 {        0.0f,        0.0f,        0.0f },
+                                 {        0.0f,      -90.0f,        0.0f },
+                                 {      -90.0f,        0.0f,        0.0f } },
+                camsca[0x04] = { {        1.0f,        1.0f,        1.0f },
+                                 {        1.0f,        1.0f,        1.0f },
+                                 {        1.0f,        1.0f,        1.0f },
+                                 {        1.0f,        1.0f,        1.0f } };
     float camfoc[0x04] = { 45.0f, 2.0f, 2.0f, 2.0f };
     uint32_t i;
 
@@ -2117,9 +2115,9 @@ void g3dui_resetDefaultCameras ( G3DUI *gui ) {
 
         objcam->flags |= camflags[i];
 
-        memcpy ( &objcam->pos, &campos[i], sizeof ( G3DVECTOR ) );
-        memcpy ( &objcam->rot, &camrot[i], sizeof ( G3DVECTOR ) );
-        memcpy ( &objcam->sca, &camsca[i], sizeof ( G3DVECTOR ) );
+        memcpy ( &objcam->pos, &campos[i], sizeof ( G3DVECTOR3F ) );
+        memcpy ( &objcam->rot, &camrot[i], sizeof ( G3DVECTOR3F ) );
+        memcpy ( &objcam->sca, &camsca[i], sizeof ( G3DVECTOR3F ) );
 
         g3dobject_updateMatrix ( objcam, gui->engine_flags );
     }
@@ -2140,9 +2138,9 @@ void g3dui_resetDefaultCameras ( G3DUI *gui ) {
                 cam->obj.id = i;
 
                 /*** save initial position in order to be able to reset ***/
-                memcpy ( &view->defcampos, &objcam->pos, sizeof ( G3DVECTOR ) );
-                memcpy ( &view->defcamrot, &objcam->rot, sizeof ( G3DVECTOR ) );
-                memcpy ( &view->defcamsca, &objcam->sca, sizeof ( G3DVECTOR ) );
+                memcpy ( &view->defcampos, &objcam->pos, sizeof ( G3DVECTOR3F ) );
+                memcpy ( &view->defcamrot, &objcam->rot, sizeof ( G3DVECTOR3F ) );
+                memcpy ( &view->defcamsca, &objcam->sca, sizeof ( G3DVECTOR3F ) );
 
                 view->defcamfoc = cam->focal;
 

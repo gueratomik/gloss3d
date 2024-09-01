@@ -33,14 +33,14 @@
 void g3dchannel_getNormal ( G3DCHANNEL *cha, 
                             float       u,
                             float       v,
-                            G3DVECTOR  *nor,
+                            G3DVECTOR3F  *nor,
                             uint32_t    repeat,
                             float       precU,
                             float       precV,
                             uint32_t    fromBuffer ) {
     uint32_t channelFlags = cha->flags;
 
-    g3dvector_init ( nor, 0.0f, 0.0f, 1.0f, 1.0f );
+    g3dvector3f_init ( nor, 0.0f, 0.0f, 1.0f );
 
     if ( repeat == 0x00 ) {
         if ( ( u < 0.0f ) || ( u > 1.0f ) ||

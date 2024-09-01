@@ -130,7 +130,7 @@ void g3dedge_drawSimple ( G3DEDGE *edg,
     G3DVERTEX *v0 = edg->ver[0x00],
               *v1 = edg->ver[0x01];
 
-    G3DVECTOR *p0 = &v0->pos,
+    G3DVECTOR3F *p0 = &v0->pos,
               *p1 = &v1->pos;
 
     glBegin ( GL_LINES );
@@ -250,15 +250,15 @@ uint32_t g3dedge_isBorder ( G3DEDGE *edg ) {
 
 /******************************************************************************/
 void g3dedge_getSubdivisionNormal ( G3DEDGE   *edg,
-                                    G3DVECTOR *stkverpos,
-                                    G3DVECTOR *stkvernor,
-                                    G3DVECTOR *nor ) {
+                                    G3DVECTOR3F *stkverpos,
+                                    G3DVECTOR3F *stkvernor,
+                                    G3DVECTOR3F *nor ) {
     G3DVERTEX *v0 = edg->ver[0x00], 
               *v1 = edg->ver[0x01];
-    G3DVECTOR navg = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
+    G3DVECTOR3F navg = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
     uint32_t nbfac = edg->nbfac;
     LIST *ltmpfac = edg->lfac;
-    G3DVECTOR *n0 = g3dvertex_getModifiedNormal ( v0, stkvernor ),
+    G3DVECTOR3F *n0 = g3dvertex_getModifiedNormal ( v0, stkvernor ),
               *n1 = g3dvertex_getModifiedNormal ( v1, stkvernor );
 
     /*** Normal vector average ***/
@@ -268,7 +268,7 @@ void g3dedge_getSubdivisionNormal ( G3DEDGE   *edg,
 
     while ( ltmpfac ) {
         G3DFACE *fac = ltmpfac->data;
-        G3DVECTOR facnor;
+        G3DVECTOR3F facnor;
 
         g3dface_computeModifiedNormal ( fac,
                                         stkverpos,
@@ -294,19 +294,19 @@ void g3dedge_getSubdivisionNormal ( G3DEDGE   *edg,
     nor->z = ( ( v0->flags & VERTEXSYMXY ) &&
                ( v1->flags & VERTEXSYMXY ) ) ? 0.0f : ( navg.z / nbfac );
 
-    g3dvector_normalize ( nor, NULL );
+    g3dvector3f_normalize ( nor );
 }
 
 /******************************************************************************/
 void g3dedge_getSubdivisionPosition ( G3DEDGE   *edg,
-                                      G3DVECTOR *stkverpos,
-                                      G3DVECTOR *pos ) {
+                                      G3DVECTOR3F *stkverpos,
+                                      G3DVECTOR3F *pos ) {
     float xposmid, yposmid, zposmid;
     G3DVERTEX *v0 = edg->ver[0x00], 
               *v1 = edg->ver[0x01];
-    G3DVECTOR *p0 = g3dvertex_getModifiedPosition ( v0, stkverpos ),
+    G3DVECTOR3F *p0 = g3dvertex_getModifiedPosition ( v0, stkverpos ),
               *p1 = g3dvertex_getModifiedPosition ( v1, stkverpos );
-    G3DVECTOR favg = { .x = 0.0f, .y = 0.0f, .z = 0.0f },
+    G3DVECTOR3F favg = { .x = 0.0f, .y = 0.0f, .z = 0.0f },
               mavg = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
     uint32_t nbfac = edg->nbfac;
     LIST *ltmpfac = edg->lfac;
@@ -323,7 +323,7 @@ void g3dedge_getSubdivisionPosition ( G3DEDGE   *edg,
 
     while ( ltmpfac ) {
         G3DFACE *fac = ltmpfac->data;
-        G3DVECTOR facpos;
+        G3DVECTOR3F facpos;
 
         g3dface_computeModifiedPosition ( fac,
                                           stkverpos,
@@ -361,11 +361,11 @@ void g3dedge_getSubdivisionPosition ( G3DEDGE   *edg,
 
 /******************************************************************************/
 void g3dedge_getAverageModifiedPosition ( G3DEDGE   *edg,
-                                          G3DVECTOR *verpos,
-                                          G3DVECTOR *vout ) {
+                                          G3DVECTOR3F *verpos,
+                                          G3DVECTOR3F *vout ) {
     G3DVERTEX *v0 = edg->ver[0x00], 
               *v1 = edg->ver[0x01];
-    G3DVECTOR *p0 = g3dvertex_getModifiedPosition ( v0, verpos ),
+    G3DVECTOR3F *p0 = g3dvertex_getModifiedPosition ( v0, verpos ),
               *p1 = g3dvertex_getModifiedPosition ( v1, verpos );
 
     vout->x = ( p0->x + p1->x ) * 0.5f;
@@ -375,7 +375,7 @@ void g3dedge_getAverageModifiedPosition ( G3DEDGE   *edg,
 
 /******************************************************************************/
 void g3dedge_getAveragePosition ( G3DEDGE   *edg,
-                                  G3DVECTOR *vout ) {
+                                  G3DVECTOR3F *vout ) {
     g3dedge_getAverageModifiedPosition ( edg, NULL, vout );
 }
 
@@ -450,14 +450,14 @@ void g3dcutedge_free ( G3DCUTEDGE *cut ) {
 G3DCUTEDGE *g3dcutedge_new ( G3DEDGE   *edg,
                              G3DVERTEX *ver ) {
     G3DCUTEDGE *ced = ( G3DCUTEDGE * ) calloc ( 0x01, sizeof ( G3DCUTEDGE ) );
-    G3DVECTOR v0ver = { ver->pos.x - edg->ver[0x00]->pos.x,
-                        ver->pos.y - edg->ver[0x00]->pos.y,
-                        ver->pos.z - edg->ver[0x00]->pos.z }, 
+    G3DVECTOR3F v0ver = { ver->pos.x - edg->ver[0x00]->pos.x,
+                          ver->pos.y - edg->ver[0x00]->pos.y,
+                          ver->pos.z - edg->ver[0x00]->pos.z }, 
               v0v1 =  { edg->ver[0x01]->pos.x - edg->ver[0x00]->pos.x,
                         edg->ver[0x01]->pos.y - edg->ver[0x00]->pos.y,
                         edg->ver[0x01]->pos.z - edg->ver[0x00]->pos.z };
-    float len[0x02] = { g3dvector_length ( &v0ver ),
-                        g3dvector_length ( &v0v1  ) };
+    float len[0x02] = { g3dvector3f_length ( &v0ver ),
+                        g3dvector3f_length ( &v0v1  ) };
 
     if ( ced == NULL ) {
         fprintf ( stderr, "g3dcutedge_new: Memory allocation failed\n" );

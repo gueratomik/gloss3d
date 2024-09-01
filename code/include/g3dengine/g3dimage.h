@@ -141,7 +141,7 @@ void g3dimage_merge ( G3DIMAGE *dstimg,
 void g3dimage_getNormal ( G3DIMAGE  *img,
                           uint32_t   x, 
                           uint32_t   y,
-                          G3DVECTOR *nor );
+                          G3DVECTOR3F *nor );
 
 void g3dimage_writeToDisk ( G3DIMAGE *img );
 

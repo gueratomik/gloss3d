@@ -44,16 +44,16 @@ extern "C" {
 typedef struct _G3DPARTICLE {
     uint32_t   flags;
     G3DOBJECT *ref;
-    G3DVECTOR  pos;
-    G3DVECTOR  rot;
-    G3DVECTOR  sca;
+    G3DVECTOR3F  pos;
+    G3DVECTOR3F  rot;
+    G3DVECTOR3F  sca;
     float      MVX[0x10];
-    G3DVECTOR  speed;
-    G3DVECTOR  accel;
+    G3DVECTOR3F  speed;
+    G3DVECTOR3F  accel;
     int32_t    startAtFrame;
     float      lifeTime; /*** warning ; must be SIGNED int32_t ***/
     float      transparency;
-    G3DVECTOR  initialScaling;
+    G3DVECTOR3F  initialScaling;
 } G3DPARTICLE;
 
 /**
@@ -63,25 +63,25 @@ typedef struct _G3DPARTICLE {
 typedef struct _G3DPARTICLEEMITTER {
     G3DOBJECT    obj;
 
-    G3DVECTOR    gravity;
+    G3DVECTOR3F    gravity;
 
-    G3DVECTOR    initialAccel;
-    G3DVECTOR    initialSpeed;
-    G3DVECTOR    initialScaling;
-    G3DVECTOR    initialRotation;
+    G3DVECTOR3F    initialAccel;
+    G3DVECTOR3F    initialSpeed;
+    G3DVECTOR3F    initialScaling;
+    G3DVECTOR3F    initialRotation;
     float        initialTransparency;
 
-    G3DVECTOR    initialVarAngle;
-    G3DVECTOR    initialVarAccel;
-    G3DVECTOR    initialVarSpeed;
-    G3DVECTOR    initialVarScaling;
-    G3DVECTOR    initialVarRotation;
+    G3DVECTOR3F    initialVarAngle;
+    G3DVECTOR3F    initialVarAccel;
+    G3DVECTOR3F    initialVarSpeed;
+    G3DVECTOR3F    initialVarScaling;
+    G3DVECTOR3F    initialVarRotation;
     float        initialVarTransparency;
 
-    G3DVECTOR    finalAccel;
-    G3DVECTOR    finalSpeed;
-    G3DVECTOR    finalRotation;
-    G3DVECTOR    finalScaling;
+    G3DVECTOR3F    finalAccel;
+    G3DVECTOR3F    finalSpeed;
+    G3DVECTOR3F    finalRotation;
+    G3DVECTOR3F    finalScaling;
     float        finalTransparency;
 
     uint32_t     particleLifetime; /* in frames */

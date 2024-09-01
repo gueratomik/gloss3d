@@ -46,7 +46,7 @@ static uint32_t g3dexportv3subdivider_scultmapGeometry ( G3DEXPORTV3DATA    *ged
     switch ( sdr->sculptMode ) {
         case SCULPTMODE_SCULPT :
             size += g3dexportv3_fwrite ( esm->fse->pos,
-                                         sizeof ( G3DVECTOR ),
+                                         sizeof ( G3DVECTOR4F ),
                                          esm->fse->nbver,
                                          fdst );
         break;

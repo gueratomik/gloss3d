@@ -110,7 +110,7 @@ static int move_path ( G3DOBJECT    *obj,
     static double mouseXpress, mouseYpress;
     static float MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
-    static G3DVECTOR  origin = { 0.0f, 0.0f, 0.0f, 1.0f };
+    static G3DVECTOR3F  origin = { 0.0f, 0.0f, 0.0f };
 
     if ( obj->parent ) {
         switch ( event->type ) {
@@ -164,7 +164,7 @@ static int move_path ( G3DOBJECT    *obj,
 
                 if ( mev->state & G3DButton1Mask ) {
                     if ( engine_flags & VIEWPATH ) {
-                        G3DVECTOR *axis = sce->csr.axis;
+                        G3DVECTOR4F *axis = sce->csr.axis;
                         double difx, dify, difz;
                         uint32_t nbpt = 0x00;
 
@@ -225,7 +225,7 @@ static int move_spline ( G3DSPLINE    *spl,
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
     static URMMOVEPOINT *ump;
-    static G3DVECTOR  origin = { 0.0f, 0.0f, 0.0f, 1.0f };
+    static G3DVECTOR3F  origin = { 0.0f, 0.0f, 0.0f };
 
     switch ( event->type ) {
         case G3DButtonPress : {
@@ -292,7 +292,7 @@ static int move_spline ( G3DSPLINE    *spl,
 
             if ( mev->state & G3DButton1Mask ) {
                 if ( engine_flags & VIEWVERTEX ) {
-                    G3DVECTOR *axis = sce->csr.axis;
+                    G3DVECTOR4F *axis = sce->csr.axis;
                     LIST *ltmppt = spl->curve->lselpt;
                     double difx, dify, difz;
                     uint32_t nbpt = 0x00;
@@ -317,7 +317,7 @@ static int move_spline ( G3DSPLINE    *spl,
                         spl->curve->curhan->pos.z += difz;
                     }
 
-                    memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR ) );
+                    memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR3F ) );
 
                     while ( ltmppt ) {
                         G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
@@ -544,9 +544,9 @@ static int move_morpher ( G3DMORPHER   *mpr,
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) mpr;
     static LIST *lver, *lfac, *ledg;
-    static G3DVECTOR *oldpos;
-    static G3DVECTOR *newpos;
-    static G3DVECTOR  origin = { 0.0f, 0.0f, 0.0f, 1.0f };
+    static G3DVECTOR3F *oldpos;
+    static G3DVECTOR3F *newpos;
+    static G3DVECTOR3F  origin = { 0.0f, 0.0f, 0.0f };
 
     if ( obj->parent->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) obj->parent;
@@ -556,7 +556,7 @@ static int move_morpher ( G3DMORPHER   *mpr,
                 case G3DButtonPress : {
                     if ( engine_flags & VIEWVERTEX ) {
                         G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-                        G3DVECTOR avgpos;
+                        G3DVECTOR3F avgpos;
 
                         g3dcore_multMatrixf ( obj->worldMatrix,
                                               cam->obj.inverseWorldMatrix,
@@ -611,7 +611,7 @@ static int move_morpher ( G3DMORPHER   *mpr,
 
                     if ( mev->state & G3DButton1Mask ) {
                         if ( engine_flags & VIEWVERTEX) {
-                            G3DVECTOR *axis = sce->csr.axis;
+                            G3DVECTOR4F *axis = sce->csr.axis;
                             LIST *ltmpver = lver;
                             double difx, dify, difz;
                             uint32_t nbver = 0x00;
@@ -635,7 +635,7 @@ static int move_morpher ( G3DMORPHER   *mpr,
                                      obj->worldMatrix,
                                      sizeof ( obj->worldMatrix ) );
 
-                            memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR ) );
+                            memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR3F ) );
 
                             while ( ltmpver ) {
                                 G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -741,14 +741,14 @@ static int move_mesh ( G3DMESH      *mes,
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     static LIST *lver, *lfac, *ledg;
-    static G3DVECTOR *oldpos;
-    static G3DVECTOR *newpos;
-    static G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f };
+    static G3DVECTOR3F *oldpos;
+    static G3DVECTOR3F *newpos;
+    static G3DVECTOR3F origin = { 0.0f, 0.0f, 0.0f };
 
     switch ( event->type ) {
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-            G3DVECTOR avgpos;
+            G3DVECTOR3F avgpos;
 
             g3dcore_multMatrixf ( obj->worldMatrix,
                                   cam->obj.inverseWorldMatrix,
@@ -818,7 +818,7 @@ static int move_mesh ( G3DMESH      *mes,
                 if ( ( engine_flags & VIEWVERTEX ) ||
                      ( engine_flags & VIEWEDGE   ) ||
                      ( engine_flags & VIEWFACE   ) ) {
-                    G3DVECTOR *axis = sce->csr.axis;
+                    G3DVECTOR4F *axis = sce->csr.axis;
                     LIST *ltmpver = lver;
                     double difx, dify, difz;
                     uint32_t nbver = 0x00;
@@ -837,7 +837,7 @@ static int move_mesh ( G3DMESH      *mes,
                     dify = ( newy - oriy );
                     difz = ( newz - oriz );
 
-                    memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR ) );
+                    memset ( &sce->csr.pivot, 0x00, sizeof ( G3DVECTOR3F ) );
 
                     while ( ltmpver ) {
                         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -957,17 +957,17 @@ int move_object ( LIST        *lobj,
                   G3DURMANAGER *urm,
                   uint64_t engine_flags, 
                   G3DEvent     *event ) {
-    static G3DVECTOR vecx = { .x = 1.0f, .y = 0.0f, .z = 0.0f, .w = 1.0f },
-                     vecy = { .x = 0.0f, .y = 1.0f, .z = 0.0f, .w = 1.0f },
-                     vecz = { .x = 0.0f, .y = 0.0f, .z = 1.0f, .w = 1.0f };
+    static G3DVECTOR3F vecx = { .x = 1.0f, .y = 0.0f, .z = 0.0f },
+                       vecy = { .x = 0.0f, .y = 1.0f, .z = 0.0f },
+                       vecz = { .x = 0.0f, .y = 0.0f, .z = 1.0f };
     static double orix, oriy, oriz, newx, newy, newz,
                   winx, winy, winz;
     static double mouseXpress, mouseYpress;
     static float MVX[0x10];
     static GLint VPX[0x04];
     static LIST *lver, *lfac, *ledg;
-    static G3DVECTOR lvecx, lvecy, lvecz;
-    static G3DVECTOR startpos; /*** world original pivot ***/
+    static G3DVECTOR3F lvecx, lvecy, lvecz;
+    static G3DVECTOR3F startpos; /*** world original pivot ***/
     static uint32_t nbobj;
     static URMTRANSFORMOBJECT *uto;
     static float PREVWMVX[0x10];
@@ -1041,7 +1041,7 @@ int move_object ( LIST        *lobj,
 
             if ( mev->state & G3DButton1Mask ) {
                 double worldx, worldy, worldz;
-                G3DVECTOR endpos;
+                G3DVECTOR3F endpos;
 
                 g3dcore_unprojectf ( ( GLdouble ) mev->x,
                                      ( GLdouble ) VPX[0x03] - mev->y,
@@ -1059,24 +1059,24 @@ int move_object ( LIST        *lobj,
 
                 while ( ltmpobj ) {
                     G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
-                    G3DVECTOR dif = { 0.0f, 0.0f, 0.0f }; /** local pivot ***/
-                    G3DVECTOR lstartpos, lendpos;
-                    G3DVECTOR sca = { 1.0f, 1.0f, 1.0f, 1.0f };
+                    G3DVECTOR3F dif = { 0.0f, 0.0f, 0.0f }; /** local pivot ***/
+                    G3DVECTOR3F lstartpos, lendpos;
+                    G3DVECTOR3F sca = { 1.0f, 1.0f, 1.0f };
 
                     if ( nbobj == 0x01 ) {
                         /*** Helps with moving the mouse in the same ***/
                         /*** direcion as axises ***/
-                        g3dvector_matrixf ( &startpos,
-                                             obj->inverseWorldMatrix,
-                                           &lstartpos );
+                        g3dvector3f_matrixf ( &startpos,
+                                               obj->inverseWorldMatrix,
+                                             &lstartpos );
 
-                        g3dvector_matrixf ( &endpos,
-                                             obj->inverseWorldMatrix,
-                                            &lendpos );
+                        g3dvector3f_matrixf ( &endpos,
+                                               obj->inverseWorldMatrix,
+                                              &lendpos );
 
-                        g3dvector_matrixf ( &vecx, obj->rotationMatrix, &lvecx );
-                        g3dvector_matrixf ( &vecy, obj->rotationMatrix, &lvecy );
-                        g3dvector_matrixf ( &vecz, obj->rotationMatrix, &lvecz );
+                        g3dvector3f_matrixf ( &vecx, obj->rotationMatrix, &lvecx );
+                        g3dvector3f_matrixf ( &vecy, obj->rotationMatrix, &lvecy );
+                        g3dvector3f_matrixf ( &vecz, obj->rotationMatrix, &lvecz );
 
                         /** adjust move amplitude with scaling factor ***/
                         g3dcore_getMatrixScalef ( obj->worldMatrix, &sca );
@@ -1085,25 +1085,25 @@ int move_object ( LIST        *lobj,
                             g3dbone_updateRigs ( ( G3DBONE * ) obj, engine_flags );
                         }
                     } else {
-                        G3DVECTOR zero = { 0.0f, 0.0f, 0.0f, 1.0f }, lzero;
+                        G3DVECTOR3F zero = { 0.0f, 0.0f, 0.0f }, lzero;
 
                         /** World reference for mouse gesture ***/
-                        memcpy ( &lstartpos, &startpos, sizeof ( G3DVECTOR ) );
-                        memcpy ( &lendpos  , &endpos  , sizeof ( G3DVECTOR ) );
+                        memcpy ( &lstartpos, &startpos, sizeof ( G3DVECTOR3F ) );
+                        memcpy ( &lendpos  , &endpos  , sizeof ( G3DVECTOR3F ) );
 
                         /*** build direction vectors ***/
-                        g3dvector_matrixf ( &zero,
-                                             obj->parent->inverseWorldMatrix,
-                                           &lzero );
-                        g3dvector_matrixf ( &vecx,
-                                             obj->parent->inverseWorldMatrix,
-                                             &lvecx );
-                        g3dvector_matrixf ( &vecy,
-                                             obj->parent->inverseWorldMatrix,
-                                            &lvecy );
-                        g3dvector_matrixf ( &vecz,
-                                             obj->parent->inverseWorldMatrix,
-                                            &lvecz );
+                        g3dvector3f_matrixf ( &zero,
+                                               obj->parent->inverseWorldMatrix,
+                                             &lzero );
+                        g3dvector3f_matrixf ( &vecx,
+                                               obj->parent->inverseWorldMatrix,
+                                               &lvecx );
+                        g3dvector3f_matrixf ( &vecy,
+                                               obj->parent->inverseWorldMatrix,
+                                              &lvecy );
+                        g3dvector3f_matrixf ( &vecz,
+                                               obj->parent->inverseWorldMatrix,
+                                              &lvecz );
 
                         lvecx.x -= lzero.x;
                         lvecx.y -= lzero.y;
@@ -1177,7 +1177,7 @@ int move_object ( LIST        *lobj,
                 /*** but I'm too lazy to think of anything else ***/
                 g3dscene_updatePivot ( sce, engine_flags );
 
-                memcpy ( &startpos, &endpos, sizeof ( G3DVECTOR ) );
+                memcpy ( &startpos, &endpos, sizeof ( G3DVECTOR3F ) );
             }
         } return REDRAWVIEW | UPDATECOORDS;
 

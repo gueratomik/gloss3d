@@ -69,25 +69,25 @@ void g3dtube_build ( G3DPRIMITIVE *pri,
         for ( j = 0x00; j < slice; j++, vid++ ) {
             float cossliacc = cos ( sliacc ),
                   sinsliacc = sin ( sliacc );
-            G3DVECTOR nor, pos;
+            G3DVECTOR3F nor, pos;
 
-            g3dvector_init ( &nor, ( cossliacc ),
-                                   ( sinsliacc ),
-                                   ( 0.0f   ), 1.0f );
+            g3dvector3f_init ( &nor, ( cossliacc ),
+                                     ( sinsliacc ),
+                                     ( 0.0f   ) );
 
             /*** Inner vertices ***/
-            g3dvector_init ( &pos, ( nor.x * innerRadius ),
-                                   ( nor.y * innerRadius ),
-                                   ( capxacc ), 1.0f );
+            g3dvector3f_init ( &pos, ( nor.x * innerRadius ),
+                                     ( nor.y * innerRadius ),
+                                     ( capxacc ) );
 
             innerVer[vid] = g3dvertex_new ( pos.x, pos.y, pos.z );
 
             g3dmesh_addVertex ( mes, innerVer[vid] );
 
             /*** Outer vertices ***/
-            g3dvector_init ( &pos, ( nor.x * outerRadius ),
-                                   ( nor.y * outerRadius ),
-                                   ( capxacc ), 1.0f );
+            g3dvector3f_init ( &pos, ( nor.x * outerRadius ),
+                                     ( nor.y * outerRadius ),
+                                     ( capxacc ) );
 
             outerVer[vid] = g3dvertex_new ( pos.x, pos.y, pos.z );
 

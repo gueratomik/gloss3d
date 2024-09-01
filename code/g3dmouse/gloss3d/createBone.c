@@ -130,9 +130,9 @@ static int createBone ( G3DMOUSETOOL *mou,
 
             if ( bon ) {
                 G3DOBJECT *obj = ( G3DOBJECT * ) bon;
-                G3DVECTOR yref = { .x = 0.0f, .y = 1.0f, .z = 0.0f, .w = 1.0f },
-                          nref = { .x = 0.0f, .y = 0.0f, .z = 0.0f, .w = 1.0f },
-                          axis;
+                G3DVECTOR3F yref = { .x = 0.0f, .y = 1.0f, .z = 0.0f },
+                            nref = { .x = 0.0f, .y = 0.0f, .z = 0.0f },
+                            axis;
                 float c, s, t, tx, ty, angle, a20;
                 float len;
 
@@ -164,13 +164,13 @@ static int createBone ( G3DMOUSETOOL *mou,
                 nref.y = ( objy - obj->pos.y );
                 nref.z = ( objz - obj->pos.z );
 
-                bon->len = g3dvector_length ( &nref );
+                bon->len = g3dvector3f_length ( &nref );
 
-                g3dvector_cross ( &yref, &nref, &axis );
+                g3dvector3f_cross ( &yref, &nref, &axis );
 
-                g3dvector_normalize ( &axis, NULL );
+                g3dvector3f_normalize ( &axis );
 
-                angle = g3dvector_angle ( &yref, &nref );
+                angle = g3dvector3f_angle ( &yref, &nref );
 
                 c  = ( float ) cos ( angle );
                 s  = ( float ) sin ( angle );

@@ -158,21 +158,22 @@ static uint32_t g3dexportv2bone_fixingTransformation ( G3DEXPORTV2DATA *ged,
                                                      uint32_t       flags, 
                                                      FILE          *fdst ) {
     uint32_t size = 0x00;
+    float w = 0.0f;
 
     size += g3dexportv2_fwritef ( &bon->fixpos.x, fdst );
     size += g3dexportv2_fwritef ( &bon->fixpos.y, fdst );
     size += g3dexportv2_fwritef ( &bon->fixpos.z, fdst );
-    size += g3dexportv2_fwritef ( &bon->fixpos.w, fdst );
+    size += g3dexportv2_fwritef ( &w            , fdst );
 
     size += g3dexportv2_fwritef ( &bon->fixrot.x, fdst );
     size += g3dexportv2_fwritef ( &bon->fixrot.y, fdst );
     size += g3dexportv2_fwritef ( &bon->fixrot.z, fdst );
-    size += g3dexportv2_fwritef ( &bon->fixrot.w, fdst );
+    size += g3dexportv2_fwritef ( &w            , fdst );
 
     size += g3dexportv2_fwritef ( &bon->fixsca.x, fdst );
     size += g3dexportv2_fwritef ( &bon->fixsca.y, fdst );
     size += g3dexportv2_fwritef ( &bon->fixsca.z, fdst );
-    size += g3dexportv2_fwritef ( &bon->fixsca.w, fdst );
+    size += g3dexportv2_fwritef ( &w            , fdst );
 
     return size;
 }

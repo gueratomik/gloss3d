@@ -37,21 +37,22 @@ static uint32_t g3dexportv2uvmap_transformation ( G3DEXPORTV2DATA  *ged,
                                                 FILE           *fdst ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) uvmap;
     uint32_t size = 0x00;
+    float w = 0.0f;
 
     size += g3dexportv2_fwritef ( &obj->pos.x, fdst );
     size += g3dexportv2_fwritef ( &obj->pos.y, fdst );
     size += g3dexportv2_fwritef ( &obj->pos.z, fdst );
-    size += g3dexportv2_fwritef ( &obj->pos.w, fdst );
+    size += g3dexportv2_fwritef ( &w         , fdst );
 
     size += g3dexportv2_fwritef ( &obj->rot.x, fdst );
     size += g3dexportv2_fwritef ( &obj->rot.y, fdst );
     size += g3dexportv2_fwritef ( &obj->rot.z, fdst );
-    size += g3dexportv2_fwritef ( &obj->rot.w, fdst );
+    size += g3dexportv2_fwritef ( &w         , fdst );
 
     size += g3dexportv2_fwritef ( &obj->sca.x, fdst );
     size += g3dexportv2_fwritef ( &obj->sca.y, fdst );
     size += g3dexportv2_fwritef ( &obj->sca.z, fdst );
-    size += g3dexportv2_fwritef ( &obj->sca.w, fdst );
+    size += g3dexportv2_fwritef ( &w         , fdst );
 
     return size;
 }

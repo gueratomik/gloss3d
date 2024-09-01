@@ -92,9 +92,9 @@ static uint32_t g3dvibratortag_preAnim ( G3DVIBRATORTAG *vtag,
     float rdy =  ( ( float ) rand ( ) / RAND_MAX * 2.0f ) - 1.0f;
     float rdz =  ( ( float ) rand ( ) / RAND_MAX * 2.0f ) - 1.0f;
 /*
-    memcpy ( &vtag->pos, &obj->pos, sizeof ( G3DVECTOR ) );
-    memcpy ( &vtag->rot, &obj->rot, sizeof ( G3DVECTOR ) );
-    memcpy ( &vtag->sca, &obj->sca, sizeof ( G3DVECTOR ) );
+    memcpy ( &vtag->pos, &obj->pos, sizeof ( G3DVECTOR3F ) );
+    memcpy ( &vtag->rot, &obj->rot, sizeof ( G3DVECTOR3F ) );
+    memcpy ( &vtag->sca, &obj->sca, sizeof ( G3DVECTOR3F ) );
 */
     obj->pos.x += ( vtag->posAmp.x * rdx );
     obj->pos.y += ( vtag->posAmp.y * rdy );
@@ -117,9 +117,9 @@ static uint32_t g3dvibratortag_postAnim ( G3DVIBRATORTAG *vtag,
                                           float           frame,
                                          uint64_t        engine_flags ) {
 /*
-    memcpy ( &obj->pos, &vtag->pos, sizeof ( G3DVECTOR ) );
-    memcpy ( &obj->rot, &vtag->rot, sizeof ( G3DVECTOR ) );
-    memcpy ( &obj->sca, &vtag->sca, sizeof ( G3DVECTOR ) );
+    memcpy ( &obj->pos, &vtag->pos, sizeof ( G3DVECTOR3F ) );
+    memcpy ( &obj->rot, &vtag->rot, sizeof ( G3DVECTOR3F ) );
+    memcpy ( &obj->sca, &vtag->sca, sizeof ( G3DVECTOR3F ) );
 */
     return 0x00;
 }
@@ -177,38 +177,39 @@ G3DTAG *g3dvibratortag_new ( uint32_t id ) {
 static uint32_t g3dtrackertag_transform ( G3DTRACKERTAG *ttag,
                                           G3DOBJECT     *obj,
                                           uint64_t       engine_flags ) {
-    G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f };
-    G3DVECTOR target, wldpos;
-    G3DVECTOR up = { 0.0f, 1.0f, 0.0f, 1.0f };
+    G3DVECTOR3F origin = { 0.0f, 0.0f, 0.0f };
+    G3DVECTOR3F target, wldpos;
+    G3DVECTOR3F up = { 0.0f, 1.0f, 0.0f };
 
     if ( ttag->target ) {
         if ( g3dscene_isObjectReferred ( ttag->sce, ttag->target ) ) {
             /*** useful check in case the target has been removed but not freed ***/
             if ( ( ttag->target->flags & OBJECTORPHANED ) == 0x00 ) {
-                G3DVECTOR dir, xaxis = { 0.0f, 0.0f, 0.0f, 1.0f }, 
-                               yaxis = { 0.0f, 0.0f, 0.0f, 1.0f }, 
-                               zaxis = { 0.0f, 0.0f, 0.0f, 1.0f };
-                G3DVECTOR objrot;
+                G3DVECTOR3F dir,
+                            xaxis = { 0.0f, 0.0f, 0.0f }, 
+                            yaxis = { 0.0f, 0.0f, 0.0f }, 
+                            zaxis = { 0.0f, 0.0f, 0.0f };
+                G3DVECTOR3F objrot;
                 float RX[0x10];
 
-                g3dvector_matrixf ( &origin, ttag->target->worldMatrix, &wldpos );
-                g3dvector_matrixf ( &wldpos, obj->parent->inverseWorldMatrix, &target );
+                g3dvector3f_matrixf ( &origin, ttag->target->worldMatrix, &wldpos );
+                g3dvector3f_matrixf ( &wldpos, obj->parent->inverseWorldMatrix, &target );
 
                 dir.x = target.x - obj->pos.x;
                 dir.y = target.y - obj->pos.y;
                 dir.z = target.z - obj->pos.z;
 
-                g3dvector_normalize ( &dir, NULL );
+                g3dvector3f_normalize ( &dir );
 
                 g3dcore_identityMatrixf ( RX );
 
                 switch ( ttag->orientation ) {
                     case TARGET_XAXIS :
-                        g3dvector_cross ( &up, &dir, &yaxis );
-                        g3dvector_normalize ( &yaxis, NULL );
+                        g3dvector3f_cross ( &up, &dir, &yaxis );
+                        g3dvector3f_normalize ( &yaxis );
 
-                        g3dvector_cross ( &dir, &yaxis, &zaxis );
-                        g3dvector_normalize ( &zaxis, NULL );
+                        g3dvector3f_cross ( &dir, &yaxis, &zaxis );
+                        g3dvector3f_normalize ( &zaxis );
 
                         RX[0x00] = dir.x;
                         RX[0x04] = yaxis.x;
@@ -224,11 +225,11 @@ static uint32_t g3dtrackertag_transform ( G3DTRACKERTAG *ttag,
                     break;
 
                     case TARGET_YAXIS :
-                        g3dvector_cross ( &up, &dir, &zaxis );
-                        g3dvector_normalize ( &zaxis, NULL );
+                        g3dvector3f_cross ( &up, &dir, &zaxis );
+                        g3dvector3f_normalize ( &zaxis );
 
-                        g3dvector_cross ( &dir, &zaxis, &xaxis );
-                        g3dvector_normalize ( &xaxis, NULL );
+                        g3dvector3f_cross ( &dir, &zaxis, &xaxis );
+                        g3dvector3f_normalize ( &xaxis );
 
                         RX[0x00] = xaxis.x;
                         RX[0x04] = dir.x;
@@ -244,11 +245,11 @@ static uint32_t g3dtrackertag_transform ( G3DTRACKERTAG *ttag,
                     break;
 
                     case TARGET_ZAXIS :
-                        g3dvector_cross ( &up, &dir, &xaxis );
-                        g3dvector_normalize ( &xaxis, NULL );
+                        g3dvector3f_cross ( &up, &dir, &xaxis );
+                        g3dvector3f_normalize ( &xaxis );
 
-                        g3dvector_cross ( &dir, &xaxis, &yaxis );
-                        g3dvector_normalize ( &yaxis, NULL );
+                        g3dvector3f_cross ( &dir, &xaxis, &yaxis );
+                        g3dvector3f_normalize ( &yaxis );
 
                         RX[0x00] = xaxis.x;
                         RX[0x04] = yaxis.x;

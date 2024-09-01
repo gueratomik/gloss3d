@@ -35,7 +35,7 @@
 /******************************************************************************/
 /*https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles*/
 /* Note: yaw (z), pitch (y), roll (x) */
-void g3dcore_eulerToQuaternion ( G3DDOUBLEVECTOR *angles, G3DQUATERNION *qout ) {
+void g3dcore_eulerToQuaternion ( G3DVECTOR3D *angles, G3DQUATERNION *qout ) {
     double yaw   = angles->z;
     double pitch = angles->y;
     double roll  = angles->x;
@@ -282,12 +282,11 @@ void g3dcore_translateMatrixf( float *matrix, float x, float y, float z ) {
 }
 
 /******************************************************************************/
-void g3dcore_eulerInDegreesToQuaternion ( G3DDOUBLEVECTOR *angles, 
+void g3dcore_eulerInDegreesToQuaternion ( G3DVECTOR3D *angles, 
                                           G3DQUATERNION   *qout ) {
-    G3DDOUBLEVECTOR rad = { .x = angles->x * M_PI / 180.0f,
-                            .y = angles->y * M_PI / 180.0f,
-                            .z = angles->z * M_PI / 180.0f,
-                            .w = 1.0f };
+    G3DVECTOR3D rad = { .x = angles->x * M_PI / 180.0f,
+                        .y = angles->y * M_PI / 180.0f,
+                        .z = angles->z * M_PI / 180.0f };
 
     g3dcore_eulerToQuaternion ( &rad, qout );
 }
@@ -658,7 +657,7 @@ void g3dcore_drawZXCircle ( float    radius,
 void g3dcore_drawCircle ( uint32_t orientation,
                           float    radius,
                           uint64_t engine_flags ) {
-    static G3DVECTOR p[16] = { { .x =  1.0f          , .y =  0.0f           },
+    static G3DVECTOR3F p[16] = { { .x =  1.0f          , .y =  0.0f           },
                                { .x =  0.92387953251f, .y =  0.38268343236f },
                                { .x =  0.70710678118f, .y =  0.70710678118f },
                                { .x =  0.38268343236f, .y =  0.92387953251f },
@@ -1443,7 +1442,7 @@ void g3dcore_printMatrixd ( double *M ) {
 }
 
 /******************************************************************************/
-void g3dcore_getMatrixScaled ( double *matrix, G3DVECTOR *sca ) {
+void g3dcore_getMatrixScaled ( double *matrix, G3DVECTOR3F *sca ) {
     float xscale = 0, yscale = 0, zscale = 0;
 
     sca->x = ( float ) sqrt ( matrix[0x00] * matrix[0x00] +
@@ -1457,11 +1456,10 @@ void g3dcore_getMatrixScaled ( double *matrix, G3DVECTOR *sca ) {
     sca->z = ( float ) sqrt ( matrix[0x08] * matrix[0x08] +
                               matrix[0x09] * matrix[0x09] +
                               matrix[0x0A] * matrix[0x0A] );
-    sca->w = 1.0f;
 }
 
 /******************************************************************************/
-void g3dcore_getMatrixScalef ( float *matrix, G3DVECTOR *sca ) {
+void g3dcore_getMatrixScalef ( float *matrix, G3DVECTOR3F *sca ) {
     float xscale = 0, yscale = 0, zscale = 0;
 
     sca->x = ( float ) sqrt ( matrix[0x00] * matrix[0x00] +
@@ -1475,13 +1473,12 @@ void g3dcore_getMatrixScalef ( float *matrix, G3DVECTOR *sca ) {
     sca->z = ( float ) sqrt ( matrix[0x08] * matrix[0x08] +
                               matrix[0x09] * matrix[0x09] +
                               matrix[0x0A] * matrix[0x0A] );
-    sca->w = 1.0f;
 }
 
 /******************************************************************************/
-void g3dcore_getMatrixRotationf ( float *matrix, G3DVECTOR *rot ) {
+void g3dcore_getMatrixRotationf ( float *matrix, G3DVECTOR3F *rot ) {
     float mtmp[0x10];
-    G3DVECTOR sca;
+    G3DVECTOR3F sca;
     int i, j;
 
     memcpy ( mtmp, matrix, sizeof ( mtmp ) );
@@ -1507,13 +1504,12 @@ void g3dcore_getMatrixRotationf ( float *matrix, G3DVECTOR *rot ) {
     rot->x = rot->x * ( 180 / M_PI );
     rot->y = rot->y * ( 180 / M_PI );
     rot->z = rot->z * ( 180 / M_PI );
-    rot->w = 1.0f;
 }
 
 /******************************************************************************/
-void g3dcore_getMatrixRotationd ( double *matrix, G3DVECTOR *rot ) {
+void g3dcore_getMatrixRotationd ( double *matrix, G3DVECTOR3F *rot ) {
     double mtmp[0x10];
-    G3DVECTOR sca;
+    G3DVECTOR3F sca;
     int i, j;
 
     memcpy ( mtmp, matrix, sizeof ( mtmp ) );
@@ -1539,12 +1535,11 @@ void g3dcore_getMatrixRotationd ( double *matrix, G3DVECTOR *rot ) {
     rot->x = rot->x * ( 180 / M_PI );
     rot->y = rot->y * ( 180 / M_PI );
     rot->z = rot->z * ( 180 / M_PI );
-    rot->w = 1.0f;
 }
 
 /******************************************************************************/
 void g3dcore_extractRotationMatrixf ( float *WMX, float *RMX ) {
-    G3DVECTOR rot;
+    G3DVECTOR3F rot;
 
     g3dcore_getMatrixRotationf ( WMX, &rot );
 
@@ -1556,7 +1551,7 @@ void g3dcore_extractRotationMatrixf ( float *WMX, float *RMX ) {
 
 /******************************************************************************/
 void g3dcore_extractRotationMatrixd ( double *WMX, double *RMX ) {
-    G3DVECTOR rot;
+    G3DVECTOR3F rot;
 
     g3dcore_getMatrixRotationd ( WMX, &rot );
 
@@ -1567,34 +1562,30 @@ void g3dcore_extractRotationMatrixd ( double *WMX, double *RMX ) {
 }
 
 /******************************************************************************/
-void g3dcore_getMatrixTranslationf ( float *matrix, G3DVECTOR *pos ) {
+void g3dcore_getMatrixTranslationf ( float *matrix, G3DVECTOR3F *pos ) {
     pos->x = matrix[0x0C];
     pos->y = matrix[0x0D];
     pos->z = matrix[0x0E];
-    pos->w = 1.0f;
 }
 
 /******************************************************************************/
-void g3dcore_getMatrixTranslationd ( double *matrix, G3DVECTOR *pos ) {
+void g3dcore_getMatrixTranslationd ( double *matrix, G3DVECTOR3F *pos ) {
     pos->x = matrix[0x0C];
     pos->y = matrix[0x0D];
     pos->z = matrix[0x0E];
-    pos->w = 1.0f;
 }
 
 /******************************************************************************/
-float g3dcore_intersect ( G3DVECTOR *plane,
-                          G3DVECTOR *p1,
-                          G3DVECTOR *p2,
-                          G3DVECTOR *pout ) {
-    G3DVECTOR p1mp2 = { .x = p1->x - p2->x,
-                        .y = p1->y - p2->y,
-                        .z = p1->z - p2->z,
-                        .w = 1.0f };
-    G3DVECTOR dir = { .x = p2->x - p1->x,
-                      .y = p2->y - p1->y,
-                      .z = p2->z - p1->z,
-                      .w = 1.0f };
+uint32_t g3dcore_intersect ( G3DVECTOR4F *plane,
+                             G3DVECTOR3F *p1,
+                             G3DVECTOR3F *p2,
+                             G3DVECTOR4F *pout ) {
+    G3DVECTOR3F p1mp2 = { .x = p1->x - p2->x,
+                          .y = p1->y - p2->y,
+                          .z = p1->z - p2->z };
+    G3DVECTOR3F dir = { .x = p2->x - p1->x,
+                        .y = p2->y - p1->y,
+                        .z = p2->z - p1->z };
     float vo =  ( ( plane->x * p1->x ) +
                   ( plane->y * p1->y ) +
                   ( plane->z * p1->z ) ) + plane->w,
@@ -1603,7 +1594,7 @@ float g3dcore_intersect ( G3DVECTOR *plane,
                ( plane->z * p1mp2.z );
     float t;
 
-    if ( vd == 0.0f ) return 0.0f;
+    if ( vd == 0.0f ) return 0x00;
 
     t = ( vo / vd );
 
@@ -1615,11 +1606,11 @@ float g3dcore_intersect ( G3DVECTOR *plane,
             /*** store the distance we got ***/
             pout->w = t;
 
-            return t;
+            return 0x01;
         /*}*/
     /*}*/
 
-    return 0.0f;
+    return 0x00;
 }
 
 /******************************************************************************/

@@ -61,13 +61,13 @@ static G3DOBJECT *g3dffd_commit ( G3DFFD        *ffd,
             G3DMESH *cpymes = g3dmesh_new ( ((G3DOBJECT*)parmes)->id,
                                             ((G3DOBJECT*)parmes)->name, 
                                             engine_flags );
-            G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f }, wmespos, lmespos;
+            G3DVECTOR3F origin = { 0.0f, 0.0f, 0.0f }, wmespos, lmespos;
             uint32_t i;
 
             /*** readjust point position to keep the same matrix as the ***/
             /*** modified mesh ***/
-            g3dvector_matrixf ( &origin, ffd->mod.oriobj->worldMatrix, &wmespos );
-            g3dvector_matrixf ( &wmespos, ffd->mod.mes.obj.inverseWorldMatrix, &lmespos );
+            g3dvector3f_matrixf ( &origin, ffd->mod.oriobj->worldMatrix, &wmespos );
+            g3dvector3f_matrixf ( &wmespos, ffd->mod.mes.obj.inverseWorldMatrix, &lmespos );
 
             for ( i = 0x00; i < parmes->nbver; i++ ) {
                 ffd->mod.verpos[i].x -= lmespos.x;
@@ -99,19 +99,18 @@ static G3DOBJECT *g3dffd_commit ( G3DFFD        *ffd,
 
 /******************************************************************************/
 static void g3dffd_getDeformedPosition ( G3DFFD    *ffd,
-                                         G3DVECTOR *uvw,
-                                         G3DVECTOR *oripos,
-                                         G3DVECTOR *altpos ) {
+                                         G3DVECTOR3F *uvw,
+                                         G3DVECTOR3F *oripos,
+                                         G3DVECTOR3F *altpos ) {
     float xaxis = ( ffd->locmax.x - ffd->locmin.x ),
           yaxis = ( ffd->locmax.y - ffd->locmin.y ),
           zaxis = ( ffd->locmax.z - ffd->locmin.z );
     float difx = ( 1.0f / ffd->nbx ),
           dify = ( 1.0f / ffd->nby ),
           difz = ( 1.0f / ffd->nbz );
-    G3DVECTOR vi = { .x = 0.0f, 
+    G3DVECTOR3F vi = { .x = 0.0f, 
                      .y = 0.0f, 
-                     .z = 0.0f, 
-                     .w = 1.0f };
+                     .z = 0.0f };
     uint32_t n = 0x00, i, j, k;
 
     /*** altered points within the FFD ***/
@@ -120,11 +119,11 @@ static void g3dffd_getDeformedPosition ( G3DFFD    *ffd,
     altpos->z = ffd->parmin.z;
 
     for ( i = 0x00; i <= ffd->nbx; i++ ) {
-        G3DVECTOR vj = { .x = 0.0f, .y = 0.0f, .z = 0.0f, .w = 1.0f };
+        G3DVECTOR3F vj = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
         double bui = binomialcoeff ( ffd->nbx, i );
 
         for ( j = 0x00; j <= ffd->nby; j++ ) {
-            G3DVECTOR vk = { .x = 0.0f, .y = 0.0f, .z = 0.0f, .w = 1.0f };
+            G3DVECTOR3F vk = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
             double buj = binomialcoeff ( ffd->nby, j );
 
             for ( k = 0x00; k <= ffd->nbz; k++ ) {
@@ -161,10 +160,10 @@ static uint32_t g3dffd_modify ( G3DFFD     *ffd,
     if ( ffd->mod.oriobj ) {
         if ( ffd->mod.oriobj->type & MESH ) {
             G3DMESH *orimes = ( G3DMESH * ) ffd->mod.oriobj;
-            G3DVECTOR origin = { 0.0f, 0.0f, 0.0f, 1.0f }, wmespos, lmespos;
+            G3DVECTOR3F origin = { 0.0f, 0.0f, 0.0f }, wmespos, lmespos;
 
-            g3dvector_matrixf ( &origin, ffd->mod.oriobj->worldMatrix, &wmespos );
-            g3dvector_matrixf ( &wmespos, ffd->mod.mes.obj.inverseWorldMatrix, &lmespos );
+            g3dvector3f_matrixf ( &origin, ffd->mod.oriobj->worldMatrix, &wmespos );
+            g3dvector3f_matrixf ( &wmespos, ffd->mod.mes.obj.inverseWorldMatrix, &lmespos );
 
             if ( orimes->nbver ) {
                 uint32_t i, j, k;
@@ -185,15 +184,15 @@ static uint32_t g3dffd_modify ( G3DFFD     *ffd,
                 if ( op == G3DMODIFYOP_UPDATESELF ) ltmpver = orimes->lver;
 
                 if ( op == G3DMODIFYOP_MODIFY ) {
-                    ffd->mod.verpos = ( G3DVECTOR * ) realloc ( ffd->mod.verpos, 
+                    ffd->mod.verpos = ( G3DVECTOR3F * ) realloc ( ffd->mod.verpos, 
                                                                 orimes->nbver * 
-                                                                sizeof ( G3DVECTOR ) );
-                    ffd->mod.vernor = ( G3DVECTOR * ) realloc ( ffd->mod.vernor, 
+                                                                sizeof ( G3DVECTOR3F ) );
+                    ffd->mod.vernor = ( G3DVECTOR3F * ) realloc ( ffd->mod.vernor, 
                                                                 orimes->nbver *  
-                                                                sizeof ( G3DVECTOR ) );
-                    ffd->uvw        = ( G3DVECTOR * ) realloc ( ffd->uvw, 
+                                                                sizeof ( G3DVECTOR3F ) );
+                    ffd->uvw        = ( G3DVECTOR3F * ) realloc ( ffd->uvw, 
                                                                 orimes->nbver *
-                                                                sizeof ( G3DVECTOR ) );
+                                                                sizeof ( G3DVECTOR3F ) );
                 }
 
                 x = 0.0f;
@@ -213,9 +212,9 @@ static uint32_t g3dffd_modify ( G3DFFD     *ffd,
 
                 while ( ltmpver ) {
                     G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
-                    G3DVECTOR *uvw = &ffd->uvw[ver->id];
-                    G3DVECTOR *verpos = ( ffd->mod.stkpos ) ? &ffd->mod.stkpos[ver->id] : &ver->pos;
-                    G3DVECTOR *altpos = &ffd->mod.verpos[ver->id];
+                    G3DVECTOR3F *uvw = &ffd->uvw[ver->id];
+                    G3DVECTOR3F *verpos = ( ffd->mod.stkpos ) ? &ffd->mod.stkpos[ver->id] : &ver->pos;
+                    G3DVECTOR3F *altpos = &ffd->mod.verpos[ver->id];
 
                     if ( ( verpos->x >= ffd->parmin.x ) && ( verpos->x <= ffd->parmax.x ) &&
                          ( verpos->y >= ffd->parmin.y ) && ( verpos->y <= ffd->parmax.y ) &&
@@ -224,16 +223,13 @@ static uint32_t g3dffd_modify ( G3DFFD     *ffd,
                         ffd->uvw[ver->id].x = ( verpos->x - ffd->parmin.x ) / xaxis;
                         ffd->uvw[ver->id].y = ( verpos->y - ffd->parmin.y ) / yaxis;
                         ffd->uvw[ver->id].z = ( verpos->z - ffd->parmin.z ) / zaxis;
-                        ffd->uvw[ver->id].w = 1.0f;
 
                         g3dffd_getDeformedPosition ( ffd,
                                                      uvw,
                                                      verpos,
                                                      altpos );
                     } else {
-                        ffd->uvw[ver->id].w = 0.0f;
-
-                        memcpy ( altpos, verpos, sizeof ( G3DVECTOR ) );
+                        memcpy ( altpos, verpos, sizeof ( G3DVECTOR3F ) );
                     }
 
                     altpos->x += lmespos.x;
@@ -283,8 +279,8 @@ void g3dffd_activate ( G3DFFD *ffd, uint64_t engine_flags ) {
     if ( parent ) {
         G3DMESH *parmes = ( G3DMESH * ) parent;
 
-        g3dvector_matrixf ( &ffd->locmin, obj->localMatrix, &ffd->parmin );
-        g3dvector_matrixf ( &ffd->locmax, obj->localMatrix, &ffd->parmax );
+        g3dvector3f_matrixf ( &ffd->locmin, obj->localMatrix, &ffd->parmin );
+        g3dvector3f_matrixf ( &ffd->locmax, obj->localMatrix, &ffd->parmax );
 
         g3dmesh_modify ( parmes, 
                          G3DMODIFYOP_MODIFY, 

@@ -44,9 +44,9 @@ void g3dsphere_size ( G3DPRIMITIVE *pri, float radius ) {
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
 
-        g3dvector_init ( &ver->pos, ( ver->nor.x * radius ),
-                                    ( ver->nor.y * radius ),
-                                    ( ver->nor.z * radius ), 1.0f );
+        g3dvector3f_init ( &ver->pos, ( ver->nor.x * radius ),
+                                      ( ver->nor.y * radius ),
+                                      ( ver->nor.z * radius ) );
 
         ltmpver = ltmpver->next;
     }
@@ -78,7 +78,7 @@ void g3dsphere_build ( G3DPRIMITIVE *pri, int slice,
     G3DVERTEX **capver = ver;        /*** 2 Cap vertices ***/
     G3DVERTEX **bdyver = ver + 0x02; /*** N Body vertices ***/
     uint32_t vid = 0x00; /*** 0 is the first vertex, 1 is the last vertex ***/
-    G3DVECTOR nor, pos;
+    G3DVECTOR3F nor, pos;
     G3DFACE *fac;
 
     g3dmesh_empty ( mes );
@@ -89,12 +89,12 @@ void g3dsphere_build ( G3DPRIMITIVE *pri, int slice,
 
     /*** first vertex ***/
     capver[0x00] = g3dvertex_new ( 0.0f, 0.0f, 0.0f );
-    g3dvector_init    ( &capver[0x00]->nor, 0.0f,  1.0f, 0.0f, 1.0f );
+    g3dvector3f_init    ( &capver[0x00]->nor, 0.0f,  1.0f, 0.0f );
     g3dmesh_addVertex ( mes, capver[0x00] );
 
     /*** last vertex ***/
     capver[0x01] = g3dvertex_new ( 0.0f, 0.0f, 0.0f );
-    g3dvector_init    ( &capver[0x01]->nor, 0.0f, -1.0f, 0.0f, 1.0f );
+    g3dvector3f_init    ( &capver[0x01]->nor, 0.0f, -1.0f, 0.0f );
     g3dmesh_addVertex ( mes, capver[0x01] );
 
     /*** Vertices creation ***/
@@ -108,12 +108,12 @@ void g3dsphere_build ( G3DPRIMITIVE *pri, int slice,
             float cossliacc = cos ( sliacc ),
                   sinsliacc = sin ( sliacc );
 
-            g3dvector_init ( &nor, ( sinsliacc * sincapacc ),
-                                   ( coscapacc             ),
-                                   ( cossliacc * sincapacc ), 1.0f );
+            g3dvector3f_init ( &nor, ( sinsliacc * sincapacc ),
+                                     ( coscapacc             ),
+                                     ( cossliacc * sincapacc ) );
 
             bdyver[vid] = g3dvertex_new ( 0.0f, 0.0f, 0.0f );
-            g3dvector_init    ( &bdyver[vid]->nor, nor.x, nor.y, nor.z, 1.0f );
+            g3dvector3f_init    ( &bdyver[vid]->nor, nor.x, nor.y, nor.z );
             g3dmesh_addVertex ( mes, bdyver[vid] );
 
             vid++;

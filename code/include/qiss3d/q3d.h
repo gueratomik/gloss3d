@@ -606,7 +606,7 @@ typedef struct _Q3DSCENE {
 typedef struct _Q3DLIGHT {
     Q3DOBJECT   qobj;
     Q3DVECTOR3F wpos; /*** Face position in World coord ***/
-    G3DVECTOR   zvec; /*** light orientation vector for spots (Z-oriented) ***/
+    Q3DVECTOR3F zvec; /*** light orientation vector for spots (Z-oriented) ***/
 } Q3DLIGHT;
 
 /******************************************************************************/

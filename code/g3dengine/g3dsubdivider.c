@@ -81,7 +81,7 @@ void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
                     fse->hei = NULL;
                 }
 
-                fse->pos = realloc ( fse->pos, sizeof ( G3DVECTOR ) * nbVerticesPerPolygon );
+                fse->pos = realloc ( fse->pos, sizeof ( *fse->pos ) * nbVerticesPerPolygon );
             break;
 
             default :
@@ -213,12 +213,12 @@ void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
                                    G3DFACESCULPTEXTENSION *dst,
                                    G3DFACE                *dstfac,
                                    uint32_t               *mapping,
-                                   G3DVECTOR              *factor,
+                                   G3DVECTOR3F              *factor,
                                    uint32_t                sculptMode ) {
-    G3DVECTOR fac = ( factor == NULL ) ? (G3DVECTOR) { .x = 1.0f,
+    G3DVECTOR3F fac = ( factor == NULL ) ? (G3DVECTOR3F) { .x = 1.0f,
                                                        .y = 1.0f,
                                                        .z = 1.0f } : 
-                                         (G3DVECTOR) { .x = factor->x,
+                                         (G3DVECTOR3F) { .x = factor->x,
                                                        .y = factor->y, 
                                                        .z = factor->z };
 
@@ -226,7 +226,7 @@ void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
 
     switch ( sculptMode ) {
         case SCULPTMODE_SCULPT :
-            dst->pos = realloc ( dst->pos, sizeof ( G3DVECTOR ) * dst->nbver );
+            dst->pos = realloc ( dst->pos, sizeof ( G3DVECTOR3F ) * dst->nbver );
         break;
 
         default :
@@ -237,7 +237,7 @@ void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
     if ( dst->nbver ) {
         switch ( sculptMode ) {
             case SCULPTMODE_SCULPT :
-                memset ( dst->pos, 0x00, sizeof ( G3DVECTOR ) * dst->nbver );
+                memset ( dst->pos, 0x00, sizeof ( G3DVECTOR3F ) * dst->nbver );
             break;
 
             default :
@@ -249,7 +249,7 @@ void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
             switch ( sculptMode ) {
                 case SCULPTMODE_SCULPT :
                     memcpy ( dst->pos, 
-                             src->pos, sizeof ( G3DVECTOR ) * dst->nbver );
+                             src->pos, sizeof ( G3DVECTOR3F ) * dst->nbver );
                 break;
 
                 default :
@@ -347,7 +347,7 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
                 G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
                 LIST *ltmpfac = mes->lfac;
                 G3DHEIGHT *hei = NULL;
-                G3DVECTOR *pos = NULL;
+                G3DVECTOR4F *pos = NULL;
                 uint32_t nbFacesPerTriangle, 
                          nbEdgesPerTriangle,
                          nbVerticesPerTriangle;
@@ -395,9 +395,9 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
                                                              SUBDIVISIONNOELEVATE,
                                                              engine_flags );
 
-                                pos = ( G3DVECTOR * ) realloc ( pos, fse->nbver * sizeof ( G3DVECTOR ) ); 
+                                pos = ( G3DVECTOR4F * ) realloc ( pos, fse->nbver * sizeof ( *fse->pos ) ); 
 
-                                memset ( pos, 0x00, fse->nbver * sizeof ( G3DVECTOR ) );
+                                memset ( pos, 0x00, fse->nbver * sizeof ( *fse->pos ) );
 
                                 for ( i = 0x00; i < fse->nbver; i++ ) {
 
@@ -418,7 +418,7 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
 
                                 for ( i = 0x00; i < fse->nbver; i++ ) {
                                     if ( fse->pos[i].w ) {
-                                        hei[i].s = g3dvector_length ( &fse->pos[i] );
+                                        hei[i].s = g3dvector3f_length ( ( G3DVECTOR3F * ) &fse->pos[i] );
                                     }
 
                                     hei[i].w = fse->pos[i].w;
@@ -435,7 +435,7 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
                             case SCULPTMODE_SCULPT :
                                 memcpy ( fse->pos, 
                                               pos,
-                                         fse->nbver * sizeof ( G3DVECTOR ) );
+                                         fse->nbver * sizeof ( G3DVECTOR3F ) );
                             break;
 
                             default :
@@ -689,8 +689,8 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                                                                  uint32_t, /* nbuv */
                                                                  void * ),
                                                   void (*Dump) ( G3DFACE *,
-                                                                 G3DVECTOR *,
-                                                                 G3DVECTOR *,
+                                                                 G3DVECTOR3F *,
+                                                                 G3DVECTOR3F *,
                                                                  void * ),
                                                   void *data,
                                                   uint64_t engine_flags ) {

@@ -45,7 +45,7 @@ void g3dsubvertex_elevate ( G3DSUBVERTEX *subver,
                             uint32_t    (*tri_indexes)[0x04],
                             uint32_t    (*qua_indexes)[0x04],
                             uint32_t      sculptMode ) {
-    G3DVECTOR pos = { 0.0f, 0.0f, 0.0f, 1.0f };
+    G3DVECTOR3F pos = { 0.0f, 0.0f, 0.0f };
     G3DHEIGHT hei = { 0.0f, 0.0f };
     LIST *ltmpfac = subver->ver.lfac;
     uint32_t nbfac = 0x00;

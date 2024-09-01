@@ -35,16 +35,16 @@ typedef struct _URMMORPHERMOVEVERTICES {
     G3DMORPHER         *mpr;
     G3DMORPHERMESHPOSE *mpose;
     LIST               *lver;
-    G3DVECTOR          *oldpos;
-    G3DVECTOR          *newpos;
+    G3DVECTOR3F          *oldpos;
+    G3DVECTOR3F          *newpos;
 } URMMORPHERMOVEVERTICES;
 
 /******************************************************************************/
 static URMMORPHERMOVEVERTICES *urmMorpherMoveVertices_new ( G3DMORPHER         *mpr,
                                                             G3DMORPHERMESHPOSE *mpose,
                                                             LIST               *lver,
-                                                            G3DVECTOR          *oldpos,
-                                                            G3DVECTOR          *newpos ) {
+                                                            G3DVECTOR3F          *oldpos,
+                                                            G3DVECTOR3F          *newpos ) {
     uint32_t structsize = sizeof ( URMMORPHERMOVEVERTICES );
 
     URMMORPHERMOVEVERTICES *mmv = ( URMMORPHERMOVEVERTICES * ) calloc ( 0x01, structsize );
@@ -100,7 +100,7 @@ static void morpherMoveVertices_undo ( G3DURMANAGER *urm,
                                                                  mpose,
                                                                  NULL );
 
-        memcpy ( &vpose->pos, &mmv->oldpos[verID++], sizeof ( G3DVECTOR ) );
+        memcpy ( &vpose->pos, &mmv->oldpos[verID++], sizeof ( G3DVECTOR3F ) );
 
         ltmpver = ltmpver->next;
     }
@@ -123,7 +123,7 @@ static void morpherMoveVertices_redo ( G3DURMANAGER *urm,
                                                                  NULL,
                                                                  NULL );
 
-        memcpy ( &vpose->pos, &mmv->newpos[verID++], sizeof ( G3DVECTOR ) );
+        memcpy ( &vpose->pos, &mmv->newpos[verID++], sizeof ( G3DVECTOR3F ) );
 
         ltmpver = ltmpver->next;
     }
@@ -134,8 +134,8 @@ void g3durm_morpher_moveVertices ( G3DURMANAGER       *urm,
                                    G3DMORPHER         *mpr,
                                    G3DMORPHERMESHPOSE *mpose,
                                    LIST               *lver,
-                                   G3DVECTOR          *oldpos,
-                                   G3DVECTOR          *newpos,
+                                   G3DVECTOR3F          *oldpos,
+                                   G3DVECTOR3F          *newpos,
                                    uint32_t            return_flags ) {
     URMMORPHERMOVEVERTICES *mmv;
 

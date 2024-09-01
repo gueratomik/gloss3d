@@ -49,8 +49,11 @@ void g3dbbox_adjust ( G3DBBOX *bbox, G3DVERTEX *ver ) {
 }
 
 /******************************************************************************/
-void g3dbbox_draw ( G3DBBOX *bbox, 
-                    uint64_t engine_flags ) {
+/*
+void g3dbbox_draw ( G3DBBOX   *bbox,
+                    G3DCAMERA *curcam,
+                    G3DENGINE *engine,
+                    uint64_t   engine_flags ) {
     float xlen = ( bbox->xmax - bbox->xmin ) * BBOXLEN,
           ylen = ( bbox->ymax - bbox->ymin ) * BBOXLEN,
           zlen = ( bbox->zmax - bbox->zmin ) * BBOXLEN;
@@ -73,6 +76,8 @@ void g3dbbox_draw ( G3DBBOX *bbox,
                               { -xlen, -ylen, -zlen } };
     int i;
 
+            glMultMatrixd ( selobj->wmatrix );
+
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
     glDisable ( GL_DEPTH_TEST );
     glDisable ( GL_LIGHTING );
@@ -93,3 +98,4 @@ void g3dbbox_draw ( G3DBBOX *bbox,
 
     glPopAttrib ( );
 }
+*/

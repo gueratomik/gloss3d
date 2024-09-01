@@ -64,13 +64,13 @@ void g3dedge_position ( G3DEDGE *edg, uint32_t opflags ) {
     float xposmid, yposmid, zposmid;
     G3DVERTEX *v0 = edg->ver[0x00], 
               *v1 = edg->ver[0x01];
-    G3DVECTOR *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
+    G3DVECTOR3F *p0 = ( v0->flags & VERTEXSKINNED ) ? &v0->skn : &v0->pos,
               *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos;
-    G3DVECTOR *n0 = &v0->nor,
+    G3DVECTOR3F *n0 = &v0->nor,
               *n1 = &v1->nor;
     uint32_t nbver = 0x02;
     float nbfacdiv = ( edg->nbfac ) ? 1.0f / edg->nbfac : 0.0f;
-    G3DVECTOR favg = { .x = 0.0f, .y = 0.0f, .z = 0.0f },
+    G3DVECTOR3F favg = { .x = 0.0f, .y = 0.0f, .z = 0.0f },
               mavg = { .x = 0.0f, .y = 0.0f, .z = 0.0f },
               navg = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
 
@@ -225,8 +225,8 @@ uint32_t g3dsubedge_createFaceInnerEdge ( G3DSUBEDGE    *subedg,
         if ( subfac != (G3DSUBFACE*) faccmp ) {
             subfac->subver = (G3DVERTEX*) ((G3DSUBVERTEX*)(*subverptr)++);
 
-            memcpy ( &subfac->subver->pos, &subfac->fac.pos, sizeof ( G3DVECTOR ) );
-            memcpy ( &subfac->subver->nor, &subfac->fac.nor, sizeof ( G3DVECTOR ) );
+            memcpy ( &subfac->subver->pos, &subfac->fac.pos, sizeof ( G3DVECTOR3F ) );
+            memcpy ( &subfac->subver->nor, &subfac->fac.nor, sizeof ( G3DVECTOR3F ) );
 
 /*** TODO: this steps is unnecessary when there is no displacement ***/
 /*** for faces different than the central face (the face getting subdivided)***/

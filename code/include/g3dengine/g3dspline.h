@@ -86,7 +86,7 @@ void g3dspline_modify ( G3DSPLINE  *spl,
                         G3DMODIFYOP op,
                         uint64_t    engine_flags );
 
-void g3dcurvepoint_getAveragePositionFromList ( LIST *lpt, G3DVECTOR *pos );
+void g3dcurvepoint_getAveragePositionFromList ( LIST *lpt, G3DVECTOR3F *pos );
 
 #ifdef __cplusplus
 }

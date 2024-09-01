@@ -32,11 +32,11 @@
 /******************************************************************************/
 void g3dcamera_exportPov ( G3DCAMERA *cam, FILE *fdst, uint32_t save_flags ) {
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
-    G3DVECTOR local  = { 0.0f, 0.0f, 0.0f, 1.0f }, pos, rot;
-    G3DVECTOR lookat = { 0.0f, 0.0f,-1.0f, 1.0f }, to;
+    G3DVECTOR3F local  = { 0.0f, 0.0f, 0.0f }, pos, rot;
+    G3DVECTOR3F lookat = { 0.0f, 0.0f,-1.0f }, to;
 
-    g3dvector_matrixf ( &local , objcam->worldMatrix, &pos );
-    g3dvector_matrixf ( &lookat, objcam->worldMatrix, &to  );
+    g3dvector3f_matrixf ( &local , objcam->worldMatrix, &pos );
+    g3dvector3f_matrixf ( &lookat, objcam->worldMatrix, &to  );
 
     g3dcore_getMatrixRotationf ( objcam->worldMatrix, &rot );
 
@@ -63,20 +63,20 @@ void g3dmesh_exportPov ( G3DMESH *mes, FILE *fdst, uint32_t save_flags ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
         if ( fac->nbver == 0x03 ) {
-            G3DVECTOR pos0, pos1, pos2;
-            G3DVECTOR nor0, nor1, nor2;
+            G3DVECTOR3F pos0, pos1, pos2;
+            G3DVECTOR3F nor0, nor1, nor2;
 
-            g3dvector_matrixf ( &fac->ver[0x00]->pos, objmes->worldMatrix, &pos0 );
-            g3dvector_matrixf ( &fac->ver[0x01]->pos, objmes->worldMatrix, &pos1 );
-            g3dvector_matrixf ( &fac->ver[0x02]->pos, objmes->worldMatrix, &pos2 );
+            g3dvector3f_matrixf ( &fac->ver[0x00]->pos, objmes->worldMatrix, &pos0 );
+            g3dvector3f_matrixf ( &fac->ver[0x01]->pos, objmes->worldMatrix, &pos1 );
+            g3dvector3f_matrixf ( &fac->ver[0x02]->pos, objmes->worldMatrix, &pos2 );
 
-            g3dvector_matrixf ( &fac->ver[0x00]->nor, objmes->inverseWorldMatrix, &nor0 );
-            g3dvector_matrixf ( &fac->ver[0x01]->nor, objmes->inverseWorldMatrix, &nor1 );
-            g3dvector_matrixf ( &fac->ver[0x02]->nor, objmes->inverseWorldMatrix, &nor2 );
+            g3dvector3f_matrixf ( &fac->ver[0x00]->nor, objmes->inverseWorldMatrix, &nor0 );
+            g3dvector3f_matrixf ( &fac->ver[0x01]->nor, objmes->inverseWorldMatrix, &nor1 );
+            g3dvector3f_matrixf ( &fac->ver[0x02]->nor, objmes->inverseWorldMatrix, &nor2 );
 
-            g3dvector_normalize ( &nor0, NULL );
-            g3dvector_normalize ( &nor1, NULL );
-            g3dvector_normalize ( &nor2, NULL );
+            g3dvector3f_normalize ( &nor0 );
+            g3dvector3f_normalize ( &nor1 );
+            g3dvector3f_normalize ( &nor2 );
 
             fprintf ( fdst, "    smooth_triangle { \n"
                             "        <%f, %f, %f>, <%f, %f, %f> \n"
@@ -87,23 +87,23 @@ void g3dmesh_exportPov ( G3DMESH *mes, FILE *fdst, uint32_t save_flags ) {
                             pos1.x, pos1.y, pos1.z, nor1.x, nor1.y, nor1.z,
                             pos2.x, pos2.y, pos2.z, nor2.x, nor2.y, nor2.z );
         } else {
-            G3DVECTOR pos0, pos1, pos2, pos3;
-            G3DVECTOR nor0, nor1, nor2, nor3;
+            G3DVECTOR3F pos0, pos1, pos2, pos3;
+            G3DVECTOR3F nor0, nor1, nor2, nor3;
 
-            g3dvector_matrixf ( &fac->ver[0x00]->pos, objmes->worldMatrix, &pos0 );
-            g3dvector_matrixf ( &fac->ver[0x01]->pos, objmes->worldMatrix, &pos1 );
-            g3dvector_matrixf ( &fac->ver[0x02]->pos, objmes->worldMatrix, &pos2 );
-            g3dvector_matrixf ( &fac->ver[0x03]->pos, objmes->worldMatrix, &pos3 );
+            g3dvector3f_matrixf ( &fac->ver[0x00]->pos, objmes->worldMatrix, &pos0 );
+            g3dvector3f_matrixf ( &fac->ver[0x01]->pos, objmes->worldMatrix, &pos1 );
+            g3dvector3f_matrixf ( &fac->ver[0x02]->pos, objmes->worldMatrix, &pos2 );
+            g3dvector3f_matrixf ( &fac->ver[0x03]->pos, objmes->worldMatrix, &pos3 );
 
-            g3dvector_matrixf ( &fac->ver[0x00]->nor, objmes->inverseWorldMatrix, &nor0 );
-            g3dvector_matrixf ( &fac->ver[0x01]->nor, objmes->inverseWorldMatrix, &nor1 );
-            g3dvector_matrixf ( &fac->ver[0x02]->nor, objmes->inverseWorldMatrix, &nor2 );
-            g3dvector_matrixf ( &fac->ver[0x03]->nor, objmes->inverseWorldMatrix, &nor3 );
+            g3dvector3f_matrixf ( &fac->ver[0x00]->nor, objmes->inverseWorldMatrix, &nor0 );
+            g3dvector3f_matrixf ( &fac->ver[0x01]->nor, objmes->inverseWorldMatrix, &nor1 );
+            g3dvector3f_matrixf ( &fac->ver[0x02]->nor, objmes->inverseWorldMatrix, &nor2 );
+            g3dvector3f_matrixf ( &fac->ver[0x03]->nor, objmes->inverseWorldMatrix, &nor3 );
 
-            g3dvector_normalize ( &nor0, NULL );
-            g3dvector_normalize ( &nor1, NULL );
-            g3dvector_normalize ( &nor2, NULL );
-            g3dvector_normalize ( &nor3, NULL );
+            g3dvector3f_normalize ( &nor0 );
+            g3dvector3f_normalize ( &nor1 );
+            g3dvector3f_normalize ( &nor2 );
+            g3dvector3f_normalize ( &nor3 );
 
             fprintf ( fdst, "    smooth_triangle { \n"
                             "        <%f, %f, %f>, <%f, %f, %f> \n"

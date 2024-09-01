@@ -47,7 +47,7 @@ ffmpeg -ss 00:00:00.100 -i Untitled.avi.avi -frames:v 1 -f rawvideo -pix_fmt rgb
 void g3dimage_getNormal ( G3DIMAGE  *img,
                           uint32_t   x, 
                           uint32_t   y,
-                          G3DVECTOR *nor ) {
+                          G3DVECTOR3F *nor ) {
 /* Patterns for our vector depending on were we are on the image, to prevent:
    a forbidden memory access.
 
@@ -89,7 +89,7 @@ void g3dimage_getNormal ( G3DIMAGE  *img,
              offset1 = ( ( pt[1].y * img->width ) + pt[1].x ),
              offset2 = ( ( pt[2].y * img->width ) + pt[2].x );
     int32_t AVG0, AVG1, AVG2;
-    G3DVECTOR vec[0x02];
+    G3DVECTOR3F vec[0x02];
 
     switch ( img->bytesPerPixel ) {
         case 0x04 : {
@@ -145,9 +145,9 @@ void g3dimage_getNormal ( G3DIMAGE  *img,
     vec[0x01].y = ( float ) curpat[0x02].y;
     vec[0x01].z = ( float )( AVG2 - AVG0 ) / 255.0f;
 
-    g3dvector_cross ( &vec[0x00], &vec[0x01], nor );
+    g3dvector3f_cross ( &vec[0x00], &vec[0x01], nor );
 
-    g3dvector_normalize ( nor, NULL );
+    g3dvector3f_normalize ( nor );
 }
 
 /******************************************************************************/
@@ -200,8 +200,8 @@ void g3dimage_getNormal ( G3DIMAGE  *img,
                      G2 = srcdata[offset2][1],
                      B2 = srcdata[offset2][2],
                      AVG2 = ( R2 + G2 + B2 ) / 3;
-            G3DVECTOR vec[0x02];
-            G3DVECTOR res;
+            G3DVECTOR3F vec[0x02];
+            G3DVECTOR3F res;
                                       
             vec[0x00].x = ( float ) curpat[0x01].x;
             vec[0x00].y = ( float ) curpat[0x01].y;

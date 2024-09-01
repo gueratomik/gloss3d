@@ -306,21 +306,22 @@ static uint32_t g3dexportv3object_transformation ( G3DEXPORTV3DATA *ged,
                                                  uint32_t       flags, 
                                                  FILE          *fdst ) {
     uint32_t size = 0x00;
+    float w = 0.0f;
 
     size += g3dexportv3_fwritef ( &obj->pos.x, fdst );
     size += g3dexportv3_fwritef ( &obj->pos.y, fdst );
     size += g3dexportv3_fwritef ( &obj->pos.z, fdst );
-    size += g3dexportv3_fwritef ( &obj->pos.w, fdst );
+    size += g3dexportv3_fwritef ( &w         , fdst );
 
     size += g3dexportv3_fwritef ( &obj->rot.x, fdst );
     size += g3dexportv3_fwritef ( &obj->rot.y, fdst );
     size += g3dexportv3_fwritef ( &obj->rot.z, fdst );
-    size += g3dexportv3_fwritef ( &obj->rot.w, fdst );
+    size += g3dexportv3_fwritef ( &w         , fdst );
 
     size += g3dexportv3_fwritef ( &obj->sca.x, fdst );
     size += g3dexportv3_fwritef ( &obj->sca.y, fdst );
     size += g3dexportv3_fwritef ( &obj->sca.z, fdst );
-    size += g3dexportv3_fwritef ( &obj->sca.w, fdst );
+    size += g3dexportv3_fwritef ( &w         , fdst );
 
     return size;
 }

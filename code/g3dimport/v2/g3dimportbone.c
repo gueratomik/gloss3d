@@ -123,21 +123,22 @@ void g3dimportv2bone ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
             case SIG_OBJECT_BONE_FIXING_TRANSFORMATION : {
                 G3DBONE *bon = ( G3DBONE * ) gid->currentObject;
+                float wignored;
 
                 g3dimportv2_freadf ( &bon->fixpos.x, fsrc );
                 g3dimportv2_freadf ( &bon->fixpos.y, fsrc );
                 g3dimportv2_freadf ( &bon->fixpos.z, fsrc );
-                g3dimportv2_freadf ( &bon->fixpos.w, fsrc );
+                g3dimportv2_freadf ( &wignored     , fsrc );
 
                 g3dimportv2_freadf ( &bon->fixrot.x, fsrc );
                 g3dimportv2_freadf ( &bon->fixrot.y, fsrc );
                 g3dimportv2_freadf ( &bon->fixrot.z, fsrc );
-                g3dimportv2_freadf ( &bon->fixrot.w, fsrc );
+                g3dimportv2_freadf ( &wignored     , fsrc );
 
                 g3dimportv2_freadf ( &bon->fixsca.x, fsrc );
                 g3dimportv2_freadf ( &bon->fixsca.y, fsrc );
                 g3dimportv2_freadf ( &bon->fixsca.z, fsrc );
-                g3dimportv2_freadf ( &bon->fixsca.w, fsrc );
+                g3dimportv2_freadf ( &wignored     , fsrc );
             } break;
 
             default : {

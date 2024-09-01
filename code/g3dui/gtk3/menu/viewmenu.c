@@ -332,9 +332,9 @@ static uint64_t resetCameraCbk ( G3DUIMENU *menu,
     G3DUI *gui = menu->gui;
     G3DOBJECT *objcam = ( G3DOBJECT * ) view->cam;
 
-    memcpy ( &objcam->pos, &view->defcampos, sizeof ( G3DVECTOR ) );
-    memcpy ( &objcam->rot, &view->defcamrot, sizeof ( G3DVECTOR ) );
-    memcpy ( &objcam->sca, &view->defcamsca, sizeof ( G3DVECTOR ) );
+    memcpy ( &objcam->pos, &view->defcampos, sizeof ( G3DVECTOR3F ) );
+    memcpy ( &objcam->rot, &view->defcamrot, sizeof ( G3DVECTOR3F ) );
+    memcpy ( &objcam->sca, &view->defcamsca, sizeof ( G3DVECTOR3F ) );
 
     view->cam->focal = view->defcamfoc;
 

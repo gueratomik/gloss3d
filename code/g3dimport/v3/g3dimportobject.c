@@ -234,27 +234,28 @@ void g3dimportv3object ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             } break;
 
             case SIG_OBJECT_TRANSFORMATION : {
-                G3DVECTOR pos, rot, sca;
+                G3DVECTOR3F pos, rot, sca;
+                float wignored;
 
-                g3dimportv3_freadf ( &pos.x, fsrc );
-                g3dimportv3_freadf ( &pos.y, fsrc );
-                g3dimportv3_freadf ( &pos.z, fsrc );
-                g3dimportv3_freadf ( &pos.w, fsrc );
+                g3dimportv3_freadf ( &pos.x   , fsrc );
+                g3dimportv3_freadf ( &pos.y   , fsrc );
+                g3dimportv3_freadf ( &pos.z   , fsrc );
+                g3dimportv3_freadf ( &wignored, fsrc );
 
-                g3dimportv3_freadf ( &rot.x, fsrc );
-                g3dimportv3_freadf ( &rot.y, fsrc );
-                g3dimportv3_freadf ( &rot.z, fsrc );
-                g3dimportv3_freadf ( &rot.w, fsrc );
+                g3dimportv3_freadf ( &rot.x   , fsrc );
+                g3dimportv3_freadf ( &rot.y   , fsrc );
+                g3dimportv3_freadf ( &rot.z   , fsrc );
+                g3dimportv3_freadf ( &wignored, fsrc );
 
-                g3dimportv3_freadf ( &sca.x, fsrc );
-                g3dimportv3_freadf ( &sca.y, fsrc );
-                g3dimportv3_freadf ( &sca.z, fsrc );
-                g3dimportv3_freadf ( &sca.w, fsrc );
+                g3dimportv3_freadf ( &sca.x   , fsrc );
+                g3dimportv3_freadf ( &sca.y   , fsrc );
+                g3dimportv3_freadf ( &sca.z   , fsrc );
+                g3dimportv3_freadf ( &wignored, fsrc );
 
                 if ( gid->currentObject ) {
-                    memcpy ( &gid->currentObject->pos, &pos, sizeof ( G3DVECTOR ) );
-                    memcpy ( &gid->currentObject->rot, &rot, sizeof ( G3DVECTOR ) );
-                    memcpy ( &gid->currentObject->sca, &sca, sizeof ( G3DVECTOR ) );
+                    memcpy ( &gid->currentObject->pos, &pos, sizeof ( G3DVECTOR3F ) );
+                    memcpy ( &gid->currentObject->rot, &rot, sizeof ( G3DVECTOR3F ) );
+                    memcpy ( &gid->currentObject->sca, &sca, sizeof ( G3DVECTOR3F ) );
 
                     g3dobject_updateMatrix_r ( gid->currentObject, 0x00 );
                 }
@@ -338,7 +339,7 @@ void g3dimportv3object ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_KEY_TRANSFORMATION : {
                 uint32_t usepos, userot, usesca, key_flags = 0x00;
                 G3DKEY *unusedKeyArg = NULL;
-                G3DVECTOR pos, rot, sca;
+                G3DVECTOR3F pos, rot, sca;
                 float frame;
 
                 g3dimportv3_freadf ( &frame, fsrc );

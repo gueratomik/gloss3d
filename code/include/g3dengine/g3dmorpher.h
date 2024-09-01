@@ -46,8 +46,8 @@ extern "C" {
 
 /******************************************************************************/
 typedef struct _G3DMORPHERVERTEXPOSE {
-    G3DVECTOR pos;
-    G3DVECTOR nor;
+    G3DVECTOR3F pos;
+    G3DVECTOR3F nor;
     uint32_t  enabled;
 } G3DMORPHERVERTEXPOSE;
 
@@ -105,7 +105,7 @@ void g3dmorphermeshpose_setSelected ( G3DMORPHERMESHPOSE *mpose );
 void g3dmorpher_addVertexPose ( G3DMORPHER         *mpr,
                                 G3DVERTEX          *ver,
                                 G3DMORPHERMESHPOSE *mpose,
-                                G3DVECTOR          *vpos );
+                                G3DVECTOR3F          *vpos );
 void g3dmorpher_removeVertexPose ( G3DMORPHER         *mpr,
                                    G3DVERTEX          *ver,
                                    G3DMORPHERMESHPOSE *mpose );
@@ -114,10 +114,10 @@ G3DMORPHERMESHPOSE *g3dmorpher_getSelectedMeshPose ( G3DMORPHER *mpr );
 uint32_t g3dmorphermeshpose_getVertexPoseCount ( G3DMORPHERMESHPOSE *mpose );
 void g3dmorpher_getVertexResetPosition ( G3DMORPHER *mpr,
                                          G3DVERTEX  *ver,
-                                         G3DVECTOR  *pos );
+                                         G3DVECTOR3F  *pos );
 void g3dmorpher_setVertexResetPosition ( G3DMORPHER *mpr,
                                          G3DVERTEX  *ver,
-                                         G3DVECTOR  *pos );
+                                         G3DVECTOR3F  *pos );
 int32_t g3dmorpher_getAvailableSlot ( G3DMORPHER *mpr );
 
 void g3dmorpherkey_enableMeshPose ( G3DKEY  *key,
@@ -131,7 +131,7 @@ float g3dmorpherkey_getMeshPoseRate ( G3DKEY  *key,
                                      uint32_t slotID );
 uint32_t g3dmorpherkey_isMeshPoseEnabled ( G3DKEY  *key,
                                            uint32_t slotID );
-G3DVECTOR *g3dmorpher_getMeshPoseArrayFromList ( G3DMORPHER         *mpr,
+G3DVECTOR3F *g3dmorpher_getMeshPoseArrayFromList ( G3DMORPHER         *mpr,
                                                  G3DMORPHERMESHPOSE *mpose,
                                                  LIST               *lver );
 LIST *g3dmorpher_getMeshPoseSelectedVertices ( G3DMORPHER *mpr,
@@ -144,7 +144,7 @@ G3DMORPHERMESHPOSE *g3dmorpher_copyMeshPose ( G3DMORPHER         *mpr,
 void g3dmorpher_selectMeshVerticesFromPose ( G3DMORPHER         *mpr,
                                              G3DMORPHERMESHPOSE *mpose );
 void g3dmorpher_getAveragePositionFromSelectedVertices ( G3DMORPHER *mpr,
-                                                         G3DVECTOR  *pos );
+                                                         G3DVECTOR3F  *pos );
 void g3dmorpher_optimize ( G3DMORPHER *mpr );
 void g3dmorpher_restore ( G3DMORPHER *mpr );
 void g3dmorphermeshpose_free ( G3DMORPHERMESHPOSE *mpose );

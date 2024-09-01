@@ -59,7 +59,7 @@ static float fade ( float p1, float p2, float p ) {
 void g3dproceduralnoise_buildGradients ( G3DPROCEDURALNOISE *noise,
                                          uint32_t            nbGradientX,
                                          uint32_t            nbGradientY ) {
-    uint32_t size = sizeof ( G3DVECTOR ) * nbGradientX * nbGradientY;
+    uint32_t size = sizeof ( G3DVECTOR3F ) * nbGradientX * nbGradientY;
     int i, j, x, y;
 
     noise->nbGradientX = nbGradientX;
@@ -77,7 +77,7 @@ void g3dproceduralnoise_buildGradients ( G3DPROCEDURALNOISE *noise,
             noise->gradients[offset].y = sin(random);
             noise->gradients[offset].z = 0.0f;
 
-            g3dvector_normalize ( &noise->gradients[offset], NULL );
+            g3dvector3f_normalize ( &noise->gradients[offset] );
         }
     }
 }

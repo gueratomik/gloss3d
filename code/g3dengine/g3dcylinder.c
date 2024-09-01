@@ -61,18 +61,22 @@ void g3dcylinder_build ( G3DPRIMITIVE *pri, int slice,
         for ( j = 0x00; j < slice; j++, vid++ ) {
             float cossliacc = cos ( sliacc ),
                   sinsliacc = sin ( sliacc );
-            G3DVECTOR nor, pos;
+            G3DVECTOR3F nor, pos;
 
-            g3dvector_init ( &nor, ( cossliacc ),
-                                   ( sinsliacc ),
-                                   ( 0.0f   ), 1.0f );
+            g3dvector3f_init ( &nor,
+                               cossliacc,
+                               sinsliacc,
+                               0.0f );
 
-            g3dvector_init ( &pos, ( nor.x * radius ),
-                                   ( nor.y * radius ),
-                                   ( capxacc ), 1.0f );
+            g3dvector3f_init ( &pos, 
+                                nor.x * radius,
+                                nor.y * radius,
+                                capxacc );
 
             ver[vid] = g3dvertex_new ( pos.x, pos.y, pos.z );
-            g3dvector_init    ( &ver[vid]->nor, nor.x, nor.y, nor.z, 1.0f );
+
+            g3dvector3f_init ( &ver[vid]->nor, nor.x, nor.y, nor.z );
+
             g3dmesh_addVertex ( mes, ver[vid] );
 
             sliacc = ( sliacc + sliang );

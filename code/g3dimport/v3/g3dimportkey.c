@@ -140,7 +140,7 @@ void g3dimportv3key ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
             case SIG_OBJECT_KEY_TRANSFORMATION : {
                 uint32_t usepos, userot, usesca, key_flags = 0x00;
                 G3DKEY *unusedKeyArg = NULL;
-                G3DVECTOR pos, rot, sca;
+                G3DVECTOR3F pos, rot, sca;
                 float frame;
 
                 g3dimportv3_freadf ( &frame, fsrc );

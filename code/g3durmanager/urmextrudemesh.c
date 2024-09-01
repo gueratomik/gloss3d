@@ -36,8 +36,8 @@ static URMEXTRUDEMESH *urmextrudemesh_new ( G3DMESH   *mes,
                                             LIST      *loldfac,
                                             LIST      *lnewver,
                                             LIST      *lnewfac,
-                                            G3DVECTOR *oldpos,
-                                            G3DVECTOR *newpos ) {
+                                            G3DVECTOR3F *oldpos,
+                                            G3DVECTOR3F *newpos ) {
     uint32_t structsize = sizeof ( URMEXTRUDEMESH );
 
     URMEXTRUDEMESH *ems = ( URMEXTRUDEMESH * ) calloc ( 0x01, structsize );
@@ -158,8 +158,8 @@ void g3durm_mesh_extrude ( G3DURMANAGER *urm,
                            LIST         *loldfac,
                            LIST         *lnewver,
                            LIST         *lnewfac,
-                           G3DVECTOR    *oldpos,
-                           G3DVECTOR    *newpos,
+                           G3DVECTOR3F    *oldpos,
+                           G3DVECTOR3F    *newpos,
                            uint32_t      return_flags ) {
     URMEXTRUDEMESH *ems;
 

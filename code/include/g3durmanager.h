@@ -111,8 +111,8 @@ typedef struct _URMMOVEVERTICES {
     LIST *ledg;
     LIST *lfac;
     LIST *lsub;
-    G3DVECTOR *oldpos;
-    G3DVECTOR *newpos;
+    G3DVECTOR3F *oldpos;
+    G3DVECTOR3F *newpos;
 } URMMOVEVERTICES;
 
 /******************************************************************************/
@@ -153,7 +153,7 @@ typedef struct _URMUNTRIANGULATE {
 /******************************************************************************/
 typedef struct _URMFILLHEIGTHMAP {
     G3DSUBDIVIDER *sdr;
-    G3DVECTOR     *pos;
+    G3DVECTOR3F     *pos;
     uint32_t       nbver;
 } URMFILLHEIGTHMAP;
 
@@ -166,8 +166,8 @@ typedef struct _URMEXTRUDEMESH {
     LIST *lnewver;
     LIST *lnewedg;
     LIST *lnewfac;
-    G3DVECTOR *oldpos;
-    G3DVECTOR *newpos;
+    G3DVECTOR3F *oldpos;
+    G3DVECTOR3F *newpos;
 } URMEXTRUDEMESH;
 
 /******************************************************************************/
@@ -217,12 +217,12 @@ typedef struct _URMADDUVMAP {
 typedef struct _URMTRANSFORMOBJECT {
     LIST      *lobj;
     G3DSCENE  *sce;
-    G3DVECTOR *oldpos;
-    G3DVECTOR *oldrot;
-    G3DVECTOR *oldsca;
-    G3DVECTOR *newpos;
-    G3DVECTOR *newrot;
-    G3DVECTOR *newsca;
+    G3DVECTOR3F *oldpos;
+    G3DVECTOR3F *oldrot;
+    G3DVECTOR3F *oldsca;
+    G3DVECTOR3F *newpos;
+    G3DVECTOR3F *newrot;
+    G3DVECTOR3F *newsca;
     uint32_t   restoreAxis;
 } URMTRANSFORMOBJECT;
 
@@ -237,10 +237,10 @@ typedef struct _URMMOVEPOINT {
     G3DSPLINE     *spl;
     LIST          *lpt;    /*** list of curve points ***/
     G3DCURVEPOINT *curhan; /*** the current selected handle ***/
-    G3DVECTOR     *oldpos;
-    G3DVECTOR     *newpos;
-    G3DVECTOR      oldhanpos;
-    G3DVECTOR      newhanpos;
+    G3DVECTOR3F     *oldpos;
+    G3DVECTOR3F     *newpos;
+    G3DVECTOR3F      oldhanpos;
+    G3DVECTOR3F      newhanpos;
     uint32_t       save_type;
 } URMMOVEPOINT;
 
@@ -284,9 +284,9 @@ typedef struct _URMOBJECTPOSE {
     float      frame;
     G3DKEY    *key;
     G3DKEY    *overwrittenKey;
-    G3DVECTOR  keypos;
-    G3DVECTOR  keyrot;
-    G3DVECTOR  keysca;
+    G3DVECTOR3F  keypos;
+    G3DVECTOR3F  keyrot;
+    G3DVECTOR3F  keysca;
     LIST      *lremovedPosSegments;
     LIST      *lremovedRotSegments;
     LIST      *lremovedScaSegments;
@@ -319,7 +319,7 @@ typedef struct _URMROUNDSPLINEPOINT {
     G3DSPLINE  *spline;
     LIST       *lselectedPoints;
     LIST       *lsegments;
-    G3DVECTOR (*pos)[0x02];
+    G3DVECTOR3F (*pos)[0x02];
 } URMROUNDSPLINEPOINT;
 
 /******************************************************************************/
@@ -339,9 +339,9 @@ typedef struct _URMDELETESPLINEPOINTS {
 typedef struct _URMSCULPTFACEEXTENSION {
     G3DFACESCULPTEXTENSION *fse;
     G3DFACE                *fac;
-    G3DVECTOR              *pos;
+    G3DVECTOR4F            *pos;
     G3DHEIGHT              *hei;
-    G3DVECTOR              *nor;
+    G3DVECTOR3F            *nor;
 } URMSCULPTFACEEXTENSION;
 
 /******************************************************************************/
@@ -471,8 +471,8 @@ void g3durm_mesh_moveVertexList ( G3DURMANAGER *urm,
                                   LIST *ledg,
                                   LIST *lfac,
                                   LIST *lsub,
-                                  G3DVECTOR *oldpos,
-                                  G3DVECTOR *newpos,
+                                  G3DVECTOR3F *oldpos,
+                                  G3DVECTOR3F *newpos,
                                   uint32_t return_flags );
 
 /******************************************************************************/
@@ -490,8 +490,8 @@ void g3durm_mesh_extrude ( G3DURMANAGER *urm,
                            LIST         *loldfac,
                            LIST         *lnewver,
                            LIST         *lnewfac,
-                           G3DVECTOR    *oldpos,
-                           G3DVECTOR    *newpos,
+                           G3DVECTOR3F    *oldpos,
+                           G3DVECTOR3F    *newpos,
                            uint32_t      return_flags );
 
 /******************************************************************************/
@@ -662,7 +662,7 @@ void urmRoundSplinePoint_free ( URMROUNDSPLINEPOINT *rsp );
 URMROUNDSPLINEPOINT *urmRoundSplinePoint_new ( G3DSPLINE  *spline,
                                                LIST       *lselectedPoints,
                                                LIST       *lsegments,
-                                               G3DVECTOR (*pos)[0x02] );
+                                               G3DVECTOR3F (*pos)[0x02] );
 
 /******************************************************************************/
 void g3durm_mesh_split ( G3DURMANAGER *urm, 
@@ -738,8 +738,8 @@ void g3durm_morpher_moveVertices ( G3DURMANAGER       *urm,
                                    G3DMORPHER         *mpr,
                                    G3DMORPHERMESHPOSE *mpose,
                                    LIST               *lver,
-                                   G3DVECTOR          *oldpos,
-                                   G3DVECTOR          *newpos,
+                                   G3DVECTOR3F          *oldpos,
+                                   G3DVECTOR3F          *newpos,
                                    uint32_t            return_flags );
 
 /******************************************************************************/
@@ -841,8 +841,8 @@ void g3durm_morpher_moveVertexPose ( G3DURMANAGER       *urm,
                                      G3DMORPHER         *mpr,
                                      G3DMORPHERMESHPOSE *mpose,
                                      LIST               *lver,
-                                     G3DVECTOR          *oldpos,
-                                     G3DVECTOR          *newpos,
+                                     G3DVECTOR3F          *oldpos,
+                                     G3DVECTOR3F          *newpos,
                                      uint32_t            return_flags );
 
 /******************************************************************************/

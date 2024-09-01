@@ -153,12 +153,11 @@ void g3dspline_moveAxis ( G3DSPLINE *spl,
 
     while ( ltmppt ) {
         G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
-        G3DVECTOR  pos = { .x = pt->pos.x,
-                           .y = pt->pos.y,
-                           .z = pt->pos.z,
-                           .w = 1.0f };
+        G3DVECTOR3F  pos = { .x = pt->pos.x,
+                             .y = pt->pos.y,
+                             .z = pt->pos.z };
 
-        g3dvector_matrixf ( &pos, DIFFMVX, &pt->pos );
+        g3dvector3f_matrixf ( &pos, DIFFMVX, &pt->pos );
 #ifdef UNUSED
         } else {
             float DIFFROT[0x10];
@@ -166,7 +165,7 @@ void g3dspline_moveAxis ( G3DSPLINE *spl,
             /*** spline handles are vectors, they are altered by rotation matrix **/
             g3dcore_extractRotationMatrixf ( DIFFMVX, DIFFROT );
 
-            g3dvector_matrixf ( &pos, DIFFROT, &ver->pos );
+            g3dvector3f_matrixf ( &pos, DIFFROT, &ver->pos );
         }
 #endif 
 

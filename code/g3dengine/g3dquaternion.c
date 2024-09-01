@@ -44,7 +44,7 @@ void g3dquaternion_print ( G3DQUATERNION *qua ) {
 
 /******************************************************************************/
 /*https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles*/
-void g3dquaternion_toEuler ( G3DQUATERNION *qua, G3DDOUBLEVECTOR *rot ) {
+void g3dquaternion_toEuler ( G3DQUATERNION *qua, G3DVECTOR3D *rot ) {
     /* roll */
     double sinr_cosp = 2.0f *        ( ( qua->w     * qua->roll  ) + 
                                        ( qua->pitch * qua->yaw   ) );
@@ -74,7 +74,7 @@ void g3dquaternion_toEuler ( G3DQUATERNION *qua, G3DDOUBLEVECTOR *rot ) {
 
 /******************************************************************************/
 void g3dquaternion_toEulerInDegrees ( G3DQUATERNION   *qua,
-                                      G3DDOUBLEVECTOR *rot ) {
+                                      G3DVECTOR3D *rot ) {
     g3dquaternion_toEuler ( qua, rot );
 
     rot->x = rot->x * 180.0f / M_PI;

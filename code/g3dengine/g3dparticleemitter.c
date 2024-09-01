@@ -73,7 +73,7 @@ static void g3dparticleemitter_pose ( G3DPARTICLEEMITTER *pem,
 static inline void getRandomPointOnSquare ( G3DSEGMENT *s1, 
                                             G3DSEGMENT *s2,
                                             float radius,
-                                            G3DVECTOR  *pnt ) {
+                                            G3DVECTOR3F  *pnt ) {
     float ratio2 = -1+2*((float)rand())/RAND_MAX;
     float ratio3 = -1+2*((float)rand())/RAND_MAX;
 
@@ -85,11 +85,11 @@ static inline void getRandomPointOnSquare ( G3DSEGMENT *s1,
 /******************************************************************************/
 static void g3dparticle_init ( G3DPARTICLE *prt,
                                G3DOBJECT   *ref,
-                               G3DVECTOR   *pos,
-                               G3DVECTOR   *sca,
-                               G3DVECTOR   *rot,
-                               G3DVECTOR   *accel,
-                               G3DVECTOR   *speed,
+                               G3DVECTOR3F   *pos,
+                               G3DVECTOR3F   *sca,
+                               G3DVECTOR3F   *rot,
+                               G3DVECTOR3F   *accel,
+                               G3DVECTOR3F   *speed,
                                int32_t      startAtFrame,
                                float        transparency ) {
     prt->ref = ref;
@@ -139,44 +139,44 @@ static void g3dparticleemitter_initParticle ( G3DPARTICLEEMITTER *pem,
     if ( ( int32_t ) accu - ( int32_t ) prevaccu ) {
         float rd = ( float ) rand ( ) / RAND_MAX;
 
-        G3DVECTOR initialVarAccel = { .x = ( pem->initialAccel.x * rd *
-                                             pem->initialVarAccel.x ),
-                                      .y = ( pem->initialAccel.y * rd *
-                                             pem->initialVarAccel.y ),
-                                      .z = ( pem->initialAccel.z * rd *
-                                             pem->initialVarAccel.z ) };
-        G3DVECTOR initialVarSpeed = { .x = ( pem->initialSpeed.x * rd *
-                                             pem->initialVarSpeed.x ),
-                                      .y = ( pem->initialSpeed.y * rd *
-                                             pem->initialVarSpeed.y ),
-                                      .z = ( pem->initialSpeed.z * rd *
-                                             pem->initialVarSpeed.z ) };
-        G3DVECTOR initialVarScaling = { .x = ( pem->initialScaling.x * rd *
-                                               pem->initialVarScaling.x ),
-                                        .y = ( pem->initialScaling.y * rd *
-                                               pem->initialVarScaling.y ),
-                                        .z = ( pem->initialScaling.z * rd *
+        G3DVECTOR3F initialVarAccel = { .x = ( pem->initialAccel.x * rd *
+                                               pem->initialVarAccel.x ),
+                                        .y = ( pem->initialAccel.y * rd *
+                                               pem->initialVarAccel.y ),
+                                        .z = ( pem->initialAccel.z * rd *
+                                               pem->initialVarAccel.z ) };
+        G3DVECTOR3F initialVarSpeed = { .x = ( pem->initialSpeed.x * rd *
+                                               pem->initialVarSpeed.x ),
+                                        .y = ( pem->initialSpeed.y * rd *
+                                               pem->initialVarSpeed.y ),
+                                        .z = ( pem->initialSpeed.z * rd *
+                                               pem->initialVarSpeed.z ) };
+        G3DVECTOR3F initialVarScaling = { .x = ( pem->initialScaling.x * rd *
+                                                 pem->initialVarScaling.x ),
+                                          .y = ( pem->initialScaling.y * rd *
+                                                 pem->initialVarScaling.y ),
+                                          .z = ( pem->initialScaling.z * rd *
                                                pem->initialVarScaling.z ) };
-        G3DVECTOR accel = { .x = pem->initialAccel.x + initialVarAccel.x,
-                            .y = pem->initialAccel.y + initialVarAccel.y,
-                            .z = pem->initialAccel.z + initialVarAccel.z };
-        G3DVECTOR speed = { .x = pem->initialSpeed.x + initialVarSpeed.x,
-                            .y = pem->initialSpeed.y + initialVarSpeed.y,
-                            .z = pem->initialSpeed.z + initialVarSpeed.z },
+        G3DVECTOR3F accel = { .x = pem->initialAccel.x + initialVarAccel.x,
+                              .y = pem->initialAccel.y + initialVarAccel.y,
+                              .z = pem->initialAccel.z + initialVarAccel.z };
+        G3DVECTOR3F speed = { .x = pem->initialSpeed.x + initialVarSpeed.x,
+                              .y = pem->initialSpeed.y + initialVarSpeed.y,
+                              .z = pem->initialSpeed.z + initialVarSpeed.z },
                   wspeed;
-        G3DVECTOR pos, wpos,
+        G3DVECTOR3F pos, wpos,
                   sca = { .x = pem->initialScaling.x + initialVarScaling.x, 
                           .y = pem->initialScaling.y + initialVarScaling.y,
                           .z = pem->initialScaling.z + initialVarScaling.z },
-                  rot = { 0.0f, 0.0f, 0.0f, 1.0f };
+                  rot = { 0.0f, 0.0f, 0.0f };
 
         getRandomPointOnSquare ( &pem->seg1, 
                                  &pem->seg2, 
                                   pem->radius, 
                                  &pos );
 
-        g3dvector_matrixf ( &pos, pem->obj.worldMatrix, &wpos );
-        g3dvector_matrixf ( &speed, pem->TIWMVX, &wspeed );
+        g3dvector3f_matrixf ( &pos, pem->obj.worldMatrix, &wpos );
+        g3dvector3f_matrixf ( &speed, pem->TIWMVX, &wspeed );
 
         g3dparticle_init ( prt,
                            g3dobject_getRandomChild ( ( G3DOBJECT * ) pem ),
