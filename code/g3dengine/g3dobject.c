@@ -36,7 +36,7 @@ uint32_t g3dobject_getNextTagID ( G3DOBJECT *obj ) {
 
 /******************************************************************************/
 G3DTAG *g3dobject_getTagByID ( G3DOBJECT *obj, uint32_t id ) {
-    LIST *ltmptag = obj->ltag;
+    LIST *ltmptag = obj->tagList;
 
     while ( ltmptag ) {
         G3DTAG *tag = ( G3DTAG * ) ltmptag->data;
@@ -51,13 +51,13 @@ G3DTAG *g3dobject_getTagByID ( G3DOBJECT *obj, uint32_t id ) {
 
 /******************************************************************************/
 void g3dobject_transform_tags ( G3DOBJECT *obj,
-                                uint64_t   engine_flags ) {
-    LIST *ltmptag = obj->ltag;
+                                uint64_t   engineFlags ) {
+    LIST *ltmptag = obj->tagList;
 
     while ( ltmptag ) {
         G3DTAG *tag = ( G3DTAG * ) ltmptag->data;
 
-        if ( tag->transform ) tag->transform ( tag, obj, engine_flags );
+        if ( tag->transform ) tag->transform ( tag, obj, engineFlags );
 
         ltmptag = ltmptag->next;
     }
@@ -66,13 +66,13 @@ void g3dobject_transform_tags ( G3DOBJECT *obj,
 /******************************************************************************/
 void g3dobject_preanim_tags ( G3DOBJECT *obj, 
                               float      frame, 
-                              uint64_t   engine_flags ) {
-    LIST *ltmptag = obj->ltag;
+                              uint64_t   engineFlags ) {
+    LIST *ltmptag = obj->tagList;
 
     while ( ltmptag ) {
         G3DTAG *tag = ( G3DTAG * ) ltmptag->data;
 
-        if ( tag->preAnim ) tag->preAnim ( tag, obj, frame, engine_flags );
+        if ( tag->preAnim ) tag->preAnim ( tag, obj, frame, engineFlags );
 
         ltmptag = ltmptag->next;
     }
@@ -81,21 +81,21 @@ void g3dobject_preanim_tags ( G3DOBJECT *obj,
 /******************************************************************************/
 void g3dobject_postanim_tags ( G3DOBJECT *obj, 
                                float      frame, 
-                               uint64_t   engine_flags ) {
-    LIST *ltmptag = obj->ltag;
+                               uint64_t   engineFlags ) {
+    LIST *ltmptag = obj->tagList;
 
     while ( ltmptag ) {
         G3DTAG *tag = ( G3DTAG * ) ltmptag->data;
 
-        if ( tag->postAnim ) tag->postAnim ( tag, obj, frame, engine_flags );
+        if ( tag->postAnim ) tag->postAnim ( tag, obj, frame, engineFlags );
 
         ltmptag = ltmptag->next;
     }
 }
 
 /******************************************************************************/
-/*void g3dobject_modify_r ( G3DOBJECT *obj, uint64_t engine_flags ) {
-    LIST *ltmpchildren = obj->lchildren;
+/*void g3dobject_modify_r ( G3DOBJECT *obj, uint64_t engineFlags ) {
+    LIST *ltmpchildren = obj->childList;
 
     while ( ltmpchildren ) {
         G3DOBJECT *child = ( G3DOBJECT* ) ltmpchildren->data;
@@ -104,10 +104,10 @@ void g3dobject_postanim_tags ( G3DOBJECT *obj,
             G3DMODIFIER *mod = ( G3DMODIFIER * ) child;
 
             if ( g3dobject_isActive ( child ) ) {
-                if ( mod->modify ) mod->modify ( mod, engine_flags );
+                if ( mod->modify ) mod->modify ( mod, engineFlags );
             }
 
-            g3dobject_modify_r ( child, engine_flags );
+            g3dobject_modify_r ( child, engineFlags );
         }
 
         ltmpchildren = ltmpchildren->next;
@@ -118,11 +118,11 @@ void g3dobject_postanim_tags ( G3DOBJECT *obj,
 void g3dobject_browse ( G3DOBJECT  *obj,
                         uint32_t (*action)(G3DOBJECT *, void *, uint64_t ),
                         void       *data,
-                        uint64_t    engine_flags ) {
-    LIST *ltmpchildren = obj->lchildren;
+                        uint64_t    engineFlags ) {
+    LIST *ltmpchildren = obj->childList;
 
     if ( action ) {
-        if ( action ( obj, data, engine_flags ) == 0x01 ) {
+        if ( action ( obj, data, engineFlags ) == 0x01 ) {
             return;
         }
     }
@@ -130,33 +130,33 @@ void g3dobject_browse ( G3DOBJECT  *obj,
     while ( ltmpchildren ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
 
-        g3dobject_browse ( child, action, data, engine_flags );
+        g3dobject_browse ( child, action, data, engineFlags );
 
         ltmpchildren = ltmpchildren->next;
     }
 }
 
 /******************************************************************************/
-void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint64_t engine_flags ) {
-    LIST *ltmpchildren = obj->lchildren;
+void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint64_t engineFlags ) {
+    LIST *ltmpchildren = obj->childList;
 
     /*** Note: program crashes if condition is obj->type & MESH ***/
     /*** when loading a g3d file ***/
     if ( obj->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
-        mes->obj.update_flags |= ( UPDATEVERTEXNORMAL |
-                                   UPDATEFACENORMAL |
-                                   RESETMODIFIERS );
+        mes->obj.invalidationFlags |= ( UPDATEVERTEXNORMAL |
+                                        UPDATEFACENORMAL |
+                                        RESETMODIFIERS );
 
         /*** Rebuild mesh ***/
-        g3dmesh_update ( mes, engine_flags );
+        g3dmesh_update ( mes, 0x00, engineFlags );
     }
 
     while ( ltmpchildren ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
 
-        g3dobject_updateMeshes_r ( child, engine_flags );
+        g3dobject_updateMeshes_r ( child, engineFlags );
 
         ltmpchildren = ltmpchildren->next;
     }
@@ -164,7 +164,7 @@ void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint64_t engine_flags ) {
 
 /******************************************************************************/
 void g3dobject_renumber_r ( G3DOBJECT *obj, uint32_t *id ) {
-    LIST *ltmpchildren = obj->lchildren;
+    LIST *ltmpchildren = obj->childList;
     obj->id = (*id)++;
 
     while ( ltmpchildren ) {
@@ -200,14 +200,14 @@ void g3dobject_printCoordinates ( G3DOBJECT *obj ) {
     printf ( "Scaling : X:%f Y:%f Z:%f\n", obj->sca.x, obj->sca.y, obj->sca.z );
 }
 
-/*void g3dobject_select ( G3DOBJECT *obj, uint64_t engine_flags ) {
+/*void g3dobject_select ( G3DOBJECT *obj, uint64_t engineFlags ) {
     g3dobject_draw ( obj, flags | SELECTOBJECT );
 }*/
 
 /******************************************************************************/
 uint32_t g3dobject_getNumberOfChildrenByType ( G3DOBJECT *obj,
                                                uint64_t   type ) {
-    LIST *ltmpobj = obj->lchildren;
+    LIST *ltmpobj = obj->childList;
     uint32_t nb = 0x00;
 
     while ( ltmpobj ) {
@@ -226,7 +226,7 @@ uint32_t g3dobject_getNumberOfChildrenByType ( G3DOBJECT *obj,
 /******************************************************************************/
 LIST *g3dobject_getChildrenByType ( G3DOBJECT *obj, 
                                     uint64_t   type ) {
-    LIST *ltmpobj = obj->lchildren;
+    LIST *ltmpobj = obj->childList;
     LIST *ltype = NULL;
 
     while ( ltmpobj ) {
@@ -247,7 +247,7 @@ LIST *g3dobject_getChildrenByType ( G3DOBJECT *obj,
 /******************************************************************************/
 void g3dobject_getObjectsByType_r ( G3DOBJECT *obj, uint32_t type,
                                                     LIST **lobj ){
-    LIST *ltmp = obj->lchildren;
+    LIST *ltmp = obj->childList;
 
     if ( ( type == 0x00 ) || ( obj->type == type ) ) {
         list_append ( lobj, obj );
@@ -269,7 +269,7 @@ void g3dobject_localTranslate ( G3DOBJECT *obj,
                                 float      x,
                                 float      y,
                                 float      z,
-                                uint64_t   engine_flags ) {
+                                uint64_t   engineFlags ) {
     static G3DVECTOR3F vecx = { .x = 1.0f, .y = 0.0f, .z = 0.0f },
                        vecy = { .x = 0.0f, .y = 1.0f, .z = 0.0f },
                        vecz = { .x = 0.0f, .y = 0.0f, .z = 1.0f };
@@ -291,7 +291,7 @@ void g3dobject_localTranslate ( G3DOBJECT *obj,
     obj->pos.y += ( movvecz.y * z );
     obj->pos.z += ( movvecz.z * z );
 
-    g3dobject_updateMatrix_r ( obj, engine_flags );
+    g3dobject_updateMatrix_r ( obj, engineFlags );
 }
 
 /******************************************************************************/
@@ -300,7 +300,7 @@ void g3dobject_getSurroundingKeys ( G3DOBJECT *obj,
                                     G3DKEY   **prevKey,
                                     G3DKEY   **nextKey,
                                     uint32_t   key_flags ) {
-    LIST *ltmpkey = obj->lkey;
+    LIST *ltmpkey = obj->keyList;
 
 
     (*prevKey) = NULL;
@@ -349,7 +349,7 @@ void g3dobject_removeKey ( G3DOBJECT *obj,
     uint32_t keyFlags = key->flags;
 
 
-    list_remove ( &obj->lkey, key );
+    list_remove ( &obj->keyList, key );
 
     obj->nbkey--;
 
@@ -383,7 +383,7 @@ void g3dobject_removeSelectedKeys ( G3DOBJECT *obj,
                                     LIST     **laddedPosSegments,
                                     LIST     **laddedRotSegments,
                                     LIST     **laddedScaSegments ) {
-    LIST *ltmpkey = obj->lselkey;
+    LIST *ltmpkey = obj->selectedKeyList;
 
     while ( ltmpkey ) {
         G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
@@ -409,7 +409,7 @@ void g3dobject_removeSelectedKeys ( G3DOBJECT *obj,
                                       laddedRotSegments,
                                       laddedScaSegments );
 
-    list_free ( &obj->lselkey, NULL );
+    list_free ( &obj->selectedKeyList, NULL );
 }
 
 /******************************************************************************/
@@ -423,9 +423,9 @@ void g3dobject_findOrientation ( G3DOBJECT *obj, G3DVECTOR3F *vec ) {
 void g3dobject_selectKeyRange ( G3DOBJECT *obj,
                                 float      firstFrame, 
                                 float      lastFrame ) {
-    LIST *ltmpkey = obj->lkey;
+    LIST *ltmpkey = obj->keyList;
 
-    list_free ( &obj->lselkey, NULL );
+    list_free ( &obj->selectedKeyList, NULL );
 
     while ( ltmpkey ) {
         G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
@@ -441,7 +441,7 @@ void g3dobject_selectKeyRange ( G3DOBJECT *obj,
 
 /******************************************************************************/
 void g3dobject_selectKey ( G3DOBJECT *obj, G3DKEY *key ) {
-    list_insert ( &obj->lselkey, key );
+    list_insert ( &obj->selectedKeyList, key );
 
     g3dkey_setSelected ( key );
 }
@@ -449,30 +449,30 @@ void g3dobject_selectKey ( G3DOBJECT *obj, G3DKEY *key ) {
 /******************************************************************************/
 void g3dobject_selectAllKeys ( G3DOBJECT *obj ) {
     /*** Clear the list first ***/
-    list_free ( &obj->lselkey, NULL );
+    list_free ( &obj->selectedKeyList, NULL );
 
-    obj->lselkey = list_copy ( obj->lkey );
+    obj->selectedKeyList = list_copy ( obj->keyList );
 
-    list_exec ( obj->lselkey, (void(*)(void*))g3dkey_setSelected );
+    list_exec ( obj->selectedKeyList, (void(*)(void*))g3dkey_setSelected );
 }
 
 /******************************************************************************/
 void g3dobject_unselectKey ( G3DOBJECT *obj, G3DKEY *key ) {
-    list_remove ( &obj->lselkey, key );
+    list_remove ( &obj->selectedKeyList, key );
 
     g3dkey_unsetSelected ( key );
 }
 
 /******************************************************************************/
 void g3dobject_unselectAllKeys ( G3DOBJECT *obj ) {
-    list_exec ( obj->lselkey, (void(*)(void*))g3dkey_unsetSelected );
+    list_exec ( obj->selectedKeyList, (void(*)(void*))g3dkey_unsetSelected );
 
-    list_free ( &obj->lselkey, NULL );
+    list_free ( &obj->selectedKeyList, NULL );
 }
 
 /******************************************************************************/
 uint32_t g3dobject_nbkeyloop ( G3DOBJECT *obj ) {
-    LIST *ltmp = obj->lkey;
+    LIST *ltmp = obj->keyList;
     uint32_t nb = 0x00;    
 
     while ( ltmp ) {
@@ -489,7 +489,7 @@ uint32_t g3dobject_nbkeyloop ( G3DOBJECT *obj ) {
 
 /******************************************************************************/
 uint32_t g3dobject_findKeyDuplicate ( G3DOBJECT *obj, G3DKEY *key ) {
-    LIST *ltmpkey = obj->lkey;
+    LIST *ltmpkey = obj->keyList;
 
     while ( ltmpkey ) {
         G3DKEY *dup = ( G3DKEY * ) ltmpkey->data;
@@ -533,10 +533,10 @@ static void g3dobject_moveSelectedKeys ( G3DOBJECT *obj,
     /*** cases were a not-selected key must reconnect with a selected key   ***/
     /*** and disconnect from a not-selected key, because the stitching goes ***/
     /***  from t to t+1, not ominidirectionnal  ***/
-    uint32_t nbkey = list_count ( obj->lkey );
+    uint32_t nbkey = list_count ( obj->keyList );
     MOVEDKEY *movedKey = ( MOVEDKEY * ) calloc ( nbkey, sizeof ( MOVEDKEY ) );
     int OP[0x03] = { KEYPOSITION, KEYROTATION, KEYSCALING };
-    LIST *ltmpkey = obj->lkey;
+    LIST *ltmpkey = obj->keyList;
     uint32_t i = 0x00, j;
 
     /*** first pass ***/
@@ -734,7 +734,7 @@ float g3dobject_getKeys ( G3DOBJECT *obj,
                           G3DKEY   **nextkey,
                           uint32_t   key_flags,
                           uint32_t   ignoreLoop ) {
-    LIST *ltmpkey = obj->lkey;
+    LIST *ltmpkey = obj->keyList;
 
     (*framekey) = NULL;
     (*prevkey)  = NULL;
@@ -812,7 +812,7 @@ float g3dobject_getKeys ( G3DOBJECT *obj,
 /******************************************************************************/
 void g3dobject_anim_position ( G3DOBJECT *obj,
                                float      frame,
-                               uint64_t   engine_flags ) {
+                               uint64_t   engineFlags ) {
     G3DKEY *prevkey = NULL,
            *nextkey = NULL,
            *framekey = NULL;
@@ -848,7 +848,7 @@ printf("g3dcoords:");g3dvector_print ( &obj->pos );*/
 /******************************************************************************/
 void g3dobject_anim_rotation ( G3DOBJECT *obj,
                                float      frame, 
-                               uint64_t   engine_flags ) {
+                               uint64_t   engineFlags ) {
     G3DKEY *prevkey = NULL,
            *nextkey = NULL,
            *framekey = NULL;
@@ -910,7 +910,7 @@ g3ddoublevector_print ( &rot ); */
 /******************************************************************************/
 void g3dobject_anim_scaling ( G3DOBJECT *obj,
                               float      frame,
-                              uint64_t   engine_flags ) {
+                              uint64_t   engineFlags ) {
     G3DKEY *prevkey = NULL,
            *nextkey = NULL,
            *framekey = NULL;
@@ -945,20 +945,20 @@ static void g3dobject_anim_r_internal ( G3DOBJECT  *obj,
                                         G3DOBJECT **animobj,
                                         uint32_t   *animobjID,
                                         uint32_t    maxanimobj,
-                                        uint64_t    engine_flags ) {
-    LIST *ltmp = obj->lchildren;
+                                        uint64_t    engineFlags ) {
+    LIST *ltmp = obj->childList;
 
     /*** We separate transformations because the user might not want to ***/
     /*** keep some transformations for a key but keep it for the next one. ***/
-    g3dobject_anim_position ( obj, frame, engine_flags );
-    g3dobject_anim_rotation ( obj, frame, engine_flags );
-    g3dobject_anim_scaling  ( obj, frame, engine_flags );
+    g3dobject_anim_position ( obj, frame, engineFlags );
+    g3dobject_anim_rotation ( obj, frame, engineFlags );
+    g3dobject_anim_scaling  ( obj, frame, engineFlags );
 
-    g3dobject_preanim_tags ( obj, frame, engine_flags );
+    g3dobject_preanim_tags ( obj, frame, engineFlags );
 
-    g3dobject_updateMatrix ( obj, engine_flags );
+    g3dobject_updateMatrix ( obj, engineFlags );
 
-    if ( obj->anim ) obj->anim ( obj, frame, engine_flags );
+    if ( obj->anim ) obj->anim ( obj, frame, engineFlags );
 
     /*if ( (*animobjID) < maxanimobj ) {
         animobj[(*animobjID)] = obj;
@@ -970,7 +970,7 @@ static void g3dobject_anim_r_internal ( G3DOBJECT  *obj,
     while ( ltmp ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmp->data;
 
-        g3dobject_anim_r ( child, frame, engine_flags );
+        g3dobject_anim_r ( child, frame, engineFlags );
 
         ltmp = ltmp->next;
     }
@@ -978,7 +978,7 @@ static void g3dobject_anim_r_internal ( G3DOBJECT  *obj,
 
 /******************************************************************************/
 uint32_t g3dobject_hasRiggedBone_r ( G3DOBJECT *obj ) {
-    LIST *ltmpobj = obj->lchildren;
+    LIST *ltmpobj = obj->childList;
 
     if ( obj->type == G3DBONETYPE ) {
         G3DBONE *bon = ( G3DBONE * ) obj;
@@ -1002,7 +1002,7 @@ uint32_t g3dobject_hasRiggedBone_r ( G3DOBJECT *obj ) {
 /*** the anim callbacks must be called after all matrices have been updated ***/
 void g3dobject_anim_r  ( G3DOBJECT *obj,
                          float      frame,
-                         uint64_t   engine_flags ) {
+                         uint64_t   engineFlags ) {
 #define MAXANIMOBJ 0x400
     static G3DOBJECT *animobj[MAXANIMOBJ];
     uint32_t animobjID = 0x00;
@@ -1013,20 +1013,20 @@ void g3dobject_anim_r  ( G3DOBJECT *obj,
                                 animobj,
                                &animobjID,
                                 MAXANIMOBJ,
-                                engine_flags );
+                                engineFlags );
 
     for ( i = 0x00; i < animobjID; i++ ) {
         /*if ( animobj[i]->anim ) {
-            animobj[i]->anim ( animobj[i], frame, engine_flags );
+            animobj[i]->anim ( animobj[i], frame, engineFlags );
         }*/
 
-        g3dobject_postanim_tags ( animobj[i], frame, engine_flags );
+        g3dobject_postanim_tags ( animobj[i], frame, engineFlags );
     }
 }
 
 /******************************************************************************/
 G3DKEY *g3dobject_getKeyByFrame ( G3DOBJECT *obj, float frame ) {
-    LIST *ltmpkey = obj->lkey;
+    LIST *ltmpkey = obj->keyList;
 
     while ( ltmpkey ) {
         G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
@@ -1042,7 +1042,7 @@ G3DKEY *g3dobject_getKeyByFrame ( G3DOBJECT *obj, float frame ) {
 /******************************************************************************/
 G3DKEY *g3dobject_getKey ( G3DOBJECT *obj,
                            float      frame ) {
-    LIST *ltmp = obj->lkey;
+    LIST *ltmp = obj->keyList;
 
     while ( ltmp ) {
         G3DKEY *key = ( G3DKEY * ) ltmp->data;
@@ -1060,7 +1060,7 @@ G3DKEY *g3dobject_getKey ( G3DOBJECT *obj,
 /*G3DKEY *g3dobject_getNextKey ( G3DOBJECT *obj,
                                G3DKEY    *key ) {
     G3DKEY *retKey = NULL;
-    LIST *ltmpkey = obj->lkey;
+    LIST *ltmpkey = obj->keyList;
 
     while ( ltmpkey ) {
         G3DKEY *nextKey = ( G3DKEY * ) ltmpkey->data;
@@ -1222,7 +1222,7 @@ void g3dobject_setKeyTransformations ( G3DOBJECT *obj,
 static void g3dobject_stitchCurve ( G3DOBJECT *obj, 
                                     uint32_t   curveID,
                                     LIST    **laddedSegments ) {
-    LIST *ltmpkey = obj->lkey;
+    LIST *ltmpkey = obj->keyList;
 
     while ( ltmpkey ) {
         G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
@@ -1352,7 +1352,7 @@ G3DKEY *g3dobject_addKey ( G3DOBJECT *obj,
                               laddedScaSegments );
     }
 
-    list_insert ( &obj->lkey, key );
+    list_insert ( &obj->keyList, key );
 
     obj->nbkey++;
 
@@ -1439,8 +1439,8 @@ void g3dobject_setActive ( G3DOBJECT *obj ) {
 
 /******************************************************************************/
 G3DOBJECT *g3dobject_getRandomChild ( G3DOBJECT *obj ) {
-    uint32_t nbchildren = list_count ( obj->lchildren );
-    LIST *ltmpobj = obj->lchildren;
+    uint32_t nbchildren = list_count ( obj->childList );
+    LIST *ltmpobj = obj->childList;
 
     if ( nbchildren ) {
         uint32_t id = rand () % nbchildren;
@@ -1459,9 +1459,9 @@ G3DOBJECT *g3dobject_getRandomChild ( G3DOBJECT *obj ) {
 
 /******************************************************************************/
 void g3dobject_drawCenter ( G3DOBJECT *obj,
-                            uint64_t engine_flags ) {
+                            uint64_t engineFlags ) {
     /*** no need to draw this in picking mode ***/
-    if ( ( engine_flags & SELECTMODE ) == 0x00 ) {
+    if ( ( engineFlags & SELECTMODE ) == 0x00 ) {
         glPushAttrib( GL_ALL_ATTRIB_BITS );
         glDisable   ( GL_LIGHTING );
         glColor3ub  ( 0xFF, 0xFF, 0xFF );
@@ -1494,32 +1494,32 @@ void g3dobject_drawCenter ( G3DOBJECT *obj,
 /******************************************************************************/
 void g3dobject_appendChild ( G3DOBJECT *obj, 
                              G3DOBJECT *child,
-                             uint64_t   engine_flags ) {
+                             uint64_t   engineFlags ) {
     G3DOBJECT *oldParent = child->parent;
 
-    list_append ( &obj->lchildren, child );
+    list_append ( &obj->childList, child );
 
     child->parent = obj;
 
     if ( obj->addChild ) obj->addChild  ( obj, 
                                           child,
-                                          engine_flags );
+                                          engineFlags );
 
     if ( child->parent != oldParent ) {
         if ( child->setParent ) child->setParent ( child, 
                                                    obj, 
                                                    oldParent, 
-                                                   engine_flags );
+                                                   engineFlags );
     }
 }
 
 /******************************************************************************/
 void g3dobject_addChild ( G3DOBJECT *obj, 
                           G3DOBJECT *child,
-                          uint64_t   engine_flags ) {
+                          uint64_t   engineFlags ) {
     G3DOBJECT *oldParent = child->parent;
 
-    list_insert ( &obj->lchildren, child );
+    list_insert ( &obj->childList, child );
 
     child->parent = obj;
 
@@ -1527,23 +1527,24 @@ void g3dobject_addChild ( G3DOBJECT *obj,
 
     if ( obj->addChild ) obj->addChild  ( obj, 
                                           child,
-                                          engine_flags );
+                                          engineFlags );
 
     if ( child->parent != oldParent ) {
         if ( child->setParent ) child->setParent ( child, 
                                                    obj, 
                                                    oldParent, 
-                                                   engine_flags );
+                                                   engineFlags );
     }
 }
 
 /******************************************************************************/
 void g3dobject_removeChild ( G3DOBJECT *obj, 
                              G3DOBJECT *child,
-                             uint64_t   engine_flags ) {
+                             uint64_t   engineFlags ) {
     G3DOBJECT *oldParent = child->parent;
 
-    list_remove ( &obj->lchildren, child );
+    list_remove ( &obj->childList, child );
+    list_remove ( &obj->invalidatedchildList, child );
 
     /*** This field is used in "deleteSelectedItems_undo()" ***/
     /*** we need it not to be NULL, that's why I comment it ***/
@@ -1553,18 +1554,20 @@ void g3dobject_removeChild ( G3DOBJECT *obj,
 
     if ( obj->removeChild ) obj->removeChild  ( obj,
                                                 child,
-                                                engine_flags );
+                                                engineFlags );
 
     if ( child->setParent ) child->setParent ( child, 
                                                NULL, 
                                                oldParent, 
-                                               engine_flags );
+                                               engineFlags );
+
+    g3dobject_update_r ( child, 0x00, engineFlags );
 }
 
 /******************************************************************************/
 void g3dobject_addTag ( G3DOBJECT *obj, 
                         G3DTAG    *tag ) {
-    list_insert ( &obj->ltag, tag );
+    list_insert ( &obj->tagList, tag );
 
     if ( tag->add ) tag->add ( tag, obj, 0x00 );
 }
@@ -1572,7 +1575,7 @@ void g3dobject_addTag ( G3DOBJECT *obj,
 /******************************************************************************/
 void g3dobject_removeTag ( G3DOBJECT *obj, 
                            G3DTAG    *tag ) {
-    list_remove ( &obj->ltag, tag );
+    list_remove ( &obj->tagList, tag );
 
     if ( tag->remove ) tag->remove ( tag, obj, 0x00 );
 
@@ -1606,14 +1609,14 @@ void g3dobject_importTransformations ( G3DOBJECT *dst, G3DOBJECT *src ) {
 void g3dobject_free ( G3DOBJECT *obj ) {
     printf ( "freeing memory for object %s\n", obj->name );
 
-    list_free ( &obj->lchildren, (void(*)(void*)) g3dobject_free );
-    list_free ( &obj->lkey, (void(*)(void*)) g3dkey_free );
-    list_free ( &obj->ltag, (void(*)(void*)) g3dtag_free );
+    list_free ( &obj->childList, (void(*)(void*)) g3dobject_free );
+    list_free ( &obj->keyList  , (void(*)(void*)) g3dkey_free    );
+    list_free ( &obj->tagList  , (void(*)(void*)) g3dtag_free    );
 
     if ( obj->free ) obj->free ( obj );
     if ( obj->name ) free ( obj->name );
 
-    list_free ( &obj->lselkey, NULL );
+    list_free ( &obj->selectedKeyList, NULL );
 
     free ( obj );
 }
@@ -1628,15 +1631,15 @@ void g3dobject_buildRotationMatrix ( G3DOBJECT *obj ) {
 
 /******************************************************************************/
 void g3dobject_updateMatrix_r ( G3DOBJECT *obj, 
-                                uint64_t   engine_flags ) {
-    LIST *ltmpobj = obj->lchildren;
+                                uint64_t   engineFlags ) {
+    LIST *ltmpobj = obj->childList;
 
-    g3dobject_updateMatrix ( obj, engine_flags );
+    g3dobject_updateMatrix ( obj, engineFlags );
 
     while ( ltmpobj ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpobj->data;
 
-        g3dobject_updateMatrix_r ( child, engine_flags );
+        g3dobject_updateMatrix_r ( child, engineFlags );
         
 
         ltmpobj = ltmpobj->next;
@@ -1644,7 +1647,7 @@ void g3dobject_updateMatrix_r ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-void g3dobject_updateMatrix ( G3DOBJECT *obj, uint64_t engine_flags ) {
+void g3dobject_updateMatrix ( G3DOBJECT *obj, uint64_t engineFlags ) {
     g3dcore_identityMatrixf( obj->localMatrix );
 
     g3dcore_translateMatrixf( obj->localMatrix,
@@ -1681,17 +1684,17 @@ void g3dobject_updateMatrix ( G3DOBJECT *obj, uint64_t engine_flags ) {
                  sizeof ( obj->inverseWorldMatrix ) );
     }
 
-    if ( obj->transform ) obj->transform ( obj, engine_flags );
+    if ( obj->transform ) obj->transform ( obj, engineFlags );
 
-    g3dobject_transform_tags ( obj, engine_flags );
+    g3dobject_transform_tags ( obj, engineFlags );
 }
 
 /******************************************************************************/
 void g3dobject_drawKeys ( G3DOBJECT *obj, 
                           G3DCAMERA *cam, 
                           G3DENGINE *engine, 
-                          uint64_t   engine_flags ) {
-    g3dcurve_draw ( obj->curve[0x00], obj, cam, engine, engine_flags );
+                          uint64_t   engineFlags ) {
+    g3dcurve_draw ( obj->curve[0x00], obj, cam, engine, engineFlags );
 }
 
 #define PIOVER180 0.01745329252
@@ -1699,9 +1702,9 @@ void g3dobject_drawKeys ( G3DOBJECT *obj,
 /******************************************************************************/
 uint32_t g3dobject_pickPath ( G3DOBJECT *obj, 
                               G3DCAMERA *curcam, 
-                              uint64_t   engine_flags ) {
-    g3dcurve_pickPoints  ( obj->curve[0x00], engine_flags );
-    g3dcurve_pickHandles ( obj->curve[0x00], engine_flags );
+                              uint64_t   engineFlags ) {
+    g3dcurve_pickPoints  ( obj->curve[0x00], engineFlags );
+    g3dcurve_pickHandles ( obj->curve[0x00], engineFlags );
 
     return 0x00;
 }
@@ -1709,7 +1712,7 @@ uint32_t g3dobject_pickPath ( G3DOBJECT *obj,
 /******************************************************************************/
 uint32_t g3dobject_pick ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
-                          uint64_t   engine_flags ) {
+                          uint64_t   engineFlags ) {
     float MVX[0x10], PARENTMVX[0x10];
 
     if( obj->parent ) {
@@ -1723,21 +1726,21 @@ uint32_t g3dobject_pick ( G3DOBJECT *obj,
 
         /*** if we are in the UVMAPEDITOR, we must not change the modelview ***/
         /*** matrix ***/
-        if ( engine_flags & VIEWVERTEXUV ) g3dcore_identityMatrixf ( MVX );
-        if ( engine_flags & VIEWFACEUV   ) g3dcore_identityMatrixf ( MVX );
+        if ( engineFlags & VIEWVERTEXUV ) g3dcore_identityMatrixf ( MVX );
+        if ( engineFlags & VIEWFACEUV   ) g3dcore_identityMatrixf ( MVX );
 
         g3dpick_setModelviewMatrixf ( MVX );
 
         if ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) {
-            if ( obj->pick ) obj->pick ( obj, curcam, engine_flags );
+            if ( obj->pick ) obj->pick ( obj, curcam, engineFlags );
         }
 
-        if ( engine_flags & VIEWPATH ) {
+        if ( engineFlags & VIEWPATH ) {
             if ( obj->flags & OBJECTSELECTED ) {
                 g3dpick_setModelviewMatrixf ( PARENTMVX );
 
                 if ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) {
-                    g3dobject_pickPath ( obj, curcam, engine_flags );
+                    g3dobject_pickPath ( obj, curcam, engineFlags );
                 }
             }
         }
@@ -1765,15 +1768,15 @@ uint32_t g3dobjectlist_checkType ( LIST    *lobj,
 /******************************************************************************/
 uint32_t g3dobject_pick_r ( G3DOBJECT *obj, 
                             G3DCAMERA *curcam, 
-                            uint64_t   engine_flags ) {
-    LIST *ltmpchildren = obj->lchildren;
+                            uint64_t   engineFlags ) {
+    LIST *ltmpchildren = obj->childList;
 
-    g3dobject_pick ( obj, curcam, engine_flags );
+    g3dobject_pick ( obj, curcam, engineFlags );
 
     while ( ltmpchildren ) {
         G3DOBJECT *sub = ( G3DOBJECT * ) ltmpchildren->data;
 
-        g3dobject_pick_r ( sub, curcam, engine_flags );
+        g3dobject_pick_r ( sub, curcam, engineFlags );
 
         ltmpchildren = ltmpchildren->next;
     }
@@ -1785,10 +1788,10 @@ uint32_t g3dobject_pick_r ( G3DOBJECT *obj,
 uint32_t g3dobject_draw ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
                           G3DENGINE *engine,
-                          uint64_t   engine_flags ) {
+                          uint64_t   engineFlags ) {
     uint32_t ret = 0x00;
 
-        if ( obj->draw ) ret = obj->draw ( obj, curcam, engine, engine_flags );
+        if ( obj->draw ) ret = obj->draw ( obj, curcam, engine, engineFlags );
 
 #ifdef need_refactor
     /*** default color for all objects ***/
@@ -1802,14 +1805,14 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj,
         glEnable ( GL_RESCALE_NORMAL );
     /*}*/
 
-    if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
+    if ( engineFlags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
     else                               glFrontFace(  GL_CCW );
 
     if ( ( obj->flags & OBJECTINVISIBLE ) == 0x00 ) {
-        if ( obj->draw ) ret = obj->draw ( obj, curcam, engine, engine_flags );
+        if ( obj->draw ) ret = obj->draw ( obj, curcam, engine, engineFlags );
     }
 
-    if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
+    if ( engineFlags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
     else                               glFrontFace(  GL_CW  );
 
     /*if ( ( obj->sca.x != 1.0f ) ||
@@ -1826,24 +1829,24 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj,
 uint32_t g3dobject_draw_r ( G3DOBJECT *obj, 
                             G3DCAMERA *curcam, 
                             G3DENGINE *engine, 
-                            uint64_t   engine_flags ) {
-    LIST *ltmpchildren = obj->lchildren;
+                            uint64_t   engineFlags ) {
+    LIST *ltmpchildren = obj->childList;
     uint32_t ret = 0x00;
 
-    ret = g3dobject_draw ( obj, curcam, engine, engine_flags );
+    ret = g3dobject_draw ( obj, curcam, engine, engineFlags );
 
     /*** draw children objects after ***/
     while ( ltmpchildren ) {
         G3DOBJECT *sub = ( G3DOBJECT * ) ltmpchildren->data;
 
-        if ( engine_flags & SYMMETRYVIEW ) { /*** if a symmetry was called ***/
+        if ( engineFlags & SYMMETRYVIEW ) { /*** if a symmetry was called ***/
             /*** Do not draw objects that are not     ***/
             /*** concerned by symmetry, e.g modifiers ***/
             if ( ( sub->flags & OBJECTNOSYMMETRY ) == 0x00 ) {
-                ret |= g3dobject_draw_r ( sub, curcam, engine, engine_flags );
+                ret |= g3dobject_draw_r ( sub, curcam, engine, engineFlags );
             }
         } else {
-            ret |= g3dobject_draw_r ( sub, curcam, engine, engine_flags );
+            ret |= g3dobject_draw_r ( sub, curcam, engine, engineFlags );
         }
 
         ltmpchildren = ltmpchildren->next;
@@ -1853,38 +1856,81 @@ uint32_t g3dobject_draw_r ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
+void g3dobject_invalidate( G3DOBJECT *obj,
+                           uint64_t   invalidationFlags ) {
+    G3DOBJECT *parent = obj->parent;
+
+    obj->invalidationFlags |= ( invalidationFlags );
+
+    if( parent ) {
+        if ( list_seek( obj->parent->invalidatedChildList, obj ) == NULL ) {
+            list_add( &obj->parent->invalidatedChildList, obj );
+
+            while ( parent ) {
+                uint64_t transmittedInvalidationFlags = 0;
+
+                transmittedInvalidationFlags |= INVALIDATE_CHILD;
+                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_SHAPE                 ) << INVALIDATE_CHILD_SHIFT );
+                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_TOPOLOGY              ) << INVALIDATE_CHILD_SHIFT );
+                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_COLOR                 ) << INVALIDATE_CHILD_SHIFT );
+                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_MODIFIER_STACK_RESET  ) << INVALIDATE_CHILD_SHIFT );
+                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_MODIFIER_STACK_UPDATE ) << INVALIDATE_CHILD_SHIFT );
+                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_CHILD_SHAPE                 );
+                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_CHILD_TOPOLOGY              );
+                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_CHILD_COLOR                 );
+                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_CHILD_MODIFIER_STACK_RESET  );
+                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_CHILD_MODIFIER_STACK_UPDATE );
+
+                g3dobject_invalidate( parent, transmittedInvalidationFlags );
+
+                parent = parent->parent;
+            }
+        }
+    }
+}
+
+
+TODO: add / remove object from invalidateChildList when added/removed
+
+
+/******************************************************************************/
 void g3dobject_update ( G3DOBJECT *obj,
-                        uint64_t   engine_flags ) {
+                        uint64_t   updateFlags,
+                        uint64_t   engineFlags ) {
     if ( obj->update ) {
-        obj->update ( obj, engine_flags );
+        obj->update ( obj, updateFlags, engineFlags );
     }
 
-    obj->update_flags = 0x00;
+    if( ( updateFlags & UPDATE_INTERACTIVE ) == 0x00 ) {
+        obj->invalidationFlags = 0x00;
+    }
 }
 
 /******************************************************************************/
 void g3dobject_update_r ( G3DOBJECT *obj,
-                          uint64_t   engine_flags ) {
-    LIST *ltmpchildren = obj->lchildren;
+                          uint64_t   updateFlags,
+                          uint64_t   engineFlags ) {
+    LIST *ltmpchild = ( obj->invalidationflags & INVALIDATE_HIERARCHY ) ? obj->childList;
+                                                                        : obj->invalidatedChildList;
 
-    g3dobject_update ( obj, engine_flags );
+    g3dobject_update ( obj, updateFlags, engineFlags );
 
     /*** draw children objects after ***/
-    while ( ltmpchildren ) {
-        G3DOBJECT *sub = ( G3DOBJECT * ) ltmpchildren->data;
+    while ( ltmpchild ) {
+        G3DOBJECT *sub = ( G3DOBJECT * ) ltmpchild->data;
 
-        g3dobject_update_r ( sub, engine_flags );
+        g3dobject_update_r ( sub, updateFlags, engineFlags );
 
-        ltmpchildren = ltmpchildren->next;
+        ltmpchild = ltmpchild->next;
     }
 }
 
 /******************************************************************************/
 uint32_t g3dobject_isChild ( G3DOBJECT *parent, G3DOBJECT *obj ) {
-    LIST *ltmp = parent->lchildren;
+    LIST *ltmpchild = parent->childList;
 
-    while ( ltmp ) {
-        G3DOBJECT *child = ( G3DOBJECT * ) ltmp->data;
+    while ( ltmpchild ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchild->data;
 
         if ( child == obj ) {
 
@@ -1895,7 +1941,7 @@ uint32_t g3dobject_isChild ( G3DOBJECT *parent, G3DOBJECT *obj ) {
             }
         }
 
-        ltmp = ltmp->next;
+        ltmpchild = ltmpchild->next;
     }
 
     return 0x00;
@@ -1903,7 +1949,7 @@ uint32_t g3dobject_isChild ( G3DOBJECT *parent, G3DOBJECT *obj ) {
 
 /******************************************************************************/
 void g3dobject_treeToList_r ( G3DOBJECT *obj, LIST **lis ) {
-    LIST *ltmpobj = obj->lchildren;
+    LIST *ltmpobj = obj->childList;
 
     while ( ltmpobj ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpobj->data;
@@ -1919,7 +1965,7 @@ void g3dobject_treeToList_r ( G3DOBJECT *obj, LIST **lis ) {
 /******************************************************************************/
 G3DOBJECT *g3dobject_getChildByType ( G3DOBJECT *obj, 
                                       uint64_t   type ) {
-    LIST *ltmp = obj->lchildren;
+    LIST *ltmp = obj->childList;
 
     if ( obj->type == type ) {
         return obj;
@@ -1939,7 +1985,7 @@ G3DOBJECT *g3dobject_getChildByType ( G3DOBJECT *obj,
 
 /******************************************************************************/
 G3DOBJECT *g3dobject_getChildByID ( G3DOBJECT *obj, uint32_t id ) {
-    LIST *ltmp = obj->lchildren;
+    LIST *ltmp = obj->childList;
 
     if ( obj->id == id ) {
         return obj;
@@ -1963,22 +2009,22 @@ G3DOBJECT *g3dobject_getChildByID ( G3DOBJECT *obj, uint32_t id ) {
 /*** leaves the child's world matrix unchanged ***/
 void g3dobject_importChild ( G3DOBJECT *newparent, 
                              G3DOBJECT *child, 
-                             uint64_t   engine_flags ) {
+                             uint64_t   engineFlags ) {
     float invmatrix[0x10];
     float outmatrix[0x10];
 
     g3dcore_invertMatrixf ( newparent->worldMatrix, invmatrix );
     g3dcore_multMatrixf   ( child->worldMatrix    , invmatrix, outmatrix );
 
-    if ( child->parent ) g3dobject_removeChild ( child->parent, child, engine_flags );
+    if ( child->parent ) g3dobject_removeChild ( child->parent, child, engineFlags );
 
     g3dcore_getMatrixScalef       ( outmatrix, &child->sca );
     g3dcore_getMatrixRotationf    ( outmatrix, &child->rot );
     g3dcore_getMatrixTranslationf ( outmatrix, &child->pos );
 
-    g3dobject_addChild ( newparent, child, engine_flags );
+    g3dobject_addChild ( newparent, child, engineFlags );
 
-    g3dobject_updateMatrix_r ( child, engine_flags );
+    g3dobject_updateMatrix_r ( child, engineFlags );
 
 }
 
@@ -1986,9 +2032,9 @@ void g3dobject_importChild ( G3DOBJECT *newparent,
 G3DOBJECT *g3dobject_copy ( G3DOBJECT  *obj, 
                             uint32_t    id,
                             const char *name, 
-                            uint64_t    engine_flags ) {
-    G3DOBJECT *cpyobj = ( G3DOBJECT * ) obj->copy ( obj, id, name, engine_flags );
-    LIST *ltmpchildren = obj->lchildren;
+                            uint64_t    engineFlags ) {
+    G3DOBJECT *cpyobj = ( G3DOBJECT * ) obj->copy ( obj, id, name, engineFlags );
+    LIST *ltmpchildren = obj->childList;
 
     g3dobject_importTransformations ( cpyobj, obj );
 
@@ -1997,7 +2043,7 @@ G3DOBJECT *g3dobject_copy ( G3DOBJECT  *obj,
 
         g3dobject_addChild ( cpyobj, g3dobject_copy ( child, child->id,
                                                              child->name,
-                                                             engine_flags ), engine_flags );
+                                                             engineFlags ), engineFlags );
 
         ltmpchildren = ltmpchildren->next;
     }
@@ -2026,7 +2072,7 @@ void g3dobject_initMatrices ( G3DOBJECT *obj ) {
 uint32_t g3dobject_default_draw ( G3DOBJECT * obj,
                                   G3DCAMERA *cam,
                                   G3DENGINE *engine,
-                                  uint64_t engine_flags ) {
+                                  uint64_t engineFlags ) {
     /*** commented out : too verbose ***/
     /*if ( obj->type ) {
         printf("%s unimplemented for %s\n", __func__, obj->name );
@@ -2047,7 +2093,7 @@ void g3dobject_default_free ( G3DOBJECT *obj ) {
 
 /******************************************************************************/
 uint32_t g3dobject_default_pick ( G3DOBJECT *obj, G3DCAMERA *cam, 
-                                              uint64_t engine_flags ) {
+                                              uint64_t engineFlags ) {
     /*** commented out : too verbose ***/
     /*
     if ( obj->type != G3DSCENETYPE) {
@@ -2068,8 +2114,8 @@ void g3dobject_default_pose ( G3DOBJECT *obj, G3DKEY *key ) {
 G3DOBJECT* g3dobject_default_copy ( G3DOBJECT  *obj,
                                     uint32_t    id,
                                     const char *name,
-                                    uint64_t    engine_flags ) {
-    G3DOBJECT *cpy = g3dobject_new ( id, name, engine_flags );
+                                    uint64_t    engineFlags ) {
+    G3DOBJECT *cpy = g3dobject_new ( id, name, engineFlags );
     /*** commented out : too verbose ***/
 /*
     if ( obj->type ) {
@@ -2080,7 +2126,7 @@ G3DOBJECT* g3dobject_default_copy ( G3DOBJECT  *obj,
 }
 
 /******************************************************************************/
-void g3dobject_default_activate ( G3DOBJECT *obj, uint64_t engine_flags ) {
+void g3dobject_default_activate ( G3DOBJECT *obj, uint64_t engineFlags ) {
     /*** commented out : too verbose ***/
     /*
     if ( obj->type ) {
@@ -2090,7 +2136,7 @@ void g3dobject_default_activate ( G3DOBJECT *obj, uint64_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dobject_default_deactivate ( G3DOBJECT *obj, uint64_t engine_flags ) {
+void g3dobject_default_deactivate ( G3DOBJECT *obj, uint64_t engineFlags ) {
     /*** commented out : too verbose ***/
     /*
     if ( obj->type ) {
@@ -2102,8 +2148,8 @@ void g3dobject_default_deactivate ( G3DOBJECT *obj, uint64_t engine_flags ) {
 /******************************************************************************/
 G3DOBJECT* g3dobject_default_commit ( G3DOBJECT *obj, uint32_t id,
                                                       const char *name,
-                                                      uint64_t engine_flags ) {
-    G3DOBJECT *com = g3dobject_new ( id, name, engine_flags );
+                                                      uint64_t engineFlags ) {
+    G3DOBJECT *com = g3dobject_new ( id, name, engineFlags );
 
     /*** commented out : too verbose ***/
     /*
@@ -2117,7 +2163,7 @@ G3DOBJECT* g3dobject_default_commit ( G3DOBJECT *obj, uint32_t id,
 
 /******************************************************************************/
 void g3dobject_default_addChild ( G3DOBJECT *obj, G3DOBJECT *child, 
-                                                  uint64_t engine_flags ) {
+                                                  uint64_t engineFlags ) {
     /*** commented out : too verbose ***/
     /*                                          
     if ( obj->type ) {
@@ -2130,7 +2176,7 @@ void g3dobject_default_addChild ( G3DOBJECT *obj, G3DOBJECT *child,
 void g3dobject_default_setParent ( G3DOBJECT *obj, 
                                    G3DOBJECT *parent, 
                                    G3DOBJECT *oldParent, 
-                                   uint64_t   engine_flags ) {
+                                   uint64_t   engineFlags ) {
     /*** commented out : too verbose ***/
     /*      
     if ( obj->type ) {
@@ -2226,21 +2272,21 @@ uint32_t g3dobject_isActive ( G3DOBJECT *obj ) {
 
 /******************************************************************************/
 void g3dobject_activate ( G3DOBJECT *obj,
-                          uint64_t   engine_flags ) {
+                          uint64_t   engineFlags ) {
     if ( obj->flags & OBJECTINACTIVE ) {
         g3dobject_setActive ( obj );
 
-        if ( obj->activate ) obj->activate ( obj, engine_flags );
+        if ( obj->activate ) obj->activate ( obj, engineFlags );
     }
 }
 
 /******************************************************************************/
 void g3dobject_deactivate ( G3DOBJECT *obj, 
-                            uint64_t   engine_flags ) {
+                            uint64_t   engineFlags ) {
     if ( ( obj->flags & OBJECTINACTIVE ) == 0x00 ) {
         g3dobject_setInactive ( obj );
 
-        if ( obj->deactivate ) obj->deactivate ( obj, engine_flags );
+        if ( obj->deactivate ) obj->deactivate ( obj, engineFlags );
     }
 }
 
@@ -2248,16 +2294,16 @@ void g3dobject_deactivate ( G3DOBJECT *obj,
 G3DOBJECT *g3dobject_commit ( G3DOBJECT     *obj, 
                               uint32_t       id,
                               unsigned char *name,
-                              uint64_t       engine_flags ) {
+                              uint64_t       engineFlags ) {
 
-    if ( obj->commit ) return obj->commit ( obj, id, name, engine_flags );
+    if ( obj->commit ) return obj->commit ( obj, id, name, engineFlags );
 
     return NULL;
 }
 
 /******************************************************************************/
 G3DOBJECT *g3dobject_getSelectedChild ( G3DOBJECT *obj ) {
-    LIST *ltmp = obj->lchildren;
+    LIST *ltmp = obj->childList;
     G3DOBJECT *sel = NULL;
 
     while ( ltmp ) {
@@ -2291,7 +2337,7 @@ G3DSCENE *g3dobject_getScene( G3DOBJECT *obj ) {
 
 /******************************************************************************/
 uint32_t g3dobject_countChildren_r ( G3DOBJECT *obj ) {
-    LIST *ltmp = obj->lchildren;
+    LIST *ltmp = obj->childList;
     uint32_t nbkid = 0x00;
 
     while ( ltmp ) {
@@ -2329,8 +2375,8 @@ void g3dobject_name ( G3DOBJECT *obj, const char *name ) {
 /******************************************************************************/
 void g3dobject_moveAxis ( G3DOBJECT *obj, 
                           float     *PREVMVX, /* previous world matrix */
-                          uint64_t engine_flags ) {
-    LIST *ltmpchildren = obj->lchildren;
+                          uint64_t engineFlags ) {
+    LIST *ltmpchildren = obj->childList;
     float DIFFMVX[0x10];
 
     g3dcore_multMatrixf ( PREVMVX, obj->inverseWorldMatrix, DIFFMVX );
@@ -2346,7 +2392,7 @@ void g3dobject_moveAxis ( G3DOBJECT *obj,
         g3dcore_getMatrixTranslationf ( newChildLocalMatrix, &child->pos );
         g3dcore_getMatrixRotationf    ( newChildLocalMatrix, &child->rot );
 
-        g3dobject_updateMatrix_r ( child, engine_flags );
+        g3dobject_updateMatrix_r ( child, engineFlags );
 
         ltmpchildren = ltmpchildren->next;
     }
@@ -2355,7 +2401,7 @@ void g3dobject_moveAxis ( G3DOBJECT *obj,
 /******************************************************************************/
 uint32_t g3dobject_seekByPtr_r ( G3DOBJECT *obj, 
                                  G3DOBJECT *ptr ) {
-    LIST *ltmpchildren = obj->lchildren;
+    LIST *ltmpchildren = obj->childList;
 
     if ( obj == ptr ) return 0x01;
 
@@ -2400,7 +2446,7 @@ G3DOBJECT *g3dobject_new ( uint32_t id, const char *name, uint32_t object_flags 
 void g3dobject_drawBBox ( G3DOBJECT *obj,
                           G3DCAMERA *curcam,
                           G3DENGINE *engine,
-                          uint64_t   engine_flags ) {
+                          uint64_t   engineFlags ) {
     G3DBBOX *bbox = &obj->bbox;
     float xlen = ( bbox->xmax - bbox->xmin ) * BBOXLEN,
           ylen = ( bbox->ymax - bbox->ymin ) * BBOXLEN,
@@ -2468,9 +2514,9 @@ void g3dobject_drawBBox ( G3DOBJECT *obj,
                                                    ver[i][0x02] + vec[i][0x02] }, 
                                           .col = { 1.0f, 0.0f, 0.0f } } };
 
-        g3dengine_drawLine( engine, &vertices[0x00], 0, engine_flags );
-        g3dengine_drawLine( engine, &vertices[0x02], 0, engine_flags );
-        g3dengine_drawLine( engine, &vertices[0x04], 0, engine_flags );
+        g3dengine_drawLine( engine, &vertices[0x00], 0, engineFlags );
+        g3dengine_drawLine( engine, &vertices[0x02], 0, engineFlags );
+        g3dengine_drawLine( engine, &vertices[0x04], 0, engineFlags );
     }
 
     glPopAttrib ( );

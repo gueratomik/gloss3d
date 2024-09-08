@@ -53,11 +53,11 @@ uint64_t g3duisymmetryedit_limit ( G3DUISYMMETRYEDIT *symedit,
 
                     g3dsymmetry_meshChildChange ( sym, mes );
 
-                    mes->obj.update_flags |= ( UPDATEVERTEXNORMAL |
-                                               UPDATEFACENORMAL | 
-                                               RESETMODIFIERS );
+                    mes->obj.invalidationFlags |= ( UPDATEVERTEXNORMAL |
+                                                    UPDATEFACENORMAL | 
+                                                    RESETMODIFIERS );
 
-                    g3dmesh_update ( mes, gui->engine_flags );
+                    g3dmesh_update ( mes, 0x00, gui->engine_flags );
                 }
 
                 ltmpobj = ltmpobj->next;

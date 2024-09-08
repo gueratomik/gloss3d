@@ -446,17 +446,32 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define KEYPARTICLEEMITTER    (  1 << 18 )
 
 /******************************** Update flags ********************************/
-#define COMPUTEFACEPOINT         (  1       )
-#define COMPUTEEDGEPOINT         (  1 <<  1 )
-#define NOVERTEXNORMAL           (  1 <<  2 )
-#define UPDATEVERTEXNORMAL       (  1 <<  3 )
-#define UPDATEFACENORMAL         (  1 <<  4 )
-#define UPDATEFACEPOSITION       (  1 <<  5 )
-#define RESETMODIFIERS           (  1 <<  6 )
-#define UPDATEMODIFIERS          (  1 <<  7 )
-#define COMPUTEUVMAPPING         (  1 <<  8 )
-#define EDGECOMPUTENORMAL        (  1 <<  9 )
-#define UPDATESKIN               (  1 << 10 )
+#define INVALIDATE_HIERARCHY                   (  1       )
+#define INVALIDATE_SHAPE                       (  1 <<  1 )
+#define INVALIDATE_TOPOLOGY                    (  1 <<  2 )
+#define INVALIDATE_COLOR                       (  1 <<  3 )
+#define INVALIDATE_MODIFIER_STACK_RESET        (  1 <<  4 )
+#define INVALIDATE_MODIFIER_STACK_UPDATE       (  1 <<  5 )
+#define INVALIDATE_CHILD                       (  1 <<  6 )
+#define INVALIDATE_CHILD_SHIFT                 (       15 )
+#define INVALIDATE_CHILD_SHAPE                 ( INVALIDATE_SHAPE                 << INVALIDATE_CHILD_SHIFT )
+#define INVALIDATE_CHILD_TOPOLOGY              ( INVALIDATE_TOPOLOGY              << INVALIDATE_CHILD_SHIFT )
+#define INVALIDATE_CHILD_COLOR                 ( INVALIDATE_COLOR                 << INVALIDATE_CHILD_SHIFT )
+#define INVALIDATE_CHILD_MODIFIER_STACK_RESET  ( INVALIDATE_MODIFIER_STACK_RESET  << INVALIDATE_CHILD_SHIFT )
+#define INVALIDATE_CHILD_MODIFIER_STACK_UPDATE ( INVALIDATE_MODIFIER_STACK_UPDATE << INVALIDATE_CHILD_SHIFT )
+
+/***************************** Mesh Update flags ******************************/
+
+#define INVALIDATE_MESH_FACEPOINT        (  1 <<  1 ) /* subdiv */
+#define INVALIDATE_MESH_EDGEPOINT        (  1 <<  2 ) /* subdiv */
+/*#define NOVERTEXNORMAL              (  1 <<  2 )*/
+#define INVALIDATE_MESH_VERTEXNORMAL     (  1 <<  3 )
+#define INVALIDATE_MESH_FACENORMAL       (  1 <<  4 )
+#define INVALIDATE_MESH_FACEPOSITION     (  1 <<  5 )
+#define INVALIDATE_MESH_MODIFIERS_       (  1 <<  6 )
+#define INVALIDATE_MESH_UVMAPPING        (  1 <<  7 )
+#define INVALIDATE_MESH_EDGENORMAL       (  1 <<  8 )
+#define INVALIDATE_MESH_SKIN             (  1 <<  9 )
 
 /*** Mesh color ***/
 #define MESHCOLORUB 0x80
@@ -825,6 +840,7 @@ typedef struct _G3DENGINE G3DENGINE;
                                                  G3DKEY*))f)
 
 #define UPDATE_CALLBACK(f)       ((void(*)      (G3DOBJECT*,   \
+                                                 uint64_t,     \
                                                  uint64_t))f)
 
 #define OBJECTKEY_FUNC(f) ((void(*)(G3DKEY*,void*))f)
@@ -878,7 +894,7 @@ typedef struct _G3DOBJECT {
     uint32_t id;            /*** Object ID               ***/
     uint64_t type;          /*** Flag for object type    ***/
     uint32_t flags;         /*** selected or not etc ... ***/
-    uint32_t update_flags;
+    uint32_t invalidationFlags;
     char *name;             /*** Object's name           ***/
     G3DVECTOR3F pos;          /*** Object center position  ***/
     G3DVECTOR3F rot;          /*** Object center angles    ***/
@@ -895,18 +911,19 @@ typedef struct _G3DOBJECT {
     uint32_t (*draw)          ( struct _G3DOBJECT *obj, 
                                 struct _G3DCAMERA *cam,
                                 struct _G3DENGINE *engine,
-                                        uint64_t   engine_flags );
+                                        uint64_t   engineFlags );
     /*** Free memory function ***/
     void     (*free)          ( struct _G3DOBJECT *obj );
     /*** Object selection ***/
     uint32_t     (*pick)      ( struct _G3DOBJECT *obj, 
                                 struct _G3DCAMERA *cam,
-                                        uint64_t   engine_flags );
+                                        uint64_t   engineFlags );
     void     (*anim)          ( struct  _G3DOBJECT *obj,
                                 float    frame, 
-                                uint64_t engine_flags );
+                                uint64_t engineFlags );
     void     (*update)        ( struct  _G3DOBJECT *obj,
-                                         uint64_t   engine_flags );
+                                         uint64_t   updateFlags,
+                                         uint64_t   engineFlags );
     void     (*pose)          ( struct _G3DOBJECT *, G3DKEY * );
     /* Object copy */
     struct _G3DOBJECT*(*copy) ( struct _G3DOBJECT *, uint32_t,
@@ -923,26 +940,27 @@ typedef struct _G3DOBJECT {
                                                         uint64_t );
     void  (*addChild)         ( struct _G3DOBJECT *obj, 
                                 struct _G3DOBJECT *child,
-                                         uint64_t  engine_flags );
+                                         uint64_t  engineFlags );
     void  (*removeChild)      ( struct _G3DOBJECT *obj, 
                                 struct _G3DOBJECT *child,
-                                         uint64_t  engine_flags );
+                                         uint64_t  engineFlags );
     void  (*setParent)        ( struct _G3DOBJECT *child, 
                                 struct _G3DOBJECT *parent,
                                 struct _G3DOBJECT *oldParent, 
-                                         uint64_t  engine_flags );
+                                         uint64_t  engineFlags );
     struct _G3DOBJECT *parent; /*** Parent Object ***/
-    LIST *lchildren;        /*** List of children ***/
-    G3DBBOX bbox;
+    LIST         *childList;        /*** List of children ***/
+    G3DBBOX       bbox;
     G3DQUATERNION rotation;
-    LIST *lkey; /*** keyframe list ***/
-    uint32_t nbkey;
-    LIST *lselkey;
-    G3DCURVE *curve[0x03]; /* transformation dynamics */
-    LIST     *lext; /* list of object extensions */
-    LIST     *ltag;
-    G3DTAG   *seltag;
-    uint32_t  tagID;
+    G3DCURVE     *curve[0x03]; /* transformation dynamics */
+    LIST         *keyList; /*** keyframe list ***/
+    uint32_t      keyCount;
+    LIST         *selectedKeyList;
+    LIST         *extensionList; /* list of object extensions */
+    LIST         *tagList;
+    LIST         *invalidatedChildList;
+    G3DTAG       *seltag;
+    uint32_t      tagID;
 } G3DOBJECT;
 
 /******************************************************************************/
@@ -1133,12 +1151,12 @@ typedef struct _G3DCUTEDGE {
 typedef struct _G3DFACE {
     uint32_t         id;           /*** face ID                             ***/
     uint32_t         typeID;
-    uint32_t          flags;        /*** selected or not                     ***/
+    uint32_t         flags;        /*** selected or not                     ***/
     uint32_t         nbver;        /*** number of vertices and edges        ***/
     G3DVERTEX       *ver[0x04];    /*** vertices array                      ***/
     G3DEDGE         *edg[0x04];    /*** edges array                         ***/
-    G3DVECTOR3F        nor;          /*** Face normal vector                  ***/
-    G3DVECTOR3F        pos;          /*** Face position (average position)    ***/
+    G3DVECTOR3F      nor;          /*** Face normal vector                  ***/
+    G3DVECTOR3F      pos;          /*** Face position (average position)    ***/
     LIST            *luvs;         /*** List of UVSets                      ***/
     uint32_t         nbuvs;        /*** Number of UVSets                    ***/
     float            surface;/*** used by the raytracer               ***/
@@ -1271,9 +1289,9 @@ struct _G3DMESH {
     G3DOBJECT obj; /*** Mesh inherits G3DOBJECT ***/
     LIST *lver;    /*** List of vertices        ***/
     LIST *ledg;    /*** List of vertices        ***/
-    LIST *lfac;    /*** List of faces           ***/
-    LIST *lqua;    /*** List of Quads           ***/
-    LIST *ltri;    /*** List of Triangles       ***/
+    LIST *faceList;    /*** List of faces           ***/
+    LIST *quadList;    /*** List of Quads           ***/
+    LIST *triangleList;    /*** List of Triangles       ***/
     LIST *lfacgrp; /*** List of face groups     ***/
     LIST *lweigrp;
     LIST *ltex;    /*** list of textures ***/
@@ -1290,9 +1308,11 @@ struct _G3DMESH {
     
     G3DMODIFIER *lastmod;
 
-    LIST *lupdfac;
-    LIST *lupdedg;
-    LIST *lupdver;
+    LIST *invalidateFaceList;
+    LIST *invalidateEdgeList;
+    LIST *invalidateVertexList;
+
+    uint64_t meshInvalidationflags;
 
     uint32_t verid;
     uint32_t edgid;
@@ -1440,14 +1460,14 @@ typedef struct _G3DMODIFIER {
     G3DMESH    mes;
     uint32_t (*modify)     ( struct _G3DMODIFIER *mod,
                                      G3DMODIFYOP  op,
-                                     uint64_t     engine_flags );
+                                     uint64_t     engineFlags );
     uint32_t (*moddraw)    ( struct _G3DMODIFIER *mod,
                                      G3DCAMERA   *curcam,
                                      G3DENGINE   *engine,
-                                     uint64_t     engine_flags );
+                                     uint64_t     engineFlags );
     uint32_t (*modpick)    ( struct _G3DMODIFIER *mod,
                                      G3DCAMERA   *curcam,
-                                     uint64_t     engine_flags );
+                                     uint64_t     engineFlags );
     G3DOBJECT *oriobj; /*** original mesh   ***/
     G3DVECTOR3F *stkpos; /*** stack positions ***/
     G3DVECTOR3F *stknor; /*** stack normals   ***/
@@ -1679,16 +1699,16 @@ void g3dcore_eulerInDegreesToQuaternion ( G3DVECTOR3D *angles,
                                           G3DQUATERNION *qout );
 void       g3dcore_grid3D   ( G3DCAMERA *cam,
                               G3DENGINE *engine, 
-                              uint64_t engine_flags );
+                              uint64_t engineFlags );
 void       g3dcore_gridXY   ( G3DCAMERA *cam,
                               G3DENGINE *engine,
-                              uint64_t engine_flags );
+                              uint64_t engineFlags );
 void       g3dcore_gridYZ   ( G3DCAMERA *cam,
                               G3DENGINE *engine,
-                              uint64_t engine_flags );
+                              uint64_t engineFlags );
 void       g3dcore_gridZX   ( G3DCAMERA *cam,
                               G3DENGINE *engine,
-                              uint64_t engine_flags );
+                              uint64_t engineFlags );
 uint32_t g3dcore_intersect ( G3DVECTOR4F *plane,
                              G3DVECTOR3F *p1,
                              G3DVECTOR3F *p2,
@@ -1782,13 +1802,13 @@ void     g3dcore_writeJpeg               ( const char *, uint32_t,
 uint32_t g3dcore_getNextPowerOfTwo       ( uint32_t );
 void g3dcore_drawCircle ( uint32_t orientation,
                           float    radius,
-                          uint64_t engine_flags );
+                          uint64_t engineFlags );
 void     g3dcore_drawXYCircle ( float    radius, 
-                                uint64_t engine_flags );
+                                uint64_t engineFlags );
 void     g3dcore_drawYZCircle ( float    radius, 
-                                uint64_t engine_flags );
+                                uint64_t engineFlags );
 void     g3dcore_drawZXCircle ( float    radius, 
-                                uint64_t engine_flags );
+                                uint64_t engineFlags );
 char    *g3dcore_strclone                ( char *   );
 void     g3dcore_extractRotationMatrixd   ( double *, double * );
 void     g3dcore_extractRotationMatrixf   ( float *, float * );
@@ -1830,10 +1850,10 @@ G3DVERTEXEXTENSION *g3dvertex_getExtension ( G3DVERTEX *, uint32_t );
 void       g3dvertex_addExtension ( G3DVERTEX *, G3DVERTEXEXTENSION * );
 void       g3dvertex_removeExtension ( G3DVERTEX *, G3DVERTEXEXTENSION * );
 void g3dvertex_normal ( G3DVERTEX *ver, 
-                        uint64_t   engine_flags );
+                        uint64_t   engineFlags );
 void g3dvertex_computeNormal ( G3DVERTEX *ver, 
                                G3DVECTOR3F *nor,
-                               uint64_t   engine_flags );
+                               uint64_t   engineFlags );
 void       g3dvertex_addFace    ( G3DVERTEX *, G3DFACE * );
 void       g3dvertex_removeFace ( G3DVERTEX *, G3DFACE * );
 void       g3dvertex_addEdge    ( G3DVERTEX *, G3DEDGE * );
@@ -1898,7 +1918,7 @@ void g3dvertex_resetFacesInnerEdges ( G3DVERTEX * );
 void g3dvertex_updateFacesPosition ( G3DVERTEX *ver );
 uint32_t g3dvertex_copyPositionFromList ( LIST *, G3DVECTOR3F ** );
 G3DVERTEX *g3dvertex_copy ( G3DVERTEX *ver, 
-                            uint64_t   engine_flags );
+                            uint64_t   engineFlags );
 uint32_t g3dvertex_isBorder ( G3DVERTEX * );
 void g3dvertex_setPositionFromList ( LIST *, G3DVECTOR3F * );
 LIST *g3dvertex_getFaceListFromVertices ( LIST * );
@@ -1938,7 +1958,7 @@ void g3dvertex_getAveragePositionFromList ( LIST *, G3DVECTOR3F * );
 void shadervertex_init ( SHADERVERTEX *rtver, 
                          G3DVERTEX   *ver,
                          uint32_t     facsel,
-                         uint64_t     engine_flags );
+                         uint64_t     engineFlags );
 void g3dvertex_renumberList ( LIST *, uint32_t );
 void g3dvertex_edgePosition ( G3DVERTEX *, uint32_t );
 G3DVERTEX *g3dvertex_seekVertexByPosition ( LIST *, float, float, float, float );
@@ -1974,7 +1994,7 @@ uint32_t g3dedge_createFaceInnerEdge ( G3DEDGE *, G3DFACE *,
                                                   uint32_t *,
                                                   uint32_t, uint32_t, uint32_t );
 void g3dedge_draw ( G3DEDGE *edg,
-                    uint64_t engine_flags );
+                    uint64_t engineFlags );
 void g3dedge_createBothSubEdge ( G3DEDGE *, G3DSUBEDGE **, G3DSUBVERTEX ** );
 G3DSUBVERTEX *g3dedge_getAverageVertex ( G3DEDGE * );
 void g3dedge_setSelected ( G3DEDGE * );
@@ -2002,7 +2022,7 @@ void g3dedge_getAverageModifiedPosition ( G3DEDGE   *edg,
 void g3dedge_getAverageNormal ( G3DEDGE *, G3DVECTOR3F * );
 void g3dedge_drawSimple ( G3DEDGE *edg,
                           uint32_t object_flags,
-                          uint64_t engine_flags );
+                          uint64_t engineFlags );
 void g3dsubedge_position ( G3DSUBEDGE * );
 G3DSUBEDGE *g3dsubedge_getSubEdge ( G3DSUBEDGE *, G3DVERTEX *, G3DVERTEX * );
 
@@ -2070,10 +2090,10 @@ void g3dface_draw  ( G3DFACE   *fac,
                      float      gouraudScalarLimit,
                      LIST      *ltex,
                      uint32_t   object_flags,
-                     uint64_t   engine_flags );
+                     uint64_t   engineFlags );
 void     g3dface_drawSkin               ( G3DFACE *fac, 
                                           uint32_t oflags,
-                                          uint64_t engine_flags );
+                                          uint64_t engineFlags );
 void     g3dface_getModifiedPosition    ( G3DFACE   *fac,
                                           G3DVECTOR3F *stkpos,
                                           G3DVECTOR3F *facpos );
@@ -2141,9 +2161,9 @@ void     g3dface_getSubFacesFromEdge ( G3DFACE *, G3DEDGE *, G3DFACE **,
                                                              G3DFACE ** );
 G3DFACE *g3dface_retSubFace       ( G3DFACE *, G3DVERTEX * );
 void g3dface_drawEdges ( G3DFACE *fac, 
-                         uint64_t engine_flags );
+                         uint64_t engineFlags );
 void g3dface_drawCenter ( G3DFACE *fac, 
-                          uint64_t engine_flags );
+                          uint64_t engineFlags );
 G3DFACE *g3dface_weld             ( G3DFACE *, LIST *, G3DVERTEX * );
 int      g3dface_applyCatmullScheme ( G3DFACE *, G3DSUBVERTEX *, uint32_t, uint32_t );
 void     g3dface_recurseAlign     ( G3DFACE * );
@@ -2180,12 +2200,12 @@ void g3dface_drawTriangle  ( G3DFACE *fac,
                              float    gouraudScalarLimit,
                              LIST    *ltex, 
                              uint32_t object_flags,
-                             uint64_t engine_flags );
+                             uint64_t engineFlags );
 void g3dface_drawQuad ( G3DFACE *fac,
                         float    gouraudScalarLimit,
                         LIST    *ltex, 
                         uint32_t object_flags,
-                        uint64_t engine_flags );
+                        uint64_t engineFlags );
 void     g3dface_updateBufferedSubdivision ( G3DFACE *, G3DSUBDIVISION *,
                                                         uint32_t, 
                                                         float, 
@@ -2203,7 +2223,7 @@ uint32_t g3dface_convert ( G3DFACE *fac,
                            G3DRTQUAD     **rtquaptr,
                            G3DRTUVSET    **rtuvsptr,
                            uint32_t        object_flags,
-                           uint64_t        engine_flags );
+                           uint64_t        engineFlags );
 G3DUVSET *g3dface_getUVSet        ( G3DFACE *, G3DUVMAP * );
 void     g3dface_addUVSet         ( G3DFACE *, G3DUVSET * );
 void     g3dface_removeUVSet      ( G3DFACE *, G3DUVSET * );
@@ -2227,11 +2247,11 @@ uint32_t g3dface_bindMaterials ( G3DFACE        *fac,
                                  LIST           *ltex, 
                                  G3DARBTEXCOORD *texcoord,
                                  uint32_t        object_flags,
-                                 uint64_t        engine_flags );
+                                 uint64_t        engineFlags );
 void g3dface_unbindMaterials ( G3DFACE *fac, 
                                LIST    *ltex,
                                uint32_t object_flags,
-                               uint64_t engine_flags );
+                               uint64_t engineFlags );
 void     g3dface_removeAllUVSets ( G3DFACE * );
 uint32_t g3dface_countUVSetsFromList ( LIST *, uint32_t );
 void     g3dface_importUVSets ( G3DFACE *, G3DFACE * );
@@ -2249,7 +2269,7 @@ G3DVERTEX *g3dface_getVertexByID ( G3DFACE *, uint32_t );
 G3DEDGE   *g3dface_getEdgeByID   ( G3DFACE *, uint32_t );
 void g3dface_drawSimple  ( G3DFACE *fac, 
                            uint32_t object_flags,
-                           uint64_t engine_flags );
+                           uint64_t engineFlags );
 uint32_t g3dface_checkOrientation ( G3DFACE * );
 void g3dface_initSubface ( G3DFACE *fac, 
                            G3DSUBFACE   *subfac,
@@ -2262,7 +2282,7 @@ void g3dface_initSubface ( G3DFACE *fac,
                            uint32_t      curdiv,
                            uint32_t      object_flags,
                            uint32_t      subdiv_flags,
-                           uint64_t      engine_flags );
+                           uint64_t      engineFlags );
 void g3dface_subdivideUVSets ( G3DFACE * );
 uint32_t g3dface_isFullyMirrored ( G3DFACE * );
 G3DFACE *g3dface_newWithEdges ( G3DVERTEX **, G3DEDGE **, uint32_t );
@@ -2353,14 +2373,17 @@ void g3dobject_scaleSelectedKeys ( G3DOBJECT *obj,
                                    LIST     **laddedPosSegments,
                                    LIST     **laddedRotSegments,
                                    LIST     **laddedScaSegments );
-
+void g3dobject_invalidate( G3DOBJECT *obj,
+                           uint64_t   invalidationFlags );
 G3DOBJECT *g3dobject_findReferred_r ( G3DOBJECT *obj );
 G3DOBJECT *g3dobject_getRandomChild ( G3DOBJECT *obj );
 uint32_t g3dobject_hasRiggedBone_r ( G3DOBJECT *obj );
 void g3dobject_update            ( G3DOBJECT *obj,
-                                   uint64_t   engine_flags );
+                                   uint64_t   updateFlags,
+                                   uint64_t   engineFlags );
 void g3dobject_update_r          ( G3DOBJECT *obj,
-                                   uint64_t   engine_flags );
+                                   uint64_t   updateFlags,
+                                   uint64_t   engineFlags );
 G3DSCENE *g3dobject_getScene( G3DOBJECT *obj );
 void g3dobject_driftSelectedKeys ( G3DOBJECT *obj,
                                    float      drift,
@@ -2400,11 +2423,11 @@ void g3dobject_unsetKeyTransformations ( G3DOBJECT *obj,
 
 void g3dobject_preanim_tags ( G3DOBJECT *obj, 
                               float      frame, 
-                              uint64_t   engine_flags );
+                              uint64_t   engineFlags );
 void g3dobject_postanim_tags ( G3DOBJECT *obj, 
                                float      frame, 
-                               uint64_t   engine_flags );
-void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint64_t engine_flags );
+                               uint64_t   engineFlags );
+void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint64_t engineFlags );
 G3DTAG *g3dobject_getTagByID ( G3DOBJECT *obj, uint32_t id );
 uint32_t g3dobject_getNextTagID ( G3DOBJECT *obj );
 void g3dobject_connectScalingSegmentFromFrame ( G3DOBJECT *obj, 
@@ -2468,19 +2491,19 @@ void g3dobject_removeTag ( G3DOBJECT *obj,
                            G3DTAG    *tag );
 uint32_t g3dobject_pickModifiers ( G3DOBJECT *obj, 
                                    G3DCAMERA *cam,
-                                   uint64_t   engine_flags  );
+                                   uint64_t   engineFlags  );
 uint32_t g3dobject_draw ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
                           G3DENGINE *engine, 
-                          uint64_t   engine_flags );
+                          uint64_t   engineFlags );
 void g3dobject_drawBBox ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam,
                           G3DENGINE *engine,
-                          uint64_t   engine_flags );
+                          uint64_t   engineFlags );
 uint32_t g3dobject_draw_r ( G3DOBJECT *obj, 
                             G3DCAMERA *curcam, 
                             G3DENGINE *engine, 
-                            uint64_t   engine_flags );
+                            uint64_t   engineFlags );
 
 void g3dobject_removeKey ( G3DOBJECT *obj, 
                            G3DKEY    *key, 
@@ -2500,7 +2523,7 @@ void g3dobject_removeKey ( G3DOBJECT *obj,
 void       g3dobject_free                  ( G3DOBJECT *  );
 void g3dobject_removeChild ( G3DOBJECT *obj, 
                              G3DOBJECT *child,
-                             uint64_t   engine_flags );
+                             uint64_t   engineFlags );
 void g3dobject_selectKeyRange ( G3DOBJECT *obj,
                                 float      firstFrame, 
                                 float      lastFrame );
@@ -2508,34 +2531,34 @@ G3DKEY *g3dobject_getNextKey ( G3DOBJECT *obj,
                                G3DKEY    *key );
 void g3dobject_addChild ( G3DOBJECT *obj, 
                           G3DOBJECT *child,
-                          uint64_t engine_flags );
+                          uint64_t engineFlags );
 G3DOBJECT *g3dobject_getChildByID          ( G3DOBJECT *, uint32_t );
 void       g3dobject_importTransformations ( G3DOBJECT *, G3DOBJECT * );
 void g3dobject_drawCenter ( G3DOBJECT *obj,
-                            uint64_t engine_flags );
+                            uint64_t engineFlags );
 void       g3dobject_getObjectsByType_r    ( G3DOBJECT *, uint32_t, LIST ** );
 void       g3dobject_unsetSelected         ( G3DOBJECT * );
 void       g3dobject_setSelected           ( G3DOBJECT * );
 uint32_t g3dobject_pick_r ( G3DOBJECT *obj, 
                             G3DCAMERA *curcam, 
-                            uint64_t engine_flags );
+                            uint64_t engineFlags );
 uint32_t g3dobject_pick ( G3DOBJECT *obj, 
                           G3DCAMERA *curcam, 
-                          uint64_t engine_flags );
+                          uint64_t engineFlags );
 void g3dobject_anim_r ( G3DOBJECT *obj,
                         float      frame,
-                        uint64_t  engine_flags );
+                        uint64_t  engineFlags );
 
 void       g3dobject_updateMatrix          ( G3DOBJECT *, uint64_t );
 void g3dobject_drawKeys ( G3DOBJECT *obj,
                           G3DCAMERA *cam,
                           G3DENGINE *engine,
-                          uint64_t   engine_flags );
+                          uint64_t   engineFlags );
 uint32_t   g3dobject_countChildren_r       ( G3DOBJECT * );
 G3DOBJECT *g3dobject_getSelectedChild      ( G3DOBJECT * );
 void       g3dobject_name                  ( G3DOBJECT *, const char * );
 void g3dobject_updateMatrix_r ( G3DOBJECT *obj, 
-                                uint64_t   engine_flags );
+                                uint64_t   engineFlags );
 G3DKEY    *g3dobject_getKey                ( G3DOBJECT *, float );
 uint32_t   g3dobject_getID                 ( G3DOBJECT * );
 char      *g3dobject_getName               ( G3DOBJECT * );
@@ -2549,19 +2572,19 @@ uint32_t   g3dobject_isChild               ( G3DOBJECT *, G3DOBJECT * );
 G3DOBJECT* g3dobject_default_copy ( G3DOBJECT  *obj,
                                     uint32_t    id,
                                     const char *name,
-                                    uint64_t    engine_flags );
+                                    uint64_t    engineFlags );
 void g3dobject_importChild ( G3DOBJECT *newparent, 
                              G3DOBJECT *child, 
-                             uint64_t   engine_flags );
+                             uint64_t   engineFlags );
 G3DOBJECT *g3dobject_copy ( G3DOBJECT  *obj, 
                             uint32_t    id,
                             const char *name, 
-                            uint64_t    engine_flags );
+                            uint64_t    engineFlags );
 void g3dobject_localTranslate ( G3DOBJECT *obj, 
                                 float      x,
                                 float      y,
                                 float      z,
-                                uint64_t   engine_flags );
+                                uint64_t   engineFlags );
 void       g3dobject_initMatrices          ( G3DOBJECT * );
 uint32_t   g3dobject_getNumberOfChildrenByType ( G3DOBJECT *, uint64_t );
 LIST      *g3dobject_getChildrenByType     ( G3DOBJECT *, uint64_t );
@@ -2575,13 +2598,13 @@ float      g3dobject_getKeys               ( G3DOBJECT *, float,
 
 void g3dobject_anim_position ( G3DOBJECT *obj,
                                float      frame,
-                               uint64_t   engine_flags );
+                               uint64_t   engineFlags );
 void g3dobject_anim_rotation ( G3DOBJECT *obj,
                                float      frame, 
-                               uint64_t   engine_flags );
+                               uint64_t   engineFlags );
 void g3dobject_anim_scaling ( G3DOBJECT *obj,
                               float      frame,
-                              uint64_t   engine_flags );
+                              uint64_t   engineFlags );
 
 void g3dobject_removeSelectedKeys ( G3DOBJECT *obj,
                                     LIST     **lremovedKeys,
@@ -2595,34 +2618,34 @@ void g3dobject_removeSelectedKeys ( G3DOBJECT *obj,
 G3DOBJECT *g3dobject_commit ( G3DOBJECT     *obj, 
                               uint32_t       id,
                               unsigned char *name,
-                              uint64_t       engine_flags );
+                              uint64_t       engineFlags );
 G3DOBJECT *g3dobject_getActiveParentByType ( G3DOBJECT *, uint32_t );
 uint32_t   g3dobject_isActive              ( G3DOBJECT * );
 uint32_t g3dobject_isSelected ( G3DOBJECT *obj );
 uint32_t g3dobject_drawModifiers ( G3DOBJECT *obj, 
                                    G3DCAMERA *cam,
-                                   uint64_t   engine_flags  );
+                                   uint64_t   engineFlags  );
 uint32_t g3dobject_hasSelectedParent ( G3DOBJECT *obj );
 void g3dobject_deactivate ( G3DOBJECT *obj, 
-                            uint64_t   engine_flags );
+                            uint64_t   engineFlags );
 void g3dobject_appendChild ( G3DOBJECT *obj, 
                              G3DOBJECT *child,
-                             uint64_t engine_flags );
+                             uint64_t engineFlags );
 void g3dobject_addChild ( G3DOBJECT *obj, 
                           G3DOBJECT *child,
-                          uint64_t engine_flags );
+                          uint64_t engineFlags );
 void g3dobject_activate ( G3DOBJECT *obj,
-                          uint64_t   engine_flags );
+                          uint64_t   engineFlags );
 void g3dobject_startUpdateModifiers_r ( G3DOBJECT *obj,
-                                        uint64_t   engine_flags );
+                                        uint64_t   engineFlags );
 void g3dobject_updateModifiers_r ( G3DOBJECT *obj,
-                                   uint64_t   engine_flags );
+                                   uint64_t   engineFlags );
 void g3dobject_endUpdateModifiers_r ( G3DOBJECT *obj,
-                                      uint64_t   engine_flags );
-void g3dobject_modify_r ( G3DOBJECT *obj, uint64_t engine_flags );
+                                      uint64_t   engineFlags );
+void g3dobject_modify_r ( G3DOBJECT *obj, uint64_t engineFlags );
 void g3dobject_moveAxis ( G3DOBJECT *obj, 
                           float    *PREVMVX, /* previous world matrix */
-                          uint64_t engine_flags );
+                          uint64_t engineFlags );
 void g3dobject_getSurroundingKeys ( G3DOBJECT *obj,
                                     G3DKEY    *key,
                                     G3DKEY   **prevKey,
@@ -2632,18 +2655,18 @@ void g3dobject_treeToList_r ( G3DOBJECT *obj, LIST **lis );
 void g3dobject_browse ( G3DOBJECT  *obj,
                         uint32_t  (*action)(G3DOBJECT *, void *, uint64_t ),
                         void       *data,
-                        uint64_t    engine_flags );
+                        uint64_t    engineFlags );
 
 /******************************************************************************/
 G3DSYMMETRY *g3dsymmetry_new      ( uint32_t, char * );
 void         g3dsymmetry_free     ( G3DOBJECT * );
 uint32_t g3dsymmetry_draw ( G3DOBJECT *obj,
                             G3DCAMERA *curcam, 
-                            uint64_t   engine_flags );
+                            uint64_t   engineFlags );
 void         g3dsymmetry_setPlane ( G3DSYMMETRY *, uint32_t );
 G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
                                LIST       **loldobj, 
-                               uint64_t     engine_flags );
+                               uint64_t     engineFlags );
 void         g3dsymmetry_meshChildChange ( G3DSYMMETRY *, G3DMESH * );
 void         g3dsymmetry_childVertexChange ( G3DOBJECT *, G3DOBJECT *, G3DVERTEX * );
 void         g3dsymmetry_setMergeLimit ( G3DSYMMETRY *, float );
@@ -2657,16 +2680,16 @@ void          g3dprimitive_free    ( G3DPRIMITIVE *pri );
 uint32_t g3dprimitive_draw ( G3DPRIMITIVE *pri, 
                              G3DCAMERA *curcam, 
                              G3DENGINE *engine, 
-                             uint64_t   engine_flags );
+                             uint64_t   engineFlags );
 G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, 
-                                uint64_t      engine_flags );
+                                uint64_t      engineFlags );
 void g3dprimitive_init ( G3DPRIMITIVE *pri, 
                          uint32_t     id,
                          char        *name,
                          void        *data,
                          uint32_t     datalen );
 G3DOBJECT *g3dprimitive_copy ( G3DOBJECT *obj, 
-                               uint64_t   engine_flags );
+                               uint64_t   engineFlags );
 
 /******************************************************************************/
 G3DPRIMITIVE *g3dsphere_new ( uint32_t, char * );
@@ -2710,11 +2733,14 @@ G3DPRIMITIVE *g3dtube_new ( uint32_t id,
 /******************************************************************************/
 G3DMESH *g3dmesh_new ( uint32_t id, 
                        char    *name, 
-                       uint64_t engine_flags );
+                       uint64_t engineFlags );
 void g3dmesh_init ( G3DMESH *mes, 
                     uint32_t id, 
                     char    *name,
-                    uint64_t engine_flags );
+                    uint64_t engineFlags );
+void g3dmesh_invalidate ( G3DMESH *mes,
+                          uint64_t objectInvalidationflags,
+                          uint64_t meshInvalidationflags );
 void       g3dmesh_free                 ( G3DOBJECT * );
 void g3dmesh_paintWeightgroup ( G3DMESH        *mes,
                                 G3DWEIGHTGROUP *grp );
@@ -2748,11 +2774,11 @@ void       g3dmesh_addFaceWithEdges     ( G3DMESH   *mes,
 void       g3dmesh_drawTriangleList     ( G3DMESH   *mes, 
                                           G3DCAMERA *curcam,
                                           G3DENGINE *engine,
-                                          uint64_t   engine_flags );
+                                          uint64_t   engineFlags );
 void       g3dmesh_drawQuadList         ( G3DMESH   *mes,
                                           G3DCAMERA *curcam,
                                           G3DENGINE *engine,
-                                          uint64_t   engine_flags );
+                                          uint64_t   engineFlags );
 
 void       g3dmesh_addFaceFromSplitEdge ( G3DMESH *, G3DSPLITEDGE * );
 void       g3dmesh_addMaterial          ( G3DMESH *, G3DMATERIAL  *,
@@ -2766,7 +2792,7 @@ void       g3dmesh_appendTexture        ( G3DMESH    *mes,
 void       g3dmesh_addUVMap ( G3DMESH  *mes, 
                               G3DUVMAP *map,
                               LIST    **lnewuvset,
-                              uint64_t engine_flags );
+                              uint64_t engineFlags );
 void       g3dmesh_addWeightGroup       ( G3DMESH *, G3DWEIGHTGROUP * );
 void       g3dmesh_alignNormals         ( G3DMESH * );
 void       g3dmesh_alignFaces           ( G3DMESH * );
@@ -2775,22 +2801,22 @@ G3DUVMAP *g3dmesh_getUVMapByRank ( G3DMESH *mes, uint32_t rank );
 void       g3dmesh_drawSelectedUVMap ( G3DMESH   *mes,
                                        G3DCAMERA *curcam,
                                        G3DENGINE *engine,
-                                       uint64_t   engine_flags );
+                                       uint64_t   engineFlags );
 void       g3dmesh_attachFaceEdges      ( G3DMESH *, G3DFACE * );
 void g3dmesh_fixBones ( G3DMESH *mes, 
-                        uint64_t engine_flags );
+                        uint64_t engineFlags );
 void g3dmesh_drawModified ( G3DMESH   *mes,
                             G3DCAMERA *cam, 
                             G3DVECTOR3F *verpos,
                             G3DVECTOR3F *vernor,
-                            uint64_t   engine_flags );
+                            uint64_t   engineFlags );
 void g3dmesh_cut ( G3DMESH *mes, 
                    G3DFACE *knife,
                    LIST   **loldfac,
                    LIST   **lnewver,
                    LIST   **lnewfac,
                    uint32_t restricted,
-                   uint64_t engine_flags );
+                   uint64_t engineFlags );
 void g3dmesh_setGeometryInArrays ( G3DMESH *mes, G3DVERTEX *ver,
                                                  uint32_t   nbver,
                                                  G3DEDGE   *edg,
@@ -2801,34 +2827,34 @@ void g3dmesh_setGeometryInArrays ( G3DMESH *mes, G3DVERTEX *ver,
 uint32_t g3dmesh_draw ( G3DOBJECT *obj, 
                         G3DCAMERA *curcam, 
                         G3DENGINE *engine,
-                        uint64_t engine_flags );
+                        uint64_t engineFlags );
 void g3dmesh_drawEdges ( G3DMESH *mes,
                          G3DCAMERA *cam,
                          G3DENGINE *engine,
                          uint32_t object_flags, 
-                         uint64_t engine_flags );
+                         uint64_t engineFlags );
 void       g3dmesh_drawFace             ( G3DMESH *, uint32_t );
 void g3dmesh_drawFaces ( G3DMESH *mes,
                          uint32_t object_flags, 
-                         uint64_t engine_flags );
+                         uint64_t engineFlags );
 void g3dmesh_drawFaceNormal ( G3DMESH *mes,
                               G3DCAMERA *curcam, 
                               G3DENGINE *engine,
-                              uint64_t engine_flags );
+                              uint64_t engineFlags );
 void g3dmesh_drawObject ( G3DMESH   *mes, 
                           G3DCAMERA *curcam,
                           G3DENGINE *engine,
-                          uint64_t   engine_flags );
+                          uint64_t   engineFlags );
 void g3dmesh_drawSelectedVertices ( G3DMESH *mes,
-                                    uint64_t engine_flags );
+                                    uint64_t engineFlags );
 void g3dmesh_drawVertexNormal ( G3DMESH *mes,
                                 G3DCAMERA *cam, 
                                 G3DENGINE *engine,
-                                uint64_t engine_flags );
+                                uint64_t engineFlags );
 void g3dmesh_drawVertices  ( G3DMESH   *mes,
                              G3DCAMERA *cam,
                              G3DENGINE *engine,
-                             uint64_t   engine_flags );
+                             uint64_t   engineFlags );
 void       g3dmesh_empty                ( G3DMESH * );
 void       g3dmesh_extrude              ( G3DMESH *, LIST **, 
                                                      LIST **,
@@ -2850,7 +2876,7 @@ LIST      *g3dmesh_getEdgeBoundariesFromSelectedFaces   ( G3DMESH * );
 LIST      *g3dmesh_getVertexBoundariesFromSelectedFaces ( G3DMESH * );
 uint32_t g3dmesh_pick ( G3DMESH   *mes, 
                         G3DCAMERA *curcam, 
-                        uint64_t engine_flags );
+                        uint64_t engineFlags );
 
 void       g3dmesh_selectFace           ( G3DMESH *, G3DFACE * );
 void       g3dmesh_selectVertex         ( G3DMESH *, G3DVERTEX * );
@@ -2904,7 +2930,7 @@ void g3dmesh_moveVerticesTo ( G3DMESH   *mes,
                               G3DVECTOR3F *to,
                               uint32_t   absolute,
                               uint32_t   axis_flags,
-                              uint64_t   engine_flags );
+                              uint64_t   engineFlags );
 void       g3dmesh_removeUnusedEdges             ( G3DMESH * );
 void       g3dmesh_removeVertex                  ( G3DMESH *, G3DVERTEX * );
 void       g3dmesh_faceNormal                    ( G3DMESH * );
@@ -2915,7 +2941,7 @@ void       g3dmesh_selectUniqueVertex            ( G3DMESH *mes, G3DVERTEX *ver 
 void       g3dmesh_selectUniqueEdge              ( G3DMESH *mes, G3DEDGE   *edg );
 void       g3dmesh_selectUniqueFace              ( G3DMESH *mes, G3DFACE   *fac );
 void g3dmesh_color ( G3DMESH *mes,
-                     uint64_t engine_flags );
+                     uint64_t engineFlags );
 void       g3dmesh_removeWeightGroup             ( G3DMESH *, G3DWEIGHTGROUP * );
 void       g3dmesh_unselectWeightGroup           ( G3DMESH *, G3DWEIGHTGROUP * );
 void       g3dmesh_selectWeightGroup             ( G3DMESH *, G3DWEIGHTGROUP * );
@@ -2935,7 +2961,7 @@ void       g3dmesh_updateSubdividedFacesFromList ( G3DMESH *mes, LIST *,
 G3DOBJECT *g3dmesh_copy ( G3DOBJECT     *obj, 
                           uint32_t       id, 
                           unsigned char *name, 
-                          uint64_t       engine_flags );
+                          uint64_t       engineFlags );
 void       g3dmesh_removeUnusedVertices          ( G3DMESH *, LIST ** );
 void       g3dmesh_selectAllVertices             ( G3DMESH * );
 void       g3dmesh_updateFacesFromList           ( G3DMESH *, LIST *,
@@ -2948,15 +2974,16 @@ LIST      *g3dmesh_getTexturesFromMaterial       ( G3DMESH *, G3DMATERIAL * );
 LIST      *g3dmesh_getTexturesFromUVMap          ( G3DMESH *, G3DUVMAP * );
 
 void g3dmesh_update ( G3DMESH *mes,
-                      uint64_t engine_flags );
+                      uint64_t updateFlags,
+                      uint64_t engineFlags );
 void g3dmesh_fillSubdividedFaces ( G3DMESH *mes,
                                    LIST    *lfac,
-                                   uint64_t engine_flags );
+                                   uint64_t engineFlags );
 G3DFACE   *g3dmesh_getNextFace                   ( G3DMESH *, LIST * );
 uint32_t g3dmesh_isDisplaced ( G3DMESH *mes, 
-                               uint64_t engine_flags );
+                               uint64_t engineFlags );
 uint32_t g3dmesh_isTextured ( G3DMESH *mes, 
-                              uint64_t engine_flags );
+                              uint64_t engineFlags );
 G3DUVMAP  *g3dmesh_getLastUVMap                  ( G3DMESH * );
 void       g3dmesh_selectTexture                 ( G3DMESH *, G3DTEXTURE * );
 void       g3dmesh_unselectTexture               ( G3DMESH *, G3DTEXTURE * );
@@ -2973,32 +3000,32 @@ void       g3dmesh_renumberEdges                 ( G3DMESH * );
 void       g3dmesh_setSyncSubdivision            ( G3DMESH * );
 void       g3dmesh_unsetSyncSubdivision          ( G3DMESH * );
 void g3dmesh_invertFaceSelection ( G3DMESH *mes, 
-                                   uint64_t engine_flags );
+                                   uint64_t engineFlags );
 LIST *g3dmesh_getVerticesFromWeightgroup ( G3DMESH        *mes,
                                            G3DWEIGHTGROUP *grp );
 void       g3dmesh_invertEdgeeSelection( G3DMESH *mes, 
-                                         uint64_t engine_flags );
+                                         uint64_t engineFlags );
 void       g3dmesh_invertVertexSelection ( G3DMESH *mes, 
-                                           uint64_t engine_flags );
+                                           uint64_t engineFlags );
 uint32_t   g3dmesh_isSubdivided                  ( G3DMESH *, uint32_t );
 uint32_t   g3dmesh_isBuffered                    ( G3DMESH *, uint32_t );
 void       g3dmesh_renumberVertices              ( G3DMESH * );
 void g3dmesh_clone ( G3DMESH   *mes, 
                      G3DVECTOR3F *verpos,
                      G3DMESH   *cpymes, 
-                     uint64_t engine_flags );
+                     uint64_t engineFlags );
 G3DMESH *g3dmesh_splitSelectedFaces ( G3DMESH *mes, 
                                       uint32_t splID,
                                       uint32_t keep, 
                                       LIST   **loldver,
                                       LIST   **loldfac,
-                                      uint64_t engine_flags );
+                                      uint64_t engineFlags );
 void g3dmesh_updateModified ( G3DMESH     *mes,
                               G3DMODIFIER *mod,
-                              uint64_t     engine_flags );
+                              uint64_t     engineFlags );
                               
 void g3dmesh_invertEdgeSelection ( G3DMESH *mes,
-                                   uint64_t engine_flags );
+                                   uint64_t engineFlags );
 void       g3dmesh_triangulate                   ( G3DMESH *, LIST **,
                                                               LIST **,
                                                               uint32_t );
@@ -3014,7 +3041,7 @@ uint32_t g3dmesh_default_dump ( G3DMESH *mes,
                                                G3DVECTOR3F *,
                                                void * ),
                                 void *data,
-                                uint64_t engine_flags );
+                                uint64_t engineFlags );
 void g3dmesh_dump ( G3DMESH *mes, 
                     void (*Alloc)( uint32_t, /* nbver */
                                    uint32_t, /* nbtris */
@@ -3026,7 +3053,7 @@ void g3dmesh_dump ( G3DMESH *mes,
                                    G3DVECTOR3F *,
                                    void * ),
                     void *data,
-                    uint64_t engine_flags );
+                    uint64_t engineFlags );
 uint32_t g3dmesh_dumpModifiers_r ( G3DMESH *mes, 
                                    void (*Alloc)( uint32_t, /* nbver */
                                                   uint32_t, /* nbtris */
@@ -3038,39 +3065,39 @@ uint32_t g3dmesh_dumpModifiers_r ( G3DMESH *mes,
                                                   G3DVECTOR3F *,
                                                   void * ),
                                    void *data,
-                                   uint64_t engine_flags );
+                                   uint64_t engineFlags );
 void g3dmesh_addChild ( G3DMESH   *mes,
                         G3DOBJECT *child, 
-                        uint64_t   engine_flags );
+                        uint64_t   engineFlags );
 void       g3dmesh_clearGeometry ( G3DMESH * );
 G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
                                   float  *MVX,
-                                  uint64_t engine_flags );
+                                  uint64_t engineFlags );
 void g3dmesh_moveAxis ( G3DMESH *mes, 
                         float  *PREVMVX,
-                        uint64_t engine_flags );
+                        uint64_t engineFlags );
 void       g3dmesh_selectAllEdges         ( G3DMESH * );
 void       g3dmesh_selectAllFaces         ( G3DMESH * );
 G3DMESH *g3dmesh_merge ( LIST    *lobj, 
                          uint32_t mesID, 
-                         uint64_t engine_flags );
+                         uint64_t engineFlags );
 G3DTEXTURE *g3dmesh_getSelectedTexture ( G3DMESH *mes );
 void g3dmesh_removeUVMap ( G3DMESH  *mes,
                            G3DUVMAP *map,
                            LIST    **lolduvset,
                            LIST    **loldtex,
-                           uint64_t engine_flags );
+                           uint64_t engineFlags );
 void g3dmesh_pickVertexUVs ( G3DMESH *mes,
-                             uint64_t engine_flags );
+                             uint64_t engineFlags );
 void g3dmesh_pickFaceUVs ( G3DMESH *mes,
-                           uint64_t engine_flags );
+                           uint64_t engineFlags );
 void g3dmesh_drawVertexUVs ( G3DMESH *mes,
-                             uint64_t engine_flags );
+                             uint64_t engineFlags );
 uint32_t g3dmesh_modify ( G3DMESH    *mes,
                           G3DMODIFYOP op,
-                          uint64_t    engine_flags );
+                          uint64_t    engineFlags );
 void g3dmesh_drawFaceUVs ( G3DMESH *mes,
-                           uint64_t engine_flags );
+                           uint64_t engineFlags );
 G3DTEXTURE *g3dmesh_getDefaultTexture ( G3DMESH *mes );
 uint32_t g3dmesh_getAvailableTextureSlot ( G3DMESH *mes );
 void g3dmesh_removeFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp );
@@ -3094,33 +3121,33 @@ uint32_t g3dscene_isObjectReferred ( G3DSCENE *sce,
 uint32_t g3dscene_getSelectionPosition ( G3DSCENE *sce, G3DVECTOR3F *vout );
 uint32_t g3dscene_getSelectionMatrix ( G3DSCENE *sce, 
                                        double   *matrix, 
-                                       uint64_t  engine_flags );
+                                       uint64_t  engineFlags );
 uint32_t g3dscene_getPivotFromSelection ( G3DSCENE  *sce,
-                                          uint64_t   engine_flags );
+                                          uint64_t   engineFlags );
 void g3dscene_updatePivot ( G3DSCENE  *sce,
-                            uint64_t   engine_flags );
+                            uint64_t   engineFlags );
 void       g3dscene_free ( G3DOBJECT * );
 uint32_t g3dscene_draw ( G3DOBJECT *obj, 
                          G3DCAMERA *curcam, 
                          G3DENGINE *engine, 
-                         uint64_t   engine_flags );
+                         uint64_t   engineFlags );
 void g3dscene_unselectObject ( G3DSCENE *sce,
                                G3DOBJECT *obj, 
-                               uint64_t   engine_flags );
+                               uint64_t   engineFlags );
 void g3dscene_selectObject ( G3DSCENE  *sce, 
                              G3DOBJECT *obj,
-                             uint64_t   engine_flags );
+                             uint64_t   engineFlags );
 void       g3dscene_selectTree               ( G3DSCENE *, G3DOBJECT *, int );
 G3DOBJECT *g3dscene_getLastSelected          ( G3DSCENE * );
 uint32_t   g3dscene_selectCount              ( G3DSCENE * );
 G3DOBJECT *g3dscene_selectObjectByName ( G3DSCENE *sce, 
                                          char     *name,
-                                         uint64_t  engine_flags );
+                                         uint64_t  engineFlags );
 void g3dscene_unselectAllObjects ( G3DSCENE *sce, 
-                                   uint64_t  engine_flags );
+                                   uint64_t  engineFlags );
 uint32_t g3dscene_deleteSelectedObjects ( G3DSCENE *sce, 
                                           LIST    **lremovedObjects,
-                                          uint64_t  engine_flags );
+                                          uint64_t  engineFlags );
 G3DOBJECT *g3dscene_getSelectedObject        ( G3DSCENE * );
 void       g3dscene_pickChild                ( G3DSCENE *, uint32_t );
 uint32_t   g3dscene_getNextObjectID          ( G3DSCENE * );
@@ -3136,12 +3163,12 @@ void       g3dscene_updateBufferedMeshes     ( G3DSCENE *, uint32_t );
 void       g3dscene_turnLightsOn             ( G3DSCENE * );
 void       g3dscene_turnLightsOff            ( G3DSCENE * );
 void g3dscene_selectAllObjects ( G3DSCENE *sce, 
-                                 uint64_t  engine_flags );
+                                 uint64_t  engineFlags );
 uint32_t   g3dscene_noLightOn                ( G3DSCENE *, uint64_t );
 void g3dscene_invertSelection ( G3DSCENE *sce, 
-                                uint64_t  engine_flags );
+                                uint64_t  engineFlags );
 void g3dscene_updateMeshes ( G3DSCENE *sce, 
-                             uint64_t  engine_flags );
+                             uint64_t  engineFlags );
 void       g3dscene_exportStlA               ( G3DSCENE *, const char *,
                                                            const char *, 
                                                            uint32_t );
@@ -3153,13 +3180,13 @@ void g3dscene_unregisterImage ( G3DSCENE *sce,
                                 G3DIMAGE *img );
 void g3dscene_updateMeshesFromImage ( G3DSCENE *sce,
                                       G3DIMAGE *img,
-                                      uint64_t  engine_flags );
+                                      uint64_t  engineFlags );
 void g3dscene_processAnimatedImages ( G3DSCENE *sce, 
                                       float     sceneStartFrame,
                                       float     sceneCurrentFrame,
                                       float     sceneEndFrame,
                                       float     sceneFramesPerSecond,
-                                      uint64_t  engine_flags );
+                                      uint64_t  engineFlags );
 
 /******************************************************************************/
 G3DENGINE* g3dengine_new    ( );
@@ -3170,25 +3197,25 @@ void g3dengine_drawTriangle ( G3DENGINE     *engine,
                               float          gouraudScalarLimit,
                               LIST          *ltex, 
                               uint32_t       object_flags,
-                              uint64_t       engine_flags );
+                              uint64_t       engineFlags );
 void g3dengine_drawQuad     ( G3DENGINE    *engine,
                               SHADERVERTEX *vertices,
                               float         gouraudScalarLimit,
                               LIST         *ltex, 
                               uint32_t      object_flags,
-                              uint64_t      engine_flags );
+                              uint64_t      engineFlags );
 void g3dengine_drawLine     ( G3DENGINE    *engine,
                               SHADERVERTEX *vertices,
                               uint32_t      object_flags,
-                              uint64_t      engine_flags );
+                              uint64_t      engineFlags );
 void g3dengine_drawSegment  ( G3DENGINE    *engine,
                               SHADERVERTEX *vertices,
                               uint32_t      object_flags,
-                              uint64_t      engine_flags );
+                              uint64_t      engineFlags );
 void g3dengine_drawPoint    ( G3DENGINE    *engine,
                               SHADERVERTEX *vertex,
                               uint32_t      object_flags,
-                              uint64_t      engine_flags );
+                              uint64_t      engineFlags );
 unsigned int g3dengine_bindSubdivVertexBuffer( G3DENGINE *engine,
                                                uint32_t   maxSubdivVertexCount );
 unsigned int g3dengine_bindSubdivVertexArray( G3DENGINE *engine );
@@ -3211,7 +3238,7 @@ void g3dcamera_init( G3DCAMERA *cam,
                      float    zfar );
 void g3dcamera_setTarget ( G3DCAMERA *cam, 
                            G3DCURSOR *csr,
-                           uint64_t   engine_flags );
+                           uint64_t   engineFlags );
 
 void g3dcamera_spin ( G3DCAMERA *cam, float diffz );
 
@@ -3220,14 +3247,14 @@ G3DRIG *g3dbone_addRig ( G3DBONE *bon,
 void g3dbone_removeRig ( G3DBONE *bon,
                          G3DSKIN *skn );
 void g3dbone_updateRigs ( G3DBONE *bon, 
-                          uint64_t engine_flags );
+                          uint64_t engineFlags );
 void       g3dcamera_free     ( G3DOBJECT * );
 uint32_t g3dcamera_pick ( G3DCAMERA *cam, 
                           G3DCAMERA *curcam, 
-                          uint64_t engine_flags );
+                          uint64_t engineFlags );
 void       g3dcamera_setGrid  ( G3DCAMERA *, void (*)(G3DCAMERA *, uint64_t) );
 void g3dcamera_project ( G3DCAMERA *cam, 
-                         uint64_t   engine_flags );
+                         uint64_t   engineFlags );
 void       g3dcamera_setPivot ( G3DCAMERA *, float, float, float );
 void       g3dcamera_import   ( G3DCAMERA *, G3DCAMERA * );
 void g3dcamera_setOrtho ( G3DCAMERA *cam,
@@ -3235,7 +3262,7 @@ void g3dcamera_setOrtho ( G3DCAMERA *cam,
                           uint32_t   height );
 void g3dcamera_updatePivotFromScene ( G3DCAMERA *cam, 
                                       G3DSCENE  *sce,
-                                      uint64_t   engine_flags );
+                                      uint64_t   engineFlags );
 float g3dcamera_getDistanceToCursor ( G3DCAMERA *cam, 
                                       G3DCURSOR *csr );
 
@@ -3243,10 +3270,10 @@ float g3dcamera_getDistanceToCursor ( G3DCAMERA *cam,
 void g3dcursor_draw ( G3DCURSOR *csr, 
                       G3DCAMERA *curcam,
                       G3DENGINE *engine,
-                      uint64_t   engine_flags );
+                      uint64_t   engineFlags );
 void g3dcursor_pick ( G3DCURSOR *csr, 
                       G3DCAMERA *cam, 
-                      uint64_t   engine_flags );
+                      uint64_t   engineFlags );
 void g3dcursor_init  ( G3DCURSOR * );
 void g3dcursor_reset ( G3DCURSOR * );
 
@@ -3273,7 +3300,7 @@ void         g3dmaterial_addObject            ( G3DMATERIAL *, G3DOBJECT * );
 void         g3dmaterial_removeObject         ( G3DMATERIAL *, G3DOBJECT * );
 void         g3dmaterial_updateMeshes ( G3DMATERIAL *mat, 
                                         G3DSCENE    *sce, 
-                                        uint64_t     engine_flags );
+                                        uint64_t     engineFlags );
 void         g3dmaterial_draw                 ( G3DMATERIAL *, G3DFACE *, uint32_t );
 void         g3dmaterial_disableDisplacement  ( G3DMATERIAL *mat );
 void         g3dmaterial_enableDisplacement   ( G3DMATERIAL *mat );
@@ -3312,7 +3339,7 @@ void     g3dbone_free                   ( G3DOBJECT * );
 uint32_t g3dbone_draw ( G3DOBJECT *obj, 
                         G3DCAMERA *curcam,
                         G3DENGINE *engine,
-                        uint64_t   engine_flags );
+                        uint64_t   engineFlags );
 LIST    *g3dbone_seekMeshHierarchy      ( G3DBONE * );
 LIST    *g3dbone_seekWeightGroups       ( G3DBONE * );
 G3DRIG  *g3dbone_seekRig                ( G3DBONE *, G3DWEIGHTGROUP * );
@@ -3322,21 +3349,21 @@ void     g3dbone_removeWeightGroup      ( G3DBONE        *bon,
 G3DRIG  *g3dbone_addWeightGroup         ( G3DBONE        *bon,
                                           G3DSKIN        *skn,
                                           G3DWEIGHTGROUP *grp );
-void     g3dbone_fix                    ( G3DBONE *, uint64_t engine_flags );
-void     g3dbone_fix_r                  ( G3DBONE *, uint64_t engine_flags );
-void     g3dbone_unfix                  ( G3DBONE *, uint64_t engine_flags );
-void     g3dbone_unfix_r                ( G3DBONE *, uint64_t engine_flags );
+void     g3dbone_fix                    ( G3DBONE *, uint64_t engineFlags );
+void     g3dbone_fix_r                  ( G3DBONE *, uint64_t engineFlags );
+void     g3dbone_unfix                  ( G3DBONE *, uint64_t engineFlags );
+void     g3dbone_unfix_r                ( G3DBONE *, uint64_t engineFlags );
 void     g3dbone_update                 ( G3DBONE * );
 G3DRIG  *g3dbone_getRigBySkin           ( G3DBONE *bon,
                                           G3DSKIN *skn );
 G3DBONE *g3dbone_mirror ( G3DBONE *bon, 
                           uint32_t orientation,
                           uint32_t recurse,
-                          uint64_t engine_flags );
+                          uint64_t engineFlags );
 LIST    *g3dbone_getVertexList          ( G3DBONE *, G3DMESH * );
 void     g3dbone_updateVertices         ( G3DBONE * );
 void g3dbone_updateVertexNormals ( G3DBONE *bon, 
-                                   uint64_t engine_flags );
+                                   uint64_t engineFlags );
 void     g3dbone_updateSubdividedFaces  ( G3DBONE *, uint32_t );
 void     g3dbone_getMeshes_r            ( G3DBONE *, LIST ** );
 void     g3dbone_getMeshExtendedFaces_r ( G3DBONE *, G3DMESH *, LIST ** );
@@ -3345,7 +3372,7 @@ LIST    *g3dbone_getMeshHierarchy       ( G3DBONE * );
 void     g3dbone_updateEdges            ( G3DBONE * );
 void     g3dbone_updateFaces            ( G3DBONE * );
 void g3dbone_transform ( G3DBONE *bon, 
-                         uint64_t   engine_flags );
+                         uint64_t   engineFlags );
 G3DWEIGHTGROUP *g3dbone_seekWeightGroupByID ( G3DBONE *, uint32_t );
 LIST    *g3dbone_getAllWeightGroups     ( G3DBONE * );
 
@@ -3387,14 +3414,14 @@ G3DUVSET  *g3duvset_new                  ( G3DUVMAP * );
 void g3duvset_free ( G3DUVSET *uvset );
 void g3duvset_mapFaceWithBackgroundProjection ( G3DUVSET *uvs, 
                                                 G3DFACE  *fac,
-                                                uint64_t engine_flags );
+                                                uint64_t engineFlags );
 void       g3duvmap_mapFace              ( G3DUVMAP *, G3DMESH *, G3DFACE * );
 void       g3duvmap_adjustFlatProjection ( G3DUVMAP *, G3DMESH *mes );
 void       g3duvmap_applyProjection      ( G3DUVMAP *, G3DMESH *mes );
 uint32_t g3duvmap_draw ( G3DOBJECT *obj, 
                          G3DCAMERA *curcam, 
                          G3DENGINE *engine, 
-                         uint64_t   engine_flags );
+                         uint64_t   engineFlags );
 void       g3duvmap_init                 ( G3DUVMAP *, char *, uint32_t );
 G3DUVMAP  *g3duvmap_new                  ( char *, uint32_t );
 void       g3duvmap_free                 ( G3DOBJECT * );
@@ -3424,14 +3451,14 @@ void      g3dpivot_free ( G3DOBJECT * );
 uint32_t g3dpivot_draw ( G3DOBJECT *obj, 
                          G3DCAMERA *curcam, 
                          G3DENGINE *engine, 
-                         uint64_t   engine_flags );
+                         uint64_t   engineFlags );
 void g3dpivot_init ( G3DPIVOT  *piv, 
                      G3DCAMERA *cam, 
                      G3DCURSOR *csr, 
-                     uint64_t engine_flags );
+                     uint64_t engineFlags );
 G3DPIVOT *g3dpivot_new ( G3DCAMERA *cam, 
                          G3DCURSOR *csr, 
-                         uint64_t   engine_flags );
+                         uint64_t   engineFlags );
 void      g3dpivot_orbit ( G3DPIVOT *, float, float );
 
 /******************************************************************************/
@@ -3452,27 +3479,27 @@ void g3drttriangleuvw_free ( G3DRTTRIANGLEUVW * );
 /******************************************************************************/
 G3DSUBDIVIDER *g3dsubdivider_new ( uint32_t id, 
                                    char    *name, 
-                                   uint64_t engine_flags );
+                                   uint64_t engineFlags );
 void g3dsubdivider_init ( G3DSUBDIVIDER *sdr, 
                           uint32_t       id, 
                           char          *name, 
-                          uint64_t       engine_flags );
+                          uint64_t       engineFlags );
 void           g3dsubdivider_unsetSyncSubdivision ( G3DSUBDIVIDER * );
 void           g3dsubdivider_setSyncSubdivision   ( G3DSUBDIVIDER * );
 void g3dsubdivider_setLevels ( G3DSUBDIVIDER *sdr, 
                                uint32_t       preview,
                                uint32_t       render,
-                               uint64_t       engine_flags );
+                               uint64_t       engineFlags );
 void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
                                  LIST          *lfac,
-                                 uint64_t       engine_flags );
+                                 uint64_t       engineFlags );
 void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr, 
-                                  uint64_t       engine_flags );
+                                  uint64_t       engineFlags );
 void g3dsubdivider_setSculptResolution ( G3DSUBDIVIDER *sdr,
                                          uint32_t       sculptResolution );
 void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
                                    uint32_t       sculptMode,
-                                   uint64_t       engine_flags );
+                                   uint64_t       engineFlags );
 uint32_t g3dsubdivider_hasScultMaps ( G3DSUBDIVIDER *sdr );
 
 /******************************************************************************/
@@ -3499,15 +3526,15 @@ void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
 uint32_t g3dmodifier_moddraw ( G3DMODIFIER *mod,
                                G3DCAMERA   *curcam, 
                                G3DENGINE   *engine, 
-                               uint64_t     engine_flags );
+                               uint64_t     engineFlags );
 uint32_t g3dmodifier_modpick ( G3DMODIFIER *mod,
                                G3DCAMERA   *curcam, 
-                               uint64_t     engine_flags );
+                               uint64_t     engineFlags );
 
 void g3dmodifier_setParent ( G3DMODIFIER *mod, 
                              G3DOBJECT   *parent,
                              G3DOBJECT   *oldParent,
-                             uint64_t     engine_flags );
+                             uint64_t     engineFlags );
 
 void g3dmodifier_init ( G3DMODIFIER *mod,
                         uint32_t     type,
@@ -3541,19 +3568,19 @@ void g3dmodifier_init ( G3DMODIFIER *mod,
                                                     uint64_t ) );
 uint32_t g3dmodifier_draw ( G3DMODIFIER *mod,
                             G3DCAMERA   *cam, 
-                            uint64_t     engine_flags );
+                            uint64_t     engineFlags );
 G3DMODIFIER *g3dmodifier_modify_r ( G3DMODIFIER *mod,
                                     G3DOBJECT   *oriobj,
                                     G3DVECTOR3F   *verpos,
                                     G3DVECTOR3F   *vernor,
                                     G3DMODIFYOP  op,
-                                    uint64_t     engine_flags );
+                                    uint64_t     engineFlags );
 uint32_t g3dmodifier_pick ( G3DMODIFIER *mod,
                             G3DCAMERA   *cam, 
-                            uint64_t     engine_flags );
+                            uint64_t     engineFlags );
 void g3dmodifier_modifyChildren ( G3DMODIFIER *mod,
                                   G3DMODIFYOP  op,
-                                  uint64_t     engine_flags );
+                                  uint64_t     engineFlags );
 uint32_t g3dmodifier_default_dump ( G3DMODIFIER *mod, 
                                     void (*Alloc)( uint32_t, /*nbver */
                                                    uint32_t, /* nbtris */
@@ -3565,13 +3592,13 @@ uint32_t g3dmodifier_default_dump ( G3DMODIFIER *mod,
                                                    G3DVECTOR3F *,
                                                    void * ),
                                     void *data,
-                                    uint64_t engine_flags );
+                                    uint64_t engineFlags );
 
 /******************************************************************************/
 G3DWIREFRAME *g3dwireframe_new          ( uint32_t, char * );
 void g3dwireframe_setThickness ( G3DWIREFRAME *wir, 
                                  float         thickness,
-                                 uint64_t      engine_flags );
+                                 uint64_t      engineFlags );
 
 /******************************************************************************/
 void g3dchannel_getColor ( G3DCHANNEL *, float, float, G3DRGBA *, uint32_t );

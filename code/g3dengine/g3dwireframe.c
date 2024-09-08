@@ -106,14 +106,14 @@ void g3dwireframe_setThickness ( G3DWIREFRAME *wir,
             _NEXTVERTEX(mes,ltmpver);
         }
 
-        wir->mod.mes.obj.update_flags |= ( UPDATEFACEPOSITION |
-                                           UPDATEFACENORMAL   |
-                                           UPDATEVERTEXNORMAL |
-                                           COMPUTEUVMAPPING   |
+        wir->mod.mes.obj.invalidationFlags |= ( UPDATEFACEPOSITION |
+                                                UPDATEFACENORMAL   |
+                                                UPDATEVERTEXNORMAL |
+                                                COMPUTEUVMAPPING   |
         /* we could only update modifiers as their is no change in geometry */
                                            RESETMODIFIERS );
 
-        g3dmesh_update ( (G3DMESH*)wir, engine_flags );
+        g3dmesh_update ( (G3DMESH*)wir, 0x00, engine_flags );
     }
 }
 
@@ -257,12 +257,12 @@ static uint32_t g3dwireframe_opUpdate ( G3DWIREFRAME *wir,
                 ltmpver = ltmpver->next;
             }
 
-            wir->mod.mes.obj.update_flags |= ( UPDATEFACEPOSITION |
-                                               UPDATEFACENORMAL   |
-                                               UPDATEVERTEXNORMAL |
-                                               COMPUTEUVMAPPING );
+            wir->mod.mes.obj.invalidationFlags |= ( UPDATEFACEPOSITION |
+                                                    UPDATEFACENORMAL   |
+                                                    UPDATEVERTEXNORMAL |
+                                                    COMPUTEUVMAPPING );
 
-            g3dmesh_update ( (G3DMESH*)wir, engine_flags );
+            g3dmesh_update ( (G3DMESH*)wir, 0x00, engine_flags );
         }
     }
 

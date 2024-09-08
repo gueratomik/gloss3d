@@ -404,13 +404,8 @@ static int bridge_mesh  ( G3DMESH      *mes,
 
                     g3durm_mesh_createFace ( urm, mes, fac, REDRAWVIEW );
 
-                    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
-                                               UPDATEFACENORMAL   |
-                                               UPDATEVERTEXNORMAL |
-                                               RESETMODIFIERS );
-
                     /*** regenerate subdivision buffer ***/
-                    g3dmesh_update ( mes, engine_flags );
+                    g3dmesh_update ( mes, 0x00, engine_flags );
 
                     /*** be ready for another bridging ***/
                     ver[0x00] = tmpver2;

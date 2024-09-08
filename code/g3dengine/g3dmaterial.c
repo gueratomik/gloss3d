@@ -81,9 +81,9 @@ void g3dmaterial_updateMeshes ( G3DMATERIAL *mat,
             if ( obj->type & MESH ) {
                 G3DMESH *mes = ( G3DMESH * ) obj;
 
-                mes->obj.update_flags = RESETMODIFIERS;
+                mes->obj.invalidationFlags = RESETMODIFIERS;
 
-                g3dmesh_update ( mes, engine_flags );
+                g3dmesh_update ( mes, 0, engine_flags );
 
             }
         }

@@ -31,7 +31,7 @@
 
 /******************************************************************************/
 G3DOBJECT *g3dprimitive_copy ( G3DOBJECT *obj, 
-                               uint64_t   engine_flags ) {
+                               uint64_t   engineFlags ) {
     G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
     G3DPRIMITIVE *cpypri;
     void *data;
@@ -53,7 +53,7 @@ G3DOBJECT *g3dprimitive_copy ( G3DOBJECT *obj,
     ((G3DOBJECT*)cpypri)->type = ((G3DOBJECT*)pri)->type;
 
     /*** A primitive is a mesh ***/
-    g3dmesh_clone ( ( G3DMESH * ) pri, NULL, ( G3DMESH * ) cpypri, engine_flags );
+    g3dmesh_clone ( ( G3DMESH * ) pri, NULL, ( G3DMESH * ) cpypri, engineFlags );
 
 
     return ( G3DOBJECT * ) cpypri;
@@ -61,7 +61,7 @@ G3DOBJECT *g3dprimitive_copy ( G3DOBJECT *obj,
 
 /******************************************************************************/
 G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, 
-                                uint64_t      engine_flags ) {
+                                uint64_t      engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) pri;
     G3DMESH *mes;
 
@@ -70,20 +70,20 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri,
 
     mes = ( G3DMESH * ) g3dobject_copy ( obj, obj->id, 
                                               obj->name, 
-                                              engine_flags );
+                                              engineFlags );
 
-    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL );
+    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
+                                    UPDATEFACENORMAL   |
+                                    UPDATEVERTEXNORMAL );
 
     /*** prepare the precomputed values for Catmull-Clark Subdivision ***/
-    g3dmesh_update ( mes, engine_flags );
+    g3dmesh_update ( mes, 0x00, engineFlags );
 
     if ( obj->parent ) {
         G3DOBJECT *parent = obj->parent;
 
-        g3dobject_removeChild ( parent, obj, engine_flags );
-        g3dobject_addChild    ( parent, ( G3DOBJECT * ) mes, engine_flags );
+        g3dobject_removeChild ( parent, obj, engineFlags );
+        g3dobject_addChild    ( parent, ( G3DOBJECT * ) mes, engineFlags );
     }
 
     /*** Restore the default copy function ***/
@@ -96,8 +96,8 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri,
 /******************************************************************************/
 static uint32_t g3dprimitive_pick ( G3DPRIMITIVE *pri, 
                                     G3DCAMERA    *curcam, 
-                                    uint64_t      engine_flags ) {
-    g3dmesh_pick( ( G3DMESH * ) pri, curcam, engine_flags );
+                                    uint64_t      engineFlags ) {
+    g3dmesh_pick( ( G3DMESH * ) pri, curcam, engineFlags );
 
     return 0x00;
 }
@@ -106,11 +106,11 @@ static uint32_t g3dprimitive_pick ( G3DPRIMITIVE *pri,
 uint32_t g3dprimitive_draw ( G3DPRIMITIVE *pri, 
                              G3DCAMERA    *curcam, 
                              G3DENGINE    *engine, 
-                             uint64_t      engine_flags ) {
+                             uint64_t      engineFlags ) {
     g3dmesh_draw ( ( G3DOBJECT * ) pri, 
                                  curcam, 
                                  engine, 
-                                 engine_flags & (~MODEMASK) | VIEWOBJECT );
+                                 engineFlags & (~MODEMASK) | VIEWOBJECT );
 
     return 0x00;
 }

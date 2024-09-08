@@ -152,7 +152,7 @@ static uint32_t g3dskin_modify ( G3DSKIN    *skn,
 /******************************************************************************/
 static void g3dskin_update ( G3DSKIN *skn,
                              uint64_t engine_flags ) {
-    if ( skn->mod.mes.obj.update_flags & UPDATESKIN ) {
+    if ( skn->mod.mes.obj.invalidationFlags & UPDATESKIN ) {
         if ( g3dobject_isActive ( ( G3DOBJECT * ) skn ) ) {
             g3dskin_modify ( skn, G3DMODIFYOP_UPDATE, engine_flags );
 

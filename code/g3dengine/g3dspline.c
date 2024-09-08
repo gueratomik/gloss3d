@@ -101,10 +101,10 @@ void g3dspline_modify ( G3DSPLINE  *spl,
             if ( ( spl->lastmod->mes.obj.type & MESH ) == 0x00 ) {
                 G3DMESH *mes = ( G3DMESH * ) spl->lastmod;
 
-                mes->obj.update_flags |=  ( UPDATEFACENORMAL   |
-                                            UPDATEVERTEXNORMAL );
+                mes->obj.invalidationFlags |=  ( UPDATEFACENORMAL   |
+                                                 UPDATEVERTEXNORMAL );
 
-                g3dmesh_update ( mes, engine_flags );
+                g3dmesh_update ( mes, 0x00, engine_flags );
             }
         }
     }

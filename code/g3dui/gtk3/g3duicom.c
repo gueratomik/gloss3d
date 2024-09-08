@@ -46,8 +46,10 @@ static void gotoframe ( GTK3G3DUI *gtk3gui,
                                        gui->engine_flags |
                                        gtf->extra_engine_flags );
 
-    g3dobject_update_r ( ( G3DOBJECT * ) gui->sce, gui->engine_flags |
-                                                   gtf->extra_engine_flags );
+    g3dobject_update_r ( ( G3DOBJECT * ) gui->sce,
+                                         0,
+                                         gui->engine_flags |
+                                         gtf->extra_engine_flags );
 
 
     gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW | REDRAWTIMELINE );

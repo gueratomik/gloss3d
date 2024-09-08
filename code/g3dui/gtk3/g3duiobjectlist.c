@@ -464,9 +464,9 @@ static void Input ( GtkWidget *widget,
                              ( obj->type == G3DMESHTYPE ) ) {
                             g3dsymmetry_meshChildChange ( ( G3DSYMMETRY * ) dst, ( G3DMESH * ) obj );
 
-                            obj->update_flags |= UPDATEFACEPOSITION;
+                            obj->invalidationFlags |= UPDATEFACEPOSITION;
 
-                            g3dmesh_update ( ( G3DMESH * ) obj, gui->engine_flags );
+                            g3dmesh_update ( ( G3DMESH * ) obj, 0x00, gui->engine_flags );
                         }
 
                         gtk3_interpretUIReturnFlags ( gtk3gui, UPDATECOORDS );

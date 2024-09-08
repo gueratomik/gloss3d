@@ -31,14 +31,14 @@
 
 /******************************************************************************/
 G3DBONE *g3dbone_clone ( G3DBONE *bon, uint32_t recurse, 
-                                       uint64_t engine_flags ) {
+                                       uint64_t engineFlags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     G3DBONE   *cloned = g3dbone_new ( 0x00, objbon->name, bon->len );
 
     g3dobject_importTransformations ( ( G3DOBJECT * ) cloned, 
                                       ( G3DOBJECT * ) objbon );
 
-    g3dobject_addChild ( objbon->parent, ( G3DOBJECT * ) cloned, engine_flags );
+    g3dobject_addChild ( objbon->parent, ( G3DOBJECT * ) cloned, engineFlags );
 
     if ( recurse ) {
         LIST *ltmpchildren = objbon->lchildren;
@@ -47,10 +47,10 @@ G3DBONE *g3dbone_clone ( G3DBONE *bon, uint32_t recurse,
             G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
 
             if ( child->type == G3DBONETYPE ) {
-                G3DBONE *clokid = g3dbone_clone ( (G3DBONE *) child, recurse, engine_flags );
+                G3DBONE *clokid = g3dbone_clone ( (G3DBONE *) child, recurse, engineFlags );
 
                 g3dobject_addChild ( ( G3DOBJECT * ) cloned,
-                                     ( G3DOBJECT * ) clokid, engine_flags );
+                                     ( G3DOBJECT * ) clokid, engineFlags );
             }
 
             ltmpchildren = ltmpchildren->next;
@@ -71,9 +71,9 @@ void g3dbone_anim ( G3DOBJECT *obj, G3DKEY *prevkey,    /*** previous key ***/
 G3DBONE *g3dbone_mirror ( G3DBONE *bon, 
                           uint32_t orientation,
                           uint32_t recurse,
-                          uint64_t engine_flags ) {
+                          uint64_t engineFlags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
-    G3DBONE   *mir = g3dbone_clone ( bon, recurse, engine_flags );
+    G3DBONE   *mir = g3dbone_clone ( bon, recurse, engineFlags );
     G3DOBJECT *objmir = ( G3DOBJECT * ) mir;
     float smatrix[0x10];
     float pmatrix[0x10];
@@ -98,7 +98,7 @@ G3DBONE *g3dbone_mirror ( G3DBONE *bon,
 /*** This function is called by g3dobject_updateMatrix ***/
 /*** after matrix transformations are done. ***/
 void g3dbone_transform ( G3DBONE *bon, 
-                         uint64_t   engine_flags ) {
+                         uint64_t   engineFlags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
 
     if ( ( objbon->flags & OBJECTINACTIVE ) == 0x00 ) {
@@ -117,7 +117,7 @@ void g3dbone_transform ( G3DBONE *bon,
                                       rig->defmatrix );
 
                 /*** mark for update ***/
-                rig->skn->mod.mes.obj.update_flags |= UPDATESKIN;
+                rig->skn->mod.mes.obj.invalidationFlags |= UPDATESKIN;
             }
 
             ltmprig = ltmprig->next;
@@ -128,7 +128,7 @@ void g3dbone_transform ( G3DBONE *bon,
 
 /******************************************************************************/
 void g3dbone_updateRigs ( G3DBONE *bon, 
-                          uint64_t engine_flags ) {
+                          uint64_t engineFlags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
 
     if ( ( objbon->flags & OBJECTINACTIVE ) == 0x00 ) {
@@ -137,7 +137,7 @@ void g3dbone_updateRigs ( G3DBONE *bon,
         while ( ltmprig ) {
             G3DRIG *rig = ( G3DRIG * ) ltmprig->data;
 
-            g3dobject_update_r ( ( G3DOBJECT * ) rig->skn, engine_flags );
+            g3dobject_update_r ( ( G3DOBJECT * ) rig->skn, 0, engineFlags );
 
             ltmprig = ltmprig->next;
         }
@@ -153,7 +153,7 @@ void g3dbone_update ( G3DBONE *bon ) {
 /******************************************************************************/
 static uint32_t g3dbone_pickObject ( G3DBONE   *bon, 
                                      G3DCAMERA *curcam, 
-                                     uint64_t   engine_flags ) {
+                                     uint64_t   engineFlags ) {
     float ybase = bon->len * 0.1f;
     float xbase = ybase;
     float zbase = ybase;
@@ -164,7 +164,7 @@ static uint32_t g3dbone_pickObject ( G3DBONE   *bon,
     int i;
 
     /*** displaying bones could be annoying ***/
-    if ( engine_flags & HIDEBONES ) return 0x00;
+    if ( engineFlags & HIDEBONES ) return 0x00;
 
     g3dpick_setName (  ( uint64_t ) bon );
 
@@ -200,13 +200,13 @@ static uint32_t g3dbone_pickObject ( G3DBONE   *bon,
 /******************************************************************************/
 static uint32_t g3dbone_pick ( G3DBONE *bon,
                                G3DCAMERA *cam, 
-                               uint64_t engine_flags ) {
+                               uint64_t engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) bon;
 
     if ( obj->type & OBJECTSELECTED ) {
-        if ( engine_flags & VIEWOBJECT ) g3dbone_pickObject ( bon, cam, engine_flags );
+        if ( engineFlags & VIEWOBJECT ) g3dbone_pickObject ( bon, cam, engineFlags );
     } else {
-        if ( engine_flags & VIEWOBJECT ) g3dbone_pickObject ( bon, cam, engine_flags );
+        if ( engineFlags & VIEWOBJECT ) g3dbone_pickObject ( bon, cam, engineFlags );
     }
     return 0;
 }
@@ -216,7 +216,7 @@ static uint32_t g3dbone_pick ( G3DBONE *bon,
 uint32_t g3dbone_draw ( G3DOBJECT *obj, 
                         G3DCAMERA *cam, 
                         G3DENGINE *engine, 
-                        uint64_t   engine_flags ) {
+                        uint64_t   engineFlags ) {
     G3DBONE *bon = ( G3DBONE * ) obj;
     float ybase = bon->len * 0.1f;
     float xbase = ybase;
@@ -244,7 +244,7 @@ uint32_t g3dbone_draw ( G3DOBJECT *obj,
     glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
 
     /*** displaying bones could be annoying ***/
-    if ( engine_flags & HIDEBONES ) return 0x00;
+    if ( engineFlags & HIDEBONES ) return 0x00;
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
     glDisable    ( GL_DEPTH_TEST );
@@ -276,7 +276,7 @@ uint32_t g3dbone_draw ( G3DOBJECT *obj,
                                                    col.g,
                                                    col.b } } };
 
-        g3dengine_drawLine ( engine, vertices, 0, engine_flags );
+        g3dengine_drawLine ( engine, vertices, 0, engineFlags );
     }
 
     for ( i = 0x00; i < 0x04; i++ ) {
@@ -299,11 +299,11 @@ uint32_t g3dbone_draw ( G3DOBJECT *obj,
                                                    col.g,
                                                    col.b } } };
 
-        g3dengine_drawLine ( engine, vertices, 0, engine_flags );
+        g3dengine_drawLine ( engine, vertices, 0, engineFlags );
 
         vertices[0x01].pos.y = 0.0f;
 
-        g3dengine_drawLine ( engine, vertices, 0, engine_flags );
+        g3dengine_drawLine ( engine, vertices, 0, engineFlags );
     }
 
     glPopAttrib ( );
@@ -464,7 +464,7 @@ void g3dbone_free ( G3DOBJECT *obj ) {
 
 /******************************************************************************/
 static void g3dbone_activate ( G3DBONE *bon, 
-                               uint64_t engine_flags ) {
+                               uint64_t engineFlags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     LIST *ltmprig = bon->lrig;
 
@@ -499,22 +499,22 @@ static void g3dbone_activate ( G3DBONE *bon,
 }
 
 /******************************************************************************/
-void g3dbone_fix ( G3DBONE *bon, uint64_t engine_flags ) {
-    g3dobject_activate ( ( G3DOBJECT * ) bon, engine_flags );
+void g3dbone_fix ( G3DBONE *bon, uint64_t engineFlags ) {
+    g3dobject_activate ( ( G3DOBJECT * ) bon, engineFlags );
 }
 
 /******************************************************************************/
-void g3dbone_fix_r ( G3DBONE *bon, uint64_t engine_flags ) {
+void g3dbone_fix_r ( G3DBONE *bon, uint64_t engineFlags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     LIST *ltmpobj = objbon->lchildren;
 
-    g3dbone_fix ( bon, engine_flags );
+    g3dbone_fix ( bon, engineFlags );
 
     while ( ltmpobj ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpobj->data;
 
         if ( child->type == G3DBONETYPE ) {
-            g3dbone_fix_r ( ( G3DBONE * ) child, engine_flags );
+            g3dbone_fix_r ( ( G3DBONE * ) child, engineFlags );
         }
 
         ltmpobj = ltmpobj->next;
@@ -523,7 +523,7 @@ void g3dbone_fix_r ( G3DBONE *bon, uint64_t engine_flags ) {
 
 /******************************************************************************/
 static void g3dbone_deactivate ( G3DBONE *bon, 
-                                 uint64_t engine_flags ) {
+                                 uint64_t engineFlags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     LIST *ltmprig = bon->lrig;
 
@@ -547,24 +547,24 @@ static void g3dbone_deactivate ( G3DBONE *bon,
 
 /******************************************************************************/
 void g3dbone_unfix ( G3DBONE *bon,
-                     uint64_t engine_flags ) {
-    g3dobject_deactivate ( ( G3DOBJECT * ) bon, engine_flags );
+                     uint64_t engineFlags ) {
+    g3dobject_deactivate ( ( G3DOBJECT * ) bon, engineFlags );
 }
 
 /******************************************************************************/
 /*** This should be improved. It calls numerous useless matrix updates ***/
 void g3dbone_unfix_r ( G3DBONE *bon,
-                       uint64_t engine_flags ) {
+                       uint64_t engineFlags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     LIST *ltmpobj = objbon->lchildren;
 
-    g3dbone_unfix ( bon, engine_flags );
+    g3dbone_unfix ( bon, engineFlags );
 
     while ( ltmpobj ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpobj->data;
 
         if ( child->type == G3DBONETYPE ) {
-            g3dbone_unfix_r ( ( G3DBONE * ) child, engine_flags );
+            g3dbone_unfix_r ( ( G3DBONE * ) child, engineFlags );
         }
 
         ltmpobj = ltmpobj->next;

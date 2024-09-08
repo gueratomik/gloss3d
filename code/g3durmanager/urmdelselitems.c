@@ -153,13 +153,13 @@ static void deleteSelectedItems_undo ( G3DURMANAGER *urm,
                 list_execargdata ( dsi->loldselfac, (void(*)(void*,void*)) g3dmesh_selectFace, mes );
             }
 
-            mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+            mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                        UPDATEFACENORMAL   |
                                        UPDATEVERTEXNORMAL |
                                        RESETMODIFIERS );
 
             /*** Rebuild the mesh with modifiers ***/
-            g3dmesh_update ( mes, engine_flags );
+            g3dmesh_update ( mes, 0x00, engine_flags );
         }
     }
 }
@@ -208,13 +208,13 @@ static void deleteSelectedItems_redo ( G3DURMANAGER *urm,
                 ltmpver = ltmpver->next;
             }
 
-            mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+            mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                        UPDATEFACENORMAL   |
                                        UPDATEVERTEXNORMAL |
                                        RESETMODIFIERS );
 
             /*** Rebuild the mesh with modifiers ***/
-            g3dmesh_update ( mes, engine_flags );
+            g3dmesh_update ( mes, 0x00, engine_flags );
         }
     }
 }
@@ -277,13 +277,13 @@ void g3durm_mesh_deleteGeometry ( G3DURMANAGER *urm,
 
     g3dface_getOrphanedEdgesFromList ( loldselfac, &dsi->lorphanedEdges );
 
-    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
 
     /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( mes, engine_flags );
+    g3dmesh_update ( mes, 0x00, engine_flags );
 }
 
 /******************************************************************************/

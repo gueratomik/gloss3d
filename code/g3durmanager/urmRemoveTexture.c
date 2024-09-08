@@ -88,10 +88,10 @@ void removeTexture_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags )
             ltmpfacgrp = ltmpfacgrp->next;
         }
 
-        mes->obj.update_flags |= RESETMODIFIERS;
+        mes->obj.invalidationFlags |= RESETMODIFIERS;
 
         /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-        g3dmesh_update ( mes, engine_flags );
+        g3dmesh_update ( mes, 0x00, engine_flags );
     }
 }
 
@@ -104,10 +104,10 @@ void removeTexture_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags )
 
         g3dmesh_removeTexture ( mes, urt->tex );
 
-        mes->obj.update_flags |= RESETMODIFIERS;
+        mes->obj.invalidationFlags |= RESETMODIFIERS;
 
         /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-        g3dmesh_update ( mes, engine_flags );
+        g3dmesh_update ( mes, 0x00, engine_flags );
     }
 }
 
@@ -125,10 +125,10 @@ void g3durm_mesh_removeTexture ( G3DURMANAGER *urm,
 
     g3dmesh_removeTexture ( mes, tex );
 
-    mes->obj.update_flags |= RESETMODIFIERS;
+    mes->obj.invalidationFlags |= RESETMODIFIERS;
 
     /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-    g3dmesh_update ( mes, engine_flags );
+    g3dmesh_update ( mes, 0x00, engine_flags );
 
     g3durmanager_push ( urm, 
                         removeTexture_undo,

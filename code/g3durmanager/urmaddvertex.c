@@ -83,13 +83,13 @@ static void addVertex_undo ( G3DURMANAGER *urm,
 
     g3dmesh_updateBbox ( mes );
 
-    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
 
     /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( mes, engine_flags );
+    g3dmesh_update ( mes, 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -106,13 +106,13 @@ static void addVertex_redo ( G3DURMANAGER *urm,
 
     g3dmesh_updateBbox ( mes );
 
-    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
 
     /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( mes, engine_flags );
+    g3dmesh_update ( mes, 0x00, engine_flags );
 }
 
 /******************************************************************************/

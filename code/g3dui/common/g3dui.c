@@ -1431,10 +1431,10 @@ uint64_t g3dui_alignNormals ( G3DUI *gui ) {
 
         g3dmesh_alignFaces ( mes );
 
-        mes->obj.update_flags |= RESETMODIFIERS;
+        mes->obj.invalidationFlags |= RESETMODIFIERS;
 
         /*** Update subdivision if we are in buffered mode. ***/
-        g3dmesh_update ( mes, gui->engine_flags );
+        g3dmesh_update ( mes, 0x00, gui->engine_flags );
 
 
     }

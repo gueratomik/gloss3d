@@ -506,10 +506,10 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
 
                             list_free ( &lseluv, NULL );
 
-                            parmes->obj.update_flags |= RESETMODIFIERS;
+                            parmes->obj.invalidationFlags |= RESETMODIFIERS;
 
                             /** TODO: do this only for subdivided meshes ***/
-                            g3dmesh_update ( parmes, engine_flags );
+                            g3dmesh_update ( parmes, 0x00, engine_flags );
 
                             olduv = newuv = NULL;
                         } return REDRAWVIEW            | 

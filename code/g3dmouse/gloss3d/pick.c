@@ -1112,9 +1112,9 @@ int pick_tool ( G3DMOUSETOOL *mou,
                                                              engine_flags,
                                                              REDRAWVIEW );
 
-                                    mes->obj.update_flags |= RESETMODIFIERS;
+                                    mes->obj.invalidationFlags |= RESETMODIFIERS;
 
-                	                g3dmesh_update ( mes, engine_flags );
+                	                g3dmesh_update ( mes, 0x00, engine_flags );
                                 }
                             }
                         }
@@ -1183,9 +1183,9 @@ int pick_tool ( G3DMOUSETOOL *mou,
                                                          engine_flags,
                                                          REDRAWVIEW );
 
-                                mes->obj.update_flags |= RESETMODIFIERS;
+                                mes->obj.invalidationFlags |= RESETMODIFIERS;
 
-                	            g3dmesh_update ( mes, engine_flags );
+                	            g3dmesh_update ( mes, 0x00, engine_flags );
                             }
         	            }
                     }

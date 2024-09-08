@@ -32,7 +32,7 @@
 /*****************************************************************************/
 uint32_t g3dmodifier_modpick ( G3DMODIFIER *mod,
                                G3DCAMERA   *curcam, 
-                               uint64_t     engine_flags ) {
+                               uint64_t     engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mod;
 
     /*** default color for all objects ***/
@@ -41,12 +41,12 @@ uint32_t g3dmodifier_modpick ( G3DMODIFIER *mod,
     /*glPushMatrix ( );
     glMultMatrixd ( obj->lmatrix );*/
 /*
-    if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
+    if ( engineFlags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
     else                               glFrontFace(  GL_CCW );
 */
-    if ( mod->modpick ) mod->modpick ( mod, curcam, engine_flags );
+    if ( mod->modpick ) mod->modpick ( mod, curcam, engineFlags );
 /*
-    if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
+    if ( engineFlags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
     else                               glFrontFace(  GL_CW  );
 */
     /*glPopMatrix ( );*/
@@ -59,7 +59,7 @@ uint32_t g3dmodifier_modpick ( G3DMODIFIER *mod,
 uint32_t g3dmodifier_moddraw ( G3DMODIFIER *mod,
                                G3DCAMERA   *curcam, 
                                G3DENGINE   *engine, 
-                               uint64_t     engine_flags ) {
+                               uint64_t     engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mod;
 
     /*** default color for all objects ***/
@@ -68,12 +68,12 @@ uint32_t g3dmodifier_moddraw ( G3DMODIFIER *mod,
     /*glPushMatrix ( );
     glMultMatrixd ( obj->lmatrix );*/
 /*
-    if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
+    if ( engineFlags & SYMMETRYVIEW ) glFrontFace(  GL_CW  );
     else                               glFrontFace(  GL_CCW );
 */
-    if ( mod->moddraw ) mod->moddraw ( mod, curcam, engine, engine_flags );
+    if ( mod->moddraw ) mod->moddraw ( mod, curcam, engine, engineFlags );
 /*
-    if ( engine_flags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
+    if ( engineFlags & SYMMETRYVIEW ) glFrontFace(  GL_CCW );
     else                               glFrontFace(  GL_CW  );
 */
     /*glPopMatrix ( );*/
@@ -94,7 +94,7 @@ uint32_t g3dmodifier_default_dump ( G3DMODIFIER *mod,
                                                    G3DVECTOR3F *,
                                                    void * ),
                                     void *data,
-                                    uint64_t engine_flags ) {
+                                    uint64_t engineFlags ) {
     if ( g3dobject_isActive ( ( G3DOBJECT * ) mod ) ) {
         G3DMESH *mes = ( G3DMESH * ) mod->oriobj;
         LIST *ltmpfac = mes->lfac;
@@ -122,7 +122,7 @@ uint32_t g3dmodifier_default_dump ( G3DMODIFIER *mod,
 /******************************************************************************/
 void g3dmodifier_modifyChildren ( G3DMODIFIER *mod,
                                   G3DMODIFYOP  op,
-                                  uint64_t     engine_flags ) {
+                                  uint64_t     engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mod;
     LIST *ltmpchildren = obj->lchildren;
 
@@ -134,7 +134,7 @@ void g3dmodifier_modifyChildren ( G3DMODIFIER *mod,
                                                  mod->stkpos, 
                                                  mod->stknor,
                                                  op,
-                                                 engine_flags );
+                                                 engineFlags );
 
         ltmpchildren = ltmpchildren->next;        
     }
@@ -146,7 +146,7 @@ G3DMODIFIER *g3dmodifier_modify_r ( G3DMODIFIER *mod,
                                     G3DVECTOR3F   *stkpos,
                                     G3DVECTOR3F   *stknor,
                                     G3DMODIFYOP  op,
-                                    uint64_t     engine_flags ) {
+                                    uint64_t     engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mod;
     LIST *ltmpchildren = obj->lchildren;
     uint32_t ret = 0x00;
@@ -165,7 +165,7 @@ G3DMODIFIER *g3dmodifier_modify_r ( G3DMODIFIER *mod,
             if ( mod->modify ) {
                 ret = mod->modify ( mod,
                                     op,
-                                    engine_flags );
+                                    engineFlags );
 
                 if ( ret & MODIFIERCHANGESCOORDS ) {
                     /*** original object stays unchanged ***/
@@ -192,7 +192,7 @@ G3DMODIFIER *g3dmodifier_modify_r ( G3DMODIFIER *mod,
                                                        stkpos, 
                                                        stknor,
                                                        op,
-                                                       engine_flags );
+                                                       engineFlags );
 
             if ( last ) lastmod = last;
 
@@ -207,7 +207,7 @@ G3DMODIFIER *g3dmodifier_modify_r ( G3DMODIFIER *mod,
 void g3dmodifier_setParent ( G3DMODIFIER *mod, 
                              G3DOBJECT   *parent,
                              G3DOBJECT   *oldParent,
-                             uint64_t     engine_flags ) {
+                             uint64_t     engineFlags ) {
     if ( parent ) {
         G3DMESH *mes = ( parent->type & EDITABLE ) ?
                            ( G3DMESH * ) parent : 
@@ -215,12 +215,12 @@ void g3dmodifier_setParent ( G3DMODIFIER *mod,
                                                                            EDITABLE );
 
         if ( mes ) {
-            mes->obj.update_flags |= ( UPDATEFACEPOSITION |
-                                       UPDATEFACENORMAL   |
-                                       UPDATEVERTEXNORMAL |
-                                       RESETMODIFIERS );
+            mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
+                                            UPDATEFACENORMAL   |
+                                            UPDATEVERTEXNORMAL |
+                                            RESETMODIFIERS );
 
-            g3dmesh_update ( mes, engine_flags );
+            g3dmesh_update ( mes, 0x00, engineFlags );
         }
     }
 
@@ -231,12 +231,12 @@ void g3dmodifier_setParent ( G3DMODIFIER *mod,
                                                                            EDITABLE );
 
         if ( oldmes ) {
-            oldmes->obj.update_flags |= ( UPDATEFACEPOSITION |
-                                          UPDATEFACENORMAL   |
-                                          UPDATEVERTEXNORMAL |
-                                          RESETMODIFIERS );
+            oldmes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
+                                               UPDATEFACENORMAL   |
+                                               UPDATEVERTEXNORMAL |
+                                               RESETMODIFIERS );
 
-            g3dmesh_update ( oldmes, engine_flags );
+            g3dmesh_update ( oldmes, 0x00, engineFlags );
         }
     }
 }

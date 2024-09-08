@@ -671,9 +671,9 @@ void g3duvmap_transform ( G3DOBJECT *obj,
             if ( ( obj->flags & UVMAPFIXED ) == 0x00 ) {
                 g3duvmap_applyProjection ( map, mes );
 
-                mes->obj.update_flags |= RESETMODIFIERS;
+                mes->obj.invalidationFlags |= RESETMODIFIERS;
 
-                g3dmesh_update ( mes, engine_flags );
+                g3dmesh_update ( mes, 0x00, engine_flags );
             }
         }
     }

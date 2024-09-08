@@ -97,13 +97,13 @@ void splitMesh_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     g3dobject_removeChild ( ((G3DOBJECT*)mes)->parent, 
                             (G3DOBJECT*)sms->splmes, engine_flags );
 
-    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
 
     /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, engine_flags );
+    g3dmesh_update ( mes, 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -123,13 +123,13 @@ void splitMesh_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     g3dobject_addChild ( ((G3DOBJECT*)mes)->parent,
                           (G3DOBJECT*)sms->splmes, engine_flags );
 
-    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
 
     /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, engine_flags );
+    g3dmesh_update ( mes, 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -153,21 +153,21 @@ void g3durm_mesh_split ( G3DURMANAGER *urm,
 
     g3dobject_addChild ( ((G3DOBJECT*)mes)->parent, ( G3DOBJECT * ) splmes, engine_flags );
 
-    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
+    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
 
     /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, engine_flags );
+    g3dmesh_update ( mes, 0x00, engine_flags );
 
-    splmes->obj.update_flags |= ( UPDATEFACEPOSITION |
+    splmes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                   UPDATEFACENORMAL   |
                                   UPDATEVERTEXNORMAL |
                                   COMPUTEUVMAPPING   |
                                   RESETMODIFIERS );
 
-    g3dmesh_update ( splmes, engine_flags );
+    g3dmesh_update ( splmes, 0x00, engine_flags );
 
     sms = urmSplitMesh_new ( mes, splmes, loldver, loldfac );
 

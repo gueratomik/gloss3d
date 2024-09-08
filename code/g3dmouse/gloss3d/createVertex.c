@@ -184,13 +184,13 @@ static int createVertex_event ( G3DMOUSETOOL *mou,
 
                         g3dmesh_addSelectedVertex ( mes, ver );
 
-                        mes->obj.update_flags |= ( UPDATEFACEPOSITION |
-                                                   UPDATEFACENORMAL   |
-                                                   UPDATEVERTEXNORMAL |
-                                                   RESETMODIFIERS );
+                        mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
+                                                        UPDATEFACENORMAL   |
+                                                        UPDATEVERTEXNORMAL |
+                                                        RESETMODIFIERS );
 
                         /*** Rebuild the mesh or spline ***/
-                        g3dmesh_update ( mes, engine_flags );
+                        g3dmesh_update ( mes, 0x00, engine_flags );
 
                         /*** add this action to the undo redo stack ***/
                         /*createVertex_push ( urm, mes, ver );*/

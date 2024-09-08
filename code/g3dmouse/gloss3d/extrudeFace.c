@@ -172,14 +172,14 @@ static int extrudeFace_event  ( G3DMOUSETOOL *mou,
                     g3dmesh_extrude ( mes, &loriver, &loldfac, 
                                            &lnewver, &lnewfac );
 
-                    mes->obj.update_flags |= ( UPDATEFACEPOSITION |
-                                               UPDATEFACENORMAL   |
-                                               UPDATEVERTEXNORMAL |
-                                               COMPUTEUVMAPPING   |
-                                               RESETMODIFIERS );
+                    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
+                                                    UPDATEFACENORMAL   |
+                                                    UPDATEVERTEXNORMAL |
+                                                    COMPUTEUVMAPPING   |
+                                                    RESETMODIFIERS );
 
                     /*** regenerate subdivision buffer ***/
-                    g3dmesh_update ( mes, engine_flags );
+                    g3dmesh_update ( mes, 0x00, engine_flags );
 
                     ltmpver = lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
 

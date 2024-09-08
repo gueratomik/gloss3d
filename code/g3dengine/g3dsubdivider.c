@@ -956,12 +956,12 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
 
         g3dmesh_updateBbox ( commitMesh );
  
-        commitMesh->obj.update_flags |= ( UPDATEFACEPOSITION |
-                                          UPDATEFACENORMAL   |
-                                          UPDATEVERTEXNORMAL |
-                                          COMPUTEUVMAPPING );
+        commitMesh->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
+                                               UPDATEFACENORMAL   |
+                                               UPDATEVERTEXNORMAL |
+                                               COMPUTEUVMAPPING );
 
-        g3dmesh_update ( commitMesh, engine_flags );
+        g3dmesh_update ( commitMesh, 0x00, engine_flags );
 
         free( commitVertices );
         free( commitEdges    );

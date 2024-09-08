@@ -975,12 +975,12 @@ void g3dtext_generate ( G3DTEXT   *txt,
         gluDeleteTess(tobj);
     }
 
-    txt->mes.obj.update_flags |= ( UPDATEFACEPOSITION |
-                                   UPDATEFACENORMAL   |
-                                   UPDATEVERTEXNORMAL | 
-                                   RESETMODIFIERS );
+    txt->mes.obj.invalidationFlags |= ( UPDATEFACEPOSITION |
+                                        UPDATEFACENORMAL   |
+                                        UPDATEVERTEXNORMAL | 
+                                        RESETMODIFIERS );
 
-    g3dmesh_update ( ( G3DMESH * ) txt, engine_flags );
+    g3dmesh_update ( ( G3DMESH * ) txt, 0x00, engine_flags );
 
     g3dmesh_updateBbox ( ( G3DMESH * ) txt );
 

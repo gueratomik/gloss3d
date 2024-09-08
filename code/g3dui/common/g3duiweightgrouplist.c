@@ -131,12 +131,12 @@ uint64_t g3duiweightgrouplist_deleteSelected ( G3DUIWEIGHTGROUPLIST *wgrplist ) 
 
             g3dmesh_removeWeightGroup ( mes, curgrp );
 
-            mes->obj.update_flags |= ( UPDATEVERTEXNORMAL |
+            mes->obj.invalidationFlags |= ( UPDATEVERTEXNORMAL |
                                        UPDATEFACENORMAL |
                                        RESETMODIFIERS );
 
             /*** update vertex painting ***/
-            g3dmesh_update ( mes, gui->engine_flags );
+            g3dmesh_update ( mes, 0x00, gui->engine_flags );
 
             /*list_free ( &lsub, NULL );*/
         }
@@ -166,10 +166,10 @@ uint64_t g3duiweightgrouplist_select ( G3DUIWEIGHTGROUPLIST *wgrplist,
             g3dmesh_unselectWeightGroup ( mes, curgrp );
 
             mes->lupdver = lver;
-            mes->obj.update_flags |= ( UPDATEMODIFIERS );
+            mes->obj.invalidationFlags |= ( UPDATEMODIFIERS );
 
             /*** update vertex painting ***/
-            g3dmesh_update ( mes, gui->engine_flags );
+            g3dmesh_update ( mes, 0x00, gui->engine_flags );
 
             list_free ( &lver, NULL );
         }
@@ -179,10 +179,10 @@ uint64_t g3duiweightgrouplist_select ( G3DUIWEIGHTGROUPLIST *wgrplist,
         g3dmesh_selectWeightGroup ( mes, grp );
 
         mes->lupdver = lver;
-        mes->obj.update_flags |= ( RESETMODIFIERS );
+        mes->obj.invalidationFlags |= ( RESETMODIFIERS );
 
         /*** update vertex painting ***/
-        g3dmesh_update ( mes, gui->engine_flags );
+        g3dmesh_update ( mes, 0x00, gui->engine_flags );
 
         list_free ( &lver, NULL );
     }
