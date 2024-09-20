@@ -35,10 +35,10 @@ static uint32_t g3dexportv2mesh_facegroupFaces ( G3DEXPORTV2DATA *ged,
                                                G3DFACEGROUP  *grp, 
                                                uint32_t       flags, 
                                                FILE          *fdst ) {
-    LIST *ltmpfac = grp->lfac;
+    LIST *ltmpfac = grp->faceList;
     uint32_t size = 0x00;
 
-    size += g3dexportv2_fwritel ( &grp->nbfac, fdst );
+    size += g3dexportv2_fwritel ( &grp->faceCount, fdst );
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -93,7 +93,7 @@ static uint32_t g3dexportv2mesh_facegroups ( G3DEXPORTV2DATA *ged,
                                            G3DMESH       *mes, 
                                            uint32_t       flags, 
                                            FILE          *fdst ) {
-    LIST *ltmpgrp = mes->lfacgrp;
+    LIST *ltmpgrp = mes->facegroupList;
     uint32_t grpid = 0x00;
     uint32_t size = 0x00;
 
@@ -121,7 +121,7 @@ static uint32_t g3dexportv2mesh_weightgroupWeights ( G3DEXPORTV2DATA  *ged,
                                                      uint32_t        flags, 
                                                      FILE           *fdst ) {
     G3DMESH *mes = grp->mes;
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
     uint32_t size = 0x00;
     uint32_t count = g3dmesh_getWeightgroupCount ( mes, grp );
 
@@ -183,7 +183,7 @@ static uint32_t g3dexportv2mesh_weightgroups ( G3DEXPORTV2DATA *ged,
                                              G3DMESH       *mes, 
                                              uint32_t       flags, 
                                              FILE          *fdst ) {
-    LIST *ltmpgrp = mes->lweigrp;
+    LIST *ltmpgrp = mes->weightgroupList;
     uint32_t grpid = 0x00;
     uint32_t size = 0x00;
 
@@ -210,16 +210,16 @@ static uint32_t g3dexportv2mesh_geometryPolygonsWithEdges ( G3DEXPORTV2DATA *ged
                                                           G3DMESH       *mes, 
                                                           uint32_t       flags, 
                                                           FILE          *fdst ) {
-    LIST *ltmpfac = mes->lfac;
+    LIST *ltmpfac = mes->faceList;
     uint32_t size = 0x00;
     uint32_t fid = 0x00;
 
-    size += g3dexportv2_fwritel ( &mes->nbfac, fdst );
+    size += g3dexportv2_fwritel ( &mes->faceCount, fdst );
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
         /*** write twice the last vertex in case of a triangle ***/
-        uint32_t idx[0x04] = { 0, 1, 2, ( fac->nbver == 0x03 ) ? 2 : 3 };
+        uint32_t idx[0x04] = { 0, 1, 2, ( fac->vertexCount == 0x03 ) ? 2 : 3 };
 
         fac->id = fid++;
 
@@ -244,16 +244,16 @@ static uint32_t g3dexportv2mesh_geometryPolygons ( G3DEXPORTV2DATA *ged,
                                                  G3DMESH       *mes, 
                                                  uint32_t       flags, 
                                                  FILE          *fdst ) {
-    LIST *ltmpfac = mes->lfac;
+    LIST *ltmpfac = mes->faceList;
     uint32_t size = 0x00;
     uint32_t fid = 0x00;
 
-    size += g3dexportv2_fwritel ( &mes->nbfac, fdst );
+    size += g3dexportv2_fwritel ( &mes->faceCount, fdst );
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
         /*** write twice the last vertex in case of a triangle ***/
-        uint32_t idx[0x04] = { 0, 1, 2, ( fac->nbver == 0x03 ) ? 2 : 3 };
+        uint32_t idx[0x04] = { 0, 1, 2, ( fac->vertexCount == 0x03 ) ? 2 : 3 };
 
         fac->id = fid++;
 
@@ -273,11 +273,11 @@ static uint32_t g3dexportv2mesh_geometryEdges ( G3DEXPORTV2DATA *ged,
                                               G3DMESH       *mes, 
                                               uint32_t       flags, 
                                               FILE          *fdst ) {
-    LIST *ltmpedg = mes->ledg;
+    LIST *ltmpedg = mes->edgeList;
     uint32_t size = 0x00;
     uint32_t eid = 0x00;
 
-    size += g3dexportv2_fwritel ( &mes->nbedg, fdst );
+    size += g3dexportv2_fwritel ( &mes->edgeCount, fdst );
 
     while ( ltmpedg ) {
         G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
@@ -301,11 +301,11 @@ static uint32_t g3dexportv2mesh_geometryVertices ( G3DEXPORTV2DATA *ged,
                                                  G3DMESH       *mes, 
                                                  uint32_t       flags, 
                                                  FILE          *fdst ) {
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
     uint32_t size = 0x00;
     uint32_t vid = 0x00;
 
-    size += g3dexportv2_fwritel ( &mes->nbver, fdst );
+    size += g3dexportv2_fwritel ( &mes->vertexCount, fdst );
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -331,7 +331,7 @@ static uint32_t g3dexportv2mesh_geometry ( G3DEXPORTV2DATA *ged,
                                          FILE          *fdst ) {
     uint32_t size = 0x00;
 
-    if ( mes->lver ) {
+    if ( mes->vertexList ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_GEOMETRY_VERTICES,
                        EXPORTV2_CALLBACK(g3dexportv2mesh_geometryVertices),
                                          ged,
@@ -340,7 +340,7 @@ static uint32_t g3dexportv2mesh_geometry ( G3DEXPORTV2DATA *ged,
                                          fdst );
     }
 
-    if ( mes->ledg ) {
+    if ( mes->edgeList ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_GEOMETRY_EDGES,
                        EXPORTV2_CALLBACK(g3dexportv2mesh_geometryEdges),
                                          ged,
@@ -349,7 +349,7 @@ static uint32_t g3dexportv2mesh_geometry ( G3DEXPORTV2DATA *ged,
                                          fdst );
     }
 
-    if ( mes->lfac ) {
+    if ( mes->faceList ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_GEOMETRY_POLYGONS_WITH_EDGES,
                        EXPORTV2_CALLBACK(g3dexportv2mesh_geometryPolygonsWithEdges),
                                          ged,
@@ -375,7 +375,7 @@ uint32_t g3dexportv2mesh ( G3DEXPORTV2DATA *ged,
                                      0xFFFFFFFF,
                                      fdst );
 
-    if ( mes->lweigrp ) {
+    if ( mes->weightgroupList ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_WEIGHTGROUPS,
                        EXPORTV2_CALLBACK(g3dexportv2mesh_weightgroups),
                                        ged,
@@ -385,7 +385,7 @@ uint32_t g3dexportv2mesh ( G3DEXPORTV2DATA *ged,
     }
 
     /***  Note: discontinued due to structure change ***/
-    /*if ( mes->lfacgrp ) {
+    /*if ( mes->facegroupList ) {
         size += g3dexportv2_writeChunk ( SIG_OBJECT_MESH_FACEGROUPS,
                        EXPORTV2_CALLBACK(g3dexportv2mesh_facegroups),
                                        ged,

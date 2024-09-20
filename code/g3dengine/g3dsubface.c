@@ -34,15 +34,15 @@ void g3dsubface_importUVSets ( G3DSUBFACE *subfac, G3DFACE   *parent,
                                                    uint32_t   i,
                                                    G3DUVSET  *subuvs,
                                                    uint32_t   curdiv  ) {
-    uint32_t p = ( i + parent->nbver - 0x01 ) % parent->nbver;
-    uint32_t n = ( i                 + 0x01 ) % parent->nbver;
-    uint32_t o = ( i                 + 0x02 ) % parent->nbver;
+    uint32_t p = ( i + parent->vertexCount - 0x01 ) % parent->vertexCount;
+    uint32_t n = ( i                 + 0x01 ) % parent->vertexCount;
+    uint32_t o = ( i                 + 0x02 ) % parent->vertexCount;
 
     uint32_t i0 = ( i     );
     uint32_t i1 = ( i + 1 ) % 0x04;
     uint32_t i2 = ( i + 2 ) % 0x04;
     uint32_t i3 = ( i + 3 ) % 0x04;
-    LIST *ltmpuvs = parent->luvs;
+    LIST *ltmpuvs = parent->uvsetList;
 
     while ( ltmpuvs ) {
         G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
@@ -58,7 +58,7 @@ void g3dsubface_importUVSets ( G3DSUBFACE *subfac, G3DFACE   *parent,
         subuvs->veruv[i1].v = ( uvs->veruv[n].v + uvs->veruv[i].v ) * 0.5f;
         subuvs->veruv[i1].set = uvs;
 
-        if ( parent->nbver == 0x03 ) {
+        if ( parent->vertexCount == 0x03 ) {
             /*** Note: this could be precalculated at previous step ***/
             subuvs->veruv[i2].u = ( uvs->veruv[n].u + 
                                       uvs->veruv[i].u +
@@ -122,8 +122,8 @@ void g3dsubface_topology ( G3DSUBFACE *subfac, uint32_t subdiv_flags  ) {
     G3DFACE *fac = ( G3DFACE * ) subfac;
     int i;
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
-        int p = ( i + fac->nbver - 0x01 ) % fac->nbver;
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
+        int p = ( i + fac->vertexCount - 0x01 ) % fac->vertexCount;
         G3DSUBVERTEX *subver = ( G3DSUBVERTEX * ) fac->ver[i];
         G3DSUBEDGE *subedg = ( G3DSUBEDGE * ) fac->edg[i];
 
@@ -140,7 +140,7 @@ void g3dsubface_topology ( G3DSUBFACE *subfac, uint32_t subdiv_flags  ) {
 /******************************************************************************/
 void g3dsubface_addUVSet ( G3DSUBFACE *subfac, G3DUVSET *uvs,
                                                uint32_t curdiv ) {
-    LIST *nextluvs = subfac->fac.luvs;
+    LIST *nextluvs = subfac->fac.uvsetList;
     uint32_t i;
 
     /*** if mallocated, use the normal function ***/
@@ -151,11 +151,11 @@ void g3dsubface_addUVSet ( G3DSUBFACE *subfac, G3DUVSET *uvs,
     }
 
     /*** or else use the static linked list functions ***/
-    subfac->fac.luvs       = &subfac->luvsbuf[subfac->fac.nbuvs];
-    subfac->fac.luvs->next = nextluvs;
-    subfac->fac.luvs->data = uvs;
+    subfac->fac.uvsetList       = &subfac->luvsbuf[subfac->fac.uvsetCount];
+    subfac->fac.uvsetList->next = nextluvs;
+    subfac->fac.uvsetList->data = uvs;
 
-    subfac->fac.nbuvs++;
+    subfac->fac.uvsetCount++;
 
     /**** prepare the next step ***/
     /*g3duvset_subdivide ( uvs, subfac );*/

@@ -163,7 +163,7 @@ static void updateWeightgroupList ( GTK3G3DUIMESHEDIT *gtk3med ) {
     if ( gtk3med->core.editedMesh ) {
         if ( gtk3med->core.editedMesh->obj.type == G3DMESHTYPE ) {
             G3DMESH *mes = ( G3DMESH * ) gtk3med->core.editedMesh;
-            LIST *ltmpweigrp = mes->lweigrp;
+            LIST *ltmpweigrp = mes->weightgroupList;
             uint32_t y = 0x00;
 
             while ( ltmpweigrp ) {
@@ -305,7 +305,7 @@ static void addWeightGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
             char buf[0x20];
 
-            snprintf ( buf, 0x20, "WeightGroup%02i", mes->nbweigrp );
+            snprintf ( buf, 0x20, "WeightGroup%02i", mes->weightgroupCount );
 
             G3DWEIGHTGROUP *weigrp = g3dweightgroup_new ( mes, buf );
 
@@ -457,7 +457,7 @@ static void updateFacegroupList ( GTK3G3DUIMESHEDIT *gtk3med ) {
     if ( gtk3med->core.editedMesh ) {
         if ( gtk3med->core.editedMesh->obj.type == G3DMESHTYPE ) {
             G3DMESH *mes = ( G3DMESH * ) gtk3med->core.editedMesh;
-            LIST *ltmpfacgrp = mes->lfacgrp;
+            LIST *ltmpfacgrp = mes->facegroupList;
             uint32_t y = 0x00;
 
             while ( ltmpfacgrp ) {
@@ -577,12 +577,12 @@ static void updateFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
             G3DFACEGROUP *facgrp = g3dmesh_getLastSelectedFacegroup ( mes );
 
             if ( facgrp ) {
-                LIST *ltmpfac = mes->lselfac;
+                LIST *ltmpfac = mes->selectedFaceList;
 
                 while ( ltmpfac ) {
                     G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
-                    if ( list_seek ( fac->lfacgrp, facgrp ) == NULL ) {
+                    if ( list_seek ( fac->facegroupList, facgrp ) == NULL ) {
                         g3dface_addFacegroup ( fac, facgrp );
                     }
 
@@ -630,9 +630,9 @@ static void addFaceGroupCbk  ( GtkWidget *widget, gpointer user_data ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
             char buf[0x20];
 
-            snprintf ( buf, 0x20, "FaceGroup%02i", mes->nbfacgrp );
+            snprintf ( buf, 0x20, "FaceGroup%02i", mes->facegroupCount );
 
-            G3DFACEGROUP *facgrp = g3dfacegroup_new ( buf, mes->lselfac );
+            G3DFACEGROUP *facgrp = g3dfacegroup_new ( buf, mes->selectedFaceList );
 
             g3dmesh_addFacegroup ( mes, facgrp );
         }

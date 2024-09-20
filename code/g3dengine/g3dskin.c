@@ -116,14 +116,14 @@ static uint32_t g3dskin_modify ( G3DSKIN    *skn,
     if ( skn->mod.oriobj ) {
         if ( skn->mod.oriobj->type & MESH ) {
             G3DMESH *orimes = ( G3DMESH * ) skn->mod.oriobj;
-            LIST *ltmpver = orimes->lver;
+            LIST *ltmpver = orimes->vertexList;
 
             if ( op == G3DMODIFYOP_MODIFY ) {
                 skn->mod.verpos = ( G3DVECTOR3F * ) realloc ( skn->mod.verpos, 
-                                                            orimes->nbver * 
+                                                            orimes->vertexCount * 
                                                             sizeof ( G3DVECTOR3F ) );
                 skn->mod.vernor = ( G3DVECTOR3F * ) realloc ( skn->mod.vernor, 
-                                                            orimes->nbver *  
+                                                            orimes->vertexCount *  
                                                             sizeof ( G3DVECTOR3F ) );
             }
 
@@ -134,7 +134,7 @@ static uint32_t g3dskin_modify ( G3DSKIN    *skn,
 
                 g3dskin_deformVertex ( skn, 
                                        stkpos,
-                                       ver->lwei,
+                                       ver->weightList,
                                       &skn->mod.verpos[ver->id] );
 
                 ltmpver = ltmpver->next;
@@ -152,7 +152,7 @@ static uint32_t g3dskin_modify ( G3DSKIN    *skn,
 /******************************************************************************/
 static void g3dskin_update ( G3DSKIN *skn,
                              uint64_t engine_flags ) {
-    if ( skn->mod.mes.obj.invalidationFlags & UPDATESKIN ) {
+    if ( skn->mod.mes.obj.invalidationFlags & INVALIDATE_SHAPE ) {
         if ( g3dobject_isActive ( ( G3DOBJECT * ) skn ) ) {
             g3dskin_modify ( skn, G3DMODIFYOP_UPDATE, engine_flags );
 
@@ -216,7 +216,7 @@ static uint32_t g3dskin_moddraw ( G3DSKIN *skn,
     if ( skn->mod.oriobj ) {
         if ( skn->mod.oriobj->type & MESH ) {
             G3DMESH *orimes = ( G3DMESH * ) skn->mod.oriobj;
-            LIST *ltmpver = orimes->lver;
+            LIST *ltmpver = orimes->vertexList;
 
             g3dmesh_drawModified ( ( G3DMESH * ) skn->mod.oriobj,
                                                  cam,

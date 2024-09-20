@@ -134,9 +134,9 @@ void addTexture_undo ( G3DURMANAGER *urm, void *data, uint64_t flags ) {
         }
 
         g3dmesh_removeTexture ( trd->mes, trd->tex );
-
+/*
         trd->mes->obj.invalidationFlags |= RESETMODIFIERS;
-
+*/
         /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
         g3dmesh_update ( trd->mes, 0x00, flags );
 
@@ -160,9 +160,9 @@ void addTexture_redo ( G3DURMANAGER *urm, void *data, uint64_t flags ) {
         }
 
         g3dmesh_addTexture ( trd->mes, trd->tex );
-
+/*
         trd->mes->obj.invalidationFlags |= RESETMODIFIERS;
-
+*/
         /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
         g3dmesh_update ( trd->mes, 0x00, flags );
 
@@ -218,9 +218,9 @@ void g3durm_selection_addTexture ( G3DURMANAGER *urm,
 
                 ltmpmat = ltmpmat->next;
             }
-
+/*
             mes->obj.invalidationFlags |= RESETMODIFIERS;
-
+*/
             /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
             g3dmesh_update ( mes, 0x00, engine_flags );
 

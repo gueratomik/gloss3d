@@ -113,7 +113,7 @@ static void pickedobject_parse ( PICKEDOBJECT *pob,
         /*** we check the texture does not already belong to the list of ***/
         /*** selected texture. We could also check the "selected" flag,  ***/
         /*** but I think it is less reliable ***/
-        if ( list_seek ( mes->lseltex, tex ) == NULL ) {
+        if ( list_seek ( mes->selectedTextureList, tex ) == NULL ) {
             g3dmesh_selectTexture ( mes, tex );
         }
     }
@@ -134,7 +134,7 @@ static void pickedobject_parse ( PICKEDOBJECT *pob,
     if ( pob->picked == TAGRECTHIT ) {
         G3DTAG *tag = pob->tag;
 
-        obj->seltag = pob->tag;
+        obj->selectedTag = pob->tag;
     }
 }
 
@@ -195,7 +195,7 @@ LISTEDOBJECT *g3duiobjectlist_sizeListedObject ( G3DUIOBJECTLIST *objlist,
                              /*** return a valid pointer to this variable ***/
     uint32_t nextx;
     uint32_t nbtag = 0x00;
-    LIST *ltmptag = obj->ltag;
+    LIST *ltmptag = obj->tagList;
 
     /*** size expander + icon + name ***/
     g3duiobjectlist_initListedObject ( objlist, &lob, x, y, strwidth );
@@ -218,7 +218,7 @@ LISTEDOBJECT *g3duiobjectlist_sizeListedObject ( G3DUIOBJECTLIST *objlist,
     /*** Otherwise, the widget width is the last uvmap tag boundary **/
     if ( obj->type & MESH ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
-        LIST *ltmpuvmap = mes->luvmap;
+        LIST *ltmpuvmap = mes->uvmapList;
         uint32_t nbuvmap = 0x00;
 
         while ( ltmpuvmap && ( nbuvmap < MAXUVMAPS ) ) {
@@ -240,7 +240,7 @@ LISTEDOBJECT *g3duiobjectlist_sizeListedObject ( G3DUIOBJECTLIST *objlist,
     /*** Otherwise, the widget width is the last texture tag boundary **/
     if ( obj->type & MESH ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
-        LIST *ltmptex = mes->ltex;
+        LIST *ltmptex = mes->textureList;
         uint32_t nbtex = 0x00;
 
         while ( ltmptex && ( nbtex < MAXTEXTURES ) ) {
@@ -302,7 +302,7 @@ PICKEDOBJECT *g3duiobjectlist_pickObject ( G3DUIOBJECTLIST *objlist,
     static PICKEDOBJECT pob;
     uint32_t nbtex = 0x00, nbtag = 0x00;
     uint32_t i;
-    LIST *ltmptag = obj->ltag;
+    LIST *ltmptag = obj->tagList;
 
     pob.picked = 0x00;
 
@@ -315,7 +315,7 @@ PICKEDOBJECT *g3duiobjectlist_pickObject ( G3DUIOBJECTLIST *objlist,
 
     if ( obj->type & MESH ) {
         G3DMESH *mes  = ( G3DMESH * ) obj;
-        LIST *ltmpuvmap = mes->luvmap;
+        LIST *ltmpuvmap = mes->uvmapList;
         uint32_t nbuvmap = 0x00;
 
         while ( ltmpuvmap ) {
@@ -334,7 +334,7 @@ PICKEDOBJECT *g3duiobjectlist_pickObject ( G3DUIOBJECTLIST *objlist,
 
     if ( obj->type & MESH ) {
         G3DMESH *mes  = ( G3DMESH * ) obj;
-        LIST *ltmptex = mes->ltex;
+        LIST *ltmptex = mes->textureList;
 
         while ( ltmptex ) {
             G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;

@@ -36,8 +36,8 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
 
 /******************************************************************************/
 void g3dfacesculptextension_free ( G3DFACESCULPTEXTENSION *fse ) {
-    if ( fse->nbver ) free ( fse->pos );
-    if ( fse->nbver ) free ( fse->hei );
+    if ( fse->vertexCount ) free ( fse->pos );
+    if ( fse->vertexCount ) free ( fse->hei );
 
     free ( fse );
 }
@@ -53,20 +53,20 @@ void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
 
     /*** Note : must start at 1. Level 0 means no subdivs ***/
     for ( i = 0x01; i <= level; i++ ) {
-        uint32_t (*indexes)[0x04] = ( uint32_t (*)[0x04] ) g3dsubindex_get ( fac->nbver, level );
+        uint32_t (*indexes)[0x04] = ( uint32_t (*)[0x04] ) g3dsubindex_get ( fac->vertexCount, level );
         uint32_t nbFacesPerPolygon, 
                  nbEdgesPerPolygon,
                  nbVerticesPerPolygon;
         uint32_t j;
 
-        if ( fac->nbver == 0x03 ) {
+        if ( fac->vertexCount == 0x03 ) {
             g3dtriangle_evalSubdivision ( level,
                                          &nbFacesPerPolygon, 
                                          &nbEdgesPerPolygon, 
                                          &nbVerticesPerPolygon );
         }
 
-        if ( fac->nbver == 0x04 ) {
+        if ( fac->vertexCount == 0x04 ) {
             g3dquad_evalSubdivision     ( level,
                                          &nbFacesPerPolygon, 
                                          &nbEdgesPerPolygon, 
@@ -98,7 +98,7 @@ void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
         fse->flags = realloc ( fse->flags, nbVerticesPerPolygon * sizeof ( uint32_t  ) );
 
 
-        for ( j = fse->nbver; j < nbVerticesPerPolygon; j++ ) {
+        for ( j = fse->vertexCount; j < nbVerticesPerPolygon; j++ ) {
             switch ( sculptMode ) {
                 case SCULPTMODE_SCULPT :
                     fse->pos[j].x = 0.0f;
@@ -116,7 +116,7 @@ void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
             fse->flags[i] = 0x00;
         }
 
-        if ( fse->nbver < nbVerticesPerPolygon ) {
+        if ( fse->vertexCount < nbVerticesPerPolygon ) {
             for ( j = 0x00; j < nbFacesPerPolygon; j++ ) {
                 uint32_t faceID = j;
                 uint32_t k;
@@ -125,14 +125,14 @@ void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
                     uint32_t verID = indexes[faceID][k];
 
                     /*** recompute elevation only for new vertices ***/
-                    if ( verID >= fse->nbver ) {
+                    if ( verID >= fse->vertexCount ) {
                         uint32_t l;
 
                         for ( l = 0x00; l < 0x04; l++ ) {
                             uint32_t parID = indexes[faceID][l];
 
                             /*** retrieve values from parent vertices only ***/
-                            if ( parID < fse->nbver ) {
+                            if ( parID < fse->vertexCount ) {
                                 switch ( sculptMode ) {
                                     case SCULPTMODE_SCULPT :
                                         fse->pos[verID].x += fse->pos[parID].x;
@@ -152,7 +152,7 @@ void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
                 }
             }
 
-            for ( j = fse->nbver; j < nbVerticesPerPolygon; j++ ) {
+            for ( j = fse->vertexCount; j < nbVerticesPerPolygon; j++ ) {
                 switch ( sculptMode ) {
                     case SCULPTMODE_SCULPT :
                         if ( fse->pos[j].w > 1.0f ) {
@@ -173,14 +173,14 @@ void g3dfacesculptextension_adjust ( G3DFACESCULPTEXTENSION *fse,
             }
 
             /*** receives the correct value on last loop ***/
-            fse->nbver = nbVerticesPerPolygon;
+            fse->vertexCount = nbVerticesPerPolygon;
         }
     }
 }
 
 /******************************************************************************/
 void g3dfacesculptextension_clearFlags ( G3DFACESCULPTEXTENSION *fse ) {
-    memset ( fse->flags, 0x00, sizeof ( uint32_t ) * fse->nbver );
+    memset ( fse->flags, 0x00, sizeof ( uint32_t ) * fse->vertexCount );
 }
 
 /******************************************************************************/
@@ -222,26 +222,26 @@ void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
                                                        .y = factor->y, 
                                                        .z = factor->z };
 
-    dst->nbver = src->nbver;
+    dst->vertexCount = src->vertexCount;
 
     switch ( sculptMode ) {
         case SCULPTMODE_SCULPT :
-            dst->pos = realloc ( dst->pos, sizeof ( G3DVECTOR3F ) * dst->nbver );
+            dst->pos = realloc ( dst->pos, sizeof ( G3DVECTOR3F ) * dst->vertexCount );
         break;
 
         default :
-            dst->hei = realloc ( dst->hei, sizeof ( G3DHEIGHT ) * dst->nbver );
+            dst->hei = realloc ( dst->hei, sizeof ( G3DHEIGHT ) * dst->vertexCount );
         break;
     }
 
-    if ( dst->nbver ) {
+    if ( dst->vertexCount ) {
         switch ( sculptMode ) {
             case SCULPTMODE_SCULPT :
-                memset ( dst->pos, 0x00, sizeof ( G3DVECTOR3F ) * dst->nbver );
+                memset ( dst->pos, 0x00, sizeof ( G3DVECTOR3F ) * dst->vertexCount );
             break;
 
             default :
-                memset ( dst->hei, 0x00, sizeof ( G3DHEIGHT ) * dst->nbver );
+                memset ( dst->hei, 0x00, sizeof ( G3DHEIGHT ) * dst->vertexCount );
             break;
         }
 
@@ -249,18 +249,18 @@ void g3dfacesculptextension_copy ( G3DFACESCULPTEXTENSION *src,
             switch ( sculptMode ) {
                 case SCULPTMODE_SCULPT :
                     memcpy ( dst->pos, 
-                             src->pos, sizeof ( G3DVECTOR3F ) * dst->nbver );
+                             src->pos, sizeof ( G3DVECTOR3F ) * dst->vertexCount );
                 break;
 
                 default :
                     memcpy ( dst->hei, 
-                             src->hei, sizeof ( G3DHEIGHT ) * dst->nbver );
+                             src->hei, sizeof ( G3DHEIGHT ) * dst->vertexCount );
                 break;
             }
         } else {
             uint32_t (*qua_indexes)[0x04] = ( uint32_t (*)[0x04] ) g3dsubindex_get ( 0x04, src->level );
             uint32_t (*tri_indexes)[0x04] = ( uint32_t (*)[0x04] ) g3dsubindex_get ( 0x03, src->level );
-            uint32_t (*idx)[0x04] = ( srcfac->nbver == 0x03 ) ? tri_indexes : 
+            uint32_t (*idx)[0x04] = ( srcfac->vertexCount == 0x03 ) ? tri_indexes : 
                                                                 qua_indexes;
             static uint32_t default_mapping[0x04] = { 0x00, 0x01, 0x02, 0x03 };
             uint32_t i, nbfacidx = pow ( 4, src->level );
@@ -316,10 +316,10 @@ void g3dsubdivider_setSculptResolution ( G3DSUBDIVIDER *sdr,
         if ( sdr->mod.oriobj ) {
             if ( sdr->mod.oriobj->type & MESH ) {
                 G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
-                LIST *ltmpfac = mes->lfac;
+                LIST *ltmpfac = mes->faceList;
 
                 while ( ltmpfac ) {
-                    G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
+                    G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
                     G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION * ) g3dface_getExtension ( fac,
                                                                                          ( uint64_t ) sdr );
 
@@ -330,7 +330,7 @@ void g3dsubdivider_setSculptResolution ( G3DSUBDIVIDER *sdr,
                                                         sdr->sculptMode );
                     }
 
-                    _NEXTFACE(mes,ltmpfac);
+                    ltmpfac = ltmpfac->next;
                 }
             }
         }
@@ -345,7 +345,7 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
         if ( sdr->mod.oriobj ) {
             if ( sdr->mod.oriobj->type & MESH ) {
                 G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
-                LIST *ltmpfac = mes->lfac;
+                LIST *ltmpfac = mes->faceList;
                 G3DHEIGHT *hei = NULL;
                 G3DVECTOR4F *pos = NULL;
                 uint32_t nbFacesPerTriangle, 
@@ -360,17 +360,17 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
                 SHADERVERTEX *rtvermem = NULL;
 
                 while ( ltmpfac ) {
-                    G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
+                    G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
                     G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION * ) g3dface_getExtension ( fac,
                                                                                          ( uint64_t ) sdr );
 
                     if ( fse ) {
-                        uint32_t nbv = fac->nbver;
+                        uint32_t nbv = fac->vertexCount;
                         uint32_t i;
 
                         switch ( sculptMode ) {
                             case SCULPTMODE_SCULPT : {
-                                rtvermem = realloc ( rtvermem, fse->nbver * sizeof ( SHADERVERTEX ) );
+                                rtvermem = realloc ( rtvermem, fse->vertexCount * sizeof ( SHADERVERTEX ) );
 
                                 g3dsubdivisionV3_subdivide ( sdv, 
                                                              mes,
@@ -385,7 +385,7 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
                                                              NULL,
                                                              NULL,
                                                              NULL,
-                                                             mes->ltex,
+                                                             mes->textureList,
                                                 ( uint64_t ) sdr,
                                                              sdr->sculptMode,
                                             (uint32_t (*)[4])g3dsubindex_get ( 0x04, sdr->sculptResolution ),
@@ -395,11 +395,11 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
                                                              SUBDIVISIONNOELEVATE,
                                                              engine_flags );
 
-                                pos = ( G3DVECTOR4F * ) realloc ( pos, fse->nbver * sizeof ( *fse->pos ) ); 
+                                pos = ( G3DVECTOR4F * ) realloc ( pos, fse->vertexCount * sizeof ( *fse->pos ) ); 
 
-                                memset ( pos, 0x00, fse->nbver * sizeof ( *fse->pos ) );
+                                memset ( pos, 0x00, fse->vertexCount * sizeof ( *fse->pos ) );
 
-                                for ( i = 0x00; i < fse->nbver; i++ ) {
+                                for ( i = 0x00; i < fse->vertexCount; i++ ) {
 
                                     if ( fse->hei[i].w ) {
                                         pos[i].x = fse->hei[i].s * rtvermem[i].nor.x;
@@ -412,11 +412,11 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
                             } break;
 
                             default :
-                                hei = ( G3DHEIGHT * ) realloc ( hei, fse->nbver * sizeof ( G3DHEIGHT ) ); 
+                                hei = ( G3DHEIGHT * ) realloc ( hei, fse->vertexCount * sizeof ( G3DHEIGHT ) ); 
 
-                                memset ( hei, 0x00, fse->nbver * sizeof ( G3DHEIGHT ) );
+                                memset ( hei, 0x00, fse->vertexCount * sizeof ( G3DHEIGHT ) );
 
-                                for ( i = 0x00; i < fse->nbver; i++ ) {
+                                for ( i = 0x00; i < fse->vertexCount; i++ ) {
                                     if ( fse->pos[i].w ) {
                                         hei[i].s = g3dvector3f_length ( ( G3DVECTOR3F * ) &fse->pos[i] );
                                     }
@@ -435,18 +435,18 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
                             case SCULPTMODE_SCULPT :
                                 memcpy ( fse->pos, 
                                               pos,
-                                         fse->nbver * sizeof ( G3DVECTOR3F ) );
+                                         fse->vertexCount * sizeof ( G3DVECTOR3F ) );
                             break;
 
                             default :
                                 memcpy ( fse->hei, 
                                               hei,
-                                         fse->nbver * sizeof ( G3DHEIGHT ) );
+                                         fse->vertexCount * sizeof ( G3DHEIGHT ) );
                             break;
                         }
                     }
 
-                    _NEXTFACE(mes,ltmpfac);
+                    ltmpfac = ltmpfac->next;
                 }
 
                 if ( pos ) free ( pos );
@@ -468,16 +468,16 @@ uint32_t g3dsubdivider_hasScultMaps ( G3DSUBDIVIDER *sdr ) {
     if ( sdr->mod.oriobj ) {
         if ( sdr->mod.oriobj->type & MESH ) {
             G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
-            LIST *ltmpfac = mes->lfac;
+            LIST *ltmpfac = mes->faceList;
 
             while ( ltmpfac ) {
-                G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
+                G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
                 G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION * ) g3dface_getExtension ( fac,
                                                                                      ( uint64_t ) sdr );
 
                 if ( fse ) return 0x01;
 
-                _NEXTFACE(mes,ltmpfac);
+                ltmpfac = ltmpfac->next;
             }
         }
     }
@@ -496,12 +496,12 @@ static void g3dsubdivider_modpick ( G3DSUBDIVIDER *sdr,
                     if ( sdr->mod.oriobj->type & MESH ) {
                         G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
 
-                        LIST *ltmpfac = mes->lfac;
+                        LIST *ltmpfac = mes->faceList;
                         uint32_t facID = 0x00;
 
                         while ( ltmpfac ) {
-                            G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
-                            uint32_t nbrtver = ( fac->nbver == 0x03 ) ? sdr->nbVerticesPerTriangle :
+                            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+                            uint32_t nbrtver = ( fac->vertexCount == 0x03 ) ? sdr->nbVerticesPerTriangle :
                                                                         sdr->nbVerticesPerQuad;
                             SHADERVERTEX *rtvermem = fac->rtvermem;
                             uint32_t nbrtqua;
@@ -524,7 +524,7 @@ static void g3dsubdivider_modpick ( G3DSUBDIVIDER *sdr,
                             }
 
                             if ( engine_flags & VIEWFACE ) {
-                                uint32_t nbrtfac  = ( fac->nbver == 0x04 ) ? sdr->nbFacesPerQuad :
+                                uint32_t nbrtfac  = ( fac->vertexCount == 0x04 ) ? sdr->nbFacesPerQuad :
                                                                              sdr->nbFacesPerTriangle;
                                 G3DRTQUAD *rtquamem = sdr->rtquamem;
                                 uint64_t name = ( uint64_t ) fac;
@@ -559,7 +559,7 @@ static void g3dsubdivider_modpick ( G3DSUBDIVIDER *sdr,
                             }
 /*
                             if ( engine_flags & VIEWOBJECT ) {
-                                uint32_t nbrtfac  = ( fac->nbver == 0x04 ) ? sdr->nbFacesPerQuad : sdr->nbFacesPerTriangle;
+                                uint32_t nbrtfac  = ( fac->vertexCount == 0x04 ) ? sdr->nbFacesPerQuad : sdr->nbFacesPerTriangle;
                                 G3DRTQUAD *rtquamem = sdr->rtquamem;
 
                                 for ( i = 0x00; i < nbrtfac; i++ ) {
@@ -590,7 +590,7 @@ static void g3dsubdivider_modpick ( G3DSUBDIVIDER *sdr,
                             }
 */
 
-                            _NEXTFACE(mes,ltmpfac);
+                            ltmpfac = ltmpfac->next;
                         }
                     }
                 }
@@ -631,7 +631,7 @@ static void g3dsubdivider_reset ( G3DSUBDIVIDER *sdr ) {
     sdr->nbFacesPerTriangle    = 0x00;
     sdr->nbFacesPerQuad        = 0x00;
 
-    ((G3DMESH*)sdr)->nbuvmap = 0x00;
+    ((G3DMESH*)sdr)->uvmapCount = 0x00;
 }
 
 /******************************************************************************/
@@ -683,7 +683,7 @@ void g3dsubdivider_setLevels ( G3DSUBDIVIDER *sdr,
 }
 
 /******************************************************************************/
-uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nbver */
+uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* vertexCount */
                                                                  uint32_t, /* nbtris */
                                                                  uint32_t, /* nbquads */
                                                                  uint32_t, /* nbuv */
@@ -713,8 +713,8 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
         SHADERVERTEX *rtvermem = NULL;
         G3DRTEDGE   *rtedgmem = NULL;
         G3DRTQUAD   *rtquamem = NULL;
-        LIST *ltmpfac = mes->lfac;
-        uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
+        LIST *ltmpfac = mes->faceList;
+        uint32_t uvmapCount = g3dmesh_getUVMapCount ( mes );
 
         g3dtriangle_evalSubdivision ( sdr->subdiv_render, 
                                       &nbFacesPerTriangle, 
@@ -729,14 +729,14 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
         nbUniqueVerticesPerTriangle = nbVerticesPerTriangle - ( nbUniqueVerticesPerEdge * 0x03 ) - 0x03;
         nbUniqueVerticesPerQuad     = nbVerticesPerQuad     - ( nbUniqueVerticesPerEdge * 0x04 ) - 0x04;
 
-        if ( Alloc ) Alloc ( ( mes->nbver ) + 
-                             ( mes->nbedg * nbUniqueVerticesPerEdge ) + 
-                             ( mes->nbtri * nbUniqueVerticesPerTriangle ) +
-                             ( mes->nbqua * nbUniqueVerticesPerQuad ), /* nbver */
-                             ( 0x00 ),                                 /* nbtri = 0 */
-                             ( mes->nbtri * nbFacesPerTriangle ) +
-                             ( mes->nbqua * nbFacesPerQuad ),      /* nb quads */
-                             ( nbuvmap ),                          /* nbuvmaps */
+        if ( Alloc ) Alloc ( ( mes->vertexCount ) + 
+                             ( mes->edgeCount * nbUniqueVerticesPerEdge ) + 
+                             ( mes->triangleCount * nbUniqueVerticesPerTriangle ) +
+                             ( mes->quadCount * nbUniqueVerticesPerQuad ), /* vertexCount */
+                             ( 0x00 ),                                 /* triangleCount = 0 */
+                             ( mes->triangleCount * nbFacesPerTriangle ) +
+                             ( mes->quadCount * nbFacesPerQuad ),      /* nb quads */
+                             ( uvmapCount ),                          /* nbuvmaps */
                               data );
 
         if ( g3dmesh_isDisplaced ( mes, engine_flags ) == 0x00 ) {
@@ -745,8 +745,8 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
         }
 
         while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
-            uint32_t nbv = fac->nbver;
+            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+            uint32_t nbv = fac->vertexCount;
             uint32_t nbVerticesPerFace = ( nbv == 3 ) ? nbVerticesPerTriangle :
                                                         nbVerticesPerQuad;
             uint32_t nbEdgesPerFace    = ( nbv == 3 ) ? nbEdgesPerTriangle :
@@ -759,9 +759,9 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
             rtedgmem = realloc ( rtedgmem, nbEdgesPerFace    * sizeof ( G3DRTEDGE   ) );
             rtquamem = realloc ( rtquamem, nbFacesPerFace    * sizeof ( G3DRTQUAD   ) );
 
-            if ( nbuvmap ) {
+            if ( uvmapCount ) {
                 rtluim  = realloc ( rtluim , nbVerticesPerFace * 
-                                               nbuvmap           * sizeof ( G3DRTUV ) );
+                                               uvmapCount           * sizeof ( G3DRTUV ) );
             }
 
             nbrtfac = g3dsubdivisionV3_subdivide ( sdv, 
@@ -777,7 +777,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                                                    NULL,
                                                    NULL,
                                                    NULL,
-                                                   mes->ltex,
+                                                   mes->textureList,
                                       ( uint64_t ) sdr,
                                                    sdr->sculptMode,
                                   (uint32_t (*)[4])g3dsubindex_get ( 0x04, sdr->subdiv_render ),
@@ -792,8 +792,8 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
 #define MAX_UV_MAPS 0x20
                 G3DUVSET   dumpUvs[MAX_UV_MAPS];
                 LIST      ldumpUvs[MAX_UV_MAPS];
-                LIST *ltmpuvs = fac->luvs;
-                uint32_t nbuvs = 0x00;
+                LIST *ltmpuvs = fac->uvsetList;
+                uint32_t uvsetCount = 0x00;
                 G3DVERTEX dumpVer[0x04];
                 G3DFACE   dumpFac;
                 uint32_t  j;
@@ -814,9 +814,9 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                     memcpy ( &dumpVer[j].nor, &rtver->nor, sizeof ( G3DVECTOR3F ) );
                 }
 
-                dumpFac.nbver = 0x04;
+                dumpFac.vertexCount = 0x04;
 
-                dumpFac.lfacgrp = fac->lfacgrp;
+                dumpFac.facegroupList = fac->facegroupList;
 
                 dumpFac.ver[0x00] = &dumpVer[0x00];
                 dumpFac.ver[0x01] = &dumpVer[0x01];
@@ -828,20 +828,20 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                 /*** rebuild uvmaps ***/
                 while ( ltmpuvs ) {
                     G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
-                    uint32_t offset = ( nbuvs * nbVerticesPerFace );
+                    uint32_t offset = ( uvsetCount * nbVerticesPerFace );
                     uint32_t k;
 
-                    dumpUvs[nbuvs].map = uvs->map;
+                    dumpUvs[uvsetCount].map = uvs->map;
 
                     for ( k = 0x00; k < 0x04; k++ ) {
-                        dumpUvs[nbuvs].veruv[k].u = rtluim[(offset + rtquamem[i].rtver[k])].u;
-                        dumpUvs[nbuvs].veruv[k].v = rtluim[(offset + rtquamem[i].rtver[k])].v;
+                        dumpUvs[uvsetCount].veruv[k].u = rtluim[(offset + rtquamem[i].rtver[k])].u;
+                        dumpUvs[uvsetCount].veruv[k].v = rtluim[(offset + rtquamem[i].rtver[k])].v;
                     }
 
-                    ldumpUvs[nbuvs].data  = &dumpUvs[nbuvs];
-                    ldumpUvs[nbuvs].next  =  dumpFac.luvs;
-                    dumpFac.luvs          = &ldumpUvs[nbuvs];
-                    dumpFac.nbuvs         = nbuvs++;
+                    ldumpUvs[uvsetCount].data  = &dumpUvs[uvsetCount];
+                    ldumpUvs[uvsetCount].next  =  dumpFac.uvsetList;
+                    dumpFac.uvsetList          = &ldumpUvs[uvsetCount];
+                    dumpFac.uvsetCount         = uvsetCount++;
 
                     ltmpuvs = ltmpuvs->next;
                 }
@@ -849,7 +849,7 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* nb
                 Dump ( &dumpFac, NULL, NULL, data );
             }
 
-            _NEXTFACE(mes,ltmpfac);
+            ltmpfac = ltmpfac->next;
         }
 
         if ( rtvermem ) free ( rtvermem );
@@ -881,8 +881,8 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
         G3DOBJECT *obj = ( G3DOBJECT * ) mes;
         G3DSYSINFO *sif = g3dsysinfo_get ( );
         G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, 0x00 );
-        LIST *ltmpfac = mes->lfac;
-        uint32_t nbCommitFac = mes->nbfac * pow(4,sdr->subdiv_preview); /*** need arrays big enough even if bigger ***/
+        LIST *ltmpfac = mes->faceList;
+        uint32_t nbCommitFac = mes->faceCount * pow(4,sdr->subdiv_preview); /*** need arrays big enough even if bigger ***/
         uint32_t nbCommitEdg = nbCommitFac * 0x04; /*** need arrays big enough even if bigger ***/
         uint32_t nbCommitVer = nbCommitFac * 0x04; /*** need arrays big enough even if bigger ***/
         G3DVERTEX **commitVertices;
@@ -905,7 +905,7 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
         commitFaces    = ( G3DFACE   ** ) calloc ( nbCommitFac, sizeof ( G3DFACE   * ) );
 
         while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
+            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
             nbrtfac = g3dsubdivisionV3_subdivide ( sdv, 
                                                    mes,
@@ -920,7 +920,7 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
                                                    commitVertices,
                                                    commitEdges,
                                                    commitFaces,
-                                                   mes->ltex,
+                                                   mes->textureList,
                                       ( uint64_t ) sdr,
                                                    sdr->sculptMode,
                                   (uint32_t (*)[4])g3dsubindex_get ( 0x04, sdr->subdiv_preview ),
@@ -929,7 +929,7 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
                                                    SUBDIVISIONCOMMIT,
                                                    engine_flags );
 
-            _NEXTFACE(mes,ltmpfac);
+            ltmpfac = ltmpfac->next;
         }
 
         for ( i = 0x00; i < nbCommitVer; i++ ) {
@@ -955,12 +955,12 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
                                           (G3DOBJECT*)mes );
 
         g3dmesh_updateBbox ( commitMesh );
- 
+ /*
         commitMesh->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                                UPDATEFACENORMAL   |
                                                UPDATEVERTEXNORMAL |
                                                COMPUTEUVMAPPING );
-
+*/
         g3dmesh_update ( commitMesh, 0x00, engine_flags );
 
         free( commitVertices );
@@ -973,7 +973,7 @@ G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr,
 
 /******************************************************************************/
 void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
-                                 LIST          *lfac,
+                                 LIST          *faceList,
                                  uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
 
@@ -982,7 +982,7 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
             #define MAX_SUBDIVISION_THREADS 0x20
             G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
             G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
-            LIST *ltmpfac = ( lfac ) ? lfac : mes->lfac;
+            LIST *ltmpfac = ( faceList ) ? faceList : mes->faceList;
             G3DSYSINFO *sif = g3dsysinfo_get ( );
             G3DSUBDIVISIONTHREAD std[MAX_SUBDIVISION_THREADS];
             pthread_t tid[MAX_SUBDIVISION_THREADS]; /*** let's say, max 32 threads ***/
@@ -1078,7 +1078,7 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
         if ( sdr->mod.oriobj->type & MESH ) {
             G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
 
-            uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
+            uint32_t uvmapCount = g3dmesh_getUVMapCount ( mes );
             g3dtriangle_evalSubdivision (  sdr->subdiv_preview, 
                                           &sdr->nbFacesPerTriangle, 
                                           &sdr->nbEdgesPerTriangle,
@@ -1088,21 +1088,21 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
                                           &sdr->nbEdgesPerQuad,
                                           &sdr->nbVerticesPerQuad );
 
-            LIST *ltmpfac = mes->lfac;
+            LIST *ltmpfac = mes->faceList;
             uint32_t i = 0x00;
 
             sdr->factab = ( G3DFACE ** ) realloc ( sdr->factab, 
-                                                   sizeof ( G3DFACE * ) * mes->nbfac );
+                                                   sizeof ( G3DFACE * ) * mes->faceCount );
 
-            sdr->nbrtfac = ( mes->nbtri * sdr->nbFacesPerTriangle    ) +
-                           ( mes->nbqua * sdr->nbFacesPerQuad        );
-            sdr->nbrtedg = ( mes->nbtri * sdr->nbEdgesPerTriangle    ) +
-                           ( mes->nbqua * sdr->nbEdgesPerQuad        );
-            sdr->nbrtver = ( mes->nbtri * sdr->nbVerticesPerTriangle ) +
-                           ( mes->nbqua * sdr->nbVerticesPerQuad     );
+            sdr->nbrtfac = ( mes->triangleCount * sdr->nbFacesPerTriangle    ) +
+                           ( mes->quadCount * sdr->nbFacesPerQuad        );
+            sdr->nbrtedg = ( mes->triangleCount * sdr->nbEdgesPerTriangle    ) +
+                           ( mes->quadCount * sdr->nbEdgesPerQuad        );
+            sdr->nbrtver = ( mes->triangleCount * sdr->nbVerticesPerTriangle ) +
+                           ( mes->quadCount * sdr->nbVerticesPerQuad     );
 
-            sdr->nbrtuv  = ( ( mes->nbtri * sdr->nbVerticesPerTriangle ) +
-                             ( mes->nbqua * sdr->nbVerticesPerQuad     ) )  * nbuvmap;
+            sdr->nbrtuv  = ( ( mes->triangleCount * sdr->nbVerticesPerTriangle ) +
+                             ( mes->quadCount * sdr->nbVerticesPerQuad     ) )  * uvmapCount;
 
             sdr->rtquamem = realloc ( sdr->rtquamem, ( sdr->nbrtfac * sizeof ( G3DRTQUAD   ) ) );
 
@@ -1112,17 +1112,17 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
 
             sdr->rtluim   = realloc ( sdr->rtluim  , ( sdr->nbrtuv  * sizeof ( G3DRTUV     ) ) );
 
-            ((G3DMESH*)sdr)->nbuvmap = mes->nbuvmap;
+            ((G3DMESH*)sdr)->uvmapCount = mes->uvmapCount;
 
             /*** this is done here because g3dsubdivider_fillBuffers() uses ***/
             /*** a thread that is not aware of the sdr object ***/
 
             while ( ltmpfac ) {
-                G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
+                G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
                 sdr->factab[i++] = fac;
 
-                _NEXTFACE(mes,ltmpfac);
+                ltmpfac = ltmpfac->data;
             }
 
             g3dsubdivider_setSculptResolution ( sdr,
@@ -1271,8 +1271,8 @@ static void bindMaterials ( G3DSUBDIVIDER *sdr,
                                        MESHCOLORF, 1.0f };
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     GLint arbid = GL_TEXTURE0_ARB;
-    LIST *ltmptex = mes->ltex;
-    LIST *ltmpuvs = fac->luvs;
+    LIST *ltmptex = mes->textureList;
+    LIST *ltmpuvs = fac->uvsetList;
     uint32_t selection = 0x00;
 
     glDisable ( GL_COLOR_MATERIAL );
@@ -1396,7 +1396,7 @@ static void unbindMaterials ( G3DMESH *mes,
                               G3DRTUV *rtluim,
                               uint64_t engine_flags ) {
     GLint arbid = GL_TEXTURE0_ARB;
-    LIST *ltmptex = mes->ltex;
+    LIST *ltmptex = mes->textureList;
 
     while ( ltmptex ) {
         G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
@@ -1499,15 +1499,15 @@ static uint32_t g3dsubdivider_moddraw ( G3DSUBDIVIDER *sdr,
     if ( parent ) {
 
         G3DMESH *mes = ( G3DMESH * ) parent;
-        uint32_t nbuvmap = g3dmesh_getUVMapCount ( mes );
-        LIST *ltmpfac = mes->lfac;
+        uint32_t uvmapCount = g3dmesh_getUVMapCount ( mes );
+        LIST *ltmpfac = mes->faceList;
 
         glUniformMatrix4fv( mvpMatrixLocation, 1, GL_FALSE, mvp );
         glUniformMatrix4fv( mvwMatrixLocation, 1, GL_FALSE, mvw );
         glUniformMatrix4fv( norMatrixLocation, 1, GL_FALSE, nor );
 
         while ( ltmpfac ) {
-            G3DFACE     *fac      = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
+            G3DFACE     *fac      = ( G3DFACE * ) ltmpfac->data;
             SHADERVERTEX *rtvermem = NULL;
             G3DRTEDGE   *rtedgmem = NULL;
             G3DRTQUAD   *rtquamem = NULL;
@@ -1515,27 +1515,27 @@ static uint32_t g3dsubdivider_moddraw ( G3DSUBDIVIDER *sdr,
             uint32_t     nbrtfac;
             uint32_t     nbrtver;
             GLint arbid = GL_TEXTURE0_ARB;
-            LIST *ltmptex = mes->ltex;
-            LIST *ltmpuvs = fac->luvs;
+            LIST *ltmptex = mes->textureList;
+            LIST *ltmpuvs = fac->uvsetList;
 
-            if ( fac->nbver == 0x03 ) {
+            if ( fac->vertexCount == 0x03 ) {
                 nbrtfac  = sdr->nbFacesPerTriangle;
                 nbrtver  = sdr->nbVerticesPerTriangle;
 /*
                 rtvermem = sdr->rtvermem + ( fac->typeID * sdr->nbVerticesPerTriangle );
                 rtquamem = sdr->rtquamem + ( fac->typeID * sdr->nbFacesPerTriangle );
-                rtluim  = sdr->rtluim  + ( fac->typeID * sdr->nbVerticesPerTriangle * nbuvmap );
+                rtluim  = sdr->rtluim  + ( fac->typeID * sdr->nbVerticesPerTriangle * uvmapCount );
 */
             } else {
                 nbrtfac  = sdr->nbFacesPerQuad;
                 nbrtver  = sdr->nbVerticesPerQuad;
 /*
-                rtvermem = sdr->rtvermem + ( mes->nbtri  * sdr->nbVerticesPerTriangle ) + 
+                rtvermem = sdr->rtvermem + ( mes->triangleCount  * sdr->nbVerticesPerTriangle ) + 
                                            ( fac->typeID * sdr->nbVerticesPerQuad );
-                rtquamem = sdr->rtquamem + ( mes->nbtri  * sdr->nbFacesPerTriangle ) + 
+                rtquamem = sdr->rtquamem + ( mes->triangleCount  * sdr->nbFacesPerTriangle ) + 
                                            ( fac->typeID * sdr->nbFacesPerQuad );
-                rtluim  = sdr->rtluim    + ( mes->nbtri  * sdr->nbVerticesPerTriangle * nbuvmap ) +
-                                           ( fac->typeID * sdr->nbVerticesPerQuad * nbuvmap );
+                rtluim  = sdr->rtluim    + ( mes->triangleCount  * sdr->nbVerticesPerTriangle * uvmapCount ) +
+                                           ( fac->typeID * sdr->nbVerticesPerQuad * uvmapCount );
 */
             }
 
@@ -1582,7 +1582,7 @@ static uint32_t g3dsubdivider_moddraw ( G3DSUBDIVIDER *sdr,
                 }
             }
 #endif
-            _NEXTFACE(mes,ltmpfac);
+            ltmpfac = ltmpfac->next;
         }
     }
 

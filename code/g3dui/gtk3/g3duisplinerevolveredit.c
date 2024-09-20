@@ -56,8 +56,8 @@ static void updateGeneralPanel ( GTK3G3DUISPLINEREVOLVEREDIT *gtk3sed ) {
     if ( gtk3sed->core.editedSplineRevolver ) {
         G3DSPLINEREVOLVER *srv = gtk3sed->core.editedSplineRevolver;
 
-        gtk_spin_button_set_value ( gtk3sed->stepsEntry    , srv->nbsteps );
-        gtk_spin_button_set_value ( gtk3sed->divisionsEntry, srv->nbdivis );
+        gtk_spin_button_set_value ( gtk3sed->stepsEntry    , srv->stepCount );
+        gtk_spin_button_set_value ( gtk3sed->divisionsEntry, srv->divisionCount );
     }
 
     gtk3sed->core.gui->lock = 0x00;

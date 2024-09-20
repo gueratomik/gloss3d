@@ -51,14 +51,14 @@ void g3dimportv3subdivider ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc
                     case SCULPTMODE_SCULPT :
                         g3dimportv3_fread ( fse->pos, 
                                             sizeof ( G3DVECTOR4F ), 
-                                            fse->nbver,
+                                            fse->vertexCount,
                                             fsrc );
                     break;
 
                     default :
                         g3dimportv3_fread ( fse->hei, 
                                             sizeof ( G3DHEIGHT ), 
-                                            fse->nbver,
+                                            fse->vertexCount,
                                             fsrc );
                     break;
                 }

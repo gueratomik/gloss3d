@@ -152,7 +152,7 @@ static void updatePoseList ( GTK3G3DUIMORPHEREDIT *gtk3med ) {
     if ( gtk3med->core.editedMorpher ) {
         if ( gtk3med->core.editedMorpher->mod.mes.obj.type == G3DMORPHERTYPE ) {
             G3DMORPHER *mpr = ( G3DMORPHER * ) gtk3med->core.editedMorpher;
-            LIST *ltmpmpose = mpr->lmpose;
+            LIST *ltmpmpose = mpr->selectedPose;
             uint32_t y = 0x00;
 
             while ( ltmpmpose ) {
@@ -272,8 +272,8 @@ static void selectMeshPoseVerticesCbk  ( GtkWidget *widget,
         if ( obj->type == G3DMORPHERTYPE ) {
             G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
 
-            if ( mpr->selmpose ) {
-                g3dmorpher_selectMeshVerticesFromPose ( mpr, mpr->selmpose );
+            if ( mpr->selectedPose ) {
+                g3dmorpher_selectMeshVerticesFromPose ( mpr, mpr->selectedPose );
 
                 g3dscene_updatePivot ( gui->sce, 
                                        gui->engine_flags );
@@ -298,9 +298,9 @@ static void copyMeshPoseCbk  ( GtkWidget *widget,
         if ( obj->type == G3DMORPHERTYPE ) {
             G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
 
-            if ( mpr->selmpose ) {
+            if ( mpr->selectedPose ) {
                 G3DMORPHERMESHPOSE *mpose = g3dmorpher_copyMeshPose ( mpr, 
-                                                                      mpr->selmpose );
+                                                                      mpr->selectedPose );
 
                 g3dmorpher_selectMeshPose ( mpr, mpose );
             }

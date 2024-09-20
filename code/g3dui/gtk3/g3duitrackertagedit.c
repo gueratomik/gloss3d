@@ -61,7 +61,7 @@ void gtk3_g3duitrackertagedit_update ( GTK3G3DUITRACKERTAGEDIT *gtk3tted ) {
     gtk_combo_box_text_remove_all ( gtk3tted->objectCombo );
 
     if ( sel ) {
-        G3DTAG *tag = sel->seltag;
+        G3DTAG *tag = sel->selectedTag;
 
         if ( tag ) {
             if ( tag->type & G3DTAGTRACKERTYPE ) {

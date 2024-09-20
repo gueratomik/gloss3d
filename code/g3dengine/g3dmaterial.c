@@ -44,7 +44,7 @@ LIST *g3dmaterial_getObjects ( G3DMATERIAL *mat, G3DSCENE *sce ) {
 
         if ( obj->type & MESH ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
-            LIST *ltmptex = mes->ltex;
+            LIST *ltmptex = mes->textureList;
 
             while ( ltmptex ) {
                 G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
@@ -81,7 +81,7 @@ void g3dmaterial_updateMeshes ( G3DMATERIAL *mat,
             if ( obj->type & MESH ) {
                 G3DMESH *mes = ( G3DMESH * ) obj;
 
-                mes->obj.invalidationFlags = RESETMODIFIERS;
+                g3dobject_invalidate( &mes->obj, INVALIDATE_MODIFIER_STACK_RESET );
 
                 g3dmesh_update ( mes, 0, engine_flags );
 

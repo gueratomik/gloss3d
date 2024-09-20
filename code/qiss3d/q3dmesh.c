@@ -244,7 +244,7 @@ static void Dump ( G3DFACE     *fac,
                    G3DVECTOR3F *stkpos,
                    G3DVECTOR3F *stknor,
                    void        *data ) {
-    uint32_t polyCount = ( fac->nbver == 0x03 ) ? 0x01 : 0x02;
+    uint32_t polyCount = ( fac->vertexCount == 0x03 ) ? 0x01 : 0x02;
     Q3DDUMP *qdump = ( Q3DDUMP * ) data;
     Q3DMESH *qmes  = qdump->qmes;
     G3DMESH *mes = (G3DMESH*) ((Q3DOBJECT*)qmes)->obj;
@@ -255,7 +255,7 @@ static void Dump ( G3DFACE     *fac,
     for ( i = 0x00; i < polyCount; i++ ) {
         static uint32_t idx[0x02][0x03] = { { 0x00, 0x01, 0x02 },
                                             { 0x02, 0x03, 0x00 } };
-        LIST *ltmpuvs = fac->luvs;
+        LIST *ltmpuvs = fac->uvsetList;
         uint32_t qverID[0x03] = { fac->ver[idx[i][0x00]]->id,
                                   fac->ver[idx[i][0x01]]->id,
                                   fac->ver[idx[i][0x02]]->id };
@@ -302,7 +302,7 @@ static void Dump ( G3DFACE     *fac,
                            qverID[0x01],
                            qverID[0x02] );
 
-        qmes->curtri->lfacgrp = fac->lfacgrp;
+        qmes->curtri->lfacgrp = fac->facegroupList;
 
         if ( flat ) {
             qmes->curtri->flags |= TRIANGLEFLAT;

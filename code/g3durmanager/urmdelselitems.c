@@ -152,12 +152,12 @@ static void deleteSelectedItems_undo ( G3DURMANAGER *urm,
             if ( dsi->engine_flags & VIEWFACE ) {
                 list_execargdata ( dsi->loldselfac, (void(*)(void*,void*)) g3dmesh_selectFace, mes );
             }
-
+/*
             mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                        UPDATEFACENORMAL   |
                                        UPDATEVERTEXNORMAL |
                                        RESETMODIFIERS );
-
+*/
             /*** Rebuild the mesh with modifiers ***/
             g3dmesh_update ( mes, 0x00, engine_flags );
         }
@@ -207,12 +207,12 @@ static void deleteSelectedItems_redo ( G3DURMANAGER *urm,
 
                 ltmpver = ltmpver->next;
             }
-
+/*
             mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                        UPDATEFACENORMAL   |
                                        UPDATEVERTEXNORMAL |
                                        RESETMODIFIERS );
-
+*/
             /*** Rebuild the mesh with modifiers ***/
             g3dmesh_update ( mes, 0x00, engine_flags );
         }
@@ -231,16 +231,16 @@ void g3durm_mesh_deleteGeometry ( G3DURMANAGER *urm,
     URMDELSELITEMS *dsi;
 
     if ( engine_flags & VIEWVERTEX ) {
-        loldselver = list_copy ( mes->lselver );
+        loldselver = list_copy ( mes->selectedVertexList );
         loldselfac = g3dmesh_getFaceListFromSelectedVertices ( mes );
     }
 
     if ( engine_flags & VIEWFACE ) {
-        loldselfac = list_copy ( mes->lselfac );
+        loldselfac = list_copy ( mes->selectedFaceList );
     }
 
     if ( engine_flags & VIEWEDGE ) {
-        loldseledg = list_copy ( mes->lseledg );
+        loldseledg = list_copy ( mes->selectedEdgeList );
         loldselfac = g3dmesh_getFaceListFromSelectedEdges ( mes );
     }
 
@@ -276,12 +276,12 @@ void g3durm_mesh_deleteGeometry ( G3DURMANAGER *urm,
     }
 
     g3dface_getOrphanedEdgesFromList ( loldselfac, &dsi->lorphanedEdges );
-
+/*
     mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
-
+*/
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
 }

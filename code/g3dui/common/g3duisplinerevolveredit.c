@@ -42,7 +42,7 @@ uint64_t g3duisplinerevolveredit_splineRevolverSteps ( G3DUISPLINEREVOLVEREDIT *
         if ( sel->type == G3DSPLINEREVOLVERTYPE ) {
             G3DSPLINEREVOLVER *srv = ( G3DSPLINEREVOLVER * ) sel;
 
-            srv->nbsteps = level;
+            srv->stepCount = level;
 
             g3dsplinerevolver_reshape ( srv, gui->engine_flags );
 
@@ -69,7 +69,7 @@ uint64_t g3duisplinerevolveredit_splineRevolverDivis ( G3DUISPLINEREVOLVEREDIT *
         if ( sel->type == G3DSPLINEREVOLVERTYPE ) {
             G3DSPLINEREVOLVER *srv = ( G3DSPLINEREVOLVER * ) sel;
 
-            srv->nbdivis = level;
+            srv->divisionCount = level;
 
             g3dsplinerevolver_reshape ( srv, gui->engine_flags );
 

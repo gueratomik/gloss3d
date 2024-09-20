@@ -34,7 +34,7 @@ static uint32_t g3dexportv3ffd_uvw ( G3DEXPORTV3DATA *ged,
                                    G3DFFD        *ffd, 
                                    uint32_t       flags, 
                                    FILE          *fdst ) {
-    uint32_t nbpnt = ((G3DMESH*)ffd)->nbver;
+    uint32_t nbpnt = ((G3DMESH*)ffd)->vertexCount;
     uint32_t size = 0x00;
     uint32_t i;
 

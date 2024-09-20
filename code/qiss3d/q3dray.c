@@ -256,7 +256,7 @@ void q3dray_specular ( Q3DRAY      *qray,
                        Q3DRGBA     *specular ) {
     if ( qray->isx.qobj->obj->type & MESH ) {
         G3DMESH *mes = ( G3DMESH * ) qray->isx.qobj->obj;
-        LIST *ltmptex = mes->ltex;
+        LIST *ltmptex = mes->textureList;
         uint32_t total = 0x00;
 
         while ( ltmptex ) {
@@ -1145,14 +1145,14 @@ uint32_t q3dray_shoot_r ( Q3DRAY     *qray,
                                             &materialRefraction,
                                             &materialAlpha,
                                             &alphaOpacity,
-                                             mes->ltex, 
+                                             mes->textureList, 
                                              query_flags );
 
 
                     q3dray_bump ( qray,
                                   qtri,
                                   frame,
-                                  mes->ltex );
+                                  mes->textureList );
                 }
 
                 if ( ( query_flags & RAYQUERYREFLECTION ) && nbhop ) {

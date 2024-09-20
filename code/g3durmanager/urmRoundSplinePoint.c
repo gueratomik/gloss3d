@@ -81,7 +81,7 @@ void roundSplinePoint_undo ( G3DURMANAGER *urm,
     /*** Rebuild the subdivided mesh ***/
     g3dspline_update ( rsp->spline, 
                        NULL,
-                       UPDATEMODIFIERS, engine_flags );
+                       0, engine_flags );
 }
 
 /******************************************************************************/
@@ -89,18 +89,18 @@ void roundSplinePoint_redo ( G3DURMANAGER *urm,
                              void         *data,
                              uint64_t engine_flags ) {
     URMROUNDSPLINEPOINT *rsp = ( URMROUNDSPLINEPOINT * ) data;
-    LIST *lbackupSelectedPoints = ((G3DMESH*)rsp->spline)->lselver;
+    LIST *lbackupSelectedPoints = ((G3DMESH*)rsp->spline)->selectedVertexList;
 
-    ((G3DMESH*)rsp->spline)->lselver = rsp->lselectedPoints;
+    ((G3DMESH*)rsp->spline)->selectedVertexList = rsp->lselectedPoints;
 
     g3dcurve_roundSelectedPoints ( rsp->spline->curve );
 
-    ((G3DMESH*)rsp->spline)->lselver = lbackupSelectedPoints;
+    ((G3DMESH*)rsp->spline)->selectedVertexList = lbackupSelectedPoints;
 
     /*** Rebuild the subdivided mesh ***/
     g3dspline_update ( rsp->spline, 
                        NULL,
-                       UPDATEMODIFIERS, engine_flags );
+                       0, engine_flags );
 }
 
 /******************************************************************************/
@@ -126,7 +126,7 @@ void g3durm_spline_roundSelectedPoints ( G3DURMANAGER     *urm,
 
         /*** Rebuild the spline modifiers ***/
         g3dspline_update ( spline, NULL,
-                                   UPDATEMODIFIERS, engine_flags );
+                                   0, engine_flags );
 
         /* remember it for undoing */
         rsp = urmRoundSplinePoint_new ( spline, 

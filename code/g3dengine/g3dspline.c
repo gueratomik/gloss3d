@@ -71,7 +71,7 @@ void g3dspline_modify ( G3DSPLINE  *spl,
                         G3DMODIFYOP op,
                         uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
-    LIST *ltmpchildren = obj->lchildren;
+    LIST *ltmpchildren = obj->childList;
 /*
     g3dmesh_renumberVertices ( mes );
     g3dmesh_renumberEdges    ( mes );
@@ -100,9 +100,11 @@ void g3dspline_modify ( G3DSPLINE  *spl,
         if ( spl->lastmod->mes.obj.flags & MODIFIERNEEDSNORMALUPDATE ) {
             if ( ( spl->lastmod->mes.obj.type & MESH ) == 0x00 ) {
                 G3DMESH *mes = ( G3DMESH * ) spl->lastmod;
-
+/*
                 mes->obj.invalidationFlags |=  ( UPDATEFACENORMAL   |
                                                  UPDATEVERTEXNORMAL );
+
+                g3dobject_*/
 
                 g3dmesh_update ( mes, 0x00, engine_flags );
             }
@@ -114,16 +116,16 @@ void g3dspline_modify ( G3DSPLINE  *spl,
 void g3dspline_update ( G3DSPLINE *spl,
                         LIST      *lpt,
                         uint32_t   update_flags,
-                        uint64_t engine_flags ) {
+                        uint64_t   engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
 
-    if ( update_flags & RESETMODIFIERS ) {
+    if ( obj->invalidationFlags & INVALIDATE_MODIFIER_STACK_RESET ) {
         g3dspline_modify ( spl,
                            G3DMODIFYOP_MODIFY,
                            engine_flags );
     }
 
-    if ( update_flags & UPDATEMODIFIERS ) {
+    if ( obj->invalidationFlags & INVALIDATE_MODIFIER_STACK_UPDATE ) {
         /*** usually modifier update is based on selected vertices/faces/edges ***/
         LIST *ltmpselpt = spl->curve->lselpt;
 
@@ -172,8 +174,10 @@ void g3dspline_moveAxis ( G3DSPLINE *spl,
         ltmppt = ltmppt->next;
     }
 
+    g3dobject_invalidate( spl, INVALIDATE_MODIFIER_STACK_RESET );
+
     /*g3dmesh_updateBbox ( mes );*/
-    g3dspline_update ( spl, NULL, RESETMODIFIERS, engine_flags );
+    g3dspline_update ( spl, NULL, 0, engine_flags );
 }
 
 /******************************************************************************/

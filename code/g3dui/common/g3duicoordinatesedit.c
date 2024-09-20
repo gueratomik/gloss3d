@@ -66,19 +66,19 @@ uint64_t g3duicoordinatesedit_pos ( G3DUICOORDINATESEDIT *coordedit,
                 G3DVECTOR3F avg;
                 G3DVECTOR3F to;
 
-                g3dvertex_getAveragePositionFromList ( mes->lselver, &avg );
+                g3dvertex_getAveragePositionFromList ( mes->selectedVertexList, &avg );
 
                 if ( axis == G3DUIXAXIS ) { to.x = val; axis_flags |= XAXIS; }
                 if ( axis == G3DUIYAXIS ) { to.y = val; axis_flags |= YAXIS; }
                 if ( axis == G3DUIZAXIS ) { to.z = val; axis_flags |= ZAXIS; }
 
-                g3dvertex_copyPositionFromList ( mes->lselver, &oldpos );
+                g3dvertex_copyPositionFromList ( mes->selectedVertexList, &oldpos );
 
-                g3dmesh_moveVerticesTo ( mes, mes->lselver, &avg, &to, absolute, axis_flags, gui->engine_flags );
+                g3dmesh_moveVerticesTo ( mes, mes->selectedVertexList, &avg, &to, absolute, axis_flags, gui->engine_flags );
 
-                g3dvertex_copyPositionFromList ( mes->lselver, &newpos );
+                g3dvertex_copyPositionFromList ( mes->selectedVertexList, &newpos );
 
-                g3durm_mesh_moveVertexList ( gui->urm, mes, mes->lselver, NULL, NULL, NULL,
+                g3durm_mesh_moveVertexList ( gui->urm, mes, mes->selectedVertexList, NULL, NULL, NULL,
                                              oldpos, 
                                              newpos, 
                                              REDRAWVIEW );

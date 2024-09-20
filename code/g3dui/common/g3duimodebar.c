@@ -102,17 +102,19 @@ uint64_t g3duimodebar_setMode ( G3DUIMODEBAR *gmb,
         G3DMESH *mes = ( G3DMESH * ) obj;
 
         if ( ( newmode & VIEWSKIN ) || ( oldmode & VIEWSKIN ) ) {
+/*
             mes->obj.invalidationFlags |= RESETMODIFIERS;
-
+*/
             g3dmesh_update ( mes, 0x00, gui->engine_flags );
         }
 
         /*** The below restores the face ***/
         /*** color when we switch modes ***/
         if ( ( newmode & VIEWFACE ) || ( oldmode & VIEWFACE ) ) {
-            if ( mes->lselfac ) {
+            if ( mes->selectedFaceList ) {
+/*
                 mes->obj.invalidationFlags |= RESETMODIFIERS;
-
+*/
                 g3dmesh_update ( mes, 0x00, gui->engine_flags );
             }
         }

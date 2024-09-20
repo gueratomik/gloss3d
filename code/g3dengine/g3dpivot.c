@@ -64,8 +64,8 @@ uint32_t g3dpivot_draw ( G3DOBJECT *obj,
 /******************************************************************************/
 void g3dpivot_orbit ( G3DPIVOT *piv, float diffx, float diffy ) {
     G3DOBJECT *yaxis  = ( G3DOBJECT * ) piv,
-              *xaxis  = ( G3DOBJECT * ) yaxis->lchildren->data,
-              *locam  = ( G3DOBJECT * ) xaxis->lchildren->data;
+              *xaxis  = ( G3DOBJECT * ) yaxis->childList->data,
+              *locam  = ( G3DOBJECT * ) xaxis->childList->data;
     float LCX[0x10];
 
     yaxis->rot.y -= ( diffx );

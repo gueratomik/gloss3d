@@ -255,7 +255,7 @@ uint64_t g3dui_copySelection ( G3DUI *gui ) {
 
             if ( parent ) {
                 G3DMESH *mes = ( G3DMESH * ) parent;
-                LIST *ltmpselfac = mes->lselfac;
+                LIST *ltmpselfac = mes->selectedFaceList;
 
                 while ( ltmpselfac ) {
                     G3DFACE *selfac = ( G3DFACE * ) ltmpselfac->data;
@@ -281,10 +281,10 @@ uint64_t g3dui_removeSelectedTag ( G3DUI *gui ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
     if ( obj ){
-        if ( obj->seltag ) {
+        if ( obj->selectedTag ) {
             g3durm_selection_removeTag ( urm,
                                          obj,
-                                         obj->seltag,
+                                         obj->selectedTag,
                                          gui->engine_flags,
                                          REDRAWVIEW | REDRAWOBJECTLIST );
         }
@@ -327,7 +327,7 @@ uint64_t g3dui_splitMesh ( G3DUI      *gui,
             G3DMESH *mes = ( G3DMESH * ) obj;
             G3DOBJECT *parent = obj->parent;
 
-            if ( mes->lselfac ) {
+            if ( mes->selectedFaceList ) {
                 G3DMESH *spl;
                 LIST *loldfac = NULL;
                 LIST *loldver = NULL;
@@ -383,17 +383,17 @@ uint64_t g3dui_mirrorHeightmap ( G3DUI      *gui,
 
         if ( parent ) {
             G3DMESH *mes = ( G3DMESH * ) parent;
-            LIST *ltmpselfac = mes->lselfac;
+            LIST *ltmpselfac = mes->selectedFaceList;
 
             while ( ltmpselfac ) {
                 G3DFACE *selfac = ( G3DFACE * ) ltmpselfac->data;
-                LIST *ltmpfac = mes->lfac;
+                LIST *ltmpfac = mes->faceList;
 
                 while ( ltmpfac ) {
                     G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
                     if ( fac != selfac ) {
-                        if ( fac->nbver == selfac->nbver ) {
+                        if ( fac->vertexCount == selfac->vertexCount ) {
                             uint32_t mirror = 0x00;
                             G3DVECTOR3F factor = { 1.0f, 1.0f, 1.0f };
 
@@ -829,7 +829,7 @@ uint64_t g3dui_addFFDBox ( G3DUI *gui ) {
 
             g3dbbox_getSize ( &obj->bbox, &xSize, &ySize, &zSize );
 
-            g3dvertex_getAveragePositionFromList ( mes->lver, &((G3DOBJECT*)ffd)->pos );
+            g3dvertex_getAveragePositionFromList ( mes->vertexList, &((G3DOBJECT*)ffd)->pos );
             g3dobject_updateMatrix_r ( ( G3DOBJECT * ) ffd, gui->engine_flags );
 
             /*** let's adjust the shape ***/
@@ -1430,9 +1430,9 @@ uint64_t g3dui_alignNormals ( G3DUI *gui ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
         g3dmesh_alignFaces ( mes );
-
+/*
         mes->obj.invalidationFlags |= RESETMODIFIERS;
-
+*/
         /*** Update subdivision if we are in buffered mode. ***/
         g3dmesh_update ( mes, 0x00, gui->engine_flags );
 
@@ -1537,9 +1537,9 @@ uint64_t g3dui_getObjectStats ( G3DUI   *gui,
                                           "Edge count\t: %"PRIu32"\n"
                                           "Face count\t: %"PRIu32"\n",
                                           obj->name,
-                                          mes->nbver,
-                                          mes->nbedg,
-                                          mes->nbfac );
+                                          mes->vertexCount,
+                                          mes->edgeCount,
+                                          mes->faceCount );
         } else {
             snprintf ( buffer, bufferlen, "Object name  : %s\n",
                                           obj->name );

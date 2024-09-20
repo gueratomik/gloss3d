@@ -141,7 +141,7 @@ static void creatPoseList ( GTK3G3DUIMORPHERKEYEDIT *gtk3ked,
     if ( obj ) {
         if ( obj->type == G3DMORPHERTYPE ) {
             G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
-            LIST *ltmpmpose = mpr->lmpose;
+            LIST *ltmpmpose = mpr->poseList;
             uint32_t y = 0x00;
 
             while ( ltmpmpose ) {

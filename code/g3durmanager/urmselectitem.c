@@ -542,10 +542,11 @@ static void selectItem_undo ( G3DURMANAGER *urm,
              ( sit->engine_flags & VIEWEDGE   ) ||
              ( sit->engine_flags & VIEWFACE   ) ) {
             if ( obj->type & MESH ) {
+/*
                 mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                            UPDATEFACENORMAL   |
                                            UPDATEVERTEXNORMAL );
-
+*/
                 /*** Rebuild the subdivided mesh ***/
                 g3dmesh_update ( mes, 0x00, engine_flags );
             }
@@ -562,11 +563,11 @@ static void selectItem_undo ( G3DURMANAGER *urm,
         if ( sit->engine_flags & VIEWFACEUV ) {
             selectUVSets_undo ( sit, engine_flags );
         }
-
+/*
         mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                    UPDATEFACENORMAL   |
                                    UPDATEVERTEXNORMAL );
-
+*/
         /*** Rebuild the subdivided mesh ***/
         g3dmesh_update ( mes, 0x00, engine_flags );
     }
@@ -620,10 +621,11 @@ static void selectItem_redo ( G3DURMANAGER *urm,
         if ( ( sit->engine_flags & VIEWVERTEX ) || 
              ( sit->engine_flags & VIEWEDGE   ) ||
              ( sit->engine_flags & VIEWFACE   ) ) {
+/*
             mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                        UPDATEFACENORMAL   |
                                        UPDATEVERTEXNORMAL );
-
+*/
             g3dmesh_update ( mes, 0x00, engine_flags );
         }
     }
@@ -638,11 +640,11 @@ static void selectItem_redo ( G3DURMANAGER *urm,
         if ( sit->engine_flags & VIEWFACEUV ) {
             selectUVSets_redo ( sit, engine_flags );
         }
-
+/*
         mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                    UPDATEFACENORMAL   |
                                    UPDATEVERTEXNORMAL );
-
+*/
         /*** Rebuild the subdivided mesh ***/
         g3dmesh_update ( mes, 0x00, engine_flags );
     }

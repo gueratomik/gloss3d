@@ -301,7 +301,7 @@ Q3DOBJECT *q3dobject_new ( G3DOBJECT *obj,
 Q3DOBJECT *q3dobject_import_r ( G3DOBJECT *obj,
                                 float      frame,
                                 uint32_t   importFlags ) {
-    LIST *ltmpchildren = obj->lchildren;
+    LIST *ltmpchildren = obj->childList;
     static Q3DSCENE *qsce;
     Q3DOBJECT *qobj;
 

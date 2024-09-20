@@ -134,10 +134,12 @@ void g3dtube_build ( G3DPRIMITIVE *pri,
             g3dmesh_addFace ( mes, outerFac  );
         }
     }
-
+/*
     pri->mes.obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                         UPDATEFACENORMAL   |
                                         UPDATEVERTEXNORMAL );
+*/
+    g3dobject_invalidate( G3DOBJECTCAST(pri), INVALIDATE_TOPOLOGY );
 
     g3dmesh_update ( ( G3DMESH * ) pri, 0x00, 0x00 );
 

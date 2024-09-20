@@ -114,12 +114,12 @@ static void extrudeMesh_undo ( G3DURMANAGER *urm,
     g3dvertex_setPositionFromList ( ems->loriver, ems->oldpos );
 
     g3dmesh_updateBbox ( mes );
-
+/*
     mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
-
+*/
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
 }
@@ -141,12 +141,12 @@ static void extrudeMesh_redo ( G3DURMANAGER *urm,
     g3dvertex_setPositionFromList ( ems->loriver, ems->newpos );
 
     g3dmesh_updateBbox ( mes );
-
+/*
     mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
-
+*/
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
 }

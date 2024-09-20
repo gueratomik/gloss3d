@@ -152,7 +152,7 @@ static void g3dscene_getPositionFromSelectedVertices ( G3DSCENE  *sce,
             case G3DFFDTYPE  : {
                 G3DMESH *mes = ( G3DMESH * ) obj;
 
-                g3dvertex_getAveragePositionFromList ( mes->lselver, 
+                g3dvertex_getAveragePositionFromList ( mes->selectedVertexList, 
                                                        pos );
             } break;
 
@@ -187,7 +187,7 @@ static void g3dscene_getPositionFromSelectedFaces ( G3DSCENE  *sce,
             case G3DFFDTYPE  : {
                 G3DMESH *mes = ( G3DMESH * ) obj;
 
-                g3dface_getAveragePositionFromList ( mes->lselfac, pos );
+                g3dface_getAveragePositionFromList ( mes->selectedFaceList, pos );
             } break;
 
             default :
@@ -208,7 +208,7 @@ static void g3dscene_getPositionFromSculptSelectedFaces ( G3DSCENE  *sce,
                 G3DMESH *mes = ( G3DMESH * ) g3dobject_getActiveParentByType ( obj, MESH );
 
                 if ( mes ) {
-                    g3dface_getAveragePositionFromList ( mes->lselfac, pos );
+                    g3dface_getAveragePositionFromList ( mes->selectedFaceList, pos );
                 }
             } break;
 
@@ -377,7 +377,7 @@ void g3dscene_removeMaterial ( G3DSCENE *sce, G3DMATERIAL *mat ) {
 
         if ( obj->type & MESH ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
-            LIST *ltmptex = mes->ltex;
+            LIST *ltmptex = mes->textureList;
 
             while ( ltmptex ) {
                 G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
@@ -385,8 +385,6 @@ void g3dscene_removeMaterial ( G3DSCENE *sce, G3DMATERIAL *mat ) {
 
                 if ( tex->mat == mat ) {
                     g3dmesh_removeTexture ( mes, tex );
-
-                    mes->obj.invalidationFlags |= RESETMODIFIERS;
 
                     /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
                     g3dmesh_update ( mes, 0x00, 0x00 );
@@ -506,7 +504,7 @@ G3DOBJECT *g3dscene_selectObjectByName ( G3DSCENE *sce,
                                          char     *name,
                                          uint64_t  engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sce;
-    LIST *ltmp = obj->lchildren;
+    LIST *ltmp = obj->childList;
 
     while ( ltmp ) {
         G3DOBJECT *sel = ( G3DOBJECT * ) ltmp->data;
@@ -689,13 +687,16 @@ static uint32_t updateMeshesFromImage ( G3DOBJECT *obj,
     if ( ( obj->type == G3DMESHTYPE ) ||
          ( obj->type  & PRIMITIVE   ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
-        LIST *ltmptex = mes->ltex;
+        LIST *ltmptex = mes->textureList;
 
         while ( ltmptex ) {
             G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
 
             if ( tex->mat->displacement.image == img ) {
+/*
                 mes->obj.invalidationFlags |= RESETMODIFIERS;
+*/
+                g3dobject_invalidate( &mes->obj, INVALIDATE_MODIFIER_STACK_RESET );
 
                 g3dmesh_update ( mes, 0x00, engine_flags );
             }

@@ -29,20 +29,19 @@
 #include <config.h>
 #include <g3dengine/g3dengine.h>
 
-/******************************************************************************/
-static void g3dmesh_addEdge ( G3DMESH *mes,
-                              G3DEDGE *edg ) {
-    list_insert ( &mes->ledg, edg );
+#define MAX_INVALIDATED_VERTICES 0x100
+#define MAX_INVALIDATED_EDGES    0x100
+#define MAX_INVALIDATED_FACES    0x100
 
-    edg->id = mes->nbedg++;
 
-    g3dvertex_addEdge ( edg->ver[0x00], edg );
-    g3dvertex_addEdge ( edg->ver[0x01], edg );
-}
+static void g3dmesh_removeEdge ( G3DMESH *mes,
+                                 G3DEDGE *edg );
+static void g3dmesh_addEdge    ( G3DMESH *mes,
+                                 G3DEDGE *edg );
 
 /******************************************************************************/
 G3DFACEGROUP *g3dmesh_getFacegroupByID ( G3DMESH *mes, uint32_t id ) {
-    LIST *ltmpfacgrp = mes->lfacgrp;
+    LIST *ltmpfacgrp = mes->facegroupList;
 
     while ( ltmpfacgrp ) {
         G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) ltmpfacgrp->data;
@@ -58,8 +57,8 @@ G3DFACEGROUP *g3dmesh_getFacegroupByID ( G3DMESH *mes, uint32_t id ) {
 
 /******************************************************************************/
 G3DFACEGROUP *g3dmesh_getLastSelectedFacegroup ( G3DMESH *mes ) {
-    if ( mes->lselfacgrp ) {
-        return ( G3DFACEGROUP * ) mes->lselfacgrp->data;
+    if ( mes->selectedFacegroupList ) {
+        return ( G3DFACEGROUP * ) mes->selectedFacegroupList->data;
     }
 
     return NULL;
@@ -73,7 +72,7 @@ static void g3dmesh_selectFacesFromFacegroup ( G3DMESH      *mes,
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
-        if ( list_seek ( fac->lfacgrp, facgrp ) ) {
+        if ( list_seek ( fac->facegroupList, facgrp ) ) {
             g3dmesh_selectFace ( mes, fac );
         }
 
@@ -83,7 +82,7 @@ static void g3dmesh_selectFacesFromFacegroup ( G3DMESH      *mes,
 
 /******************************************************************************/
 void g3dmesh_selectFacesFromSelectedFacegroups ( G3DMESH *mes ) {
-    LIST *ltmpfacgrp = mes->lselfacgrp;
+    LIST *ltmpfacgrp = mes->selectedFacegroupList;
 
     g3dmesh_unselectAllFaces ( mes );
 
@@ -98,35 +97,35 @@ void g3dmesh_selectFacesFromSelectedFacegroups ( G3DMESH *mes ) {
 
 /******************************************************************************/
 void g3dmesh_unselectFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp ) {
-    list_remove ( &mes->lselfacgrp, facgrp );
+    list_remove ( &mes->selectedFacegroupList, facgrp );
 
     facgrp->flags &= ~(FACEGROUPSELECTED);
 }
 
 /******************************************************************************/
 void g3dmesh_selectFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp ) {
-    list_insert ( &mes->lselfacgrp, facgrp ); 
+    list_insert ( &mes->selectedFacegroupList, facgrp ); 
 
     facgrp->flags |= FACEGROUPSELECTED;
 }
 
 /******************************************************************************/
 void g3dmesh_unselectAllFacegroups ( G3DMESH *mes ) {
-    list_free ( &mes->lselfacgrp, LIST_FUNCDATA(g3dfacegroup_unsetSelected) );
+    list_free ( &mes->selectedFacegroupList, LIST_FUNCDATA(g3dfacegroup_unsetSelected) );
 }
 
 /******************************************************************************/
 void g3dmesh_removeFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp ) {
-    list_remove ( &mes->lfacgrp, facgrp );
+    list_remove ( &mes->facegroupList, facgrp );
 
-    mes->nbfacgrp--;
+    mes->facegroupCount--;
 }
 
 /******************************************************************************/
 void g3dmesh_addFacegroup ( G3DMESH *mes, G3DFACEGROUP *facgrp ) {
-    list_insert ( &mes->lfacgrp, facgrp );
+    list_insert ( &mes->facegroupList, facgrp );
 
-    mes->nbfacgrp++;
+    mes->facegroupCount++;
 }
 
 /******************************************************************************/
@@ -146,63 +145,42 @@ uint32_t g3dmesh_getAvailableTextureSlot ( G3DMESH *mes ) {
 
 /******************************************************************************/
 G3DTEXTURE *g3dmesh_getDefaultTexture ( G3DMESH *mes ) {
-    if ( mes->ltex ) return mes->ltex->data;
+    if ( mes->textureList ) return mes->textureList->data;
 
     return NULL;
 }
 
 /******************************************************************************/
 G3DTEXTURE *g3dmesh_getSelectedTexture ( G3DMESH *mes ) {
-    if ( mes->lseltex ) return mes->lseltex->data;
+    if ( mes->selectedTextureList ) return mes->selectedTextureList->data;
 
     return NULL;
 }
 
 /******************************************************************************/
 G3DUVMAP *g3dmesh_getSelectedUVMap ( G3DMESH *mes ) {
-    if ( mes->lseluvmap ) return mes->lseluvmap->data;
+    if ( mes->selectedUvmapList ) return mes->selectedUvmapList->data;
 
     return NULL;
 }
 
 /******************************************************************************/
 void g3dmesh_selectUVMap ( G3DMESH *mes, G3DUVMAP *map ) {
-    list_insert ( &mes->lseluvmap, map );
+    list_insert ( &mes->selectedUvmapList, map );
 
-    mes->nbseluvmap++;
+    mes->selectedUvmapCount++;
 
     ((G3DOBJECT*)map)->flags |= OBJECTSELECTED;
 }
 
 /******************************************************************************/
 void g3dmesh_unselectAllUVMaps ( G3DMESH *mes ) {
-    list_free ( &mes->lseluvmap, LIST_FUNCDATA(g3dobject_unsetSelected) );
-}
-
-/******************************************************************************/
-void g3dmesh_setGeometryInArrays ( G3DMESH *mes, G3DVERTEX *ver,
-                                                 uint32_t   nbver,
-                                                 G3DEDGE   *edg,
-                                                 uint32_t   nbedg,
-                                                 G3DFACE   *fac,
-                                                 uint32_t   nbtri,
-                                                 uint32_t   nbqua ) {
-    ((G3DOBJECT*)mes)->flags |= MESHGEOMETRYINARRAYS;
-
-    mes->faceList = ( LIST * ) fac;
-    mes->ledg = ( LIST * ) edg;
-    mes->lver = ( LIST * ) ver;
-
-    mes->nbfac = nbtri + nbqua;
-    mes->nbtri = nbtri;
-    mes->nbqua = nbqua;
-    mes->nbedg = nbedg;
-    mes->nbver = nbver;
+    list_free ( &mes->selectedUvmapList, LIST_FUNCDATA(g3dobject_unsetSelected) );
 }
 
 /******************************************************************************/
 void g3dmesh_moveVerticesTo ( G3DMESH   *mes, 
-                              LIST      *lver, 
+                              LIST      *vertexList, 
                               G3DVECTOR3F *avg,
                               G3DVECTOR3F *to,
                               uint32_t   absolute,
@@ -210,7 +188,7 @@ void g3dmesh_moveVerticesTo ( G3DMESH   *mes,
                               uint64_t   engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     G3DVECTOR3F difpos;
-    LIST *ltmpver = lver;
+    LIST *ltmpver = vertexList;
 
     if ( absolute == 0x00 ) {
         difpos.x = ( to->x - avg->x );
@@ -338,7 +316,7 @@ void g3dmesh_drawQuadList ( G3DMESH *mes,
         g3dengine_drawQuad( engine,
                             vertices,
                             mes->gouraudScalarLimit,
-                            mes->ltex,
+                            mes->textureList,
                             mes->obj.flags,
                             engineFlags );
 
@@ -430,7 +408,7 @@ void g3dmesh_drawTriangleList ( G3DMESH   *mes,
         g3dengine_drawTriangle( engine,
                                 vertices,
                                 mes->gouraudScalarLimit,
-                                mes->ltex,
+                                mes->textureList,
                                 mes->obj.flags,
                                 engineFlags );
 
@@ -445,7 +423,7 @@ void g3dmesh_moveAxis ( G3DMESH *mes,
                         float  *PREVMVX, /* previous world matrix */
                         uint64_t engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
     float DIFFMVX[0x10];
 
     g3dcore_multMatrixf ( PREVMVX, obj->inverseWorldMatrix, DIFFMVX );
@@ -473,14 +451,6 @@ void g3dmesh_moveAxis ( G3DMESH *mes,
 
         ltmpver = ltmpver->next;
     }
-
-    mes->obj.invalidationFlags |= ( INVALIDATE_MESH_FACEPOSITION |
-                                    INVALIDATE_MESH_FACENORMAL   |
-                                    INVALIDATE_MESH_VERTEXNORMAL |
-                                    RESETMODIFIERS );
-
-    /*g3dmesh_updateBbox ( mes );*/
-    g3dmesh_update ( mes, 0, engineFlags );
 }
 
 /******************************************************************************/
@@ -494,17 +464,17 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
     g3dmesh_renumberEdges    ( mes );
     g3dmesh_renumberFaces    ( mes );
 
-    if ( mes->nbver ) {
+    if ( mes->vertexCount ) {
         /*** original vertices array ***/
-        G3DVERTEX **oriver = ( G3DVERTEX ** ) calloc ( mes->nbver, sizeof ( G3DVERTEX * ) );
+        G3DVERTEX **oriver = ( G3DVERTEX ** ) calloc ( mes->vertexCount, sizeof ( G3DVERTEX * ) );
         /*** mirrored vertices array ***/
-        G3DVERTEX **symver = ( G3DVERTEX ** ) calloc ( mes->nbver, sizeof ( G3DVERTEX * ) );
+        G3DVERTEX **symver = ( G3DVERTEX ** ) calloc ( mes->vertexCount, sizeof ( G3DVERTEX * ) );
         /*** original edges array ***/
-        G3DEDGE **oriedg   = ( G3DEDGE   ** ) calloc ( mes->nbedg, sizeof ( G3DEDGE * ) );
+        G3DEDGE **oriedg   = ( G3DEDGE   ** ) calloc ( mes->edgeCount, sizeof ( G3DEDGE * ) );
         /*** mirrored edges array ***/
-        G3DEDGE **symedg   = ( G3DEDGE   ** ) calloc ( mes->nbedg, sizeof ( G3DEDGE * ) );
-        LIST *lver = mes->lver;
-        LIST *ledg = mes->ledg;
+        G3DEDGE **symedg   = ( G3DEDGE   ** ) calloc ( mes->edgeCount, sizeof ( G3DEDGE * ) );
+        LIST *vertexList = mes->vertexList;
+        LIST *edgeList = mes->edgeList;
         LIST *faceList = mes->faceList;
         uint32_t verid = 0x00;
         uint32_t edgid = 0x00;
@@ -517,8 +487,8 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
         g3dcore_multMatrixf ( worldSymmix, inverseWorldMatrix, localSymmix );
 
         /*** copy and mirror vertices ***/
-        while ( lver ) {
-            G3DVERTEX *ver = ( G3DVERTEX * ) lver->data;
+        while ( vertexList ) {
+            G3DVERTEX *ver = ( G3DVERTEX * ) vertexList->data;
             G3DVECTOR3F pos;
 
             ver->id = verid++;
@@ -542,16 +512,18 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
 
                 g3dvector3f_matrixf ( &ver->pos, localSymmix, &pos );
 
-                symver[ver->id] = g3dvertex_new ( pos.x, pos.y, pos.z );
+                symver[ver->id] = g3dvertex_new ( pos.x,
+                                                  pos.y,
+                                                  pos.z );
 
                 g3dmesh_addVertex ( symmes, symver[ver->id] );
             }
 
-            lver = lver->next;
+            vertexList = vertexList->next;
         }
 
-        while ( ledg ) {
-            G3DEDGE *edg = ( G3DEDGE * ) ledg->data;
+        while ( edgeList ) {
+            G3DEDGE *edg = ( G3DEDGE * ) edgeList->data;
 
             edg->id = edgid++;
 
@@ -585,7 +557,7 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
                 }
             }
 
-            ledg = ledg->next;
+            edgeList = edgeList->next;
         }
 
         /*** copy and mirror faces ***/
@@ -598,7 +570,7 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
             /** later on, like subdivision surfaces etc... So, skip the ***/
             /** conversion for this face if needed ***/
             if ( g3dface_isFullyMirrored ( fac ) == 0x00 ) {
-                switch ( fac->nbver ) {
+                switch ( fac->vertexCount ) {
                     case 0x03 : {
                         G3DVERTEX *vori0 = oriver[fac->ver[0x00]->id],
                                   *vori1 = oriver[fac->ver[0x01]->id],
@@ -613,23 +585,7 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
                                                g3dtriangle_new ( vsym2,
                                                                  vsym1,
                                                                  vsym0 ) };
-/*
-                        tri[0x00]->edg[0x00] = oriedg[fac->edg[0x00]->id];
-                        tri[0x00]->edg[0x01] = oriedg[fac->edg[0x01]->id];
-                        tri[0x00]->edg[0x02] = oriedg[fac->edg[0x02]->id];
 
-                        g3dedge_addFace ( oriedg[fac->edg[0x00]->id], tri[0x00] );
-                        g3dedge_addFace ( oriedg[fac->edg[0x01]->id], tri[0x00] );
-                        g3dedge_addFace ( oriedg[fac->edg[0x02]->id], tri[0x00] );
-
-                        tri[0x01]->edg[0x00] = symedg[fac->edg[0x01]->id];
-                        tri[0x01]->edg[0x01] = symedg[fac->edg[0x00]->id];
-                        tri[0x01]->edg[0x02] = symedg[fac->edg[0x02]->id];
-
-                        g3dedge_addFace ( symedg[fac->edg[0x00]->id], tri[0x01] );
-                        g3dedge_addFace ( symedg[fac->edg[0x01]->id], tri[0x01] );
-                        g3dedge_addFace ( symedg[fac->edg[0x02]->id], tri[0x01] );
-*/
                         g3dmesh_addFace ( symmes, tri[0x00] );
                         g3dmesh_addFace ( symmes, tri[0x01] );
                     } break;
@@ -648,27 +604,7 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
                                                              vori2, vori3 ),
                                                g3dquad_new ( vsym3, vsym2,
                                                              vsym1, vsym0 ) };
-/*
-                        qua[0x00]->edg[0x00] = oriedg[fac->edg[0x00]->id];
-                        qua[0x00]->edg[0x01] = oriedg[fac->edg[0x01]->id];
-                        qua[0x00]->edg[0x02] = oriedg[fac->edg[0x02]->id];
-                        qua[0x00]->edg[0x03] = oriedg[fac->edg[0x03]->id];
 
-                        g3dedge_addFace ( oriedg[fac->edg[0x00]->id], qua[0x00] );
-                        g3dedge_addFace ( oriedg[fac->edg[0x01]->id], qua[0x00] );
-                        g3dedge_addFace ( oriedg[fac->edg[0x02]->id], qua[0x00] );
-                        g3dedge_addFace ( oriedg[fac->edg[0x03]->id], qua[0x00] );
-
-                        qua[0x01]->edg[0x00] = symedg[fac->edg[0x02]->id];
-                        qua[0x01]->edg[0x01] = symedg[fac->edg[0x01]->id];
-                        qua[0x01]->edg[0x02] = symedg[fac->edg[0x00]->id];
-                        qua[0x01]->edg[0x03] = symedg[fac->edg[0x03]->id];
-
-                        g3dedge_addFace ( symedg[fac->edg[0x02]->id], qua[0x01] );
-                        g3dedge_addFace ( symedg[fac->edg[0x01]->id], qua[0x01] );
-                        g3dedge_addFace ( symedg[fac->edg[0x00]->id], qua[0x01] );
-                        g3dedge_addFace ( symedg[fac->edg[0x03]->id], qua[0x01] );
-*/
                         g3dmesh_addFace ( symmes, qua[0x00] );
                         g3dmesh_addFace ( symmes, qua[0x01] );
                     } break;
@@ -687,12 +623,6 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
         if ( symedg ) free ( symedg );
     }
 
-    symmes->obj.invalidationFlags |= ( INVALIDATE_MESH_FACEPOSITION |
-                                       INVALIDATE_MESH_FACENORMAL   |
-                                       INVALIDATE_MESH_VERTEXNORMAL );
-
-    g3dmesh_update ( symmes, 0, engineFlags );
-
 
     return symmes;
 }
@@ -700,27 +630,27 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
 /******************************************************************************/
 LIST *g3dmesh_getVerticesFromWeightgroup ( G3DMESH        *mes,
                                            G3DWEIGHTGROUP *grp ) {
-    LIST *ltmpver = mes->lver;
-    LIST *lver = NULL;
+    LIST *ltmpver = mes->vertexList;
+    LIST *vertexList = NULL;
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
         G3DWEIGHT *wei = g3dvertex_getWeight ( ver, grp );
 
         if ( wei ) {
-            list_insert ( &lver, ver );
+            list_insert ( &vertexList, ver );
         }
 
         ltmpver = ltmpver->next;
     }
 
-    return lver;
+    return vertexList;
 }
 
 /******************************************************************************/
 void g3dmesh_paintWeightgroup ( G3DMESH        *mes,
                                 G3DWEIGHTGROUP *grp ) {
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -739,7 +669,7 @@ void g3dmesh_paintWeightgroup ( G3DMESH        *mes,
 /******************************************************************************/
 uint32_t g3dmesh_getWeightgroupCount ( G3DMESH        *mes,
                                        G3DWEIGHTGROUP *grp ) {
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
     uint32_t count = 0x00;
 
     while ( ltmpver ) {
@@ -759,7 +689,7 @@ uint32_t g3dmesh_getWeightgroupCount ( G3DMESH        *mes,
 /******************************************************************************/
 void g3dmesh_unpaintWeightgroup ( G3DMESH        *mes,
                                   G3DWEIGHTGROUP *grp ) {
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -777,7 +707,7 @@ void g3dmesh_unpaintWeightgroup ( G3DMESH        *mes,
 /******************************************************************************/
 void g3dmesh_emptyWeightgroup ( G3DMESH        *mes,
                                 G3DWEIGHTGROUP *grp ) {
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -796,7 +726,7 @@ G3DWEIGHTGROUP *g3dmesh_mirrorWeightgroup ( G3DMESH        *mes,
                                             G3DWEIGHTGROUP *grp,
                                             uint32_t        orientation ) {
     G3DWEIGHTGROUP *mirgrp = g3dweightgroup_new ( mes, "Mirrored Group" );
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -849,7 +779,7 @@ G3DWEIGHTGROUP *g3dmesh_mirrorWeightgroup ( G3DMESH        *mes,
 void g3dmesh_fixWeightgroup ( G3DMESH        *mes,
                               G3DWEIGHTGROUP *grp,
                               G3DRIG         *rig ) {
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -866,7 +796,7 @@ void g3dmesh_fixWeightgroup ( G3DMESH        *mes,
 /******************************************************************************/
 void g3dmesh_unfixWeightgroup ( G3DMESH        *mes,
                                 G3DWEIGHTGROUP *grp ) {
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -885,7 +815,7 @@ void g3dmesh_updateModified ( G3DMESH     *mes,
                               G3DMODIFIER *mod,
                               uint64_t     engineFlags ) {
     LIST *ltmpfac = mes->faceList;
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -909,7 +839,7 @@ uint32_t g3dmesh_modify ( G3DMESH    *mes,
                           G3DMODIFYOP op,
                           uint64_t    engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    LIST *ltmpchildren = obj->lchildren;
+    LIST *ltmpchildren = obj->childList;
 
 /* TODO: should be renumbered only on modify op ***/
     g3dmesh_renumberVertices ( mes );
@@ -957,7 +887,7 @@ void g3dmesh_addChild ( G3DMESH   *mes,
 
 /******************************************************************************/
 void g3dmesh_dump ( G3DMESH *mes, 
-                    void (*Alloc)( uint32_t, /* nbver */
+                    void (*Alloc)( uint32_t, /* vertexCount */
                                    uint32_t, /* nbtris */
                                    uint32_t, /* nbquads */
                                    uint32_t, /* nbuv */
@@ -991,7 +921,7 @@ void g3dmesh_dump ( G3DMESH *mes,
 
 /******************************************************************************/
 uint32_t g3dmesh_default_dump ( G3DMESH *mes, 
-                                void (*Alloc)( uint32_t, /*nbver */
+                                void (*Alloc)( uint32_t, /*vertexCount */
                                                uint32_t, /* nbtris */
                                                uint32_t, /* nbquads */
                                                uint32_t, /* nbuv */
@@ -1005,16 +935,16 @@ uint32_t g3dmesh_default_dump ( G3DMESH *mes,
     LIST *ltmpfac = mes->faceList;
     uint32_t i, verID = 0x00;
 
-    if ( Alloc ) Alloc ( mes->nbver, mes->nbtri, mes->nbqua, 0x00, data );
+    if ( Alloc ) Alloc ( mes->vertexCount, mes->triangleCount, mes->quadCount, 0x00, data );
 
     g3dmesh_renumberVertices ( mes );
 
     while ( ltmpfac ) {
-        G3DFACE *fac = _GETFACE(mes,ltmpfac);
+        G3DFACE *fac = ltmpfac->data;
 
         if ( Dump ) Dump ( fac, NULL, NULL, data );
 
-        _NEXTFACE(mes,ltmpfac);
+        ltmpfac = ltmpfac->next;
     }
 
     return 0x00;
@@ -1022,14 +952,14 @@ uint32_t g3dmesh_default_dump ( G3DMESH *mes,
 
 /******************************************************************************/
 void g3dmesh_clearGeometry ( G3DMESH *mes ) {
-    mes->nbver = 0x00;
-    mes->nbedg = 0x00;
-    mes->nbfac = 0x00;
-    mes->nbtri = 0x00;
-    mes->nbqua = 0x00;
+    mes->vertexCount = 0x00;
+    mes->edgeCount = 0x00;
+    mes->faceCount = 0x00;
+    mes->triangleCount = 0x00;
+    mes->quadCount = 0x00;
 
-    list_free ( &mes->lver, NULL );
-    list_free ( &mes->ledg, NULL );
+    list_free ( &mes->vertexList, NULL );
+    list_free ( &mes->edgeList, NULL );
     list_free ( &mes->faceList, NULL );
     list_free ( &mes->triangleList, NULL );
     list_free ( &mes->quadList, NULL );
@@ -1037,14 +967,14 @@ void g3dmesh_clearGeometry ( G3DMESH *mes ) {
 
 /******************************************************************************/
 void g3dmesh_borrowGeometry ( G3DMESH *dst, G3DMESH *src ) {
-    dst->nbver = src->nbver;
-    dst->nbedg = src->nbedg;
-    dst->nbfac = src->nbfac;
-    dst->nbtri = src->nbtri;
-    dst->nbqua = src->nbqua;
+    dst->vertexCount = src->vertexCount;
+    dst->edgeCount = src->edgeCount;
+    dst->faceCount = src->faceCount;
+    dst->triangleCount = src->triangleCount;
+    dst->quadCount = src->quadCount;
 
-    dst->lver = src->lver;
-    dst->ledg = src->ledg;
+    dst->vertexList = src->vertexList;
+    dst->edgeList = src->edgeList;
     dst->faceList = src->faceList;
     dst->triangleList = src->triangleList;
     dst->quadList = src->quadList;
@@ -1075,9 +1005,9 @@ G3DMESH *g3dmesh_merge ( LIST    *lobj,
         if ( obj->type == G3DMESHTYPE ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
 
-            if ( mes->nbver ) {
-                G3DVERTEX **vertab = calloc ( mes->nbver, sizeof ( G3DVERTEX * ) );
-                LIST *ltmpver = mes->lver;
+            if ( mes->vertexCount ) {
+                G3DVERTEX **vertab = calloc ( mes->vertexCount, sizeof ( G3DVERTEX * ) );
+                LIST *ltmpver = mes->vertexList;
                 LIST *ltmpfac = mes->faceList;
                 uint32_t verid = 0x00;
 
@@ -1106,7 +1036,7 @@ G3DMESH *g3dmesh_merge ( LIST    *lobj,
                     G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
                     G3DFACE *newfac;
 
-                    if ( fac->nbver == 0x03 ) {
+                    if ( fac->vertexCount == 0x03 ) {
                         newfac = g3dtriangle_new ( vertab[fac->ver[0x00]->id],
                                                    vertab[fac->ver[0x01]->id],
                                                    vertab[fac->ver[0x02]->id] );
@@ -1128,15 +1058,6 @@ G3DMESH *g3dmesh_merge ( LIST    *lobj,
 
         ltmpobj = ltmpobj->next;
     }
-
-    mrg->obj.invalidationFlags |= ( INVALIDATE_MESH_FACEPOSITION |
-                                    INVALIDATE_MESH_FACENORMAL   |
-                                    INVALIDATE_MESH_VERTEXNORMAL |
-                                    INVALIDATE_MESH_UVMAPPING );
-
-    g3dmesh_update ( mrg, 0x00, engineFlags );
-
-    g3dmesh_updateBbox ( mrg );
 
 
     return mrg;
@@ -1166,11 +1087,11 @@ G3DMESH *g3dmesh_splitSelectedFaces ( G3DMESH *mes,
                                       uint64_t engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     G3DMESH *spl = g3dmesh_new ( splID, "Split mesh", engineFlags );
-    LIST *lselver = g3dface_getVerticesFromList ( mes->lselfac );
-    G3DVERTEX **vertab = ( G3DVERTEX ** ) list_to_array ( lselver );
-    uint32_t nbselver = list_count ( lselver );
-    LIST *lselfac = mes->lselfac;
-    LIST *ltmpfac = lselfac;
+    LIST *selectedVertexList = g3dface_getVerticesFromList ( mes->selectedFaceList );
+    G3DVERTEX **vertab = ( G3DVERTEX ** ) list_to_array ( selectedVertexList );
+    uint32_t selectedVertexCount = list_count ( selectedVertexList );
+    LIST *selectedFaceList = mes->selectedFaceList;
+    LIST *ltmpfac = selectedFaceList;
     uint32_t i;
 
     if ( spl == NULL ) {
@@ -1179,12 +1100,12 @@ G3DMESH *g3dmesh_splitSelectedFaces ( G3DMESH *mes,
         return NULL;
     }
 
-    g3dvertex_renumberList ( lselver, 0x00 );
+    g3dvertex_renumberList ( selectedVertexList, 0x00 );
 
     g3dobject_importTransformations ( ( G3DOBJECT * ) spl, 
                                       ( G3DOBJECT * ) mes );
 
-    for ( i = 0x00; i < nbselver; i++ ) {
+    for ( i = 0x00; i < selectedVertexCount; i++ ) {
         G3DVERTEX *ver = vertab[i];
 
         /*** g3dvertex_copy also sets the vertex ID ***/
@@ -1199,16 +1120,16 @@ G3DMESH *g3dmesh_splitSelectedFaces ( G3DMESH *mes,
                                  vertab[fac->ver[0x01]->id],
                                  vertab[fac->ver[0x02]->id], NULL };
 
-        if ( fac->nbver == 0x04 ) ver[0x03] = vertab[fac->ver[0x03]->id];
+        if ( fac->vertexCount == 0x04 ) ver[0x03] = vertab[fac->ver[0x03]->id];
 
-        g3dmesh_addFace ( spl, g3dface_new ( ver, fac->nbver ) );
+        g3dmesh_addFace ( spl, g3dface_new ( ver, fac->vertexCount ) );
 
         ltmpfac = ltmpfac->next;
     }
 
     if ( keep == 0x00 ) {
-        LIST *ltmpfac = lselfac;
-        LIST *ltmpver = lselver;
+        LIST *ltmpfac = selectedFaceList;
+        LIST *ltmpver = selectedVertexList;
 
         while ( ltmpver ) {
             G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -1233,13 +1154,9 @@ G3DMESH *g3dmesh_splitSelectedFaces ( G3DMESH *mes,
         }
 
         g3dmesh_unselectAllFaces ( mes );
-
-        g3dmesh_updateBbox ( mes );
     }
 
-    list_free ( &lselver, NULL );
-
-    g3dmesh_updateBbox ( spl );
+    list_free ( &selectedVertexList, NULL );
 
 
     return spl;
@@ -1247,24 +1164,24 @@ G3DMESH *g3dmesh_splitSelectedFaces ( G3DMESH *mes,
 
 /******************************************************************************/
 void g3dmesh_stats ( G3DMESH *mes ) {
-    LIST *ltmpedg = mes->ledg;
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpedg = mes->edgeList;
+    LIST *ltmpver = mes->vertexList;
     LIST *ltmpfac = mes->faceList;
     uint32_t i;
 
-    printf ( "NB Vertices: %d\n", list_count ( mes->lver ) );
-    printf ( "NB Edges   : %d\n", list_count ( mes->ledg ) );
+    printf ( "NB Vertices: %d\n", list_count ( mes->vertexList ) );
+    printf ( "NB Edges   : %d\n", list_count ( mes->edgeList ) );
     printf ( "NB Faces   : %d\n", list_count ( mes->faceList ) );
 
-    printf ( "NB Selected Vertices: %d\n", list_count ( mes->lselver ) );
-    printf ( "NB Selected Edges   : %d\n", list_count ( mes->lseledg ) );
-    printf ( "NB Selected Faces   : %d\n", list_count ( mes->lselfac ) );
+    printf ( "NB Selected Vertices: %d\n", list_count ( mes->selectedVertexList ) );
+    printf ( "NB Selected Edges   : %d\n", list_count ( mes->selectedEdgeList ) );
+    printf ( "NB Selected Faces   : %d\n", list_count ( mes->selectedFaceList ) );
 
     /*while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
 
-        printf ( "Vertex has %d %d edges\n", list_count ( ver->ledg ), ver->nbedg );
-        printf ( "Vertex has %d %d faces\n", list_count ( ver->faceList ), ver->nbfac );
+        printf ( "Vertex has %d %d edges\n", list_count ( ver->edgeList ), ver->edgeCount );
+        printf ( "Vertex has %d %d faces\n", list_count ( ver->faceList ), ver->faceCount );
 
         ltmpver = ltmpver->next;
     }
@@ -1272,7 +1189,7 @@ void g3dmesh_stats ( G3DMESH *mes ) {
     while ( ltmpedg ) {
         G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
 
-        printf ( "Edge has %d %d faces\n", list_count ( edg->faceList ), edg->nbfac );
+        printf ( "Edge has %d %d faces\n", list_count ( edg->faceList ), edg->faceCount );
 
         ltmpedg = ltmpedg->next;
     }*/
@@ -1280,25 +1197,25 @@ void g3dmesh_stats ( G3DMESH *mes ) {
 
 /******************************************************************************/
 void g3dmesh_empty ( G3DMESH *mes ) {
-    list_free ( &mes->lver, (void (*)(void *)) g3dvertex_free );
-    list_free ( &mes->ledg, (void (*)(void *)) g3dedge_free   );
+    list_free ( &mes->vertexList, (void (*)(void *)) g3dvertex_free );
+    list_free ( &mes->edgeList, (void (*)(void *)) g3dedge_free   );
     list_free ( &mes->faceList, (void (*)(void *)) g3dface_free   );
     list_free ( &mes->triangleList, (void (*)(void *)) NULL           );
     list_free ( &mes->quadList, (void (*)(void *)) NULL           );
 
-    mes->nbver = 0x00;
-    mes->nbedg = 0x00;
-    mes->nbfac = 0x00;
-    mes->nbtri = 0x00;
-    mes->nbqua = 0x00;
+    mes->vertexCount = 0x00;
+    mes->edgeCount = 0x00;
+    mes->faceCount = 0x00;
+    mes->triangleCount = 0x00;
+    mes->quadCount = 0x00;
 
-    /*list_free ( &mes->lselver, NULL );
-    list_free ( &mes->lseledg, NULL );
-    list_free ( &mes->lselfac, NULL );*/
+    /*list_free ( &mes->selectedVertexList, NULL );
+    list_free ( &mes->selectedEdgeList, NULL );
+    list_free ( &mes->selectedFaceList, NULL );*/
 
-    mes->nbselver = 0x00;
-    mes->nbseledg = 0x00;
-    mes->nbselfac = 0x00;
+    mes->selectedVertexCount = 0x00;
+    mes->selectedEdgeCount = 0x00;
+    mes->selectedFaceCount = 0x00;
 }
 
 /******************************************************************************/
@@ -1306,7 +1223,7 @@ void g3dmesh_empty ( G3DMESH *mes ) {
 /*** if the mesh is textured ***/
 uint32_t g3dmesh_isTextured ( G3DMESH *mes, 
                               uint64_t engineFlags ) {
-    LIST *ltmptex = mes->ltex;
+    LIST *ltmptex = mes->textureList;
 
     while ( ltmptex ) { 
         G3DTEXTURE  *tex = ( G3DTEXTURE * ) ltmptex->data;
@@ -1354,9 +1271,9 @@ G3DFACE *g3dmesh_getNextFace ( G3DMESH *mes, LIST *faceList ) {
     #endif
 
     if ( ltmpfac ) {
-        fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
+        fac = ( G3DFACE * ) ltmpfac->data;
 
-        _NEXTFACE(mes,ltmpfac);
+        ltmpfac = ltmpfac->next;
     }
 
     #ifdef __linux__
@@ -1373,8 +1290,8 @@ G3DFACE *g3dmesh_getNextFace ( G3DMESH *mes, LIST *faceList ) {
 /******************************************************************************/
 /*** Return the first uvmap ***/
 G3DUVMAP *g3dmesh_getLastUVMap ( G3DMESH *mes ) {
-    if ( mes->luvmap ) {
-        G3DUVMAP *map = ( G3DUVMAP * ) mes->luvmap->data;
+    if ( mes->uvmapList ) {
+        G3DUVMAP *map = ( G3DUVMAP * ) mes->uvmapList->data;
 
         return map;
     }
@@ -1384,7 +1301,7 @@ G3DUVMAP *g3dmesh_getLastUVMap ( G3DMESH *mes ) {
 
 /******************************************************************************/
 G3DUVMAP *g3dmesh_getUVMapByID ( G3DMESH *mes, uint32_t id ) {
-    LIST *ltmpmap = mes->luvmap;
+    LIST *ltmpmap = mes->uvmapList;
 
     while ( ltmpmap ) {
         G3DUVMAP *map = ( G3DUVMAP * ) ltmpmap->data;
@@ -1399,7 +1316,7 @@ G3DUVMAP *g3dmesh_getUVMapByID ( G3DMESH *mes, uint32_t id ) {
 
 /******************************************************************************/
 G3DUVMAP *g3dmesh_getUVMapByRank ( G3DMESH *mes, uint32_t rank ) {
-    LIST *ltmpmap = mes->luvmap;
+    LIST *ltmpmap = mes->uvmapList;
     uint32_t count = 0x00;
 
     while ( ltmpmap ) {
@@ -1417,7 +1334,7 @@ G3DUVMAP *g3dmesh_getUVMapByRank ( G3DMESH *mes, uint32_t rank ) {
 
 /******************************************************************************/
 uint32_t g3dmesh_getUVMapCount ( G3DMESH *mes ) {
-    return mes->nbuvmap;
+    return mes->uvmapCount;
 }
 
 /******************************************************************************/
@@ -1427,13 +1344,13 @@ void g3dmesh_removeUVMap ( G3DMESH  *mes,
                            LIST    **loldtex,
                            uint64_t engineFlags ) {
     LIST *ltmpfac = mes->faceList;
-    LIST *ltmptex = mes->ltex;
+    LIST *ltmptex = mes->textureList;
 
-    list_remove ( &mes->luvmap, map );
-    mes->nbuvmap--;
+    list_remove ( &mes->uvmapList, map );
+    mes->uvmapCount--;
 
     while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
         G3DUVSET *uvs = g3dface_getUVSet ( fac, map );
         uint32_t i;
 
@@ -1443,7 +1360,7 @@ void g3dmesh_removeUVMap ( G3DMESH  *mes,
         /* TODO: uvset should be freed in case lolduvset is NULL, */
         /* which won't be the case in our program */
 
-        _NEXTFACE(mes,ltmpfac);
+        ltmpfac = ltmpfac->next;
     }
 
     while ( ltmptex ) {
@@ -1457,9 +1374,6 @@ void g3dmesh_removeUVMap ( G3DMESH  *mes,
 
         ltmptex = ltmptex->next;
     }
-
-    /*** We must alloc memory for the subdivided uvsets ***/
-    g3dmesh_update ( mes, 0x00, engineFlags );
 }
 
 /******************************************************************************/
@@ -1469,13 +1383,13 @@ void g3dmesh_addUVMap ( G3DMESH  *mes,
                         uint64_t engineFlags ) {
     LIST *ltmpfac = mes->faceList;
 
-    list_insert ( &mes->luvmap, map );
-    mes->nbuvmap++;
+    list_insert ( &mes->uvmapList, map );
+    mes->uvmapCount++;
 
     ((G3DOBJECT*)map)->parent = ( G3DOBJECT * ) mes;
 
     while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
         G3DUVSET *uvs = g3dface_getUVSet ( fac, map );
         uint32_t i;
 
@@ -1488,11 +1402,8 @@ void g3dmesh_addUVMap ( G3DMESH  *mes,
 
         if ( lnewuvset ) list_insert ( lnewuvset, uvs );
 
-        _NEXTFACE(mes,ltmpfac);
+        ltmpfac = ltmpfac->next;
     }
-
-    /*** We must alloc memory for the subdivided uvsets ***/
-    g3dmesh_update ( mes, 0x00, engineFlags );
 
     /*g3duvmap_adjustFlatProjection ( map, mes );*/
 }
@@ -1505,24 +1416,24 @@ void g3dmesh_adjustUVWtoXYPlane ( G3DMESH *mes ) {
 /******************************************************************************/
 /*** unused. I have to figure out how to treat this with buffered faces ***/
 void g3dmesh_hideSelectedFaces ( G3DMESH *mes ) {
-    list_exec ( mes->lselfac, (void (*)(void *)) g3dface_setHidden );
+    list_exec ( mes->selectedFaceList, (void (*)(void *)) g3dface_setHidden );
 }
 
 /******************************************************************************/
 /*** unused. I have to figure out how to treat this with buffered faces ***/
 void g3dmesh_unhideAllFaces ( G3DMESH *mes ) {
-    list_exec ( mes->lselfac, (void (*)(void *)) g3dface_unsetHidden );
+    list_exec ( mes->selectedFaceList, (void (*)(void *)) g3dface_unsetHidden );
 }
 
 /******************************************************************************/
 void g3dmesh_removeUnusedVertices ( G3DMESH *mes, LIST **lremver ) {
-    LIST *ltmpselver = mes->lselver;
+    LIST *ltmpselver = mes->selectedVertexList;
 
     while ( ltmpselver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpselver->data;
         LIST *lnext = ltmpselver->next;
 
-        if ( ver->nbfac == 0x00 ) {
+        if ( ver->faceCount == 0x00 ) {
             g3dmesh_removeVertex ( mes, ver );
             g3dmesh_unselectVertex ( mes, ver );
 
@@ -1537,7 +1448,7 @@ void g3dmesh_removeUnusedVertices ( G3DMESH *mes, LIST **lremver ) {
 
 /******************************************************************************/
 void g3dmesh_selectAllVertices ( G3DMESH *mes ) {
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -1563,7 +1474,7 @@ void g3dmesh_selectAllFaces ( G3DMESH *mes ) {
 
 /******************************************************************************/
 void g3dmesh_selectAllEdges ( G3DMESH *mes ) {
-    LIST *ltmpedg = mes->ledg;
+    LIST *ltmpedg = mes->edgeList;
 
     while ( ltmpedg ) {
         G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
@@ -1576,7 +1487,7 @@ void g3dmesh_selectAllEdges ( G3DMESH *mes ) {
 
 /******************************************************************************/
 G3DWEIGHTGROUP *g3dmesh_getWeightGroupByID ( G3DMESH *mes, uint32_t grpid ) {
-    LIST *ltmp = mes->lweigrp;
+    LIST *ltmp = mes->weightgroupList;
 
     while ( ltmp ) {
         G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmp->data;
@@ -1594,7 +1505,7 @@ G3DVERTEX *g3dmesh_seekVertexByPosition ( G3DMESH *mes, float x,
                                                         float y,
                                                         float z,
                                                         float epsilon ) {
-    return g3dvertex_seekVertexByPosition ( mes->lver, x, y, z, epsilon );
+    return g3dvertex_seekVertexByPosition ( mes->vertexList, x, y, z, epsilon );
 }
 
 /******************************************************************************/
@@ -1614,8 +1525,8 @@ void g3dmesh_unsetFacesAlignedFlag ( G3DMESH *mes ) {
 void g3dmesh_alignFaces ( G3DMESH *mes ) {
     g3dmesh_unsetFacesAlignedFlag ( mes );
 
-    if ( mes->lselfac ) {
-        G3DFACE *fac = mes->lselfac->data;
+    if ( mes->selectedFaceList ) {
+        G3DFACE *fac = mes->selectedFaceList->data;
 
         g3dface_recurseAlign ( fac );
     }
@@ -1679,14 +1590,14 @@ void g3dmesh_weldNeighbourVertices ( G3DMESH *mes,
                                       LIST **loldfac,
                                       LIST **lnewfac ) {
     WELDCOUNTER wcr;
-    LIST *lselver = mes->lselver;
+    LIST *selectedVertexList = mes->selectedVertexList;
 
-    if ( lselver ) {
-        LIST *ltmpver = lselver;
-        LIST *faceList = g3dvertex_getFacesFromList ( mes->lselver );
+    if ( selectedVertexList ) {
+        LIST *ltmpver = selectedVertexList;
+        LIST *faceList = g3dvertex_getFacesFromList ( mes->selectedVertexList );
         LIST *ltmpfac = faceList;
  
-        list_exec ( lselver, LIST_FUNCDATA(resetsubver) );
+        list_exec ( selectedVertexList, LIST_FUNCDATA(resetsubver) );
 
         while ( ltmpver ) {
             G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -1697,7 +1608,7 @@ void g3dmesh_weldNeighbourVertices ( G3DMESH *mes,
 
         	    wcr.distance = distance;
 
-        	    list_execdata2arg ( mes->lselver, LIST_FUNCDATA2ARG(weldifneighbour), ver, &wcr );
+        	    list_execdata2arg ( mes->selectedVertexList, LIST_FUNCDATA2ARG(weldifneighbour), ver, &wcr );
 
         	    if ( wcr.newver ) {
                         G3DVERTEX *newver = wcr.newver;
@@ -1715,7 +1626,7 @@ void g3dmesh_weldNeighbourVertices ( G3DMESH *mes,
             ltmpver = ltmpver->next;
         }
 
-        ltmpver = lselver;
+        ltmpver = selectedVertexList;
 
         while ( ltmpver ) {
             G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -1734,7 +1645,7 @@ void g3dmesh_weldNeighbourVertices ( G3DMESH *mes,
             int i;
             int changed = 0;
 
-            for ( i = 0x00; i < fac->nbver; i++ ) {
+            for ( i = 0x00; i < fac->vertexCount; i++ ) {
                 if ( fac->ver[i]->subver ) {
                     ver[i] = ( G3DVERTEX * ) fac->ver[i]->subver;
 
@@ -1748,7 +1659,7 @@ void g3dmesh_weldNeighbourVertices ( G3DMESH *mes,
                 if ( ( ver[0x00] != ver[0x01] ) &&
                      ( ver[0x01] != ver[0x02] ) &&
                      ( ver[0x02] != ver[0x03] ) ) {
-                    newfac = g3dface_new ( ver, fac->nbver );
+                    newfac = g3dface_new ( ver, fac->vertexCount );
 
                     if ( loldfac ) list_insert ( loldfac, fac );
                     if ( lnewfac ) list_insert ( lnewfac, newfac );
@@ -1767,7 +1678,7 @@ void g3dmesh_weldNeighbourVertices ( G3DMESH *mes,
 
         list_execargdata ( (*loldver), LIST_FUNCARGDATA(g3dmesh_removeVertex), mes );
 
-        list_exec ( lselver, LIST_FUNCDATA(resetsubver) );
+        list_exec ( selectedVertexList, LIST_FUNCDATA(resetsubver) );
         list_free ( &faceList, NULL );
     }
 
@@ -1778,18 +1689,18 @@ void g3dmesh_weldNeighbourVertices ( G3DMESH *mes,
 G3DVERTEX *g3dmesh_weldSelectedVertices ( G3DMESH *mes, uint32_t type,
                                           LIST **loldfac,
                                           LIST **lnewfac ) {
-    if ( mes->lselver ) {
-        LIST *lver = mes->lselver;
-        LIST *faceList = g3dvertex_getFacesFromList ( lver );
-        G3DVERTEX *wel = g3dvertex_weldList ( lver );
-        uint32_t nbver = 0x00;
+    if ( mes->selectedVertexList ) {
+        LIST *vertexList = mes->selectedVertexList;
+        LIST *faceList = g3dvertex_getFacesFromList ( vertexList );
+        G3DVERTEX *wel = g3dvertex_weldList ( vertexList );
+        uint32_t vertexCount = 0x00;
         LIST *ltmp = faceList;
 
         g3dmesh_addVertex ( mes, wel );
 
         while ( ltmp ) { 
             G3DFACE *fac = ( G3DFACE * ) ltmp->data;
-            G3DFACE *nfa = g3dface_weld ( fac, mes->lselver, wel );
+            G3DFACE *nfa = g3dface_weld ( fac, mes->selectedVertexList, wel );
 
             if ( nfa ) {
                 list_insert ( lnewfac, nfa );
@@ -1813,7 +1724,8 @@ G3DVERTEX *g3dmesh_weldSelectedVertices ( G3DMESH *mes, uint32_t type,
         g3dmesh_unselectAllVertices ( mes );
 
         g3dmesh_selectVertex ( mes, wel );
-        g3dvertex_normal ( wel, COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
+        /*g3dvertex_updateNormal ( wel, COMPUTEFACEPOINT | COMPUTEEDGEPOINT );*/
+        g3dvertex_updateNormal ( wel, 0 );
 
         return wel;
     }
@@ -1832,8 +1744,8 @@ void g3dmesh_getSelectedVerticesWorldPosition ( G3DMESH *mes, G3DVECTOR3F *pos) 
 
 /******************************************************************************/
 void g3dmesh_getSelectedVerticesLocalPosition ( G3DMESH *mes, G3DVECTOR3F *vout ) {
-    LIST *ltmp = mes->lselver;
-    uint32_t nbver = 0x00;
+    LIST *ltmp = mes->selectedVertexList;
+    uint32_t vertexCount = 0x00;
 
     vout->x = 0.0f;
     vout->y = 0.0f;
@@ -1857,15 +1769,15 @@ void g3dmesh_getSelectedVerticesLocalPosition ( G3DMESH *mes, G3DVECTOR3F *vout 
             vout->z += pos->z;
         /*}*/
 
-        nbver++;
+        vertexCount++;
 
         ltmp = ltmp->next;
     }
 
-    if ( nbver ) {
-        vout->x /= nbver;
-        vout->y /= nbver;
-        vout->z /= nbver;
+    if ( vertexCount ) {
+        vout->x /= vertexCount;
+        vout->y /= vertexCount;
+        vout->z /= vertexCount;
     }
 }
 
@@ -1880,8 +1792,8 @@ void g3dmesh_getSelectedEdgesWorldPosition ( G3DMESH *mes, G3DVECTOR3F *pos) {
 
 /******************************************************************************/
 void g3dmesh_getSelectedEdgesLocalPosition ( G3DMESH *mes, G3DVECTOR3F *pos ) {
-    LIST *ltmp = mes->lseledg;
-    uint32_t nbedg = 0x00;
+    LIST *ltmp = mes->selectedEdgeList;
+    uint32_t edgeCount = 0x00;
     uint32_t i;
 
     pos->x = 0.0f;
@@ -1897,15 +1809,15 @@ void g3dmesh_getSelectedEdgesLocalPosition ( G3DMESH *mes, G3DVECTOR3F *pos ) {
         pos->y += ( ( pos0->y + pos1->y ) / 2.0f );
         pos->z += ( ( pos0->z + pos1->z ) / 2.0f );
 
-        nbedg++;
+        edgeCount++;
 
         ltmp = ltmp->next;
     }
 
-    if ( nbedg ) {
-        pos->x /= nbedg;
-        pos->y /= nbedg;
-        pos->z /= nbedg;
+    if ( edgeCount ) {
+        pos->x /= edgeCount;
+        pos->y /= edgeCount;
+        pos->z /= edgeCount;
     }
 }
 
@@ -1920,8 +1832,8 @@ void g3dmesh_getSelectedFacesWorldPosition ( G3DMESH *mes, G3DVECTOR3F *pos) {
 
 /******************************************************************************/
 void g3dmesh_getSelectedFacesLocalPosition ( G3DMESH *mes, G3DVECTOR3F *pos ) {
-    LIST *ltmp = mes->lselfac;
-    uint32_t nbfac = 0x00;
+    LIST *ltmp = mes->selectedFaceList;
+    uint32_t faceCount = 0x00;
 
     pos->x = 0.0f;
     pos->y = 0.0f;
@@ -1934,22 +1846,22 @@ void g3dmesh_getSelectedFacesLocalPosition ( G3DMESH *mes, G3DVECTOR3F *pos ) {
         pos->y += fac->pos.y;
         pos->z += fac->pos.z;
 
-        nbfac++;
+        faceCount++;
 
         ltmp = ltmp->next;
     }
 
-    if ( nbfac ) {
-        pos->x /= nbfac;
-        pos->y /= nbfac;
-        pos->z /= nbfac;
+    if ( faceCount ) {
+        pos->x /= faceCount;
+        pos->y /= faceCount;
+        pos->z /= faceCount;
     }
 }
 
 /******************************************************************************/
 void g3dmesh_getSelectedFacesTranslation ( G3DMESH *mes, double *tmatrix ) {
-    uint32_t nbfac = 0x00;
-    LIST *ltmp = mes->lselfac;
+    uint32_t faceCount = 0x00;
+    LIST *ltmp = mes->selectedFaceList;
 
     tmatrix[0x00] = 1.0f;
     tmatrix[0x04] = 0.0f;
@@ -1978,22 +1890,22 @@ void g3dmesh_getSelectedFacesTranslation ( G3DMESH *mes, double *tmatrix ) {
         tmatrix[0x0D] += fac->pos.y;
         tmatrix[0x0E] += fac->pos.z;
 
-        nbfac++;
+        faceCount++;
 
         ltmp = ltmp->next;
     }
 
-    if ( nbfac ) {
-        tmatrix[0x0C] /= nbfac;
-        tmatrix[0x0D] /= nbfac;
-        tmatrix[0x0E] /= nbfac;
+    if ( faceCount ) {
+        tmatrix[0x0C] /= faceCount;
+        tmatrix[0x0D] /= faceCount;
+        tmatrix[0x0E] /= faceCount;
     }
 }
 
 /******************************************************************************/
 void g3dmesh_getSelectedEdgesTranslation ( G3DMESH *mes, double *tmatrix ) {
-    uint32_t nbedg = 0x00;
-    LIST *ltmp = mes->lseledg;
+    uint32_t edgeCount = 0x00;
+    LIST *ltmp = mes->selectedEdgeList;
     G3DVECTOR3F pos;
 
     tmatrix[0x00] = 1.0f;
@@ -2025,8 +1937,8 @@ void g3dmesh_getSelectedEdgesTranslation ( G3DMESH *mes, double *tmatrix ) {
 
 /******************************************************************************/
 void g3dmesh_getSelectedVerticesTranslation ( G3DMESH *mes, double *tmatrix ) {
-    uint32_t nbver = 0x00;
-    LIST *ltmp = mes->lselver;
+    uint32_t vertexCount = 0x00;
+    LIST *ltmp = mes->selectedVertexList;
     G3DVECTOR3F pos;
 
     tmatrix[0x00] = 1.0f;
@@ -2074,7 +1986,7 @@ void g3dmesh_removeFacesFromVertex ( G3DMESH *mes, G3DVERTEX *ver ) {
 
 /******************************************************************************/
 void g3dmesh_removeFacesFromSelectedVertices ( G3DMESH *mes ) {
-    LIST *ltmp = mes->lselver;
+    LIST *ltmp = mes->selectedVertexList;
 
     while ( ltmp ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
@@ -2085,21 +1997,12 @@ void g3dmesh_removeFacesFromSelectedVertices ( G3DMESH *mes ) {
     }
 }
 
-/******************************************************************************/
-void g3dmesh_removeVertex ( G3DMESH *mes, G3DVERTEX *ver ) {
-    list_remove ( &mes->lver, ver );
-    list_remove ( &mes->lselver, ver );
 
-    /*list_free ( &ver->faceList, NULL ); ver->nbfac = 0x00;
-    list_free ( &ver->ledg, NULL ); ver->nbedg = 0x00;*/
-
-    mes->nbver--;
-}
 
 /******************************************************************************/
 void g3dmesh_removeSelectedVertices ( G3DMESH *mes ) {
-    /*LIST *lselver = list_copy ( mes->lselver );*/
-    LIST *ltmp = mes->lselver/*lselver*/;
+    /*LIST *selectedVertexList = list_copy ( mes->selectedVertexList );*/
+    LIST *ltmp = mes->selectedVertexList/*selectedVertexList*/;
 
     while ( ltmp ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
@@ -2109,13 +2012,13 @@ void g3dmesh_removeSelectedVertices ( G3DMESH *mes ) {
         ltmp = ltmp->next;
     }
 
-    list_free ( &mes->lselver, NULL );
+    list_free ( &mes->selectedVertexList, NULL );
 }
 
 /******************************************************************************/
 /*** Invert normal vectors of selected faces ***/
 void g3dmesh_invertNormal ( G3DMESH *mes ) {
-    LIST *ltmp = mes->lselfac;
+    LIST *ltmp = mes->selectedFaceList;
 
     while ( ltmp ) {
         G3DFACE *fac = ( G3DFACE * ) ltmp->data;
@@ -2131,8 +2034,8 @@ void g3dmesh_invertNormal ( G3DMESH *mes ) {
 
 /******************************************************************************/
 void g3dmesh_removeSelectedFaces ( G3DMESH *mes ) {
-    LIST *lselfac = list_copy ( mes->lselfac );
-    LIST *ltmp = lselfac;
+    LIST *selectedFaceList = list_copy ( mes->selectedFaceList );
+    LIST *ltmp = selectedFaceList;
 
     while ( ltmp ) {
         G3DFACE *fac = ( G3DFACE * ) ltmp->data;
@@ -2143,7 +2046,7 @@ void g3dmesh_removeSelectedFaces ( G3DMESH *mes ) {
         ltmp = ltmp->next;
     }
 
-    list_free ( &lselfac, NULL );
+    list_free ( &selectedFaceList, NULL );
 }
 
 /******************************************************************************/
@@ -2161,56 +2064,56 @@ void g3dmesh_addSelectedVertex ( G3DMESH *mes, G3DVERTEX *ver ) {
 
 /******************************************************************************/
 LIST *g3dmesh_getEdgeBoundariesFromSelectedFaces ( G3DMESH *mes ) {
-    LIST *ltmp = mes->lselfac;
-    LIST *ledg = NULL;
+    LIST *ltmp = mes->selectedFaceList;
+    LIST *edgeList = NULL;
 
     while ( ltmp ) {
         G3DFACE *fac = ( G3DFACE * ) ltmp->data;
         uint32_t i;
 
-        for ( i = 0x00; i < fac->nbver; i++ ) {
+        for ( i = 0x00; i < fac->vertexCount; i++ ) {
             G3DEDGE *edg = fac->edg[i];
 
             /*** Add the edge to the extrude list only if other faces that ***/
             /*** are not selected but connected to this edge exist. This ***/
             /*** means our edge is a boundary. ***/
-            if ( g3dedge_isBorder ( edg ) && list_seek ( ledg, edg ) == NULL ) {
-                list_insert ( &ledg, edg );
+            if ( g3dedge_isBorder ( edg ) && list_seek ( edgeList, edg ) == NULL ) {
+                list_insert ( &edgeList, edg );
             }
         }
 
         ltmp = ltmp->next;
     }
 
-    return ledg;
+    return edgeList;
 }
 
 /******************************************************************************/
 #ifdef UNUSED
 LIST *g3dmesh_getVertexBoundariesFromSelectedFaces ( G3DMESH *mes ) {
-    LIST *ltmp = mes->lselfac;
-    LIST *lver = NULL;
+    LIST *ltmp = mes->selectedFaceList;
+    LIST *vertexList = NULL;
 
     while ( ltmp ) {
         G3DFACE *fac = ( G3DFACE * ) ltmp->data;
         uint32_t i;
 
-        for ( i = 0x00; i < fac->nbver; i++ ) {
+        for ( i = 0x00; i < fac->vertexCount; i++ ) {
             G3DVERTEX *ver = fac->ver[i];
 
             /*** Add the vertex to the extrude list only if other faces that ***/
             /*** are not selected but connected to this vertex exist. This ***/
             /*** means our vertex is a boundary. ***/
-            if ( g3dvertex_isBorder ( ver ) && list_seek ( lver, ver ) == NULL ) {
+            if ( g3dvertex_isBorder ( ver ) && list_seek ( vertexList, ver ) == NULL ) {
 
-                list_insert ( &lver, ver );
+                list_insert ( &vertexList, ver );
             }
         }
 
         ltmp = ltmp->next;
     }
 
-    return lver;
+    return vertexList;
 }
 #endif
 
@@ -2219,12 +2122,12 @@ void g3dmesh_attachFaceEdges ( G3DMESH *mes, G3DFACE *fac ) {
     uint32_t i;
 
     /*** Create Edges if required ***/
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) fac->ver[i];
 
         if ( fac->edg[i] == NULL ) {
-            int n = ( i + 0x01 ) % fac->nbver;
-            LIST *ltmpedg = ver->ledg;
+            int n = ( i + 0x01 ) % fac->vertexCount;
+            LIST *ltmpedg = ver->edgeList;
 
             while ( ltmpedg ) {
                 G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
@@ -2256,15 +2159,15 @@ void g3dmesh_clone ( G3DMESH   *mes,
                      G3DVECTOR3F *verpos,
                      G3DMESH   *cpymes,
                      uint64_t engineFlags ) {
-    uint32_t nbver  = mes->nbver;
-    uint32_t nbedg  = mes->nbedg;
-    uint32_t nbfac  = mes->nbfac;
-    LIST *ltmpver   = mes->lver;
-    LIST *ltmpedg   = mes->ledg;
+    uint32_t vertexCount  = mes->vertexCount;
+    uint32_t edgeCount  = mes->edgeCount;
+    uint32_t faceCount  = mes->faceCount;
+    LIST *ltmpver   = mes->vertexList;
+    LIST *ltmpedg   = mes->edgeList;
     LIST *ltmpfac   = mes->faceList;
     uint32_t verid = 0x00, edgid = 0x00;
-    G3DVERTEX **vertab = (G3DVERTEX **) calloc ( nbver, sizeof (G3DVERTEX *) );
-    G3DEDGE   **edgtab = (G3DEDGE   **) calloc ( nbedg, sizeof (G3DEDGE   *) );
+    G3DVERTEX **vertab = (G3DVERTEX **) calloc ( vertexCount, sizeof (G3DVERTEX *) );
+    G3DEDGE   **edgtab = (G3DEDGE   **) calloc ( edgeCount, sizeof (G3DEDGE   *) );
     uint32_t i;
 
     /** duplicated in by g3dobject_copy() */
@@ -2278,7 +2181,7 @@ void g3dmesh_clone ( G3DMESH   *mes,
              &((G3DOBJECT*)mes)->bbox, sizeof ( G3DBBOX ) );*/
 
     while ( ltmpver ) {
-        G3DVERTEX *oriver = _GETVERTEX(mes,ltmpver);
+        G3DVERTEX *oriver = ltmpver->data;
         G3DVECTOR3F *oripos;
         G3DVERTEX *cpyver;
 
@@ -2294,11 +2197,11 @@ void g3dmesh_clone ( G3DMESH   *mes,
 
         vertab[oriver->id] = cpyver;
 
-        _NEXTVERTEX(mes,ltmpver);
+        ltmpver = ltmpver->next;
     }
 
     while ( ltmpedg ) {
-        G3DEDGE *oriedg = ( G3DEDGE * ) _GETEDGE(mes,ltmpedg);
+        G3DEDGE *oriedg = ( G3DEDGE * ) ltmpedg->data;
         G3DEDGE *cpyedg = g3dedge_new ( vertab[oriedg->ver[0x00]->id],
                                         vertab[oriedg->ver[0x01]->id] );
 
@@ -2307,12 +2210,12 @@ void g3dmesh_clone ( G3DMESH   *mes,
         /*** indexing ***/
         oriedg->id = edgid++;
 
-        _NEXTEDGE(mes,ltmpedg);
+        ltmpedg = ltmpedg->next;
     }
 
     /*** Create faces ***/
     while ( ltmpfac ) {
-        G3DFACE *fac = _GETFACE(mes,ltmpfac);
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
         G3DVERTEX *ver[0x04] = { vertab[fac->ver[0x00]->id],
                                  vertab[fac->ver[0x01]->id],
                                  vertab[fac->ver[0x02]->id], NULL };
@@ -2321,15 +2224,15 @@ void g3dmesh_clone ( G3DMESH   *mes,
                                  edgtab[fac->edg[0x02]->id], NULL };
 
         /*** if it's a quad, dont forget the fourth vertex ***/ 
-        if ( fac->nbver == 0x04 ) ver[0x03] = vertab[fac->ver[0x03]->id];
-        if ( fac->nbver == 0x04 ) edg[0x03] = edgtab[fac->edg[0x03]->id];
+        if ( fac->vertexCount == 0x04 ) ver[0x03] = vertab[fac->ver[0x03]->id];
+        if ( fac->vertexCount == 0x04 ) edg[0x03] = edgtab[fac->edg[0x03]->id];
 
         /*** g3dface_newWithEdges() commented out. The above while loop ***/
         /*** supposed to add edges doesnot work apparently, so we let ***/
         /*** g3dmesh_addFace() create the edges, which will be a bit slower ***/
-        g3dmesh_addFace ( cpymes, g3dface_new ( ver, fac->nbver ) /*g3dface_newWithEdges ( ver, edg, fac->nbver )*/ );
+        g3dmesh_addFace ( cpymes, g3dface_new ( ver, fac->vertexCount ) /*g3dface_newWithEdges ( ver, edg, fac->vertexCount )*/ );
 
-        _NEXTFACE(mes,ltmpfac);
+        ltmpfac = ltmpfac->next;
     }
 
     cpymes->gouraudScalarLimit = mes->gouraudScalarLimit;
@@ -2338,15 +2241,6 @@ void g3dmesh_clone ( G3DMESH   *mes,
     /*** First check mesh is not empty, then free temp data ***/
     if ( vertab ) free ( vertab );
     if ( edgtab ) free ( edgtab );
-
-    g3dmesh_updateBbox ( cpymes );
-
-    cpymes->obj.invalidationFlags |= ( INVALIDATE_MESH_FACEPOSITION |
-                                       INVALIDATE_MESH_FACENORMAL   |
-                                       INVALIDATE_MESH_VERTEXNORMAL );
-
-    /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( cpymes, 0x00, engineFlags );
 }
 
 /******************************************************************************/
@@ -2367,7 +2261,7 @@ G3DOBJECT *g3dmesh_copy ( G3DOBJECT     *obj,
 
 /******************************************************************************/
 /*void g3dmesh_removeUnusedEdges ( G3DMESH *mes ) {
-    LIST *ltmp = list_copy ( mes->ledg );
+    LIST *ltmp = list_copy ( mes->edgeList );
 
     while ( ltmp ) {
         G3DEDGE *edg = ( G3DEDGE * ) ltmp->data;
@@ -2395,7 +2289,7 @@ void g3dmesh_extrude ( G3DMESH *mes, LIST **loriver,
     LIST *lbndedg = NULL, *ltmpedg;
     LIST *lbndver = NULL, *ltmpver;
     LIST *lspv = NULL;
-    uint32_t nbver, n;
+    uint32_t vertexCount, n;
 
     /*** Find the boundary vertices first ***/
     lbndedg = ltmpedg = g3dmesh_getEdgeBoundariesFromSelectedFaces ( mes );
@@ -2439,7 +2333,7 @@ void g3dmesh_extrude ( G3DMESH *mes, LIST **loriver,
         ver[0x02] = ( spv[0x02] ) ? spv[0x02]->newver : fac->ver[0x02];
         ver[0x03] = ( spv[0x03] ) ? spv[0x03]->newver : fac->ver[0x03];
 
-        newfac = g3dface_new ( ver, fac->nbver );
+        newfac = g3dface_new ( ver, fac->vertexCount );
 
         list_insert ( loldfac, fac    );
         list_insert ( lnewfac, newfac );
@@ -2491,14 +2385,14 @@ void g3dmesh_extrude ( G3DMESH *mes, LIST **loriver,
 void g3dmesh_triangulate ( G3DMESH *mes, LIST   **loldfac,
                                          LIST   **lnewfac,
                                          uint32_t clockwise ) {
-    LIST *ltmp = mes->lselfac;
+    LIST *ltmp = mes->selectedFaceList;
 
     while ( ltmp ) {
         G3DFACE *fac = ( G3DFACE * ) ltmp->data;
         G3DFACE *tri[0x02];
 
         /*** Ths algo only applies to Quads, i.e faces with 4 vertices ***/
-        if ( fac->nbver == 0x04 ) {
+        if ( fac->vertexCount == 0x04 ) {
             g3dface_triangulate ( fac, tri, clockwise );
 
             list_insert ( lnewfac, tri[0x00] );
@@ -2541,7 +2435,7 @@ void g3dmesh_triangulate ( G3DMESH *mes, LIST   **loldfac,
 /****** Untriangulate selected triangles. Merge 2 triangles into a quad. ******/
 void g3dmesh_untriangulate ( G3DMESH *mes, LIST **loldfac,
                                            LIST **lnewfac ) {
-    LIST *ltmp = mes->lselfac;
+    LIST *ltmp = mes->selectedFaceList;
 
     while ( ltmp ) {
         G3DFACE *fac = ( G3DFACE * ) ltmp->data;
@@ -2549,13 +2443,13 @@ void g3dmesh_untriangulate ( G3DMESH *mes, LIST **loldfac,
 
         /*** Ths algo only applies to triangles, i.e faces with 3 vertices ***/
         /*** and that were not previously processed. ***/
-        if ( fac->nbver == 0x03 && ( list_seek ( (*loldfac), fac ) == NULL ) ) {
-            LIST *lbuf = mes->lselfac;
+        if ( fac->vertexCount == 0x03 && ( list_seek ( (*loldfac), fac ) == NULL ) ) {
+            LIST *lbuf = mes->selectedFaceList;
 
             while ( lbuf && ( qua == NULL ) ) {
                 G3DFACE *bud = ( G3DFACE * ) lbuf->data;
 
-                if ( ( bud != fac ) && ( bud->nbver == 0x03 ) && ( list_seek ( (*loldfac), bud ) == NULL ) ) {
+                if ( ( bud != fac ) && ( bud->vertexCount == 0x03 ) && ( list_seek ( (*loldfac), bud ) == NULL ) ) {
                     G3DEDGE *edg = g3dface_compare ( fac, bud );
 
                     /*** a shared edge was found, so ***/
@@ -2632,24 +2526,24 @@ void g3dmesh_cut ( G3DMESH *mes,
     LIST *lcutfac = NULL; /*** list of cut faces    ***/
     LIST *lcutedg = NULL;
     LIST *loldedg = NULL;
-    LIST *ltmpedg, *lseledg;
+    LIST *ltmpedg, *selectedEdgeList;
     LIST *ltmpfac;
     LIST *ltmpnewver;
 
     if ( restricted ) {
         if ( engineFlags & VIEWFACE ) {
-            lseledg = ltmpedg = g3dface_getEdgesFromList ( mes->lselfac );
+            selectedEdgeList = ltmpedg = g3dface_getEdgesFromList ( mes->selectedFaceList );
         }
 
         if ( engineFlags & VIEWEDGE ) {
-            lseledg = ltmpedg = mes->lseledg;
+            selectedEdgeList = ltmpedg = mes->selectedEdgeList;
         }
 
         if ( engineFlags & VIEWVERTEX ) {
-            lseledg = ltmpedg = mes->ledg;
+            selectedEdgeList = ltmpedg = mes->edgeList;
         }
     } else {
-        lseledg = ltmpedg = mes->ledg;
+        selectedEdgeList = ltmpedg = mes->edgeList;
     }
 
     while ( ltmpedg ) {
@@ -2719,7 +2613,7 @@ void g3dmesh_cut ( G3DMESH *mes,
 
     if ( restricted ) {
         if ( engineFlags & VIEWFACE ) {
-            list_free ( &lseledg, NULL );
+            list_free ( &selectedEdgeList, NULL );
         }
     }
 
@@ -2742,9 +2636,9 @@ void g3dmesh_faceNormal ( G3DMESH *mes ) {
 }
 
 /******************************************************************************/
-void g3dmesh_getCenterFromVertexList ( LIST *lver, G3DVECTOR3F *vout ) {
-    LIST *ltmp = lver;
-    uint32_t nbver = 0x00;
+void g3dmesh_getCenterFromVertexList ( LIST *vertexList, G3DVECTOR3F *vout ) {
+    LIST *ltmp = vertexList;
+    uint32_t vertexCount = 0x00;
 
     g3dvector3f_init ( vout, 0.0f, 0.0f, 0.0f );
 
@@ -2755,16 +2649,16 @@ void g3dmesh_getCenterFromVertexList ( LIST *lver, G3DVECTOR3F *vout ) {
         vout->y = ( vout->y + ver->pos.y );
         vout->z = ( vout->z + ver->pos.z );
 
-        nbver++;
+        vertexCount++;
 
         ltmp = ltmp->next;
     }
 
     /*** Nah, you don't want a divide by 0 ***/
-    if ( nbver ) {
-        vout->x = ( vout->x / nbver );
-        vout->y = ( vout->y / nbver );
-        vout->z = ( vout->z / nbver );
+    if ( vertexCount ) {
+        vout->x = ( vout->x / vertexCount );
+        vout->y = ( vout->y / vertexCount );
+        vout->z = ( vout->z / vertexCount );
     }
 }
 
@@ -2778,14 +2672,14 @@ static void g3dmesh_drawFaceList ( G3DMESH *mes,
     while ( ltmp ) {
         G3DFACE *fac = ( G3DFACE * ) ltmp->data;
 
-        if ( fac->nbver == 0x03 ) {
+        if ( fac->vertexCount == 0x03 ) {
             g3dface_drawTriangle ( fac, mes->gouraudScalarLimit,
-                                        mes->ltex, obj->flags, engineFlags );
+                                        mes->textureList, obj->flags, engineFlags );
         }
 
-        if ( fac->nbver == 0x04 ) {
+        if ( fac->vertexCount == 0x04 ) {
             g3dface_drawQuad  ( fac, mes->gouraudScalarLimit,
-                                     mes->ltex, obj->flags, engineFlags );
+                                     mes->textureList, obj->flags, engineFlags );
         }
 
         ltmp = ltmp->next;
@@ -2822,103 +2716,15 @@ void g3dmesh_allocSubPatterns ( G3DMESH *mes, uint32_t level ) {
     }*/
 }
 
-/******************************************************************************/
-void g3dmesh_update ( G3DMESH *mes,
-                      uint64_t updateFlags,
-                      uint64_t engineFlags ) {
-    G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
 
-    if ( ( mes->meshInvalidationFlags & INVALIDATE_MESH_FACEPOSITION ) ||
-         ( mes->meshInvalidationFlags & INVALIDATE_MESH_FACENORMAL   ) ) {
-
-        LIST *ltmpfac = ( mes->invalidatedFaceList ) ? mes->invalidatedFaceList : mes->faceList;
-        /*** Always update face first. Vertices normals are computed from it***/
-        while ( ltmpfac ) {
-            G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
-
-            if ( mes->meshInvalidationFlags & INVALIDATE_MESH_FACEPOSITION ) {
-                g3dface_position ( fac );
-            }
-
-            if ( mes->meshInvalidationFlags & INVALIDATE_MESH_FACENORMAL   ) {
-                g3dface_normal   ( fac );
-            }
-
-            _NEXTFACE(mes,ltmpfac);
-        }
-    }
-
-    if ( mes->meshInvalidationFlags & INVALIDATE_MESH_VERTEXNORMAL ) {
-        LIST *ltmpver = ( mes->invalidatedVertexList ) ? mes->invalidatedVertexList : mes->lver;
-
-        /*** Update Vertices normals ***/
-        while ( ltmpver ) {
-            G3DVERTEX *ver = ( G3DVERTEX * ) _GETVERTEX(mes,ltmpver);
-
-            /*** Face Point and Edge Point are update during the vertex's   ***/
-            /*** normal vector update, because usually the vertex's normal  ***/
-            /*** vector is updated when the vertex is moved. This way, both ***/
-            /*** face and edge points are updated when a vertex is moved.   ***/
-
-            g3dvertex_normal ( ver, COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
-
-            _NEXTVERTEX(mes,ltmpver);
-        }
-    }
-
-    if ( mes->obj.invalidationFlags & INVALIDATE_MESH_UVMAPPING ) {
-        LIST *lmap = g3dobject_getChildrenByType ( ( G3DOBJECT * ) mes, G3DUVMAPTYPE );
-        LIST *ltmpmap = lmap;
-
-        while ( ltmpmap ) {
-            G3DUVMAP *map = ( G3DUVMAP * ) ltmpmap->data;
-            G3DOBJECT *objmap = ( G3DOBJECT * ) map;
-
-            LIST *ltmpfac = ( mes->invalidatedFaceList ) ? mes->invalidatedFaceList : mes->faceList;
-
-            while ( ltmpfac ) {
-                G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
-
-            /*** Dont remap if the UVMap is fixed ***/
-    /*** TODO - Remap if non-existent even if UVMAPFIXED ***/
-                if ( ( objmap->flags & UVMAPFIXED ) == 0x00 ) {
-                    if ( fac->luvs ) {
-                        g3duvmap_mapFace ( map, mes, fac );
-                    }
-                }
-
-                ltmpfac = ltmpfac->next;
-            }
-
-            ltmpmap = ltmpmap->next;
-        }
-
-        list_free ( &lmap, NULL );
-    }
-
-    if ( ( mes->obj.invalidationFlags & INVALIDATE_MODIFIER_STACK_RESET       )
-      || ( mes->obj.invalidationFlags & INVALIDATE_CHILD_MODIFIER_STACK_RESET ) ) {
-        g3dmesh_modify ( mes,
-                         G3DMODIFYOP_MODIFY,
-                         engineFlags );
-    }
-
-    if( ( updateFlags & UPDATE_INTERACTIVE ) == 0x00 ) {
-        mes->invalidatedFaceList   = NULL;
-        mes->invalidatedEdgeList   = NULL;
-        mes->invalidatedVertexList = NULL;
-
-        mes->meshInvalidationflags = 0x00;
-    }
-}
 
 /******************************************************************************/
 void g3dmesh_updateBbox ( G3DMESH *mes ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
 
     while ( ltmpver ) {
-        G3DVERTEX *ver = ( G3DVERTEX * ) _GETVERTEX(mes,ltmpver);
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
 
         if ( ltmpver->prev == NULL ) {
             obj->bbox.xmin = obj->bbox.xmax = ver->pos.x;
@@ -2928,7 +2734,7 @@ void g3dmesh_updateBbox ( G3DMESH *mes ) {
             g3dbbox_adjust ( &obj->bbox, ver );
         }
 
-        _NEXTVERTEX(mes,ltmpver);
+        ltmpver = ltmpver->next;
     }
 }
 
@@ -2958,7 +2764,7 @@ void g3dmesh_updateFaceIndex ( G3DMESH *mes ) {
     LIST *ltmpfac = mes->faceList;
     uint32_t i = 0x00;
 
-    mes->faceindex = ( G3DFACE ** ) realloc ( mes->faceindex, mes->nbfac * sizeof ( G3DFACE * ) );
+    mes->faceindex = ( G3DFACE ** ) realloc ( mes->faceindex, mes->faceCount * sizeof ( G3DFACE * ) );
 
     if ( mes->faceindex == NULL ) {
         fprintf ( stderr, "g3dmesh_updateFaceIndex: realloc" );
@@ -3088,7 +2894,7 @@ static void g3dmesh_drawVertexList ( G3DMESH *mes,
 void g3dmesh_drawSelectedVertices ( G3DMESH *mes,
                                     uint64_t engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    /*LIST *ltmp = mes->lselver;*/
+    /*LIST *ltmp = mes->selectedVertexList;*/
 
     glPushAttrib( GL_ALL_ATTRIB_BITS );
 
@@ -3096,7 +2902,7 @@ void g3dmesh_drawSelectedVertices ( G3DMESH *mes,
     glColor3ub  ( 0xFF, 0x00, 0x00 );
     glPointSize ( 4.0f );
 
-    g3dmesh_drawVertexList ( mes, mes->lselver, engineFlags );
+    g3dmesh_drawVertexList ( mes, mes->selectedVertexList, engineFlags );
 
     glPopAttrib ( );
 }
@@ -3109,7 +2915,7 @@ void g3dmesh_drawVertexNormal ( G3DMESH *mes,
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     float scaling = g3dvector3f_length ( &obj->sca );
     float nratio =  0.1f / scaling;
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
     int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
                                                   "mvpMatrix" );
     float mvp[0x10];
@@ -3162,49 +2968,49 @@ void g3dmesh_drawVertexNormal ( G3DMESH *mes,
 
 /******************************************************************************/
 LIST *g3dmesh_getVertexListFromSelectedVertices ( G3DMESH *mes ) {
-    return list_copy ( mes->lselver );
+    return list_copy ( mes->selectedVertexList );
 }
 
 /******************************************************************************/
 LIST *g3dmesh_getVertexListFromSelectedFaces ( G3DMESH *mes ) {
-    return g3dface_getVerticesFromList ( mes->lselfac );
+    return g3dface_getVerticesFromList ( mes->selectedFaceList );
 }
 
 /******************************************************************************/
 LIST *g3dmesh_getVertexListFromSelectedEdges ( G3DMESH *mes ) {
-    LIST *ltmp = mes->lseledg;
-    LIST *lver = NULL;
+    LIST *ltmp = mes->selectedEdgeList;
+    LIST *vertexList = NULL;
 
     while ( ltmp ) {
         G3DEDGE *edg = ( G3DEDGE * ) ltmp->data;
         int i;
 
-        if ( list_seek ( lver, edg->ver[0x00] ) == NULL ) {
-                list_insert ( &lver, edg->ver[0x00] );
+        if ( list_seek ( vertexList, edg->ver[0x00] ) == NULL ) {
+                list_insert ( &vertexList, edg->ver[0x00] );
         }
 
-        if ( list_seek ( lver, edg->ver[0x01] ) == NULL ) {
-                list_insert ( &lver, edg->ver[0x01] );
+        if ( list_seek ( vertexList, edg->ver[0x01] ) == NULL ) {
+                list_insert ( &vertexList, edg->ver[0x01] );
         }
 
         ltmp = ltmp->next;
     }
 
-    return lver;
+    return vertexList;
 }
 
 /******************************************************************************/
 void g3dmesh_removeVerticesFromList ( G3DMESH *mes, 
-                                      LIST    *lver ) {
-    while ( lver ) {
-        G3DVERTEX *ver = ( G3DVERTEX * ) lver->data;
+                                      LIST    *vertexList ) {
+    while ( vertexList ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) vertexList->data;
 
         if ( ver->flags & VERTEXSELECTED ) g3dmesh_unselectVertex ( mes, ver );
 
         g3dmesh_removeVertex   ( mes, ver );
 
 
-        lver = lver->next;
+        vertexList = vertexList->next;
     }
 }
 
@@ -3225,12 +3031,12 @@ void g3dmesh_removeFacesFromList ( G3DMESH *mes,
 
 /******************************************************************************/
 LIST *g3dmesh_getFaceListFromSelectedVertices ( G3DMESH *mes ) {
-    return g3dvertex_getFacesFromList ( mes->lselver );
+    return g3dvertex_getFacesFromList ( mes->selectedVertexList );
 }
 
 /******************************************************************************/
 LIST *g3dmesh_getFaceListFromSelectedEdges ( G3DMESH *mes ) {
-    LIST *ltmp = mes->lseledg;
+    LIST *ltmp = mes->selectedEdgeList;
     LIST *faceList = NULL;
 
     while ( ltmp ) {
@@ -3258,7 +3064,7 @@ LIST *g3dmesh_getFaceListFromSelectedEdges ( G3DMESH *mes ) {
 /*** will return 0, even if the mesh is displaced ***/
 uint32_t g3dmesh_isDisplaced ( G3DMESH *mes, 
                                uint64_t engineFlags ) {
-    LIST *ltmptex = mes->ltex;
+    LIST *ltmptex = mes->textureList;
 
     if ( ( engineFlags & NODISPLACEMENT ) ) return 0x00;
 
@@ -3301,7 +3107,7 @@ void g3dmesh_pickFaceUVs ( G3DMESH *mes,
                              ( ( tex->flags & TEXTURERESTRICTED   ) &&
                                g3dface_hasTextureSlot ( fac, tex->slotBit ) ) ) {
                             g3dpick_setName ( ( uint64_t ) uvs );
-                            g3dpick_drawFace ( fac->nbver, 
+                            g3dpick_drawFace ( fac->vertexCount, 
                                                uvs->veruv[0].u, 
                                                uvs->veruv[0].v,
                                                0.0f,
@@ -3353,8 +3159,8 @@ void g3dmesh_drawFaceUVs ( G3DMESH *mes,
 
                             glColor3ub ( 0x00, 0x00, 0x00 );
                             glBegin ( GL_LINES );
-                            for ( i = 0x00; i < fac->nbver; i++ ) {
-                                int n = ( i + 0x01 ) % fac->nbver;
+                            for ( i = 0x00; i < fac->vertexCount; i++ ) {
+                                int n = ( i + 0x01 ) % fac->vertexCount;
 
                                 glVertex2f ( uvs->veruv[i].u, uvs->veruv[i].v );
                                 glVertex2f ( uvs->veruv[n].u, uvs->veruv[n].v );
@@ -3369,9 +3175,9 @@ void g3dmesh_drawFaceUVs ( G3DMESH *mes,
                             }
 
                             glVertex2f ( ( uvs->veruv[0].u + uvs->veruv[1].u +
-                                           uvs->veruv[2].u + uvs->veruv[3].u ) / fac->nbver,
+                                           uvs->veruv[2].u + uvs->veruv[3].u ) / fac->vertexCount,
                                          ( uvs->veruv[0].v + uvs->veruv[1].v + 
-                                           uvs->veruv[2].v + uvs->veruv[3].v ) / fac->nbver );
+                                           uvs->veruv[2].v + uvs->veruv[3].v ) / fac->vertexCount );
                             glEnd ( );
                         }
                     }
@@ -3409,7 +3215,7 @@ void g3dmesh_pickVertexUVs ( G3DMESH *mes,
                                g3dface_hasTextureSlot ( fac, tex->slotBit ) ) ) {
                             int i;
 
-                            for ( i = 0x00; i < fac->nbver; i++ ) {
+                            for ( i = 0x00; i < fac->vertexCount; i++ ) {
                                 g3dpick_setName ( ( uint64_t ) &uvs->veruv[i] );
                                 g3dpick_drawPoint ( uvs->veruv[i].u, 
                                                     uvs->veruv[i].v, 
@@ -3454,8 +3260,8 @@ void g3dmesh_drawVertexUVs ( G3DMESH *mes,
 
                             glColor3ub ( 0x00, 0x00, 0x00 );
                             glBegin ( GL_LINES );
-                            for ( i = 0x00; i < fac->nbver; i++ ) {
-                                int n = ( i + 0x01 ) % fac->nbver;
+                            for ( i = 0x00; i < fac->vertexCount; i++ ) {
+                                int n = ( i + 0x01 ) % fac->vertexCount;
 
                                 glVertex2f ( uvs->veruv[i].u, uvs->veruv[i].v );
                                 glVertex2f ( uvs->veruv[n].u, uvs->veruv[n].v );
@@ -3463,7 +3269,7 @@ void g3dmesh_drawVertexUVs ( G3DMESH *mes,
                             glEnd ( );
 
                             glBegin ( GL_POINTS );
-                            for ( i = 0x00; i < fac->nbver; i++ ) {
+                            for ( i = 0x00; i < fac->vertexCount; i++ ) {
                                 if ( uvs->veruv[i].flags & UVSELECTED ) {
                                     glColor3ub ( 0xFF, 0x00, 0x00 );
                                 } else {
@@ -3493,8 +3299,8 @@ void g3dmesh_drawSelectedUVMap ( G3DMESH   *mes,
                                  G3DENGINE *engine,
                                  uint64_t engineFlags ) {
     if ( engineFlags & VIEWUVWMAP ) {
-        if ( mes->lseluvmap ) {
-            G3DUVMAP *uvmap = ( G3DUVMAP * ) mes->lseluvmap->data;
+        if ( mes->selectedUvmapList ) {
+            G3DUVMAP *uvmap = ( G3DUVMAP * ) mes->selectedUvmapList->data;
 
             g3dobject_draw ( ( G3DOBJECT * ) uvmap,
                                              curcam,
@@ -3507,7 +3313,7 @@ void g3dmesh_drawSelectedUVMap ( G3DMESH   *mes,
 /******************************************************************************/
 static void g3dmesh_pickVertices ( G3DMESH *mes,
                                    uint64_t engineFlags ) {
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -3529,7 +3335,7 @@ void g3dmesh_drawVertices  ( G3DMESH   *mes,
                              uint64_t   engineFlags ) {
 
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
     int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
                                                   "mvpMatrix" );
     float mvp[0x10];
@@ -3579,7 +3385,7 @@ void g3dmesh_drawVertices  ( G3DMESH   *mes,
 /*
 
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
     LIST *ltmpfac = mes->faceList;
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
@@ -3613,7 +3419,7 @@ void g3dmesh_drawVertices  ( G3DMESH   *mes,
 /******************************************************************************/
 static void g3dmesh_pickEdges ( G3DMESH *mes,
                                 uint64_t engineFlags ) {
-    LIST *ltmpedg = mes->ledg;
+    LIST *ltmpedg = mes->edgeList;
 
     while ( ltmpedg ) {
         G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
@@ -3637,7 +3443,7 @@ void g3dmesh_drawEdges ( G3DMESH   *mes,
                          uint32_t   object_flags, 
                          uint64_t   engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    LIST *ltmpedg = mes->ledg;
+    LIST *ltmpedg = mes->edgeList;
     int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
                                                   "mvpMatrix" );
     float mvp[0x10];
@@ -3704,7 +3510,7 @@ void g3dmesh_drawEdges ( G3DMESH   *mes,
 
 /*
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    LIST *ltmpedg = mes->ledg;
+    LIST *ltmpedg = mes->edgeList;
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
     glDisable ( GL_LIGHTING );
@@ -3740,7 +3546,7 @@ static void g3dmesh_pickFaces ( G3DMESH *mes,
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
         g3dpick_setName ( ( uint64_t ) fac );
-        g3dpick_drawFace ( fac->nbver, 
+        g3dpick_drawFace ( fac->vertexCount, 
                            fac->ver[0]->pos.x, 
                            fac->ver[0]->pos.y,
                            fac->ver[0]->pos.z,
@@ -3778,13 +3584,13 @@ void g3dmesh_drawFaces ( G3DMESH *mes,
             glColor3ub ( MESHCOLORUB, MESHCOLORUB, MESHCOLORUB );
         }
 
-        if ( fac->nbver == 0x03 ) {
+        if ( fac->vertexCount == 0x03 ) {
             g3dface_drawTriangle ( fac, mes->gouraudScalarLimit, 
-                                        mes->ltex, object_flags, 
+                                        mes->textureList, object_flags, 
                                                    engineFlags );
         } else {
             g3dface_drawQuad ( fac, mes->gouraudScalarLimit, 
-                                    mes->ltex, object_flags, 
+                                    mes->textureList, object_flags, 
                                                engineFlags );
         }
 
@@ -3805,7 +3611,7 @@ static void g3dmesh_pickObject ( G3DMESH *mes,
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
         /*** break the loop if a face is picked, no need to draw the rest ***/
-        if ( g3dpick_drawFace ( fac->nbver, 
+        if ( g3dpick_drawFace ( fac->vertexCount, 
                                 fac->ver[0]->pos.x, 
                                 fac->ver[0]->pos.y,
                                 fac->ver[0]->pos.z,
@@ -3839,7 +3645,7 @@ void g3dmesh_drawModified ( G3DMESH   *mes,
                         verpos,
                         vernor,
                         mes->gouraudScalarLimit,
-                        mes->ltex,
+                        mes->textureList,
                         ((G3DOBJECT*)mes)->flags,
                         engineFlags );
 
@@ -4099,7 +3905,7 @@ uint32_t g3dmesh_draw ( G3DOBJECT *obj,
 /******************************************************************************/
 LIST *g3dmesh_getTexturesFromMaterial ( G3DMESH     *mes, 
                                         G3DMATERIAL *mat ) {
-    LIST *ltmptex = mes->ltex;
+    LIST *ltmptex = mes->textureList;
     LIST *lis = NULL;
 
     while ( ltmptex ) {
@@ -4118,7 +3924,7 @@ LIST *g3dmesh_getTexturesFromMaterial ( G3DMESH     *mes,
 /******************************************************************************/
 LIST *g3dmesh_getTexturesFromUVMap ( G3DMESH  *mes,
                                      G3DUVMAP *uvmap ) {
-    LIST *ltmptex = mes->ltex;
+    LIST *ltmptex = mes->textureList;
     LIST *lis = NULL;
 
     while ( ltmptex ) {
@@ -4148,15 +3954,17 @@ LIST *g3dmesh_getTexturesFromUVMap ( G3DMESH  *mes,
 /******************************************************************************/
 void g3dmesh_removeTexture ( G3DMESH    *mes,
                              G3DTEXTURE *tex ) {
-    list_remove ( &mes->ltex, tex );
+    list_remove ( &mes->textureList, tex );
 
     mes->textureSlots &= (~tex->slotBit);
 
     tex->slotBit = 0x00;
 
-    mes->nbtex--;
+    mes->textureCount--;
 
     g3dtexture_unrestrictAllFacegroups ( tex );
+
+    g3dobject_invalidate( G3DOBJECTCAST(mes), INVALIDATE_COLOR );
 }
 
 /******************************************************************************/
@@ -4165,13 +3973,15 @@ void g3dmesh_addTexture ( G3DMESH    *mes,
     G3DOBJECT  *obj = ( G3DOBJECT * ) mes;
 
     if ( tex ) {
-        list_insert ( &mes->ltex, tex );
+        list_insert ( &mes->textureList, tex );
 
         tex->slotBit = g3dmesh_getAvailableTextureSlot ( mes );
 
         mes->textureSlots |= tex->slotBit;
 
-        mes->nbtex++;
+        mes->textureCount++;
+
+        g3dobject_invalidate( G3DOBJECTCAST(mes), INVALIDATE_COLOR );
     }
 }
 
@@ -4181,24 +3991,25 @@ void g3dmesh_appendTexture ( G3DMESH    *mes,
     G3DOBJECT  *obj = ( G3DOBJECT * ) mes;
 
     if ( tex ) {
-        list_append ( &mes->ltex, tex );
+        list_append ( &mes->textureList, tex );
 
         tex->slotBit = g3dmesh_getAvailableTextureSlot ( mes );
 
         mes->textureSlots |= tex->slotBit;
 
-        mes->nbtex++;
+        mes->textureCount++;
     }
 }
 
 /******************************************************************************/
 void g3dmesh_vertexNormal ( G3DMESH *mes ) {
-    LIST *ltmp = mes->lver;
+    LIST *ltmp = mes->vertexList;
 
     while ( ltmp ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
 
-        g3dvertex_normal ( ver, COMPUTEFACEPOINT | COMPUTEEDGEPOINT );
+        /*g3dvertex_normal ( ver, COMPUTEFACEPOINT | COMPUTEEDGEPOINT );*/
+        g3dvertex_updateNormal ( ver, 0 );
 
         ltmp = ltmp->next;
     }
@@ -4207,44 +4018,123 @@ void g3dmesh_vertexNormal ( G3DMESH *mes ) {
 /******************************************************************************/
 void g3dmesh_addVertex ( G3DMESH   *mes,
                          G3DVERTEX *ver ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) mes;
+    G3DOBJECT *mesobj = ( G3DOBJECT * ) mes;
 
-    list_insert ( &mes->lver, ver );
+    list_insert ( &mes->vertexList, ver );
 
-    ver->id = mes->nbver++;
+    ver->id    = mes->vertexCount++;
+    ver->owner = mesobj;
 
-    if ( obj->parent && obj->parent->childvertexchange ) {
-        obj->parent->childvertexchange ( obj->parent, obj, ver );
-    }
+    g3dmesh_invalidateVertex ( mes, ver, INVALIDATE_TOPOLOGY );
 }
 
 /******************************************************************************/
-void g3dmesh_removeEdge ( G3DMESH *mes,
-                          G3DEDGE *edg ) {
-    list_remove ( &mes->ledg, edg );
-    list_remove ( &mes->lseledg, edg );
+void g3dmesh_removeVertex ( G3DMESH   *mes,
+                            G3DVERTEX *ver ) {
+    list_remove ( &mes->vertexList, ver );
+    list_remove ( &mes->selectedVertexList, ver );
+    list_remove ( &mes->invalidatedVertexList, ver );
 
-    mes->nbedg--;
+    ver->owner = NULL;
+
+    mes->vertexCount--;
+
+    /* request force-updating the whole topology */
+    /*mes->invalidatedVertexCount = 0xFFFFFFFF;*/
+
+    g3dobject_invalidate ( ( G3DOBJECT * ) mes, INVALIDATE_TOPOLOGY );
+}
+
+/******************************************************************************/
+static void g3dmesh_addEdge ( G3DMESH *mes,
+                              G3DEDGE *edg ) {
+    list_insert ( &mes->edgeList, edg );
+
+    mes->edgeCount++;
+
+    g3dvertex_addEdge ( edg->ver[0x00], edg );
+    g3dvertex_addEdge ( edg->ver[0x01], edg );
+
+    edg->id    = mes->edgeCount;
+    edg->owner = ( G3DOBJECT * ) edg;
+
+    g3dmesh_invalidateEdge ( mes, edg, INVALIDATE_TOPOLOGY );
+}
+
+/******************************************************************************/
+static void g3dmesh_removeEdge ( G3DMESH *mes,
+                                 G3DEDGE *edg ) {
+    list_remove ( &mes->edgeList, edg );
+    list_remove ( &mes->selectedEdgeList, edg );
+    list_remove ( &mes->invalidatedEdgeList, edg );
+
+    mes->edgeCount--;
 
     g3dvertex_removeEdge ( edg->ver[0x00], edg );
     g3dvertex_removeEdge ( edg->ver[0x01], edg );
+
+    edg->id    = 0;
+    edg->owner = NULL;
+
+    /* request force-updating the whole topology */
+    /*mes->invalidatedEdgeCount = 0xFFFFFFFF;*/
+
+    g3dobject_invalidate ( ( G3DOBJECT * ) mes, INVALIDATE_TOPOLOGY );
+}
+
+/******************************************************************************/
+void g3dmesh_addFace ( G3DMESH *mes, 
+                       G3DFACE *fac ) {
+    uint32_t i;
+
+    list_insert ( &mes->faceList, fac );
+
+    fac->id = mes->faceCount++;
+    fac->owner = G3DOBJECTCAST(mes);
+
+    if ( fac->vertexCount == 0x03 ) {
+        list_insert ( &mes->triangleList, fac );
+
+        fac->typeID = mes->triangleCount++;
+    }
+
+    if ( fac->vertexCount == 0x04 ) {
+        list_insert ( &mes->quadList, fac );
+
+        fac->typeID = mes->quadCount++;
+    }
+
+    g3dmesh_attachFaceVertices  ( mes, fac );
+
+    /*** Create Edges if required ***/
+    g3dmesh_attachFaceEdges  ( mes, fac );
+
+    /*** Create UVSets if required ***/
+    g3dmesh_assignFaceUVSets ( mes, fac );
+
+    /* request force-updating the whole topology */
+    /*mes->invalidatedVertexCount = 0xFFFFFFFF;
+    mes->invalidatedEdgeCount   = 0xFFFFFFFF;
+    mes->invalidatedFaceCount   = 0xFFFFFFFF;*/
+
+    g3dmesh_invalidateFace ( mes, fac, INVALIDATE_TOPOLOGY );
 }
 
 /******************************************************************************/
 void g3dmesh_removeFace ( G3DMESH *mes,
                           G3DFACE *fac ) {
-    LIST *ltmpfacgrp = mes->lfacgrp;
+    LIST *ltmpfacgrp = mes->facegroupList;
     uint32_t i;
 
     list_remove ( &mes->faceList   , fac );
-    list_remove ( &mes->lselfac, fac );
+    list_remove ( &mes->selectedFaceList, fac );
 
     /*** this must be done prior to edge removing ***/
     /*** Commented out. A face keeps all UVSets until the its deletion ***/
     /*** from memory ***/
     /**if ( fac->nbuvs ) g3dface_removeAllUVSets ( fac );**/
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         G3DVERTEX *ver = fac->ver[i];
         G3DEDGE   *edg = fac->edg[i];
 
@@ -4256,37 +4146,39 @@ void g3dmesh_removeFace ( G3DMESH *mes,
         }
     }
 
-    mes->nbfac--;
+    mes->faceCount--;
 
-    if ( fac->nbver == 0x03 ) {
+    if ( fac->vertexCount == 0x03 ) {
         list_remove ( &mes->triangleList, fac );
 
-        mes->nbtri--;
+        mes->triangleCount--;
     }
 
-    if ( fac->nbver == 0x04 ) {
+    if ( fac->vertexCount == 0x04 ) {
         list_remove ( &mes->quadList, fac );
 
-        mes->nbqua--;
+        mes->quadCount--;
     }
+
+    g3dobject_invalidate ( ( G3DOBJECT * ) mes, INVALIDATE_TOPOLOGY );
 }
 
 /******************************************************************************/
 void g3dmesh_addWeightGroup ( G3DMESH        *mes,
                               G3DWEIGHTGROUP *grp ) {
-    list_insert ( &mes->lweigrp, grp );
+    list_insert ( &mes->weightgroupList, grp );
 
-    mes->nbweigrp++;
+    mes->weightgroupCount++;
 }
 
 /******************************************************************************/
 void g3dmesh_removeWeightGroup ( G3DMESH        *mes, 
                                  G3DWEIGHTGROUP *grp ) {
-    list_remove ( &mes->lweigrp, grp );
+    list_remove ( &mes->weightgroupList, grp );
 
     g3dmesh_emptyWeightgroup ( mes, grp );
 
-    mes->nbweigrp--;
+    mes->weightgroupCount--;
 }
 
 /******************************************************************************/
@@ -4313,12 +4205,7 @@ void g3dmesh_assignFaceUVSets ( G3DMESH *mes,
 
 /******************************************************************************/
 void g3dmesh_renumberVertices ( G3DMESH *mes ) {
-    if ( ((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) {
-        g3dsubvertex_renumberArray ( ( G3DSUBVERTEX * ) mes->lver, 
-                                                        mes->nbver );
-    } else {
-        g3dvertex_renumberList ( mes->lver, 0x00 );
-    }
+    g3dvertex_renumberList ( mes->vertexList, 0x00 );
 }
 
 /******************************************************************************/
@@ -4327,26 +4214,26 @@ void g3dmesh_renumberFaces ( G3DMESH *mes ) {
     uint32_t nb = 0x00, triID = 0x00, quaID = 0x00;
 
     while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
         fac->id = nb++;
-        fac->typeID = ( fac->nbver == 0x03 ) ? triID++ : quaID++;
+        fac->typeID = ( fac->vertexCount == 0x03 ) ? triID++ : quaID++;
 
-        _NEXTFACE(mes,ltmpfac);
+        ltmpfac = ltmpfac->next;
     }
 }
 
 /******************************************************************************/
 void g3dmesh_renumberEdges ( G3DMESH *mes ) {
-    LIST *ltmpedg = mes->ledg;
+    LIST *ltmpedg = mes->edgeList;
     uint32_t nb = 0x00;
 
     while ( ltmpedg ) {
-        G3DEDGE *edg = ( G3DEDGE * ) _GETEDGE(mes,ltmpedg);
+        G3DEDGE *edg = ( G3DEDGE * ) ltmpedg->data;
 
         edg->id = nb++;
 
-        _NEXTEDGE(mes,ltmpedg);
+        ltmpedg = ltmpedg->next;
     }
 }
 
@@ -4355,81 +4242,12 @@ void g3dmesh_attachFaceVertices ( G3DMESH *mes,
                                   G3DFACE *fac ) {
     uint32_t i;
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         g3dvertex_addFace ( fac->ver[i], fac );
     }
 }
 
-/******************************************************************************/
-void g3dmesh_invalidate ( G3DMESH *mes,
-                          uint64_t objectInvalidationflags,
-                          uint64_t meshInvalidationflags ) {
-    mes->meshInvalidationFlags |= meshInvalidationflags;
 
-    g3dobject_invalidate( ( G3DOBJECT * ) mes, objectInvalidationflags );
-}
-
-/******************************************************************************/
-static inline void _invalidateFace ( G3DMESH *mes,
-                                     G3DFACE *fac ) {
-    list_insert( &mes->invalidatedFaceList, fac );
-}
-
-/******************************************************************************/
-static inline void _invalidateEdge ( G3DMESH *mes,
-                                     G3DEDGE *edg ) {
-    list_insert( &mes->invalidatedEdgeList, fac );
-}
-
-/******************************************************************************/
-static inline void _invalidateVertex ( G3DMESH *mes,
-                                       G3DVERTEX *ver ) {
-    list_insert( &mes->invalidatedVertexList, fac );
-}
-
-/******************************************************************************/
-void g3dmesh_addFace ( G3DMESH *mes, 
-                       G3DFACE *fac ) {
-    uint32_t i;
-
-    list_insert ( &mes->faceList, fac );
-
-    fac->id = mes->nbfac++;
-
-    if ( fac->nbver == 0x03 ) {
-        list_insert ( &mes->triangleList, fac );
-
-        fac->typeID = mes->nbtri++;
-    }
-
-    if ( fac->nbver == 0x04 ) {
-        list_insert ( &mes->quadList, fac );
-
-        fac->typeID = mes->nbqua++;
-    }
-
-    g3dmesh_attachFaceVertices  ( mes, fac );
-
-    /*** Create Edges if required ***/
-    g3dmesh_attachFaceEdges  ( mes, fac );
-
-    /*** Create UVSets if required ***/
-    g3dmesh_assignFaceUVSets ( mes, fac );
-
-    mes->meshInvalidationFlags |= ( INVALIDATE_MESH_VERTEXNORMAL  |
-                                    INVALIDATE_MESH_FACEPOSITION  |
-                                    INVALIDATE_MESH_FACENORMAL );
-
-    _invalidateFace( mes, fac );
-
-    g3dmesh_invalidate( mes, 
-                        /* object invalidation flags */
-                        INVALIDATE_TOPOLOGY,
-                        /* mesh invalidation flags */
-                        INVALIDATE_MESH_VERTEXNORMAL  |
-                        INVALIDATE_MESH_FACEPOSITION  |
-                        INVALIDATE_MESH_FACENORMAL );
-}
 
 /******************************************************************************/
 void g3dmesh_free ( G3DOBJECT *obj ) {
@@ -4441,29 +4259,31 @@ void g3dmesh_free ( G3DOBJECT *obj ) {
     /*** about it ***/
     /*if ( mes->subpatterns ) g3dmesh_freeSubPatterns  ( mes, mes->subdiv );*/
 
-    list_free ( &mes->faceList   , LIST_FUNCDATA(g3dface_free)        );
-    list_free ( &mes->ledg   , LIST_FUNCDATA(g3dedge_free)        );
-    list_free ( &mes->lver   , LIST_FUNCDATA(g3dvertex_free)      );
-    list_free ( &mes->ltex   , LIST_FUNCDATA(g3dtexture_free)     );
-    list_free ( &mes->lfacgrp, LIST_FUNCDATA(g3dfacegroup_free)   );
-    list_free ( &mes->lweigrp, LIST_FUNCDATA(g3dweightgroup_free) );
-    list_free ( &mes->luvmap , LIST_FUNCDATA(g3duvmap_free)       );
+    list_free ( &mes->faceList       , LIST_FUNCDATA( g3dface_free )        );
+    list_free ( &mes->edgeList       , LIST_FUNCDATA( g3dedge_free )        );
+    list_free ( &mes->vertexList     , LIST_FUNCDATA( g3dvertex_free )      );
+    list_free ( &mes->textureList    , LIST_FUNCDATA( g3dtexture_free )     );
+    list_free ( &mes->facegroupList  , LIST_FUNCDATA( g3dfacegroup_free )   );
+    list_free ( &mes->weightgroupList, LIST_FUNCDATA( g3dweightgroup_free ) );
+    list_free ( &mes->uvmapList      , LIST_FUNCDATA( g3duvmap_free )       );
 
-    list_free ( &mes->lselfac   , NULL    );
-    list_free ( &mes->lseledg   , NULL    );
-    list_free ( &mes->lselver   , NULL    );
-    list_free ( &mes->lseltex   , NULL    );
-    list_free ( &mes->lselfacgrp, NULL    );
-    list_free ( &mes->lselweigrp, NULL );
-    list_free ( &mes->lseluvmap , NULL );
+    list_free ( &mes->quadList               , NULL );
+    list_free ( &mes->triangleList           , NULL );
+    list_free ( &mes->selectedFaceList       , NULL );
+    list_free ( &mes->selectedEdgeList       , NULL );
+    list_free ( &mes->selectedVertexList     , NULL );
+    list_free ( &mes->selectedTextureList    , NULL );
+    list_free ( &mes->selectedFacegroupList  , NULL );
+    list_free ( &mes->selectedWeightgroupList, NULL );
+    list_free ( &mes->selectedUvmapList      , NULL );
 }
 
 /******************************************************************************/
 G3DVERTEX *g3dmesh_getLastSelectedVertex ( G3DMESH *mes ) {
     /*** Because we used list_insert for selecting vertices, ***/
     /***  the last selected vertex is the first in the list. ***/
-    if ( mes->lselver ) {
-        return ( G3DVERTEX * ) mes->lselver->data;
+    if ( mes->selectedVertexList ) {
+        return ( G3DVERTEX * ) mes->selectedVertexList->data;
     }
 
     return NULL;
@@ -4472,8 +4292,8 @@ G3DVERTEX *g3dmesh_getLastSelectedVertex ( G3DMESH *mes ) {
 /******************************************************************************/
 void g3dmesh_invertFaceSelection ( G3DMESH *mes, 
                                    uint64_t engineFlags ) {
-    LIST *lselfac = list_copy ( mes->lselfac );
-    LIST *ltmpfac = lselfac;
+    LIST *selectedFaceList = list_copy ( mes->selectedFaceList );
+    LIST *ltmpfac = selectedFaceList;
 
     g3dmesh_unselectAllFaces ( mes );
     /*** the function below does not check already selected ***/
@@ -4488,16 +4308,14 @@ void g3dmesh_invertFaceSelection ( G3DMESH *mes,
         ltmpfac = ltmpfac->next;
     }
 
-    list_free ( &lselfac, NULL );
-
-    g3dmesh_update ( mes, 0x00, engineFlags );
+    list_free ( &selectedFaceList, NULL );
 }
 
 /******************************************************************************/
 void g3dmesh_invertEdgeSelection ( G3DMESH *mes,
                                    uint64_t engineFlags ) {
-    LIST *lseledg = list_copy ( mes->lseledg );
-    LIST *ltmpedg = lseledg;
+    LIST *selectedEdgeList = list_copy ( mes->selectedEdgeList );
+    LIST *ltmpedg = selectedEdgeList;
 
     g3dmesh_unselectAllEdges ( mes );
     /*** the function below does not check already selected ***/
@@ -4512,16 +4330,14 @@ void g3dmesh_invertEdgeSelection ( G3DMESH *mes,
         ltmpedg = ltmpedg->next;
     }
 
-    list_free ( &lseledg, NULL );
-
-    g3dmesh_update ( mes, 0x00, engineFlags );
+    list_free ( &selectedEdgeList, NULL );
 }
 
 /******************************************************************************/
 void g3dmesh_invertVertexSelection ( G3DMESH *mes,
                                      uint64_t engineFlags ) {
-    LIST *lselver = list_copy ( mes->lselver );
-    LIST *ltmpver = lselver;
+    LIST *selectedVertexList = list_copy ( mes->selectedVertexList );
+    LIST *ltmpver = selectedVertexList;
 
     g3dmesh_unselectAllVertices ( mes );
     /*** the function below does not check already selected ***/
@@ -4536,21 +4352,19 @@ void g3dmesh_invertVertexSelection ( G3DMESH *mes,
         ltmpver = ltmpver->next;
     }
 
-    list_free ( &lselver, NULL );
-
-    g3dmesh_update ( mes, 0x00, engineFlags );
+    list_free ( &selectedVertexList, NULL );
 }
 
 /******************************************************************************/
 void g3dmesh_unselectWeightGroup ( G3DMESH        *mes, 
                                    G3DWEIGHTGROUP *grp ) {
-    list_remove ( &mes->lselweigrp, grp );
+    list_remove ( &mes->selectedWeightgroupList, grp );
 
     grp->flags &= ~(WEIGHTGROUPSELECTED);
 
     mes->curgrp = NULL;
 
-    mes->nbselweigrp--;
+    mes->selectedWeightgroupCount--;
 
     g3dmesh_unpaintWeightgroup ( mes, grp );
 }
@@ -4561,13 +4375,13 @@ void g3dmesh_selectWeightGroup ( G3DMESH        *mes,
 
     if ( mes->curgrp ) g3dmesh_unselectWeightGroup ( mes, mes->curgrp );
 
-    list_insert ( &mes->lselweigrp, grp ); 
+    list_insert ( &mes->selectedWeightgroupList, grp ); 
 
     grp->flags |= WEIGHTGROUPSELECTED;
 
     mes->curgrp = grp;
 
-    mes->nbselweigrp++;
+    mes->selectedWeightgroupCount++;
 
     g3dmesh_paintWeightgroup ( mes, grp );
 }
@@ -4577,11 +4391,11 @@ void g3dmesh_unselectVertex ( G3DMESH   *mes,
                               G3DVERTEX *ver ) {
     /*g3dvertex_unselect ( ver );*/
 
-    list_remove ( &mes->lselver, ver );
+    list_remove ( &mes->selectedVertexList, ver );
 
     ver->flags &= ~(VERTEXSELECTED);
 
-    mes->nbselver--;
+    mes->selectedVertexCount--;
 }
 
 /******************************************************************************/
@@ -4589,17 +4403,17 @@ void g3dmesh_selectVertex ( G3DMESH   *mes,
                             G3DVERTEX *ver ) {
     /*g3dvertex_select ( ver );*/
 
-    list_insert ( &mes->lselver, ver ); 
+    list_insert ( &mes->selectedVertexList, ver ); 
 
     ver->flags |= VERTEXSELECTED;
 
-    mes->nbselver++;
+    mes->selectedVertexCount++;
 }
 
 /******************************************************************************/
 void g3dmesh_selectUniqueVertex ( G3DMESH   *mes, 
                                   G3DVERTEX *ver ) {
-    if ( list_seek ( mes->lselver, ver ) == NULL ) {
+    if ( list_seek ( mes->selectedVertexList, ver ) == NULL ) {
         g3dmesh_selectVertex ( mes, ver );
     }
 }
@@ -4607,7 +4421,7 @@ void g3dmesh_selectUniqueVertex ( G3DMESH   *mes,
 /******************************************************************************/
 G3DTEXTURE *g3dmesh_getTextureByID ( G3DMESH *mes, 
                                      uint32_t id ) {
-    LIST *ltmptex = mes->ltex;
+    LIST *ltmptex = mes->textureList;
     uint32_t texid = 0x00;
 
     while ( ltmptex ) {
@@ -4628,23 +4442,23 @@ G3DTEXTURE *g3dmesh_getTextureByID ( G3DMESH *mes,
 /******************************************************************************/
 void g3dmesh_selectTexture ( G3DMESH    *mes,
                              G3DTEXTURE *tex ) {
-    list_insert ( &mes->lseltex, tex ); 
+    list_insert ( &mes->selectedTextureList, tex ); 
 
     tex->flags |= TEXTURESELECTED;
 
 
-    mes->nbseltex++;
+    mes->selectedTextureCount++;
 }
 
 /******************************************************************************/
 void g3dmesh_unselectTexture ( G3DMESH    *mes, 
                                G3DTEXTURE *tex ) {
-    list_remove ( &mes->lseltex, tex );
+    list_remove ( &mes->selectedTextureList, tex );
 
     tex->flags &= ~(TEXTURESELECTED);
 
 
-    mes->nbseltex--;
+    mes->selectedTextureCount--;
 }
 
 /******************************************************************************/
@@ -4652,9 +4466,9 @@ void g3dmesh_unselectFace ( G3DMESH *mes,
                             G3DFACE *fac ) {
     g3dface_unsetSelected ( fac );
 
-    list_remove ( &mes->lselfac, fac );
+    list_remove ( &mes->selectedFaceList, fac );
 
-    mes->nbselfac--;
+    mes->selectedFaceCount--;
 }
 
 /******************************************************************************/
@@ -4662,15 +4476,15 @@ void g3dmesh_selectFace ( G3DMESH *mes,
                           G3DFACE *fac ) {
     g3dface_setSelected ( fac );
 
-    list_append ( &mes->lselfac, fac );
+    list_append ( &mes->selectedFaceList, fac );
 
-    mes->nbselfac++;
+    mes->selectedFaceCount++;
 }
 
 /******************************************************************************/
 void g3dmesh_selectUniqueFace ( G3DMESH *mes, 
                                 G3DFACE *fac ) {
-    if ( list_seek ( mes->lselfac, fac ) == NULL ) {
+    if ( list_seek ( mes->selectedFaceList, fac ) == NULL ) {
         g3dmesh_selectFace ( mes, fac );
     }
 }
@@ -4680,53 +4494,53 @@ void g3dmesh_unselectEdge ( G3DMESH *mes,
                             G3DEDGE *edg ) {
     g3dedge_unsetSelected ( edg );
 
-    list_remove ( &mes->lseledg, edg );
+    list_remove ( &mes->selectedEdgeList, edg );
 
-    mes->nbseledg--;
+    mes->selectedEdgeCount--;
 }
 
 /******************************************************************************/
 void g3dmesh_selectEdge ( G3DMESH *mes, G3DEDGE *edg ) {
     g3dedge_setSelected ( edg );
 
-    list_append ( &mes->lseledg, edg );
+    list_append ( &mes->selectedEdgeList, edg );
 
-    mes->nbseledg++;
+    mes->selectedEdgeCount++;
 }
 
 /******************************************************************************/
 void g3dmesh_selectUniqueEdge ( G3DMESH *mes, G3DEDGE *edg ) {
-    if ( list_seek ( mes->lseledg, edg ) == NULL ) {
+    if ( list_seek ( mes->selectedEdgeList, edg ) == NULL ) {
         g3dmesh_selectEdge ( mes, edg );
     }
 }
 
 /******************************************************************************/
 void g3dmesh_unselectAllFaces ( G3DMESH *mes ) {
-    list_free ( &mes->lselfac, (void(*)(void*)) g3dface_unsetSelected );
+    list_free ( &mes->selectedFaceList, (void(*)(void*)) g3dface_unsetSelected );
 
-    mes->nbselfac = 0x00;
+    mes->selectedFaceCount = 0x00;
 }
 
 /******************************************************************************/
 void g3dmesh_unselectAllTextures ( G3DMESH *mes ) {
-    list_free ( &mes->lseltex, (void(*)(void*)) g3dtexture_unsetSelected );
+    list_free ( &mes->selectedTextureList, (void(*)(void*)) g3dtexture_unsetSelected );
 
-    mes->nbseltex = 0x00;
+    mes->selectedTextureCount = 0x00;
 }
 
 /******************************************************************************/
 void g3dmesh_unselectAllVertices ( G3DMESH *mes ) {
-    list_free ( &mes->lselver, (void(*)(void*)) g3dvertex_unsetSelected );
+    list_free ( &mes->selectedVertexList, (void(*)(void*)) g3dvertex_unsetSelected );
 
-    mes->nbselver = 0x00;
+    mes->selectedVertexCount = 0x00;
 }
 
 /******************************************************************************/
 void g3dmesh_unselectAllEdges ( G3DMESH *mes ) {
-    list_free ( &mes->lseledg, (void (*)(void*)) g3dedge_unsetSelected );
+    list_free ( &mes->selectedEdgeList, (void (*)(void*)) g3dedge_unsetSelected );
 
-    mes->nbseledg = 0x00;
+    mes->selectedEdgeCount = 0x00;
 }
 
 /******************************************************************************/
@@ -4748,7 +4562,7 @@ G3DFACE *g3dmesh_getFaceByID ( G3DMESH *mes, uint32_t id ) {
 
 /******************************************************************************/
 G3DEDGE *g3dmesh_getEdgeByID ( G3DMESH *mes, uint32_t id ) {
-    LIST *ltmp = mes->ledg;
+    LIST *ltmp = mes->edgeList;
 
     while ( ltmp ) {
         G3DEDGE *edg = ( G3DEDGE * ) ltmp->data;
@@ -4765,16 +4579,16 @@ G3DEDGE *g3dmesh_getEdgeByID ( G3DMESH *mes, uint32_t id ) {
 
 /******************************************************************************/
 G3DVERTEX *g3dmesh_getVertexByID ( G3DMESH *mes, uint32_t id ) {
-    LIST *ltmp = mes->lver;
+    LIST *ltmpver = mes->vertexList;
 
-    while ( ltmp ) {
-        G3DVERTEX *ver = ( G3DVERTEX * ) ltmp->data;
+    while ( ltmpver ) {
+        G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
 
         if ( ver->id == id ) {
             return ver;
         }
 
-        ltmp = ltmp->next;
+        ltmpver = ltmpver->next;
     }
 
     return NULL;
@@ -4885,6 +4699,7 @@ void g3dmesh_fillSubdividedFaces ( G3DMESH *mes,
 }
 
 /******************************************************************************/
+/*
 void g3dmesh_onGeometryMove ( G3DMESH    *mes,
                               LIST       *vertexList,
                               LIST       *edgeList,
@@ -4901,46 +4716,56 @@ void g3dmesh_onGeometryMove ( G3DMESH    *mes,
     mes->invalidatedEdgeList   = edgeList;
     mes->invalidatedVertexList = vertexList;
 
-    g3dmesh_update ( mes, 0x00, engineFlags );
-
     g3dmesh_modify ( mes,
                      op,
                      engineFlags );
 }
-
+*/
 /******************************************************************************/
-void g3dmesh_transform ( G3DMESH *mes, uint64_t engineFlags ) {
-    LIST *ltmpuvmap = mes->luvmap;
-
-    /*** Commented out: too slow and unnecessary ***/
-    /*while ( ltmpuvmap ) {
-        G3DUVMAP *map = ( G3DUVMAP * ) ltmpuvmap->data;
-
-        g3dobject_updateMatrix ( ( G3DOBJECT * ) map, engineFlags );
-
-        ltmpuvmap = ltmpuvmap->next;
-    }*/
-}
-
-/******************************************************************************/
-void g3dmesh_init ( G3DMESH *mes, 
-                    uint32_t id, 
-                    char    *name,
-                    uint64_t engineFlags ) {
+void g3dmesh_init ( G3DMESH     *mes,
+                    uint32_t     id,
+                    char        *name,
+                    uint32_t    object_flags,
+                    uint32_t   (*Draw)      ( G3DOBJECT *,
+                                              G3DCAMERA *, 
+                                              G3DENGINE *, 
+                                              uint64_t ),
+                    void       (*Free)      ( G3DOBJECT * ),
+                    uint32_t   (*Pick)      ( G3DOBJECT *, G3DCAMERA *, 
+                                                           uint64_t ),
+                    void       (*Pose)      ( G3DOBJECT *, G3DKEY * ),
+                    G3DOBJECT* (*Copy)      ( G3DOBJECT *, uint32_t,
+                                                           const char *,
+                                                           uint64_t ),
+                    void       (*Activate)  ( G3DOBJECT *, uint64_t ),
+                    void       (*Deactivate)( G3DOBJECT *, uint64_t ),
+                    G3DOBJECT* (*Commit)    ( G3DOBJECT *, uint32_t,
+                                                           const char *,
+                                                           uint64_t ),
+                    void       (*AddChild)  ( G3DOBJECT *, G3DOBJECT *,
+                                                           uint64_t ),
+                    void       (*SetParent) ( G3DOBJECT *, 
+                                              G3DOBJECT *, 
+                                              G3DOBJECT *, 
+                                              uint64_t ) ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     /*G3DMESHPOSEEXTENSION *ext = g3dmeshposeextension_new ( );*/
 
-    g3dobject_init ( obj, G3DMESHTYPE, id, name, 0x00,
-                                   DRAW_CALLBACK(g3dmesh_draw),
-                                   FREE_CALLBACK(g3dmesh_free),
-                                   PICK_CALLBACK(g3dmesh_pick),
-                                                 NULL,
-                                   COPY_CALLBACK(g3dmesh_copy),
-                                                 NULL,
-                                                 NULL,
-                                                 NULL,
-                               ADDCHILD_CALLBACK(g3dmesh_addChild),
-                                                 NULL );
+    g3dobject_init ( obj,
+                     G3DMESHTYPE,
+                     id,
+                     name,
+                     0x00,      /* object_flags */
+                     Draw       ? Draw       : DRAW_CALLBACK(g3dmesh_draw),
+                     Free       ? Free       : FREE_CALLBACK(g3dmesh_free),
+                     Pick       ? Pick       : PICK_CALLBACK(g3dmesh_pick),
+                     Pose       ? Pose       : NULL,
+                     Copy       ? Copy       : COPY_CALLBACK(g3dmesh_copy),
+                     Activate   ? Activate   : NULL,
+                     Deactivate ? Deactivate : NULL,
+                     Commit     ? Commit     : NULL,
+                     AddChild   ? AddChild   : ADDCHILD_CALLBACK(g3dmesh_addChild),
+                     SetParent  ? SetParent  : NULL );
 
 
     obj->transform = TRANSFORM_CALLBACK(g3dmesh_transform);
@@ -4953,15 +4778,79 @@ void g3dmesh_init ( G3DMESH *mes,
 
     mes->gouraudScalarLimit = cos ( 90 * M_PI / 180 );
 
-    mes->onGeometryMove = g3dmesh_onGeometryMove;
+    /*mes->onGeometryMove = g3dmesh_onGeometryMove;*/
 
     mes->dump           = g3dmesh_default_dump;
     mes->obj.update     = UPDATE_CALLBACK(g3dmesh_update);
+
+    mes->invalidatedVertexList = ( LIST * ) calloc ( MAX_INVALIDATED_VERTICES,
+                                                     sizeof ( LIST ) );
+    mes->invalidatedFaceList   = ( LIST * ) calloc ( MAX_INVALIDATED_FACES,
+                                                     sizeof ( LIST ) );
+    mes->invalidatedEdgeList   = ( LIST * ) calloc ( MAX_INVALIDATED_EDGES,
+                                                     sizeof ( LIST ) );
 
     /*** mesh have morph capacities ***/
     /*g3dobject_addExtension ( ( G3DOBJECT* ) mes, ext );
 
     g3dmeshposeextension_createPose ( ext, "test" );*/
+}
+
+/******************************************************************************/
+void g3dmesh_invalidateEdge ( G3DMESH *mes,
+                              G3DEDGE *edg,
+                              uint64_t invalidationFlags ) {
+    if( mes->invalidatedEdgeCount < MAX_INVALIDATED_EDGES ) {
+        LIST *prev = mes->invalidatedEdgeCount ?
+                    &mes->invalidatedEdgeList[mes->invalidatedEdgeCount-1]
+                    : NULL;
+
+        mes->invalidatedEdgeList[mes->invalidatedEdgeCount].prev = prev;
+        mes->invalidatedEdgeList[mes->invalidatedEdgeCount].data = edg;
+        mes->invalidatedEdgeList[mes->invalidatedEdgeCount].next = NULL;
+
+        mes->invalidatedEdgeCount++;
+    }
+
+    g3dobject_invalidate ( ( G3DOBJECT * ) mes, invalidationFlags );
+}
+
+/******************************************************************************/
+void g3dmesh_invalidateFace ( G3DMESH *mes,
+                              G3DFACE *fac,
+                              uint64_t invalidationFlags ) {
+    if( mes->invalidatedFaceCount < MAX_INVALIDATED_FACES ) {
+        LIST *prev = mes->invalidatedFaceCount ?
+                    &mes->invalidatedFaceList[mes->invalidatedFaceCount-1]
+                    : NULL;
+
+        mes->invalidatedFaceList[mes->invalidatedFaceCount].prev = prev;
+        mes->invalidatedFaceList[mes->invalidatedFaceCount].data = fac;
+        mes->invalidatedFaceList[mes->invalidatedFaceCount].next = NULL;
+
+        mes->invalidatedFaceCount++;
+    }
+
+    g3dobject_invalidate ( ( G3DOBJECT * ) mes, invalidationFlags );
+}
+
+/******************************************************************************/
+void g3dmesh_invalidateVertex ( G3DMESH   *mes,
+                                G3DVERTEX *ver,
+                                uint64_t  invalidationFlags ) {
+    if( mes->invalidatedVertexCount < MAX_INVALIDATED_VERTICES ) {
+        LIST *prev = mes->invalidatedVertexCount ?
+                    &mes->invalidatedVertexList[mes->invalidatedVertexCount-1]
+                    : NULL;
+
+        mes->invalidatedVertexList[mes->invalidatedVertexCount].prev = prev;
+        mes->invalidatedVertexList[mes->invalidatedVertexCount].data = ver;
+        mes->invalidatedVertexList[mes->invalidatedVertexCount].next = NULL;
+
+        mes->invalidatedVertexCount++;
+    }
+
+    g3dobject_invalidate ( ( G3DOBJECT * ) mes, invalidationFlags );
 }
 
 /******************************************************************************/
@@ -4979,4 +4868,114 @@ G3DMESH *g3dmesh_new ( uint32_t id,
     g3dmesh_init ( mes, id, name, engineFlags );
 
     return mes;
+}
+
+
+/******************************************************************************/
+void g3dmesh_transform ( G3DMESH *mes, uint64_t engineFlags ) {
+    LIST *ltmpuvmap = mes->uvmapList;
+
+    /*** Commented out: too slow and unnecessary ***/
+    /*while ( ltmpuvmap ) {
+        G3DUVMAP *map = ( G3DUVMAP * ) ltmpuvmap->data;
+
+        g3dobject_updateMatrix ( ( G3DOBJECT * ) map, engineFlags );
+
+        ltmpuvmap = ltmpuvmap->next;
+    }*/
+}
+
+/******************************************************************************/
+void g3dmesh_update ( G3DMESH *mes,
+                      uint64_t updateFlags,
+                      uint64_t engineFlags ) {
+    G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
+
+    if ( ( objmes->invalidationFlags & INVALIDATE_TOPOLOGY ) ||
+         ( objmes->invalidationFlags & INVALIDATE_SHAPE    ) ) {
+
+        LIST *ltmpfac = ( mes->invalidatedFaceCount < MAX_INVALIDATED_FACES ) ?
+                          mes->invalidatedFaceList
+                        : mes->faceList;
+        /*** Always update face first. Vertices normals are computed from it***/
+        while ( ltmpfac ) {
+            G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+
+            g3dface_position ( fac );
+            g3dface_normal   ( fac );
+
+            ltmpfac = ltmpfac->next;
+        }
+    }
+
+    if ( ( objmes->invalidationFlags & INVALIDATE_TOPOLOGY ) ||
+         ( objmes->invalidationFlags & INVALIDATE_SHAPE    ) ) {
+
+        LIST *ltmpver = ( mes->invalidatedVertexCount < MAX_INVALIDATED_VERTICES ) ?
+                          mes->invalidatedVertexList
+                        : mes->vertexList;
+
+        /*** Update Vertices normals ***/
+        while ( ltmpver ) {
+            G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+
+            /*** Face Point and Edge Point are update during the vertex's   ***/
+            /*** normal vector update, because usually the vertex's normal  ***/
+            /*** vector is updated when the vertex is moved. This way, both ***/
+            /*** face and edge points are updated when a vertex is moved.   ***/
+
+            /*g3dvertex_normal ( ver, COMPUTEFACEPOINT | COMPUTEEDGEPOINT );*/
+            g3dvertex_updateNormal ( ver, 0 );
+
+            ltmpver = ltmpver->next;
+        }
+    }
+
+    if ( mes->obj.invalidationFlags & INVALIDATE_UVMAPPING ) {
+        LIST *lmap = g3dobject_getChildrenByType ( ( G3DOBJECT * ) mes, G3DUVMAPTYPE );
+        LIST *ltmpmap = lmap;
+
+        while ( ltmpmap ) {
+            G3DUVMAP *map = ( G3DUVMAP * ) ltmpmap->data;
+            G3DOBJECT *objmap = ( G3DOBJECT * ) map;
+
+            LIST *ltmpfac = ( mes->invalidatedFaceCount < MAX_INVALIDATED_FACES ) ?
+                              mes->invalidatedFaceList
+                            : mes->faceList;
+
+            while ( ltmpfac ) {
+                G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
+
+            /*** Dont remap if the UVMap is fixed ***/
+    /*** TODO - Remap if non-existent even if UVMAPFIXED ***/
+                if ( ( objmap->flags & UVMAPFIXED ) == 0x00 ) {
+                    if ( fac->uvsetList ) {
+                        g3duvmap_mapFace ( map, mes, fac );
+                    }
+                }
+
+                ltmpfac = ltmpfac->next;
+            }
+
+            ltmpmap = ltmpmap->next;
+        }
+
+        list_free ( &lmap, NULL );
+    }
+
+    if ( mes->obj.invalidationFlags & INVALIDATE_MODIFIER_STACK_RESET ) {
+        g3dmesh_modify ( mes,
+                         G3DMODIFYOP_MODIFY,
+                         engineFlags );
+    }
+
+    if( ( updateFlags & UPDATE_INTERACTIVE ) == 0x00 ) {
+        mes->invalidatedFaceList[0x00].next   = NULL;
+        mes->invalidatedEdgeList[0x00].next   = NULL;
+        mes->invalidatedVertexList[0x00].next = NULL;
+
+        mes->invalidatedFaceCount   = 0x00;
+        mes->invalidatedEdgeCount   = 0x00;
+        mes->invalidatedVertexCount = 0x00;
+    }
 }

@@ -57,7 +57,7 @@ void g3dmesh_getMin ( G3DMESH *mes, float *xmin,
 void g3dobject_getMin_r ( G3DOBJECT *obj, float *xmin, 
                                           float *ymin, 
                                           float *zmin ) {
-    LIST *ltmpobj = obj->lchildren;
+    LIST *ltmpobj = obj->childList;
 
 
     if ( obj->type == G3DMESHTYPE ) {
@@ -82,8 +82,8 @@ void g3dmesh_exportStlA ( G3DMESH *mes, float xmin,
                                         FILE *fdst,
                                         uint32_t save_flags ) {
     G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
-    LIST *ltmpver = mes->lver;
-    LIST *ltmpfac = mes->lfac;
+    LIST *ltmpver = mes->vertexList;
+    LIST *ltmpfac = mes->faceList;
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -91,7 +91,7 @@ void g3dmesh_exportStlA ( G3DMESH *mes, float xmin,
         uint32_t *id = index;
         G3DVECTOR3F facnor;
 
-        for ( j = 0x00; j < fac->nbver; j += 0x03 ) {
+        for ( j = 0x00; j < fac->vertexCount; j += 0x03 ) {
             G3DVECTOR3F verpos[0x03];
             G3DVECTOR3F v0v1, v0v2;
 
@@ -154,7 +154,7 @@ static void g3dobject_exportStlA_r ( G3DOBJECT *obj, float xmin,
                                                      float zmin,
                                                      FILE *fdst,
                                                      uint32_t save_flags ) {
-    LIST *ltmpchildren = obj->lchildren;
+    LIST *ltmpchildren = obj->childList;
 
     if ( obj->type == G3DMESHTYPE ) {
         g3dmesh_exportStlA ( ( G3DMESH * ) obj, xmin, 

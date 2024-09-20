@@ -168,11 +168,11 @@ void gtk3_g3duicoordinatesedit_update ( GTK3G3DUICOORDINATESEDIT *gtk3cedit ) {
                 G3DMESH *mes = ( G3DMESH * ) obj;
 
                 if ( gui->engine_flags & VIEWVERTEX ) {
-                    g3dvertex_getAveragePositionFromList ( mes->lselver, &pos );
+                    g3dvertex_getAveragePositionFromList ( mes->selectedVertexList, &pos );
                 }
 
                 if ( gui->engine_flags & VIEWFACE ) {
-                    g3dface_getAveragePositionFromList ( mes->lselfac, &pos );
+                    g3dface_getAveragePositionFromList ( mes->selectedFaceList, &pos );
                 }
             }
 

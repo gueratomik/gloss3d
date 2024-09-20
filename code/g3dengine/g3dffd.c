@@ -69,7 +69,7 @@ static G3DOBJECT *g3dffd_commit ( G3DFFD        *ffd,
             g3dvector3f_matrixf ( &origin, ffd->mod.oriobj->worldMatrix, &wmespos );
             g3dvector3f_matrixf ( &wmespos, ffd->mod.mes.obj.inverseWorldMatrix, &lmespos );
 
-            for ( i = 0x00; i < parmes->nbver; i++ ) {
+            for ( i = 0x00; i < parmes->vertexCount; i++ ) {
                 ffd->mod.verpos[i].x -= lmespos.x;
                 ffd->mod.verpos[i].y -= lmespos.y;
                 ffd->mod.verpos[i].z -= lmespos.z;
@@ -81,7 +81,7 @@ static G3DOBJECT *g3dffd_commit ( G3DFFD        *ffd,
                             engine_flags );
 
             /*** adjust back :-/ ***/
-            for ( i = 0x00; i < parmes->nbver; i++ ) {
+            for ( i = 0x00; i < parmes->vertexCount; i++ ) {
                 ffd->mod.verpos[i].x += lmespos.x;
                 ffd->mod.verpos[i].y += lmespos.y;
                 ffd->mod.verpos[i].z += lmespos.z;
@@ -165,7 +165,7 @@ static uint32_t g3dffd_modify ( G3DFFD     *ffd,
             g3dvector3f_matrixf ( &origin, ffd->mod.oriobj->worldMatrix, &wmespos );
             g3dvector3f_matrixf ( &wmespos, ffd->mod.mes.obj.inverseWorldMatrix, &lmespos );
 
-            if ( orimes->nbver ) {
+            if ( orimes->vertexCount ) {
                 uint32_t i, j, k;
                 float xaxis = ( ffd->locmax.x - ffd->locmin.x ),
                       yaxis = ( ffd->locmax.y - ffd->locmin.y ),
@@ -175,23 +175,23 @@ static uint32_t g3dffd_modify ( G3DFFD     *ffd,
                       difz = ( 1.0f / ffd->nbz );
                 float x, y, z;
                 uint32_t n = 0x00;
-                LIST *ltmpver = orimes->lver;
+                LIST *ltmpver = orimes->vertexList;
 
-                if ( op == G3DMODIFYOP_MODIFY     ) ltmpver = orimes->lver;
+                if ( op == G3DMODIFYOP_MODIFY     ) ltmpver = orimes->vertexList;
                 /*** when parent mesh's verticces are moved ***/
-                if ( op == G3DMODIFYOP_UPDATE     ) ltmpver = orimes->lselver;
+                if ( op == G3DMODIFYOP_UPDATE     ) ltmpver = orimes->selectedVertexList;
                 /*** when FFD's vertices are moved ***/
-                if ( op == G3DMODIFYOP_UPDATESELF ) ltmpver = orimes->lver;
+                if ( op == G3DMODIFYOP_UPDATESELF ) ltmpver = orimes->vertexList;
 
                 if ( op == G3DMODIFYOP_MODIFY ) {
                     ffd->mod.verpos = ( G3DVECTOR3F * ) realloc ( ffd->mod.verpos, 
-                                                                orimes->nbver * 
+                                                                orimes->vertexCount * 
                                                                 sizeof ( G3DVECTOR3F ) );
                     ffd->mod.vernor = ( G3DVECTOR3F * ) realloc ( ffd->mod.vernor, 
-                                                                orimes->nbver *  
+                                                                orimes->vertexCount *  
                                                                 sizeof ( G3DVECTOR3F ) );
                     ffd->uvw        = ( G3DVECTOR3F * ) realloc ( ffd->uvw, 
-                                                                orimes->nbver *
+                                                                orimes->vertexCount *
                                                                 sizeof ( G3DVECTOR3F ) );
                 }
 
@@ -249,7 +249,7 @@ static uint32_t g3dffd_modify ( G3DFFD     *ffd,
 
 /******************************************************************************/
 static void g3dffd_onGeometryMove ( G3DFFD     *ffd,
-                                    LIST       *lver, 
+                                    LIST       *vertexList, 
                                     LIST       *ledg,
                                     LIST       *lfac,
                                     G3DMODIFYOP op,
@@ -340,9 +340,9 @@ void g3dffd_shape ( G3DFFD *ffd, uint32_t nbx,
                     ( nby + 0x01 ) *
                     ( nbz + 0x01 ) * structsize;
 
-    list_free ( &((G3DMESH*)ffd)->lver, NULL );
-    list_free ( &((G3DMESH*)ffd)->lselver, NULL );
-    ((G3DMESH*)ffd)->nbver = 0x00;
+    list_free ( &((G3DMESH*)ffd)->vertexList, NULL );
+    list_free ( &((G3DMESH*)ffd)->selectedVertexList, NULL );
+    ((G3DMESH*)ffd)->vertexCount = 0x00;
 
     ffd->pnt = ( G3DVERTEX * ) realloc ( ffd->pnt, size );
 
@@ -529,8 +529,8 @@ void g3dffd_free ( G3DOBJECT *obj ) {
 
     if ( ffd->pnt ) free ( ffd->pnt );
 
-    list_free ( &((G3DMESH*)ffd)->lver, NULL );
-    list_free ( &((G3DMESH*)ffd)->lselver, NULL );
+    list_free ( &((G3DMESH*)ffd)->vertexList, NULL );
+    list_free ( &((G3DMESH*)ffd)->selectedVertexList, NULL );
 
 
     if ( ffd->uvw        ) free ( ffd->uvw        );

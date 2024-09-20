@@ -32,8 +32,8 @@
 /******************************************************************************/
 void g3dmesh_exportObj ( G3DMESH *mes, FILE *fdst, uint32_t save_flags ) {
     G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
-    LIST *ltmpver = mes->lver;
-    LIST *ltmpfac = mes->lfac;
+    LIST *ltmpver = mes->vertexList;
+    LIST *ltmpfac = mes->faceList;
 
     fprintf ( fdst, "o %s\n", objmes->name );
 
@@ -52,7 +52,7 @@ void g3dmesh_exportObj ( G3DMESH *mes, FILE *fdst, uint32_t save_flags ) {
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
-        if ( fac->nbver == 0x03 ) {
+        if ( fac->vertexCount == 0x03 ) {
             fprintf ( fdst, "f %d %d %d\n"   , ( fac->ver[0x00]->id + 0x01 ),
                                                ( fac->ver[0x01]->id + 0x01 ),
                                                ( fac->ver[0x02]->id + 0x01 ) );
@@ -79,7 +79,7 @@ void g3dmesh_exportObj ( G3DMESH *mes, FILE *fdst, uint32_t save_flags ) {
 
 /******************************************************************************/
 static void g3dobject_exportObj_r ( G3DOBJECT *obj, FILE *fdst, uint32_t save_flags ) {
-    LIST *ltmpchildren = obj->lchildren;
+    LIST *ltmpchildren = obj->childList;
 
     if ( obj->type == G3DMESHTYPE ) {
         g3dmesh_exportObj ( ( G3DMESH * ) obj, fdst, save_flags );

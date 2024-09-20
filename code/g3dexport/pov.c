@@ -54,15 +54,15 @@ void g3dcamera_exportPov ( G3DCAMERA *cam, FILE *fdst, uint32_t save_flags ) {
 /******************************************************************************/
 void g3dmesh_exportPov ( G3DMESH *mes, FILE *fdst, uint32_t save_flags ) {
     G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
-    LIST *ltmpver = mes->lver;
-    LIST *ltmpfac = mes->lfac;
+    LIST *ltmpver = mes->vertexList;
+    LIST *ltmpfac = mes->faceList;
 
     fprintf ( fdst, "mesh { \n" );
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
-        if ( fac->nbver == 0x03 ) {
+        if ( fac->vertexCount == 0x03 ) {
             G3DVECTOR3F pos0, pos1, pos2;
             G3DVECTOR3F nor0, nor1, nor2;
 
@@ -133,7 +133,7 @@ void g3dmesh_exportPov ( G3DMESH *mes, FILE *fdst, uint32_t save_flags ) {
 
 /******************************************************************************/
 static void g3dobject_exportPov_r ( G3DOBJECT *obj, FILE *fdst, uint32_t save_flags ) {
-    LIST *ltmpchildren = obj->lchildren;
+    LIST *ltmpchildren = obj->childList;
 
     if ( obj->type == G3DMESHTYPE ) {
         g3dmesh_exportPov ( ( G3DMESH * ) obj, fdst, save_flags );

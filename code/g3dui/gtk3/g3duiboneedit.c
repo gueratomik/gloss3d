@@ -108,7 +108,7 @@ static void updateRiggingPanel ( GTK3G3DUIBONEEDIT *gtk3bed ) {
                                                                             G3DSKINTYPE );
 
                     if ( skn ) {
-                        LIST *ltmpgrp = mes->lweigrp;
+                        LIST *ltmpgrp = mes->weightgroupList;
 
                         while ( ltmpgrp ) {
                             G3DWEIGHTGROUP *weigrp = ( G3DWEIGHTGROUP * ) ltmpgrp->data;

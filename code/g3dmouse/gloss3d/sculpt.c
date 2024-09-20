@@ -170,7 +170,7 @@ static uint32_t actionSculptVertex ( uint64_t name, SUBDIVIDERPICKDATA *spd ) {
 
         usfe = urmsculptfaceextension_new ( fse, fac );
 
-        for ( i = 0x00; i < fse->nbver; i++ ) {
+        for ( i = 0x00; i < fse->vertexCount; i++ ) {
             switch ( sdr->sculptMode ) {
                 case SCULPTMODE_SCULPT :
                     memcpy ( &usfe->pos[i],

@@ -100,7 +100,7 @@ void g3dimportv3morpher ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) 
                 G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
                 /*** Note: this is not efficient and should be ***/
                 /*** buffered somewhere ***/
-                G3DVERTEX **ver = ( G3DVERTEX ** ) list_to_reversed_array ( mes->lver );
+                G3DVERTEX **ver = ( G3DVERTEX ** ) list_to_reversed_array ( mes->vertexList );
                 uint32_t nbver;
                 uint32_t i;
 

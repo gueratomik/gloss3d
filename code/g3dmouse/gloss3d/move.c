@@ -505,9 +505,9 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                             }
 
                             list_free ( &lseluv, NULL );
-
+/*
                             parmes->obj.invalidationFlags |= RESETMODIFIERS;
-
+*/
                             /** TODO: do this only for subdivided meshes ***/
                             g3dmesh_update ( parmes, 0x00, engine_flags );
 
@@ -551,7 +551,7 @@ static int move_morpher ( G3DMORPHER   *mpr,
     if ( obj->parent->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) obj->parent;
 
-        if ( mpr->selmpose ) {
+        if ( mpr->selectedPose ) {
             switch ( event->type ) {
                 case G3DButtonPress : {
                     if ( engine_flags & VIEWVERTEX ) {
@@ -698,7 +698,7 @@ static int move_morpher ( G3DMORPHER   *mpr,
 
                                 g3durm_morpher_moveVertices ( urm,
                                                               mpr,
-                                                              mpr->selmpose,
+                                                              mpr->selectedPose,
                                                               lver,
                                                               oldpos, 
                                                               newpos, 

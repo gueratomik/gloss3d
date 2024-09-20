@@ -96,12 +96,12 @@ void splitMesh_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     /*** delete created mesh ***/
     g3dobject_removeChild ( ((G3DOBJECT*)mes)->parent, 
                             (G3DOBJECT*)sms->splmes, engine_flags );
-
+/*
     mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
-
+*/
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
 }
@@ -122,12 +122,12 @@ void splitMesh_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     /*** add created vertex ***/
     g3dobject_addChild ( ((G3DOBJECT*)mes)->parent,
                           (G3DOBJECT*)sms->splmes, engine_flags );
-
+/*
     mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
-
+*/
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
 }
@@ -152,21 +152,21 @@ void g3durm_mesh_split ( G3DURMANAGER *urm,
                                           engine_flags );
 
     g3dobject_addChild ( ((G3DOBJECT*)mes)->parent, ( G3DOBJECT * ) splmes, engine_flags );
-
+/*
     mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
-
+*/
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
-
+/*
     splmes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                   UPDATEFACENORMAL   |
                                   UPDATEVERTEXNORMAL |
                                   COMPUTEUVMAPPING   |
                                   RESETMODIFIERS );
-
+*/
     g3dmesh_update ( splmes, 0x00, engine_flags );
 
     sms = urmSplitMesh_new ( mes, splmes, loldver, loldfac );

@@ -41,7 +41,7 @@ G3DBONE *g3dbone_clone ( G3DBONE *bon, uint32_t recurse,
     g3dobject_addChild ( objbon->parent, ( G3DOBJECT * ) cloned, engineFlags );
 
     if ( recurse ) {
-        LIST *ltmpchildren = objbon->lchildren;
+        LIST *ltmpchildren = objbon->childList;
 
         while ( ltmpchildren ) {
             G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
@@ -117,7 +117,8 @@ void g3dbone_transform ( G3DBONE *bon,
                                       rig->defmatrix );
 
                 /*** mark for update ***/
-                rig->skn->mod.mes.obj.invalidationFlags |= UPDATESKIN;
+                g3dobject_invalidate( ( G3DOBJECT * ) rig->skn,
+                                                      INVALIDATE_SHAPE );
             }
 
             ltmprig = ltmprig->next;
@@ -322,7 +323,7 @@ LIST *g3dbone_getAllWeightGroups ( G3DBONE *bon ) {
     while ( ltmpmes ) {
         G3DMESH *mes = ( G3DMESH * ) ltmpmes->data;
         char *mesname = ((G3DOBJECT*)mes)->name;
-        LIST *ltmpgrp = mes->lweigrp;
+        LIST *ltmpgrp = mes->weightgroupList;
 
         while ( ltmpgrp ) {
             G3DWEIGHTGROUP *grp = ( G3DWEIGHTGROUP * ) ltmpgrp->data;
@@ -345,7 +346,7 @@ LIST *g3dbone_getAllWeightGroups ( G3DBONE *bon ) {
 void g3dbone_getMeshes_r ( G3DBONE *bon, 
                            LIST   **lmes ) {
     LIST *ltmprig = bon->lrig;
-    LIST *ltmpobj = ((G3DOBJECT*)bon)->lchildren;
+    LIST *ltmpobj = ((G3DOBJECT*)bon)->childList;
 
     while ( ltmprig ) {
         G3DRIG  *rig = ( G3DRIG * ) ltmprig->data;
@@ -506,7 +507,7 @@ void g3dbone_fix ( G3DBONE *bon, uint64_t engineFlags ) {
 /******************************************************************************/
 void g3dbone_fix_r ( G3DBONE *bon, uint64_t engineFlags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
-    LIST *ltmpobj = objbon->lchildren;
+    LIST *ltmpobj = objbon->childList;
 
     g3dbone_fix ( bon, engineFlags );
 
@@ -556,7 +557,7 @@ void g3dbone_unfix ( G3DBONE *bon,
 void g3dbone_unfix_r ( G3DBONE *bon,
                        uint64_t engineFlags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
-    LIST *ltmpobj = objbon->lchildren;
+    LIST *ltmpobj = objbon->childList;
 
     g3dbone_unfix ( bon, engineFlags );
 

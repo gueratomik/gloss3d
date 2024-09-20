@@ -144,10 +144,12 @@ void g3dobject_updateMeshes_r ( G3DOBJECT *obj, uint64_t engineFlags ) {
     /*** when loading a g3d file ***/
     if ( obj->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
-
+/*
         mes->obj.invalidationFlags |= ( UPDATEVERTEXNORMAL |
                                         UPDATEFACENORMAL |
                                         RESETMODIFIERS );
+*/
+        g3dobject_invalidate( obj, INVALIDATE_MODIFIER_STACK_RESET );
 
         /*** Rebuild mesh ***/
         g3dmesh_update ( mes, 0x00, engineFlags );
@@ -351,7 +353,7 @@ void g3dobject_removeKey ( G3DOBJECT *obj,
 
     list_remove ( &obj->keyList, key );
 
-    obj->nbkey--;
+    obj->keyCount--;
 
     g3dobject_unsetKeyTransformations ( obj, 
                                         key,
@@ -533,8 +535,8 @@ static void g3dobject_moveSelectedKeys ( G3DOBJECT *obj,
     /*** cases were a not-selected key must reconnect with a selected key   ***/
     /*** and disconnect from a not-selected key, because the stitching goes ***/
     /***  from t to t+1, not ominidirectionnal  ***/
-    uint32_t nbkey = list_count ( obj->keyList );
-    MOVEDKEY *movedKey = ( MOVEDKEY * ) calloc ( nbkey, sizeof ( MOVEDKEY ) );
+    uint32_t keyCount = list_count ( obj->keyList );
+    MOVEDKEY *movedKey = ( MOVEDKEY * ) calloc ( keyCount, sizeof ( MOVEDKEY ) );
     int OP[0x03] = { KEYPOSITION, KEYROTATION, KEYSCALING };
     LIST *ltmpkey = obj->keyList;
     uint32_t i = 0x00, j;
@@ -572,14 +574,14 @@ static void g3dobject_moveSelectedKeys ( G3DOBJECT *obj,
     }
 
     /*** second pass ***/
-    for ( i = 0x00; i < nbkey; i++ ) {
+    for ( i = 0x00; i < keyCount; i++ ) {
         if ( movedKey[i].key->flags & KEYSELECTED ) {
             if ( func ) func ( movedKey[i].key, funcData );
         }
     }
 
     /*** Third pass ****/
-    for ( i = 0x00; i < nbkey; i++ ) {
+    for ( i = 0x00; i < keyCount; i++ ) {
         for ( j = 0x00; j < 0x03; j++ ) {
             if ( movedKey[i].flags & OP[j] ) {
                 G3DKEY *key = movedKey[i].key;
@@ -656,7 +658,7 @@ static void g3dobject_moveSelectedKeys ( G3DOBJECT *obj,
                                       laddedRotSegments,
                                       laddedScaSegments );
 
-    if ( nbkey ) free ( movedKey );
+    if ( keyCount ) free ( movedKey );
 }
 
 /******************************************************************************/
@@ -1354,7 +1356,7 @@ G3DKEY *g3dobject_addKey ( G3DOBJECT *obj,
 
     list_insert ( &obj->keyList, key );
 
-    obj->nbkey++;
+    obj->keyCount++;
 
     g3dobject_setKeyTransformations ( obj,
                                       key,
@@ -1544,7 +1546,7 @@ void g3dobject_removeChild ( G3DOBJECT *obj,
     G3DOBJECT *oldParent = child->parent;
 
     list_remove ( &obj->childList, child );
-    list_remove ( &obj->invalidatedchildList, child );
+    list_remove ( &obj->invalidatedChildList, child );
 
     /*** This field is used in "deleteSelectedItems_undo()" ***/
     /*** we need it not to be NULL, that's why I comment it ***/
@@ -1580,7 +1582,7 @@ void g3dobject_removeTag ( G3DOBJECT *obj,
     if ( tag->remove ) tag->remove ( tag, obj, 0x00 );
 
     /*** this should be in some dedicated func ***/
-    obj->seltag = NULL;
+    obj->selectedTag = NULL;
 }
 
 /******************************************************************************/
@@ -1864,7 +1866,7 @@ void g3dobject_invalidate( G3DOBJECT *obj,
 
     if( parent ) {
         if ( list_seek( obj->parent->invalidatedChildList, obj ) == NULL ) {
-            list_add( &obj->parent->invalidatedChildList, obj );
+            list_insert( &obj->parent->invalidatedChildList, obj );
 
             while ( parent ) {
                 uint64_t transmittedInvalidationFlags = 0;
@@ -1875,11 +1877,11 @@ void g3dobject_invalidate( G3DOBJECT *obj,
                 transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_COLOR                 ) << INVALIDATE_CHILD_SHIFT );
                 transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_MODIFIER_STACK_RESET  ) << INVALIDATE_CHILD_SHIFT );
                 transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_MODIFIER_STACK_UPDATE ) << INVALIDATE_CHILD_SHIFT );
-                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_CHILD_SHAPE                 );
-                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_CHILD_TOPOLOGY              );
-                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_CHILD_COLOR                 );
-                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_CHILD_MODIFIER_STACK_RESET  );
-                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_CHILD_MODIFIER_STACK_UPDATE );
+                transmittedInvalidationFlags |= (   invalidationFlags & INVALIDATE_CHILD_SHAPE                 );
+                transmittedInvalidationFlags |= (   invalidationFlags & INVALIDATE_CHILD_TOPOLOGY              );
+                transmittedInvalidationFlags |= (   invalidationFlags & INVALIDATE_CHILD_COLOR                 );
+                transmittedInvalidationFlags |= (   invalidationFlags & INVALIDATE_CHILD_MODIFIER_STACK_RESET  );
+                transmittedInvalidationFlags |= (   invalidationFlags & INVALIDATE_CHILD_MODIFIER_STACK_UPDATE );
 
                 g3dobject_invalidate( parent, transmittedInvalidationFlags );
 
@@ -1889,9 +1891,9 @@ void g3dobject_invalidate( G3DOBJECT *obj,
     }
 }
 
-
+/*
 TODO: add / remove object from invalidateChildList when added/removed
-
+*/
 
 /******************************************************************************/
 void g3dobject_update ( G3DOBJECT *obj,
@@ -1910,7 +1912,7 @@ void g3dobject_update ( G3DOBJECT *obj,
 void g3dobject_update_r ( G3DOBJECT *obj,
                           uint64_t   updateFlags,
                           uint64_t   engineFlags ) {
-    LIST *ltmpchild = ( obj->invalidationflags & INVALIDATE_HIERARCHY ) ? obj->childList;
+    LIST *ltmpchild = ( obj->invalidationFlags & INVALIDATE_HIERARCHY ) ? obj->childList
                                                                         : obj->invalidatedChildList;
 
     g3dobject_update ( obj, updateFlags, engineFlags );
@@ -2229,6 +2231,8 @@ void g3dobject_init ( G3DOBJECT   *obj,
 
         obj->name = NULL;
     }
+
+    obj->invalidationFlags = INVALIDATE_ALL;
 
     obj->draw       = ( Draw       ) ? Draw       : g3dobject_default_draw;
     obj->free       = ( Free       ) ? Free       : g3dobject_default_free;

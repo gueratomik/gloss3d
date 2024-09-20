@@ -69,9 +69,9 @@ URMSCULPTFACEEXTENSION *urmsculptfaceextension_new ( G3DFACESCULPTEXTENSION *fse
     usf->fse = fse;
     usf->fac = fac;
 
-    usf->pos = calloc ( fse->nbver, sizeof ( G3DVECTOR4F ) );
-    usf->nor = calloc ( fse->nbver, sizeof ( G3DVECTOR3F ) );
-    usf->hei = calloc ( fse->nbver, sizeof ( G3DHEIGHT   ) );
+    usf->pos = calloc ( fse->vertexCount, sizeof ( G3DVECTOR4F ) );
+    usf->nor = calloc ( fse->vertexCount, sizeof ( G3DVECTOR3F ) );
+    usf->hei = calloc ( fse->vertexCount, sizeof ( G3DHEIGHT   ) );
 
     return usf;
 }
@@ -120,42 +120,42 @@ void sculptFace_undo ( G3DURMANAGER *urm,
     while ( ltmpusfe ) {
         URMSCULPTFACEEXTENSION *usfe = ( URMSCULPTFACEEXTENSION * ) ltmpusfe->data;
 
-        if ( usfe->fse->nbver ) {
+        if ( usfe->fse->vertexCount ) {
 
 
             switch ( usf->sdr->sculptMode ) {
                 case SCULPTMODE_SCULPT : {
-                    G3DVECTOR4F *tmp = calloc ( usfe->fse->nbver, sizeof ( G3DVECTOR4F ) );
+                    G3DVECTOR4F *tmp = calloc ( usfe->fse->vertexCount, sizeof ( G3DVECTOR4F ) );
 
                     memcpy ( tmp, 
                              usfe->fse->pos, 
-                             usfe->fse->nbver * sizeof ( G3DVECTOR4F ) );
+                             usfe->fse->vertexCount * sizeof ( G3DVECTOR4F ) );
 
                     memcpy ( usfe->fse->pos,
                              usfe->pos,
-                             usfe->fse->nbver * sizeof ( G3DVECTOR4F ) );
+                             usfe->fse->vertexCount * sizeof ( G3DVECTOR4F ) );
 
                     memcpy ( usfe->pos, 
                              tmp, 
-                             usfe->fse->nbver * sizeof ( G3DVECTOR4F ) );
+                             usfe->fse->vertexCount * sizeof ( G3DVECTOR4F ) );
 
                     free ( tmp );
                 } break;
 
                 default : {
-                    G3DHEIGHT *tmp = calloc ( usfe->fse->nbver, sizeof ( G3DHEIGHT ) );
+                    G3DHEIGHT *tmp = calloc ( usfe->fse->vertexCount, sizeof ( G3DHEIGHT ) );
 
                     memcpy ( tmp, 
                              usfe->fse->hei, 
-                             usfe->fse->nbver * sizeof ( G3DHEIGHT ) );
+                             usfe->fse->vertexCount * sizeof ( G3DHEIGHT ) );
 
                     memcpy ( usfe->fse->hei,
                              usfe->hei,
-                             usfe->fse->nbver * sizeof ( G3DHEIGHT ) );
+                             usfe->fse->vertexCount * sizeof ( G3DHEIGHT ) );
 
                     memcpy ( usfe->hei, 
                              tmp, 
-                             usfe->fse->nbver * sizeof ( G3DHEIGHT ) );
+                             usfe->fse->vertexCount * sizeof ( G3DHEIGHT ) );
 
                     free ( tmp );
                 } break;

@@ -151,7 +151,7 @@ static void drawKeysFromObject ( GTK3G3DUITIMELINE *gtk3tim,
                                  cairo_t           *cr,
                                  uint32_t           width,
                                  uint32_t           height ) {
-    LIST *ltmpkey = obj->lkey;
+    LIST *ltmpkey = obj->keyList;
 
     while ( ltmpkey ) {
         G3DKEY *key = ( G3DKEY * ) ltmpkey->data;

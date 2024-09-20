@@ -47,14 +47,14 @@ static uint32_t g3dexportv3subdivider_scultmapGeometry ( G3DEXPORTV3DATA    *ged
         case SCULPTMODE_SCULPT :
             size += g3dexportv3_fwrite ( esm->fse->pos,
                                          sizeof ( G3DVECTOR4F ),
-                                         esm->fse->nbver,
+                                         esm->fse->vertexCount,
                                          fdst );
         break;
 
         default :
             size += g3dexportv3_fwrite ( esm->fse->hei,
                                          sizeof ( G3DHEIGHT ),
-                                         esm->fse->nbver,
+                                         esm->fse->vertexCount,
                                          fdst );
         break;
     }
@@ -128,7 +128,7 @@ static uint32_t g3dexportv3subdivider_sculptmaps ( G3DEXPORTV3DATA *ged,
                                                    uint32_t         flags, 
                                                    FILE            *fdst ) {
     G3DMESH *mes = ( G3DMESH * ) sdr->mod.oriobj;
-    LIST *ltmpfac = mes->lfac;
+    LIST *ltmpfac = mes->faceList;
     uint32_t size = 0x00;
 
     size += g3dexportv3_writeChunk ( SIG_OBJECT_SUBDIVIDER_SCULPTMAPS_RESOLUTION,
@@ -146,7 +146,7 @@ static uint32_t g3dexportv3subdivider_sculptmaps ( G3DEXPORTV3DATA *ged,
                                      fdst );
 
     while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) _GETFACE(mes,ltmpfac);
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
         G3DFACESCULPTEXTENSION *fse = ( G3DFACESCULPTEXTENSION  * ) g3dface_getExtension ( fac,
                                                                               ( uint64_t ) sdr );
 
@@ -162,7 +162,7 @@ static uint32_t g3dexportv3subdivider_sculptmaps ( G3DEXPORTV3DATA *ged,
                                              fdst );
         }
 
-        _NEXTFACE(mes,ltmpfac);
+        ltmpfac = ltmpfac->next;
     }
 
 

@@ -30,11 +30,11 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-void g3dsubvertex_renumberArray ( G3DSUBVERTEX *subver, uint32_t nbver ) {
+void g3dsubvertex_renumberArray ( G3DSUBVERTEX *subver, uint32_t vertexCount ) {
     uint32_t vertexID = 0x00;
     uint32_t i;
 
-    for ( i = 0x00; i < nbver; i++ ) {
+    for ( i = 0x00; i < vertexCount; i++ ) {
         subver[i].ver.id = vertexID++;
     }
 }
@@ -47,8 +47,8 @@ void g3dsubvertex_elevate ( G3DSUBVERTEX *subver,
                             uint32_t      sculptMode ) {
     G3DVECTOR3F pos = { 0.0f, 0.0f, 0.0f };
     G3DHEIGHT hei = { 0.0f, 0.0f };
-    LIST *ltmpfac = subver->ver.lfac;
-    uint32_t nbfac = 0x00;
+    LIST *ltmpfac = subver->ver.faceList;
+    uint32_t faceCount = 0x00;
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -58,7 +58,7 @@ void g3dsubvertex_elevate ( G3DSUBVERTEX *subver,
         if ( fse && qua_indexes && tri_indexes ) {
             uint32_t i;
 
-            for ( i = 0x00; i < fac->nbver; i++ ) {
+            for ( i = 0x00; i < fac->vertexCount; i++ ) {
                 if ( fac->ver[i] == ( G3DVERTEX * ) subver ) {
                     uint32_t verID = ( fac->flags & FACEFROMQUAD ) ? qua_indexes[fac->id][i] :
                                                                      tri_indexes[fac->id][i];
@@ -69,7 +69,7 @@ void g3dsubvertex_elevate ( G3DSUBVERTEX *subver,
                                 pos.y += fse->pos[verID].y;
                                 pos.z += fse->pos[verID].z;
 
-                                nbfac++;
+                                faceCount++;
                             }
                         break;
 
@@ -77,7 +77,7 @@ void g3dsubvertex_elevate ( G3DSUBVERTEX *subver,
                             if ( fse->hei[verID].w ) {
                                 hei.s += fse->hei[verID].s;
 
-                                nbfac++;
+                                faceCount++;
                             }
                         break;
                     }
@@ -88,14 +88,14 @@ void g3dsubvertex_elevate ( G3DSUBVERTEX *subver,
         ltmpfac = ltmpfac->next;
     }
 
-    if ( nbfac ) {
-        float elevation = hei.s / nbfac;
+    if ( faceCount ) {
+        float elevation = hei.s / faceCount;
 
         switch ( sculptMode ) {
             case SCULPTMODE_SCULPT :
-                subver->ver.pos.x += ( pos.x / nbfac );
-                subver->ver.pos.y += ( pos.y / nbfac );
-                subver->ver.pos.z += ( pos.z / nbfac );
+                subver->ver.pos.x += ( pos.x / faceCount );
+                subver->ver.pos.y += ( pos.y / faceCount );
+                subver->ver.pos.z += ( pos.z / faceCount );
             break;
 
             default :
@@ -111,21 +111,21 @@ void g3dsubvertex_elevate ( G3DSUBVERTEX *subver,
 void g3dsubvertex_resetEdgeList ( G3DSUBVERTEX *subver ) {
     memset ( subver->ledgbuf, 0x00, sizeof ( subver->ledgbuf ) );
 
-    subver->ver.ledg  = NULL;
-    subver->ver.nbedg = 0x00;
+    subver->ver.edgeList  = NULL;
+    subver->ver.edgeCount = 0x00;
 }
 
 /******************************************************************************/
 void g3dsubvertex_resetFaceList ( G3DSUBVERTEX *subver ) {
     memset ( subver->lfacbuf, 0x00, sizeof ( subver->lfacbuf ) );
 
-    subver->ver.lfac  = NULL;
-    subver->ver.nbfac = 0x00;
+    subver->ver.faceList  = NULL;
+    subver->ver.faceCount = 0x00;
 }
 
 /******************************************************************************/
 void g3dsubvertex_addEdge ( G3DSUBVERTEX *subver, G3DEDGE *edg ) {
-    LIST *nextledg = subver->ver.ledg;
+    LIST *nextledg = subver->ver.edgeList;
 
     if ( subver->ver.flags & VERTEXMALLOCEDGES ) {
         g3dvertex_addEdge ( ( G3DVERTEX * ) subver, edg );
@@ -133,16 +133,16 @@ void g3dsubvertex_addEdge ( G3DSUBVERTEX *subver, G3DEDGE *edg ) {
         return;
     }
 
-    subver->ver.ledg       = &subver->ledgbuf[subver->ver.nbedg];
-    subver->ver.ledg->next = nextledg;
-    subver->ver.ledg->data = edg;
+    subver->ver.edgeList       = &subver->ledgbuf[subver->ver.edgeCount];
+    subver->ver.edgeList->next = nextledg;
+    subver->ver.edgeList->data = edg;
 
-    subver->ver.nbedg++;
+    subver->ver.edgeCount++;
 }
 
 /******************************************************************************/
 void g3dsubvertex_addFace ( G3DSUBVERTEX *subver, G3DFACE *fac ) {
-    LIST *nextlfac = subver->ver.lfac;
+    LIST *nextlfac = subver->ver.faceList;
 
     if ( subver->ver.flags & VERTEXMALLOCFACES ) {
         g3dvertex_addFace ( ( G3DVERTEX * ) subver, fac );
@@ -150,9 +150,9 @@ void g3dsubvertex_addFace ( G3DSUBVERTEX *subver, G3DFACE *fac ) {
         return;
     }
 
-    subver->ver.lfac       = &subver->lfacbuf[subver->ver.nbfac];
-    subver->ver.lfac->next = nextlfac;
-    subver->ver.lfac->data = fac;
+    subver->ver.faceList       = &subver->lfacbuf[subver->ver.faceCount];
+    subver->ver.faceList->next = nextlfac;
+    subver->ver.faceList->data = fac;
 
-    subver->ver.nbfac++;
+    subver->ver.faceCount++;
 }

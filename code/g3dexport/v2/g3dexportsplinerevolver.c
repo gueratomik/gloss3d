@@ -36,8 +36,8 @@ static uint32_t g3dexportv2splinerevolver_geometry ( G3DEXPORTV2DATA     *ged,
                                                    FILE             *fdst ) {
     uint32_t size = 0x00;
 
-    size += g3dexportv2_fwritel ( &srv->nbsteps, fdst );
-    size += g3dexportv2_fwritel ( &srv->nbdivis, fdst );
+    size += g3dexportv2_fwritel ( &srv->stepCount, fdst );
+    size += g3dexportv2_fwritel ( &srv->divisionCount, fdst );
 
     return size;
 }

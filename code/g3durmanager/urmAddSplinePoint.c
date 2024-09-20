@@ -83,7 +83,7 @@ void addSplinePoint_undo ( G3DURMANAGER *urm,
     g3dcurve_removePoint ( asp->spline->curve, asp->pt, NULL );
 
     /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( asp->spline, NULL, RESETMODIFIERS, engine_flags );
+    g3dspline_update ( asp->spline, NULL, 0, engine_flags );
 }
 
 /******************************************************************************/
@@ -99,7 +99,7 @@ void addSplinePoint_redo ( G3DURMANAGER *urm,
     if ( asp->seg ) g3dcurve_addSegment ( asp->spline->curve, asp->seg );
 
     /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( asp->spline, NULL, RESETMODIFIERS, engine_flags );
+    g3dspline_update ( asp->spline, NULL, 0, engine_flags );
 }
 
 /******************************************************************************/
@@ -124,7 +124,7 @@ void g3durm_spline_addPoint ( G3DURMANAGER     *urm,
     }
 
     /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( spline, NULL, RESETMODIFIERS, engine_flags );
+    g3dspline_update ( spline, NULL, 0, engine_flags );
 
     /* remember it for undoing */
     asp = urmAddSplinePoint_new ( spline, pt, seg );

@@ -46,7 +46,7 @@ void g3dsymmetry_convert_r ( G3DOBJECT *obj,
                              G3DOBJECT *ori, /* original object */
                              float    *MVX,
                              uint64_t   engine_flags ) {
-    LIST *ltmpchildren = ori->lchildren;
+    LIST *ltmpchildren = ori->childList;
 
     while ( ltmpchildren ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
@@ -66,7 +66,7 @@ void g3dsymmetry_convert_r ( G3DOBJECT *obj,
                                                   ( G3DOBJECT * ) child );
 
                 symmes = ( G3DMESH * ) symobj;
-                LIST *ltmpver = symmes->lver;
+                LIST *ltmpver = symmes->vertexList;
 
                 while ( ltmpver ) {
                     G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -144,7 +144,7 @@ G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
                                LIST       **loldobj, 
                                uint64_t     engine_flags ) {
     G3DOBJECT *symobj = ( G3DOBJECT * ) sym;
-    LIST *ltmp = symobj->lchildren;
+    LIST *ltmp = symobj->childList;
     G3DMESH *symmes = g3dmesh_new ( symobj->id, "Mesh", engine_flags );
 
     g3dobject_importTransformations ( ( G3DOBJECT * ) symmes,
@@ -160,7 +160,7 @@ G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
             G3DVERTEX **oriver = ( G3DVERTEX ** ) calloc ( mes->nbver, ptrsize );
             /*** mirrored vertices array ***/
             G3DVERTEX **symver = ( G3DVERTEX ** ) calloc ( mes->nbver, ptrsize );
-            LIST *lver = mes->lver;
+            LIST *vertexList = mes->vertexList;
             LIST *lfac = mes->lfac;
             uint32_t verid = 0x00;
 
@@ -168,8 +168,8 @@ G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
             list_insert ( loldobj, child );
 
             /*** copy and mirror vertices ***/
-            while ( lver ) {
-                G3DVERTEX *ver = ( G3DVERTEX * ) lver->data;
+            while ( vertexList ) {
+                G3DVERTEX *ver = ( G3DVERTEX * ) vertexList->data;
                 G3DVECTOR3F pos;
 
                 ver->id = verid++;
@@ -195,7 +195,7 @@ G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
                     g3dmesh_addVertex ( symmes, symver[ver->id] );
                 }
 
-                lver = lver->next;
+                vertexList = vertexList->next;
             }
 
             /*** copy and mirror faces ***/
@@ -260,7 +260,7 @@ G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
 /*****************************************************************************/
 void g3dsymmetry_meshChildChange ( G3DSYMMETRY *sym, 
                                    G3DMESH     *mes ) {
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
 
     while ( ltmpver ) {
         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
@@ -331,7 +331,7 @@ uint32_t g3dsymmetry_draw ( G3DOBJECT *obj,
                             uint64_t   engine_flags ) {
     uint64_t next_engine_flags = engine_flags;
     G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
-    LIST *ltmpobj = obj->lchildren;
+    LIST *ltmpobj = obj->childList;
 #ifdef need_refactor
     /* Alternate symmety flags in case of nested symmetry objects */
     if ( engine_flags & SYMMETRYVIEW ) {

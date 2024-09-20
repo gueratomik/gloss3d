@@ -388,7 +388,7 @@ static uint32_t actionPaintVertex ( uint64_t name, MESHPICKDATA *mpd ) {
         ver->flags |= VERTEXPAINTED;
     }
 
-    /*g3dmesh_update ( mes, lselver,
+    /*g3dmesh_update ( mes, selectedVertexList,
                           NULL,
                           NULL,
                           UPDATEMODIFIERS,
@@ -818,11 +818,11 @@ static int weight_tool ( G3DMOUSETOOL *mou,
         	        G3DMESH *mes = ( G3DMESH * ) obj;
 
         	        /*** If there is no weightGroup, add one ***/
-        	        if ( mes->lweigrp == NULL ) {
+        	        if ( mes->weightgroupList == NULL ) {
                 	    G3DWEIGHTGROUP *grp;
                 	    char buf[0x20];
 
-                	    snprintf ( buf, 0x20, "WeightGroup%02i", mes->nbweigrp );
+                	    snprintf ( buf, 0x20, "WeightGroup%02i", mes->weightgroupCount );
 
                 	    grp = g3dweightgroup_new ( mes, buf );
 
@@ -1041,20 +1041,20 @@ int pick_tool ( G3DMOUSETOOL *mou,
                             G3DMESH *mes = ( G3DMESH * ) obj->parent;
 
         		            if ( engine_flags & VIEWVERTEX ) {
-                                LIST *lmprver = list_copy ( mpr->lver );
+                                LIST *lmprver = list_copy ( mpr->vertexList );
 
-                	            lselold = list_copy ( mes->lselver );
+                	            lselold = list_copy ( mes->selectedVertexList );
 
                 	            pick_Item ( pt, sce, cam, ctrlClick, engine_flags );
 
-                	            lselnew = list_copy ( mes->lselver );
+                	            lselnew = list_copy ( mes->selectedVertexList );
 
                 	            /*** remember selection ***/
                                 if ( lselold || lselnew ) {
                                     g3durm_morpher_selectVertexPose ( urm,
                                                                       sce,
                                                                       mpr,
-                                                                      mpr->selmpose,
+                                                                      mpr->selectedPose,
                                                                       lmprver,
                                                                       lselold,
                                                                       lselnew,
@@ -1092,7 +1092,7 @@ int pick_tool ( G3DMOUSETOOL *mou,
 
                         if ( mes ) {
         		            if ( engine_flags & VIEWSCULPT ) {
-                	            lselold = list_copy ( mes->lselfac );
+                	            lselold = list_copy ( mes->selectedFaceList );
 
                 	            pick_Item ( pt, 
                                             sce, 
@@ -1100,7 +1100,7 @@ int pick_tool ( G3DMOUSETOOL *mou,
                                             ctrlClick, 
                                             engine_flags );
 
-                	            lselnew = list_copy ( mes->lselfac );
+                	            lselnew = list_copy ( mes->selectedFaceList );
 
                 	            /*** remember selection ***/
                                 if ( lselold || lselnew ) {
@@ -1111,9 +1111,9 @@ int pick_tool ( G3DMOUSETOOL *mou,
                                                              lselnew,
                                                              engine_flags,
                                                              REDRAWVIEW );
-
+/*
                                     mes->obj.invalidationFlags |= RESETMODIFIERS;
-
+*/
                 	                g3dmesh_update ( mes, 0x00, engine_flags );
                                 }
                             }
@@ -1125,11 +1125,11 @@ int pick_tool ( G3DMOUSETOOL *mou,
                 	    G3DMESH *mes = ( G3DMESH * ) obj;
 
         		        if ( engine_flags & VIEWVERTEX ) {
-                	        lselold = list_copy ( mes->lselver );
+                	        lselold = list_copy ( mes->selectedVertexList );
 
                 	        pick_Item ( pt, sce, cam, ctrlClick, engine_flags );
 
-                	        lselnew = list_copy ( mes->lselver );
+                	        lselnew = list_copy ( mes->selectedVertexList );
 
                 	        /*** remember selection ***/
                             if ( lselold || lselnew ) {
@@ -1146,11 +1146,11 @@ int pick_tool ( G3DMOUSETOOL *mou,
         		        /*********************************/
         		        if ( engine_flags & VIEWEDGE ) {
                 	        G3DMESH *mes = ( G3DMESH * ) obj;
-                	        lselold = list_copy ( mes->lseledg );
+                	        lselold = list_copy ( mes->selectedEdgeList );
 
                 	        pick_Item ( pt, sce, cam, ctrlClick, engine_flags );
 
-                	        lselnew = list_copy ( mes->lseledg );
+                	        lselnew = list_copy ( mes->selectedEdgeList );
 
                 	        /*** remember selection ***/
                             if ( lselold || lselnew ) {
@@ -1167,11 +1167,11 @@ int pick_tool ( G3DMOUSETOOL *mou,
         		        /*********************************/
         	            if ( ( engine_flags & VIEWFACE ) ) {
                 	        G3DMESH *mes = ( G3DMESH * ) obj;
-                	        lselold = list_copy ( mes->lselfac );
+                	        lselold = list_copy ( mes->selectedFaceList );
 
                 	        pick_Item ( pt, sce, cam, ctrlClick, engine_flags );
 
-                	        lselnew = list_copy ( mes->lselfac );
+                	        lselnew = list_copy ( mes->selectedFaceList );
 
                 	        /*** remember selection ***/
                             if ( lselold || lselnew ) {
@@ -1182,9 +1182,9 @@ int pick_tool ( G3DMOUSETOOL *mou,
                                                          lselnew,
                                                          engine_flags,
                                                          REDRAWVIEW );
-
+/*
                                 mes->obj.invalidationFlags |= RESETMODIFIERS;
-
+*/
                 	            g3dmesh_update ( mes, 0x00, engine_flags );
                             }
         	            }

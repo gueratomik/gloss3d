@@ -63,10 +63,10 @@ static uint32_t g3dexportv2uvmap_UVSets ( G3DEXPORTV2DATA  *ged,
                                         uint32_t        flags, 
                                         FILE           *fdst ) {
     G3DMESH *mes = ( G3DMESH * ) ged->currentObject;
-    LIST *ltmpfac = mes->lfac;
+    LIST *ltmpfac = mes->faceList;
     uint32_t size = 0x00;
 
-    size += g3dexportv2_fwritel ( &mes->nbfac, fdst );
+    size += g3dexportv2_fwritel ( &mes->faceCount, fdst );
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;

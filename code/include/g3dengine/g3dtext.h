@@ -42,12 +42,12 @@ extern "C" {
 /******************************************************************************/
 typedef struct _G3DCHARACTER {
     uint32_t code;
-    LIST    *lver;
-    LIST    *ledg;
-    LIST    *lfac;
-    uint32_t nbver;
-    uint32_t nbedg;
-    uint32_t nbfac;
+    LIST    *vertexList;
+    LIST    *edgeList;
+    LIST    *faceList;
+    uint32_t vertexCount;
+    uint32_t edgeCount;
+    uint32_t faceCount;
     float    width;
 } G3DCHARACTER;
 

@@ -43,7 +43,7 @@ URMOBJECTREMOVEKEYS *urmObjectRemoveKeys_new ( G3DOBJECT *obj ) {
     }
 
     ork->obj  = obj;
-    ork->lkey = list_copy ( obj->lselkey );
+    ork->lkey = list_copy ( obj->selectedKeyList );
 
     return ork;
 }
@@ -101,9 +101,9 @@ void objectRemoveKeys_undo ( G3DURMANAGER *urm,
 
         /*** Note: here we cannot use g3dobject_addKey because  ***/
         /*** it also performs segment creation and stuff ***/
-        list_execargdata ( ork->lkey, LIST_FUNCARGDATA(list_insert), &ork->obj->lkey );
+        list_execargdata ( ork->lkey, LIST_FUNCARGDATA(list_insert), &ork->obj->keyList );
 
-        ork->obj->nbkey += list_count ( ork->lkey );
+        ork->obj->keyCount += list_count ( ork->lkey );
 
         list_execargdata ( ork->lremovedPosSegments, LIST_FUNCARGDATA(g3dcurve_addSegment), ork->obj->curve[0x00] );
         list_execargdata ( ork->lremovedRotSegments, LIST_FUNCARGDATA(g3dcurve_addSegment), ork->obj->curve[0x01] );
@@ -128,9 +128,9 @@ void objectRemoveKeys_redo ( G3DURMANAGER *urm,
 
         /*** Note: here we cannot use g3dobject_addKey because  ***/
         /*** it also performs segment creation and stuff ***/
-        list_execargdata ( ork->lkey, LIST_FUNCARGDATA(list_remove), &ork->obj->lkey );
+        list_execargdata ( ork->lkey, LIST_FUNCARGDATA(list_remove), &ork->obj->keyList );
 
-        ork->obj->nbkey -= list_count ( ork->lkey );
+        ork->obj->keyCount -= list_count ( ork->lkey );
 
         list_execargdata ( ork->lremovedPosSegments, LIST_FUNCARGDATA(g3dcurve_removeSegment), ork->obj->curve[0x00] );
         list_execargdata ( ork->lremovedRotSegments, LIST_FUNCARGDATA(g3dcurve_removeSegment), ork->obj->curve[0x01] );

@@ -43,7 +43,7 @@ static URMINVERTNORMAL *urminvertnormal_new ( G3DMESH *mes ) {
     }
 
     ins->mes  = mes;
-    ins->lfac = list_copy ( mes->lselfac );
+    ins->lfac = list_copy ( mes->selectedFaceList );
 
 
     return ins;
@@ -72,12 +72,12 @@ static void invertNormal_undo ( G3DURMANAGER *urm,
     G3DMESH *mes = ins->mes;
 
     list_exec ( ins->lfac, (void (*)(void *)) g3dface_invertNormal );
-
+/*
     mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
-
+*/
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
 }
@@ -102,12 +102,12 @@ void g3durm_mesh_invertNormal ( G3DURMANAGER *urm,
     ins = urminvertnormal_new ( mes );
 
     g3dmesh_invertNormal ( mes );
-
+/*
     mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
-
+*/
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
 

@@ -87,7 +87,7 @@ void g3durm_mesh_createFacegroup ( G3DURMANAGER *urm,
                                    const char   *name,
                                    uint64_t engine_flags,
                                    uint32_t      return_flags ) {
-    G3DFACEGROUP *facgrp = g3dfacegroup_new ( name, mes->lselfac );
+    G3DFACEGROUP *facgrp = g3dfacegroup_new ( name, mes->selectedFaceList );
     URMCREATEFACEGROUP *ucf;
 
     g3dmesh_addFacegroup ( mes, facgrp );

@@ -109,12 +109,12 @@ static void weldVertices_undo ( G3DURMANAGER *urm,
 
     /*** restore deleted faces ***/
     list_execargdata ( wvs->loldfac, (void(*)(void*,void*)) g3dmesh_addFace, mes );
-
+/*
     mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
-
+*/
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
 }
@@ -139,12 +139,12 @@ static void weldVertices_redo ( G3DURMANAGER *urm,
 
     /*** restore new faces ***/
     list_execargdata ( wvs->lnewfac, (void(*)(void*,void*)) g3dmesh_addFace, mes );
-
+/*
     mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
-
+*/
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
 }
@@ -156,7 +156,7 @@ void g3durm_mesh_weldSelectedVertices ( G3DURMANAGER *urm,
                                         uint64_t      engine_flags,
                                         uint32_t      return_flags ) {
     URMWELDVERTICES *wvs;
-    LIST *loldver = list_copy ( mes->lselver );
+    LIST *loldver = list_copy ( mes->selectedVertexList );
     LIST *loldfac = NULL,
          *lnewfac = NULL;
     G3DVERTEX *newver;
@@ -166,12 +166,12 @@ void g3durm_mesh_weldSelectedVertices ( G3DURMANAGER *urm,
 
     if ( newver ) {
         list_insert ( &lnewver, newver );
-
+/*
         mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                    UPDATEFACENORMAL   |
                                    UPDATEVERTEXNORMAL |
                                    RESETMODIFIERS );
-
+*/
         /*** Rebuild the mesh with modifiers ***/
         g3dmesh_update ( mes, 0x00, engine_flags );
 
@@ -204,12 +204,12 @@ void g3durm_mesh_weldNeighbourVertices ( G3DURMANAGER *urm,
                                     &lnewver, 
                                     &loldfac, 
                                     &lnewfac );
-
+/*
     mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
-
+*/
     /*** Rebuild the mesh with modifiers ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
 

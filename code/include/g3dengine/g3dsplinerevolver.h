@@ -45,9 +45,19 @@ extern "C" {
  */
 typedef struct _G3DSPLINEREVOLVER {
     G3DMODIFIER   mod;  /*** Bone inherits G3DOBJECT        ***/
-    uint32_t      nbsteps;
-    uint32_t      nbdivis;
-    G3DUVSET     *uvs;
+    /* for the new topology */
+    G3DSUBVERTEX *subvertexArray; /* SUB* struct have embedded topology */
+    G3DSUBFACE   *subfaceArray;   /* SUB* struct have embedded topology */
+    G3DSUBEDGE   *subedgeArray;   /* SUB* struct have embedded topology */
+    LIST         *subfaceList;    /* An array simulating a list */
+    LIST         *subedgeList;    /* An array simulating a list */
+    LIST         *subvertexList;  /* An array simulating a list */
+    uint32_t      subvertexCount;
+    uint32_t      subedgeCount;
+    uint32_t      subfaceCount;
+    uint32_t      stepCount;
+    uint32_t      divisionCount;
+    G3DUVSET     *uvset;
 } G3DSPLINEREVOLVER;
 
 /******************************************************************************/

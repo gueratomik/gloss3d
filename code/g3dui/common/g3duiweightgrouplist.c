@@ -40,7 +40,7 @@ G3DWEIGHTGROUP *g3duiweightgrouplist_getWeightGroup ( G3DUIWEIGHTGROUPLIST *wgrp
 
     if ( obj && ( obj->type == G3DMESHTYPE ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
-        LIST *ltmpgrp = mes->lweigrp;
+        LIST *ltmpgrp = mes->weightgroupList;
         float y = 0;
 
         while ( ltmpgrp ) {
@@ -90,7 +90,7 @@ uint64_t g3duiweightgrouplist_addWeightGroup ( G3DUIWEIGHTGROUPLIST *wgrplist ) 
         G3DMESH *mes = ( G3DMESH * ) obj;
         char buf[0x20];
 
-        snprintf ( buf, 0x20, "VertexWeightGroup%02i", mes->nbweigrp );
+        snprintf ( buf, 0x20, "VertexWeightGroup%02i", mes->weightgroupCount );
 
         g3dmesh_addWeightGroup ( mes, g3dweightgroup_new ( mes, buf ) );
     }
@@ -130,11 +130,11 @@ uint64_t g3duiweightgrouplist_deleteSelected ( G3DUIWEIGHTGROUPLIST *wgrplist ) 
 
 
             g3dmesh_removeWeightGroup ( mes, curgrp );
-
+/*
             mes->obj.invalidationFlags |= ( UPDATEVERTEXNORMAL |
                                        UPDATEFACENORMAL |
                                        RESETMODIFIERS );
-
+*/
             /*** update vertex painting ***/
             g3dmesh_update ( mes, 0x00, gui->engine_flags );
 
@@ -164,10 +164,10 @@ uint64_t g3duiweightgrouplist_select ( G3DUIWEIGHTGROUPLIST *wgrplist,
             lver = g3dmesh_getVerticesFromWeightgroup ( mes, curgrp );
 
             g3dmesh_unselectWeightGroup ( mes, curgrp );
-
+/*
             mes->lupdver = lver;
             mes->obj.invalidationFlags |= ( UPDATEMODIFIERS );
-
+*/
             /*** update vertex painting ***/
             g3dmesh_update ( mes, 0x00, gui->engine_flags );
 
@@ -177,10 +177,10 @@ uint64_t g3duiweightgrouplist_select ( G3DUIWEIGHTGROUPLIST *wgrplist,
         lver = g3dmesh_getVerticesFromWeightgroup ( mes, grp );
 
         g3dmesh_selectWeightGroup ( mes, grp );
-
+/*
         mes->lupdver = lver;
         mes->obj.invalidationFlags |= ( RESETMODIFIERS );
-
+*/
         /*** update vertex painting ***/
         g3dmesh_update ( mes, 0x00, gui->engine_flags );
 

@@ -38,7 +38,7 @@ uint64_t g3duikeyedit_setKeyTransformations ( G3DUIKEYEDIT *keyedit,
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
-        LIST *ltmpkey = obj->lselkey;
+        LIST *ltmpkey = obj->selectedKeyList;
 
         while ( ltmpkey ) {
             G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
@@ -72,7 +72,7 @@ uint64_t g3duikeyedit_unsetKeyTransformations ( G3DUIKEYEDIT *keyedit,
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
-        LIST *ltmpkey = obj->lselkey;
+        LIST *ltmpkey = obj->selectedKeyList;
 
         while ( ltmpkey ) {
             G3DKEY *key = ( G3DKEY * ) ltmpkey->data;
@@ -109,7 +109,7 @@ uint64_t g3duikeyedit_loopFrame ( G3DUIKEYEDIT *keyedit,
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
 
-        g3dkey_setLoopFrameFromList ( obj->lselkey, frame );
+        g3dkey_setLoopFrameFromList ( obj->selectedKeyList, frame );
 
         ltmpobj = ltmpobj->next;
     }
@@ -129,9 +129,9 @@ uint64_t g3duikeyedit_loop ( G3DUIKEYEDIT *keyedit,
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
 
         if ( loop ) {
-            g3dkey_setLoopFromList   ( obj->lselkey );
+            g3dkey_setLoopFromList   ( obj->selectedKeyList );
         } else {
-            g3dkey_unsetLoopFromList ( obj->lselkey );
+            g3dkey_unsetLoopFromList ( obj->selectedKeyList );
         }
 
         ltmpobj = ltmpobj->next;
@@ -150,7 +150,7 @@ uint64_t g3duikeyedit_key ( G3DUIKEYEDIT *keyedit,
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
     if ( obj ) {
-        LIST *ltmpkey = obj->lselkey;
+        LIST *ltmpkey = obj->selectedKeyList;
 
         while ( ltmpkey ) {
             G3DKEY *key = ltmpkey->data;

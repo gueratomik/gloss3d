@@ -316,7 +316,7 @@ static int bridge_mesh  ( G3DMESH      *mes,
             bt->obj = obj;
 
             /*** if any selected vertex ***/
-            if ( mes->lselver ) {
+            if ( mes->selectedVertexList ) {
                 if ( ver[0x00] ) {
                     ver[0x02] = g3dmesh_getLastSelectedVertex ( mes );
                 } else {
@@ -340,7 +340,7 @@ static int bridge_mesh  ( G3DMESH      *mes,
 
                 pick_Item ( &ptool, sce, cam, 0x00, VIEWVERTEX );
 
-                if ( mes->lselver ) {
+                if ( mes->selectedVertexList ) {
                     if ( ver[0x02] ) {
                         ver[0x03] = g3dmesh_getLastSelectedVertex ( mes );
 

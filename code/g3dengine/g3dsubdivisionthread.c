@@ -165,16 +165,16 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
 
         uint32_t nbpos = 0x00;
 
-        if ( fac->nbver == 0x03 ) {
+        if ( fac->vertexCount == 0x03 ) {
             rtvermem = sdt->rtvermem + ( fac->typeID * sdt->nbVerticesPerTriangle );
             rtquamem = sdt->rtquamem + ( fac->typeID * sdt->nbFacesPerTriangle );
             rtluim   = sdt->rtluim   + ( fac->typeID * sdt->nbVerticesPerTriangle * nbuvmap );
         } else {
-            rtvermem = sdt->rtvermem + ( mes->nbtri  * sdt->nbVerticesPerTriangle ) + 
+            rtvermem = sdt->rtvermem + ( mes->triangleCount  * sdt->nbVerticesPerTriangle ) + 
                                        ( fac->typeID * sdt->nbVerticesPerQuad );
-            rtquamem = sdt->rtquamem + ( mes->nbtri  * sdt->nbFacesPerTriangle ) + 
+            rtquamem = sdt->rtquamem + ( mes->triangleCount  * sdt->nbFacesPerTriangle ) + 
                                        ( fac->typeID * sdt->nbFacesPerQuad );
-            rtluim   = sdt->rtluim   + ( mes->nbtri  * sdt->nbVerticesPerTriangle * nbuvmap ) +
+            rtluim   = sdt->rtluim   + ( mes->triangleCount  * sdt->nbVerticesPerTriangle * nbuvmap ) +
                                        ( fac->typeID * sdt->nbVerticesPerQuad * nbuvmap );
 
         }
@@ -195,7 +195,7 @@ void *g3dsubdivisionV3_subdivide_t ( G3DSUBDIVISIONTHREAD *sdt ) {
                                      NULL,
                                      NULL,
                                      NULL,
-                                     mes->ltex,
+                                     mes->textureList,
                                      sdt->sculptExtensionName,
                                      sdt->sculptMode,
                     (uint32_t (*)[4])sdt->qua_indexes,

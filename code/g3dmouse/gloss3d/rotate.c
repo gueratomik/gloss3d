@@ -205,9 +205,11 @@ static int rotate_spline ( G3DSPLINE    *spl,
                         ltmppt = ltmppt->next;
                     }
 
+
+
                 	g3dspline_update ( spl,
                                        NULL,
-                                       UPDATEMODIFIERS, engine_flags );
+                                       0, engine_flags );
 
                     orix = newx;
                     oriy = newy;
@@ -352,9 +354,9 @@ static int rotateUV_tool ( G3DMOUSETOOL *mou,
                             }
 
                             list_free ( &lseluv, NULL );
-
+/*
                             parmes->obj.invalidationFlags |= RESETMODIFIERS;
-
+*/
                             /** TODO: do this only for subdivided meshes ***/
                             g3dmesh_update ( parmes, 0x00, engine_flags );
 
@@ -398,7 +400,7 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
     if ( obj->parent->type == G3DMESHTYPE ) {
         G3DMESH *mes = ( G3DMESH * ) obj->parent;
 
-        if ( mpr->selmpose ) {
+        if ( mpr->selectedPose ) {
             switch ( event->type ) {
                 case G3DButtonPress : {
                     if ( engine_flags & VIEWVERTEX ) {
@@ -525,7 +527,7 @@ static int rotate_morpher ( G3DMORPHER       *mpr,
 
                                 g3durm_morpher_moveVertices ( urm,
                                                               mpr,
-                                                              mpr->selmpose,
+                                                              mpr->selectedPose,
                                                               lver,
                                                               oldpos, 
                                                               newpos, 

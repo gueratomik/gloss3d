@@ -72,7 +72,7 @@ static uint32_t createFacegroup_init  ( G3DMOUSETOOL *mou,
         G3DMESH *mes = ( G3DMESH * ) obj;
         char buf[0x20];
 
-        snprintf ( buf, 0x20, "FaceGroup%02i", mes->nbfacgrp );
+        snprintf ( buf, 0x20, "FaceGroup%02i", mes->facegroupCount );
 
         g3durm_mesh_createFacegroup ( urm, mes, buf, engine_flags,
                                                      REDRAWVIEW | 

@@ -37,7 +37,7 @@ void g3dsphere_size ( G3DPRIMITIVE *pri, float radius ) {
     SPHEREDATASTRUCT *data = ( SPHEREDATASTRUCT * ) pri->data;
     G3DOBJECT *obj = ( G3DOBJECT * ) pri;
     G3DMESH *mes = ( G3DMESH * ) pri;
-    LIST *ltmpver = mes->lver;
+    LIST *ltmpver = mes->vertexList;
 
     data->radius = radius;
 
@@ -50,8 +50,10 @@ void g3dsphere_size ( G3DPRIMITIVE *pri, float radius ) {
 
         ltmpver = ltmpver->next;
     }
-
+/*
     mes->obj.invalidationFlags |= UPDATEFACEPOSITION;
+*/
+    g3dobject_invalidate( obj, INVALIDATE_SHAPE );
 
     /*** update the precomputed values for Catmull-Clark Subdivision ***/
     g3dmesh_update ( mes, 0x00, 0x00 );

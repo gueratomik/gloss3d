@@ -463,9 +463,9 @@ static void Input ( GtkWidget *widget,
                         if ( ( dst->type == G3DSYMMETRYTYPE ) &&
                              ( obj->type == G3DMESHTYPE ) ) {
                             g3dsymmetry_meshChildChange ( ( G3DSYMMETRY * ) dst, ( G3DMESH * ) obj );
-
+/*
                             obj->invalidationFlags |= UPDATEFACEPOSITION;
-
+*/
                             g3dmesh_update ( ( G3DMESH * ) obj, 0x00, gui->engine_flags );
                         }
 
@@ -515,7 +515,7 @@ static uint32_t getSeparator_r ( GTK3G3DUIOBJECTLIST *gtk3objlis,
                                  uint32_t             xindent,
                                  uint32_t             yindent ) {
     uint32_t strwidth = getObjectNameWidth ( context, obj );
-    LIST *ltmpobj = obj->lchildren;
+    LIST *ltmpobj = obj->childList;
     static LISTEDOBJECT lob;
     static uint32_t sepx;
     static uint32_t curheight;
@@ -578,7 +578,7 @@ static PICKEDOBJECT *selectObject_r ( GTK3G3DUIOBJECTLIST *gtk3objlis,
                                       G3DURMANAGER        *urm,
                                       uint32_t             keep,
                                       uint64_t             engine_flags ) {
-    LIST *ltmpobj = obj->lchildren;
+    LIST *ltmpobj = obj->childList;
     PICKEDOBJECT *pob;
     uint32_t strwidth;
     static int curheight;
@@ -688,7 +688,7 @@ static void drawTags ( GtkStyleContext *context,
                        cairo_t         *cr,
                        G3DOBJECT       *obj,
                        G3DUIRECTANGLE *rec ) {
-    LIST *ltmptag = obj->ltag;
+    LIST *ltmptag = obj->tagList;
 
     while ( ltmptag ) {
         G3DTAG *tag = ( G3DTAG * ) ltmptag->data;
@@ -717,7 +717,7 @@ static void drawTags ( GtkStyleContext *context,
             g_object_unref ( G_OBJECT(pixbuf) );
 
             if ( ( obj->flags & OBJECTSELECTED  ) &&
-                 ( tag == obj->seltag     ) ) {
+                 ( tag == obj->selectedTag     ) ) {
                 cairo_set_source_rgb ( cr, 1.0f, 0.0f, 0.0f );
                 cairo_set_line_width ( cr, 0.5f );
                 cairo_rectangle      ( cr, rec->x, rec->y, rec->width,
@@ -748,7 +748,7 @@ static void drawTextures ( GtkStyleContext *context,
 
     if ( obj->type & MESH && ( ( obj->type & MODIFIER ) == 0x00 ) ) {
         G3DMESH *mes =  ( G3DMESH * ) obj;
-        LIST *ltmptex = mes->ltex;
+        LIST *ltmptex = mes->textureList;
         uint32_t nbtex = 0x00;
 
         while ( ltmptex ) {
@@ -829,7 +829,7 @@ static void drawUVMaps ( GtkStyleContext *context,
 
     if ( obj->type & MESH && ( ( obj->type & MODIFIER ) == 0x00 ) ) {
         G3DMESH *mes =  ( G3DMESH * ) obj;
-        LIST *ltmpuvmap = mes->luvmap;
+        LIST *ltmpuvmap = mes->uvmapList;
         uint32_t nbuvmap = 0x00;
 
         while ( ltmpuvmap ) {
@@ -983,7 +983,7 @@ static void drawArrow ( GtkStyleContext *context,
                         uint32_t         x, 
                         uint32_t         y ) {
     /*** Draw the arrow only for parent objects ***/
-    if ( obj->lchildren ) {
+    if ( obj->childList ) {
         if ( obj->flags & OBJECTCOLLAPSED ) {
             gtk_style_context_set_state ( context, GTK_STATE_FLAG_NORMAL );
         } else {
@@ -1005,7 +1005,7 @@ static uint32_t printObject_r ( GTK3G3DUIOBJECTLIST *gtk3objlist,
                                 uint32_t             yindent ) {
     static uint32_t maxheight, maxwidth, curheight;
 
-    LIST *ltmpobj = obj->lchildren;
+    LIST *ltmpobj = obj->childList;
     uint32_t total_height = yindent;
     LISTEDOBJECT *lob;
     uint32_t strwidth;

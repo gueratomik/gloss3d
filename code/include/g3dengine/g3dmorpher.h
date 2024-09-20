@@ -58,8 +58,8 @@ typedef struct _G3DMORPHERMESHPOSE {
     char                 *name;
     G3DMORPHERVERTEXPOSE *vpose;
     uint64_t              slotID;
-    uint32_t              maxVerCount;
-    uint32_t              nbver;
+    uint32_t              maxVertexCount;
+    uint32_t              vertexCount;
 } G3DMORPHERMESHPOSE;
 
 /**
@@ -69,12 +69,12 @@ typedef struct _G3DMORPHERMESHPOSE {
 typedef struct _G3DMORPHER {
     G3DMODIFIER         mod;  /*** G3DMORPHER inherits G3DMODIFIER        ***/
     uint32_t            extensionName;
-    LIST               *lver;
-    uint32_t            nbver;
+    LIST               *vertexList;
+    uint32_t            vertexCount;
     uint32_t            verID;
-    LIST               *lmpose;
-    G3DMORPHERMESHPOSE *selmpose;
-    uint64_t            meshPoseSlots;
+    LIST               *poseList;
+    G3DMORPHERMESHPOSE *selectedPose;
+    uint64_t            poseSlots;
 } G3DMORPHER;
 
 G3DMORPHERMESHPOSE *g3dmorphermeshpose_new ( uint32_t nbver, 

@@ -46,7 +46,7 @@ void shadervertex_init ( SHADERVERTEX *shdver,
         shdver->col.g = /*( ver->flags & VERTEXPAINTED ) ? */ver->weight/* : 0.0f*/;
         shdver->col.b = 0.0f;
     } else {
-        if ( ver->nbfac == 0x00 ) {
+        if ( ver->faceCount == 0x00 ) {
             if ( ver->flags & VERTEXSELECTED ) {
                 shdver->col.r = 1.0f;
                 shdver->col.g = 0.0f;

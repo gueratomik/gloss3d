@@ -151,7 +151,7 @@ static uint32_t g3dexportv2key_dataMorpherSlots ( G3DEXPORTV2DATA *ged,
                                                 uint32_t       flags, 
                                                 FILE          *fdst ) {
     G3DMORPHER *mpr = ( G3DMORPHER * ) ged->currentObject;
-    LIST *ltmpmpose = mpr->lmpose;
+    LIST *ltmpmpose = mpr->poseList;
     uint32_t size = 0x00;
 
     while ( ltmpmpose ) {

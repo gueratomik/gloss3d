@@ -57,10 +57,10 @@ static void editKeyDataCbk ( GtkWidget *widget,
         if ( obj->type == G3DLIGHTTYPE ) {
             G3DLIGHT *lig = ( G3DLIGHT * ) obj;
 
-            if ( obj->lselkey ) {
+            if ( obj->selectedKeyList ) {
                 GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
                 GtkWidget *box = gtk_dialog_get_content_area ( dial );
-                G3DKEY *key = obj->lselkey->data;
+                G3DKEY *key = obj->selectedKeyList->data;
                 G3DLIGHT *keylig = key->data.ptr;
 
                 GTK3G3DUILIGHTEDIT *ledit = gtk3_g3duilightedit_create ( dial,
@@ -87,10 +87,10 @@ static void editKeyDataCbk ( GtkWidget *widget,
         if ( obj->type == G3DCAMERATYPE ) {
             G3DCAMERA *cam = ( G3DCAMERA * ) obj;
 
-            if ( obj->lselkey ) {
+            if ( obj->selectedKeyList ) {
                 GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
                 GtkWidget *box = gtk_dialog_get_content_area ( dial );
-                G3DKEY *key = obj->lselkey->data;
+                G3DKEY *key = obj->selectedKeyList->data;
                 G3DCAMERA *keycam = key->data.ptr;
 
                 GTK3G3DUICAMERAEDIT *cedit = gtk3_g3duicameraedit_create ( dial,
@@ -117,10 +117,10 @@ static void editKeyDataCbk ( GtkWidget *widget,
         if ( obj->type == G3DPARTICLEEMITTERTYPE ) {
             G3DPARTICLEEMITTER *pem = ( G3DPARTICLEEMITTER * ) obj;
 
-            if ( obj->lselkey ) {
+            if ( obj->selectedKeyList ) {
                 GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
                 GtkWidget *box = gtk_dialog_get_content_area ( dial );
-                G3DKEY *key = obj->lselkey->data;
+                G3DKEY *key = obj->selectedKeyList->data;
                 G3DLIGHT *keypem = key->data.ptr;
 
                 GTK3G3DUILIGHTEDIT *pedit = gtk3_g3duiparticleemitteredit_create ( dial,
@@ -147,10 +147,10 @@ static void editKeyDataCbk ( GtkWidget *widget,
         if ( obj->type == G3DMORPHERTYPE ) {
             G3DMORPHER *mpr = ( G3DMORPHER * ) obj;
 
-            if ( obj->lselkey ) {
+            if ( obj->selectedKeyList ) {
                 GtkWidget *dial = ui_gtk_dialog_new ( CLASS_MAIN );
                 GtkWidget *box = gtk_dialog_get_content_area ( dial );
-                G3DKEY *key = obj->lselkey->data;
+                G3DKEY *key = obj->selectedKeyList->data;
 
                 GTK3G3DUIMORPHERKEYEDIT *kedit = gtk3_g3duimorpherkeyedit_create ( dial,
                                                                                    gtk3gui,
@@ -299,21 +299,22 @@ void gtk3_g3duikeyedit_update ( GTK3G3DUIKEYEDIT *gtk3ked ) {
         G3DSCENE *sce = gui->sce;
         G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
 
-        if ( obj && obj->lselkey ) {
+        if ( obj && obj->selectedKeyList ) {
             G3DVECTOR3F keypos, keyrot, keysca;
             uint32_t keyloop = 0x00;
             float loopFrame;
             uint32_t loopFlag;
-            uint32_t usePos = g3dkey_getUsePositionFromList ( obj->lselkey );
-            uint32_t useRot = g3dkey_getUseRotationFromList ( obj->lselkey );
-            uint32_t useSca = g3dkey_getUseScalingFromList  ( obj->lselkey );
-            uint32_t useDat = g3dkey_getUseDataFromList     ( obj->lselkey );
+            uint32_t usePos = g3dkey_getUsePositionFromList ( obj->selectedKeyList );
+            uint32_t useRot = g3dkey_getUseRotationFromList ( obj->selectedKeyList );
+            uint32_t useSca = g3dkey_getUseScalingFromList  ( obj->selectedKeyList );
+            uint32_t useDat = g3dkey_getUseDataFromList     ( obj->selectedKeyList );
 
-            loopFlag = g3dkey_getLoopFrameFromList ( obj->lselkey, &loopFrame );
+            loopFlag = g3dkey_getLoopFrameFromList ( obj->selectedKeyList, &loopFrame );
 
-            g3dkey_getTransformationFromList ( obj->lselkey, &keypos,
-                                                             &keyrot,
-                                                             &keysca );
+            g3dkey_getTransformationFromList ( obj->selectedKeyList, 
+                                              &keypos,
+                                              &keyrot,
+                                              &keysca );
 
             gtk_widget_set_sensitive ( GTK_WIDGET(gtk3ked->fixed), TRUE );
 

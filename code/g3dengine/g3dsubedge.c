@@ -68,8 +68,8 @@ void g3dedge_position ( G3DEDGE *edg, uint32_t opflags ) {
               *p1 = ( v1->flags & VERTEXSKINNED ) ? &v1->skn : &v1->pos;
     G3DVECTOR3F *n0 = &v0->nor,
               *n1 = &v1->nor;
-    uint32_t nbver = 0x02;
-    float nbfacdiv = ( edg->nbfac ) ? 1.0f / edg->nbfac : 0.0f;
+    uint32_t vertexCount = 0x02;
+    float nbfacdiv = ( edg->faceCount ) ? 1.0f / edg->faceCount : 0.0f;
     G3DVECTOR3F favg = { .x = 0.0f, .y = 0.0f, .z = 0.0f },
               mavg = { .x = 0.0f, .y = 0.0f, .z = 0.0f },
               navg = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
@@ -94,7 +94,7 @@ void g3dedge_position ( G3DEDGE *edg, uint32_t opflags ) {
     /*** need to move vertices along a rail. It is easier to retrieve ***/
     /*** this rail (the normal vector) by pre-computing it that way.  ***/
     if ( opflags & EDGECOMPUTENORMAL ) {
-        LIST *ltmpfac = edg->lfac;
+        LIST *ltmpfac = edg->faceList;
 
         while ( ltmpfac ) {
             G3DFACE *fac = ltmpfac->data;
@@ -108,16 +108,16 @@ void g3dedge_position ( G3DEDGE *edg, uint32_t opflags ) {
             navg.y += fac->nor.y;
             navg.z += fac->nor.z;
 
-            nbver++;
+            vertexCount++;
 
             ltmpfac = ltmpfac->next;
         }
 
-        mavg.x /= nbver;
-        mavg.y /= nbver;
-        mavg.z /= nbver;
+        mavg.x /= vertexCount;
+        mavg.y /= vertexCount;
+        mavg.z /= vertexCount;
 
-        /*if ( edg->nbfac ) {*/
+        /*if ( edg->faceCount ) {*/
             favg.x *= nbfacdiv;
             favg.y *= nbfacdiv;
             favg.z *= nbfacdiv;
@@ -153,7 +153,7 @@ void g3dedge_position ( G3DEDGE *edg, uint32_t opflags ) {
 
         g3dvector_normalize ( &edg->nor, NULL );
     } else {
-        LIST *ltmpfac = edg->lfac;
+        LIST *ltmpfac = edg->faceList;
 
         while ( ltmpfac ) {
             G3DFACE *fac = ltmpfac->data;
@@ -165,16 +165,16 @@ void g3dedge_position ( G3DEDGE *edg, uint32_t opflags ) {
 /*printf("SCAL: %f\n", g3dvector_scalar ( &faccmp->nor, 
                                            &fac->nor ) );*/
 
-            nbver++;
+            vertexCount++;
 
             ltmpfac = ltmpfac->next;
         }
 
-        mavg.x /= nbver;
-        mavg.y /= nbver;
-        mavg.z /= nbver;
+        mavg.x /= vertexCount;
+        mavg.y /= vertexCount;
+        mavg.z /= vertexCount;
 
-        /*if ( edg->nbfac ) {*/
+        /*if ( edg->faceCount ) {*/
             favg.x *= nbfacdiv;
             favg.y *= nbfacdiv;
             favg.z *= nbfacdiv;
@@ -214,7 +214,7 @@ uint32_t g3dsubedge_createFaceInnerEdge ( G3DSUBEDGE    *subedg,
                                           uint32_t       curdiv,
                                           uint32_t       object_flags,
                                           uint64_t engine_flags ) {
-    LIST *ltmpfac = subedg->edg.lfac;
+    LIST *ltmpfac = subedg->edg.faceList;
     uint32_t freeflag = 0x00;
 
     while ( ltmpfac ) {
@@ -230,7 +230,7 @@ uint32_t g3dsubedge_createFaceInnerEdge ( G3DSUBEDGE    *subedg,
 
 /*** TODO: this steps is unnecessary when there is no displacement ***/
 /*** for faces different than the central face (the face getting subdivided)***/
-            if ( (subfac->fac.nbuvs*4) > SUBVERTEXMAXUV ) {
+            if ( (subfac->fac.uvsetCount*4) > SUBVERTEXMAXUV ) {
                 subfac->subver->flags |= VERTEXMALLOCUVS;
 
                 freeflag |= SUBDIVISIONCLEANVERTICES;
@@ -246,7 +246,7 @@ uint32_t g3dsubedge_createFaceInnerEdge ( G3DSUBEDGE    *subedg,
             (*subedgptr)->edg.ver[0x00] = ( G3DVERTEX * ) subedg->subver;
             (*subedgptr)->edg.ver[0x01] = ( G3DVERTEX * ) subfac->subver;
 
-            if ( subfac->fac.nbver == 0x03 ) {
+            if ( subfac->fac.vertexCount == 0x03 ) {
                 if ( subfac->fac.edg[0x00] == (G3DEDGE*)subedg ) { i = 0x00; }
                 if ( subfac->fac.edg[0x01] == (G3DEDGE*)subedg ) { i = 0x01; }
                 if ( subfac->fac.edg[0x02] == (G3DEDGE*)subedg ) { i = 0x02; }
@@ -302,7 +302,7 @@ void g3dsubedge_init ( G3DSUBEDGE *subedg, G3DVERTEX *v0, G3DVERTEX *v1 ) {
 
 /******************************************************************************/
 void g3dsubedge_addFace ( G3DSUBEDGE *subedg, G3DFACE *fac ) {
-    LIST *nextlfac = subedg->edg.lfac;
+    LIST *nextlfac = subedg->edg.faceList;
 
     if ( subedg->edg.flags & EDGEMALLOCFACES ) {
         g3dedge_addFace ( ( G3DEDGE * ) subedg, fac );
@@ -310,9 +310,9 @@ void g3dsubedge_addFace ( G3DSUBEDGE *subedg, G3DFACE *fac ) {
         return;
     }
 
-    subedg->edg.lfac       = &subedg->lfacbuf[subedg->edg.nbfac];
-    subedg->edg.lfac->next = nextlfac;
-    subedg->edg.lfac->data = fac;
+    subedg->edg.faceList       = &subedg->lfacbuf[subedg->edg.faceCount];
+    subedg->edg.faceList->next = nextlfac;
+    subedg->edg.faceList->data = fac;
 
-    subedg->edg.nbfac++;
+    subedg->edg.faceCount++;
 }

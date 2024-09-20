@@ -75,7 +75,7 @@ static uint32_t removeVertexPose_init ( G3DMOUSETOOL *mou,
         g3durm_morpher_removeVertexPose ( urm,
                                           sce,
                                           mpr,
-                                          mpr->selmpose,
+                                          mpr->selectedPose,
                                           engine_flags,
                                           REDRAWVIEW );
 

@@ -120,7 +120,7 @@ static void updateFaceGroupList ( GTK3G3DUITEXTUREEDIT *gtk3ted ) {
             GdkRectangle frec = { 0x00, 0x00, 0x00, 0x00 };
             G3DMESH *mes = ( G3DMESH * ) obj;
             G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
-            LIST *ltmpfacgrp = mes->lfacgrp;
+            LIST *ltmpfacgrp = mes->facegroupList;
             uint32_t maxWidth = 0x00;
             uint32_t y = 0x00;
 
@@ -238,7 +238,7 @@ static void createUVMapSelector ( GTK3G3DUITEXTUREEDIT *gtk3ted,
         G3DTEXTURE *tex = g3dmesh_getSelectedTexture ( mes );
 
         if ( tex ) {
-            LIST *ltmpuvmap = mes->luvmap;
+            LIST *ltmpuvmap = mes->uvmapList;
             uint32_t mapRank = 0x00;
             int selected = 0x00;
 

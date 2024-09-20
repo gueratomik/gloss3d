@@ -89,7 +89,7 @@ void movePoint_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     }
 
     /*** update faces and subdivided faces ***/
-    g3dspline_update ( ump->spl, ump->lpt, UPDATEMODIFIERS, engine_flags );
+    g3dspline_update ( ump->spl, ump->lpt, 0, engine_flags );
 }
 
 /******************************************************************************/
@@ -114,7 +114,7 @@ void movePoint_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     }
 
     /*** update faces and subdivided faces ***/
-    g3dspline_update ( ump->spl, ump->lpt, UPDATEMODIFIERS, engine_flags );
+    g3dspline_update ( ump->spl, ump->lpt, 0, engine_flags );
 }
 
 /******************************************************************************/

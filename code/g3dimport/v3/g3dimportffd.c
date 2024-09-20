@@ -61,7 +61,7 @@ void g3dimportv3ffd ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
             case SIG_OBJECT_FFD_UVW : {
                 G3DFFD *ffd = ( G3DFFD * ) gid->currentObject;
-                uint32_t nbpnt = ((G3DMESH*)ffd)->nbver;
+                uint32_t nbpnt = ((G3DMESH*)ffd)->vertexCount;
                 uint32_t i;
 
                 for ( i = 0x00; i < nbpnt; i++ ) {

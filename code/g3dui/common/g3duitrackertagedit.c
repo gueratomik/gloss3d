@@ -36,10 +36,10 @@ uint64_t g3duitrackertagedit_orientation ( G3DUITRACKERTAGEDIT *ttedit,
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *sel = ttedit->obj;
-    G3DTAG *tag = sel->seltag;
+    G3DTAG *tag = sel->selectedTag;
 
     if ( sel ) {
-        G3DTAG *tag = sel->seltag;
+        G3DTAG *tag = sel->selectedTag;
 
         if ( tag ) {
             if ( tag->type & G3DTAGTRACKERTYPE ) {
@@ -76,10 +76,10 @@ uint64_t g3duitrackertagedit_setTarget ( G3DUITRACKERTAGEDIT *ttedit,
     G3DURMANAGER *urm = gui->urm;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *sel = ttedit->obj;
-    G3DTAG *tag = sel->seltag;
+    G3DTAG *tag = sel->selectedTag;
 
     if ( sel ) {
-        G3DTAG *tag = sel->seltag;
+        G3DTAG *tag = sel->selectedTag;
 
         if ( tag ) {
             if ( tag->type & G3DTAGTRACKERTYPE ) {

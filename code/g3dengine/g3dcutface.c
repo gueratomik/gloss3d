@@ -59,7 +59,7 @@ uint32_t g3dcutface_getCutEdgeIndexes ( G3DCUTFACE *cut, uint32_t *index,
                                                          uint32_t size  ) {
     uint32_t i, n = 0x00;
 
-    for ( i = 0x00; i < cut->fac->nbver; i++ ) {
+    for ( i = 0x00; i < cut->fac->vertexCount; i++ ) {
         if ( cut->ced[i] && n < size ) {
             index[n++] = i;
         }
@@ -204,7 +204,7 @@ uint32_t g3dcutface_divideTriangle ( G3DCUTFACE *cut, G3DFACE **kid ) {
 static void g3dcutface_dividUVSets ( G3DCUTFACE *cut, 
                                      G3DFACE   **kid,
                                      uint32_t    nbkid ) {
-    LIST *ltmpuvs = cut->fac->luvs;
+    LIST *ltmpuvs = cut->fac->uvsetList;
 
     while ( ltmpuvs ) {
         G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
@@ -218,12 +218,12 @@ static void g3dcutface_dividUVSets ( G3DCUTFACE *cut,
 
             g3dface_addUVSet ( kidfac, kiduvs );
 
-            for ( j = 0x00; j < kidfac->nbver; j++ ) {
-                uint32_t n = ( j + 0x01 ) % kidfac->nbver;
+            for ( j = 0x00; j < kidfac->vertexCount; j++ ) {
+                uint32_t n = ( j + 0x01 ) % kidfac->vertexCount;
                 uint32_t k;
 
-                for ( k = 0x00; k < cut->fac->nbver; k++ ) {
-                    uint32_t l = ( k + 0x01 ) % cut->fac->nbver;
+                for ( k = 0x00; k < cut->fac->vertexCount; k++ ) {
+                    uint32_t l = ( k + 0x01 ) % cut->fac->vertexCount;
 
                     if ( ( kidfac->ver[j] == cut->fac->ver[k] ) ) {
                         kiduvs->veruv[j].u = uvs->veruv[k].u;
@@ -258,7 +258,7 @@ uint32_t g3dcutface_divide ( G3DCUTFACE *cut, G3DFACE **kid ) {
     G3DFACE *fac = cut->fac;
     uint32_t nbkid = 0x00;
 
-    switch ( fac->nbver ) {
+    switch ( fac->vertexCount ) {
         case 0x03 :
             nbkid = g3dcutface_divideTriangle ( cut, kid );
         break;

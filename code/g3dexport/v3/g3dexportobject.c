@@ -197,7 +197,7 @@ static uint32_t g3dexportv3object_textures  ( G3DEXPORTV3DATA  *ged,
                                             G3DMESH        *mes, 
                                             uint32_t        flags, 
                                             FILE           *fdst ) {
-    LIST *ltmptex = mes->ltex;
+    LIST *ltmptex = mes->textureList;
     uint32_t size = 0x00;
 
     while ( ltmptex ) {
@@ -221,7 +221,7 @@ static uint32_t g3dexportv3object_uvmaps  ( G3DEXPORTV3DATA  *ged,
                                           G3DMESH        *mes, 
                                           uint32_t        flags, 
                                           FILE           *fdst ) {
-    LIST *ltmpuvmap = mes->luvmap;
+    LIST *ltmpuvmap = mes->uvmapList;
     uint32_t size = 0x00;
     uint32_t uvmapID = 0x00;
 
@@ -248,7 +248,7 @@ static uint32_t g3dexportv3object_keys ( G3DEXPORTV3DATA *ged,
                                        G3DOBJECT     *obj, 
                                        uint32_t       flags, 
                                        FILE          *fdst ) {
-    LIST *ltmpkey = obj->lkey;
+    LIST *ltmpkey = obj->keyList;
     uint32_t keyID = 0x00;
     uint32_t size = 0x00;
 
@@ -280,7 +280,7 @@ static uint32_t g3dexportv3object_tags ( G3DEXPORTV3DATA *ged,
                                          G3DOBJECT     *obj, 
                                          uint32_t       flags, 
                                          FILE          *fdst ) {
-    LIST *ltmptag = obj->ltag;
+    LIST *ltmptag = obj->tagList;
     uint32_t keyID = 0x00;
     uint32_t size = 0x00;
 
@@ -619,7 +619,7 @@ uint32_t g3dexportv3object ( G3DEXPORTV3DATA *ged,
                                      0xFFFFFFFF,
                                      fdst );
 
-    if ( obj->lkey ) {
+    if ( obj->keyList ) {
         /*** write object's animation keys ***/
         size += g3dexportv3_writeChunk ( SIG_OBJECT_KEYS,
                        EXPORTV3_CALLBACK(g3dexportv3object_keys),
@@ -636,7 +636,7 @@ uint32_t g3dexportv3object ( G3DEXPORTV3DATA *ged,
                                          fdst );
     }
 
-    if ( obj->ltag ) {
+    if ( obj->tagList ) {
         /*** write object's animation keys ***/
         size += g3dexportv3_writeChunk ( SIG_OBJECT_TAGS,
                        EXPORTV3_CALLBACK(g3dexportv3object_tags),
@@ -651,7 +651,7 @@ uint32_t g3dexportv3object ( G3DEXPORTV3DATA *ged,
     if ( obj->type & MESH ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
-        if ( mes->luvmap ) {
+        if ( mes->uvmapList ) {
             size += g3dexportv3_writeChunk ( SIG_OBJECT_UVMAPS,
                            EXPORTV3_CALLBACK(g3dexportv3object_uvmaps),
                                              ged,
@@ -660,7 +660,7 @@ uint32_t g3dexportv3object ( G3DEXPORTV3DATA *ged,
                                              fdst );
         }
 
-        if ( mes->ltex ) {
+        if ( mes->textureList ) {
             size += g3dexportv3_writeChunk ( SIG_OBJECT_TEXTURES,
                            EXPORTV3_CALLBACK(g3dexportv3object_textures),
                                              ged,

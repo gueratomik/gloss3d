@@ -59,7 +59,7 @@ static URMADDMESHPOSE *urmaddmeshpose_new ( G3DSCENE           *sce,
 
     /*** this is needed to undo meshpose deletion, not the creation because ***/
     /*** the meshpose is empty during the creation anyways ***/
-    amp->maxVerCount = mpose->maxVerCount;
+    amp->maxVerCount = mpose->maxVertexCount;
 
     if ( amp->maxVerCount ) {
         uint32_t ssize = sizeof ( G3DMORPHERVERTEXPOSE );

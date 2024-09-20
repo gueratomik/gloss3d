@@ -102,7 +102,7 @@ static void deleteSplinePoints_undo ( G3DURMANAGER *urm,
     }
 
     /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( spline, NULL, RESETMODIFIERS, engine_flags );
+    g3dspline_update ( spline, NULL, 0, engine_flags );
 }
 
 /******************************************************************************/
@@ -133,7 +133,7 @@ static void deleteSplinePoints_redo ( G3DURMANAGER *urm,
     }
 
     /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( spline, NULL, RESETMODIFIERS, engine_flags );
+    g3dspline_update ( spline, NULL, 0, engine_flags );
 }
 
 /******************************************************************************/
@@ -151,7 +151,7 @@ void g3durm_spline_deletePoints ( G3DURMANAGER *urm,
                             engine_flags );
 
     /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( spline, NULL, RESETMODIFIERS, engine_flags );
+    g3dspline_update ( spline, NULL, 0, engine_flags );
 
     dsp = urmDeleteSplinePoints_new ( spline, 
                                       lremovedPoints, 

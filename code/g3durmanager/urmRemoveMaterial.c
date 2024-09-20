@@ -59,7 +59,7 @@ URMREMOVEMATERIAL *urmremovematerial_new ( G3DSCENE    *sce,
 
         if ( obj->type & MESH ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
-            LIST *ltmptex = mes->ltex;
+            LIST *ltmptex = mes->textureList;
 
             while ( ltmptex ) {
                 G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;

@@ -177,18 +177,18 @@ static int createVertex_event ( G3DMOUSETOOL *mou,
                         G3DMESH *mes = ( G3DMESH * ) obj;
                         G3DVERTEX *ver = g3dvertex_new ( objx, objy, objz );
  
-                        G3DVERTEX *lastver = ( mes->lselver ) ? mes->lselver->data : NULL;
+                        G3DVERTEX *lastver = ( mes->selectedVertexList ) ? mes->selectedVertexList->data : NULL;
 
                         g3dmesh_unselectAllVertices ( mes );
 
 
                         g3dmesh_addSelectedVertex ( mes, ver );
-
+/*
                         mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                                         UPDATEFACENORMAL   |
                                                         UPDATEVERTEXNORMAL |
                                                         RESETMODIFIERS );
-
+*/
                         /*** Rebuild the mesh or spline ***/
                         g3dmesh_update ( mes, 0x00, engine_flags );
 

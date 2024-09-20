@@ -71,10 +71,12 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri,
     mes = ( G3DMESH * ) g3dobject_copy ( obj, obj->id, 
                                               obj->name, 
                                               engineFlags );
-
+/*
     mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                     UPDATEFACENORMAL   |
                                     UPDATEVERTEXNORMAL );
+*/
+    g3dobject_invalidate( ( G3DOBJECT * ) mes, INVALIDATE_ALL );
 
     /*** prepare the precomputed values for Catmull-Clark Subdivision ***/
     g3dmesh_update ( mes, 0x00, engineFlags );

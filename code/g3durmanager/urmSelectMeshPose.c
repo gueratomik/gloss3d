@@ -53,7 +53,7 @@ static URMSELECTMESHPOSE *urmselectmeshpose_new ( G3DSCENE      *sce,
 
     smp->sce      = sce;
     smp->mpr      = mpr;
-    smp->oldmpose = mpr->selmpose;
+    smp->oldmpose = mpr->selectedPose;
     smp->newmpose = newmpose;
 
     return smp;

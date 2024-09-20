@@ -89,9 +89,9 @@ void moveUVs_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
 
         ltmpuv = ltmpuv->next;
     }
-
+/*
     mes->obj.invalidationFlags |= UPDATEMODIFIERS;
-
+*/
     /*** update mesh because UVs could concern displacement mapping ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
 }
@@ -114,9 +114,9 @@ void moveUVs_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
 
         ltmpuv = ltmpuv->next;
     }
-
+/*
     mes->obj.invalidationFlags |= UPDATEMODIFIERS;
-
+*/
     /*** update mesh because UVs could concern displacement mapping ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
 }

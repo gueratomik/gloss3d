@@ -91,7 +91,7 @@ static void cutSpline_undo ( G3DURMANAGER *urm,
     list_execargdata ( csp->lremovedSegments, LIST_FUNCARGDATA(g3dcurve_addSegment)   , spline->curve );
 
     /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( spline, NULL, RESETMODIFIERS, engine_flags );
+    g3dspline_update ( spline, NULL, 0, engine_flags );
 }
 
 /******************************************************************************/
@@ -109,7 +109,7 @@ static void cutSpline_redo ( G3DURMANAGER *urm,
     list_execargdata ( csp->laddedSegments  , LIST_FUNCARGDATA(g3dcurve_addSegment)   , spline->curve );
 
     /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( spline, NULL, RESETMODIFIERS, engine_flags );
+    g3dspline_update ( spline, NULL, 0, engine_flags );
 }
 
 /******************************************************************************/
@@ -132,7 +132,7 @@ void g3durm_spline_cut ( G3DURMANAGER *urm,
 
     /*** Rebuild the spline modifiers ***/
     /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( spline, NULL, RESETMODIFIERS, engine_flags );
+    g3dspline_update ( spline, NULL, 0, engine_flags );
 
     csp = urmCutSpline_new ( spline,
                              laddedPoints,

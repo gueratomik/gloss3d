@@ -49,6 +49,14 @@ LIST *g3duvset_getUVsFromList ( LIST *luvset ) {
 }
 
 /******************************************************************************/
+void g3duv_set( G3DUV* uv, float u, float v ) {
+    uv->u = u;
+    uv->v = v;
+
+    g3dobject_invalidate( uv->set->map->obj.parent, INVALIDATE_UVMAPPING );
+}
+
+/******************************************************************************/
 void g3duvset_unsetSelected ( G3DUVSET *uvset ) {
     uvset->flags &= ~(UVSETSELECTED);
 }
@@ -212,8 +220,8 @@ void g3duvset_subdivide ( G3DUVSET *uvs, G3DFACE *fac ) {
     uint32_t i;
 
     /*** edge mid-point UV ***/
-    for ( i = 0x00; i < fac->nbver; i++ ) {
-        uint32_t n = ( i + 0x01 ) % fac->nbver;
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
+        uint32_t n = ( i + 0x01 ) % fac->vertexCount;
 
         uvs->veruv[i].set = uvs;
 
@@ -227,12 +235,12 @@ void g3duvset_subdivide ( G3DUVSET *uvs, G3DFACE *fac ) {
 
     /*** face center vertex UV. Hidden to the user, useful for subdivs ***/
     uvs->cenuv.set = uvs;
-    uvs->cenuv.u   = cenu / fac->nbver;
-    uvs->cenuv.v   = cenv / fac->nbver;
+    uvs->cenuv.u   = cenu / fac->vertexCount;
+    uvs->cenuv.v   = cenv / fac->vertexCount;
 
 
     /*printf ( "%s %f %f\n", __func__, uvs->cenuv.u, uvs->cenuv.v );
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         printf ( "%s %f %f\n", __func__, uvs->veruv[i].u, uvs->veruv[i].v );
         printf ( "%s %f %f\n", __func__, uvs->miduv[i].u, uvs->miduv[i].v );
     }*/
@@ -257,7 +265,7 @@ void g3duvmap_insertFace ( G3DUVMAP *map, G3DMESH *mes, G3DFACE *fac ) {
 
     /*** Dont project if UVMAP is baked, average using the neighbour uvs ***/
     if ( objmap->flags & UVMAPFIXED ) {
-        for ( i = 0x00; i < fac->nbver; i++ ) {
+        for ( i = 0x00; i < fac->vertexCount; i++ ) {
             float u, v;
 
             g3dvertex_getAverageUV ( fac->ver[i], map, &u, &v );
@@ -296,7 +304,7 @@ void g3duvset_mapFaceWithBackgroundProjection ( G3DUVSET *uvs,
     glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
     glGetIntegerv ( GL_VIEWPORT         , VPX );
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         G3DVERTEX *ver = fac->ver[i];
         double winX, winY, winZ;
         G3DVECTOR3F verwpos;
@@ -427,7 +435,7 @@ void g3duvmap_mapFace ( G3DUVMAP *map, G3DMESH *mes, G3DFACE *fac ) {
     if ( map->projection == UVMAPBACKGROUND ) {
         g3duvset_mapFaceWithBackgroundProjection ( uvs, fac, 0x00 );
     } else  {
-        for ( i = 0x00; i < fac->nbver; i++ ) {
+        for ( i = 0x00; i < fac->vertexCount; i++ ) {
             G3DVERTEX *ver = fac->ver[i];
 
             switch ( map->projection ) {
@@ -475,9 +483,9 @@ void g3duvmap_mapFace ( G3DUVMAP *map, G3DMESH *mes, G3DFACE *fac ) {
         if ( ( map->projection == UVMAPSPHERICAL   ) ||
              ( map->projection == UVMAPCYLINDRICAL ) ) {
             float avgu = ( uvs->veruv[0].u + uvs->veruv[1].u + 
-                           uvs->veruv[2].u + uvs->veruv[3].u ) / fac->nbver;
+                           uvs->veruv[2].u + uvs->veruv[3].u ) / fac->vertexCount;
             float avgv = ( uvs->veruv[0].v + uvs->veruv[1].v + 
-                           uvs->veruv[2].v + uvs->veruv[3].v ) / fac->nbver;
+                           uvs->veruv[2].v + uvs->veruv[3].v ) / fac->vertexCount;
             float facu, facv;
 
             if ( map->projection == UVMAPSPHERICAL ) {
@@ -504,11 +512,11 @@ void g3duvmap_mapFace ( G3DUVMAP *map, G3DMESH *mes, G3DFACE *fac ) {
                 for ( i = 0x00; i < 0x02; i++ ) {
                     for ( j = 0x00; j < 0x02; j++ ) {
                         for ( k = 0x00; k < 0x02; k++ ) {
-                            for ( l = 0x00; l < (( fac->nbver == 0x03 ) ? 0x01 : 0x02); l++ ) {
+                            for ( l = 0x00; l < (( fac->vertexCount == 0x03 ) ? 0x01 : 0x02); l++ ) {
                                 float testavgu =  ( testu[0][i] +
                                                     testu[1][j] + 
                                                     testu[2][k] + 
-                                                    testu[3][l] ) / fac->nbver;
+                                                    testu[3][l] ) / fac->vertexCount;
                                 float match = fabs ( facu - testavgu );
 
                                 /*** find a candidate that matches closely ***/
@@ -543,11 +551,11 @@ void g3duvmap_mapFace ( G3DUVMAP *map, G3DMESH *mes, G3DFACE *fac ) {
                 for ( i = 0x00; i < 0x02; i++ ) {
                     for ( j = 0x00; j < 0x02; j++ ) {
                         for ( k = 0x00; k < 0x02; k++ ) {
-                            for ( l = 0x00; l < (( fac->nbver == 0x03 ) ? 0x01 : 0x02); l++ ) {
+                            for ( l = 0x00; l < (( fac->vertexCount == 0x03 ) ? 0x01 : 0x02); l++ ) {
                                 float testavgv =  ( testv[0][i] +
                                                     testv[1][j] + 
                                                     testv[2][k] + 
-                                                    testv[3][l] ) / fac->nbver;
+                                                    testv[3][l] ) / fac->vertexCount;
                                 float match = fabs ( facv - testavgv );
 
                                 /*** find a candidate that matches closely ***/
@@ -594,17 +602,17 @@ void g3duvmap_applyProjection ( G3DUVMAP *map, G3DMESH *mes ) {
     G3DMESH   *parmes  = mes;
     float xdiameter = map->pln.xradius * 2.0f,
           ydiameter = map->pln.yradius * 2.0f;
-    LIST *ltmpfac = parmes->lfac;
+    LIST *ltmpfac = parmes->faceList;
 
     while ( ltmpfac ) {
-        G3DFACE *fac = ( G3DFACE * ) _GETFACE(parmes,ltmpfac);
+        G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
         /*** This function assigns a UVSet to the face if needed and ***/
         /*** maps the UV coordinates to the face ***/
         g3duvmap_insertFace ( map, mes, fac );
 
 
-        _NEXTFACE(parmes,ltmpfac);
+        ltmpfac = ltmpfac->next;
     }
 }
 
@@ -670,8 +678,10 @@ void g3duvmap_transform ( G3DOBJECT *obj,
              ( ( map->projection == UVMAPBACKGROUND  )         ) ) {
             if ( ( obj->flags & UVMAPFIXED ) == 0x00 ) {
                 g3duvmap_applyProjection ( map, mes );
-
+/*
                 mes->obj.invalidationFlags |= RESETMODIFIERS;
+*/
+                g3dobject_invalidate( obj->parent, INVALIDATE_UVMAPPING );
 
                 g3dmesh_update ( mes, 0x00, engine_flags );
             }

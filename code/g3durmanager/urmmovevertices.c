@@ -102,7 +102,7 @@ static void moveVertices_undo ( G3DURMANAGER *urm,
     /*if ( obj->type & FFD ) g3dffd_modify ( ( G3DFFD * ) mes, engine_flags );*/
 
     g3dmesh_updateBbox ( mvs->mes );
-
+/*
     mes->lupdfac = mvs->lfac;
     mes->lupdedg = mvs->ledg;
     mes->lupdver = mvs->lver;
@@ -112,7 +112,7 @@ static void moveVertices_undo ( G3DURMANAGER *urm,
                                UPDATEVERTEXNORMAL |
                                COMPUTEUVMAPPING   | 
                                UPDATEMODIFIERS );
-
+*/
     /*** update faces and subdivided faces ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
 
@@ -145,7 +145,7 @@ static void moveVertices_redo ( G3DURMANAGER *urm,
 
 
     g3dmesh_updateBbox ( mvs->mes );
-
+/*
     mes->lupdfac = mvs->lfac;
     mes->lupdedg = mvs->ledg;
     mes->lupdver = mvs->lver;
@@ -155,7 +155,7 @@ static void moveVertices_redo ( G3DURMANAGER *urm,
                                UPDATEVERTEXNORMAL |
                                COMPUTEUVMAPPING   | 
                                UPDATEMODIFIERS );
-
+*/
     /*** update faces and subdivided faces ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
 

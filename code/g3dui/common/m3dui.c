@@ -216,10 +216,10 @@ uint64_t m3dui_uvset2fac ( M3DUI *mui ) {
                 G3DUVMAP *curmap = tex->map;
 
                 if ( curmap ) {
-                    LIST *ltmpfac = mes->lfac;
+                    LIST *ltmpfac = mes->faceList;
                     LIST *lselold, *lselnew;
 
-                    lselold = list_copy ( mes->lselfac );
+                    lselold = list_copy ( mes->selectedFaceList );
 
                     g3dmesh_unselectAllFaces ( mes );
 
@@ -237,7 +237,7 @@ uint64_t m3dui_uvset2fac ( M3DUI *mui ) {
                         ltmpfac = ltmpfac->next;
                     }
 
-                    lselnew = list_copy ( mes->lselfac );
+                    lselnew = list_copy ( mes->selectedFaceList );
 
                     /*** remember selection ***/
                     g3durm_mesh_pickFaces  ( mui->gui->urm,
@@ -270,7 +270,7 @@ uint64_t m3dui_fac2uvset ( M3DUI *mui ) {
                 G3DUVMAP *curmap = tex->map;
 
                 if ( curmap ) {
-                    LIST *ltmpfac = mes->lfac;
+                    LIST *ltmpfac = mes->faceList;
                     LIST *lselold, *lselnew;
 
                     lselold = list_copy ( curmap->lseluvset );
@@ -325,10 +325,10 @@ uint64_t m3dui_uv2ver ( M3DUI *mui ) {
                 G3DUVMAP *curmap = tex->map;
 
                 if ( curmap ) {
-                    LIST *ltmpfac = mes->lfac;
+                    LIST *ltmpfac = mes->faceList;
                     LIST *lselold, *lselnew;
 
-                    lselold = list_copy ( mes->lselver );
+                    lselold = list_copy ( mes->selectedVertexList );
 
                     g3dmesh_unselectAllVertices ( mes );
 
@@ -352,7 +352,7 @@ uint64_t m3dui_uv2ver ( M3DUI *mui ) {
                         ltmpfac = ltmpfac->next;
                     }
 
-                    lselnew = list_copy ( mes->lselver );
+                    lselnew = list_copy ( mes->selectedVertexList );
 
                     /*** remember selection ***/
                     g3durm_mesh_pickVertices  ( mui->gui->urm,
@@ -385,7 +385,7 @@ uint64_t m3dui_ver2uv ( M3DUI *mui ) {
                 G3DUVMAP *curmap = tex->map;
 
                 if ( curmap ) {
-                    LIST *ltmpfac = mes->lfac;
+                    LIST *ltmpfac = mes->faceList;
                     LIST *lselold, *lselnew;
 
                     lselold = list_copy ( curmap->lseluv );
@@ -397,7 +397,7 @@ uint64_t m3dui_ver2uv ( M3DUI *mui ) {
                         G3DUVSET *uvset = g3dface_getUVSet ( fac, curmap );
                         int i;
 
-                        for ( i = 0x00; i < fac->nbver; i++ ) {
+                        for ( i = 0x00; i < fac->vertexCount; i++ ) {
                             G3DVERTEX *ver = fac->ver[i];
 
                             if ( ver->flags & VERTEXSELECTED ) {

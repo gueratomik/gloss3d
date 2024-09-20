@@ -43,7 +43,7 @@ void g3dedge_unmark ( G3DEDGE *edg ) {
 /*** returns the first face that is NOT cmp ***/
 G3DFACE *g3dedge_getOtherFace ( G3DEDGE *edg,
                                 G3DFACE *cmp ) {
-    LIST *ltmpfac = edg->lfac;
+    LIST *ltmpfac = edg->faceList;
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -61,17 +61,17 @@ G3DFACE *g3dedge_getOtherFace ( G3DEDGE *edg,
 
 /******************************************************************************/
 LIST *g3dedge_getFacesFromList ( LIST *ledg ) {
-    LIST *lfac = NULL;
+    LIST *faceList = NULL;
 
     while ( ledg ) {
         G3DEDGE *edg = ( G3DEDGE * ) ledg->data;
-        LIST *ltmp = edg->lfac;
+        LIST *ltmp = edg->faceList;
 
         while ( ltmp ) {
             G3DFACE *fac = ( G3DFACE * ) ltmp->data;
 
-            if ( list_seek ( lfac, fac ) == NULL ) {
-                list_insert ( &lfac, fac );
+            if ( list_seek ( faceList, fac ) == NULL ) {
+                list_insert ( &faceList, fac );
             }
 
             ltmp = ltmp->next;
@@ -81,7 +81,7 @@ LIST *g3dedge_getFacesFromList ( LIST *ledg ) {
         ledg = ledg->next;
     } 
 
-    return lfac;
+    return faceList;
 }
 
 /******************************************************************************/
@@ -175,22 +175,22 @@ void g3dedge_unsetSelected ( G3DEDGE *edg ) {
 /******************************************************************************/
 void g3dedge_removeFace ( G3DEDGE *edg,
                           G3DFACE *fac ) {
-    list_remove ( &edg->lfac, fac );
+    list_remove ( &edg->faceList, fac );
 
-    edg->nbfac--;
+    edg->faceCount--;
 }
 
 /******************************************************************************/
 void g3dedge_addFace ( G3DEDGE *edg,
                        G3DFACE *fac ) {
-    list_insert ( &edg->lfac, fac );
+    list_insert ( &edg->faceList, fac );
 
-    edg->nbfac++;
+    edg->faceCount++;
 }
 
 /******************************************************************************/
 uint32_t g3dedge_hasOnlyFullyMirroredFaces ( G3DEDGE *edg ) {
-    LIST *ltmp = edg->lfac;
+    LIST *ltmp = edg->faceList;
 
     while ( ltmp ) {
         G3DFACE *fac = ( G3DFACE * ) ltmp->data;
@@ -208,7 +208,7 @@ uint32_t g3dedge_hasOnlyFullyMirroredFaces ( G3DEDGE *edg ) {
 
 /******************************************************************************/
 uint32_t g3dedge_hasSelectedFace ( G3DEDGE *edg ) {
-    LIST *ltmp = edg->lfac;
+    LIST *ltmp = edg->faceList;
 
     while ( ltmp ) {
         G3DFACE *fac = ( G3DFACE * ) ltmp->data;
@@ -229,7 +229,7 @@ uint32_t g3dedge_hasSelectedFace ( G3DEDGE *edg ) {
 /*** as a parameter.                                                        ***/
 /******************************************************************************/
 uint32_t g3dedge_isBorder ( G3DEDGE *edg ) {
-    LIST *ltmp = edg->lfac;
+    LIST *ltmp = edg->faceList;
 
     if ( list_count ( ltmp ) == 0x01 ) {
         return 0x01;
@@ -256,8 +256,8 @@ void g3dedge_getSubdivisionNormal ( G3DEDGE   *edg,
     G3DVERTEX *v0 = edg->ver[0x00], 
               *v1 = edg->ver[0x01];
     G3DVECTOR3F navg = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
-    uint32_t nbfac = edg->nbfac;
-    LIST *ltmpfac = edg->lfac;
+    uint32_t faceCount = edg->faceCount;
+    LIST *ltmpfac = edg->faceList;
     G3DVECTOR3F *n0 = g3dvertex_getModifiedNormal ( v0, stkvernor ),
               *n1 = g3dvertex_getModifiedNormal ( v1, stkvernor );
 
@@ -284,15 +284,15 @@ void g3dedge_getSubdivisionNormal ( G3DEDGE   *edg,
 
     /*** Some special treatment for symmetry ***/
     nor->x = ( ( v0->flags & VERTEXSYMYZ ) &&
-               ( v1->flags & VERTEXSYMYZ ) ) ? 0.0f : ( navg.x / nbfac );
+               ( v1->flags & VERTEXSYMYZ ) ) ? 0.0f : ( navg.x / faceCount );
 
 
     nor->y = ( ( v0->flags & VERTEXSYMZX ) &&
-               ( v1->flags & VERTEXSYMZX ) ) ? 0.0f : ( navg.y / nbfac );
+               ( v1->flags & VERTEXSYMZX ) ) ? 0.0f : ( navg.y / faceCount );
 
 
     nor->z = ( ( v0->flags & VERTEXSYMXY ) &&
-               ( v1->flags & VERTEXSYMXY ) ) ? 0.0f : ( navg.z / nbfac );
+               ( v1->flags & VERTEXSYMXY ) ) ? 0.0f : ( navg.z / faceCount );
 
     g3dvector3f_normalize ( nor );
 }
@@ -308,8 +308,8 @@ void g3dedge_getSubdivisionPosition ( G3DEDGE   *edg,
               *p1 = g3dvertex_getModifiedPosition ( v1, stkverpos );
     G3DVECTOR3F favg = { .x = 0.0f, .y = 0.0f, .z = 0.0f },
               mavg = { .x = 0.0f, .y = 0.0f, .z = 0.0f };
-    uint32_t nbfac = edg->nbfac;
-    LIST *ltmpfac = edg->lfac;
+    uint32_t faceCount = edg->faceCount;
+    LIST *ltmpfac = edg->faceList;
     uint32_t nbver = 0x02;
 
     /*** Position vector average ***/
@@ -342,9 +342,9 @@ void g3dedge_getSubdivisionPosition ( G3DEDGE   *edg,
     mavg.y /= nbver;
     mavg.z /= nbver;
 
-    favg.x /= nbfac;
-    favg.y /= nbfac;
-    favg.z /= nbfac;
+    favg.x /= faceCount;
+    favg.y /= faceCount;
+    favg.z /= faceCount;
 
     /*** Some special treatment for symmetry ***/
     pos->x = ( ( v0->flags & VERTEXSYMYZ ) &&
@@ -415,7 +415,7 @@ G3DEDGE *g3dedge_seek ( LIST      *lis,
 
 /******************************************************************************/
 void g3dedge_free ( G3DEDGE *edg ) {
-    /*list_free ( &edg->lfac, NULL );*/
+    /*list_free ( &edg->faceList, NULL );*/
 
     /*printf ( "freeing memory for edge\n" );*/
 

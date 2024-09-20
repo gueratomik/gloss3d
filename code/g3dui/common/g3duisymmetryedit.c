@@ -41,7 +41,7 @@ uint64_t g3duisymmetryedit_limit ( G3DUISYMMETRYEDIT *symedit,
 
         if ( sel->type == G3DSYMMETRYTYPE ) {
             G3DSYMMETRY *sym = ( G3DSYMMETRY * ) sel;
-            LIST *ltmpobj = ((G3DOBJECT*)sym)->lchildren;
+            LIST *ltmpobj = G3DOBJECTCAST(sym)->childList;
 
             g3dsymmetry_setMergeLimit ( sym, limit );
 
@@ -52,11 +52,11 @@ uint64_t g3duisymmetryedit_limit ( G3DUISYMMETRYEDIT *symedit,
                     G3DMESH *mes = ( G3DMESH * ) obj;
 
                     g3dsymmetry_meshChildChange ( sym, mes );
-
+/*
                     mes->obj.invalidationFlags |= ( UPDATEVERTEXNORMAL |
                                                     UPDATEFACENORMAL | 
                                                     RESETMODIFIERS );
-
+*/
                     g3dmesh_update ( mes, 0x00, gui->engine_flags );
                 }
 

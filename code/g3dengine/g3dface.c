@@ -80,19 +80,19 @@ Edge ID
 /******************************************************************************/
 void g3dface_addExtension ( G3DFACE          *fac,
                             G3DFACEEXTENSION *ext ) {
-    list_insert ( &fac->lext, ext );
+    list_insert ( &fac->extensionList, ext );
 }
 
 /******************************************************************************/
 void g3dface_removeExtension ( G3DFACE          *fac, 
                                G3DFACEEXTENSION *ext ) {
-    list_remove ( &fac->lext, ext );
+    list_remove ( &fac->extensionList, ext );
 }
 
 /******************************************************************************/
 G3DFACEEXTENSION *g3dface_getExtension ( G3DFACE *fac,
                                          uint64_t name ) {
-    LIST *ltmpext = fac->lext;
+    LIST *ltmpext = fac->extensionList;
 
     while ( ltmpext ) {
         G3DFACEEXTENSION *ext = ( G3DFACEEXTENSION * ) ltmpext->data;
@@ -199,8 +199,8 @@ void g3dface_evalSubdivision ( G3DFACE *fac,
                                uint32_t *totalFaces,
                                uint32_t *totalEdges,
                                uint32_t *totalVertices ) {
-    if ( fac->nbver == 0x03 ) g3dtriangle_evalSubdivision ( level, totalFaces, totalEdges, totalVertices );
-    if ( fac->nbver == 0x04 ) g3dquad_evalSubdivision     ( level, totalFaces, totalEdges, totalVertices );
+    if ( fac->vertexCount == 0x03 ) g3dtriangle_evalSubdivision ( level, totalFaces, totalEdges, totalVertices );
+    if ( fac->vertexCount == 0x04 ) g3dquad_evalSubdivision     ( level, totalFaces, totalEdges, totalVertices );
 }
 
 /*****************************************************************************/
@@ -213,7 +213,7 @@ void g3dface_addHeightMap ( G3DFACE *fac, G3DHEIGHTMAP *heightmap ) {
 uint32_t g3dface_isFullyMirrored ( G3DFACE *fac ) {
     uint32_t i;
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         if ( ( ( fac->ver[i]->flags & VERTEXSYMYZ ) |
                ( fac->ver[i]->flags & VERTEXSYMXY ) |
                ( fac->ver[i]->flags & VERTEXSYMZX ) ) == 0x00 ) {
@@ -242,18 +242,18 @@ void g3dface_initSubface ( G3DFACE      *fac,
     subfac->ancestorFace   = ((G3DSUBFACE*)fac)->ancestorFace;
 
     subfac->fac.flags = fac->flags;
-    subfac->fac.nbver = 0x04;
-    subfac->fac.luvs  = NULL;
-    subfac->fac.nbuvs = 0;
+    subfac->fac.vertexCount = 0x04;
+    subfac->fac.uvsetList  = NULL;
+    subfac->fac.uvsetCount = 0;
 
-    subfac->fac.lext = fac->lext;
+    subfac->fac.extensionList = fac->extensionList;
 
     /* to uncomment */
     /*subfac->rtluim = fac->rtluim;*/
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         if ( fac->ver[i] == oriver ) {
-            uint32_t  p = ( i + fac->nbver - 0x01 ) % fac->nbver;
+            uint32_t  p = ( i + fac->vertexCount - 0x01 ) % fac->vertexCount;
             uint32_t i0 =   i;
             uint32_t i1 = ( i + 0x01 ) % 0x04;
             uint32_t i2 = ( i + 0x02 ) % 0x04;
@@ -308,7 +308,7 @@ uint32_t g3dface_hasEdge ( G3DFACE *fac,
                            G3DEDGE *edg  ) {
     uint32_t i;
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         if ( fac->edg[i] == edg ) return 0x01;
     }
 
@@ -317,18 +317,18 @@ uint32_t g3dface_hasEdge ( G3DFACE *fac,
 
 /*****************************************************************************/
 uint32_t g3dquad_isRegular ( G3DFACE *fac ) {
-    if ( ( fac->ver[0]->nbedg == 0x04 ) &&
-         ( fac->ver[1]->nbedg == 0x04 ) &&
-         ( fac->ver[2]->nbedg == 0x04 ) &&
-         ( fac->ver[3]->nbedg == 0x04 ) &&
-         ( fac->ver[0]->nbfac == 0x04 ) &&
-         ( fac->ver[1]->nbfac == 0x04 ) &&
-         ( fac->ver[2]->nbfac == 0x04 ) &&
-         ( fac->ver[3]->nbfac == 0x04 ) &&
-         ( fac->edg[0]->nbfac == 0x02 ) &&
-         ( fac->edg[1]->nbfac == 0x02 ) &&
-         ( fac->edg[2]->nbfac == 0x02 ) &&
-         ( fac->edg[3]->nbfac == 0x02 ) ) {
+    if ( ( fac->ver[0]->edgeCount == 0x04 ) &&
+         ( fac->ver[1]->edgeCount == 0x04 ) &&
+         ( fac->ver[2]->edgeCount == 0x04 ) &&
+         ( fac->ver[3]->edgeCount == 0x04 ) &&
+         ( fac->ver[0]->faceCount == 0x04 ) &&
+         ( fac->ver[1]->faceCount == 0x04 ) &&
+         ( fac->ver[2]->faceCount == 0x04 ) &&
+         ( fac->ver[3]->faceCount == 0x04 ) &&
+         ( fac->edg[0]->faceCount == 0x02 ) &&
+         ( fac->edg[1]->faceCount == 0x02 ) &&
+         ( fac->edg[2]->faceCount == 0x02 ) &&
+         ( fac->edg[3]->faceCount == 0x02 ) ) {
 
         return 0x01;
     }
@@ -338,7 +338,7 @@ uint32_t g3dquad_isRegular ( G3DFACE *fac ) {
 
 /******************************************************************************/
 void g3dface_subdivideUVSets ( G3DFACE *fac ) {
-    LIST *ltmpuvs = fac->luvs;
+    LIST *ltmpuvs = fac->uvsetList;
 
     while ( ltmpuvs ) {
         G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
@@ -354,8 +354,8 @@ void g3dface_allocSubdividedUVSets ( G3DFACE *fac,
                                      uint32_t nbrtfac ) {
     uint32_t structsize = sizeof ( G3DRTUV );
 
-    /*** TODO - here it should be fac->nbtex instead of fac->nbuvs ***/
-    /*fac->rtluim = realloc ( fac->rtluim, fac->nbuvs * nbrtfac * structsize );*/
+    /*** TODO - here it should be fac->nbtex instead of fac->uvsetCount ***/
+    /*fac->rtluim = realloc ( fac->rtluim, fac->uvsetCount * nbrtfac * structsize );*/
 
     /*if ( fac->rtluim == NULL ) {*/
         fprintf ( stderr, "g3dface_allocSubdividedUVSets: realloc failed\n" );
@@ -365,7 +365,7 @@ void g3dface_allocSubdividedUVSets ( G3DFACE *fac,
 /******************************************************************************/
 void g3dface_importUVSets ( G3DFACE *fac,
                             G3DFACE *ref ) {
-    LIST *ltmpuvs = ref->luvs;
+    LIST *ltmpuvs = ref->uvsetList;
 
     while ( ltmpuvs ) {
         G3DUVSET *refuvs = ( G3DUVSET * ) ltmpuvs->data;
@@ -387,7 +387,7 @@ void g3dface_importUVSets ( G3DFACE *fac,
 /******************************************************************************/
 G3DUVSET *g3dface_getUVSet ( G3DFACE  *fac,
                              G3DUVMAP *map ) {
-    LIST *ltmpuvs = fac->luvs;
+    LIST *ltmpuvs = fac->uvsetList;
 
     while ( ltmpuvs ) {
         G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
@@ -402,18 +402,18 @@ G3DUVSET *g3dface_getUVSet ( G3DFACE  *fac,
 
 /******************************************************************************/
 uint32_t g3dface_countFixedUVSets ( G3DFACE *fac ) {
-    LIST *ltmpuvs = fac->luvs;
-    uint32_t nbuvs = 0x00;
+    LIST *ltmpuvs = fac->uvsetList;
+    uint32_t uvsetCount = 0x00;
 
     while ( ltmpuvs ) {
         G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
 
-        if ( ((G3DOBJECT*)uvs->map)->flags & UVMAPFIXED ) nbuvs++;
+        if ( ((G3DOBJECT*)uvs->map)->flags & UVMAPFIXED ) uvsetCount++;
 
         ltmpuvs = ltmpuvs->next;
     }
 
-    return nbuvs;
+    return uvsetCount;
 }
 
 /******************************************************************************/
@@ -428,20 +428,20 @@ void g3dface_unmark ( G3DFACE *fac ) {
 
 /******************************************************************************/
 /*** returns edges that are common to the list of specified faces ***/
-void g3dface_getSharedEdgesFromList ( LIST *lfac, LIST **ledg ) {
-    LIST *ltmpfac = lfac;
+void g3dface_getSharedEdgesFromList ( LIST *faceList, LIST **ledg ) {
+    LIST *ltmpfac = faceList;
 
-    list_exec ( lfac, LIST_FUNCDATA(g3dface_mark) );
+    list_exec ( faceList, LIST_FUNCDATA(g3dface_mark) );
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
         uint32_t i;
 
-        for ( i = 0x00; i < fac->nbver; i++ ) {
+        for ( i = 0x00; i < fac->vertexCount; i++ ) {
             G3DEDGE *edg = ( G3DEDGE * ) fac->edg[i];
 
             if ( ( edg->flags & EDGEMARKED ) == 0x00 ) {
-                LIST *ltmpedgfac = edg->lfac;
+                LIST *ltmpedgfac = edg->faceList;
                 uint32_t isShared = 0x01;
 
                 while ( ltmpedgfac ) {
@@ -467,20 +467,20 @@ void g3dface_getSharedEdgesFromList ( LIST *lfac, LIST **ledg ) {
 
     /*** clear temporary flags ***/
     list_exec ( (*ledg), LIST_FUNCDATA(g3dedge_unmark) );
-    list_exec (   lfac , LIST_FUNCDATA(g3dface_unmark) );
+    list_exec (   faceList , LIST_FUNCDATA(g3dface_unmark) );
 }
 
 /******************************************************************************/
-void g3dface_getOrphanedEdgesFromList ( LIST *lfac, LIST **ledg ) {
-    LIST *ltmpfac = lfac;
+void g3dface_getOrphanedEdgesFromList ( LIST *faceList, LIST **ledg ) {
+    LIST *ltmpfac = faceList;
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
         uint32_t i;
 
-        for ( i = 0x00; i < fac->nbver; i++ ) {
+        for ( i = 0x00; i < fac->vertexCount; i++ ) {
             if ( fac->edg[i] ) {
-                if ( fac->edg[i]->lfac == NULL ) {
+                if ( fac->edg[i]->faceList == NULL ) {
                     if ( list_seek ( (*ledg), fac->edg[i] ) == NULL ) {
                         list_insert ( ledg, fac->edg[i] );
                     }
@@ -493,36 +493,36 @@ void g3dface_getOrphanedEdgesFromList ( LIST *lfac, LIST **ledg ) {
 }
 
 /******************************************************************************/
-uint32_t g3dface_countUVSetsFromList ( LIST    *lfac,
+uint32_t g3dface_countUVSetsFromList ( LIST    *faceList,
                                        uint32_t fixedOnly ) {
-    uint32_t nbuvs = 0x00;
-    LIST *ltmpfac = lfac;
+    uint32_t uvsetCount = 0x00;
+    LIST *ltmpfac = faceList;
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
         if ( fixedOnly ) {
-            nbuvs += g3dface_countFixedUVSets ( fac );
+            uvsetCount += g3dface_countFixedUVSets ( fac );
         } else {
-            nbuvs += fac->nbuvs;
+            uvsetCount += fac->uvsetCount;
         }
 
         ltmpfac = ltmpfac->next;
     }
 
-    return nbuvs;
+    return uvsetCount;
 }
 
 /******************************************************************************/
 void g3dface_addFacegroup ( G3DFACE      *fac,
                             G3DFACEGROUP *facgrp ) {
-    list_insert ( &fac->lfacgrp, facgrp );
+    list_insert ( &fac->facegroupList, facgrp );
 }
 
 /******************************************************************************/
 void g3dface_removeFacegroup ( G3DFACE      *fac,
                                G3DFACEGROUP *facgrp ) {
-    list_remove ( &fac->lfacgrp, facgrp );
+    list_remove ( &fac->facegroupList, facgrp );
 }
 
 /******************************************************************************/
@@ -530,17 +530,17 @@ void g3dface_addUVSet ( G3DFACE  *fac,
                         G3DUVSET *uvs ) {
     uint32_t i;
 
-    uvs->nbuv = fac->nbver;
+    uvs->nbuv = fac->vertexCount;
     uvs->fac  = fac;
 
-    list_insert ( &fac->luvs, uvs );
+    list_insert ( &fac->uvsetList, uvs );
 
-    fac->nbuvs++;
+    fac->uvsetCount++;
 }
 
 /******************************************************************************/
 void g3dface_removeAllUVSets ( G3DFACE *fac ) {
-    LIST *ltmpuvs = fac->luvs;
+    LIST *ltmpuvs = fac->uvsetList;
 
     while ( ltmpuvs ) {
         G3DUVSET *uvs = ( G3DUVSET * ) ltmpuvs->data;
@@ -559,9 +559,9 @@ void g3dface_removeUVSet ( G3DFACE  *fac,
                            G3DUVSET *uvs ) {
     uint32_t i;
 
-    list_remove ( &fac->luvs, uvs );
+    list_remove ( &fac->uvsetList, uvs );
 
-    fac->nbuvs--;
+    fac->uvsetCount--;
 }
 
 /******************************************************************************/
@@ -569,7 +569,7 @@ G3DEDGE *g3dface_getEdgeByID ( G3DFACE *fac,
                                uint32_t id ) {
     uint32_t i;
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         if ( fac->edg[i]->id == id ) {
             return fac->edg[i];
         }
@@ -583,7 +583,7 @@ G3DVERTEX *g3dface_getVertexByID ( G3DFACE *fac,
                                    uint32_t id ) {
     uint32_t i;
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         if ( fac->ver[i]->id == id ) {
             return fac->ver[i];
         }
@@ -593,15 +593,15 @@ G3DVERTEX *g3dface_getVertexByID ( G3DFACE *fac,
 }
 
 /******************************************************************************/
-LIST *g3dface_getVerticesFromList ( LIST *lfac ) {
-    LIST *ltmp = lfac;
+LIST *g3dface_getVerticesFromList ( LIST *faceList ) {
+    LIST *ltmp = faceList;
     LIST *lver = NULL;
 
     while ( ltmp ) {
         G3DFACE *fac = ( G3DFACE * ) ltmp->data;
         int i;
 
-        for ( i = 0x00; i < fac->nbver; i++ ) {
+        for ( i = 0x00; i < fac->vertexCount; i++ ) {
             if ( list_seek ( lver, fac->ver[i] ) == NULL ) {
                 list_insert ( &lver, fac->ver[i] );
             }
@@ -614,17 +614,17 @@ LIST *g3dface_getVerticesFromList ( LIST *lfac ) {
 }
 
 /******************************************************************************/
-LIST *g3dface_getExtendedFacesFromList ( LIST *lfac ) {
-    LIST *lextfac = list_copy ( lfac );
-    LIST *ltmpfac = lfac;
+LIST *g3dface_getExtendedFacesFromList ( LIST *faceList ) {
+    LIST *lextfac = list_copy ( faceList );
+    LIST *ltmpfac = faceList;
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
         uint32_t i;
 
-        for ( i = 0x00; i < fac->nbver; i++ ) {
+        for ( i = 0x00; i < fac->vertexCount; i++ ) {
             G3DEDGE *edg = ( G3DEDGE * ) fac->edg[i];
-            LIST *ltmpedgfac = edg->lfac;
+            LIST *ltmpedgfac = edg->faceList;
 
             while ( ltmpedgfac ) {
                 G3DFACE *extfac = ( G3DFACE * ) ltmpedgfac->data;
@@ -644,17 +644,17 @@ LIST *g3dface_getExtendedFacesFromList ( LIST *lfac ) {
 }
 
 /******************************************************************************/
-LIST *g3dface_getNeighbourFacesFromList ( LIST *lfac ) {
-    LIST *lextfac = list_copy ( lfac );
-    LIST *ltmpfac = lfac;
+LIST *g3dface_getNeighbourFacesFromList ( LIST *faceList ) {
+    LIST *lextfac = list_copy ( faceList );
+    LIST *ltmpfac = faceList;
 
     while ( ltmpfac ) {
         G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
         uint32_t i;
 
-        for ( i = 0x00; i < fac->nbver; i++ ) {
+        for ( i = 0x00; i < fac->vertexCount; i++ ) {
             G3DVERTEX *ver = fac->ver[i];
-            LIST *ltmpverfac = ver->lfac;
+            LIST *ltmpverfac = ver->faceList;
 
             while ( ltmpverfac ) {
                 G3DFACE *extfac = ( G3DFACE * ) ltmpverfac->data;
@@ -676,7 +676,7 @@ LIST *g3dface_getNeighbourFacesFromList ( LIST *lfac ) {
 /******************************************************************************/
 uint32_t g3dface_hasTextureSlot ( G3DFACE *fac, 
                                   uint32_t texSlotBit  ) {
-    LIST *ltmpfacgrp = fac->lfacgrp;
+    LIST *ltmpfacgrp = fac->facegroupList;
 
     while ( ltmpfacgrp ) {
         G3DFACEGROUP *facgrp = ( G3DFACEGROUP * ) ltmpfacgrp->data;
@@ -921,7 +921,7 @@ void g3dface_drawSimple  ( G3DFACE *fac,
               *v2 = fac->ver[0x02],
               *v3 = fac->ver[0x03];
 
-    if ( fac->nbver == 0x03 ) {
+    if ( fac->vertexCount == 0x03 ) {
         G3DVECTOR3F *p0 = &v0->pos,
                   *p1 = &v1->pos,
                   *p2 = &v2->pos;
@@ -956,10 +956,10 @@ void g3dface_drawSkin ( G3DFACE *fac,
                         uint64_t engine_flags ) {
     int i;
 
-    ( fac->nbver == 0x04 ) ? glBegin ( GL_QUADS     ) : 
+    ( fac->vertexCount == 0x04 ) ? glBegin ( GL_QUADS     ) : 
                              glBegin ( GL_TRIANGLES ); 
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         if ( fac->ver[i]->flags & VERTEXPAINTED ) {
             glColor3f ( 1.0f, fac->ver[i]->weight, 0.0f );
         } else {
@@ -990,9 +990,9 @@ void g3dface_draw  ( G3DFACE   *fac,
        nbtex = g3dface_bindMaterials ( fac, ltex, texcoord, object_flags, engine_flags );
     }
 
-    ( fac->nbver == 0x04 ) ? glBegin ( GL_QUADS     ) : 
+    ( fac->vertexCount == 0x04 ) ? glBegin ( GL_QUADS     ) : 
                              glBegin ( GL_TRIANGLES ); 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         G3DVECTOR3F *pos = ( verpos ) ? &verpos[fac->ver[i]->id] : &fac->ver[i]->pos;
         G3DVECTOR3F *nor = ( vernor ) ? &vernor[fac->ver[i]->id] : &fac->ver[i]->nor;
 
@@ -1033,7 +1033,7 @@ void g3dface_draw  ( G3DFACE   *fac,
     glEnd ( );
 
     if ( ( ( engine_flags & NOTEXTURE  ) == 0x00 ) && 
-         ( ( engine_flags & SELECTMODE ) == 0x00 ) && ltex && fac->luvs ) {
+         ( ( engine_flags & SELECTMODE ) == 0x00 ) && ltex && fac->uvsetList ) {
         g3dface_unbindMaterials ( fac, ltex, object_flags, engine_flags );
     }
 
@@ -1058,14 +1058,14 @@ void g3dface_drawTriangle  ( G3DFACE *fac,
 }
 
 /******************************************************************************/
-LIST *g3dface_getEdgesFromList ( LIST *lfac ) {
+LIST *g3dface_getEdgesFromList ( LIST *faceList ) {
     LIST *ledg = NULL;
 
-    while ( lfac ) {
-        G3DFACE *fac = ( G3DFACE * ) lfac->data;
+    while ( faceList ) {
+        G3DFACE *fac = ( G3DFACE * ) faceList->data;
         uint32_t i;
 
-        for ( i = 0x00; i < fac->nbver; i++ ) {
+        for ( i = 0x00; i < fac->vertexCount; i++ ) {
             G3DEDGE *edg = fac->edg[i];
 
             if ( list_seek ( ledg, edg ) == NULL ) {
@@ -1073,7 +1073,7 @@ LIST *g3dface_getEdgesFromList ( LIST *lfac ) {
             }
         }
 
-        lfac = lfac->next;
+        faceList = faceList->next;
     } 
 
     return ledg;
@@ -1085,9 +1085,9 @@ uint32_t g3dface_isAligned ( G3DFACE *fac,
                              G3DFACE *ali ) {
     uint32_t i;
 
-    for ( i = 0x00; i < ali->nbver; i++ ) {
+    for ( i = 0x00; i < ali->vertexCount; i++ ) {
         G3DEDGE *edg = ( G3DEDGE * ) ali->edg[i];
-        int n = ( i + 0x01 ) % ali->nbver;
+        int n = ( i + 0x01 ) % ali->vertexCount;
 
         if ( edg == fac->edg[edgeid] ) {
             if ( ali->ver[i] == fac->ver[edgeid] ) {
@@ -1107,8 +1107,8 @@ void g3dface_replaceVertex ( G3DFACE   *fac,
                              G3DVERTEX *sub ) {
     int i;
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
-        int p = ( i + fac->nbver - 0x01 ) % fac->nbver;
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
+        int p = ( i + fac->vertexCount - 0x01 ) % fac->vertexCount;
 
         if ( fac->ver[i] == ref ) {
             fac->ver[i] = sub;
@@ -1132,10 +1132,10 @@ void g3dface_replaceVertex ( G3DFACE   *fac,
 void g3dface_alignUnselected ( G3DFACE *fac ) {
     int i;
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         G3DEDGE *edgi = ( G3DEDGE * ) fac->edg[i];
-        int n = ( i + 0x01 ) % fac->nbver;
-        LIST *ltmp = edgi->lfac;
+        int n = ( i + 0x01 ) % fac->vertexCount;
+        LIST *ltmp = edgi->faceList;
 
         while ( ltmp ) {
             G3DFACE *nei = ( G3DFACE * ) ltmp->data;
@@ -1160,10 +1160,10 @@ void g3dface_alignUnselected ( G3DFACE *fac ) {
 void g3dface_recurseAlign ( G3DFACE *fac ) {
     int i;
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         G3DEDGE *edgi = ( G3DEDGE * ) fac->edg[i];
-        int n = ( i + 0x01 ) % fac->nbver;
-        LIST *ltmp = edgi->lfac;
+        int n = ( i + 0x01 ) % fac->vertexCount;
+        LIST *ltmp = edgi->faceList;
 
         while ( ltmp ) {
             G3DFACE *nei = ( G3DFACE * ) ltmp->data;
@@ -1194,7 +1194,7 @@ G3DFACE *g3dface_weld ( G3DFACE   *fac,
     uint32_t nbhit = 0x00;
     uint32_t i;
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         if ( list_seek ( lselver, fac->ver[i] ) ) {
             ver[i] = fac->ver[i];
 
@@ -1207,11 +1207,11 @@ G3DFACE *g3dface_weld ( G3DFACE   *fac,
     if ( nbhit == 0x04 ) return NULL;
 
     /*** if the face is a triangle, welding 2 vertices makes it disappear ! ***/
-    if ( ( nbhit == 0x02 ) && ( fac->nbver == 0x03 ) ) return NULL;
+    if ( ( nbhit == 0x02 ) && ( fac->vertexCount == 0x03 ) ) return NULL;
 
     /*** if the face is a quad, welding 2 points make it disappear if these ***/
     /*** two vertices are not neighbours. Otherwise, a triangle is created. ***/
-    if ( ( nbhit == 0x02 ) && ( fac->nbver == 0x04 ) ) {
+    if ( ( nbhit == 0x02 ) && ( fac->vertexCount == 0x04 ) ) {
         if ( ( ver[0x00] && ver[0x02] ) ||
              ( ver[0x01] && ver[0x03] ) ) {
 
@@ -1220,7 +1220,7 @@ G3DFACE *g3dface_weld ( G3DFACE   *fac,
             G3DVERTEX *tri[0x03] = { NULL, NULL, wel };
             uint32_t n = 0x00;
 
-            for ( i = 0x00; i < fac->nbver; i++ ) {
+            for ( i = 0x00; i < fac->vertexCount; i++ ) {
                 if ( ver[i] == NULL ) tri[n++] = fac->ver[i];
             }
 
@@ -1231,12 +1231,12 @@ G3DFACE *g3dface_weld ( G3DFACE   *fac,
     if ( ( nbhit == 0x01 ) ) {
         G3DVERTEX *pnt[0x04] = { NULL, NULL, NULL, NULL };
 
-        for ( i = 0x00; i < fac->nbver; i++ ) {
+        for ( i = 0x00; i < fac->vertexCount; i++ ) {
             if ( ver[i] == NULL ) pnt[i] = fac->ver[i];
             else                  pnt[i] = wel;
         }
 
-        return g3dface_new ( pnt, fac->nbver );
+        return g3dface_new ( pnt, fac->vertexCount );
     }
 
     return NULL;
@@ -1247,7 +1247,7 @@ void g3dface_drawEdges ( G3DFACE *fac,
                          uint64_t engine_flags ) {
     int i;
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         if ( fac->edg[i] ) {
             g3dedge_draw ( fac->edg[i], engine_flags );
         }
@@ -1286,8 +1286,8 @@ uint32_t g3dface_convert ( G3DFACE        *fac,
         if ( engine_flags & SYMMETRYVIEW ) ptid = symid;
         else                               ptid = nrmid;
 
-        for ( j = 0x00, n = ptid; j < fac->nbver; j += 0x03 ) {
-            LIST *ltmpuvs = fac->luvs;
+        for ( j = 0x00, n = ptid; j < fac->vertexCount; j += 0x03 ) {
+            LIST *ltmpuvs = fac->uvsetList;
             G3DTINYVECTOR *pos, *nor;
 
             (*rttriptr)->tripos.x = (*rttriptr)->trinor.x = 0.0f;
@@ -1348,7 +1348,7 @@ uint32_t g3dface_convert ( G3DFACE        *fac,
 
     if ( rtquaptr ) {
         G3DRTQUAD *rtqua = (*rtquaptr);
-        LIST *ltmpuvs = fac->luvs;
+        LIST *ltmpuvs = fac->uvsetList;
 
         for ( i = 0x00; i < 0x04; i++ ) {
             G3DRTVERTEX *rtver = &rtqua->rtver[i];
@@ -1394,7 +1394,7 @@ uint32_t g3dface_convert ( G3DFACE        *fac,
             if ( lock == NULL ) lock = CreateMutex ( NULL, FALSE, NULL );
             #endif
 
-            for ( i = 0x00; i < fac->nbver; i++ ) {
+            for ( i = 0x00; i < fac->vertexCount; i++ ) {
                 G3DVERTEX *ancestorVer = g3dface_getVertexByID ( ancestor, fac->ver[i]->id );
                 G3DVERTEX *v0 = fac->ver[i];
                 G3DVECTOR3F *p0 = &v0->pos;
@@ -1447,7 +1447,7 @@ uint32_t g3dface_convert ( G3DFACE        *fac,
             if ( lock == NULL ) lock = CreateMutex ( NULL, FALSE, NULL );
             #endif
 
-            for ( i = 0x00; i < fac->nbver; i++ ) {
+            for ( i = 0x00; i < fac->vertexCount; i++ ) {
                 G3DEDGE *edg = fac->edg[i];
                 G3DVERTEX *v0 = edg->ver[0x00],
                           *v1 = edg->ver[0x01];
@@ -1526,7 +1526,7 @@ void g3dface_invertNormal ( G3DFACE *fac ) {
     G3DEDGE   *tmpedg;
     uint32_t i;
 
-    if ( fac->nbver == 0x04 ) {
+    if ( fac->vertexCount == 0x04 ) {
         tmpver = fac->ver[0x00];
         fac->ver[0x00] = fac->ver[0x01];
         fac->ver[0x01] = tmpver;
@@ -1550,8 +1550,12 @@ void g3dface_invertNormal ( G3DFACE *fac ) {
 
     g3dface_update ( fac );
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
-        g3dvertex_normal ( fac->ver[i], 0x00 );
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
+        g3dvertex_updateNormal ( fac->ver[i], 0x00 );
+    }
+
+    if( fac->owner ) {
+        g3dobject_invalidate( fac->owner, INVALIDATE_SHAPE );
     }
 }
 
@@ -1578,7 +1582,7 @@ void g3dface_unsetSelected ( G3DFACE *fac ) {
 /******************************************************************************/
 int g3dface_pointin ( G3DFACE   *fac, 
                       G3DVECTOR3F *vp ) {
-    if ( fac->nbver == 0x03 ) {
+    if ( fac->vertexCount == 0x03 ) {
         if ( g3dvector3f_sameside ( &fac->ver[0x00]->pos, &fac->ver[0x01]->pos, &fac->pos, vp ) &&
              g3dvector3f_sameside ( &fac->ver[0x01]->pos, &fac->ver[0x02]->pos, &fac->pos, vp ) &&
              g3dvector3f_sameside ( &fac->ver[0x02]->pos, &fac->ver[0x00]->pos, &fac->pos, vp ) ) {
@@ -1658,7 +1662,7 @@ void g3dface_computeModifiedNormal ( G3DFACE     *fac,
 
     g3dvector3f_cross ( &p0p1, &p0p2, facnor );
 
-    if ( fac->nbver == 0x04 ) {
+    if ( fac->vertexCount == 0x04 ) {
         G3DVERTEX *v3 = fac->ver[0x03];
         G3DVECTOR3F *p3 = ( stkverpos ) ? &stkverpos[v3->id] : &v3->pos;
         G3DVECTOR3F p2p3 = { ( p3->x - p2->x ),
@@ -1691,12 +1695,12 @@ void g3dface_updateModifiedNormal ( G3DFACE   *fac,
 void g3dface_computeModifiedPosition ( G3DFACE   *fac,
                                        G3DVECTOR3F *stkverpos,
                                        G3DVECTOR3F *facpos ) {
-    float    nbverdiv = ( fac->nbver == 0x03 ) ? 0.3333f : 0.25f;
+    float    nbverdiv = ( fac->vertexCount == 0x03 ) ? 0.3333f : 0.25f;
     uint32_t i;
 
     facpos->x = facpos->y = facpos->z = 0.0f;
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         G3DVECTOR3F *verpos = g3dvertex_getModifiedPosition ( fac->ver[i], 
                                                             stkverpos );
 
@@ -1745,12 +1749,12 @@ void g3dface_update ( G3DFACE *fac ) {
 void g3dface_initWithEdges ( G3DFACE    *fac,
                              G3DVERTEX **ver, 
                              G3DEDGE   **edg,
-                             uint32_t    nbver ) {
+                             uint32_t    vertexCount ) {
     uint32_t i;
 
-    g3dface_init ( fac, ver, nbver );
+    g3dface_init ( fac, ver, vertexCount );
 
-    for ( i = 0x00; i < nbver; i++ ) {
+    for ( i = 0x00; i < vertexCount; i++ ) {
         fac->edg[i] = edg[i];
     }
 }
@@ -1758,13 +1762,13 @@ void g3dface_initWithEdges ( G3DFACE    *fac,
 /******************************************************************************/
 void g3dface_init ( G3DFACE    *fac, 
                     G3DVERTEX **ver, 
-                    uint32_t    nbver ) {
+                    uint32_t    vertexCount ) {
     uint32_t i;
 
-    fac->nbver = nbver;
+    fac->vertexCount = vertexCount;
 
     /*** add this face to the vertex's faces list ***/
-    for ( i = 0x00; i < nbver; i++ ) {
+    for ( i = 0x00; i < vertexCount; i++ ) {
         fac->ver[i] = ver[i];
     }
 
@@ -1775,7 +1779,7 @@ void g3dface_init ( G3DFACE    *fac,
 /******************************************************************************/
 G3DFACE *g3dface_newWithEdges ( G3DVERTEX **ver,
                                 G3DEDGE   **edg, 
-                                uint32_t    nbver ) {
+                                uint32_t    vertexCount ) {
     G3DFACE *fac;
     uint32_t i;
 
@@ -1787,14 +1791,14 @@ G3DFACE *g3dface_newWithEdges ( G3DVERTEX **ver,
         return NULL;
     }
 
-    g3dface_initWithEdges ( fac, ver, edg, nbver );
+    g3dface_initWithEdges ( fac, ver, edg, vertexCount );
 
     return fac;
 }
 
 /******************************************************************************/
 G3DFACE *g3dface_new ( G3DVERTEX **ver, 
-                       uint32_t    nbver ) {
+                       uint32_t    vertexCount ) {
     G3DFACE *fac;
     uint32_t i;
 
@@ -1805,7 +1809,7 @@ G3DFACE *g3dface_new ( G3DVERTEX **ver,
         return NULL;
     }
 
-    g3dface_init ( fac, ver, nbver );
+    g3dface_init ( fac, ver, vertexCount );
 
     return fac;
 }
@@ -1833,7 +1837,7 @@ G3DFACE *g3dtriangle_new ( G3DVERTEX *v0,
 /*void g3dface_linkVertices ( G3DFACE *fac ) {
     uint32_t i;
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         g3dvertex_addFace ( fac->ver[i], fac );
     }
 }*/
@@ -1843,10 +1847,10 @@ G3DFACE *g3dtriangle_new ( G3DVERTEX *v0,
 /*** Works only for triangles of course. ***/
 G3DVERTEX *g3dface_getLoneVertex ( G3DFACE *fac,
                                    G3DEDGE *edg ) {
-    if ( fac->nbver == 0x03 ) {
+    if ( fac->vertexCount == 0x03 ) {
         uint32_t i;
 
-        for ( i = 0x00; i < fac->nbver; i++ ) {
+        for ( i = 0x00; i < fac->vertexCount; i++ ) {
             if ( ( fac->ver[i] != edg->ver[0x00] )&&
                  ( fac->ver[i] != edg->ver[0x01] ) ) {
                 return fac->ver[i];
@@ -1866,18 +1870,18 @@ G3DVERTEX *g3dface_getLoneVertex ( G3DFACE *fac,
 uint32_t g3dface_checkOrientation ( G3DFACE *fac ) {
     uint32_t i;
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
-        uint32_t n = ( i + 0x01 ) % fac->nbver;
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
+        uint32_t n = ( i + 0x01 ) % fac->vertexCount;
         G3DEDGE *edg = fac->edg[i];
-        LIST *ltmpfac = edg->lfac;
+        LIST *ltmpfac = edg->faceList;
 
         while ( ltmpfac ) {
             G3DFACE *nei = ( G3DFACE * ) ltmpfac->data;
             int j;
 
             if ( nei != fac ) {   
-                for ( j = 0x00; j < nei->nbver; j++ ) {
-                    uint32_t k = ( j + 0x01 ) % nei->nbver;
+                for ( j = 0x00; j < nei->vertexCount; j++ ) {
+                    uint32_t k = ( j + 0x01 ) % nei->vertexCount;
 
                     if ( nei->ver[k] == fac->ver[i] ) {
                         if ( nei->ver[j] == fac->ver[n] ) {
@@ -1940,10 +1944,10 @@ G3DEDGE *g3dface_compare ( G3DFACE *fac,
                            G3DFACE *bud ) {
     uint32_t i/*, nb = 0x00*/;
 
-    for ( i = 0x00; i < fac->nbver; i++ ) {
+    for ( i = 0x00; i < fac->vertexCount; i++ ) {
         uint32_t j;
 
-        for ( j = 0x00; j < bud->nbver; j++ ) {
+        for ( j = 0x00; j < bud->vertexCount; j++ ) {
             if ( fac->edg[i] == bud->edg[j] ) {
                 return fac->edg[i];
             }
@@ -1956,7 +1960,7 @@ G3DEDGE *g3dface_compare ( G3DFACE *fac,
 /******************************************************************************/
 void g3dface_free ( G3DFACE *fac ) {
     /*printf ( "freeing memory for face\n" );*/
-    list_free ( &fac->luvs, LIST_FUNCDATA(g3duvset_free) );
+    list_free ( &fac->uvsetList, LIST_FUNCDATA(g3duvset_free) );
 
     free ( fac );
 }

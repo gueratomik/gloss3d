@@ -35,7 +35,7 @@ void g3dsubindex_buildFromQuad ( G3DSUBINDEX *subindexes,
     G3DSYSINFO *sif = g3dsysinfo_get ( );
     /*** Get the temporary subdivision arrays for CPU #0 ***/
     G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, 0x00 );
-    uint32_t nbfac = pow ( 0x04, subdiv_level );
+    uint32_t faceCount = pow ( 0x04, subdiv_level );
     /*** we use the G3DSUB version so we don't have to free memory ***/
     G3DSUBVERTEX subver[0x04];
     G3DSUBEDGE   subedg[0x04];
@@ -45,7 +45,7 @@ void g3dsubindex_buildFromQuad ( G3DSUBINDEX *subindexes,
     memset ( &subedg, 0x00, sizeof ( G3DSUBEDGE   ) * 0x04 );
     memset ( &subfac, 0x00, sizeof ( G3DSUBFACE   ) );
 
-    subindexes->qua = (uint32_t(*)[4]) calloc ( nbfac, sizeof ( uint32_t ) * 0x04 );
+    subindexes->qua = (uint32_t(*)[4]) calloc ( faceCount, sizeof ( uint32_t ) * 0x04 );
 
     subedg[0x00].edg.ver[0x00] = (G3DVERTEX*)&subver[0x00];
     subedg[0x00].edg.ver[0x01] = (G3DVERTEX*)&subver[0x01];
@@ -66,7 +66,7 @@ void g3dsubindex_buildFromQuad ( G3DSUBINDEX *subindexes,
     subfac.fac.edg[0x02] = (G3DEDGE*)&subedg[0x02];
     subfac.fac.edg[0x03] = (G3DEDGE*)&subedg[0x03];
 
-    subfac.fac.nbver     = 0x04;
+    subfac.fac.vertexCount     = 0x04;
 
     g3dsubvertex_addFace ( &subver[0x00], (G3DFACE*)&subfac );
     g3dsubvertex_addFace ( &subver[0x01], (G3DFACE*)&subfac );
@@ -111,7 +111,7 @@ void g3dsubindex_buildFromTriangle ( G3DSUBINDEX *subindexes,
     G3DSYSINFO *sif = g3dsysinfo_get ( );
     /*** Get the temporary subdivision arrays for CPU #0 ***/
     G3DSUBDIVISION *sdv = g3dsysinfo_getSubdivision ( sif, 0x00 );
-    uint32_t nbfac = pow ( 0x04, subdiv_level );
+    uint32_t faceCount = pow ( 0x04, subdiv_level );
     /*** we use the G3DSUB version so we don't have to free memory ***/
     G3DSUBVERTEX subver[0x03];
     G3DSUBEDGE   subedg[0x03];
@@ -121,7 +121,7 @@ void g3dsubindex_buildFromTriangle ( G3DSUBINDEX *subindexes,
     memset ( &subedg, 0x00, sizeof ( G3DSUBEDGE   ) * 0x03 );
     memset ( &subfac, 0x00, sizeof ( G3DSUBFACE   ) );
 
-    subindexes->tri = (uint32_t(*)[4]) calloc ( nbfac, sizeof ( uint32_t ) * 0x04 );
+    subindexes->tri = (uint32_t(*)[4]) calloc ( faceCount, sizeof ( uint32_t ) * 0x04 );
 
     subedg[0x00].edg.ver[0x00] = (G3DVERTEX*)&subver[0x00];
     subedg[0x00].edg.ver[0x01] = (G3DVERTEX*)&subver[0x01];
@@ -138,7 +138,7 @@ void g3dsubindex_buildFromTriangle ( G3DSUBINDEX *subindexes,
     subfac.fac.edg[0x01] = (G3DEDGE*)&subedg[0x01];
     subfac.fac.edg[0x02] = (G3DEDGE*)&subedg[0x02];
 
-    subfac.fac.nbver     = 0x03;
+    subfac.fac.vertexCount     = 0x03;
 
     g3dsubvertex_addFace ( &subver[0x00], (G3DFACE*)&subfac );
     g3dsubvertex_addFace ( &subver[0x01], (G3DFACE*)&subfac );
@@ -176,7 +176,7 @@ void g3dsubindex_buildFromTriangle ( G3DSUBINDEX *subindexes,
 }
 
 /******************************************************************************/
-uint32_t *g3dsubindex_get ( uint32_t nbver, uint32_t subdiv_level ) {
+uint32_t *g3dsubindex_get ( uint32_t vertexCount, uint32_t subdiv_level ) {
     /*** maximum subdiv level is 0x10. No one will go this deep anyway :) ***/
     static G3DSUBINDEX *subindexes[0x10];
 
@@ -201,8 +201,8 @@ uint32_t *g3dsubindex_get ( uint32_t nbver, uint32_t subdiv_level ) {
         g3dsubindex_buildFromTriangle ( subindexes[subdiv_level], subdiv_level );
     }
 
-    if ( nbver == 0x04 ) return (uint32_t*) subindexes[subdiv_level]->qua;
-    if ( nbver == 0x03 ) return (uint32_t*) subindexes[subdiv_level]->tri;
+    if ( vertexCount == 0x04 ) return (uint32_t*) subindexes[subdiv_level]->qua;
+    if ( vertexCount == 0x03 ) return (uint32_t*) subindexes[subdiv_level]->tri;
 
     return NULL;
 }

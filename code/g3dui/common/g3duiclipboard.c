@@ -230,7 +230,7 @@ void g3duiclipboard_paste ( G3DUICLIPBOARD *cli,
 
                     while ( ltmpcpy ) {
                         G3DUICOPIEDITEM *item = ( G3DUICOPIEDITEM * ) ltmpcpy->data;
-                        LIST *ltmpfac = mes->lselfac;
+                        LIST *ltmpfac = mes->selectedFaceList;
 
                         while ( ltmpfac ) {
                             G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -248,18 +248,18 @@ void g3duiclipboard_paste ( G3DUICLIPBOARD *cli,
                             }
 
                             if ( fse != item->fse ) {
-                                if ( fse->nbver == item->fse->nbver ) {
+                                if ( fse->vertexCount == item->fse->vertexCount ) {
                                     switch ( sdr->sculptMode ) {
                                         case SCULPTMODE_SCULPT :
                                             memcpy ( fse->pos, 
                                                item->fse->pos, 
-                                                     fse->nbver * sizeof ( G3DVECTOR3F ) );
+                                                     fse->vertexCount * sizeof ( G3DVECTOR3F ) );
                                         break;
 
                                         default :
                                             memcpy ( fse->hei, 
                                                item->fse->hei, 
-                                                     fse->nbver * sizeof ( G3DHEIGHT ) );
+                                                     fse->vertexCount * sizeof ( G3DHEIGHT ) );
                                         break;
                                     }
                                 }
@@ -310,12 +310,12 @@ void g3duiclipboard_copyFaceSculptExtension ( G3DUICLIPBOARD *cli,
         switch ( sdr->sculptMode ) {
             case SCULPTMODE_SCULPT :
                 memcpy ( item->fse->pos, 
-                               fse->pos, fse->nbver * sizeof ( G3DVECTOR4F ) );
+                               fse->pos, fse->vertexCount * sizeof ( G3DVECTOR4F ) );
             break;
 
             default :
                 memcpy ( item->fse->hei, 
-                               fse->hei, fse->nbver * sizeof ( G3DHEIGHT ) );
+                               fse->hei, fse->vertexCount * sizeof ( G3DHEIGHT ) );
             break;
         }
 

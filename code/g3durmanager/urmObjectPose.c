@@ -109,14 +109,14 @@ void objectPose_undo ( G3DURMANAGER *urm,
     while ( ltmpop ) {
         URMOBJECTPOSE *op = ( URMOBJECTPOSE * ) ltmpop->data;
 
-        list_remove ( &op->obj->lkey, op->key );
+        list_remove ( &op->obj->keyList, op->key );
  
-        op->obj->nbkey--;
+        op->obj->keyCount--;
 
         if ( op->overwrittenKey ) {
-            list_insert ( &op->obj->lkey, op->overwrittenKey );
+            list_insert ( &op->obj->keyList, op->overwrittenKey );
 
-            op->obj->nbkey++;
+            op->obj->keyCount++;
         }
 
         list_execargdata ( op->lremovedPosSegments, LIST_FUNCARGDATA(g3dcurve_addSegment), op->obj->curve[0x00] );
@@ -140,14 +140,14 @@ void objectPose_redo ( G3DURMANAGER *urm,
     while ( ltmpop ) {
         URMOBJECTPOSE *op = ( URMOBJECTPOSE * ) ltmpop->data;
 
-        list_insert ( &op->obj->lkey, op->key );
+        list_insert ( &op->obj->keyList, op->key );
  
-        op->obj->nbkey++;
+        op->obj->keyCount++;
 
         if ( op->overwrittenKey ) {
-            list_remove ( &op->obj->lkey, op->overwrittenKey );
+            list_remove ( &op->obj->keyList, op->overwrittenKey );
 
-            op->obj->nbkey--;
+            op->obj->keyCount--;
         }
 
         list_execargdata ( op->lremovedPosSegments, LIST_FUNCARGDATA(g3dcurve_removeSegment), op->obj->curve[0x00] );

@@ -90,7 +90,7 @@ uint64_t g3duitextureedit_setUVMap ( G3DUITEXTUREEDIT *texedit,
         if ( obj->type == G3DMESHTYPE ) {
             G3DMESH *mes  = ( G3DMESH * ) obj;
             G3DUVMAP *map = g3dmesh_getUVMapByRank ( mes, rank );
-            LIST *ltmpseltex = mes->lseltex;
+            LIST *ltmpseltex = mes->selectedTextureList;
 
             while ( ltmpseltex ) {
                 G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmpseltex->data;

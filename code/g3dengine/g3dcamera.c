@@ -217,7 +217,7 @@ void g3dcamera_setTarget ( G3DCAMERA *cam,
 
 
     if ( cam->obj.parent ) {
-       if ( list_seek ( cam->obj.parent->lchildren, cam->target ) == NULL ) {
+       if ( list_seek ( cam->obj.parent->childList, cam->target ) == NULL ) {
            g3dobject_addChild ( cam->obj.parent, cam->target, 0x00 );
         }
     }

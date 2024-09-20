@@ -94,12 +94,12 @@ static void createFace_undo ( G3DURMANAGER *urm,
     /*** update by the  above call to g3dface_update ***/
     g3dmesh_faceNormal   ( mes );
     g3dmesh_vertexNormal ( mes );
-
+/*
     mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
-
+*/
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
 }
@@ -123,12 +123,12 @@ static void createFace_redo ( G3DURMANAGER *urm,
     /*** update by the  above call to g3dface_update ***/
     g3dmesh_faceNormal   ( mes );
     g3dmesh_vertexNormal ( mes );
-
+/*
     mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                UPDATEFACENORMAL   |
                                UPDATEVERTEXNORMAL |
                                RESETMODIFIERS );
-
+*/
     /*** Rebuild the subdivided mesh ***/
     g3dmesh_update ( mes, 0x00, engine_flags );
 }

@@ -84,7 +84,7 @@ uint32_t g3dmodifier_moddraw ( G3DMODIFIER *mod,
 
 /******************************************************************************/
 uint32_t g3dmodifier_default_dump ( G3DMODIFIER *mod, 
-                                    void (*Alloc)( uint32_t, /*nbver */
+                                    void (*Alloc)( uint32_t, /*vertexCount */
                                                    uint32_t, /* nbtris */
                                                    uint32_t, /* nbquads */
                                                    uint32_t, /* nbuv */
@@ -97,20 +97,20 @@ uint32_t g3dmodifier_default_dump ( G3DMODIFIER *mod,
                                     uint64_t engineFlags ) {
     if ( g3dobject_isActive ( ( G3DOBJECT * ) mod ) ) {
         G3DMESH *mes = ( G3DMESH * ) mod->oriobj;
-        LIST *ltmpfac = mes->lfac;
+        LIST *ltmpfac = mes->faceList;
         uint32_t i, verID = 0x00;
 
-        if ( Alloc ) Alloc ( mes->nbver, mes->nbtri, mes->nbqua, 0x00, data );
+        if ( Alloc ) Alloc ( mes->vertexCount, mes->triangleCount, mes->quadCount, 0x00, data );
 
         /*g3dmesh_renumberVertices ( mes );*/
 
         while ( ltmpfac ) {
-            G3DFACE *fac = _GETFACE(mes,ltmpfac);
+            G3DFACE *fac = ltmpfac->data;
             
 
             if ( Dump ) Dump ( fac, mod->verpos, mod->vernor, data );
 
-            _NEXTFACE(mes,ltmpfac);
+            ltmpfac = ltmpfac->next;
         }
 
         return MODIFIERTAKESOVER;
@@ -124,7 +124,7 @@ void g3dmodifier_modifyChildren ( G3DMODIFIER *mod,
                                   G3DMODIFYOP  op,
                                   uint64_t     engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mod;
-    LIST *ltmpchildren = obj->lchildren;
+    LIST *ltmpchildren = obj->childList;
 
     while ( ltmpchildren ) {
         G3DOBJECT *child = ( G3DOBJECT * ) ltmpchildren->data;
@@ -148,7 +148,7 @@ G3DMODIFIER *g3dmodifier_modify_r ( G3DMODIFIER *mod,
                                     G3DMODIFYOP  op,
                                     uint64_t     engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mod;
-    LIST *ltmpchildren = obj->lchildren;
+    LIST *ltmpchildren = obj->childList;
     uint32_t ret = 0x00;
     G3DMODIFIER *lastmod = NULL;
 
@@ -215,10 +215,13 @@ void g3dmodifier_setParent ( G3DMODIFIER *mod,
                                                                            EDITABLE );
 
         if ( mes ) {
+/*
             mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                             UPDATEFACENORMAL   |
                                             UPDATEVERTEXNORMAL |
                                             RESETMODIFIERS );
+*/
+            g3dobject_invalidate( parent, INVALIDATE_MODIFIER_STACK_RESET );
 
             g3dmesh_update ( mes, 0x00, engineFlags );
         }
@@ -231,10 +234,13 @@ void g3dmodifier_setParent ( G3DMODIFIER *mod,
                                                                            EDITABLE );
 
         if ( oldmes ) {
+/*
             oldmes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                                UPDATEFACENORMAL   |
                                                UPDATEVERTEXNORMAL |
                                                RESETMODIFIERS );
+*/
+            g3dobject_invalidate( oldParent, INVALIDATE_MODIFIER_STACK_RESET );
 
             g3dmesh_update ( oldmes, 0x00, engineFlags );
         }

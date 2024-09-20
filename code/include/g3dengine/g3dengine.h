@@ -308,6 +308,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define EDGEOUTER         (  1 << 8  )
 #define EDGETOPOLOGY      (  1 << 9  )
 #define EDGEREVERT        (  1 << 10 )
+
 /*** Can be used by functions to temporarily mark a face. Call g3dedge_mark ***/
 /*** Function MUST clear the flag after processing. Call g3dedge_unmark ***/
 #define EDGEMARKED        (  1 << 31 )
@@ -408,7 +409,6 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define MESHUSEADAPTIVE       (  1 << 19 )
 #define MESHUSEISOLINES       (  1 << 20 )
 #define MESHGEOMETRYONLY      (  1 << 21 )
-#define MESHGEOMETRYINARRAYS  (  1 << 22 ) /* use arrays instead of lists */
 
 /*** Light flags ***/
 #define LIGHTCASTSHADOWS      (  1 << 17 )
@@ -445,39 +445,53 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define DISPLAYPARTICLES      (  1 << 17 )
 #define KEYPARTICLEEMITTER    (  1 << 18 )
 
-/******************************** Update flags ********************************/
-#define INVALIDATE_HIERARCHY                   (  1       )
-#define INVALIDATE_SHAPE                       (  1 <<  1 )
-#define INVALIDATE_TOPOLOGY                    (  1 <<  2 )
-#define INVALIDATE_COLOR                       (  1 <<  3 )
-#define INVALIDATE_MODIFIER_STACK_RESET        (  1 <<  4 )
-#define INVALIDATE_MODIFIER_STACK_UPDATE       (  1 <<  5 )
-#define INVALIDATE_CHILD                       (  1 <<  6 )
-#define INVALIDATE_CHILD_SHIFT                 (       15 )
+/**************************** Invalidation flags ******************************/
+#define INVALIDATE_HIERARCHY               (  1ULL       )
+#define INVALIDATE_SHAPE                   (  1ULL <<  1 )
+#define INVALIDATE_TOPOLOGY                (  1ULL <<  2 )
+#define INVALIDATE_COLOR                   (  1ULL <<  3 )
+#define INVALIDATE_MODIFIER_STACK_RESET    (  1ULL <<  4 )
+#define INVALIDATE_MODIFIER_STACK_UPDATE   (  1ULL <<  5 )
+#define INVALIDATE_UVMAPPING               (  1ULL <<  6 )
+#define INVALIDATE_CHILD                   (  1ULL <<  7 )
+#define INVALIDATE_ALL                     (  INVALIDATE_SHAPE                |\
+                                              INVALIDATE_TOPOLOGY             |\
+                                              INVALIDATE_COLOR                |\
+                                              INVALIDATE_MODIFIER_STACK_RESET |\
+                                              INVALIDATE_UVMAPPING )
+#define INVALIDATE_CHILD_SHIFT                 (          31 )
 #define INVALIDATE_CHILD_SHAPE                 ( INVALIDATE_SHAPE                 << INVALIDATE_CHILD_SHIFT )
 #define INVALIDATE_CHILD_TOPOLOGY              ( INVALIDATE_TOPOLOGY              << INVALIDATE_CHILD_SHIFT )
 #define INVALIDATE_CHILD_COLOR                 ( INVALIDATE_COLOR                 << INVALIDATE_CHILD_SHIFT )
 #define INVALIDATE_CHILD_MODIFIER_STACK_RESET  ( INVALIDATE_MODIFIER_STACK_RESET  << INVALIDATE_CHILD_SHIFT )
 #define INVALIDATE_CHILD_MODIFIER_STACK_UPDATE ( INVALIDATE_MODIFIER_STACK_UPDATE << INVALIDATE_CHILD_SHIFT )
+#define INVALIDATE_CHILD_UVMAPPING             ( INVALIDATE_UVMAPPING             << INVALIDATE_CHILD_SHIFT )
+
+/******************************* Update flags *********************************/
+#define UPDATE_INTERACTIVE                     (  1       )
+
 
 /***************************** Mesh Update flags ******************************/
-
-#define INVALIDATE_MESH_FACEPOINT        (  1 <<  1 ) /* subdiv */
-#define INVALIDATE_MESH_EDGEPOINT        (  1 <<  2 ) /* subdiv */
-/*#define NOVERTEXNORMAL              (  1 <<  2 )*/
+/*
+#define INVALIDATE_MESH_VERTEXPOSITION (  1 <<  1 )
+#define INVALIDATE_MESH_EDGEPOINT        (  1 <<  2 )
 #define INVALIDATE_MESH_VERTEXNORMAL     (  1 <<  3 )
 #define INVALIDATE_MESH_FACENORMAL       (  1 <<  4 )
 #define INVALIDATE_MESH_FACEPOSITION     (  1 <<  5 )
-#define INVALIDATE_MESH_MODIFIERS_       (  1 <<  6 )
-#define INVALIDATE_MESH_UVMAPPING        (  1 <<  7 )
-#define INVALIDATE_MESH_EDGENORMAL       (  1 <<  8 )
-#define INVALIDATE_MESH_SKIN             (  1 <<  9 )
+#define INVALIDATE_MESH_UVMAPPING        (  1 <<  6 )
+#define INVALIDATE_MESH_EDGENORMAL       (  1 <<  7 )
+#define INVALIDATE_MESH_SKIN             (  1 <<  8 )
+*/
 
 /*** Mesh color ***/
 #define MESHCOLORUB 0x80
 #define MESHCOLORF  0.5f
 
+/*********************************** Casts ************************************/
 
+#define G3DOBJECTCAST(a) (((G3DOBJECT*)a))
+#define G3DMESHCAST(a)   (((G3DMESH*)a))
+#define G3DMODIFIERCAST(a) (((G3DMODIFIER*)a))
 
 /******************************* Orientation **********************************/
 #define ORIENTATIONZX 0x00
@@ -539,54 +553,6 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define PROCEDURALCHESS        0x01
 #define PROCEDURALBRICK        0x02
 #define PROCEDURALGRADIENT     0x03
-
-/******************************************************************************/
-#define _GETVERTEX(mes,ltmpver) \
-((((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) ? ( G3DVERTEX * ) ltmpver : \
-                                                      ( G3DVERTEX * ) ltmpver->data )
-
-#define _NEXTVERTEX(mes,ltmpver) \
-if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
-    G3DSUBVERTEX *subver = ( G3DSUBVERTEX * ) ltmpver; \
-    ltmpver = (LIST*)((G3DSUBVERTEX*)++subver); \
-    if ( ltmpver == ( LIST * ) ( ( G3DSUBVERTEX * ) mes->lver + mes->nbver ) ) { \
-        ltmpver = NULL; \
-    } \
-} else { \
-    ltmpver = ltmpver->next; \
-}
-
-/******************************************************************************/
-#define _GETEDGE(mes,ltmpedg) \
-((((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) ? ( G3DEDGE * ) ltmpedg : \
-                                                      ( G3DEDGE * ) ltmpedg->data )
-
-#define _NEXTEDGE(mes,ltmpedg) \
-if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
-    G3DSUBEDGE *subedg = ( G3DSUBEDGE * ) ltmpedg; \
-    ltmpedg = (LIST*)((G3DSUBEDGE*)++subedg); \
-    if ( ltmpedg == ( LIST * ) ( ( G3DSUBEDGE * ) mes->ledg + mes->nbedg ) ) { \
-        ltmpedg = NULL; \
-    } \
-} else { \
-    ltmpedg = ltmpedg->next; \
-}
-
-/******************************************************************************/
-#define _GETFACE(mes,ltmpfac) \
-((((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) ? ( G3DFACE * ) ltmpfac : \
-                                                      ( G3DFACE * ) ltmpfac->data )
-
-#define _NEXTFACE(mes,ltmpfac) \
-if (((G3DOBJECT*)mes)->flags & MESHGEOMETRYINARRAYS ) { \
-    G3DSUBFACE *subfac = ( G3DSUBFACE * ) ltmpfac; \
-    ltmpfac = (LIST*)((G3DSUBFACE*)++subfac); \
-    if ( ltmpfac == ( LIST * ) ( ( G3DSUBFACE * ) mes->lfac + mes->nbfac ) ) { \
-        ltmpfac = NULL; \
-    } \
-} else { \
-    ltmpfac = ltmpfac->next; \
-}
 
 /******************************************************************************/
 #define _FASTLENGTH(vec) ( sqrt ( ( vec.x * vec.x ) + \
@@ -750,30 +716,7 @@ typedef struct _SHADERVERTEX {
     uint32_t    flags;
 } SHADERVERTEX;
 
-/******************************************************************************/
-typedef struct _G3DVERTEX {
-    uint32_t      flags;
-    uint32_t     id;      /*** Vertex ID - Should never be trusted !        ***/
-    uint32_t     geoID;   /*** geomtry ID, all types included               ***/
-    G3DVECTOR3F    pos;     /*** Vertex position                              ***/
-    G3DVECTOR3F    nor;     /*** Vertex normal vector                         ***/
-    LIST        *lfac;    /*** list of faces connected to this vertex       ***/
-    LIST        *ledg;    /*** list of connected edges                      ***/
-    LIST        *lwei;    /*** List of weight                               ***/
-    uint32_t     nbfac;   /*** number of connected faces                    ***/
-    uint32_t     nbedg;   /*** number of connected edges                    ***/
-    uint32_t     nbwei;   /*** number of weights                            ***/
-    float        weight;  /*** weight value used when editing weight groups ***/
-    SHADERVERTEX *rtvermem;/*** Vertex buffer in buffered mode               ***/
-    LIST        *lext;    /*** list of vertex extensions                    ***/
-    struct _G3DSUBVERTEX *subver;
-} G3DVERTEX;
-
-/******************************************************************************/
-typedef struct _G3DSPLITVERTEX {
-    G3DVERTEX *oriver;
-    G3DVERTEX *newver;
-} G3DSPLITVERTEX;
+#include <g3dengine/g3dvertex.h>
 
 /******************************************************************************/
 typedef struct _G3DCAMERA G3DCAMERA;
@@ -894,7 +837,7 @@ typedef struct _G3DOBJECT {
     uint32_t id;            /*** Object ID               ***/
     uint64_t type;          /*** Flag for object type    ***/
     uint32_t flags;         /*** selected or not etc ... ***/
-    uint32_t invalidationFlags;
+    uint64_t invalidationFlags;
     char *name;             /*** Object's name           ***/
     G3DVECTOR3F pos;          /*** Object center position  ***/
     G3DVECTOR3F rot;          /*** Object center angles    ***/
@@ -959,7 +902,7 @@ typedef struct _G3DOBJECT {
     LIST         *extensionList; /* list of object extensions */
     LIST         *tagList;
     LIST         *invalidatedChildList;
-    G3DTAG       *seltag;
+    G3DTAG       *selectedTag;
     uint32_t      tagID;
 } G3DOBJECT;
 
@@ -1122,9 +1065,10 @@ typedef struct _G3DRTTRIANGLEUVW {
 /******************************************************************************/
 typedef struct _G3DEDGE {
     uint32_t   id;
-    uint32_t    flags;
-    uint32_t   nbfac;                /*** number of connected faces           ***/
-    LIST      *lfac;                 /*** Face list                           ***/
+    G3DOBJECT *owner;
+    uint32_t   flags;
+    uint32_t   faceCount;                /*** number of connected faces           ***/
+    LIST      *faceList;                 /*** Face list                           ***/
     G3DVERTEX *ver[0x02];    /*** Our edge is made of 2 vertices      ***/
 } G3DEDGE, G3DEXTRUDEVERTEX;
 
@@ -1149,19 +1093,20 @@ typedef struct _G3DCUTEDGE {
 
 /******************************************************************************/
 typedef struct _G3DFACE {
-    uint32_t         id;           /*** face ID                             ***/
+    uint32_t         id;            /* face ID                           */
+    G3DOBJECT       *owner;
     uint32_t         typeID;
-    uint32_t         flags;        /*** selected or not                     ***/
-    uint32_t         nbver;        /*** number of vertices and edges        ***/
-    G3DVERTEX       *ver[0x04];    /*** vertices array                      ***/
-    G3DEDGE         *edg[0x04];    /*** edges array                         ***/
-    G3DVECTOR3F      nor;          /*** Face normal vector                  ***/
-    G3DVECTOR3F      pos;          /*** Face position (average position)    ***/
-    LIST            *luvs;         /*** List of UVSets                      ***/
-    uint32_t         nbuvs;        /*** Number of UVSets                    ***/
-    float            surface;/*** used by the raytracer               ***/
-    LIST            *lfacgrp; /*** list of facegroups it belong s to ***/
-    LIST            *lext;    /*** list of face extensions                  ***/
+    uint32_t         flags;         /* selected or not                   */
+    uint32_t         vertexCount;   /* number of vertices and edges      */
+    G3DVERTEX       *ver[0x04];     /* vertices array                    */
+    G3DEDGE         *edg[0x04];     /* edges array                       */
+    G3DVECTOR3F      nor;           /* Face normal vector                */
+    G3DVECTOR3F      pos;           /* Face position (average position)  */
+    LIST            *uvsetList;     /* List of UVSets                    */
+    uint32_t         uvsetCount;    /* Number of UVSets                  */
+    float            surface;       /* used by the raytracer             */
+    LIST            *facegroupList; /* list of facegroups it belong s to */
+    LIST            *extensionList; /* list of face extensions           */
     SHADERVERTEX    *rtvermem;
     G3DRTQUAD       *rtquamem;
 } G3DFACE;
@@ -1287,53 +1232,55 @@ typedef enum  {
 
 struct _G3DMESH {
     G3DOBJECT obj; /*** Mesh inherits G3DOBJECT ***/
-    LIST *lver;    /*** List of vertices        ***/
-    LIST *ledg;    /*** List of vertices        ***/
+    LIST *vertexList;    /*** List of vertices        ***/
+    LIST *edgeList;    /*** List of vertices        ***/
     LIST *faceList;    /*** List of faces           ***/
     LIST *quadList;    /*** List of Quads           ***/
     LIST *triangleList;    /*** List of Triangles       ***/
-    LIST *lfacgrp; /*** List of face groups     ***/
-    LIST *lweigrp;
-    LIST *ltex;    /*** list of textures ***/
-    LIST *luvmap;
+    LIST *facegroupList; /*** List of face groups     ***/
+    LIST *weightgroupList;
+    LIST *textureList;    /*** list of textures ***/
+    LIST *uvmapList;
 
-    LIST *lselver;
-    LIST *lseledg;
-    LIST *lselfac;
-    LIST *lselweigrp;
-    LIST *lselfacgrp;
-    LIST *lseltex;
+    LIST *selectedVertexList;
+    LIST *selectedEdgeList;
+    LIST *selectedFaceList;
+    LIST *selectedWeightgroupList;
+    LIST *selectedFacegroupList;
+    LIST *selectedTextureList;
     /*LIST *lseluv;*/
-    LIST *lseluvmap;
+    LIST *selectedUvmapList;
     
     G3DMODIFIER *lastmod;
 
-    LIST *invalidateFaceList;
-    LIST *invalidateEdgeList;
-    LIST *invalidateVertexList;
+    LIST *invalidatedFaceList;
+    LIST *invalidatedEdgeList;
+    LIST *invalidatedVertexList;
 
-    uint64_t meshInvalidationflags;
+    uint32_t invalidatedFaceCount;
+    uint32_t invalidatedEdgeCount;
+    uint32_t invalidatedVertexCount;
 
     uint32_t verid;
     uint32_t edgid;
     uint32_t facid;
     uint32_t subalg; /*** subdivision algo   ***/
-    uint32_t nbver;
-    uint32_t nbedg;
-    uint32_t nbfac;
-    uint32_t nbtri;
-    uint32_t nbqua;
-    uint32_t nbweigrp;
-    uint32_t nbfacgrp;
-    uint32_t nbhtm; /*** Number of heightmaps ***/
-    uint32_t nbselver;
-    uint32_t nbseledg;
-    uint32_t nbselfac;
-    uint32_t nbselweigrp;
-    uint32_t nbseltex;
-    uint32_t nbseluvmap;
-    uint32_t nbtex;
-    uint32_t nbuvmap;
+    uint32_t vertexCount;
+    uint32_t edgeCount;
+    uint32_t faceCount;
+    uint32_t triangleCount;
+    uint32_t quadCount;
+    uint32_t weightgroupCount;
+    uint32_t facegroupCount;
+    uint32_t heightmapCount; /*** Number of heightmaps ***/
+    uint32_t selectedVertexCount;
+    uint32_t selectedEdgeCount;
+    uint32_t selectedFaceCount;
+    uint32_t selectedWeightgroupCount;
+    uint32_t selectedTextureCount;
+    uint32_t selectedUvmapCount;
+    uint32_t textureCount;
+    uint32_t uvmapCount;
     uint32_t textureSlots; /*** available texture slots ***/
     float    gouraudScalarLimit;
     G3DTEXTURE *curtex;
@@ -1363,14 +1310,6 @@ struct _G3DMESH {
 #include <g3dengine/g3dtext.h>
 
 /******************************************************************************/
-typedef struct _G3DVERTEXEXTENSION {
-    uint64_t name;
-} G3DVERTEXEXTENSION;
-
-void g3dvertexextension_init ( G3DVERTEXEXTENSION *ext,
-                               uint64_t            name );
-
-/******************************************************************************/
 typedef struct _G3DFACEEXTENSION {
     uint64_t name;
 } G3DFACEEXTENSION;
@@ -1385,7 +1324,7 @@ typedef struct _G3DFACESCULPTEXTENSION {
     G3DVECTOR4F     *pos;
     G3DHEIGHT       *hei;
     uint32_t        *flags;
-    uint32_t         nbver;
+    uint32_t         vertexCount;
     uint32_t         level;
 } G3DFACESCULPTEXTENSION;
 
@@ -1468,11 +1407,14 @@ typedef struct _G3DMODIFIER {
     uint32_t (*modpick)    ( struct _G3DMODIFIER *mod,
                                      G3DCAMERA   *curcam,
                                      uint64_t     engineFlags );
-    G3DOBJECT *oriobj; /*** original mesh   ***/
-    G3DVECTOR3F *stkpos; /*** stack positions ***/
-    G3DVECTOR3F *stknor; /*** stack normals   ***/
-    G3DVECTOR3F *verpos;
-    G3DVECTOR3F *vernor;
+    G3DOBJECT    *oriobj;            /* original mesh   */
+
+
+    /* for modifiers that just modifiy the geometry, e.g the morpher  */
+    G3DVECTOR3F  *stkpos;            /* stack positions */
+    G3DVECTOR3F  *stknor;            /* stack normals   */
+    G3DVECTOR3F  *verpos;
+    G3DVECTOR3F  *vernor;
 } G3DMODIFIER;
 
 /******************************************************************************/
@@ -1839,129 +1781,7 @@ double g3dquaternion_scalar ( G3DQUATERNION *q0, G3DQUATERNION *q1 );
 void g3dquaternion_print ( G3DQUATERNION *qua );
 
 /******************************************************************************/
-G3DVERTEX *g3dvertex_new        ( float, float, float );
-G3DWEIGHT *g3dvertex_getWeight ( G3DVERTEX      *ver, 
-                                 G3DWEIGHTGROUP *grp );
-G3DVECTOR3F *g3dvertex_getModifiedPosition ( G3DVERTEX *ver,
-                                           G3DVECTOR3F *stkpos );
-G3DVECTOR3F *g3dvertex_getModifiedNormal ( G3DVERTEX *ver,
-                                         G3DVECTOR3F *stkpos );
-G3DVERTEXEXTENSION *g3dvertex_getExtension ( G3DVERTEX *, uint32_t );
-void       g3dvertex_addExtension ( G3DVERTEX *, G3DVERTEXEXTENSION * );
-void       g3dvertex_removeExtension ( G3DVERTEX *, G3DVERTEXEXTENSION * );
-void g3dvertex_normal ( G3DVERTEX *ver, 
-                        uint64_t   engineFlags );
-void g3dvertex_computeNormal ( G3DVERTEX *ver, 
-                               G3DVECTOR3F *nor,
-                               uint64_t   engineFlags );
-void       g3dvertex_addFace    ( G3DVERTEX *, G3DFACE * );
-void       g3dvertex_removeFace ( G3DVERTEX *, G3DFACE * );
-void       g3dvertex_addEdge    ( G3DVERTEX *, G3DEDGE * );
-void       g3dvertex_removeEdge ( G3DVERTEX *, G3DEDGE * );
-void       g3dvertex_free       ( G3DVERTEX * );
-void       g3dvertex_addUV      ( G3DVERTEX *, G3DUV * );
-void       g3dvertex_removeUV   ( G3DVERTEX *, G3DUV * );
-uint32_t   g3dvertex_isBoundary ( G3DVERTEX * );
-int32_t    g3dvertex_getRankFromList ( LIST *lver, G3DVERTEX *ver );
-void       g3dvertex_getNormalFromSelectedFaces ( G3DVERTEX *, G3DVECTOR3F * );
-void       g3dvertex_getVectorFromSelectedFaces ( G3DVERTEX *, G3DVECTOR3F * );
-void       g3dvertex_computeEdgePoint           ( G3DVERTEX *, G3DEDGE *,
-                                                               G3DEDGE *,
-                                                               G3DSUBVERTEX **,
-                                                               G3DSUBEDGE   ** );
-uint32_t   g3dvertex_getAverageMidPoint  ( G3DVERTEX *, G3DVECTOR3F * );
-uint32_t   g3dvertex_getAverageModifiedMidPoint ( G3DVERTEX *ver, 
-                                                  G3DVECTOR3F *verpos,
-                                                  G3DVECTOR3F *midavg );
-uint32_t   g3dvertex_getAverageFacePoint ( G3DVERTEX *, G3DVECTOR3F * );
-uint32_t g3dvertex_getAverageModifiedFacePoint ( G3DVERTEX *ver, 
-                                                 G3DVECTOR3F *verpos,
-                                                 G3DVECTOR3F *facavg );
-void       g3dvertex_createSubEdge ( G3DVERTEX *, G3DSUBVERTEX *, G3DFACE *,
-                                     G3DSUBVERTEX *, G3DSUBEDGE **, G3DSUBVERTEX **,
-                                     G3DEDGE *, G3DSUBVERTEX *,
-                                     G3DEDGE *, G3DSUBVERTEX * );
-void       g3dsubvertex_addEdge ( G3DSUBVERTEX *, G3DEDGE * );
-void g3dsubvertex_renumberArray ( G3DSUBVERTEX *subver, 
-                                  uint32_t nbver );
-void g3dsubvertex_elevate ( G3DSUBVERTEX *subver,
-                            uint64_t      sculptExtensionName,
-                            uint32_t    (*tri_indexes)[0x04],
-                            uint32_t    (*qua_indexes)[0x04],
-                            uint32_t      sculptMode );
-uint32_t   g3dvertex_setOuterEdges ( G3DVERTEX *, G3DSUBVERTEX  *,
-                                                  G3DEDGE       *,
-                                                  G3DEDGE       *,
-                                                  G3DSUBVERTEX **,
-                                                  G3DSUBEDGE   **,
-                                                  uint32_t *,
-                                                  uint32_t,
-                                                  uint32_t,
-                                                  uint32_t );
 
-LIST *g3dvertex_getUnselectedFacesFromList ( LIST * );
-void g3dvertex_getSubFaces ( G3DVERTEX *, G3DSUBVERTEX *, 
-                                          G3DSUBVERTEX *, G3DFACE * );
-
-void g3dsubvertex_addFace ( G3DSUBVERTEX *, G3DFACE * );
-void g3dsubvertex_addUV   ( G3DSUBVERTEX *, G3DUV * );
-
-void g3dvertex_calcSubFaces ( G3DVERTEX *, G3DFACE * );
-void g3dvertex_setSubEdges ( G3DVERTEX *, G3DEDGE *,
-                                          G3DEDGE *,
-                                          G3DSUBVERTEX *,
-                                          G3DSUBVERTEX *,
-                                          G3DSUBVERTEX *,
-                                          G3DSUBEDGE   * );
-void g3dvertex_print ( G3DVERTEX * );
-void g3dvertex_resetFacesInnerEdges ( G3DVERTEX * );
-void g3dvertex_updateFacesPosition ( G3DVERTEX *ver );
-uint32_t g3dvertex_copyPositionFromList ( LIST *, G3DVECTOR3F ** );
-G3DVERTEX *g3dvertex_copy ( G3DVERTEX *ver, 
-                            uint64_t   engineFlags );
-uint32_t g3dvertex_isBorder ( G3DVERTEX * );
-void g3dvertex_setPositionFromList ( LIST *, G3DVECTOR3F * );
-LIST *g3dvertex_getFaceListFromVertices ( LIST * );
-G3DVERTEX *g3dvertex_weldList ( LIST * );
-void g3dvertex_setSelected ( G3DVERTEX * );
-void g3dvertex_unsetSelected ( G3DVERTEX * );
-void g3dvertex_addWeight    ( G3DVERTEX *, G3DWEIGHT * );
-void g3dvertex_removeWeight ( G3DVERTEX *, G3DWEIGHT * );
-void g3dvertex_computeSkinnedPosition ( G3DVERTEX * );
-LIST *g3dvertex_getAreaFacesFromList ( LIST * );
-LIST *g3dvertex_getFacesFromList ( LIST * );
-LIST *g3dvertex_getEdgesFromList ( LIST * );
-void  g3dvertex_updateFaces ( G3DVERTEX * );
-G3DEXTRUDEVERTEX *g3dvertex_extrude ( G3DVERTEX * );
-G3DUV *g3dvertex_getUV ( G3DVERTEX *, G3DUVMAP * );
-void g3dvertex_displace ( G3DVERTEX *, LIST *, G3DVECTOR3F * );
-uint32_t g3dvertex_belongsToSelectedFacesOnly ( G3DVERTEX *ver );
-uint32_t g3dvertex_setSubFaces ( G3DVERTEX *, G3DFACE       *,
-                                              G3DSUBVERTEX  *,
-                                              G3DSUBVERTEX **,
-                                              G3DSUBFACE   **,
-                                              G3DSUBUVSET  **,
-                                              uint32_t, 
-                                              uint32_t,
-                                              uint32_t );
-void g3dvertex_getAverageUV ( G3DVERTEX *, G3DUVMAP *, float *, float * );
-void g3ddoublevector_matrix ( G3DVECTOR3D *, double *, G3DVECTOR3D * );
-uint32_t g3dvertex_isAdaptive ( G3DVERTEX * );
-uint32_t g3dvertex_checkAdaptiveEdges ( G3DVERTEX * );
-void g3dvertex_markAdaptiveEdges ( G3DVERTEX * );
-void g3dvertex_markAdaptiveFaces ( G3DVERTEX *, G3DSUBVERTEX *, float );
-void g3dvertex_clearAdaptiveEdges ( G3DVERTEX * );
-void g3dvertex_clearAdaptiveFaces ( G3DVERTEX * );
-void g3dvertex_markAdaptiveTopology ( G3DVERTEX * );
-void g3dvertex_clearAdaptiveTopology ( G3DVERTEX * );
-void g3dvertex_getAveragePositionFromList ( LIST *, G3DVECTOR3F * );
-void shadervertex_init ( SHADERVERTEX *rtver, 
-                         G3DVERTEX   *ver,
-                         uint32_t     facsel,
-                         uint64_t     engineFlags );
-void g3dvertex_renumberList ( LIST *, uint32_t );
-void g3dvertex_edgePosition ( G3DVERTEX *, uint32_t );
-G3DVERTEX *g3dvertex_seekVertexByPosition ( LIST *, float, float, float, float );
 
 
 /******************************************************************************/
@@ -1984,9 +1804,13 @@ void g3dedge_unmark ( G3DEDGE *edg );
 uint32_t g3dedge_hasOnlyFullyMirroredFaces ( G3DEDGE * );
 G3DEDGE *g3dedge_new ( G3DVERTEX *, G3DVERTEX * );
 G3DEDGE *g3dedge_newUnique ( uint32_t id, G3DVERTEX *, G3DVERTEX *, LIST ** );
-void g3dedge_removeFace ( G3DEDGE *, G3DFACE * );
 uint32_t g3dedge_isBorder ( G3DEDGE * );
-void g3dedge_addFace ( G3DEDGE *, G3DFACE * );
+
+void g3dedge_addFace ( G3DEDGE *edg,
+                       G3DFACE *fac );
+void g3dedge_removeFace ( G3DEDGE *edg,
+                          G3DFACE *fac );
+
 void g3dedge_position ( G3DEDGE *, uint32_t );
 uint32_t g3dedge_createFaceInnerEdge ( G3DEDGE *, G3DFACE *,
                                                   G3DSUBVERTEX **,
@@ -2789,6 +2613,10 @@ void       g3dmesh_addSelectedVertex    ( G3DMESH *, G3DVERTEX * );
 void       g3dmesh_addTexture           ( G3DMESH *, G3DTEXTURE * );
 void       g3dmesh_appendTexture        ( G3DMESH    *mes,
                                           G3DTEXTURE *tex );
+void g3dmesh_invalidateFace ( G3DMESH *mes,
+                              G3DFACE *fac,
+                              uint64_t invalidationFlags );
+void g3dmesh_transform ( G3DMESH *mes, uint64_t engineFlags );
 void       g3dmesh_addUVMap ( G3DMESH  *mes, 
                               G3DUVMAP *map,
                               LIST    **lnewuvset,
@@ -2803,6 +2631,8 @@ void       g3dmesh_drawSelectedUVMap ( G3DMESH   *mes,
                                        G3DENGINE *engine,
                                        uint64_t   engineFlags );
 void       g3dmesh_attachFaceEdges      ( G3DMESH *, G3DFACE * );
+void g3dmesh_attachFaceVertices ( G3DMESH *mes,
+                                  G3DFACE *fac );
 void g3dmesh_fixBones ( G3DMESH *mes, 
                         uint64_t engineFlags );
 void g3dmesh_drawModified ( G3DMESH   *mes,
@@ -2892,7 +2722,6 @@ void       g3dmesh_updateFacesFromVertexList ( G3DMESH *, LIST * );
 void       g3dmesh_removeFace ( G3DMESH *, G3DFACE * );
 void       g3dmesh_untriangulate ( G3DMESH *, LIST **, LIST ** );
 void       g3dmesh_invertNormal ( G3DMESH * );
-void       g3dmesh_removeEdge ( G3DMESH *, G3DEDGE * );
 void       g3dmesh_unselectFace ( G3DMESH *, G3DFACE * );
 void       g3dmesh_removeSelectedVertices ( G3DMESH * );
 void       g3dmesh_removeSelectedFaces    ( G3DMESH * );
@@ -3109,6 +2938,16 @@ void g3dmesh_selectFacesFromSelectedFacegroups ( G3DMESH *mes );
 G3DFACEGROUP *g3dmesh_getLastSelectedFacegroup ( G3DMESH *mes );
 G3DFACEGROUP *g3dmesh_getFacegroupByID ( G3DMESH *mes, uint32_t id );
 
+void g3dmesh_invalidateVertex ( G3DMESH   *mes,
+                                G3DVERTEX *ver,
+                                uint64_t  invalidationFlags );
+void g3dmesh_invalidateEdge ( G3DMESH *mes,
+                              G3DEDGE *edg,
+                              uint64_t invalidationFlags );
+void g3dmesh_invalidateFace ( G3DMESH *mes,
+                              G3DFACE *fac,
+                              uint64_t invalidationFlags );
+
 /******************************************************************************/
 G3DSCENE  *g3dscene_new  ( uint32_t, char * );
 void g3dscene_checkReferredObjects ( G3DSCENE *sce );
@@ -3187,6 +3026,10 @@ void g3dscene_processAnimatedImages ( G3DSCENE *sce,
                                       float     sceneEndFrame,
                                       float     sceneFramesPerSecond,
                                       uint64_t  engineFlags );
+
+/******************************************************************************/
+void g3dsubvertex_addEdge ( G3DSUBVERTEX *subver, G3DEDGE *edg );
+void g3dsubvertex_addFace ( G3DSUBVERTEX *subver, G3DFACE *fac );
 
 /******************************************************************************/
 G3DENGINE* g3dengine_new    ( );
