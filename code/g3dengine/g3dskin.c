@@ -69,21 +69,10 @@ static void g3dskin_deformVertex ( G3DSKIN   *skn,
 }
 
 /******************************************************************************/
-static void g3dskin_setParent ( G3DSKIN   *skn, 
-                                G3DOBJECT *parent,
-                                G3DOBJECT *oldParent,
-                                uint64_t   engine_flags ) {
-    g3dmodifier_setParent ( ( G3DMODIFIER * ) skn, 
-                                              parent, 
-                                              oldParent, 
-                                              engine_flags );
-}
-
-/******************************************************************************/
-static G3DMESH *g3dskin_commit ( G3DSKIN       *skn, 
-                                 uint32_t       commitMeshID,
-                                 unsigned char *commitMeshName,
-                                 uint64_t       engine_flags ) {
+static G3DMESH *_default_commit ( G3DSKIN       *skn, 
+                                  uint32_t       commitMeshID,
+                                  unsigned char *commitMeshName,
+                                  uint64_t       engine_flags ) {
     if ( skn->mod.oriobj ) {
         if ( skn->mod.oriobj->type & MESH ) {
             G3DMESH *orimes = ( G3DMESH * ) skn->mod.oriobj;
@@ -104,15 +93,15 @@ static G3DMESH *g3dskin_commit ( G3DSKIN       *skn,
 }
 
 /******************************************************************************/
-static G3DSKIN *g3dskin_copy ( G3DSKIN *skn,
-                               uint64_t engine_flags ) {
-    return 0x00;
+static G3DSKIN *_default_copy ( G3DSKIN *skn,
+                                uint64_t engine_flags ) {
+    return NULL;
 }
 
 /******************************************************************************/
-static uint32_t g3dskin_modify ( G3DSKIN    *skn,
-                                 G3DMODIFYOP op,
-                                 uint64_t    engine_flags ) {
+static uint32_t _default_modify ( G3DSKIN    *skn,
+                                  G3DMODIFYOP op,
+                                  uint64_t    engine_flags ) {
     if ( skn->mod.oriobj ) {
         if ( skn->mod.oriobj->type & MESH ) {
             G3DMESH *orimes = ( G3DMESH * ) skn->mod.oriobj;
@@ -150,11 +139,11 @@ static uint32_t g3dskin_modify ( G3DSKIN    *skn,
 }
 
 /******************************************************************************/
-static void g3dskin_update ( G3DSKIN *skn,
-                             uint64_t engine_flags ) {
+static void _default_update ( G3DSKIN *skn,
+                              uint64_t engine_flags ) {
     if ( skn->mod.mes.obj.invalidationFlags & INVALIDATE_SHAPE ) {
         if ( g3dobject_isActive ( ( G3DOBJECT * ) skn ) ) {
-            g3dskin_modify ( skn, G3DMODIFYOP_UPDATE, engine_flags );
+            _default_modify ( skn, G3DMODIFYOP_UPDATE, engine_flags );
 
             g3dmesh_updateModified ( ( G3DMESH * ) skn->mod.oriobj,
                                  ( G3DMODIFIER * ) skn,
@@ -164,8 +153,8 @@ static void g3dskin_update ( G3DSKIN *skn,
 }
 
 /******************************************************************************/
-static void g3dskin_activate ( G3DSKIN *skn,
-                               uint64_t engine_flags ) {
+static void _default_activate ( G3DSKIN *skn,
+                                uint64_t engine_flags ) {
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( ( G3DOBJECT * ) skn, 
                                                                          EDITABLE );
 
@@ -179,8 +168,8 @@ static void g3dskin_activate ( G3DSKIN *skn,
 }
 
 /******************************************************************************/
-static void g3dskin_deactivate ( G3DSKIN *skn,
-                                    uint64_t engine_flags ) {
+static void _default_deactivate ( G3DSKIN *skn,
+                                  uint64_t engine_flags ) {
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( ( G3DOBJECT * ) skn, 
                                                                          EDITABLE );
 
@@ -201,14 +190,14 @@ static void g3dskin_deactivate ( G3DSKIN *skn,
 }
 
 /******************************************************************************/
-static void g3dskin_free ( G3DSKIN *skn ) {
+static void _default_free ( G3DSKIN *skn ) {
     /*g3dskin_reset ( skn );*/
 }
 
 /******************************************************************************/
-static uint32_t g3dskin_moddraw ( G3DSKIN *skn, 
-                                  G3DCAMERA  *cam,
-                                  uint64_t    engine_flags ) {
+static uint32_t _default_huddraw ( G3DSKIN   *skn, 
+                                  G3DCAMERA *cam,
+                                  uint64_t   engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) skn;
 
     if ( g3dobject_isActive ( obj ) == 0x00 ) return 0x00;
@@ -222,7 +211,7 @@ static uint32_t g3dskin_moddraw ( G3DSKIN *skn,
                                                  cam,
                                                  skn->mod.verpos,
                                                  skn->mod.vernor,
-                                                 engine_flags );
+                                                 engineFlags );
 
             return 0x00;
         }
@@ -233,12 +222,12 @@ static uint32_t g3dskin_moddraw ( G3DSKIN *skn,
 
 /******************************************************************************/
 static void g3dskin_init ( G3DSKIN *skn, 
-                           uint32_t    id, 
-                           char       *name, 
-                           uint64_t engine_flags ) {
+                           uint32_t id, 
+                           char    *name, 
+                           uint64_t engineFlags ) {
     G3DMODIFIER *mod = ( G3DMODIFIER * ) skn;
 
-    g3dmodifier_init ( mod, 
+    g3dmodifier_init ( G3DMODIFIERCAST(skn), 
                        G3DSKINTYPE, 
                        id, 
                        name, 
@@ -246,27 +235,29 @@ static void g3dskin_init ( G3DSKIN *skn,
                        OBJECTNOROTATION    |
                        OBJECTNOSCALING,
          DRAW_CALLBACK(NULL),
-         FREE_CALLBACK(g3dskin_free),
+         FREE_CALLBACK(_default_free),
          PICK_CALLBACK(NULL),
+         ANIM_CALLBACK(NULL),
+       UPDATE_CALLBACK(_default_update),
          POSE_CALLBACK(NULL),
          COPY_CALLBACK(NULL),
-     ACTIVATE_CALLBACK(g3dskin_activate),
-   DEACTIVATE_CALLBACK(g3dskin_deactivate),
-       COMMIT_CALLBACK(NULL),
-                       NULL,
-    SETPARENT_CALLBACK(g3dskin_setParent),
-       MODIFY_CALLBACK(g3dskin_modify) );
-
-    ((G3DOBJECT*)skn)->anim   = ANIM_CALLBACK(NULL);
-    ((G3DOBJECT*)skn)->update = UPDATE_CALLBACK(g3dskin_update);
-
-    mod->moddraw = MODDRAW_CALLBACK(g3dskin_moddraw);
+    TRANSFORM_CALLBACK(NULL),
+     ACTIVATE_CALLBACK(_default_activate),
+   DEACTIVATE_CALLBACK(_default_deactivate),
+       COMMIT_CALLBACK(_default_commit),
+     ADDCHILD_CALLBACK(NULL),
+  REMOVECHILD_CALLBACK(NULL),
+    SETPARENT_CALLBACK(NULL),
+         DUMP_CALLBACK(NULL),
+       MODIFY_CALLBACK(_default_modify),
+      HUDDRAW_CALLBACK(_default_huddraw),
+      HUDPICK_CALLBACK(NULL) );
 }
 
 /******************************************************************************/
 G3DSKIN *g3dskin_new ( uint32_t id, 
                        char    *name, 
-                       uint64_t engine_flags ) {
+                       uint64_t engineFlags ) {
     uint32_t structSize = sizeof ( G3DSKIN );
     G3DSKIN *skn = ( G3DSKIN * ) calloc ( 0x01, structSize );
 
@@ -276,7 +267,7 @@ G3DSKIN *g3dskin_new ( uint32_t id,
         return NULL;
     }
 
-    g3dskin_init ( skn, id, name, engine_flags );
+    g3dskin_init ( skn, id, name, engineFlags );
 
 
     return skn;

@@ -190,7 +190,9 @@ static int createVertex_event ( G3DMOUSETOOL *mou,
                                                         RESETMODIFIERS );
 */
                         /*** Rebuild the mesh or spline ***/
-                        g3dmesh_update ( mes, 0x00, engine_flags );
+                        g3dobject_update ( G3DOBJECTCAST(sce),
+                                           0x00,
+                                           engine_flags );
 
                         /*** add this action to the undo redo stack ***/
                         /*createVertex_push ( urm, mes, ver );*/

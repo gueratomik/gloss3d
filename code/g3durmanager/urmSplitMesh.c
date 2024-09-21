@@ -31,10 +31,21 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMSPLITMESH *urmSplitMesh_new ( G3DMESH *mes, 
-                                 G3DMESH *splmes, 
-                                 LIST    *loldver,
-                                 LIST    *loldfac ) {
+typedef struct _URMSPLITMESH {
+    G3DSCENE *sce;
+    G3DMESH *mes;
+    G3DMESH *splmes;
+    LIST    *loldver;
+    LIST    *loldfac;
+    LIST    *loldedg;
+} URMSPLITMESH;
+
+/******************************************************************************/
+static URMSPLITMESH *urmSplitMesh_new ( G3DSCENE *sce,
+                                        G3DMESH  *mes, 
+                                        G3DMESH  *splmes, 
+                                        LIST     *loldver,
+                                        LIST     *loldfac ) {
     uint32_t structsize = sizeof ( URMSPLITMESH );
 
     URMSPLITMESH *sms = ( URMSPLITMESH * ) calloc ( 0x01, structsize );
@@ -45,6 +56,7 @@ URMSPLITMESH *urmSplitMesh_new ( G3DMESH *mes,
         return NULL;
     }
 
+    sms->sce     = sce;
     sms->mes     = mes;
     sms->splmes  = splmes;
     sms->loldver = loldver;
@@ -57,7 +69,7 @@ URMSPLITMESH *urmSplitMesh_new ( G3DMESH *mes,
 }
 
 /******************************************************************************/
-void urmSplitMesh_free ( URMSPLITMESH *sms ) {
+static void urmSplitMesh_free ( URMSPLITMESH *sms ) {
     list_free ( &sms->loldver, NULL );
     list_free ( &sms->loldfac, NULL );
     list_free ( &sms->loldedg, NULL );
@@ -66,7 +78,7 @@ void urmSplitMesh_free ( URMSPLITMESH *sms ) {
 }
 
 /******************************************************************************/
-void splitMesh_free ( void *data, uint32_t commit ) {
+static void splitMesh_free ( void *data, uint32_t commit ) {
     URMSPLITMESH *sms = ( URMSPLITMESH * ) data;
 
     if ( commit ) {
@@ -74,14 +86,14 @@ void splitMesh_free ( void *data, uint32_t commit ) {
         list_exec ( sms->loldfac, LIST_FUNCDATA(g3dface_free)   );
         list_exec ( sms->loldedg, LIST_FUNCDATA(g3dedge_free)   );
     } else {
-        g3dmesh_free ( ( G3DOBJECT * ) sms->splmes );
+        g3dobject_free ( G3DOBJECTCAST(sms->splmes) );
     }
 
     urmSplitMesh_free ( sms );
 }
 
 /******************************************************************************/
-void splitMesh_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
+static void splitMesh_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMSPLITMESH *sms = ( URMSPLITMESH * ) data;
     G3DMESH *mes = sms->mes;
 
@@ -96,18 +108,12 @@ void splitMesh_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     /*** delete created mesh ***/
     g3dobject_removeChild ( ((G3DOBJECT*)mes)->parent, 
                             (G3DOBJECT*)sms->splmes, engine_flags );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
-    /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+
+    g3dobject_update ( G3DOBJECTCAST(sms->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
-void splitMesh_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
+static void splitMesh_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMSPLITMESH *sms = ( URMSPLITMESH * ) data;
     G3DMESH *mes = sms->mes;
 
@@ -122,18 +128,13 @@ void splitMesh_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     /*** add created vertex ***/
     g3dobject_addChild ( ((G3DOBJECT*)mes)->parent,
                           (G3DOBJECT*)sms->splmes, engine_flags );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
-    /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+
+    g3dobject_update ( G3DOBJECTCAST(sms->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
 void g3durm_mesh_split ( G3DURMANAGER *urm, 
+                         G3DSCENE     *sce,
                          G3DMESH      *mes,
                          uint32_t      splID,
                          uint32_t      keep,
@@ -152,24 +153,14 @@ void g3durm_mesh_split ( G3DURMANAGER *urm,
                                           engine_flags );
 
     g3dobject_addChild ( ((G3DOBJECT*)mes)->parent, ( G3DOBJECT * ) splmes, engine_flags );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
-    /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
-/*
-    splmes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                                  UPDATEFACENORMAL   |
-                                  UPDATEVERTEXNORMAL |
-                                  COMPUTEUVMAPPING   |
-                                  RESETMODIFIERS );
-*/
-    g3dmesh_update ( splmes, 0x00, engine_flags );
 
-    sms = urmSplitMesh_new ( mes, splmes, loldver, loldfac );
+    g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
+
+    sms = urmSplitMesh_new ( sce,
+                             mes,
+                             splmes,
+                             loldver,
+                             loldfac );
 
     g3durmanager_push ( urm, splitMesh_undo,
                              splitMesh_redo,

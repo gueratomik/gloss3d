@@ -31,9 +31,9 @@
 
 /******************************************************************************/
 uint64_t g3duicoordinatesedit_pos ( G3DUICOORDINATESEDIT *coordedit, 
-                                       G3DUIAXIS             axis, 
-                                       uint32_t              absolute,
-                                       float                 val ) {
+                                    G3DUIAXIS             axis, 
+                                    uint32_t              absolute,
+                                    float                 val ) {
     G3DUI *gui = coordedit->gui;
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
@@ -64,18 +64,34 @@ uint64_t g3duicoordinatesedit_pos ( G3DUICOORDINATESEDIT *coordedit,
                 G3DVECTOR3F *oldpos = NULL;
                 G3DVECTOR3F *newpos = NULL;
                 G3DVECTOR3F avg;
-                G3DVECTOR3F to;
+
+                LIST *ltmpver = mes->selectedVertexList;
 
                 g3dvertex_getAveragePositionFromList ( mes->selectedVertexList, &avg );
 
-                if ( axis == G3DUIXAXIS ) { to.x = val; axis_flags |= XAXIS; }
-                if ( axis == G3DUIYAXIS ) { to.y = val; axis_flags |= YAXIS; }
-                if ( axis == G3DUIZAXIS ) { to.z = val; axis_flags |= ZAXIS; }
-
                 g3dvertex_copyPositionFromList ( mes->selectedVertexList, &oldpos );
 
-                g3dmesh_moveVerticesTo ( mes, mes->selectedVertexList, &avg, &to, absolute, axis_flags, gui->engine_flags );
 
+                while( ltmpver ) {
+                    G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+                    G3DVECTOR3F to = { .x = ver->pos.x,
+                                       .y = ver->pos.y,
+                                       .z = ver->pos.z };
+
+                    if ( axis == G3DUIXAXIS ) { to.x = val; axis_flags |= XAXIS; }
+                    if ( axis == G3DUIYAXIS ) { to.y = val; axis_flags |= YAXIS; }
+                    if ( axis == G3DUIZAXIS ) { to.z = val; axis_flags |= ZAXIS; }
+
+
+                    /* setting position via function call will */
+                    /* invalidate owner object */
+                    g3dvertex_setPosition( ver, to.x, to.y, to.z );
+
+                    ltmpver = ltmpver->next;
+                }
+/*
+                g3dmesh_moveVerticesTo ( mes, mes->selectedVertexList, &avg, &to, absolute, axis_flags, gui->engine_flags );
+*/
                 g3dvertex_copyPositionFromList ( mes->selectedVertexList, &newpos );
 
                 g3durm_mesh_moveVertexList ( gui->urm, mes, mes->selectedVertexList, NULL, NULL, NULL,

@@ -31,10 +31,11 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-static URMCUTMESH *urmcutmesh_new ( G3DMESH *mes,
-                                    LIST    *loldfac,
-                                    LIST    *lnewver,
-                                    LIST    *lnewfac ) {
+static URMCUTMESH *urmcutmesh_new ( G3DSCENE *sce,
+                                    G3DMESH  *mes,
+                                    LIST     *loldfac,
+                                    LIST     *lnewver,
+                                    LIST     *lnewfac ) {
     uint32_t structsize = sizeof ( URMCUTMESH );
 
     URMCUTMESH *cms = ( URMCUTMESH * ) calloc ( 0x01, structsize );
@@ -45,6 +46,7 @@ static URMCUTMESH *urmcutmesh_new ( G3DMESH *mes,
         return NULL;
     }
 
+    cms->sce     = sce;
     cms->mes     = mes;
     cms->loldfac = loldfac;
     cms->lnewver = lnewver;
@@ -101,14 +103,9 @@ static void cutMesh_undo ( G3DURMANAGER *urm,
     list_execargdata ( cms->lnewver, (void(*)(void*,void*)) g3dmesh_removeVertex, cms->mes );
 
     list_execargdata ( cms->loldfac, (void(*)(void*,void*)) g3dmesh_addFace, cms->mes );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
+
     /*** Rebuild the cut mesh ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+    g3dobject_update ( G3DOBJECTCAST(cms->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -127,18 +124,14 @@ static void cutMesh_redo ( G3DURMANAGER *urm,
 
     list_execargdata ( cms->lnewver, (void(*)(void*,void*)) g3dmesh_addVertex, cms->mes );
     list_execargdata ( cms->lnewfac, (void(*)(void*,void*)) g3dmesh_addFace  , cms->mes );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
+
     /*** Rebuild the cut mesh ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+    g3dobject_update ( G3DOBJECTCAST(cms->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
-void g3durm_mesh_cut ( G3DURMANAGER *urm, 
+void g3durm_mesh_cut ( G3DURMANAGER *urm,
+                       G3DSCENE     *sce,
                        G3DMESH      *mes,
                        G3DFACE      *knife,
                        int           restricted,
@@ -156,17 +149,15 @@ void g3durm_mesh_cut ( G3DURMANAGER *urm,
                  &lnewfac, 
                   restricted, 
                   engine_flags );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
-    g3dmesh_update ( mes, 0x00, engine_flags );
 
-    cms = urmcutmesh_new ( mes, loldfac, lnewver, lnewfac );
+    g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
-    g3durmanager_push ( urm, cutMesh_undo,
-                             cutMesh_redo,
-                             cutMesh_free, cms, return_flags );
+    cms = urmcutmesh_new ( sce, mes, loldfac, lnewver, lnewfac );
+
+    g3durmanager_push ( urm,
+                        cutMesh_undo,
+                        cutMesh_redo,
+                        cutMesh_free,
+                        cms,
+                        return_flags );
 }

@@ -617,10 +617,10 @@ void g3duvmap_applyProjection ( G3DUVMAP *map, G3DMESH *mes ) {
 }
 
 /******************************************************************************/
-uint32_t g3duvmap_draw ( G3DOBJECT *obj, 
-                         G3DCAMERA *curcam, 
-                         G3DENGINE *engine, 
-                         uint64_t   engine_flags ) {
+static uint32_t _default_draw ( G3DOBJECT *obj, 
+                                G3DCAMERA *curcam, 
+                                G3DENGINE *engine, 
+                                uint64_t   engine_flags ) {
     G3DUVMAP *map = ( G3DUVMAP * ) obj;
 
     if ( ( engine_flags & VIEWUVWMAP ) == 0x00 ) return 0x00;
@@ -666,8 +666,8 @@ uint32_t g3duvmap_draw ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-void g3duvmap_transform ( G3DOBJECT *obj, 
-                          uint64_t   engine_flags ) {
+static void _default_transform ( G3DOBJECT *obj, 
+                                 uint64_t   engine_flags ) {
     G3DOBJECT *parent = obj->parent;
     G3DUVMAP *map = ( G3DUVMAP * ) obj;
 
@@ -693,19 +693,25 @@ void g3duvmap_transform ( G3DOBJECT *obj,
 void g3duvmap_init ( G3DUVMAP *map, char *name, uint32_t projection ) {
     G3DOBJECT *objmap = ( G3DOBJECT * ) map;
 
-    g3dobject_init ( objmap, G3DUVMAPTYPE, 0x00, name, 0x00,
-                                                       g3duvmap_draw,
-                                                       g3duvmap_free,
-                                                       NULL,
-                                                       NULL,
-                                                       NULL,
-                                                       NULL,
-                                                       NULL,
-                                                       NULL,
-                                                       NULL,
-                                                       NULL );
-
-    objmap->transform = g3duvmap_transform;
+    g3dobject_init ( objmap,
+                     G3DUVMAPTYPE,
+                     0x00,
+                     name,
+                     0x00,
+       DRAW_CALLBACK(_default_draw),
+       FREE_CALLBACK(NULL),
+       PICK_CALLBACK(NULL),
+       ANIM_CALLBACK(NULL),
+     UPDATE_CALLBACK(NULL),
+       POSE_CALLBACK(NULL),
+       COPY_CALLBACK(NULL),
+  TRANSFORM_CALLBACK(_default_transform),
+   ACTIVATE_CALLBACK(NULL),
+ DEACTIVATE_CALLBACK(NULL),
+     COMMIT_CALLBACK(NULL),
+   ADDCHILD_CALLBACK(NULL),
+REMOVECHILD_CALLBACK(NULL),
+  SETPARENT_CALLBACK(NULL) );
 
     /*obj->copy = g3dprimitive_copy;*/
 
@@ -726,11 +732,6 @@ G3DUVMAP *g3duvmap_new ( char *name, uint32_t projection ) {
 
 
     return map;
-}
-
-/******************************************************************************/
-void g3duvmap_free ( G3DOBJECT *obj ) {
-    G3DUVMAP *map = ( G3DUVMAP * ) obj;
 }
 
 /******************************************************************************/

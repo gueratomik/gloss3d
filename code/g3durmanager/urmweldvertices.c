@@ -31,7 +31,20 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-static URMWELDVERTICES *urmweldvertices_new ( G3DMESH  *mes, 
+typedef struct _URMWELDVERTICES {
+    G3DSCENE *sce;
+    G3DMESH  *mes;
+    LIST     *loldver;
+    LIST     *loldfac;
+    LIST     *loldedg;
+    LIST     *lnewfac;
+    LIST     *lnewver;
+    LIST     *lnewedg;
+} URMWELDVERTICES;
+
+/******************************************************************************/
+static URMWELDVERTICES *urmweldvertices_new ( G3DSCENE *sce,
+                                              G3DMESH  *mes, 
                                               LIST     *loldver,
                                               LIST     *lnewver,
                                               LIST     *loldfac,
@@ -46,6 +59,7 @@ static URMWELDVERTICES *urmweldvertices_new ( G3DMESH  *mes,
         return NULL;
     }
 
+    wvs->sce     = sce;
     wvs->mes     = mes;
     wvs->loldver = loldver;
     wvs->loldfac = loldfac;
@@ -109,14 +123,9 @@ static void weldVertices_undo ( G3DURMANAGER *urm,
 
     /*** restore deleted faces ***/
     list_execargdata ( wvs->loldfac, (void(*)(void*,void*)) g3dmesh_addFace, mes );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
+
     /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+    g3dobject_update ( G3DOBJECTCAST(wvs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -139,18 +148,14 @@ static void weldVertices_redo ( G3DURMANAGER *urm,
 
     /*** restore new faces ***/
     list_execargdata ( wvs->lnewfac, (void(*)(void*,void*)) g3dmesh_addFace, mes );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
+
     /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+    g3dobject_update ( G3DOBJECTCAST(wvs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
 void g3durm_mesh_weldSelectedVertices ( G3DURMANAGER *urm, 
+                                        G3DSCENE     *sce, 
                                         G3DMESH      *mes, 
                                         uint32_t      type,
                                         uint64_t      engine_flags,
@@ -166,16 +171,16 @@ void g3durm_mesh_weldSelectedVertices ( G3DURMANAGER *urm,
 
     if ( newver ) {
         list_insert ( &lnewver, newver );
-/*
-        mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                                   UPDATEFACENORMAL   |
-                                   UPDATEVERTEXNORMAL |
-                                   RESETMODIFIERS );
-*/
-        /*** Rebuild the mesh with modifiers ***/
-        g3dmesh_update ( mes, 0x00, engine_flags );
 
-        wvs = urmweldvertices_new ( mes, loldver, lnewver, loldfac, lnewfac );
+        /*** Rebuild the mesh with modifiers ***/
+        g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
+
+        wvs = urmweldvertices_new ( sce,
+                                    mes,
+                                    loldver,
+                                    lnewver,
+                                    loldfac,
+                                    lnewfac );
 
         g3durmanager_push ( urm, weldVertices_undo,
                                  weldVertices_redo,
@@ -186,7 +191,8 @@ void g3durm_mesh_weldSelectedVertices ( G3DURMANAGER *urm,
 }
 
 /******************************************************************************/
-void g3durm_mesh_weldNeighbourVertices ( G3DURMANAGER *urm, 
+void g3durm_mesh_weldNeighbourVertices ( G3DURMANAGER *urm,
+                                         G3DSCENE     *sce, 
                                          G3DMESH      *mes, 
                                          uint32_t      type,
                                          float         distance,
@@ -204,16 +210,16 @@ void g3durm_mesh_weldNeighbourVertices ( G3DURMANAGER *urm,
                                     &lnewver, 
                                     &loldfac, 
                                     &lnewfac );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
-    /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
 
-    wvs = urmweldvertices_new ( mes, loldver, lnewver, loldfac, lnewfac );
+    /*** Rebuild the mesh with modifiers ***/
+    g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
+
+    wvs = urmweldvertices_new ( sce, 
+                                mes,
+                                loldver,
+                                lnewver,
+                                loldfac,
+                                lnewfac );
 
     g3durmanager_push ( urm, weldVertices_undo,
                              weldVertices_redo,

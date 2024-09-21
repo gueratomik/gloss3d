@@ -178,8 +178,9 @@ static int extrudeFace_event  ( G3DMOUSETOOL *mou,
                                                     COMPUTEUVMAPPING   |
                                                     RESETMODIFIERS );
 */
-                    /*** regenerate subdivision buffer ***/
-                    g3dmesh_update ( mes, 0x00, engine_flags );
+                    g3dobject_update ( G3DOBJECTCAST(sce),
+                                       0x00,
+                                       engine_flags );
 
                     ltmpver = lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
 

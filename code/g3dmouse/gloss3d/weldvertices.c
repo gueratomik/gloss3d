@@ -95,8 +95,12 @@ static uint32_t weldVertices_init  ( G3DMOUSETOOL *mou,
     if ( ( obj ) && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
-        g3durm_mesh_weldSelectedVertices ( urm, mes, 0x01, 
-                                                     engine_flags, REDRAWVIEW );
+        g3durm_mesh_weldSelectedVertices ( urm, 
+                                           sce,
+                                           mes,
+                                           0x01, 
+                                           engine_flags,
+                                           REDRAWVIEW );
 
         return REDRAWVIEW;
     }
@@ -115,7 +119,8 @@ static uint32_t weldNeighbours_init ( G3DMOUSETOOL *mou,
         G3DMESH *mes = ( G3DMESH * ) obj;
 
         g3durm_mesh_weldNeighbourVertices ( urm, 
-                                            mes, 
+                                            sce,
+                                            mes,
                                             0x01,
                                             0.1f,
                                             engine_flags,

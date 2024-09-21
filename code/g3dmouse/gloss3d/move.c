@@ -509,7 +509,9 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                             parmes->obj.invalidationFlags |= RESETMODIFIERS;
 */
                             /** TODO: do this only for subdivided meshes ***/
-                            g3dmesh_update ( parmes, 0x00, engine_flags );
+                            g3dobject_update ( G3DOBJECTCAST(sce),
+                                               0x00,
+                                               engine_flags );
 
                             olduv = newuv = NULL;
                         } return REDRAWVIEW            | 
@@ -845,12 +847,12 @@ static int move_mesh ( G3DMESH      *mes,
                         if ( ( engine_flags & XAXIS ) && axis[0].w ) ver->pos.x += difx;
                         if ( ( engine_flags & YAXIS ) && axis[1].w ) ver->pos.y += dify;
                         if ( ( engine_flags & ZAXIS ) && axis[2].w ) ver->pos.z += difz;
-
+/*
                         if ( obj->parent->childvertexchange ) {
                             obj->parent->childvertexchange ( obj->parent,
                                                              obj, ver );
                         }
-
+*/
                         sce->csr.pivot.x += ver->pos.x;
                         sce->csr.pivot.y += ver->pos.y;
                         sce->csr.pivot.z += ver->pos.z;

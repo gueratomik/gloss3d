@@ -41,6 +41,7 @@ typedef struct _TEXRECORD {
 
 /******************************************************************************/
 typedef struct _URMADDTEXTURE {
+    G3DSCENE    *sce;
     LIST        *ltrd;
 } URMADDTEXTURE;
 
@@ -72,7 +73,8 @@ static TEXRECORD *texrecord_new ( G3DMESH    *mes,
 }
 
 /******************************************************************************/
-URMADDTEXTURE *urmaddtexture_new ( uint64_t engine_flags ) {
+static URMADDTEXTURE *urmaddtexture_new ( G3DSCENE   *sce,
+                                          uint64_t   engine_flags ) {
     uint32_t structsize = sizeof ( URMADDTEXTURE );
 
     URMADDTEXTURE *uat = ( URMADDTEXTURE * ) calloc ( 0x01, structsize );
@@ -83,18 +85,21 @@ URMADDTEXTURE *urmaddtexture_new ( uint64_t engine_flags ) {
         return NULL;
     }
 
+    uat->sce = sce;
+
     return uat;
 }
 
 /******************************************************************************/
-void urmaddtexture_free ( URMADDTEXTURE *uat ) {
+static void urmaddtexture_free ( URMADDTEXTURE *uat ) {
     list_free ( &uat->ltrd, LIST_FUNCDATA(texrecord_free) );
 
     free ( uat );
 }
 
 /******************************************************************************/
-void addTexture_free ( void *data, uint32_t commit ) {
+static void addTexture_free ( void    *data,
+                              uint32_t commit ) {
     URMADDTEXTURE *uat = ( URMADDTEXTURE * ) data;
 
     if ( commit == 0x00 ) {
@@ -118,7 +123,9 @@ void addTexture_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void addTexture_undo ( G3DURMANAGER *urm, void *data, uint64_t flags ) {
+static void addTexture_undo ( G3DURMANAGER *urm,
+                              void         *data,
+                              uint64_t      flags ) {
     URMADDTEXTURE *uat = ( URMADDTEXTURE * ) data;
     LIST *ltmptrd = uat->ltrd;
 
@@ -134,18 +141,19 @@ void addTexture_undo ( G3DURMANAGER *urm, void *data, uint64_t flags ) {
         }
 
         g3dmesh_removeTexture ( trd->mes, trd->tex );
-/*
-        trd->mes->obj.invalidationFlags |= RESETMODIFIERS;
-*/
-        /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-        g3dmesh_update ( trd->mes, 0x00, flags );
 
         ltmptrd = ltmptrd->next;
     }
+
+
+    /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
+    g3dobject_update ( G3DOBJECTCAST(uat->sce), 0x00, flags );
 }
 
 /******************************************************************************/
-void addTexture_redo ( G3DURMANAGER *urm, void *data, uint64_t flags ) {
+static void addTexture_redo ( G3DURMANAGER *urm,
+                              void         *data,
+                              uint64_t      flags ) {
     URMADDTEXTURE *uat = ( URMADDTEXTURE * ) data;
     LIST *ltmptrd = uat->ltrd;
 
@@ -160,18 +168,17 @@ void addTexture_redo ( G3DURMANAGER *urm, void *data, uint64_t flags ) {
         }
 
         g3dmesh_addTexture ( trd->mes, trd->tex );
-/*
-        trd->mes->obj.invalidationFlags |= RESETMODIFIERS;
-*/
-        /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-        g3dmesh_update ( trd->mes, 0x00, flags );
 
         ltmptrd = ltmptrd->next;
     }
+
+    /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
+    g3dobject_update ( G3DOBJECTCAST(uat->sce), 0x00, flags );
 }
 
 /******************************************************************************/
 void g3durm_selection_addTexture ( G3DURMANAGER *urm,
+                                   G3DSCENE     *sce,
                                    LIST         *lobj,
                                    LIST         *lmat,
                                    uint64_t      engine_flags,
@@ -180,7 +187,7 @@ void g3durm_selection_addTexture ( G3DURMANAGER *urm,
     URMADDTEXTURE *uat;
 
     /*** save state ***/
-    uat = urmaddtexture_new ( engine_flags );
+    uat = urmaddtexture_new ( sce, engine_flags );
 
     while ( ltmpobj ) {
         G3DOBJECT *obj = ( G3DOBJECT * ) ltmpobj->data;
@@ -218,11 +225,6 @@ void g3durm_selection_addTexture ( G3DURMANAGER *urm,
 
                 ltmpmat = ltmpmat->next;
             }
-/*
-            mes->obj.invalidationFlags |= RESETMODIFIERS;
-*/
-            /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-            g3dmesh_update ( mes, 0x00, engine_flags );
 
             list_insert ( &uat->ltrd, texrecord_new ( mes, 
                                                       tex, 
@@ -231,6 +233,9 @@ void g3durm_selection_addTexture ( G3DURMANAGER *urm,
 
         ltmpobj = ltmpobj->next;
     }
+
+    /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
+    g3dobject_update ( sce, 0x00, engine_flags );
 
     g3durmanager_push ( urm, 
                         addTexture_undo,

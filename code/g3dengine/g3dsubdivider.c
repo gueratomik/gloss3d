@@ -30,7 +30,7 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
+static uint32_t _default_modify ( G3DSUBDIVIDER *sdr,
                                        G3DMODIFYOP    op,
                                        uint64_t       engine_flags );
 
@@ -486,9 +486,9 @@ uint32_t g3dsubdivider_hasScultMaps ( G3DSUBDIVIDER *sdr ) {
 }
 
 /******************************************************************************/
-static void g3dsubdivider_modpick ( G3DSUBDIVIDER *sdr,
-                                    G3DCAMERA     *curcam, 
-                                    uint64_t       engine_flags ) {
+static void _default_pick ( G3DSUBDIVIDER *sdr,
+                            G3DCAMERA     *curcam, 
+                            uint64_t       engine_flags ) {
     if ( g3dobject_isActive ( ( G3DOBJECT * ) sdr ) ) {
         if ( g3dobject_isSelected ( ( G3DOBJECT * ) sdr ) ) {
             if ( sdr->subdiv_preview ) {
@@ -600,8 +600,8 @@ static void g3dsubdivider_modpick ( G3DSUBDIVIDER *sdr,
 }
 
 /******************************************************************************/
-static void g3dsubdivider_update ( G3DSUBDIVIDER *sdr, 
-                                   uint64_t       engine_flags ) {
+static void _default_update ( G3DSUBDIVIDER *sdr, 
+                              uint64_t       engine_flags ) {
     if ( g3dobject_isActive ( ( G3DOBJECT * ) sdr ) ) {
         if ( ((G3DOBJECT*)sdr)->parent->type == G3DSKINTYPE ) {
             g3dsubdivider_modify ( sdr, G3DMODIFYOP_MODIFY, engine_flags );
@@ -635,16 +635,18 @@ static void g3dsubdivider_reset ( G3DSUBDIVIDER *sdr ) {
 }
 
 /******************************************************************************/
-static void g3dsubdivider_free ( G3DSUBDIVIDER *sdr ) {
+static void _default_free ( G3DSUBDIVIDER *sdr ) {
     g3dsubdivider_reset ( sdr );
+
+    g3dmodifier_default_free( G3DMODIFIERCAST(sdr) );
 }
 
 /******************************************************************************/
-static void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr,
+static void _default_activate ( G3DSUBDIVIDER *sdr,
                                      uint64_t       engine_flags );
 
 /******************************************************************************/
-void g3dsubdivider_setParent ( G3DSUBDIVIDER *sdr, 
+static void _default_setParent ( G3DSUBDIVIDER *sdr, 
                                G3DOBJECT     *parent,
                                G3DOBJECT     *oldParent,
                                uint64_t       engine_flags ) {
@@ -683,7 +685,7 @@ void g3dsubdivider_setLevels ( G3DSUBDIVIDER *sdr,
 }
 
 /******************************************************************************/
-uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* vertexCount */
+static uint32_t _default_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* vertexCount */
                                                                  uint32_t, /* nbtris */
                                                                  uint32_t, /* nbquads */
                                                                  uint32_t, /* nbuv */
@@ -862,10 +864,10 @@ uint32_t g3dsubdivider_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* ve
 }
 
 /******************************************************************************/
-G3DMESH *g3dsubdivider_commit ( G3DSUBDIVIDER *sdr, 
-                                uint32_t       commitMeshID,
-                                unsigned char *commitMeshName,
-                                uint64_t engine_flags ) {
+static G3DMESH *_default_commit ( G3DSUBDIVIDER *sdr, 
+                                  uint32_t       commitMeshID,
+                                  unsigned char *commitMeshName,
+                                  uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
     G3DMESH *commitMesh = NULL;
@@ -1132,7 +1134,7 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
 }
 
 /******************************************************************************/
-static G3DSUBDIVIDER *g3dsubdivider_copy ( G3DSUBDIVIDER *sdr,
+static G3DSUBDIVIDER *_default_copy ( G3DSUBDIVIDER *sdr,
                                            uint64_t       engine_flags ) {
     G3DOBJECT *objsdr = ( G3DOBJECT * ) sdr;
 
@@ -1140,7 +1142,7 @@ static G3DSUBDIVIDER *g3dsubdivider_copy ( G3DSUBDIVIDER *sdr,
 }
 
 /******************************************************************************/
-static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
+static uint32_t _default_modify ( G3DSUBDIVIDER *sdr,
                                        G3DMODIFYOP    op,
                                        uint64_t       engine_flags ) {
     if ( sdr->mod.oriobj ) {
@@ -1223,7 +1225,7 @@ static uint32_t g3dsubdivider_modify ( G3DSUBDIVIDER *sdr,
 }
 
 /******************************************************************************/
-static void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr,
+static void _default_activate ( G3DSUBDIVIDER *sdr,
                                      uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, EDITABLE );
@@ -1236,7 +1238,7 @@ static void g3dsubdivider_activate ( G3DSUBDIVIDER *sdr,
 }
 
 /******************************************************************************/
-static void g3dsubdivider_deactivate ( G3DSUBDIVIDER *sdr, 
+static void _default_deactivate ( G3DSUBDIVIDER *sdr, 
                                        uint64_t       engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, EDITABLE );
@@ -1455,10 +1457,10 @@ static void unbindMaterials ( G3DMESH *mes,
 }
 
 /******************************************************************************/
-static uint32_t g3dsubdivider_moddraw ( G3DSUBDIVIDER *sdr,
-                                        G3DCAMERA     *cam,
-                                        G3DENGINE     *engine,
-                                        uint64_t       engine_flags ) {
+static uint32_t _default_draw ( G3DSUBDIVIDER *sdr,
+                                G3DCAMERA     *cam,
+                                G3DENGINE     *engine,
+                                uint64_t       engine_flags ) {
     int mvwMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
                                                   "mvwMatrix" );
     int mvpMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
@@ -1605,28 +1607,32 @@ void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
     sdr->subdiv_preview = 0x01;
     sdr->subdiv_render  = 0x01;
 
-    g3dmodifier_init ( mod, G3DSUBDIVIDERTYPE, id, name, OBJECTNOTRANSLATION | 
-                                                         OBJECTNOROTATION    |
-                                                         OBJECTNOSCALING     |
-                                                         SYNCLEVELS,
-                                           DRAW_CALLBACK(NULL),
-                                           FREE_CALLBACK(g3dsubdivider_free),
-                                           PICK_CALLBACK(NULL),
-                                                         NULL,
-                                           COPY_CALLBACK(g3dsubdivider_copy),
-                                       ACTIVATE_CALLBACK(g3dsubdivider_activate),
-                                     DEACTIVATE_CALLBACK(g3dsubdivider_deactivate),
-                                         COMMIT_CALLBACK(g3dsubdivider_commit),
-                                                         NULL,
-                                      SETPARENT_CALLBACK(g3dsubdivider_setParent),
-                                         MODIFY_CALLBACK(g3dsubdivider_modify) );
-
-    ((G3DMESH*)sdr)->dump = DUMP_CALLBACK(g3dsubdivider_dump);
-
-    ((G3DOBJECT*)sdr)->update = UPDATE_CALLBACK(g3dsubdivider_update);
-
-    mod->moddraw = MODDRAW_CALLBACK(g3dsubdivider_moddraw);
-    mod->modpick = MODPICK_CALLBACK(g3dsubdivider_modpick);
+    g3dmodifier_init ( mod,
+                       G3DSUBDIVIDERTYPE,
+                       id,
+                       name,
+                       OBJECTNOTRANSLATION | 
+                       OBJECTNOROTATION    |
+                       OBJECTNOSCALING     |
+                       SYNCLEVELS,
+         DRAW_CALLBACK(_default_draw),
+         FREE_CALLBACK(_default_free),
+         PICK_CALLBACK(_default_pick),
+         ANIM_CALLBACK(NULL),
+       UPDATE_CALLBACK(_default_update),
+         POSE_CALLBACK(NULL),
+         COPY_CALLBACK(_default_copy),
+    TRANSFORM_CALLBACK(NULL),
+     ACTIVATE_CALLBACK(_default_activate),
+   DEACTIVATE_CALLBACK(_default_deactivate),
+       COMMIT_CALLBACK(_default_commit),
+     ADDCHILD_CALLBACK(NULL),
+  REMOVECHILD_CALLBACK(NULL),
+    SETPARENT_CALLBACK(_default_setParent),
+         DUMP_CALLBACK(_default_dump),
+       MODIFY_CALLBACK(_default_modify),
+      HUDDRAW_CALLBACK(NULL),
+      HUDPICK_CALLBACK(NULL) );
 }
 
 /******************************************************************************/

@@ -275,7 +275,8 @@ void g3dmorpher_optimize ( G3DMORPHER *mpr ) {
                                         UPDATEVERTEXNORMAL |
                                         INVALIDATE_MODIFIER_STACK_RESET );
 */
-        g3dobject_invalidate( mpr, INVALIDATE_MODIFIER_STACK_UPDATE );
+        g3dobject_invalidate( G3DOBJECTCAST(mpr),
+                              INVALIDATE_MODIFIER_STACK_UPDATE );
 
         g3dmesh_update ( mes, 0x00, 0x00 );
     }
@@ -785,9 +786,9 @@ G3DMORPHERMESHPOSE *g3dmorpher_getSelectedMeshPose ( G3DMORPHER *mpr ) {
 }
 
 /******************************************************************************/
-static void g3dmorpher_anim ( G3DMORPHER *mpr, 
-                              float       frame, 
-                              uint64_t    engine_flags ) {
+static void _default_anim ( G3DMORPHER *mpr, 
+                            float       frame, 
+                            uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mpr;
     LIST *ltmpver = mpr->vertexList;
     G3DKEY *prevKey = NULL,
@@ -1004,8 +1005,8 @@ static void g3dmorpher_anim ( G3DMORPHER *mpr,
 }
 
 /******************************************************************************/
-static void g3dmorpher_pose ( G3DMORPHER *mpr,
-                              G3DKEY     *key ) {
+static void _default_pose ( G3DMORPHER *mpr,
+                            G3DKEY     *key ) {
     if ( key->data.ptr == NULL ) {
         key->free = g3dmorpherkey_free; /*** callback for freeing memory ***/
 
@@ -1014,30 +1015,12 @@ static void g3dmorpher_pose ( G3DMORPHER *mpr,
 }
 
 /******************************************************************************/
-static void g3dmorpher_setParent ( G3DMORPHER *mpr, 
-                                   G3DOBJECT  *parent,
-                                   G3DOBJECT  *oldParent,
-                                   uint64_t    engine_flags ) {
-    g3dmorpher_reset ( mpr );
-
-    g3dmodifier_setParent ( ( G3DMODIFIER * ) mpr, 
-                                              parent, 
-                                              oldParent, 
-                                              engine_flags );
-}
-
-/******************************************************************************/
-static G3DMESH *g3dmorpher_commit ( G3DMORPHER    *mpr, 
-                                    uint32_t       commitMeshID,
-                                    unsigned char *commitMeshName,
-                                    uint64_t       engine_flags ) {
-                                    return 0;
-}
-
-/******************************************************************************/
-static G3DMORPHER *g3dmorpher_copy ( G3DMORPHER *mpr,
-                                     uint64_t engine_flags ) {
-                                     return 0;
+static void _default_update ( G3DMORPHER *mpr, 
+                              uint64_t    updateFlags,
+                              uint64_t    engineFlags ) {
+    if( G3DOBJECTCAST(mpr)->invalidationFlags & INVALIDATE_HIERARCHY ) {
+        g3dmorpher_reset ( mpr );
+    }
 }
 
 /******************************************************************************/
@@ -1059,9 +1042,9 @@ static void g3dmorpher_endUpdate ( G3DMORPHER *mpr,
 }
 
 /******************************************************************************/
-static uint32_t g3dmorpher_modify ( G3DMORPHER *mpr,
-                                    G3DMODIFYOP op,
-                                    uint64_t engine_flags ) {
+static uint32_t _default_modify ( G3DMORPHER *mpr,
+                                  G3DMODIFYOP op,
+                                  uint64_t engine_flags ) {
     if ( mpr->mod.oriobj ) {
         if ( mpr->mod.oriobj->type & MESH ) {
             G3DMESH *orimes = ( G3DMESH * ) mpr->mod.oriobj;
@@ -1097,8 +1080,8 @@ static uint32_t g3dmorpher_modify ( G3DMORPHER *mpr,
 }
 
 /******************************************************************************/
-static void g3dmorpher_activate ( G3DMORPHER *mpr,
-                                  uint64_t engine_flags ) {
+static void _default_activate ( G3DMORPHER *mpr,
+                                uint64_t engine_flags ) {
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( ( G3DOBJECT * ) mpr, 
                                                                          EDITABLE );
 
@@ -1112,8 +1095,8 @@ static void g3dmorpher_activate ( G3DMORPHER *mpr,
 }
 
 /******************************************************************************/
-static void g3dmorpher_deactivate ( G3DMORPHER *mpr,
-                                    uint64_t engine_flags ) {
+static void _default_deactivate ( G3DMORPHER *mpr,
+                                  uint64_t engine_flags ) {
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( ( G3DOBJECT * ) mpr, 
                                                                          EDITABLE );
 
@@ -1134,7 +1117,7 @@ static void g3dmorpher_deactivate ( G3DMORPHER *mpr,
 }
 
 /******************************************************************************/
-static void g3dmorpher_free ( G3DMORPHER *mpr ) {
+static void _default_free ( G3DMORPHER *mpr ) {
     g3dmorpher_reset ( mpr );
 }
 
@@ -1243,9 +1226,9 @@ static void g3dmorpher_pickVertices ( G3DMORPHER *mpr,
 }
 
 /******************************************************************************/
-static uint32_t g3dmorpher_pick ( G3DMORPHER *mpr, 
-                                  G3DCAMERA  *curcam, 
-                                  uint64_t    engine_flags ) {
+static uint32_t _default_pick ( G3DMORPHER *mpr, 
+                                G3DCAMERA  *curcam, 
+                                uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mpr;
 
     if ( obj->flags & OBJECTSELECTED ) {
@@ -1258,9 +1241,9 @@ static uint32_t g3dmorpher_pick ( G3DMORPHER *mpr,
 }
 
 /******************************************************************************/
-static uint32_t g3dmorpher_moddraw ( G3DMORPHER *mpr, 
-                                     G3DCAMERA  *cam,
-                                     uint64_t    engine_flags ) {
+static uint32_t _default_huddraw ( G3DMORPHER *mpr, 
+                                   G3DCAMERA  *cam,
+                                   uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mpr;
 
     if ( ( engine_flags & MODIFIERTOOKOVER ) == 0x00 ) {
@@ -1404,24 +1387,28 @@ static void g3dmorpher_init ( G3DMORPHER *mpr,
                        OBJECTNOSCALING |
                        MODIFIERNEEDSNORMALUPDATE,
          DRAW_CALLBACK(NULL),
-         FREE_CALLBACK(g3dmorpher_free),
-         PICK_CALLBACK(g3dmorpher_pick),
-         POSE_CALLBACK(g3dmorpher_pose),
+         FREE_CALLBACK(_default_free),
+         PICK_CALLBACK(_default_pick),
+         ANIM_CALLBACK(_default_anim),
+       UPDATE_CALLBACK(_default_update),
+         POSE_CALLBACK(_default_pose),
          COPY_CALLBACK(NULL),
-     ACTIVATE_CALLBACK(g3dmorpher_activate),
-   DEACTIVATE_CALLBACK(g3dmorpher_deactivate),
+    TRANSFORM_CALLBACK(NULL),
+     ACTIVATE_CALLBACK(_default_activate),
+   DEACTIVATE_CALLBACK(_default_deactivate),
        COMMIT_CALLBACK(NULL),
-                       NULL,
-    SETPARENT_CALLBACK(g3dmorpher_setParent),
-       MODIFY_CALLBACK(g3dmorpher_modify) );
+     ADDCHILD_CALLBACK(NULL),
+  REMOVECHILD_CALLBACK(NULL),
+    SETPARENT_CALLBACK(NULL),
+         DUMP_CALLBACK(NULL),
+       MODIFY_CALLBACK(_default_modify),
+      HUDDRAW_CALLBACK(_default_huddraw),
+      HUDPICK_CALLBACK(NULL) );
 
-    ((G3DOBJECT*)mpr)->anim = ANIM_CALLBACK(g3dmorpher_anim);
 
     /*** we need an extension name to be able to install an extension to ***/
     /*** the desired vertices ***/
     mpr->extensionName = g3dsysinfo_requestExtensionName ( );
-
-    mod->moddraw = MODDRAW_CALLBACK(g3dmorpher_moddraw);
 }
 
 /******************************************************************************/

@@ -31,9 +31,20 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-static URMUNTRIANGULATE *urmuntriangulate_new ( G3DMESH *mes, 
-                                                LIST    *loldfac,
-                                                LIST    *lnewfac ) {
+typedef struct _URMUNTRIANGULATE {
+    G3DSCENE *sce;
+    G3DMESH  *mes;
+    LIST     *loldfac;
+    LIST     *lnewfac;
+    LIST     *loldedg; /*** free unused old edges ***/
+    LIST     *lnewedg; /*** free newly created edges ***/
+} URMUNTRIANGULATE, URMTRIANGULATE;
+
+/******************************************************************************/
+static URMUNTRIANGULATE *urmuntriangulate_new ( G3DSCENE *sce,
+                                                G3DMESH  *mes, 
+                                                LIST     *loldfac,
+                                                LIST     *lnewfac ) {
     uint32_t structsize = sizeof ( URMUNTRIANGULATE );
 
     URMUNTRIANGULATE *ums = ( URMUNTRIANGULATE * ) calloc ( 0x01, structsize );
@@ -44,6 +55,7 @@ static URMUNTRIANGULATE *urmuntriangulate_new ( G3DMESH *mes,
         return NULL;
     }
 
+    ums->sce     = sce;
     ums->mes     = mes;
     ums->loldfac = loldfac;
     ums->lnewfac = lnewfac;
@@ -95,16 +107,7 @@ void unTriangulate_undo ( G3DURMANAGER *urm,
 
     list_execargdata ( ums->loldfac, (void(*)(void*,void*)) g3dmesh_addSelectedFace, ums->mes );
 
-    g3dmesh_faceNormal   ( mes );
-    g3dmesh_vertexNormal ( mes );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
-    /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+    g3dobject_update ( G3DOBJECTCAST(ums->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -122,20 +125,13 @@ void unTriangulate_redo ( G3DURMANAGER *urm,
 
     list_execargdata ( ums->lnewfac, (void(*)(void*,void*)) g3dmesh_addSelectedFace, ums->mes );
 
-    g3dmesh_faceNormal   ( mes );
-    g3dmesh_vertexNormal ( mes );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
     /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+    g3dobject_update ( G3DOBJECTCAST(ums->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
 void g3durm_mesh_untriangulate ( G3DURMANAGER *urm, 
+                                 G3DSCENE     *sce,
                                  G3DMESH      *mes,
                                  uint64_t      engine_flags,
                                  uint32_t      return_flags ) {
@@ -146,19 +142,11 @@ void g3durm_mesh_untriangulate ( G3DURMANAGER *urm,
     URMTRIANGULATE *ums;
 
     g3dmesh_untriangulate ( mes, &loldfac, &lnewfac );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
+
     /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+    g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
-    g3dmesh_faceNormal   ( mes );
-    g3dmesh_vertexNormal ( mes );
-
-    ums = urmuntriangulate_new ( mes, loldfac, lnewfac );
+    ums = urmuntriangulate_new ( sce, mes, loldfac, lnewfac );
 
     g3durmanager_push ( urm, unTriangulate_undo,
                              unTriangulate_redo,
@@ -166,8 +154,9 @@ void g3durm_mesh_untriangulate ( G3DURMANAGER *urm,
 }
 
 /******************************************************************************/
-void g3durm_mesh_triangulate ( G3DURMANAGER *urm, 
-                               G3DMESH      *mes, 
+void g3durm_mesh_triangulate ( G3DURMANAGER *urm,
+                               G3DSCENE     *sce,
+                               G3DMESH      *mes,
                                int           clockwise,
                                uint64_t      engine_flags,
                                uint32_t      return_flags ) {
@@ -178,18 +167,13 @@ void g3durm_mesh_triangulate ( G3DURMANAGER *urm,
     URMTRIANGULATE *ums;
 
     g3dmesh_triangulate ( mes, &loldfac, &lnewfac, clockwise );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
+
     /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+    g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     /*** Triangulate and unTriagulate feature use ***/
     /*** the same functions and data structures. ***/
-    ums = urmuntriangulate_new ( mes, loldfac, lnewfac );
+    ums = urmuntriangulate_new ( sce, mes, loldfac, lnewfac );
 
     g3durmanager_push ( urm, unTriangulate_undo,
                              unTriangulate_redo,

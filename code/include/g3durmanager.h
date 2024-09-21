@@ -45,86 +45,32 @@
 
 /******************************************************************************/
 typedef struct _URMADDOBJECT {
+    G3DSCENE *sce;
     LIST      *lobj; /*** we can add several objects. e.g when Copy-Pasting ***/
     G3DOBJECT *oldpar;
     G3DOBJECT *newpar;
-    G3DSCENE  *sce;
     LIST      *lsel;
 } URMADDOBJECT;
 
-/******************************************************************************/
-typedef struct _URMINVERTNORMAL {
-    G3DMESH *mes;
-    LIST      *lfac;
-} URMINVERTNORMAL;
 
 /******************************************************************************/
 typedef struct _URMADDWEIGHTGROUP {
+    G3DSCENE *sce;
     G3DMESH *mes;
     LIST    *lgrp; /*** list of added or deleted weightgroups ***/
 } URMADDWEIGHTGROUP, URMDELWEIGHTGROUP;
 
 /******************************************************************************/
 typedef struct _URMCONVERTPRIMITIVE {
+    G3DSCENE     *sce;
     G3DPRIMITIVE *pri;
     G3DMESH      *mes;
     G3DOBJECT    *par;
-    G3DSCENE     *sce;
 } URMCONVERTPRIMITIVE;
 
 /******************************************************************************/
-typedef struct _URMDELSELITEMS {
-    G3DSCENE *sce;
-    uint64_t engine_flags;
-    G3DMESH *mes;
-    LIST *loldselfac, *lnewselfac;
-    LIST *loldseledg, *lnewseledg;
-    LIST *loldselver, *lnewselver;
-    LIST *loldselobj, *lnewselobj;
-    LIST *lorphanedEdges;
-} URMDELSELITEMS;
-
-/******************************************************************************/
-typedef struct _URMWELDVERTICES {
-    G3DMESH *mes;
-    LIST *loldver;
-    LIST *loldfac;
-    LIST *loldedg;
-    LIST *lnewfac;
-    LIST *lnewver;
-    LIST *lnewedg;
-} URMWELDVERTICES;
-
-/******************************************************************************/
-typedef struct _URMSPLITMESH {
-    G3DMESH *mes;
-    G3DMESH *splmes;
-    LIST    *loldver;
-    LIST    *loldfac;
-    LIST    *loldedg;
-} URMSPLITMESH;
-
-/******************************************************************************/
-typedef struct _URMMOVEVERTICES {
-    G3DMESH *mes;
-    LIST *lver;
-    LIST *ledg;
-    LIST *lfac;
-    LIST *lsub;
-    G3DVECTOR3F *oldpos;
-    G3DVECTOR3F *newpos;
-} URMMOVEVERTICES;
-
-/******************************************************************************/
-typedef struct _URMMOVEUVS {
-    G3DUVMAP *uvmap;
-    LIST     *luv;
-    G3DUV    *olduv;
-    G3DUV    *newuv;
-} URMMOVEUVS;
-
-/******************************************************************************/
 typedef struct _URMCUTMESH {
+    G3DSCENE *sce;
     G3DMESH *mes;
     LIST *loldfac;
     LIST *loldedg;
@@ -133,49 +79,15 @@ typedef struct _URMCUTMESH {
     LIST *lnewedg;
 } URMCUTMESH;
 
-/******************************************************************************/
-typedef struct _URMCUTSPLINE {
-    G3DSPLINE *spline;
-    LIST      *laddedPoints;
-    LIST      *laddedSegments;
-    LIST      *lremovedSegments;
-} URMCUTSPLINE;
-
-/******************************************************************************/
-typedef struct _URMUNTRIANGULATE {
-    G3DMESH *mes;
-    LIST *loldfac;
-    LIST *lnewfac;
-    LIST *loldedg; /*** free unused old edges ***/
-    LIST *lnewedg; /*** free newly created edges ***/
-} URMUNTRIANGULATE, URMTRIANGULATE;
 
 /******************************************************************************/
 typedef struct _URMFILLHEIGTHMAP {
+    G3DSCENE *sce;
     G3DSUBDIVIDER *sdr;
     G3DVECTOR3F     *pos;
     uint32_t       nbver;
 } URMFILLHEIGTHMAP;
 
-/******************************************************************************/
-typedef struct _URMEXTRUDEMESH {
-    G3DMESH *mes;
-    LIST *loriver;
-    LIST *loldedg;
-    LIST *loldfac;
-    LIST *lnewver;
-    LIST *lnewedg;
-    LIST *lnewfac;
-    G3DVECTOR3F *oldpos;
-    G3DVECTOR3F *newpos;
-} URMEXTRUDEMESH;
-
-/******************************************************************************/
-typedef struct _URMREMOVETEXTURE {
-    G3DOBJECT   *obj;
-    G3DTEXTURE  *tex;
-    LIST        *lfacgrp;
-} URMREMOVETEXTURE;
 
 /******************************************************************************/
 typedef struct _URMADDMATERIAL {
@@ -190,20 +102,8 @@ typedef struct _URMREMOVEMATERIAL {
     LIST       *ludt; /*** list of URMDELETETEXTURE ***/
 } URMREMOVEMATERIAL;
 
-/******************************************************************************/
-typedef struct _URMREMOVEUVMAP {
-    G3DMESH  *mes;
-    G3DUVMAP *uvmap;
-    LIST     *lolduvset;
-    LIST     *loldtex;
-} URMREMOVEUVMAP;
 
-/******************************************************************************/
-typedef struct _URMADDUVMAP {
-    G3DMESH  *mes;
-    G3DUVMAP *uvmap;
-    LIST     *lnewuvset;
-} URMADDUVMAP;
+
 
 /******************************************************************************/
 #define UTOSAVETRANSLATION ( 1 << 0 )
@@ -215,8 +115,8 @@ typedef struct _URMADDUVMAP {
 #define UTOSAVESTATEAFTER  ( 0x02 )
 
 typedef struct _URMTRANSFORMOBJECT {
+    G3DSCENE *sce;
     LIST      *lobj;
-    G3DSCENE  *sce;
     G3DVECTOR3F *oldpos;
     G3DVECTOR3F *oldrot;
     G3DVECTOR3F *oldsca;
@@ -234,6 +134,7 @@ typedef struct _URMTRANSFORMOBJECT {
 #define UMPSAVESTATEAFTER  ( 0x02 )
 
 typedef struct _URMMOVEPOINT {
+    G3DSCENE *sce;
     G3DSPLINE     *spl;
     LIST          *lpt;    /*** list of curve points ***/
     G3DCURVEPOINT *curhan; /*** the current selected handle ***/
@@ -260,26 +161,15 @@ typedef struct _URMSELECTITEM {
 } URMSELECTITEM;
 
 /******************************************************************************/
-typedef struct _URMCREATEFACE {
-    G3DMESH *mes;
-    G3DFACE *fac;
-    LIST    *lnewedg;
-} URMCREATEFACE;
-
-/******************************************************************************/
-typedef struct _URMADDVERTEX {
-    G3DMESH *mes;
-    G3DVERTEX *ver;
-} URMADDVERTEX;
-
-/******************************************************************************/
 typedef struct _URMCREATEFACEGROUP {
+    G3DSCENE *sce;
     G3DMESH      *mes;
     G3DFACEGROUP *facgrp;
 } URMCREATEFACEGROUP;
 
 /******************************************************************************/
 typedef struct _URMOBJECTPOSE {
+    G3DSCENE *sce;
     G3DOBJECT *obj;
     float      frame;
     G3DKEY    *key;
@@ -297,6 +187,7 @@ typedef struct _URMOBJECTPOSE {
 
 /******************************************************************************/
 typedef struct _URMOBJECTREMOVEKEYS {
+    G3DSCENE *sce;
     G3DOBJECT *obj;
     LIST      *lkey;
     LIST      *laddedPosSegments;
@@ -309,6 +200,7 @@ typedef struct _URMOBJECTREMOVEKEYS {
 
 /******************************************************************************/
 typedef struct _URMADDSPLINEPOINT {
+    G3DSCENE *sce;
     G3DSPLINE        *spline;
     G3DSPLINEPOINT   *pt;
     G3DSPLINESEGMENT *seg;
@@ -316,6 +208,7 @@ typedef struct _URMADDSPLINEPOINT {
 
 /******************************************************************************/
 typedef struct _URMROUNDSPLINEPOINT {
+    G3DSCENE *sce;
     G3DSPLINE  *spline;
     LIST       *lselectedPoints;
     LIST       *lsegments;
@@ -324,34 +217,30 @@ typedef struct _URMROUNDSPLINEPOINT {
 
 /******************************************************************************/
 typedef struct _URMADDSPLINESEGMENT {
+    G3DSCENE *sce;
     G3DSPLINE        *spline;
     G3DSPLINESEGMENT *seg;
 } URMADDSPLINESEGMENT;
 
 /******************************************************************************/
 typedef struct _URMDELETESPLINEPOINTS {
+    G3DSCENE *sce;
     G3DSPLINE *spline;
     LIST      *lremovedPoints;
     LIST      *lremovedSegments;
 } URMDELETESPLINEPOINTS;
 
 /******************************************************************************/
-typedef struct _URMSCULPTFACEEXTENSION {
-    G3DFACESCULPTEXTENSION *fse;
-    G3DFACE                *fac;
-    G3DVECTOR4F            *pos;
-    G3DHEIGHT              *hei;
-    G3DVECTOR3F            *nor;
-} URMSCULPTFACEEXTENSION;
-
-/******************************************************************************/
-typedef struct _URMSCULPTFACE {
-    G3DSUBDIVIDER *sdr;
-    LIST          *lusfe;
-} URMSCULPTFACE;
+typedef struct _URMREMOVETEXTURE {
+    G3DSCENE    *sce;
+    G3DOBJECT   *obj;
+    G3DTEXTURE  *tex;
+    LIST        *lfacgrp;
+} URMREMOVETEXTURE;
 
 /******************************************************************************/
 typedef struct _G3DURMANAGER {
+    G3DSCENE *sce;
     LIST *lprocs;
     LIST *lcurprocs;
     uint32_t level; /*** undo level - 0 = infinite ***/
@@ -427,11 +316,12 @@ void g3durm_object_addChildren ( G3DURMANAGER *urm,
                                  LIST      *lobj );
 
 /******************************************************************************/
-uint32_t g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *urm,
-                                              G3DSCENE     *sce, 
-                                              uint64_t      engine_flags,
-                                              uint32_t      return_flags );
+void g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *urm,
+                                          G3DSCENE     *sce, 
+                                          uint64_t      engine_flags,
+                                          uint32_t      return_flags );
 void g3durm_mesh_deleteGeometry ( G3DURMANAGER *urm,
+                                  G3DSCENE     *sce, 
                                   G3DMESH      *mes,
                                   uint64_t      engine_flags,
                                   uint32_t      return_flags );
@@ -453,11 +343,13 @@ void g3durm_primitive_convert ( G3DURMANAGER *urm,
 
 /******************************************************************************/
 void g3durm_mesh_weldSelectedVertices ( G3DURMANAGER *urm, 
+                                        G3DSCENE     *sce, 
                                         G3DMESH      *mes, 
                                         uint32_t      type,
                                         uint64_t      engine_flags,
                                         uint32_t      return_flags );
-void g3durm_mesh_weldNeighbourVertices ( G3DURMANAGER *urm, 
+void g3durm_mesh_weldNeighbourVertices ( G3DURMANAGER *urm,
+                                         G3DSCENE     *sce, 
                                          G3DMESH      *mes, 
                                          uint32_t      type,
                                          float         distance,
@@ -466,17 +358,19 @@ void g3durm_mesh_weldNeighbourVertices ( G3DURMANAGER *urm,
 
 /******************************************************************************/
 void g3durm_mesh_moveVertexList ( G3DURMANAGER *urm,
-                                  G3DMESH *mes, 
-                                  LIST *lver,
-                                  LIST *ledg,
-                                  LIST *lfac,
-                                  LIST *lsub,
-                                  G3DVECTOR3F *oldpos,
-                                  G3DVECTOR3F *newpos,
+                                  G3DSCENE     *sce, 
+                                  G3DMESH      *mes, 
+                                  LIST         *lver,
+                                  LIST         *ledg,
+                                  LIST         *lfac,
+                                  LIST         *lsub,
+                                  G3DVECTOR3F  *oldpos,
+                                  G3DVECTOR3F  *newpos,
                                   uint32_t return_flags );
 
 /******************************************************************************/
 void g3durm_mesh_cut ( G3DURMANAGER *urm, 
+                       G3DSCENE     *sce,
                        G3DMESH      *mes,
                        G3DFACE      *knife,
                        int           restricted,
@@ -485,6 +379,7 @@ void g3durm_mesh_cut ( G3DURMANAGER *urm,
 
 /******************************************************************************/
 void g3durm_mesh_extrude ( G3DURMANAGER *urm, 
+                           G3DSCENE     *sce,
                            G3DMESH      *mes,
                            LIST         *loriver,
                            LIST         *loldfac,
@@ -510,25 +405,21 @@ URMTRANSFORMOBJECT *g3durm_axis_transform ( G3DURMANAGER *urm,
                                             uint32_t      return_flags );
 
 /******************************************************************************/
-void unTriangulate_free ( void *data, uint32_t commit );
-void unTriangulate_undo ( G3DURMANAGER *urm, 
-                          void         *data, 
-                          uint64_t      engine_flags );
-void unTriangulate_redo ( G3DURMANAGER *urm, 
-                          void         *data, 
-                          uint64_t      engine_flags );
-void g3durm_mesh_untriangulate ( G3DURMANAGER *urm, 
+void g3durm_mesh_untriangulate ( G3DURMANAGER *urm,
+                               G3DSCENE     *sce,
                                  G3DMESH      *mes,
                                  uint64_t      engine_flags,
                                  uint32_t      return_flags );
-void g3durm_mesh_triangulate ( G3DURMANAGER *urm, 
-                               G3DMESH      *mes, 
+void g3durm_mesh_triangulate ( G3DURMANAGER *urm,
+                               G3DSCENE     *sce,
+                               G3DMESH      *mes,
                                int           clockwise,
                                uint64_t      engine_flags,
                                uint32_t      return_flags );
 
 /******************************************************************************/
 void g3durm_mesh_createFace ( G3DURMANAGER *urm,
+                              G3DSCENE     *sce, 
                               G3DMESH      *mes, 
                               G3DFACE      *fac, 
                               uint32_t      return_flags );
@@ -586,12 +477,14 @@ void g3durm_spline_pickPoints ( G3DURMANAGER *urm,
 
 /******************************************************************************/
 void g3durm_mesh_addVertex ( G3DURMANAGER *urm,
+                             G3DSCENE     *sce, 
                              G3DMESH      *mes, 
                              G3DVERTEX    *ver, 
                              uint32_t      return_flags );
 
 /******************************************************************************/
-void g3durm_mesh_invertNormal ( G3DURMANAGER *urm, 
+void g3durm_mesh_invertNormal ( G3DURMANAGER *urm,
+                                G3DSCENE     *sce,
                                 G3DMESH      *mes,
                                 uint64_t      engine_flags,
                                 uint32_t      return_flags );
@@ -605,6 +498,7 @@ void g3durm_spline_deletePoints ( G3DURMANAGER *urm,
 
 /******************************************************************************/
 void g3durm_spline_cut ( G3DURMANAGER *urm,
+                         G3DSCENE     *sce, 
                          G3DSPLINE    *spline, 
                          G3DFACE      *knife,
                          uint64_t      engine_flags,
@@ -666,19 +560,12 @@ URMROUNDSPLINEPOINT *urmRoundSplinePoint_new ( G3DSPLINE  *spline,
 
 /******************************************************************************/
 void g3durm_mesh_split ( G3DURMANAGER *urm, 
+                         G3DSCENE *sce,
                          G3DMESH *mes,
                          uint32_t splID,
                          uint32_t keep,
                          uint64_t engine_flags,
                          uint32_t return_flags );
-void splitMesh_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags );
-void splitMesh_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags );
-void splitMesh_free ( void *data, uint32_t commit );
-void urmSplitMesh_free ( URMSPLITMESH *sms );
-URMSPLITMESH *urmSplitMesh_new ( G3DMESH *mes, 
-                                 G3DMESH *splmes, 
-                                 LIST    *loldver,
-                                 LIST    *loldfac );
 
 /******************************************************************************/
 void g3durm_spline_revert ( G3DURMANAGER *urm, 
@@ -744,6 +631,7 @@ void g3durm_morpher_moveVertices ( G3DURMANAGER       *urm,
 
 /******************************************************************************/
 void g3durm_uvmap_moveUVList ( G3DURMANAGER *urm,
+                               G3DSCENE     *sce,
                                G3DUVMAP     *uvmap, 
                                LIST         *luv,
                                G3DUV        *olduv,
@@ -758,8 +646,8 @@ void g3durm_mesh_createFacegroup ( G3DURMANAGER *urm,
                                    uint32_t      return_flags );
 
 /******************************************************************************/
-void urmremovetexture_free ( URMREMOVETEXTURE *udt );
 void g3durm_mesh_removeTexture ( G3DURMANAGER *urm,
+                                 G3DSCENE     *sce,
                                  G3DMESH      *mes,
                                  G3DTEXTURE   *tex, 
                                  uint64_t      engine_flags,
@@ -788,6 +676,7 @@ void g3durm_scene_removeMaterial ( G3DURMANAGER *urm,
 
 /******************************************************************************/
 void g3durm_mesh_removeUVMap ( G3DURMANAGER *urm,
+                               G3DSCENE     *sce,
                                G3DMESH      *mes,
                                G3DUVMAP     *uvmap, 
                                uint64_t      engine_flags,
@@ -795,6 +684,7 @@ void g3durm_mesh_removeUVMap ( G3DURMANAGER *urm,
 
 /******************************************************************************/
 void g3durm_mesh_addUVMap ( G3DURMANAGER *urm,
+                            G3DSCENE     *sce,
                             G3DMESH      *mes,
                             G3DUVMAP     *uvmap, 
                             uint64_t      engine_flags,
@@ -884,6 +774,7 @@ void g3durm_objectList_driftSelectedKeys ( G3DURMANAGER *urm,
 
 /******************************************************************************/
 void g3durm_selection_addTexture ( G3DURMANAGER *urm,
+                                   G3DSCENE     *sce,
                                    LIST         *lobj,
                                    LIST         *lmat,
                                    uint64_t      engine_flags,
@@ -898,15 +789,10 @@ void g3durm_objectList_scaleSelectedKeys ( G3DURMANAGER *urm,
                                            uint32_t      return_flags );
 
 /******************************************************************************/
-URMSCULPTFACEEXTENSION *urmsculptfaceextension_new ( G3DFACESCULPTEXTENSION *fse,
-                                                     G3DFACE                *fac );
-URMSCULPTFACEEXTENSION *urmsculptfaceextension_seek ( LIST                   *lusf,
-                                                      G3DFACESCULPTEXTENSION *fse );
-void urmsculptfaceextension_free ( URMSCULPTFACEEXTENSION *usf );
-
-URMSCULPTFACE *g3durm_mesh_sculptFace ( G3DURMANAGER  *urm,
-                                        G3DSUBDIVIDER *sdr,
-                                        uint64_t       engine_flags,
-                                        uint32_t       return_flags );
+void g3durm_mesh_sculptFace ( G3DURMANAGER  *urm,
+                              G3DSCENE     *sce,
+                              G3DSUBDIVIDER *sdr,
+                              uint64_t       engine_flags,
+                              uint32_t       return_flags );
 
 #endif

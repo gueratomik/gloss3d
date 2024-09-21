@@ -30,8 +30,8 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-static G3DSYMMETRY *g3dsymmetry_copy ( G3DSYMMETRY *sym,
-                                       uint64_t     engine_flags ) {
+static G3DSYMMETRY *_default_copy ( G3DSYMMETRY *sym,
+                                    uint64_t     engine_flags ) {
     G3DOBJECT *objsym = ( G3DOBJECT * ) sym;
     G3DSYMMETRY *newsym = g3dsymmetry_new ( objsym->id, objsym->name );
 
@@ -107,7 +107,7 @@ void g3dsymmetry_convert_r ( G3DOBJECT *obj,
 }
 
 /*****************************************************************************/
-static G3DOBJECT *g3dsymmetry_commit ( G3DSYMMETRY *sym, 
+static G3DOBJECT *_default_commit ( G3DSYMMETRY *sym, 
                                        uint64_t     engine_flags ) {
     G3DOBJECT *obj = g3dobject_new ( g3dobject_getID   ( ( G3DOBJECT * ) sym ),
                                      g3dobject_getName ( ( G3DOBJECT * ) sym ), 0x00 );
@@ -124,18 +124,6 @@ static G3DOBJECT *g3dsymmetry_commit ( G3DSYMMETRY *sym,
 
 
     return obj;
-}
-
-/******************************************************************************/
-void g3dsymmetry_activate ( G3DSYMMETRY *sym, 
-                            uint64_t     engine_flags ) {
-
-}
-
-/******************************************************************************/
-void g3dsymmetry_deactivate ( G3DSYMMETRY *sym, 
-                              uint64_t engine_flags ) {
-
 }
 
 /*****************************************************************************/
@@ -326,9 +314,9 @@ void g3dsymmetry_childVertexChange ( G3DOBJECT *obj,
 }
 
 /*****************************************************************************/
-uint32_t g3dsymmetry_draw ( G3DOBJECT *obj,
-                            G3DCAMERA *curcam, 
-                            uint64_t   engine_flags ) {
+static uint32_t _default_draw ( G3DOBJECT *obj,
+                                G3DCAMERA *curcam, 
+                                uint64_t   engine_flags ) {
     uint64_t next_engine_flags = engine_flags;
     G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
     LIST *ltmpobj = obj->childList;
@@ -362,7 +350,7 @@ uint32_t g3dsymmetry_draw ( G3DOBJECT *obj,
 }
 
 /*****************************************************************************/
-void g3dsymmetry_free ( G3DOBJECT *obj ) {
+static void _default_free ( G3DOBJECT *obj ) {
     /*G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;*/
 
     /*** Is the Undo-Redo manager ***/
@@ -403,19 +391,25 @@ G3DSYMMETRY *g3dsymmetry_new ( uint32_t id,
 
     g3dsymmetry_setMergeLimit ( sym, 0.02f );
 
-    g3dobject_init ( obj, G3DSYMMETRYTYPE, id, name, 0x00,
-                                     DRAW_CALLBACK ( g3dsymmetry_draw ),
-                                     FREE_CALLBACK ( g3dsymmetry_free ),
-                                                     NULL,
-                                                     NULL,
-                                     COPY_CALLBACK ( g3dsymmetry_copy ),
-                                 ACTIVATE_CALLBACK ( g3dsymmetry_activate ),
-                               DEACTIVATE_CALLBACK ( g3dsymmetry_deactivate ),
-                                   COMMIT_CALLBACK ( g3dsymmetry_commit ),
-                                                     NULL,
-                                                     NULL );
-
-    obj->childvertexchange = g3dsymmetry_childVertexChange;
+    g3dobject_init ( obj,
+                     G3DSYMMETRYTYPE,
+                     id,
+                     name,
+                     0x00,
+       DRAW_CALLBACK(_default_draw),
+       FREE_CALLBACK(_default_free),
+       PICK_CALLBACK(NULL),
+       ANIM_CALLBACK(NULL),
+     UPDATE_CALLBACK(NULL),
+       POSE_CALLBACK(NULL),
+       COPY_CALLBACK(_default_copy),
+  TRANSFORM_CALLBACK(NULL),
+   ACTIVATE_CALLBACK(NULL),
+ DEACTIVATE_CALLBACK(NULL),
+     COMMIT_CALLBACK(_default_commit),
+   ADDCHILD_CALLBACK(NULL),
+REMOVECHILD_CALLBACK(NULL),
+  SETPARENT_CALLBACK(NULL) );
 
     return sym;
 }

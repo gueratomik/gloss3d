@@ -31,7 +31,15 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-static URMADDVERTEX *urmaddvertex_new ( G3DMESH *mes,
+typedef struct _URMADDVERTEX {
+    G3DSCENE *sce;
+    G3DMESH *mes;
+    G3DVERTEX *ver;
+} URMADDVERTEX;
+
+/******************************************************************************/
+static URMADDVERTEX *urmaddvertex_new ( G3DSCENE  *sce,
+                                        G3DMESH   *mes,
                                         G3DVERTEX *ver ) {
     uint32_t structsize = sizeof ( URMADDVERTEX );
 
@@ -43,6 +51,7 @@ static URMADDVERTEX *urmaddvertex_new ( G3DMESH *mes,
         return NULL;
     }
 
+    avs->sce = sce;
     avs->mes = mes;
     avs->ver = ver;
 
@@ -82,14 +91,8 @@ static void addVertex_undo ( G3DURMANAGER *urm,
     g3dmesh_removeVertex ( mes, ver );
 
     g3dmesh_updateBbox ( mes );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
-    /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+
+    g3dobject_update ( G3DOBJECTCAST(avs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -105,24 +108,19 @@ static void addVertex_redo ( G3DURMANAGER *urm,
     g3dmesh_addVertex ( mes, ver );
 
     g3dmesh_updateBbox ( mes );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
-    /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+
+    g3dobject_update ( G3DOBJECTCAST(avs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
 void g3durm_mesh_addVertex ( G3DURMANAGER *urm,
+                             G3DSCENE     *sce, 
                              G3DMESH      *mes, 
                              G3DVERTEX    *ver, 
                              uint32_t      return_flags ) {
     URMADDVERTEX *avs;
 
-    avs = urmaddvertex_new ( mes, ver );
+    avs = urmaddvertex_new ( sce, mes, ver );
 
     g3durmanager_push ( urm, addVertex_undo,
                              addVertex_redo,

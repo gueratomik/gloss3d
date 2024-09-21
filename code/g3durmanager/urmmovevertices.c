@@ -31,11 +31,24 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-static URMMOVEVERTICES *urmmovevertices_new ( G3DMESH *mes, 
-                                              LIST *lver,
-                                              LIST *ledg,
-                                              LIST *lfac,
-                                              LIST *lsub,
+typedef struct _URMMOVEVERTICES {
+    G3DSCENE    *sce;
+    G3DMESH     *mes;
+    LIST        *lver;
+    LIST        *ledg;
+    LIST        *lfac;
+    LIST        *lsub;
+    G3DVECTOR3F *oldpos;
+    G3DVECTOR3F *newpos;
+} URMMOVEVERTICES;
+
+/******************************************************************************/
+static URMMOVEVERTICES *urmmovevertices_new ( G3DSCENE    *sce,
+                                              G3DMESH     *mes, 
+                                              LIST        *lver,
+                                              LIST        *ledg,
+                                              LIST        *lfac,
+                                              LIST        *lsub,
                                               G3DVECTOR3F *oldpos,
                                               G3DVECTOR3F *newpos ) {
     uint32_t structsize = sizeof ( URMMOVEVERTICES );
@@ -99,28 +112,9 @@ static void moveVertices_undo ( G3DURMANAGER *urm,
         ltmp = ltmp->next;
     }
 
-    /*if ( obj->type & FFD ) g3dffd_modify ( ( G3DFFD * ) mes, engine_flags );*/
-
     g3dmesh_updateBbox ( mvs->mes );
-/*
-    mes->lupdfac = mvs->lfac;
-    mes->lupdedg = mvs->ledg;
-    mes->lupdver = mvs->lver;
 
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               COMPUTEUVMAPPING   | 
-                               UPDATEMODIFIERS );
-*/
-    /*** update faces and subdivided faces ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
-
-    /*** TODO: understand why those 2 calls are needed. It's becoming ***/
-    /*** messy I  dont even know why the faces dont get correctly ***/
-    /*** update by the  above call to g3dface_update ***/
-    g3dmesh_faceNormal   ( mes );
-    g3dmesh_vertexNormal ( mes );
+    g3dobject_update ( G3DOBJECTCAST(mes), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -141,44 +135,32 @@ static void moveVertices_redo ( G3DURMANAGER *urm,
         ltmp = ltmp->next;
     }
 
-    /*if ( obj->type & FFD ) g3dffd_modify ( ( G3DFFD * ) obj, engine_flags );*/
-
-
     g3dmesh_updateBbox ( mvs->mes );
-/*
-    mes->lupdfac = mvs->lfac;
-    mes->lupdedg = mvs->ledg;
-    mes->lupdver = mvs->lver;
 
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               COMPUTEUVMAPPING   | 
-                               UPDATEMODIFIERS );
-*/
-    /*** update faces and subdivided faces ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
-
-    /*** TODO: understand why those 2 calls are needed. It's becoming ***/
-    /*** messy I  dont even know why the faces dont get correctly ***/
-    /*** update by the  above call to g3dface_update ***/
-    g3dmesh_faceNormal   ( mes );
-    g3dmesh_vertexNormal ( mes );
+    g3dobject_update ( G3DOBJECTCAST(mes), 0x00, engine_flags );
 }
 
 /******************************************************************************/
 void g3durm_mesh_moveVertexList ( G3DURMANAGER *urm,
-                                  G3DMESH *mes, 
-                                  LIST *lver,
-                                  LIST *ledg,
-                                  LIST *lfac,
-                                  LIST *lsub,
+                                  G3DSCENE     *sce, 
+                                  G3DMESH      *mes, 
+                                  LIST         *lver,
+                                  LIST         *ledg,
+                                  LIST         *lfac,
+                                  LIST         *lsub,
                                   G3DVECTOR3F *oldpos,
                                   G3DVECTOR3F *newpos,
                                   uint32_t return_flags ) {
     URMMOVEVERTICES *mvs;
 
-    mvs = urmmovevertices_new ( mes, lver, ledg, lfac, lsub, oldpos, newpos );
+    mvs = urmmovevertices_new ( sce,
+                                mes,
+                                lver,
+                                ledg,
+                                lfac,
+                                lsub,
+                                oldpos,
+                                newpos );
 
     g3durmanager_push ( urm, moveVertices_undo,
                              moveVertices_redo,

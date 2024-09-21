@@ -31,7 +31,17 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-static URMCUTSPLINE *urmCutSpline_new ( G3DSPLINE *spline, 
+typedef struct _URMCUTSPLINE {
+    G3DSCENE *sce;
+    G3DSPLINE *spline;
+    LIST      *laddedPoints;
+    LIST      *laddedSegments;
+    LIST      *lremovedSegments;
+} URMCUTSPLINE;
+
+/******************************************************************************/
+static URMCUTSPLINE *urmCutSpline_new ( G3DSCENE  *sce,
+                                        G3DSPLINE *spline, 
                                         LIST      *laddedPoints,
                                         LIST      *laddedSegments,
                                         LIST      *lremovedSegments ) {
@@ -44,6 +54,7 @@ static URMCUTSPLINE *urmCutSpline_new ( G3DSPLINE *spline,
         return NULL;
     }
 
+    csp->sce              = sce;
     csp->spline           = spline;
     csp->laddedPoints     = laddedPoints;
     csp->laddedSegments   = laddedSegments;
@@ -114,6 +125,7 @@ static void cutSpline_redo ( G3DURMANAGER *urm,
 
 /******************************************************************************/
 void g3durm_spline_cut ( G3DURMANAGER *urm,
+                         G3DSCENE     *sce, 
                          G3DSPLINE    *spline, 
                          G3DFACE      *knife,
                          uint64_t      engine_flags,
@@ -130,16 +142,16 @@ void g3durm_spline_cut ( G3DURMANAGER *urm,
                    &lremovedSegments, 
                     engine_flags );
 
-    /*** Rebuild the spline modifiers ***/
-    /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( spline, NULL, 0, engine_flags );
+    g3dobject_update( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
-    csp = urmCutSpline_new ( spline,
+    csp = urmCutSpline_new ( sce,
+                             spline,
                              laddedPoints,
                              laddedSegments,
                              lremovedSegments );
 
-    g3durmanager_push ( urm, cutSpline_undo,
-                             cutSpline_redo,
-                             cutSpline_free, csp, return_flags );
+    g3durmanager_push ( urm,
+                        cutSpline_undo,
+                        cutSpline_redo,
+                        cutSpline_free, csp, return_flags );
 }

@@ -352,7 +352,9 @@ int scaleUV_tool ( G3DMOUSETOOL *mou,
                             parmes->obj.invalidationFlags |= RESETMODIFIERS;
 */
                             /** TODO: do this only for subdivided meshes ***/
-                            g3dmesh_update ( parmes, 0x00, engine_flags );
+                            g3dobject_update ( G3DOBJECTCAST(sce),
+                                               0x00,
+                                               engine_flags );
 
                             olduv = newuv = NULL;
                         } return REDRAWVIEW            | 
@@ -592,12 +594,12 @@ static int scale_mesh ( G3DMESH          *mes,
                         ver->pos.x = localPivot.x + ( ( oldpos[verID].x - localPivot.x ) * ( 1.0f + ( difx * 0.01f ) ) );
                         ver->pos.y = localPivot.y + ( ( oldpos[verID].y - localPivot.y ) * ( 1.0f + ( dify * 0.01f ) ) );
                         ver->pos.z = localPivot.z + ( ( oldpos[verID].z - localPivot.z ) * ( 1.0f + ( difz * 0.01f ) ) );
-
+/*
                         if ( obj->parent->childvertexchange ) {
                             obj->parent->childvertexchange ( obj->parent,
                                                              obj, ver );
                         }
-
+*/
                         verID++;
 
                         ltmpver = ltmpver->next;

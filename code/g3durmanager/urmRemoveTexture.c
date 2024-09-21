@@ -31,9 +31,10 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMREMOVETEXTURE *urmremovetexture_new ( G3DMESH    *mes,
-                                         G3DTEXTURE *tex,
-                                         uint64_t engine_flags ) {
+static URMREMOVETEXTURE *urmremovetexture_new ( G3DSCENE   *sce,
+                                                G3DMESH    *mes,
+                                                G3DTEXTURE *tex,
+                                                uint64_t engine_flags ) {
     uint32_t structsize = sizeof ( URMREMOVETEXTURE );
 
     URMREMOVETEXTURE *urt = ( URMREMOVETEXTURE * ) calloc ( 0x01, structsize );
@@ -44,6 +45,7 @@ URMREMOVETEXTURE *urmremovetexture_new ( G3DMESH    *mes,
         return NULL;
     }
 
+    urt->sce = sce;
     urt->obj = tex->obj; /*** could also be the "mes" parameter ***/
     urt->tex = tex;
 
@@ -53,14 +55,15 @@ URMREMOVETEXTURE *urmremovetexture_new ( G3DMESH    *mes,
 }
 
 /******************************************************************************/
-void urmremovetexture_free ( URMREMOVETEXTURE *urt ) {
+static void urmremovetexture_free ( URMREMOVETEXTURE *urt ) {
     list_free ( &urt->lfacgrp, NULL );
 
     free ( urt );
 }
 
 /******************************************************************************/
-void removeTexture_free ( void *data, uint32_t commit ) {
+static void removeTexture_free ( void    *data,
+                                 uint32_t commit ) {
     URMREMOVETEXTURE *urt = ( URMREMOVETEXTURE * ) data;
 
     if ( commit ) {
@@ -71,7 +74,9 @@ void removeTexture_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void removeTexture_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
+static void removeTexture_undo ( G3DURMANAGER *urm,
+                                 void         *data,
+                                 uint64_t      engine_flags ) {
     URMREMOVETEXTURE *urt = ( URMREMOVETEXTURE * ) data;
 
     if ( urt->obj->type & MESH ) {
@@ -87,32 +92,31 @@ void removeTexture_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags )
 
             ltmpfacgrp = ltmpfacgrp->next;
         }
-/*
-        mes->obj.invalidationFlags |= RESETMODIFIERS;
-*/
+
         /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-        g3dmesh_update ( mes, 0x00, engine_flags );
+        g3dobject_update ( G3DOBJECTCAST(urt->sce), 0x00, engine_flags );
     }
 }
 
 /******************************************************************************/
-void removeTexture_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
+static void removeTexture_redo ( G3DURMANAGER *urm,
+                                 void         *data,
+                                 uint64_t      engine_flags ) {
     URMREMOVETEXTURE *urt = ( URMREMOVETEXTURE * ) data;
 
     if ( urt->obj->type & MESH ) {
         G3DMESH *mes = ( G3DMESH * ) urt->obj;
 
         g3dmesh_removeTexture ( mes, urt->tex );
-/*
-        mes->obj.invalidationFlags |= RESETMODIFIERS;
-*/
+
         /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-        g3dmesh_update ( mes, 0x00, engine_flags );
+        g3dobject_update ( G3DOBJECTCAST(urt->sce), 0x00, engine_flags );
     }
 }
 
 /******************************************************************************/
 void g3durm_mesh_removeTexture ( G3DURMANAGER *urm,
+                                 G3DSCENE     *sce,
                                  G3DMESH      *mes,
                                  G3DTEXTURE   *tex, 
                                  uint64_t      engine_flags,
@@ -121,14 +125,7 @@ void g3durm_mesh_removeTexture ( G3DURMANAGER *urm,
     URMREMOVETEXTURE *urt;
 
     /*** save state ***/
-    urt = urmremovetexture_new ( mes, tex, engine_flags );
-
-    g3dmesh_removeTexture ( mes, tex );
-/*
-    mes->obj.invalidationFlags |= RESETMODIFIERS;
-*/
-    /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+    urt = urmremovetexture_new ( sce, mes, tex, engine_flags );
 
     g3durmanager_push ( urm, 
                         removeTexture_undo,

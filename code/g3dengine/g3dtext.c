@@ -990,16 +990,14 @@ void g3dtext_generate ( G3DTEXT   *txt,
 }
 
 /******************************************************************************/
-void g3dtext_free ( G3DOBJECT *obj ) {
-    G3DTEXT *txt = ( G3DTEXT * ) obj;
-
+static void _default_free ( G3DTEXT *txt ) {
     g3dtext_empty ( txt );
 
     if ( txt->text ) {
         free ( txt->text );
     }
 
-    g3dmesh_free ( ( G3DOBJECT * ) txt );
+    g3dmesh_free ( G3DMESHCAST(txt) );
 }
 
 /******************************************************************************/
@@ -1021,13 +1019,16 @@ void g3dtext_configure ( G3DTEXT *txt,
 }
 
 /******************************************************************************/
-static uint32_t g3dtext_draw ( G3DOBJECT *obj, 
-                               G3DCAMERA *curcam, 
-                               G3DENGINE *engine, 
-                               uint64_t engine_flags ) {
-    g3dmesh_draw ( obj, curcam, engine, engine_flags & (~VIEWVERTEX)
-                                                     & (~VIEWFACE)
-                                                     & (~VIEWEDGE) );
+static uint32_t _default_draw ( G3DTEXT   *txt, 
+                                G3DCAMERA *curcam, 
+                                G3DENGINE *engine, 
+                                uint64_t engineFlags ) {
+    g3dmesh_default_draw ( G3DMESHCAST(txt),
+                           curcam,
+                           engine,
+                           engineFlags & (~( VIEWVERTEX | 
+                                             VIEWFACE   |
+                                             VIEWEDGE ) ) );
 }
 
 /******************************************************************************/
@@ -1037,25 +1038,28 @@ void g3dtext_init ( G3DTEXT *txt,
                     uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) txt;
 
-    /*** TODO: add more parameters (function pointers) to g3dmesh_init ***/
-    /*** and remove the call to g3dobject_init ***/
-    g3dmesh_init ( ( G3DMESH * ) txt, id, name, engine_flags );
-
-    g3dobject_init ( obj, G3DTEXTTYPE, id, name, 0x00,
-                                     DRAW_CALLBACK(g3dtext_draw),
-                                     FREE_CALLBACK(g3dtext_free),
-                                     PICK_CALLBACK(g3dmesh_pick),
-                                                   NULL,
-                                     COPY_CALLBACK(NULL),
-                                                   NULL,
-                                                   NULL,
-                                   COMMIT_CALLBACK(g3dmesh_copy),
-                                 ADDCHILD_CALLBACK(NULL),
-                                                   NULL );
+    g3dmesh_init   ( G3DMESHCAST(txt),
+                     G3DTEXTTYPE,
+                     id,
+                     name,
+                     0x00,
+       DRAW_CALLBACK(_default_draw),
+       FREE_CALLBACK(_default_free),
+       PICK_CALLBACK(NULL),
+       ANIM_CALLBACK(NULL),
+     UPDATE_CALLBACK(NULL),
+       POSE_CALLBACK(NULL),
+       COPY_CALLBACK(NULL),
+  TRANSFORM_CALLBACK(NULL),
+   ACTIVATE_CALLBACK(NULL),
+ DEACTIVATE_CALLBACK(NULL),
+     COMMIT_CALLBACK(g3dmesh_default_copy),
+   ADDCHILD_CALLBACK(NULL),
+REMOVECHILD_CALLBACK(NULL),
+  SETPARENT_CALLBACK(NULL),
+       DUMP_CALLBACK(NULL) );
 
     g3dtext_setSize ( txt, 8, engine_flags );
-
-    ((G3DMESH*)txt)->dump = g3dmesh_default_dump;
 
     ((G3DMESH*)txt)->gouraudScalarLimit = 1.0f;
 }

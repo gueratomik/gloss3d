@@ -358,7 +358,9 @@ static int rotateUV_tool ( G3DMOUSETOOL *mou,
                             parmes->obj.invalidationFlags |= RESETMODIFIERS;
 */
                             /** TODO: do this only for subdivided meshes ***/
-                            g3dmesh_update ( parmes, 0x00, engine_flags );
+                            g3dobject_update ( G3DOBJECTCAST(sce),
+                                               0x00,
+                                               engine_flags );
 
                             olduv = newuv = NULL;
                         } return REDRAWVIEW            | 
@@ -663,12 +665,12 @@ static int rotate_mesh ( G3DMESH          *mes,
                         ver->pos.x = newpos.x;
                         ver->pos.y = newpos.y;
                         ver->pos.z = newpos.z;
-
+/*
                         if ( obj->parent->childvertexchange ) {
                             obj->parent->childvertexchange ( obj->parent,
                                                              obj, ver );
                         }
-
+*/
                         ltmpver = ltmpver->next;
                     }
 

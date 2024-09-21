@@ -54,7 +54,7 @@ LIGHTKEYDATA *lightkeydata_new ( ) {
 }
 
 /******************************************************************************/
-static void g3dlight_pose ( G3DLIGHT *lig,
+static void _default_pose ( G3DLIGHT *lig,
                             G3DKEY   *key ) {
     if ( key->data.ptr == NULL ) {
         LIGHTKEYDATA *lkd = lightkeydata_new ( );
@@ -70,10 +70,10 @@ static void g3dlight_pose ( G3DLIGHT *lig,
 }
 
 /******************************************************************************/
-G3DLIGHT *g3dlight_copy ( G3DLIGHT      *lig, 
-                          uint32_t       id,
-                          unsigned char *name,
-                          uint64_t engine_flags ) {
+static G3DLIGHT *_default_copy ( G3DLIGHT      *lig, 
+                                 uint32_t       id,
+                                 unsigned char *name,
+                                 uint64_t       engine_flags ) {
     G3DOBJECT *obj    = ( G3DOBJECT * ) lig;
     G3DLIGHT  *ligcpy = g3dlight_new ( id, name );
 
@@ -125,9 +125,9 @@ static void g3dlight_pickObject ( G3DLIGHT *lig, uint64_t engine_flags ) {
 }
 
 /******************************************************************************/
-uint32_t g3dlight_pick ( G3DLIGHT  *lig,
-                         G3DCAMERA *cam, 
-                         uint64_t engine_flags ) {
+static uint32_t _default_pick ( G3DLIGHT  *lig,
+                                G3DCAMERA *cam, 
+                                uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
 
     if ( obj->type & OBJECTSELECTED ) {
@@ -297,9 +297,9 @@ static uint32_t g3dlight_drawOmni ( G3DLIGHT  *lig,
 }
 
 /******************************************************************************/
-uint32_t g3dlight_draw ( G3DLIGHT  *lig,
-                         G3DCAMERA *cam, 
-                         uint64_t engine_flags ) {
+static uint32_t _default_draw ( G3DLIGHT  *lig,
+                                G3DCAMERA *cam, 
+                                uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
     uint32_t ret = 0x00;
 
@@ -325,7 +325,7 @@ uint32_t g3dlight_draw ( G3DLIGHT  *lig,
 }
 
 /******************************************************************************/
-void g3dlight_free ( G3DLIGHT *lig ) {
+static void _default_free ( G3DLIGHT *lig ) {
     g3dlight_reset ( lig );
 }
 
@@ -396,16 +396,6 @@ void g3dlight_setSpotLength ( G3DLIGHT *lig,
 }
 
 /******************************************************************************/
-void g3dlight_activate ( G3DLIGHT *lig, uint64_t engine_flags ) {
-
-}
-
-/******************************************************************************/
-void g3dlight_deactivate ( G3DLIGHT *lig, uint64_t engine_flags ) {
-
-}
-
-/******************************************************************************/
 static void interpolateRGBA ( G3DRGBA *srcRGBA, 
                               float    srcRatio,
                               G3DRGBA *dstRGBA,
@@ -425,7 +415,7 @@ static void interpolateRGBA ( G3DRGBA *srcRGBA,
 }
 
 /******************************************************************************/
-static void g3dlight_anim ( G3DLIGHT *lig, 
+static void _default_anim ( G3DLIGHT *lig, 
                             float     frame, 
                             uint64_t  engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
@@ -496,33 +486,31 @@ static void g3dlight_anim ( G3DLIGHT *lig,
 }
 
 /******************************************************************************/
-static void g3dlight_setParent ( G3DLIGHT  *lig, 
-                                 G3DOBJECT *parent,
-                                 G3DOBJECT *oldParent, 
-                                 uint64_t   engine_flags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) lig;
-}
-
-/******************************************************************************/
 void g3dlight_init ( G3DLIGHT *lig, 
                      uint32_t  id, 
                      char     *name ) {
     G3DGLOBALS *globals = g3dcore_getGlobals ( );
     G3DOBJECT *obj = ( G3DOBJECT * ) lig;
 
-    g3dobject_init ( obj, G3DLIGHTTYPE, id, name, LIGHTHARDSHADOWS,
-                                    DRAW_CALLBACK(g3dlight_draw),
-                                    FREE_CALLBACK(g3dlight_free),
-                                    PICK_CALLBACK(g3dlight_pick),
-                                    POSE_CALLBACK(g3dlight_pose),
-                                    COPY_CALLBACK(g3dlight_copy),
-                                ACTIVATE_CALLBACK(g3dlight_activate),
-                              DEACTIVATE_CALLBACK(g3dlight_deactivate),
-                                                  NULL,
-                                                  NULL,
-                               SETPARENT_CALLBACK(g3dlight_setParent));
-
-    obj->anim = ANIM_CALLBACK(g3dlight_anim);
+    g3dobject_init ( obj,
+                     G3DLIGHTTYPE,
+                     id,
+                     name,
+                     LIGHTHARDSHADOWS,
+       DRAW_CALLBACK(_default_draw),
+       FREE_CALLBACK(_default_free),
+       PICK_CALLBACK(_default_pick),
+       ANIM_CALLBACK(_default_anim),
+     UPDATE_CALLBACK(NULL),
+       POSE_CALLBACK(_default_pose),
+       COPY_CALLBACK(_default_copy),
+  TRANSFORM_CALLBACK(NULL),
+   ACTIVATE_CALLBACK(NULL),
+ DEACTIVATE_CALLBACK(NULL),
+     COMMIT_CALLBACK(NULL),
+   ADDCHILD_CALLBACK(NULL),
+REMOVECHILD_CALLBACK(NULL),
+  SETPARENT_CALLBACK(NULL) );
 
 
     lig->lid = ++globals->lightID;

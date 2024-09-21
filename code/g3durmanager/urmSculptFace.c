@@ -31,6 +31,22 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
+typedef struct _URMSCULPTFACE {
+    G3DSCENE      *sce;
+    G3DSUBDIVIDER *sdr;
+    LIST          *lusfe;
+} URMSCULPTFACE;
+
+/******************************************************************************/
+typedef struct _URMSCULPTFACEEXTENSION {
+    G3DFACESCULPTEXTENSION *fse;
+    G3DFACE                *fac;
+    G3DVECTOR4F            *pos;
+    G3DHEIGHT              *hei;
+    G3DVECTOR3F            *nor;
+} URMSCULPTFACEEXTENSION;
+
+/******************************************************************************/
 void urmsculptfaceextension_free ( URMSCULPTFACEEXTENSION *usfe ) {
     if ( usfe->pos ) free ( usfe->pos );
     if ( usfe->nor ) free ( usfe->nor );
@@ -77,8 +93,9 @@ URMSCULPTFACEEXTENSION *urmsculptfaceextension_new ( G3DFACESCULPTEXTENSION *fse
 }
 
 /******************************************************************************/
-URMSCULPTFACE *urmsculptface_new ( G3DSUBDIVIDER *sdr,
-                                   uint64_t       engine_flags ) {
+static URMSCULPTFACE *urmsculptface_new ( G3DSCENE      *sce,
+                                          G3DSUBDIVIDER *sdr,
+                                          uint64_t       engine_flags ) {
     uint32_t structsize = sizeof ( URMSCULPTFACE );
 
     URMSCULPTFACE *usf = ( URMSCULPTFACE * ) calloc ( 0x01, structsize );
@@ -89,6 +106,7 @@ URMSCULPTFACE *urmsculptface_new ( G3DSUBDIVIDER *sdr,
         return NULL;
     }
 
+    usf->sce   = sce;
     usf->sdr   = sdr;
 
     return usf;
@@ -172,6 +190,8 @@ void sculptFace_undo ( G3DURMANAGER *urm,
                                 engine_flags );
 
     list_free ( &lsubfac, NULL );
+
+    g3dobject_update( G3DOBJECTCAST(usf->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -182,22 +202,15 @@ void sculptFace_redo ( G3DURMANAGER *urm,
 }
 
 /******************************************************************************/
-URMSCULPTFACE *g3durm_mesh_sculptFace ( G3DURMANAGER  *urm,
+void g3durm_mesh_sculptFace ( G3DURMANAGER  *urm,
+                                        G3DSCENE      *sce,
                                         G3DSUBDIVIDER *sdr,
                                         uint64_t       engine_flags,
                                         uint32_t       return_flags ) {
     LIST *lnewuvset = NULL;
     URMSCULPTFACE *usf;
 
-    usf = urmsculptface_new ( sdr, engine_flags );
-
-    /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-    /* Commented out. this is called in g3dmesh_sculptFace() */
-    /*g3dmesh_update ( mes, 
-                     NULL,
-                     NULL,
-                     NULL,
-                     RESETMODIFIERS, engine_flags );*/
+    usf = urmsculptface_new ( sce, sdr, engine_flags );
 
     g3durmanager_push ( urm, 
                         sculptFace_undo,
@@ -205,6 +218,4 @@ URMSCULPTFACE *g3durm_mesh_sculptFace ( G3DURMANAGER  *urm,
                         sculptFace_free, 
                         usf,
                         return_flags );
-
-    return usf;
 }

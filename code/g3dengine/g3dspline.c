@@ -30,36 +30,36 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-G3DSPLINE *g3dspline_copy ( G3DSPLINE     *spline, 
-                            uint32_t       id, 
-                            char          *name, 
-                            uint64_t engine_flags ) {
+static G3DSPLINE *_default_copy ( G3DSPLINE *spline, 
+                                  uint32_t   id, 
+                                  char      *name, 
+                                  uint64_t   engineFlags ) {
     G3DOBJECT *obj       = ( G3DOBJECT * ) spline;
-    G3DSPLINE *newSpline = g3dspline_new ( id, name, obj->flags, engine_flags );
+    G3DSPLINE *newSpline = g3dspline_new ( id, name, obj->flags, engineFlags );
 
-    newSpline->curve = g3dcurve_copy ( spline->curve, engine_flags );
+    newSpline->curve = g3dcurve_copy ( spline->curve, engineFlags );
 
     return newSpline;
 }
 
 /******************************************************************************/
-uint32_t g3dspline_pick ( G3DOBJECT *obj, 
-                          G3DCAMERA *curcam, 
-                          uint64_t engine_flags ) {
+static uint32_t _default_pick ( G3DOBJECT *obj, 
+                                G3DCAMERA *curcam, 
+                                uint64_t   engineFlags ) {
     G3DSPLINE *spline = ( G3DSPLINE * ) obj;
 
     if ( obj->flags & OBJECTSELECTED ) {
-        if ( engine_flags & VIEWEDGE ) {
-            g3dcurve_pickSegments ( spline->curve, engine_flags );
+        if ( engineFlags & VIEWEDGE ) {
+            g3dcurve_pickSegments ( spline->curve, engineFlags );
         }
-        if ( engine_flags & VIEWVERTEX ) {
-            g3dcurve_pickPoints  ( spline->curve, engine_flags );
-            g3dcurve_pickHandles ( spline->curve, engine_flags );
+        if ( engineFlags & VIEWVERTEX ) {
+            g3dcurve_pickPoints  ( spline->curve, engineFlags );
+            g3dcurve_pickHandles ( spline->curve, engineFlags );
         }
     } else {
-        if ( engine_flags & VIEWOBJECT ) {
+        if ( engineFlags & VIEWOBJECT ) {
             g3dpick_setName ( ( uint64_t ) spline );
-            g3dcurve_pick ( spline->curve, engine_flags );
+            g3dcurve_pick ( spline->curve, engineFlags );
         }
     }
 
@@ -113,10 +113,10 @@ void g3dspline_modify ( G3DSPLINE  *spl,
 }
 
 /******************************************************************************/
-void g3dspline_update ( G3DSPLINE *spl,
-                        LIST      *lpt,
-                        uint32_t   update_flags,
-                        uint64_t   engine_flags ) {
+static void _default_update ( G3DSPLINE *spl,
+                              LIST      *lpt,
+                              uint32_t   update_flags,
+                              uint64_t   engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
 
     if ( obj->invalidationFlags & INVALIDATE_MODIFIER_STACK_RESET ) {
@@ -174,16 +174,16 @@ void g3dspline_moveAxis ( G3DSPLINE *spl,
         ltmppt = ltmppt->next;
     }
 
-    g3dobject_invalidate( spl, INVALIDATE_MODIFIER_STACK_RESET );
+    g3dobject_invalidate( G3DOBJECTCAST(spl), INVALIDATE_MODIFIER_STACK_RESET );
 
     /*g3dmesh_updateBbox ( mes );*/
     g3dspline_update ( spl, NULL, 0, engine_flags );
 }
 
 /******************************************************************************/
-uint32_t g3dspline_draw ( G3DOBJECT *obj, 
-                          G3DCAMERA *curcam, 
-                          uint64_t engine_flags ) {
+static uint32_t _default_draw ( G3DOBJECT *obj, 
+                                G3DCAMERA *curcam, 
+                                uint64_t engine_flags ) {
     G3DSPLINE *spl = ( G3DSPLINE * ) obj;
 
 
@@ -248,7 +248,7 @@ uint32_t g3dspline_draw ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-void g3dspline_free ( G3DOBJECT *obj ) {
+static void _default_free ( G3DOBJECT *obj ) {
     G3DSPLINE *spline = ( G3DSPLINE * ) obj;
 
     g3dcurve_free ( spline->curve );
@@ -262,17 +262,25 @@ void g3dspline_init ( G3DSPLINE *spline,
                       uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) spline;
 
-    g3dobject_init ( obj, G3DSPLINETYPE, id, name, type,
-                                     DRAW_CALLBACK(g3dspline_draw),
-                                     FREE_CALLBACK(g3dspline_free),
-                                     PICK_CALLBACK(g3dspline_pick),
-                                                   NULL,
-                                     COPY_CALLBACK(g3dspline_copy),
-                                                   NULL,
-                                                   NULL,
-                                                   NULL,
-                                 ADDCHILD_CALLBACK(NULL),
-                                                   NULL );
+    g3dobject_init ( obj,
+                     G3DSPLINETYPE,
+                     id,
+                     name,
+                     type,
+       DRAW_CALLBACK(_default_draw),
+       FREE_CALLBACK(_default_free),
+       PICK_CALLBACK(_default_pick),
+       ANIM_CALLBACK(NULL),
+     UPDATE_CALLBACK(NULL),
+       POSE_CALLBACK(NULL),
+       COPY_CALLBACK(_default_copy),
+  TRANSFORM_CALLBACK(NULL),
+   ACTIVATE_CALLBACK(NULL),
+ DEACTIVATE_CALLBACK(NULL),
+     COMMIT_CALLBACK(NULL),
+   ADDCHILD_CALLBACK(NULL),
+REMOVECHILD_CALLBACK(NULL),
+  SETPARENT_CALLBACK(NULL) );
 
     spline->curve = g3dcurve_new ( type, engine_flags );
 }

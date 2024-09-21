@@ -31,8 +31,17 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-static URMCREATEFACE *urmcreateface_new ( G3DMESH *mes, 
-                                          G3DFACE *fac ) {
+typedef struct _URMCREATEFACE {
+    G3DSCENE *sce;
+    G3DMESH *mes;
+    G3DFACE *fac;
+    LIST    *lnewedg;
+} URMCREATEFACE;
+
+/******************************************************************************/
+static URMCREATEFACE *urmcreateface_new ( G3DSCENE *sce,
+                                          G3DMESH  *mes, 
+                                          G3DFACE  *fac ) {
     uint32_t structsize = sizeof ( URMCREATEFACE );
     LIST lnewfac = { .next = NULL, .prev = NULL, .data = fac };
 
@@ -44,6 +53,7 @@ static URMCREATEFACE *urmcreateface_new ( G3DMESH *mes,
         return NULL;
     }
 
+    cfs->sce = sce;
     cfs->mes = mes;
     cfs->fac = fac;
 
@@ -94,14 +104,9 @@ static void createFace_undo ( G3DURMANAGER *urm,
     /*** update by the  above call to g3dface_update ***/
     g3dmesh_faceNormal   ( mes );
     g3dmesh_vertexNormal ( mes );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
+
     /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+    g3dobject_update ( G3DOBJECTCAST(cfs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -123,26 +128,25 @@ static void createFace_redo ( G3DURMANAGER *urm,
     /*** update by the  above call to g3dface_update ***/
     g3dmesh_faceNormal   ( mes );
     g3dmesh_vertexNormal ( mes );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
+
     /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+    g3dobject_update ( G3DOBJECTCAST(cfs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
 void g3durm_mesh_createFace ( G3DURMANAGER *urm,
+                              G3DSCENE     *sce,
                               G3DMESH      *mes, 
                               G3DFACE      *fac, 
                               uint32_t      return_flags ) {
     URMCREATEFACE *cfs;
 
-    cfs = urmcreateface_new ( mes, fac );
+    cfs = urmcreateface_new ( sce, mes, fac );
 
-    g3durmanager_push ( urm, createFace_undo,
-                             createFace_redo,
-                             createFace_free, cfs, return_flags );
+    g3durmanager_push ( urm,
+                        createFace_undo,
+                        createFace_redo,
+                        createFace_free,
+                        cfs,
+                        return_flags );
 }

@@ -30,16 +30,16 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-void g3dpivot_free ( G3DOBJECT *obj ) {
+static void _default_free ( G3DOBJECT *obj ) {
 
 
 }
 
 /******************************************************************************/
-uint32_t g3dpivot_draw ( G3DOBJECT *obj, 
-                         G3DCAMERA *curcam, 
-                         G3DENGINE *engine, 
-                         uint64_t   engine_flags ) {
+static uint32_t _default_draw ( G3DOBJECT *obj, 
+                                G3DCAMERA *curcam, 
+                                G3DENGINE *engine, 
+                                uint64_t   engine_flags ) {
 #ifdef need_refactor
     glPushAttrib( GL_ALL_ATTRIB_BITS );
     glDisable   ( GL_LIGHTING );
@@ -116,17 +116,25 @@ void g3dpivot_init ( G3DPIVOT  *piv,
                              csr->pivot.y, 
                              csr->pivot.z };
 
-    g3dobject_init ( objpiv, G3DPIVOTTYPE, 0x00, "YAxis", 0x00,
-                                                          g3dpivot_draw,
-                                                          g3dpivot_free,
-                                                          NULL,
-                                                          NULL,
-                                                          NULL,
-                                                          NULL,
-                                                          NULL,
-                                                          NULL,
-                                                          NULL,
-                                                          NULL );
+    g3dobject_init ( objpiv,
+                     G3DPIVOTTYPE,
+                     0x00,
+                     "YAxis",
+                     0x00,
+       DRAW_CALLBACK(_default_draw),
+       FREE_CALLBACK(_default_free),
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL );
 
     piv->cam = cam;
 

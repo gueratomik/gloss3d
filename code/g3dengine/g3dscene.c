@@ -766,7 +766,7 @@ void g3dscene_processAnimatedImages ( G3DSCENE *sce,
 }
 
 /******************************************************************************/
-void g3dscene_free ( G3DOBJECT *obj ) {
+static void _default_free ( G3DOBJECT *obj ) {
     G3DSCENE *sce = ( G3DSCENE * ) obj;
 
     g3dscene_freeMaterials ( sce );
@@ -774,7 +774,7 @@ void g3dscene_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-static void g3dscene_anim ( G3DSCENE *sce, 
+static void _default_anim ( G3DSCENE *sce, 
                             float     frame, 
                             uint64_t  engine_flags ) {
     /*** cursor axis update not needed in edit mode ***/
@@ -787,12 +787,12 @@ static void g3dscene_anim ( G3DSCENE *sce,
 }
 
 /******************************************************************************/
-void g3dscene_activate ( G3DSCENE *sce, uint64_t engine_flags ) {
+static void _default_activate ( G3DSCENE *sce, uint64_t engine_flags ) {
 
 }
 
 /******************************************************************************/
-void g3dscene_deactivate ( G3DSCENE *sce, uint64_t engine_flags ) {
+static void _default_deactivate ( G3DSCENE *sce, uint64_t engine_flags ) {
     /*** prevent deactivation ***/
     ((G3DOBJECT*)sce)->flags &= (~OBJECTINACTIVE);
 }
@@ -822,21 +822,27 @@ G3DSCENE *g3dscene_new ( uint32_t id, char *name ) {
         return NULL;
     }
 
-    g3dobject_init ( obj, G3DSCENETYPE, id, name, 0x00,
-                                                  NULL,
-                                                  g3dscene_free,
-                                                  NULL,
-                                                  NULL,
-                                                  NULL,
-                                ACTIVATE_CALLBACK(g3dscene_activate),
-                              DEACTIVATE_CALLBACK(g3dscene_deactivate),
-                                                  NULL,
-                                                  NULL,
-                                                  NULL );
+    g3dobject_init ( obj,
+                     G3DSCENETYPE,
+                     id,
+                     name,
+                     0x00,
+       DRAW_CALLBACK(NULL),
+       FREE_CALLBACK(_default_free),
+       PICK_CALLBACK(NULL),
+       ANIM_CALLBACK(_default_anim),
+     UPDATE_CALLBACK(NULL),
+       POSE_CALLBACK(NULL),
+       COPY_CALLBACK(NULL),
+  TRANSFORM_CALLBACK(NULL),
+   ACTIVATE_CALLBACK(_default_activate),
+ DEACTIVATE_CALLBACK(_default_deactivate),
+     COMMIT_CALLBACK(NULL),
+   ADDCHILD_CALLBACK(NULL),
+REMOVECHILD_CALLBACK(NULL),
+  SETPARENT_CALLBACK(NULL) );
 
     g3dcursor_init ( &sce->csr );
-
-    ((G3DOBJECT*)sce)->anim = ANIM_CALLBACK(g3dscene_anim);
 
     sce->fps = 24;
 

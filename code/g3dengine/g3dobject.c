@@ -1527,6 +1527,8 @@ void g3dobject_addChild ( G3DOBJECT *obj,
 
     child->flags &= (~OBJECTORPHANED);
 
+    g3dobject_invalidate( child, INVALIDATE_HIERARCHY );
+
     if ( obj->addChild ) obj->addChild  ( obj, 
                                           child,
                                           engineFlags );
@@ -1553,6 +1555,8 @@ void g3dobject_removeChild ( G3DOBJECT *obj,
     /*child->parent = NULL;*/
 
     child->flags |= OBJECTORPHANED;
+
+    child->invalidationFlags &= (~INVALIDATE_REPORTED);
 
     if ( obj->removeChild ) obj->removeChild  ( obj,
                                                 child,
@@ -1864,29 +1868,31 @@ void g3dobject_invalidate( G3DOBJECT *obj,
 
     obj->invalidationFlags |= ( invalidationFlags );
 
-    if( parent ) {
-        if ( list_seek( obj->parent->invalidatedChildList, obj ) == NULL ) {
+    /* check the object isn't already pushed to the stack */
+    if( ( obj->invalidationFlags & INVALIDATE_REPORTED ) == 0x00 )
+    {
+        if( parent ) {
             list_insert( &obj->parent->invalidatedChildList, obj );
 
-            while ( parent ) {
-                uint64_t transmittedInvalidationFlags = 0;
+            uint64_t transmittedInvalidationFlags = 0;
 
-                transmittedInvalidationFlags |= INVALIDATE_CHILD;
-                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_SHAPE                 ) << INVALIDATE_CHILD_SHIFT );
-                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_TOPOLOGY              ) << INVALIDATE_CHILD_SHIFT );
-                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_COLOR                 ) << INVALIDATE_CHILD_SHIFT );
-                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_MODIFIER_STACK_RESET  ) << INVALIDATE_CHILD_SHIFT );
-                transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_MODIFIER_STACK_UPDATE ) << INVALIDATE_CHILD_SHIFT );
-                transmittedInvalidationFlags |= (   invalidationFlags & INVALIDATE_CHILD_SHAPE                 );
-                transmittedInvalidationFlags |= (   invalidationFlags & INVALIDATE_CHILD_TOPOLOGY              );
-                transmittedInvalidationFlags |= (   invalidationFlags & INVALIDATE_CHILD_COLOR                 );
-                transmittedInvalidationFlags |= (   invalidationFlags & INVALIDATE_CHILD_MODIFIER_STACK_RESET  );
-                transmittedInvalidationFlags |= (   invalidationFlags & INVALIDATE_CHILD_MODIFIER_STACK_UPDATE );
+            transmittedInvalidationFlags |= INVALIDATE_CHILD;
+            transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_SHAPE                 ) << INVALIDATE_CHILD_SHIFT );
+            transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_TOPOLOGY              ) << INVALIDATE_CHILD_SHIFT );
+            transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_COLOR                 ) << INVALIDATE_CHILD_SHIFT );
+            transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_MODIFIER_STACK_RESET  ) << INVALIDATE_CHILD_SHIFT );
+            transmittedInvalidationFlags |= ( ( invalidationFlags & INVALIDATE_MODIFIER_STACK_UPDATE ) << INVALIDATE_CHILD_SHIFT );
+            transmittedInvalidationFlags |= (   invalidationFlags & INVALIDATE_CHILD_SHAPE                 );
+            transmittedInvalidationFlags |= (   invalidationFlags & INVALIDATE_CHILD_TOPOLOGY              );
+            transmittedInvalidationFlags |= (   invalidationFlags & INVALIDATE_CHILD_COLOR                 );
+            transmittedInvalidationFlags |= (   invalidationFlags & INVALIDATE_CHILD_MODIFIER_STACK_RESET  );
+            transmittedInvalidationFlags |= (   invalidationFlags & INVALIDATE_CHILD_MODIFIER_STACK_UPDATE );
 
-                g3dobject_invalidate( parent, transmittedInvalidationFlags );
+            g3dobject_invalidate( parent, transmittedInvalidationFlags );
 
-                parent = parent->parent;
-            }
+            parent = parent->parent;
+
+            obj->invalidationFlags |= INVALIDATE_REPORTED;
         }
     }
 }
@@ -2071,10 +2077,10 @@ void g3dobject_initMatrices ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-uint32_t g3dobject_default_draw ( G3DOBJECT * obj,
-                                  G3DCAMERA *cam,
-                                  G3DENGINE *engine,
-                                  uint64_t engineFlags ) {
+static uint32_t _default_draw ( G3DOBJECT *obj,
+                                G3DCAMERA *cam,
+                                G3DENGINE *engine,
+                                uint64_t   engineFlags ) {
     /*** commented out : too verbose ***/
     /*if ( obj->type ) {
         printf("%s unimplemented for %s\n", __func__, obj->name );
@@ -2084,7 +2090,7 @@ uint32_t g3dobject_default_draw ( G3DOBJECT * obj,
 }
 
 /******************************************************************************/
-void g3dobject_default_free ( G3DOBJECT *obj ) {
+static void _default_free ( G3DOBJECT *obj ) {
     /*** commented out : too verbose ***/
     /*
     if ( obj->type ) {
@@ -2094,8 +2100,9 @@ void g3dobject_default_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-uint32_t g3dobject_default_pick ( G3DOBJECT *obj, G3DCAMERA *cam, 
-                                              uint64_t engineFlags ) {
+static uint32_t _default_pick ( G3DOBJECT *obj, 
+                                G3DCAMERA *cam, 
+                                uint64_t   engineFlags ) {
     /*** commented out : too verbose ***/
     /*
     if ( obj->type != G3DSCENETYPE) {
@@ -2105,7 +2112,20 @@ uint32_t g3dobject_default_pick ( G3DOBJECT *obj, G3DCAMERA *cam,
 }
 
 /******************************************************************************/
-void g3dobject_default_pose ( G3DOBJECT *obj, G3DKEY *key ) {
+static void _default_anim ( G3DOBJECT *obj,
+                            float      frame,
+                            uint64_t   engineFlags ) {
+}
+
+/******************************************************************************/
+static void _default_update ( G3DOBJECT *obj,
+                              uint64_t   updateFlags,
+                              uint64_t   engineFlags ) {
+}
+
+/******************************************************************************/
+static void _default_pose ( G3DOBJECT *obj,
+                            G3DKEY    *key ) {
     /*** commented out : too verbose ***/
     /*
     printf("%s unimplemented for %s\n", __func__, obj->name );
@@ -2113,10 +2133,10 @@ void g3dobject_default_pose ( G3DOBJECT *obj, G3DKEY *key ) {
 }
 
 /******************************************************************************/
-G3DOBJECT* g3dobject_default_copy ( G3DOBJECT  *obj,
-                                    uint32_t    id,
-                                    const char *name,
-                                    uint64_t    engineFlags ) {
+static G3DOBJECT* _default_copy ( G3DOBJECT  *obj,
+                                  uint32_t    id,
+                                  const char *name,
+                                  uint64_t    engineFlags ) {
     G3DOBJECT *cpy = g3dobject_new ( id, name, engineFlags );
     /*** commented out : too verbose ***/
 /*
@@ -2128,7 +2148,13 @@ G3DOBJECT* g3dobject_default_copy ( G3DOBJECT  *obj,
 }
 
 /******************************************************************************/
-void g3dobject_default_activate ( G3DOBJECT *obj, uint64_t engineFlags ) {
+static void _default_transform ( G3DOBJECT *obj,
+                                 uint64_t   engineFlags ) {
+}
+
+/******************************************************************************/
+static void _default_activate ( G3DOBJECT *obj,
+                                uint64_t   engineFlags ) {
     /*** commented out : too verbose ***/
     /*
     if ( obj->type ) {
@@ -2138,7 +2164,7 @@ void g3dobject_default_activate ( G3DOBJECT *obj, uint64_t engineFlags ) {
 }
 
 /******************************************************************************/
-void g3dobject_default_deactivate ( G3DOBJECT *obj, uint64_t engineFlags ) {
+static void _default_deactivate ( G3DOBJECT *obj, uint64_t engineFlags ) {
     /*** commented out : too verbose ***/
     /*
     if ( obj->type ) {
@@ -2148,9 +2174,10 @@ void g3dobject_default_deactivate ( G3DOBJECT *obj, uint64_t engineFlags ) {
 }
 
 /******************************************************************************/
-G3DOBJECT* g3dobject_default_commit ( G3DOBJECT *obj, uint32_t id,
-                                                      const char *name,
-                                                      uint64_t engineFlags ) {
+static G3DOBJECT* _default_commit ( G3DOBJECT  *obj,
+                                    uint32_t    id,
+                                    const char *name,
+                                    uint64_t    engineFlags ) {
     G3DOBJECT *com = g3dobject_new ( id, name, engineFlags );
 
     /*** commented out : too verbose ***/
@@ -2164,8 +2191,22 @@ G3DOBJECT* g3dobject_default_commit ( G3DOBJECT *obj, uint32_t id,
 }
 
 /******************************************************************************/
-void g3dobject_default_addChild ( G3DOBJECT *obj, G3DOBJECT *child, 
-                                                  uint64_t engineFlags ) {
+static void _default_addChild ( G3DOBJECT *obj,
+                                G3DOBJECT *child, 
+                                uint64_t   engineFlags ) {
+    /*** commented out : too verbose ***/
+    /*                                          
+    if ( obj->type ) {
+        printf("%s unimplemented for %s\n", __func__, obj->name );
+    }
+    */
+}
+
+
+/******************************************************************************/
+static void _default_removeChild ( G3DOBJECT *obj,
+                                   G3DOBJECT *child, 
+                                   uint64_t   engineFlags ) {
     /*** commented out : too verbose ***/
     /*                                          
     if ( obj->type ) {
@@ -2175,10 +2216,10 @@ void g3dobject_default_addChild ( G3DOBJECT *obj, G3DOBJECT *child,
 }
 
 /******************************************************************************/
-void g3dobject_default_setParent ( G3DOBJECT *obj, 
-                                   G3DOBJECT *parent, 
-                                   G3DOBJECT *oldParent, 
-                                   uint64_t   engineFlags ) {
+static void _default_setParent ( G3DOBJECT *obj, 
+                                 G3DOBJECT *parent, 
+                                 G3DOBJECT *oldParent, 
+                                 uint64_t   engineFlags ) {
     /*** commented out : too verbose ***/
     /*      
     if ( obj->type ) {
@@ -2187,34 +2228,53 @@ void g3dobject_default_setParent ( G3DOBJECT *obj,
     */
 }
 
+
 /******************************************************************************/
 void g3dobject_init ( G3DOBJECT   *obj,
                       uint32_t     type,
                       uint32_t     id,
                       const char  *name,
                       uint32_t     object_flags,
-                      uint32_t   (*Draw)      ( G3DOBJECT *,
-                                                G3DCAMERA *, 
-                                                G3DENGINE *, 
-                                                uint64_t ),
-                      void       (*Free)      ( G3DOBJECT * ),
-                      uint32_t   (*Pick)      ( G3DOBJECT *, G3DCAMERA *, 
-                                                             uint64_t ),
-                      void       (*Pose)      ( G3DOBJECT *, G3DKEY * ),
-                      G3DOBJECT* (*Copy)      ( G3DOBJECT *, uint32_t,
-                                                             const char *,
-                                                             uint64_t ),
-                      void       (*Activate)  ( G3DOBJECT *, uint64_t ),
-                      void       (*Deactivate)( G3DOBJECT *, uint64_t ),
-                      G3DOBJECT* (*Commit)    ( G3DOBJECT *, uint32_t,
-                                                             const char *,
-                                                             uint64_t ),
-                      void       (*AddChild)  ( G3DOBJECT *, G3DOBJECT *,
-                                                             uint64_t ),
-                      void       (*SetParent) ( G3DOBJECT *, 
-                                                G3DOBJECT *, 
-                                                G3DOBJECT *, 
-                                                uint64_t ) ) {
+                      uint32_t   (*Draw)         ( G3DOBJECT *,
+                                                   G3DCAMERA *, 
+                                                   G3DENGINE *, 
+                                                   uint64_t   ),
+                      void       (*Free)         ( G3DOBJECT * ),
+                      uint32_t   (*Pick)         ( G3DOBJECT *,
+                                                   G3DCAMERA *, 
+                                                   uint64_t   ),
+                      void       (*Anim)         ( G3DOBJECT *,
+                                                   float      , 
+                                                   uint64_t   ),
+                      void       (*Update)       ( G3DOBJECT *,
+                                                   uint64_t   ,
+                                                   uint64_t    ),
+                      void       (*Pose)         ( G3DOBJECT *,
+                                                   G3DKEY    * ),
+                      G3DOBJECT* (*Copy)         ( G3DOBJECT  *,
+                                                   uint32_t    ,
+                                                   const char *,
+                                                   uint64_t    ),
+                      void       (*Transform)    ( G3DOBJECT *,
+                                                   uint64_t   ),
+                      void       (*Activate)     ( G3DOBJECT *,
+                                                   uint64_t   ),
+                      void       (*Deactivate)   ( G3DOBJECT *,
+                                                   uint64_t   ),
+                      G3DOBJECT* (*Commit)       ( G3DOBJECT  *,
+                                                   uint32_t    ,
+                                                   const char *,
+                                                   uint64_t    ),
+                      void       (*AddChild)     ( G3DOBJECT *,
+                                                   G3DOBJECT *,
+                                                   uint64_t   ),
+                      void       (*RemoveChild)  ( G3DOBJECT *,
+                                                   G3DOBJECT *,
+                                                   uint64_t   ),
+                      void       (*SetParent)    ( G3DOBJECT *, 
+                                                   G3DOBJECT *, 
+                                                   G3DOBJECT *, 
+                                                   uint64_t   ) ) {
     obj->type  = type;
     obj->id    = id;
     obj->flags = object_flags;
@@ -2234,16 +2294,20 @@ void g3dobject_init ( G3DOBJECT   *obj,
 
     obj->invalidationFlags = INVALIDATE_ALL;
 
-    obj->draw       = ( Draw       ) ? Draw       : g3dobject_default_draw;
-    obj->free       = ( Free       ) ? Free       : g3dobject_default_free;
-    obj->pick       = ( Pick       ) ? Pick       : g3dobject_default_pick;
-    obj->pose       = ( Pose       ) ? Pose       : g3dobject_default_pose;
-    obj->copy       = ( Copy       ) ? Copy       : g3dobject_default_copy;
-    obj->activate   = ( Activate   ) ? Activate   : g3dobject_default_activate;
-    obj->deactivate = ( Deactivate ) ? Deactivate : g3dobject_default_deactivate;
-    obj->commit     = ( Commit     ) ? Commit     : g3dobject_default_commit;
-    obj->addChild   = ( AddChild   ) ? AddChild   : g3dobject_default_addChild;
-    obj->setParent  = ( SetParent  ) ? SetParent  : g3dobject_default_setParent;
+    obj->draw        = Draw        ? Draw        : _default_draw;
+    obj->free        = Free        ? Free        : _default_free;
+    obj->pick        = Pick        ? Pick        : _default_pick;
+    obj->anim        = Anim        ? Anim        : _default_anim;
+    obj->update      = Update      ? Update      : _default_update;
+    obj->pose        = Pose        ? Pose        : _default_pose;
+    obj->copy        = Copy        ? Copy        : _default_copy;
+    obj->transform   = Transform   ? Transform   : _default_transform;
+    obj->activate    = Activate    ? Activate    : _default_activate;
+    obj->deactivate  = Deactivate  ? Deactivate  : _default_deactivate;
+    obj->commit      = Commit      ? Commit      : _default_commit;
+    obj->addChild    = AddChild    ? AddChild    : _default_addChild;
+    obj->removeChild = RemoveChild ? RemoveChild : _default_removeChild;
+    obj->setParent   = SetParent   ? SetParent   : _default_setParent;
 
     g3dvector3f_init ( &obj->pos, 0.0f, 0.0f, 0.0f );
     g3dvector3f_init ( &obj->rot, 0.0f, 0.0f, 0.0f );
@@ -2430,17 +2494,25 @@ G3DOBJECT *g3dobject_new ( uint32_t id, const char *name, uint32_t object_flags 
         return NULL;
     }
 
-    g3dobject_init ( obj, G3DOBJECTTYPE, id, name, object_flags,
-                                            NULL, 
-                                            NULL,
-                                            NULL,
-                                            NULL,
-                                            NULL,
-                                            NULL,
-                                            NULL,
-                                            NULL,
-                                            NULL,
-                                            NULL );
+    g3dobject_init ( obj,
+                     G3DOBJECTTYPE,
+                     id,
+                     name,
+                     object_flags,
+                     NULL, 
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL,
+                     NULL );
 
     return obj;
 }

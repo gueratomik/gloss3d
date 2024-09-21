@@ -31,11 +31,21 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMREMOVEUVMAP *urmremoveuvmap_new ( G3DMESH  *mes,
-                                     G3DUVMAP *uvmap,
-                                     LIST     *lolduvset,
-                                     LIST     *loldtex,
-                                     uint64_t engine_flags ) {
+typedef struct _URMREMOVEUVMAP {
+    G3DSCENE *sce;
+    G3DMESH  *mes;
+    G3DUVMAP *uvmap;
+    LIST     *lolduvset;
+    LIST     *loldtex;
+} URMREMOVEUVMAP;
+
+/******************************************************************************/
+static URMREMOVEUVMAP *urmremoveuvmap_new ( G3DSCENE *sce,
+                                            G3DMESH  *mes,
+                                            G3DUVMAP *uvmap,
+                                            LIST     *lolduvset,
+                                            LIST     *loldtex,
+                                            uint64_t engine_flags ) {
     uint32_t structsize = sizeof ( URMREMOVEUVMAP );
 
     URMREMOVEUVMAP *uru = ( URMREMOVEUVMAP * ) calloc ( 0x01, structsize );
@@ -46,6 +56,7 @@ URMREMOVEUVMAP *urmremoveuvmap_new ( G3DMESH  *mes,
         return NULL;
     }
 
+    uru->sce       = sce;
     uru->mes       = mes;
     uru->uvmap     = uvmap;
     uru->lolduvset = lolduvset;
@@ -55,18 +66,18 @@ URMREMOVEUVMAP *urmremoveuvmap_new ( G3DMESH  *mes,
 }
 
 /******************************************************************************/
-void urmremoveuvmap_free ( URMREMOVEUVMAP *uru ) {
+static void urmremoveuvmap_free ( URMREMOVEUVMAP *uru ) {
     list_free ( &uru->loldtex, NULL );
 
     free ( uru );
 }
 
 /******************************************************************************/
-void removeUVMap_free ( void *data, uint32_t commit ) {
+static void removeUVMap_free ( void *data, uint32_t commit ) {
     URMREMOVEUVMAP *uru = ( URMREMOVEUVMAP * ) data;
 
     if ( commit ) {
-        g3duvmap_free ( ( G3DOBJECT * ) uru->uvmap );
+        g3dobject_free ( G3DOBJECTCAST(uru->uvmap) );
 
         list_free ( &uru->lolduvset, LIST_FUNCDATA(g3duvset_free) );
     } else {
@@ -77,7 +88,9 @@ void removeUVMap_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void removeUVMap_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
+static void removeUVMap_undo ( G3DURMANAGER *urm,
+                               void         *data,
+                               uint64_t      engine_flags ) {
     URMREMOVEUVMAP *uru = ( URMREMOVEUVMAP * ) data;
     LIST *ltmpolduvset = uru->lolduvset;
     LIST *ltmpoldtex = uru->loldtex;
@@ -104,17 +117,13 @@ void removeUVMap_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
 
     g3dmesh_addUVMap ( uru->mes, uru->uvmap, NULL, engine_flags );
 
-    /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-    /* Commented out: this is called in g3dmesh_removeUVMap */
-    /*g3dmesh_update ( uru->mes, 
-                     NULL,
-                     NULL,
-                     NULL,
-                     RESETMODIFIERS, flags );*/
+    g3dobject_update( G3DOBJECTCAST(uru->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
-void removeUVMap_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
+static void removeUVMap_redo ( G3DURMANAGER *urm, 
+                               void         *data,
+                               uint64_t engine_flags ) {
     URMREMOVEUVMAP *uru = ( URMREMOVEUVMAP * ) data;
 
     g3dmesh_removeUVMap ( uru->mes, 
@@ -123,17 +132,12 @@ void removeUVMap_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
                           NULL, /** no need to backup textures this time **/
                           engine_flags );
 
-    /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-    /* Commented out: this is called in g3dmesh_removeUVMap */
-    /*g3dmesh_update ( uru->mes, 
-                     NULL,
-                     NULL,
-                     NULL,
-                     RESETMODIFIERS, flags );*/
+    g3dobject_update( G3DOBJECTCAST(uru->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
 void g3durm_mesh_removeUVMap ( G3DURMANAGER *urm,
+                               G3DSCENE     *sce,
                                G3DMESH      *mes,
                                G3DUVMAP     *uvmap, 
                                uint64_t      engine_flags,
@@ -144,16 +148,16 @@ void g3durm_mesh_removeUVMap ( G3DURMANAGER *urm,
 
     g3dmesh_removeUVMap ( mes, uvmap, &lolduvset, &loldtex, engine_flags );
 
-    /*** save state ***/
-    uru = urmremoveuvmap_new ( mes, uvmap, lolduvset, loldtex, engine_flags );
+    g3dobject_update( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
-    /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-    /* Commented out: this is called in g3dmesh_removeUVMap */
-    /*g3dmesh_update ( mes, 
-                     NULL,
-                     NULL,
-                     NULL,
-                     RESETMODIFIERS, engine_flags );*/
+    /*** save state ***/
+    uru = urmremoveuvmap_new ( sce,
+                               mes,
+                               uvmap,
+                               lolduvset,
+                               loldtex,
+                               engine_flags );
+
 
     g3durmanager_push ( urm, 
                         removeUVMap_undo,

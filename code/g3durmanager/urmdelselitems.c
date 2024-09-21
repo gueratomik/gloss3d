@@ -31,6 +31,18 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
+typedef struct _URMDELSELITEMS {
+    G3DSCENE *sce;
+    uint64_t  engine_flags;
+    G3DMESH  *mes;
+    LIST     *loldselfac, *lnewselfac;
+    LIST     *loldseledg, *lnewseledg;
+    LIST     *loldselver, *lnewselver;
+    LIST     *loldselobj, *lnewselobj;
+    LIST     *lorphanedEdges;
+} URMDELSELITEMS;
+
+/******************************************************************************/
 static URMDELSELITEMS *urmdelselitems_new ( G3DSCENE *sce, 
                                             LIST     *loldselobj,
                                             G3DMESH  *mes, 
@@ -152,16 +164,10 @@ static void deleteSelectedItems_undo ( G3DURMANAGER *urm,
             if ( dsi->engine_flags & VIEWFACE ) {
                 list_execargdata ( dsi->loldselfac, (void(*)(void*,void*)) g3dmesh_selectFace, mes );
             }
-/*
-            mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                                       UPDATEFACENORMAL   |
-                                       UPDATEVERTEXNORMAL |
-                                       RESETMODIFIERS );
-*/
-            /*** Rebuild the mesh with modifiers ***/
-            g3dmesh_update ( mes, 0x00, engine_flags );
         }
     }
+
+    g3dobject_update ( G3DOBJECTCAST(dsi->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -207,20 +213,15 @@ static void deleteSelectedItems_redo ( G3DURMANAGER *urm,
 
                 ltmpver = ltmpver->next;
             }
-/*
-            mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                                       UPDATEFACENORMAL   |
-                                       UPDATEVERTEXNORMAL |
-                                       RESETMODIFIERS );
-*/
-            /*** Rebuild the mesh with modifiers ***/
-            g3dmesh_update ( mes, 0x00, engine_flags );
         }
     }
+
+    g3dobject_update ( G3DOBJECTCAST(dsi->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
 void g3durm_mesh_deleteGeometry ( G3DURMANAGER *urm,
+                                  G3DSCENE     *sce,
                                   G3DMESH      *mes,
                                   uint64_t      engine_flags,
                                   uint32_t      return_flags ) {
@@ -244,7 +245,7 @@ void g3durm_mesh_deleteGeometry ( G3DURMANAGER *urm,
         loldselfac = g3dmesh_getFaceListFromSelectedEdges ( mes );
     }
 
-    dsi = urmdelselitems_new ( NULL,
+    dsi = urmdelselitems_new ( sce,
                                NULL,
                                mes, 
                                loldselver,
@@ -276,21 +277,16 @@ void g3durm_mesh_deleteGeometry ( G3DURMANAGER *urm,
     }
 
     g3dface_getOrphanedEdgesFromList ( loldselfac, &dsi->lorphanedEdges );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
+
     /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+    g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
-uint32_t g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *urm,
-                                              G3DSCENE     *sce, 
-                                              uint64_t      engine_flags,
-                                              uint32_t      return_flags ) {
+void g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *urm,
+                                          G3DSCENE     *sce, 
+                                          uint64_t      engine_flags,
+                                          uint32_t      return_flags ) {
     LIST *lremovedObjects = NULL;
     URMDELSELITEMS *dsi;
     uint32_t ret;
@@ -299,6 +295,8 @@ uint32_t g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *urm,
     ret = g3dscene_deleteSelectedObjects ( sce, &lremovedObjects, engine_flags );
 
     g3dscene_checkReferredObjects ( sce );
+
+    g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     /*** save state ***/
     dsi = urmdelselitems_new ( sce,
@@ -313,6 +311,4 @@ uint32_t g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *urm,
                              deleteSelectedItems_redo,
                              deleteSelectedItems_free, dsi,
                              return_flags );
-
-    return ret;
 }

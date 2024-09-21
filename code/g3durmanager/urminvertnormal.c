@@ -31,7 +31,14 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-static URMINVERTNORMAL *urminvertnormal_new ( G3DMESH *mes ) {
+typedef struct _URMINVERTNORMAL {
+    G3DSCENE *sce;
+    G3DMESH  *mes;
+    LIST     *lfac;
+} URMINVERTNORMAL;
+
+/******************************************************************************/
+static URMINVERTNORMAL *urminvertnormal_new ( G3DSCENE *sce, G3DMESH *mes ) {
     uint32_t structsize = sizeof ( URMINVERTNORMAL );
 
     URMINVERTNORMAL *ins = ( URMINVERTNORMAL * ) calloc ( 0x01, structsize );
@@ -42,6 +49,7 @@ static URMINVERTNORMAL *urminvertnormal_new ( G3DMESH *mes ) {
         return NULL;
     }
 
+    ins->sce  = sce;
     ins->mes  = mes;
     ins->lfac = list_copy ( mes->selectedFaceList );
 
@@ -72,14 +80,8 @@ static void invertNormal_undo ( G3DURMANAGER *urm,
     G3DMESH *mes = ins->mes;
 
     list_exec ( ins->lfac, (void (*)(void *)) g3dface_invertNormal );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
-    /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+
+    g3dobject_update( G3DOBJECTCAST(ins->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -92,6 +94,7 @@ static void invertNormal_redo ( G3DURMANAGER *urm,
 
 /******************************************************************************/
 void g3durm_mesh_invertNormal ( G3DURMANAGER *urm, 
+                                G3DSCENE     *sce,
                                 G3DMESH      *mes,
                                 uint64_t      engine_flags,
                                 uint32_t      return_flags ) {
@@ -99,17 +102,11 @@ void g3durm_mesh_invertNormal ( G3DURMANAGER *urm,
 
     /*** Triagulate and unTriagulate feature use ***/
     /*** the same functions and data structures. ***/
-    ins = urminvertnormal_new ( mes );
+    ins = urminvertnormal_new ( sce, mes );
 
     g3dmesh_invertNormal ( mes );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
-    /*** Rebuild the mesh with modifiers ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+
+    g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     g3durmanager_push ( urm, invertNormal_undo,
                              invertNormal_redo,

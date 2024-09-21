@@ -79,6 +79,7 @@ uint64_t g3dui_deleteSelection ( G3DUI *gui ) {
             G3DMESH *mes = ( G3DMESH * ) obj;
 
             g3durm_mesh_deleteGeometry ( urm,
+                                         sce,
                                          mes,
                                          gui->engine_flags,
                                          REDRAWVIEW );
@@ -1466,7 +1467,12 @@ uint64_t g3dui_weldVertices ( G3DUI *gui ) {
     if ( obj && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
-        g3durm_mesh_weldSelectedVertices ( urm, mes, 0x01, gui->engine_flags, REDRAWVIEW );
+        g3durm_mesh_weldSelectedVertices ( urm, 
+                                           sce,
+                                           mes,
+                                           0x01,
+                                           gui->engine_flags,
+                                           REDRAWVIEW );
     }
 
     return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECOORDS;

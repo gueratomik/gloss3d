@@ -61,13 +61,6 @@ G3DBONE *g3dbone_clone ( G3DBONE *bon, uint32_t recurse,
 }
 
 /******************************************************************************/
-void g3dbone_anim ( G3DOBJECT *obj, G3DKEY *prevkey,    /*** previous key ***/
-                                    G3DKEY *nextkey ) { /*** next key     ***/
-    G3DBONE *bon = ( G3DBONE * ) obj;
-
-}
-
-/******************************************************************************/
 G3DBONE *g3dbone_mirror ( G3DBONE *bon, 
                           uint32_t orientation,
                           uint32_t recurse,
@@ -97,8 +90,8 @@ G3DBONE *g3dbone_mirror ( G3DBONE *bon,
 /******************************************************************************/
 /*** This function is called by g3dobject_updateMatrix ***/
 /*** after matrix transformations are done. ***/
-void g3dbone_transform ( G3DBONE *bon, 
-                         uint64_t   engineFlags ) {
+static void _default_transform ( G3DBONE *bon, 
+                                 uint64_t   engineFlags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
 
     if ( ( objbon->flags & OBJECTINACTIVE ) == 0x00 ) {
@@ -147,7 +140,7 @@ void g3dbone_updateRigs ( G3DBONE *bon,
 
 
 /******************************************************************************/
-void g3dbone_update ( G3DBONE *bon ) {
+static void _default_update ( G3DBONE *bon ) {
 
 }
 
@@ -199,9 +192,9 @@ static uint32_t g3dbone_pickObject ( G3DBONE   *bon,
 
 
 /******************************************************************************/
-static uint32_t g3dbone_pick ( G3DBONE *bon,
-                               G3DCAMERA *cam, 
-                               uint64_t engineFlags ) {
+static uint32_t _default_pick ( G3DBONE *bon,
+                                G3DCAMERA *cam, 
+                                uint64_t engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) bon;
 
     if ( obj->type & OBJECTSELECTED ) {
@@ -214,10 +207,10 @@ static uint32_t g3dbone_pick ( G3DBONE *bon,
 
 
 /******************************************************************************/
-uint32_t g3dbone_draw ( G3DOBJECT *obj, 
-                        G3DCAMERA *cam, 
-                        G3DENGINE *engine, 
-                        uint64_t   engineFlags ) {
+static uint32_t _default_draw ( G3DOBJECT *obj, 
+                                G3DCAMERA *cam, 
+                                G3DENGINE *engine, 
+                                uint64_t   engineFlags ) {
     G3DBONE *bon = ( G3DBONE * ) obj;
     float ybase = bon->len * 0.1f;
     float xbase = ybase;
@@ -457,14 +450,14 @@ void g3dbone_removeWeightGroup ( G3DBONE        *bon,
 }
 
 /******************************************************************************/
-void g3dbone_free ( G3DOBJECT *obj ) {
+static void _default_free ( G3DOBJECT *obj ) {
     G3DBONE *bon = ( G3DBONE * ) obj;
 
     list_free ( &bon->lrig, (void(*)(void*)) g3drig_free );
 }
 
 /******************************************************************************/
-static void g3dbone_activate ( G3DBONE *bon, 
+static void _default_activate ( G3DBONE *bon, 
                                uint64_t engineFlags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     LIST *ltmprig = bon->lrig;
@@ -523,8 +516,8 @@ void g3dbone_fix_r ( G3DBONE *bon, uint64_t engineFlags ) {
 }
 
 /******************************************************************************/
-static void g3dbone_deactivate ( G3DBONE *bon, 
-                                 uint64_t engineFlags ) {
+static void _default_deactivate ( G3DBONE *bon, 
+                                  uint64_t engineFlags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     LIST *ltmprig = bon->lrig;
 
@@ -586,19 +579,20 @@ G3DBONE *g3dbone_new ( uint32_t id,
     }
 
     g3dobject_init ( obj, G3DBONETYPE, id, name, OBJECTINACTIVE,
-                                                 g3dbone_draw,
-                                                 g3dbone_free,
-                                   PICK_CALLBACK(g3dbone_pick),
-                                                 NULL,
-                                                 NULL,
-                               ACTIVATE_CALLBACK(g3dbone_activate),
-                             DEACTIVATE_CALLBACK(g3dbone_deactivate),
-                                                 NULL,
-                                                 NULL,
-                                                 NULL );
-
-    /*obj->anim      = g3dbone_anim;*/
-    obj->transform = TRANSFORM_CALLBACK ( g3dbone_transform );
+                                   DRAW_CALLBACK(_default_draw),
+                                   FREE_CALLBACK(_default_free),
+                                   PICK_CALLBACK(_default_pick),
+                                   ANIM_CALLBACK(NULL),
+                                 UPDATE_CALLBACK(NULL),
+                                   POSE_CALLBACK(NULL),
+                                   COPY_CALLBACK(NULL),
+                              TRANSFORM_CALLBACK(_default_transform),
+                               ACTIVATE_CALLBACK(_default_activate),
+                             DEACTIVATE_CALLBACK(_default_deactivate),
+                                 COMMIT_CALLBACK(NULL),
+                               ADDCHILD_CALLBACK(NULL),
+                            REMOVECHILD_CALLBACK(NULL),
+                              SETPARENT_CALLBACK(NULL) );
 
     bon->len = len;
 

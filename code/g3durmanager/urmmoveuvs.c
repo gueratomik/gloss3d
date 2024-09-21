@@ -31,10 +31,20 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMMOVEUVS *urmmoveuvs_new ( G3DUVMAP  *uvmap, 
-                             LIST      *luv,
-                             G3DUV     *olduv,
-                             G3DUV     *newuv ) {
+typedef struct _URMMOVEUVS {
+    G3DSCENE *sce;
+    G3DUVMAP *uvmap;
+    LIST     *luv;
+    G3DUV    *olduv;
+    G3DUV    *newuv;
+} URMMOVEUVS;
+
+/******************************************************************************/
+static URMMOVEUVS *urmmoveuvs_new ( G3DSCENE *sce,
+                                    G3DUVMAP  *uvmap, 
+                                    LIST      *luv,
+                                    G3DUV     *olduv,
+                                    G3DUV     *newuv ) {
     uint32_t structsize = sizeof ( URMMOVEUVS );
 
     URMMOVEUVS *muvs = ( URMMOVEUVS * ) calloc ( 0x01, structsize );
@@ -45,6 +55,7 @@ URMMOVEUVS *urmmoveuvs_new ( G3DUVMAP  *uvmap,
         return NULL;
     }
 
+    muvs->sce   = sce;
     muvs->uvmap = uvmap;
     muvs->luv   = list_copy ( luv );
     muvs->olduv = olduv;
@@ -55,7 +66,7 @@ URMMOVEUVS *urmmoveuvs_new ( G3DUVMAP  *uvmap,
 }
 
 /******************************************************************************/
-void urmmoveuvs_free ( URMMOVEUVS *muvs ) {
+static void urmmoveuvs_free ( URMMOVEUVS *muvs ) {
     list_free ( &muvs->luv, NULL );
 
     free ( muvs->olduv );
@@ -65,14 +76,17 @@ void urmmoveuvs_free ( URMMOVEUVS *muvs ) {
 }
 
 /******************************************************************************/
-void moveUVs_free ( void *data, uint32_t commit ) {
+static void moveUVs_free ( void    *data,
+                           uint32_t commit ) {
     URMMOVEUVS *muvs = ( URMMOVEUVS * ) data;
 
     urmmoveuvs_free ( muvs );
 }
 
 /******************************************************************************/
-void moveUVs_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
+void moveUVs_undo ( G3DURMANAGER *urm,
+                    void         *data,
+                    uint64_t      engine_flags ) {
     URMMOVEUVS *muvs = ( URMMOVEUVS * ) data;
     G3DUVMAP *uvmap  = muvs->uvmap;
     G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)uvmap)->parent;
@@ -89,15 +103,15 @@ void moveUVs_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
 
         ltmpuv = ltmpuv->next;
     }
-/*
-    mes->obj.invalidationFlags |= UPDATEMODIFIERS;
-*/
+
     /*** update mesh because UVs could concern displacement mapping ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+    g3dobject_update ( G3DOBJECTCAST(muvs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
-void moveUVs_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
+void moveUVs_redo ( G3DURMANAGER *urm,
+                    void         *data,
+                    uint64_t      engine_flags ) {
     URMMOVEUVS *muvs = ( URMMOVEUVS * ) data;
     G3DUVMAP *uvmap  = muvs->uvmap;
     G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)uvmap)->parent;
@@ -114,15 +128,14 @@ void moveUVs_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
 
         ltmpuv = ltmpuv->next;
     }
-/*
-    mes->obj.invalidationFlags |= UPDATEMODIFIERS;
-*/
+
     /*** update mesh because UVs could concern displacement mapping ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+    g3dobject_update ( G3DOBJECTCAST(muvs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
 void g3durm_uvmap_moveUVList ( G3DURMANAGER *urm,
+                               G3DSCENE     *sce, 
                                G3DUVMAP     *uvmap, 
                                LIST         *luv,
                                G3DUV        *olduv,
@@ -130,7 +143,7 @@ void g3durm_uvmap_moveUVList ( G3DURMANAGER *urm,
                                uint32_t      return_flags ) {
     URMMOVEUVS *muvs;
 
-    muvs = urmmoveuvs_new ( uvmap, luv, olduv, newuv );
+    muvs = urmmoveuvs_new ( sce, uvmap, luv, olduv, newuv );
 
     g3durmanager_push ( urm, moveUVs_undo,
                              moveUVs_redo,

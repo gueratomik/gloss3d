@@ -249,7 +249,8 @@ static int cutMesh_event ( G3DMOUSETOOL *mou,
                         G3DMESH *mes = ( G3DMESH * ) cm->obj;
 
                         g3durm_mesh_cut ( urm, 
-                                          mes, 
+                                          sce,
+                                          mes,  
                                           knife,   
                                           cm->restrict_to_selection, 
                                           engine_flags, 
@@ -260,6 +261,7 @@ static int cutMesh_event ( G3DMOUSETOOL *mou,
                         G3DSPLINE *spline = ( G3DSPLINE * ) cm->obj;
 
                         g3durm_spline_cut ( urm,
+                                            sce,
                                             spline, 
                                             knife,
                                             engine_flags,

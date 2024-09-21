@@ -49,10 +49,10 @@ static double binomialcoeff ( int n, int k ) {
 }
 
 /******************************************************************************/
-static G3DOBJECT *g3dffd_commit ( G3DFFD        *ffd,
-                                  uint32_t       id,
-                                  unsigned char *name,
-                                  uint64_t       engine_flags ) {
+static G3DOBJECT *_default_commit ( G3DFFD        *ffd,
+                                    uint32_t       id,
+                                    unsigned char *name,
+                                    uint64_t       engine_flags ) {
     G3DOBJECT *obj    = ( G3DOBJECT * ) ffd;
 
     if ( g3dobject_isActive ( ( G3DOBJECT * ) ffd ) ) {
@@ -152,9 +152,9 @@ static void g3dffd_getDeformedPosition ( G3DFFD    *ffd,
 }
 
 /******************************************************************************/
-static uint32_t g3dffd_modify ( G3DFFD     *ffd,
-                                G3DMODIFYOP op,
-                                uint64_t    engine_flags ) {
+static uint32_t _default_modify ( G3DFFD     *ffd,
+                                  G3DMODIFYOP op,
+                                  uint64_t    engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
 
     if ( ffd->mod.oriobj ) {
@@ -248,6 +248,7 @@ static uint32_t g3dffd_modify ( G3DFFD     *ffd,
 }
 
 /******************************************************************************/
+/*
 static void g3dffd_onGeometryMove ( G3DFFD     *ffd,
                                     LIST       *vertexList, 
                                     LIST       *ledg,
@@ -270,9 +271,9 @@ static void g3dffd_onGeometryMove ( G3DFFD     *ffd,
         }
     }
 }
-
+*/
 /******************************************************************************/
-void g3dffd_activate ( G3DFFD *ffd, uint64_t engine_flags ) {
+static void _default_activate ( G3DFFD *ffd, uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
@@ -289,7 +290,7 @@ void g3dffd_activate ( G3DFFD *ffd, uint64_t engine_flags ) {
 }
 
 /******************************************************************************/
-void g3dffd_deactivate ( G3DFFD *ffd, uint64_t engine_flags ) {
+static void _default_deactivate ( G3DFFD *ffd, uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) ffd;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
 
@@ -399,7 +400,7 @@ void g3dffd_shape ( G3DFFD *ffd, uint32_t nbx,
 }
 
 /******************************************************************************/
-static uint32_t g3dffd_draw ( G3DFFD    *ffd,
+static uint32_t _default_draw ( G3DFFD    *ffd,
                               G3DCAMERA *cam, 
                               G3DENGINE *engine, 
                               uint64_t   engine_flags ) {
@@ -489,21 +490,9 @@ static uint32_t g3dffd_draw ( G3DFFD    *ffd,
 }
 
 /******************************************************************************/
-static void g3dffd_setParent ( G3DFFD    *ffd, 
-                               G3DOBJECT *parent,
-                               G3DOBJECT *oldParent,
-                               uint64_t   engine_flags ) {
-    g3dmodifier_setParent ( ( G3DMODIFIER * ) ffd, 
-                                              parent, 
-                                              oldParent, 
-                                              engine_flags );
-}
-
-
-/******************************************************************************/
-static uint32_t g3dffd_moddraw ( G3DOBJECT *obj,
-                                 G3DCAMERA *cam, 
-                                 uint64_t   engine_flags ) {
+static uint32_t _default_huddraw ( G3DOBJECT *obj,
+                                   G3DCAMERA *cam, 
+                                   uint64_t   engine_flags ) {
     G3DFFD *ffd = ( G3DFFD * ) obj;
 
     if ( g3dobject_isActive ( obj ) ) {
@@ -524,7 +513,7 @@ static uint32_t g3dffd_moddraw ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-void g3dffd_free ( G3DOBJECT *obj ) {
+static void _default_free ( G3DOBJECT *obj ) {
     G3DFFD *ffd = ( G3DFFD * ) obj;
 
     if ( ffd->pnt ) free ( ffd->pnt );
@@ -550,26 +539,31 @@ G3DFFD *g3dffd_new ( uint32_t id, char *name ) {
         return NULL;
     }
 
-    g3dmodifier_init ( mod, G3DFFDTYPE, id, name, OBJECTNOROTATION |
-                                                  OBJECTNOSCALING  | 
-                                                  MODIFIERNEEDSNORMALUPDATE,
-                                    DRAW_CALLBACK(g3dffd_draw),
-                                    FREE_CALLBACK(g3dffd_free),
-                                    PICK_CALLBACK(g3dmesh_pick),
-                                                  NULL,
-                                                  NULL,
-                                ACTIVATE_CALLBACK(g3dffd_activate),
-                              DEACTIVATE_CALLBACK(g3dffd_deactivate),
-                                  COMMIT_CALLBACK(g3dffd_commit),
-                                                  NULL,
-                               SETPARENT_CALLBACK(g3dffd_setParent),
-                                  MODIFY_CALLBACK(g3dffd_modify) );
-
-    ((G3DMESH*)mod)->onGeometryMove = GEOMETRYMOVE_CALLBACK(g3dffd_onGeometryMove);
-
-    /*obj->flags |= OBJECTNOSYMMETRY;*/
-
-    mod->moddraw = MODDRAW_CALLBACK(g3dffd_moddraw);
+    g3dmodifier_init ( mod,
+                       G3DFFDTYPE,
+                       id,
+                       name,
+                       OBJECTNOROTATION |
+                       OBJECTNOSCALING  | 
+                       MODIFIERNEEDSNORMALUPDATE,
+         DRAW_CALLBACK(_default_draw),
+         FREE_CALLBACK(_default_free),
+         PICK_CALLBACK(NULL),
+         ANIM_CALLBACK(NULL),
+       UPDATE_CALLBACK(NULL),
+         POSE_CALLBACK(NULL),
+         COPY_CALLBACK(NULL),
+    TRANSFORM_CALLBACK(NULL),
+     ACTIVATE_CALLBACK(_default_activate),
+   DEACTIVATE_CALLBACK(_default_deactivate),
+       COMMIT_CALLBACK(_default_commit),
+     ADDCHILD_CALLBACK(NULL),
+  REMOVECHILD_CALLBACK(NULL),
+    SETPARENT_CALLBACK(NULL),
+         DUMP_CALLBACK(NULL),
+       MODIFY_CALLBACK(_default_modify),
+      HUDDRAW_CALLBACK(_default_huddraw),
+      HUDPICK_CALLBACK(NULL) );
 
     return ffd;
 }

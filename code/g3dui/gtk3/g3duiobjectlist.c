@@ -128,6 +128,7 @@ static void Input ( GtkWidget *widget,
                             case TEXTURERECTHIT : {
                                 if ( pob->obj->type & MESH ) {
                                     g3durm_mesh_removeTexture ( urm,
+                                                                sce,
                                                                 pob->obj,
                                                                 pob->tex,
                                                                 gui->engine_flags,

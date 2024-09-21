@@ -31,11 +31,26 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-static URMEXTRUDEMESH *urmextrudemesh_new ( G3DMESH   *mes, 
-                                            LIST      *loriver,
-                                            LIST      *loldfac,
-                                            LIST      *lnewver,
-                                            LIST      *lnewfac,
+typedef struct _URMEXTRUDEMESH {
+    G3DSCENE    *sce;
+    G3DMESH     *mes;
+    LIST        *loriver;
+    LIST        *loldedg;
+    LIST        *loldfac;
+    LIST        *lnewver;
+    LIST        *lnewedg;
+    LIST        *lnewfac;
+    G3DVECTOR3F *oldpos;
+    G3DVECTOR3F *newpos;
+} URMEXTRUDEMESH;
+
+/******************************************************************************/
+static URMEXTRUDEMESH *urmextrudemesh_new ( G3DSCENE    *sce,
+                                            G3DMESH     *mes, 
+                                            LIST        *loriver,
+                                            LIST        *loldfac,
+                                            LIST        *lnewver,
+                                            LIST        *lnewfac,
                                             G3DVECTOR3F *oldpos,
                                             G3DVECTOR3F *newpos ) {
     uint32_t structsize = sizeof ( URMEXTRUDEMESH );
@@ -48,6 +63,7 @@ static URMEXTRUDEMESH *urmextrudemesh_new ( G3DMESH   *mes,
         return NULL;
     }
 
+    ems->sce     = sce;
     ems->mes     = mes;
     ems->loriver = loriver;
     ems->loldfac = loldfac;
@@ -114,14 +130,8 @@ static void extrudeMesh_undo ( G3DURMANAGER *urm,
     g3dvertex_setPositionFromList ( ems->loriver, ems->oldpos );
 
     g3dmesh_updateBbox ( mes );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
-    /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+
+    g3dobject_update ( G3DOBJECTCAST(ems->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -141,18 +151,13 @@ static void extrudeMesh_redo ( G3DURMANAGER *urm,
     g3dvertex_setPositionFromList ( ems->loriver, ems->newpos );
 
     g3dmesh_updateBbox ( mes );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                               UPDATEFACENORMAL   |
-                               UPDATEVERTEXNORMAL |
-                               RESETMODIFIERS );
-*/
-    /*** Rebuild the subdivided mesh ***/
-    g3dmesh_update ( mes, 0x00, engine_flags );
+
+    g3dobject_update ( G3DOBJECTCAST(ems->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
-void g3durm_mesh_extrude ( G3DURMANAGER *urm, 
+void g3durm_mesh_extrude ( G3DURMANAGER *urm,
+                           G3DSCENE     *sce,
                            G3DMESH      *mes,
                            LIST         *loriver,
                            LIST         *loldfac,
@@ -163,12 +168,14 @@ void g3durm_mesh_extrude ( G3DURMANAGER *urm,
                            uint32_t      return_flags ) {
     URMEXTRUDEMESH *ems;
 
-    ems = urmextrudemesh_new ( mes, loriver,
-                                    loldfac,
-                                    lnewver,
-                                    lnewfac,
-                                    oldpos,
-                                    newpos );
+    ems = urmextrudemesh_new ( sce, 
+                               mes,
+                               loriver,
+                               loldfac,
+                               lnewver,
+                               lnewfac,
+                               oldpos,
+                               newpos );
 
     g3durmanager_push ( urm, extrudeMesh_undo,
                              extrudeMesh_redo,

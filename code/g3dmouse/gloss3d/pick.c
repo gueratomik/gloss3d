@@ -1185,7 +1185,9 @@ int pick_tool ( G3DMOUSETOOL *mou,
 /*
                                 mes->obj.invalidationFlags |= RESETMODIFIERS;
 */
-                	            g3dmesh_update ( mes, 0x00, engine_flags );
+                                g3dobject_update ( G3DOBJECTCAST(sce),
+                                                   0x00,
+                                                   engine_flags );
                             }
         	            }
                     }
