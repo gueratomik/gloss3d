@@ -55,7 +55,7 @@ static URMREMOVETEXTURE *urmremovetexture_new ( G3DSCENE   *sce,
 }
 
 /******************************************************************************/
-static void urmremovetexture_free ( URMREMOVETEXTURE *urt ) {
+void urmremovetexture_free ( URMREMOVETEXTURE *urt ) {
     list_free ( &urt->lfacgrp, NULL );
 
     free ( urt );
@@ -94,7 +94,7 @@ static void removeTexture_undo ( G3DURMANAGER *urm,
         }
 
         /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-        g3dobject_update ( G3DOBJECTCAST(urt->sce), 0x00, engine_flags );
+        g3dobject_update_r ( G3DOBJECTCAST(urt->sce), 0x00, engine_flags );
     }
 }
 
@@ -110,7 +110,7 @@ static void removeTexture_redo ( G3DURMANAGER *urm,
         g3dmesh_removeTexture ( mes, urt->tex );
 
         /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-        g3dobject_update ( G3DOBJECTCAST(urt->sce), 0x00, engine_flags );
+        g3dobject_update_r ( G3DOBJECTCAST(urt->sce), 0x00, engine_flags );
     }
 }
 

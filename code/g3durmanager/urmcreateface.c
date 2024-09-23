@@ -106,7 +106,7 @@ static void createFace_undo ( G3DURMANAGER *urm,
     g3dmesh_vertexNormal ( mes );
 
     /*** Rebuild the subdivided mesh ***/
-    g3dobject_update ( G3DOBJECTCAST(cfs->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(cfs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -130,7 +130,7 @@ static void createFace_redo ( G3DURMANAGER *urm,
     g3dmesh_vertexNormal ( mes );
 
     /*** Rebuild the subdivided mesh ***/
-    g3dobject_update ( G3DOBJECTCAST(cfs->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(cfs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/

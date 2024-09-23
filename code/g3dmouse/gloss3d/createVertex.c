@@ -166,6 +166,7 @@ static int createVertex_event ( G3DMOUSETOOL *mou,
                         }
 
                         g3durm_spline_addPoint ( urm,
+                                                 sce,
                                                  spline,
                                                  pt,
                                                  seg,
@@ -190,7 +191,7 @@ static int createVertex_event ( G3DMOUSETOOL *mou,
                                                         RESETMODIFIERS );
 */
                         /*** Rebuild the mesh or spline ***/
-                        g3dobject_update ( G3DOBJECTCAST(sce),
+                        g3dobject_update_r ( G3DOBJECTCAST(sce),
                                            0x00,
                                            engine_flags );
 
@@ -200,7 +201,7 @@ static int createVertex_event ( G3DMOUSETOOL *mou,
                         g3dmesh_updateBbox ( mes );
 
                         /*** record for the undo-redo management ***/
-                        g3durm_mesh_addVertex ( urm, mes, ver, REDRAWVIEW );
+                        g3durm_mesh_addVertex ( urm, sce, mes, ver, REDRAWVIEW );
                     }
                 }
             }

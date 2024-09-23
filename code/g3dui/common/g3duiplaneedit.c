@@ -62,6 +62,8 @@ uint64_t g3duiplaneedit_div  ( G3DUIPLANEEDIT *plnedit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
+
 
     return REDRAWVIEW;
 }
@@ -98,6 +100,8 @@ uint64_t g3duiplaneedit_radius ( G3DUIPLANEEDIT *plnedit,
 
         ltmpselobj = ltmpselobj->next;
     }
+
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
 
     return REDRAWVIEW;
@@ -140,6 +144,8 @@ uint64_t g3duiplaneedit_orientation ( G3DUIPLANEEDIT *plnedit,
 
         ltmpselobj = ltmpselobj->next;
     }
+
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
 
     return REDRAWVIEW;

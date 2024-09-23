@@ -72,7 +72,7 @@ static uint32_t revertSpline_init ( G3DMOUSETOOL *mou,
     if ( ( obj ) && ( obj->type == G3DSPLINETYPE ) ) {
         G3DSPLINE *spline = ( G3DSPLINE * ) obj;
 
-        g3durm_spline_revert ( urm, spline, engine_flags, REDRAWVIEW );
+        g3durm_spline_revert ( urm, sce, spline, engine_flags, REDRAWVIEW );
 
         return REDRAWVIEW;
     }

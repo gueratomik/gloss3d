@@ -147,17 +147,6 @@ uint64_t g3duimeshposelist_deleteSelectedPose ( G3DUIMESHPOSELIST *gmp ) {
                 G3DMORPHERMESHPOSE *curmps = ext->curmps;
 
                 g3dmeshposeextension_removePose ( ext, curmps );
-
-                /*** update vertex painting ***/
-                /*g3dmesh_update ( mes, NULL,
-                                      NULL,
-                                      NULL,
-                                      UPDATEVERTEXNORMAL |
-                                      UPDATEFACENORMAL |
-                                      RESETMODIFIERS, gui->engine_flags );*/
-
-                /*g3dui_redrawGLViews ( gui );
-                g3dui_updateAllCurrentEdit ( gui );*/
             }
         }
     }
@@ -182,21 +171,9 @@ uint64_t g3duimeshposelist_selectPose ( G3DUIMESHPOSELIST  *gmp,
             G3DMORPHERMESHPOSE *curmps = ext->curmps;
 
             g3dmeshposeextension_unselectPose ( ext, curmps );
-
-            /*** update vertex painting ***/
-            /*g3dmesh_update ( mes, curgrp->lver,
-                                  NULL,
-                                  NULL,
-                                  UPDATEMODIFIERS, gui->engine_flags );*/
         }
 
         g3dmeshposeextension_selectPose ( ext, mps );
-
-        /*** update vertex painting ***/
-        /*g3dmesh_update ( mes, grp->lver,
-                              NULL,
-                              NULL,
-                              RESETMODIFIERS, gui->engine_flags );*/
     }
 
     return REDRAWVIEW | UPDATECURRENTOBJECT;

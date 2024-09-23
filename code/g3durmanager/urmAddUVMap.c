@@ -90,7 +90,7 @@ static void addUVMap_undo ( G3DURMANAGER *urm,
 
     g3dmesh_removeUVMap ( uau->mes, uau->uvmap, NULL, NULL, engine_flags );
 
-    g3dobject_update ( G3DOBJECTCAST(uau->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(uau->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -117,7 +117,7 @@ static void addUVMap_redo ( G3DURMANAGER *urm,
                        NULL, /*** no need to backp uvsets this time **/
                        engine_flags );
 
-    g3dobject_update ( G3DOBJECTCAST(uau->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(uau->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -132,7 +132,7 @@ void g3durm_mesh_addUVMap ( G3DURMANAGER *urm,
 
     g3dmesh_addUVMap ( mes, uvmap, &lnewuvset, engine_flags );
 
-    g3dobject_update( G3DOBJECTCAST(sce), 0x00, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     uau = urmadduvmap_new ( sce,
                             mes,

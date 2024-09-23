@@ -107,20 +107,16 @@ void g3dvertex_computeNormal ( G3DVERTEX   *ver,
 
     if ( ver->faceCount ) {
         /*** we expect our vertex to belong to 4 faces ***/
-        float nbfacdiv = 0.25f;
+        float div = ( ver->faceCount == 0x04 ) ? 0.25f 
+                                               : ( 1.0f / ver->faceCount );
 
-        /*** some optimization ***/
-        if ( ver->faceCount != 0x04 ) nbfacdiv = ( 1.0f / ver->faceCount );
+        /* Averaging */
+        nor->x = norx / ver->faceCount;
+        nor->y = nory / ver->faceCount;
+        nor->z = norz / ver->faceCount;
 
-        /*if ( ( engine_flags & NOVERTEXNORMAL ) == 0x00 )*/ {
-            nor->x = norx * nbfacdiv;
-            nor->y = nory * nbfacdiv;
-            nor->z = norz * nbfacdiv;
-        }
-
-        /*if ( ( engine_flags & NOVERTEXNORMAL ) == 0x00 )*/ {
-            g3dvector3f_normalize ( nor );
-        }
+        /* Normalizing */
+        g3dvector3f_normalize ( nor );
     }
 }
 
@@ -726,9 +722,6 @@ void g3dvertex_init ( G3DVERTEX *ver,
     ver->owner = NULL;
 
     g3dvertex_setPosition( ver, x, y, z );
-
-
-    return ver;
 }
 
 /******************************************************************************/

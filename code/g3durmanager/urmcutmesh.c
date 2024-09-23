@@ -105,7 +105,7 @@ static void cutMesh_undo ( G3DURMANAGER *urm,
     list_execargdata ( cms->loldfac, (void(*)(void*,void*)) g3dmesh_addFace, cms->mes );
 
     /*** Rebuild the cut mesh ***/
-    g3dobject_update ( G3DOBJECTCAST(cms->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(cms->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -126,7 +126,7 @@ static void cutMesh_redo ( G3DURMANAGER *urm,
     list_execargdata ( cms->lnewfac, (void(*)(void*,void*)) g3dmesh_addFace  , cms->mes );
 
     /*** Rebuild the cut mesh ***/
-    g3dobject_update ( G3DOBJECTCAST(cms->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(cms->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -150,7 +150,7 @@ void g3durm_mesh_cut ( G3DURMANAGER *urm,
                   restricted, 
                   engine_flags );
 
-    g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     cms = urmcutmesh_new ( sce, mes, loldfac, lnewver, lnewfac );
 

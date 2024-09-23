@@ -67,6 +67,7 @@ uint64_t g3duicubeedit_slice ( G3DUICUBEEDIT *cubedit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }
@@ -96,6 +97,7 @@ uint64_t g3duicubeedit_radius ( G3DUICUBEEDIT *cubedit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }

@@ -63,6 +63,8 @@ FOR_EACH_SELECTED_LIGHT
         lig->specularColor.g = green;
         lig->specularColor.b = blue;
 END_FOR
+
+        g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
     }
 
     return REDRAWVIEW;
@@ -76,6 +78,8 @@ uint64_t g3duilightedit_unsetSpot ( G3DUILIGHTEDIT *ligedit ) {
 FOR_EACH_SELECTED_LIGHT
         g3dlight_unsetSpot ( lig );
 END_FOR
+
+        g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
     }
 
     return REDRAWVIEW;
@@ -103,6 +107,8 @@ uint64_t g3duilightedit_setSpotAngle ( G3DUILIGHTEDIT *ligedit,
 FOR_EACH_SELECTED_LIGHT
         g3dlight_setSpotAngle ( lig, spotAngle );
 END_FOR
+
+        g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
     }
 
     return REDRAWVIEW;
@@ -117,6 +123,8 @@ uint64_t g3duilightedit_setSpotFadeAngle ( G3DUILIGHTEDIT *ligedit,
 FOR_EACH_SELECTED_LIGHT
         g3dlight_setSpotFadeAngle ( lig, spotFadeAngle );
 END_FOR
+
+        g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
     }
 
     return REDRAWVIEW;
@@ -131,6 +139,8 @@ uint64_t g3duilightedit_setSpotLength ( G3DUILIGHTEDIT *ligedit,
 FOR_EACH_SELECTED_LIGHT
         g3dlight_setSpotLength ( lig, spotLength );
 END_FOR
+
+        g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
     }
 
     return REDRAWVIEW;
@@ -152,6 +162,8 @@ FOR_EACH_SELECTED_LIGHT
             lig->obj.flags |= LIGHTCASTSHADOWS;
         }
 END_FOR
+
+        g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
     }
 
     return REDRAWVIEW;
@@ -181,6 +193,8 @@ FOR_EACH_SELECTED_LIGHT
             lig->obj.flags |= LIGHTHARDSHADOWS;
         }
 END_FOR
+
+        g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
     }
 
     return REDRAWVIEW;
@@ -195,6 +209,8 @@ uint64_t g3duilightedit_shadowRadius ( G3DUILIGHTEDIT *ligedit,
 FOR_EACH_SELECTED_LIGHT
         lig->shadowRadius = shadowRadius;
 END_FOR
+
+        g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
     }
 
     return REDRAWVIEW;
@@ -209,6 +225,8 @@ uint64_t g3duilightedit_shadowSample ( G3DUILIGHTEDIT *ligedit,
 FOR_EACH_SELECTED_LIGHT
         lig->shadowSample = shadowSample;
 END_FOR
+
+        g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
     }
 
     return REDRAWVIEW;
@@ -230,6 +248,8 @@ FOR_EACH_SELECTED_LIGHT
         lig->diffuseColor.g = green;
         lig->diffuseColor.b = blue;
 END_FOR
+
+        g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
     }
 
     return REDRAWVIEW;

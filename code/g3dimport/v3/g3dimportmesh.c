@@ -215,8 +215,6 @@ void g3dimportv3mesh ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                         g3dmesh_addFace ( mes, fac );
                     }
                 }
-
-                g3dmesh_update ( mes, 0x00, gid->engineFlags );
             } break;
 
             default : {

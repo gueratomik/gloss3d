@@ -58,6 +58,8 @@ uint64_t g3duicameraedit_focal ( G3DUICAMERAEDIT *camedit,
 FOR_EACH_SELECTED_CAMERA
         cam->focal = focal;
 END_FOR
+
+        g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
     }
 
     return REDRAWVIEW;
@@ -72,6 +74,8 @@ uint64_t g3duicameraedit_dofRadius ( G3DUICAMERAEDIT *camedit,
 FOR_EACH_SELECTED_CAMERA
         cam->dof.radius = radius;
 END_FOR
+
+        g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
     }
 
 
@@ -102,6 +106,8 @@ uint64_t g3duicameraedit_dofNoBlur ( G3DUICAMERAEDIT *camedit,
 FOR_EACH_SELECTED_CAMERA
         cam->dof.noBlur = noBlur;
 END_FOR
+
+        g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
     }
 
 
@@ -117,6 +123,8 @@ uint64_t g3duicameraedit_dofFarBlur ( G3DUICAMERAEDIT *camedit,
 FOR_EACH_SELECTED_CAMERA
         cam->dof.farBlur = farBlur;
 END_FOR
+
+        g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
     }
 
 
@@ -140,6 +148,8 @@ FOR_EACH_SELECTED_CAMERA
             cam->obj.flags |= CAMERADOF;
         }
 END_FOR
+
+        g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
     }
 
 

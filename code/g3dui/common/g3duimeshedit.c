@@ -57,9 +57,6 @@ FOR_EACH_SELECTED_MESH
     } else {
         mes->obj.flags |= MESHUSEISOLINES;
     }
-
-    /*** rebuild using adaptive subdivision (or not) ***/
-    g3dmesh_update ( mes, 0x00, mesedit->gui->engine_flags );
 END_FOR
 
     return REDRAWVIEW;

@@ -167,7 +167,7 @@ static void deleteSelectedItems_undo ( G3DURMANAGER *urm,
         }
     }
 
-    g3dobject_update ( G3DOBJECTCAST(dsi->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(dsi->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -216,7 +216,7 @@ static void deleteSelectedItems_redo ( G3DURMANAGER *urm,
         }
     }
 
-    g3dobject_update ( G3DOBJECTCAST(dsi->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(dsi->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -279,7 +279,7 @@ void g3durm_mesh_deleteGeometry ( G3DURMANAGER *urm,
     g3dface_getOrphanedEdgesFromList ( loldselfac, &dsi->lorphanedEdges );
 
     /*** Rebuild the subdivided mesh ***/
-    g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -296,7 +296,7 @@ void g3durm_scene_deleteSelectedObjects ( G3DURMANAGER *urm,
 
     g3dscene_checkReferredObjects ( sce );
 
-    g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     /*** save state ***/
     dsi = urmdelselitems_new ( sce,

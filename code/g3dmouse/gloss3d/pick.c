@@ -1111,10 +1111,10 @@ int pick_tool ( G3DMOUSETOOL *mou,
                                                              lselnew,
                                                              engine_flags,
                                                              REDRAWVIEW );
-/*
-                                    mes->obj.invalidationFlags |= RESETMODIFIERS;
-*/
-                	                g3dmesh_update ( mes, 0x00, engine_flags );
+
+                	                g3dobject_update_r ( G3DOBJECTCAST(sce), 
+                                                       0x00,
+                                                       engine_flags );
                                 }
                             }
                         }
@@ -1185,7 +1185,7 @@ int pick_tool ( G3DMOUSETOOL *mou,
 /*
                                 mes->obj.invalidationFlags |= RESETMODIFIERS;
 */
-                                g3dobject_update ( G3DOBJECTCAST(sce),
+                                g3dobject_update_r ( G3DOBJECTCAST(sce),
                                                    0x00,
                                                    engine_flags );
                             }

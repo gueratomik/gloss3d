@@ -105,7 +105,7 @@ void moveUVs_undo ( G3DURMANAGER *urm,
     }
 
     /*** update mesh because UVs could concern displacement mapping ***/
-    g3dobject_update ( G3DOBJECTCAST(muvs->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(muvs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -130,7 +130,7 @@ void moveUVs_redo ( G3DURMANAGER *urm,
     }
 
     /*** update mesh because UVs could concern displacement mapping ***/
-    g3dobject_update ( G3DOBJECTCAST(muvs->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(muvs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/

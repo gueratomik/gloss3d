@@ -64,13 +64,17 @@ G3DMOUSETOOLINVERTNORMAL *g3dmousetoolinvertnormal_new ( ) {
 static uint32_t invertNormal_init  ( G3DMOUSETOOL *mou,
                                      G3DSCENE     *sce,
                                      G3DURMANAGER *urm,
-                                     uint64_t      engine_flags ) {
+                                     uint64_t      engineFlags ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
     if ( ( obj ) && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
-        g3durm_mesh_invertNormal ( urm, mes, engine_flags, REDRAWVIEW );
+        g3durm_mesh_invertNormal ( urm,
+                                   sce,
+                                   mes,
+                                   engineFlags,
+                                   REDRAWVIEW );
 
         return REDRAWVIEW;
     }

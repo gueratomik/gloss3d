@@ -31,9 +31,18 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMADDSPLINEPOINT *urmAddSplinePoint_new ( G3DSPLINE        *spline, 
-                                           G3DSPLINEPOINT   *pt,
-                                           G3DSPLINESEGMENT *seg ) {
+typedef struct _URMADDSPLINEPOINT {
+    G3DSCENE         *sce;
+    G3DSPLINE        *spline;
+    G3DSPLINEPOINT   *pt;
+    G3DSPLINESEGMENT *seg;
+} URMADDSPLINEPOINT;
+
+/******************************************************************************/
+static URMADDSPLINEPOINT *urmAddSplinePoint_new ( G3DSCENE         *sce,
+                                                  G3DSPLINE        *spline, 
+                                                  G3DSPLINEPOINT   *pt,
+                                                  G3DSPLINESEGMENT *seg ) {
     uint32_t size = sizeof ( URMADDSPLINEPOINT );
 
     URMADDSPLINEPOINT *asp = ( URMADDSPLINEPOINT * ) calloc ( 0x01, size );
@@ -44,6 +53,7 @@ URMADDSPLINEPOINT *urmAddSplinePoint_new ( G3DSPLINE        *spline,
         return NULL;
     }
 
+    asp->sce    = sce;
     asp->spline = spline;
     asp->pt     = pt;
     asp->seg    = seg;
@@ -53,12 +63,12 @@ URMADDSPLINEPOINT *urmAddSplinePoint_new ( G3DSPLINE        *spline,
 }
 
 /******************************************************************************/
-void urmAddSplinePoint_free ( URMADDSPLINEPOINT *asp ) {
+static void urmAddSplinePoint_free ( URMADDSPLINEPOINT *asp ) {
     free ( asp );
 }
 
 /******************************************************************************/
-void addSplinePoint_free ( void *data, uint32_t commit ) {
+static void addSplinePoint_free ( void *data, uint32_t commit ) {
     URMADDSPLINEPOINT *asp = ( URMADDSPLINEPOINT * ) data;
 
     /*** Discard changes ***/
@@ -72,9 +82,9 @@ void addSplinePoint_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void addSplinePoint_undo ( G3DURMANAGER *urm, 
-                           void         *data,
-                           uint64_t engine_flags ) {
+static void addSplinePoint_undo ( G3DURMANAGER *urm, 
+                                  void         *data,
+                                  uint64_t      engine_flags ) {
     URMADDSPLINEPOINT *asp = ( URMADDSPLINEPOINT * ) data;
 
     if ( asp->seg ) g3dcurve_removeSegment ( asp->spline->curve, asp->seg );
@@ -82,14 +92,13 @@ void addSplinePoint_undo ( G3DURMANAGER *urm,
     g3dcurve_unselectPoint ( asp->spline->curve, asp->pt );
     g3dcurve_removePoint ( asp->spline->curve, asp->pt, NULL );
 
-    /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( asp->spline, NULL, 0, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(asp->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
-void addSplinePoint_redo ( G3DURMANAGER *urm, 
-                           void         *data,
-                           uint64_t engine_flags ) {
+static void addSplinePoint_redo ( G3DURMANAGER *urm, 
+                                  void         *data,
+                                  uint64_t      engine_flags ) {
     URMADDSPLINEPOINT *asp = ( URMADDSPLINEPOINT * ) data;
 
     g3dcurve_addPoint ( asp->spline->curve, asp->pt );
@@ -98,12 +107,12 @@ void addSplinePoint_redo ( G3DURMANAGER *urm,
 
     if ( asp->seg ) g3dcurve_addSegment ( asp->spline->curve, asp->seg );
 
-    /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( asp->spline, NULL, 0, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(asp->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
 void g3durm_spline_addPoint ( G3DURMANAGER     *urm,
+                              G3DSCENE         *sce, 
                               G3DSPLINE        *spline, 
                               G3DSPLINEPOINT   *pt,
                               G3DSPLINESEGMENT *seg,
@@ -123,11 +132,10 @@ void g3durm_spline_addPoint ( G3DURMANAGER     *urm,
         g3dcurvepoint_roundCubicSegments ( previousPoint );
     }
 
-    /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( spline, NULL, 0, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     /* remember it for undoing */
-    asp = urmAddSplinePoint_new ( spline, pt, seg );
+    asp = urmAddSplinePoint_new ( sce, spline, pt, seg );
 
     g3durmanager_push ( urm, addSplinePoint_undo,
                              addSplinePoint_redo,

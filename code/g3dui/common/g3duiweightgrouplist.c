@@ -125,29 +125,20 @@ uint64_t g3duiweightgrouplist_deleteSelected ( G3DUIWEIGHTGROUPLIST *wgrplist ) 
 
         if ( mes->curgrp ) {
             G3DWEIGHTGROUP *curgrp = mes->curgrp;
-/*** TODO - check if we are in buffered mode. Otherwise this is not needed ***/
-            /*LIST *lsub = ( curgrp ) ? g3dvertex_getFacesFromList ( curgrp->lver ) : NULL;*/
-
 
             g3dmesh_removeWeightGroup ( mes, curgrp );
-/*
-            mes->obj.invalidationFlags |= ( UPDATEVERTEXNORMAL |
-                                       UPDATEFACENORMAL |
-                                       RESETMODIFIERS );
-*/
-            /*** update vertex painting ***/
-            g3dmesh_update ( mes, 0x00, gui->engine_flags );
-
-            /*list_free ( &lsub, NULL );*/
         }
     }
+
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
+
 
     return REDRAWVIEW | UPDATECURRENTOBJECT;
 }
 
 /******************************************************************************/
 uint64_t g3duiweightgrouplist_select ( G3DUIWEIGHTGROUPLIST *wgrplist,
-                                          G3DWEIGHTGROUP       *grp ) {
+                                       G3DWEIGHTGROUP       *grp ) {
     G3DUI *gui = wgrplist->gui;
     G3DSCENE *sce = gui->sce;
     G3DOBJECT *obj = g3dscene_getSelectedObject ( sce );
@@ -164,12 +155,6 @@ uint64_t g3duiweightgrouplist_select ( G3DUIWEIGHTGROUPLIST *wgrplist,
             lver = g3dmesh_getVerticesFromWeightgroup ( mes, curgrp );
 
             g3dmesh_unselectWeightGroup ( mes, curgrp );
-/*
-            mes->lupdver = lver;
-            mes->obj.invalidationFlags |= ( UPDATEMODIFIERS );
-*/
-            /*** update vertex painting ***/
-            g3dmesh_update ( mes, 0x00, gui->engine_flags );
 
             list_free ( &lver, NULL );
         }
@@ -177,15 +162,11 @@ uint64_t g3duiweightgrouplist_select ( G3DUIWEIGHTGROUPLIST *wgrplist,
         lver = g3dmesh_getVerticesFromWeightgroup ( mes, grp );
 
         g3dmesh_selectWeightGroup ( mes, grp );
-/*
-        mes->lupdver = lver;
-        mes->obj.invalidationFlags |= ( RESETMODIFIERS );
-*/
-        /*** update vertex painting ***/
-        g3dmesh_update ( mes, 0x00, gui->engine_flags );
 
         list_free ( &lver, NULL );
     }
+
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return UPDATECURRENTOBJECT | REDRAWVIEW;
 }

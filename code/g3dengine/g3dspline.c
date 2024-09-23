@@ -95,21 +95,6 @@ void g3dspline_modify ( G3DSPLINE  *spl,
 
         ltmpchildren = ltmpchildren->next;        
     }
-
-    if ( spl->lastmod ) {
-        if ( spl->lastmod->mes.obj.flags & MODIFIERNEEDSNORMALUPDATE ) {
-            if ( ( spl->lastmod->mes.obj.type & MESH ) == 0x00 ) {
-                G3DMESH *mes = ( G3DMESH * ) spl->lastmod;
-/*
-                mes->obj.invalidationFlags |=  ( UPDATEFACENORMAL   |
-                                                 UPDATEVERTEXNORMAL );
-
-                g3dobject_*/
-
-                g3dmesh_update ( mes, 0x00, engine_flags );
-            }
-        }
-    }
 }
 
 /******************************************************************************/
@@ -175,9 +160,6 @@ void g3dspline_moveAxis ( G3DSPLINE *spl,
     }
 
     g3dobject_invalidate( G3DOBJECTCAST(spl), INVALIDATE_MODIFIER_STACK_RESET );
-
-    /*g3dmesh_updateBbox ( mes );*/
-    g3dspline_update ( spl, NULL, 0, engine_flags );
 }
 
 /******************************************************************************/

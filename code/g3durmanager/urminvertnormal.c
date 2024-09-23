@@ -81,7 +81,7 @@ static void invertNormal_undo ( G3DURMANAGER *urm,
 
     list_exec ( ins->lfac, (void (*)(void *)) g3dface_invertNormal );
 
-    g3dobject_update( G3DOBJECTCAST(ins->sce), 0x00, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(ins->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -106,7 +106,7 @@ void g3durm_mesh_invertNormal ( G3DURMANAGER *urm,
 
     g3dmesh_invertNormal ( mes );
 
-    g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     g3durmanager_push ( urm, invertNormal_undo,
                              invertNormal_redo,

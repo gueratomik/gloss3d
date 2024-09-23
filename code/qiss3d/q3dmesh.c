@@ -372,11 +372,11 @@ void q3dmesh_init ( Q3DMESH *qmes,
    Q3DINTERSECT_CALLBACK(q3dmesh_intersect) );
     }
 
-    g3dmesh_dump ( mes,
-                   Alloc,
-                   Dump,
-                  &qdump,
-                   SUBDIVISIONCOMPUTE );
+    g3dmesh_dump( G3DOBJECTCAST(mes),
+                  Alloc,
+                  Dump,
+                 &qdump,
+                  SUBDIVISIONCOMPUTE );
 
     if ( qmes->nbqtri ) {
         Q3DVERTEXSET *qverset = q3dmesh_getVertexSet ( qmes, frame );

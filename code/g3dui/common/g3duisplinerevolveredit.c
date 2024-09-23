@@ -51,6 +51,7 @@ uint64_t g3duisplinerevolveredit_splineRevolverSteps ( G3DUISPLINEREVOLVEREDIT *
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }
@@ -79,6 +80,7 @@ uint64_t g3duisplinerevolveredit_splineRevolverDivis ( G3DUISPLINEREVOLVEREDIT *
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }

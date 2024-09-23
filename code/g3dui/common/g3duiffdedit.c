@@ -70,6 +70,7 @@ uint64_t g3duiffdedit_radius ( G3DUIFFDEDIT *ffdedit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW | REDRAWOBJECTLIST;
 }
@@ -115,6 +116,7 @@ uint64_t g3duiffdedit_slice ( G3DUIFFDEDIT *ffdedit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW | REDRAWOBJECTLIST;
 }

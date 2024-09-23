@@ -92,7 +92,7 @@ static void addVertex_undo ( G3DURMANAGER *urm,
 
     g3dmesh_updateBbox ( mes );
 
-    g3dobject_update ( G3DOBJECTCAST(avs->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(avs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -109,7 +109,7 @@ static void addVertex_redo ( G3DURMANAGER *urm,
 
     g3dmesh_updateBbox ( mes );
 
-    g3dobject_update ( G3DOBJECTCAST(avs->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(avs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/

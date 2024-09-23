@@ -59,6 +59,7 @@ uint64_t g3duikeyedit_setKeyTransformations ( G3DUIKEYEDIT *keyedit,
         ltmpobj = ltmpobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return 0x00;
 }
@@ -95,6 +96,7 @@ uint64_t g3duikeyedit_unsetKeyTransformations ( G3DUIKEYEDIT *keyedit,
         ltmpobj = ltmpobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return 0x00;
 }
@@ -114,6 +116,7 @@ uint64_t g3duikeyedit_loopFrame ( G3DUIKEYEDIT *keyedit,
         ltmpobj = ltmpobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return 0x00;
 }
@@ -137,6 +140,7 @@ uint64_t g3duikeyedit_loop ( G3DUIKEYEDIT *keyedit,
         ltmpobj = ltmpobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return 0x00;
 }
@@ -170,7 +174,9 @@ uint64_t g3duikeyedit_key ( G3DUIKEYEDIT *keyedit,
             ltmpkey = ltmpkey->next;
         }
 
-        g3dobject_anim_r ( ( G3DOBJECT * ) obj, gui->curframe, gui->engine_flags );
+        g3dobject_anim_r ( obj, gui->curframe, gui->engine_flags );
+
+        g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
     }
 
 

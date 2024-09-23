@@ -64,15 +64,19 @@ G3DMOUSETOOLTRIANGULATE *g3dmousetooltriangulate_new ( ) {
 static uint32_t triangulate_init  ( G3DMOUSETOOL *mou, 
                                     G3DSCENE     *sce, 
                                     G3DURMANAGER *urm, 
-                                    uint64_t engine_flags ) {
+                                    uint64_t      engineFlags ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
     if ( ( obj ) && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
         uint32_t clockwise = 0x01;
 
-        g3durm_mesh_triangulate ( urm, mes, clockwise, engine_flags,
-                                                       REDRAWVIEW );
+        g3durm_mesh_triangulate ( urm,
+                                  sce,
+                                  mes,
+                                  clockwise,
+                                  engineFlags,
+                                  REDRAWVIEW );
 
         return REDRAWVIEW;
     }

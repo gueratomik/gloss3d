@@ -107,7 +107,7 @@ void unTriangulate_undo ( G3DURMANAGER *urm,
 
     list_execargdata ( ums->loldfac, (void(*)(void*,void*)) g3dmesh_addSelectedFace, ums->mes );
 
-    g3dobject_update ( G3DOBJECTCAST(ums->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(ums->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -126,7 +126,7 @@ void unTriangulate_redo ( G3DURMANAGER *urm,
     list_execargdata ( ums->lnewfac, (void(*)(void*,void*)) g3dmesh_addSelectedFace, ums->mes );
 
     /*** Rebuild the mesh with modifiers ***/
-    g3dobject_update ( G3DOBJECTCAST(ums->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(ums->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -144,7 +144,7 @@ void g3durm_mesh_untriangulate ( G3DURMANAGER *urm,
     g3dmesh_untriangulate ( mes, &loldfac, &lnewfac );
 
     /*** Rebuild the mesh with modifiers ***/
-    g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     ums = urmuntriangulate_new ( sce, mes, loldfac, lnewfac );
 
@@ -169,7 +169,7 @@ void g3durm_mesh_triangulate ( G3DURMANAGER *urm,
     g3dmesh_triangulate ( mes, &loldfac, &lnewfac, clockwise );
 
     /*** Rebuild the mesh with modifiers ***/
-    g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     /*** Triangulate and unTriagulate feature use ***/
     /*** the same functions and data structures. ***/

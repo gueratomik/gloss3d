@@ -85,6 +85,8 @@ uint64_t g3duimaterialedit_setChannelColor ( G3DUIMATERIALEDIT *matedit,
         ltmpselmat = ltmpselmat->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(gui->sce), 0x00, gui->engine_flags );
+
 
     return REDRAWVIEW            | 
            REDRAWMATERIALLIST    | 
@@ -111,6 +113,8 @@ uint64_t g3duimaterialedit_setDisplacementStrength ( G3DUIMATERIALEDIT *matedit,
         ltmpselmat = ltmpselmat->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(gui->sce), 0x00, gui->engine_flags );
+
 
     return REDRAWVIEW            |
            REDRAWMATERIALLIST    | 
@@ -136,6 +140,8 @@ uint64_t g3duimaterialedit_setBumpStrength ( G3DUIMATERIALEDIT *matedit,
         ltmpselmat = ltmpselmat->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(gui->sce), 0x00, gui->engine_flags );
+
 
     return REDRAWVIEW            | 
            REDRAWMATERIALLIST    | 
@@ -159,6 +165,8 @@ uint64_t g3duimaterialedit_setReflectionStrength ( G3DUIMATERIALEDIT *matedit,
 
         ltmpselmat = ltmpselmat->next;
     }
+
+    g3dobject_update_r( G3DOBJECTCAST(gui->sce), 0x00, gui->engine_flags );
 
 
     return REDRAWVIEW            | 
@@ -184,6 +192,8 @@ uint64_t g3duimaterialedit_setRefractionStrength ( G3DUIMATERIALEDIT *matedit,
         ltmpselmat = ltmpselmat->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(gui->sce), 0x00, gui->engine_flags );
+
 
     return REDRAWVIEW            | 
            REDRAWMATERIALLIST    | 
@@ -203,6 +213,8 @@ uint64_t g3duimaterialedit_setAlphaStrength ( G3DUIMATERIALEDIT *matedit,
 
         ltmpselmat = ltmpselmat->next;
     }
+
+    g3dobject_update_r( G3DOBJECTCAST(gui->sce), 0x00, gui->engine_flags );
 
 
     return REDRAWVIEW            | 
@@ -224,6 +236,8 @@ uint64_t g3duimaterialedit_setName ( G3DUIMATERIALEDIT *matedit,
         ltmpselmat = ltmpselmat->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(gui->sce), 0x00, gui->engine_flags );
+
 
     return REDRAWVIEW            | 
            REDRAWMATERIALLIST    | 
@@ -243,6 +257,8 @@ uint64_t g3duimaterialedit_setSpecularLevel ( G3DUIMATERIALEDIT *matedit,
 
         ltmpselmat = ltmpselmat->next;
     }
+
+    g3dobject_update_r( G3DOBJECTCAST(gui->sce), 0x00, gui->engine_flags );
 
 
     return REDRAWVIEW            | 
@@ -264,6 +280,7 @@ uint64_t g3duimaterialedit_setSpecularShininess ( G3DUIMATERIALEDIT *matedit,
         ltmpselmat = ltmpselmat->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(gui->sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW            | 
            REDRAWMATERIALLIST    | 
@@ -311,6 +328,8 @@ uint64_t g3duimaterialedit_channelChooseImage ( G3DUIMATERIALEDIT *matedit,
         ltmpselmat = ltmpselmat->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(gui->sce), 0x00, gui->engine_flags );
+
 
     return REDRAWVIEW            | 
            REDRAWMATERIALLIST    | 
@@ -341,6 +360,8 @@ uint64_t g3duimaterialedit_enableProcedural ( G3DUIMATERIALEDIT *matedit,
 
         ltmpselmat = ltmpselmat->next;
     }
+
+    g3dobject_update_r( G3DOBJECTCAST(gui->sce), 0x00, gui->engine_flags );
 
 
     return REDRAWVIEW            | 
@@ -373,6 +394,9 @@ uint64_t g3duimaterialedit_enableSolidColor ( G3DUIMATERIALEDIT *matedit,
         ltmpselmat = ltmpselmat->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(gui->sce), 0x00, gui->engine_flags );
+
+
     return REDRAWVIEW            | 
            REDRAWMATERIALLIST    | 
            UPDATECURRENTMATERIALPREVIEW;
@@ -399,6 +423,9 @@ uint64_t g3duimaterialedit_enableImage ( G3DUIMATERIALEDIT *matedit,
 
         ltmpselmat = ltmpselmat->next;
     }
+
+    g3dobject_update_r( G3DOBJECTCAST(gui->sce), 0x00, gui->engine_flags );
+
 
     return REDRAWVIEW            | 
            REDRAWMATERIALLIST    | 
@@ -465,6 +492,9 @@ uint64_t g3duimaterialedit_chooseProcedural ( G3DUIMATERIALEDIT *matedit,
         ltmpselmat = ltmpselmat->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(gui->sce), 0x00, gui->engine_flags );
+
+
     return REDRAWVIEW            |
            REDRAWMATERIALLIST    | 
            UPDATECURRENTMATERIALPREVIEW;
@@ -492,6 +522,8 @@ uint64_t g3duimaterialedit_toggleChannel ( G3DUIMATERIALEDIT *matedit,
 
         ltmpselmat = ltmpselmat->next;
     }
+
+    g3dobject_update_r( G3DOBJECTCAST(gui->sce), 0x00, gui->engine_flags );
 
 
     return REDRAWVIEW            | 

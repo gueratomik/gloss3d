@@ -62,11 +62,9 @@ uint64_t g3duiuvmapedit_projection ( G3DUIUVMAPEDIT *uvedit,
             }
 
             g3duvmap_applyProjection ( uvmap, mes );
-/*
-            mes->obj.invalidationFlags |= RESETMODIFIERS;
-*/
+
             /*** might need to recompute displacement ***/
-            g3dmesh_update ( mes, 0x00, gui->engine_flags );
+            g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
         }
     }
 

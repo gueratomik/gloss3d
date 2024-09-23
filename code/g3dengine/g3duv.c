@@ -678,12 +678,8 @@ static void _default_transform ( G3DOBJECT *obj,
              ( ( map->projection == UVMAPBACKGROUND  )         ) ) {
             if ( ( obj->flags & UVMAPFIXED ) == 0x00 ) {
                 g3duvmap_applyProjection ( map, mes );
-/*
-                mes->obj.invalidationFlags |= RESETMODIFIERS;
-*/
-                g3dobject_invalidate( obj->parent, INVALIDATE_UVMAPPING );
 
-                g3dmesh_update ( mes, 0x00, engine_flags );
+                g3dobject_invalidate( obj->parent, INVALIDATE_UVMAPPING );
             }
         }
     }

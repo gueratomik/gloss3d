@@ -604,7 +604,7 @@ static void _default_update ( G3DSUBDIVIDER *sdr,
                               uint64_t       engine_flags ) {
     if ( g3dobject_isActive ( ( G3DOBJECT * ) sdr ) ) {
         if ( ((G3DOBJECT*)sdr)->parent->type == G3DSKINTYPE ) {
-            g3dsubdivider_modify ( sdr, G3DMODIFYOP_MODIFY, engine_flags );
+            _default_modify ( sdr, G3DMODIFYOP_MODIFY, engine_flags );
         }
     }
 }
@@ -651,11 +651,6 @@ static void _default_setParent ( G3DSUBDIVIDER *sdr,
                                G3DOBJECT     *oldParent,
                                uint64_t       engine_flags ) {
     g3dsubdivider_reset ( sdr );
-
-    g3dmodifier_setParent ( ( G3DMODIFIER * ) sdr, 
-                                              parent, 
-                                              oldParent, 
-                                              engine_flags );
 }
 
 /******************************************************************************/
@@ -955,15 +950,6 @@ static G3DMESH *_default_commit ( G3DSUBDIVIDER *sdr,
 
         g3dobject_importTransformations ( (G3DOBJECT*)commitMesh, 
                                           (G3DOBJECT*)mes );
-
-        g3dmesh_updateBbox ( commitMesh );
- /*
-        commitMesh->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                                               UPDATEFACENORMAL   |
-                                               UPDATEVERTEXNORMAL |
-                                               COMPUTEUVMAPPING );
-*/
-        g3dmesh_update ( commitMesh, 0x00, engine_flags );
 
         free( commitVertices );
         free( commitEdges    );

@@ -430,17 +430,16 @@ G3DSCENE *g3dscene_importv3 ( const char *filename,
 
     fclose ( fsrc );
 
+    g3dobject_update_r ( G3DOBJECTCAST(gid.currentScene), 0x00, flags );
+    g3dobject_anim_r   ( G3DOBJECTCAST(gid.currentScene), 0x00, flags );
+
     if ( gid.currentVertexArray ) free ( gid.currentVertexArray );
     if ( gid.currentEdgeArray   ) free ( gid.currentEdgeArray   );
     if ( gid.currentFaceArray   ) free ( gid.currentFaceArray   );
     if ( gid.currentPointArray  ) free ( gid.currentPointArray  );
  
-    /* apply modifiers, compute normals */
-    g3dobject_updateMeshes_r ( ( G3DOBJECT * ) gid.currentScene, flags );
 
-    g3dobject_anim_r ( ( G3DOBJECT * ) gid.currentScene, 0, flags );
 
-    g3dobject_update_r ( ( G3DOBJECT * ) gid.currentScene, 0, flags );
 
     return gid.currentScene;
 }

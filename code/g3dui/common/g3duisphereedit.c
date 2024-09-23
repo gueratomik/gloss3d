@@ -53,6 +53,7 @@ uint64_t g3duisphereedit_togglePerfect ( G3DUISPHEREEDIT *sphedit ) {
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }
@@ -80,6 +81,7 @@ uint64_t g3duisphereedit_radius ( G3DUISPHEREEDIT *sphedit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }
@@ -107,6 +109,7 @@ uint64_t g3duisphereedit_cap ( G3DUISPHEREEDIT *sphedit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }
@@ -134,6 +137,7 @@ uint64_t g3duisphereedit_slice ( G3DUISPHEREEDIT *sphedit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }

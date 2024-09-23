@@ -71,6 +71,7 @@ static uint32_t roundSplinePoint_init  ( G3DMOUSETOOL *mou,
         G3DSPLINE *spline = ( G3DSPLINE * ) obj;
 
         g3durm_spline_roundSelectedPoints ( urm, 
+                                            sce,
                                             spline, 
                                             engine_flags, 
                                             REDRAWVIEW );

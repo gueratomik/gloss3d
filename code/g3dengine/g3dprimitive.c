@@ -59,7 +59,6 @@ static G3DOBJECT *_default_copy ( G3DOBJECT *obj,
     return ( G3DOBJECT * ) cpypri;
 }
 
-#ifdef unused
 /******************************************************************************/
 G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, 
                                 uint64_t      engineFlags ) {
@@ -67,22 +66,15 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri,
     G3DMESH *mes;
 
     /*** some trick to force the creation of a Mesh, not a Primitive. ***/
-    obj->copy = COPY_CALLBACK(g3dmesh_copy);
+    obj->copy = COPY_CALLBACK(g3dmesh_default_copy);
 
     /* deep copy */
     mes = ( G3DMESH * ) g3dobject_copy ( obj,
                                          obj->id, 
                                          obj->name, 
                                          engineFlags );
-/*
-    mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                                    UPDATEFACENORMAL   |
-                                    UPDATEVERTEXNORMAL );
-*/
-    g3dobject_invalidate( ( G3DOBJECT * ) mes, INVALIDATE_ALL );
 
-    /*** prepare the precomputed values for Catmull-Clark Subdivision ***/
-    g3dmesh_update ( mes, 0x00, engineFlags );
+    g3dobject_invalidate( ( G3DOBJECT * ) mes, INVALIDATE_ALL );
 
     if ( obj->parent ) {
         G3DOBJECT *parent = obj->parent;
@@ -97,7 +89,6 @@ G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri,
 
     return mes;
 }
-#endif
 
 /******************************************************************************/
 static uint32_t _default_pick ( G3DPRIMITIVE *pri, 

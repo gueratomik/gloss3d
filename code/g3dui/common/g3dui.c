@@ -64,6 +64,7 @@ uint64_t g3dui_deleteSelection ( G3DUI *gui ) {
                 LIST *lremovedPoints   = g3dcurve_getSelectedPoints ( spline->curve );
 
                 g3durm_spline_deletePoints ( urm,
+                                             sce, 
                                              spline, 
                                              lremovedPoints, 
                                              gui->engine_flags,
@@ -154,7 +155,8 @@ uint64_t g3dui_setMaterial ( G3DUI *gui ) {
 
             if ( mat ) {
                 g3durm_selection_addTexture ( gui->urm,
-                                              sce->lsel, 
+                                              sce,
+                                              sce->lsel,
                                               gui->lselmat,
                                               gui->engine_flags,
                                               REDRAWVIEW | REDRAWOBJECTLIST );
@@ -182,6 +184,7 @@ uint64_t g3dui_addVibratorTag ( G3DUI *gui ) {
         G3DTAG *tag = g3dvibratortag_new ( g3dobject_getNextTagID ( obj ) );
 
         g3durm_selection_addTag ( urm,
+                                  sce,
                                   obj,
                                   tag,
                                   gui->engine_flags,
@@ -201,6 +204,7 @@ uint64_t g3dui_addTrackerTag ( G3DUI *gui ) {
         G3DTAG *tag = g3dtrackertag_new ( g3dobject_getNextTagID ( obj ), sce );
 
         g3durm_selection_addTag ( urm,
+                                  sce,
                                   obj,
                                   tag,
                                   gui->engine_flags,
@@ -284,6 +288,7 @@ uint64_t g3dui_removeSelectedTag ( G3DUI *gui ) {
     if ( obj ){
         if ( obj->selectedTag ) {
             g3durm_selection_removeTag ( urm,
+                                         sce,
                                          obj,
                                          obj->selectedTag,
                                          gui->engine_flags,
@@ -341,6 +346,7 @@ uint64_t g3dui_splitMesh ( G3DUI      *gui,
                 }
 
                 g3durm_mesh_split ( urm,
+                                    sce,
                                     mes,
                                     objID,
                                     keep,
@@ -524,6 +530,7 @@ uint64_t g3dui_addUVMap ( G3DUI *gui ) {
             G3DUVMAP *map = g3duvmap_new ( "UVMap", UVMAPFLAT );
 
             g3durm_mesh_addUVMap ( gui->urm,
+                                   sce,
                                    mes,
                                    map, 
                                    gui->engine_flags,
@@ -637,12 +644,13 @@ uint64_t g3dui_makeEditable ( G3DUI *gui ) {
     if ( obj && ( obj->type & PRIMITIVE ) ) {
         g3durm_primitive_convert ( gui->urm, 
                                    gui->sce,
-                                   gui->engine_flags, ( G3DPRIMITIVE * ) obj,
-                                               ( G3DOBJECT    * ) obj->parent,
-                                               ( UPDATECURRENTOBJECT | 
-                                                 REDRAWVIEW          | 
-                                                 UPDATECOORDS        |
-                                                 REDRAWOBJECTLIST ) );
+                                   gui->engine_flags,
+                                   G3DPRIMITIVECAST(obj),
+                                   obj->parent,
+                                   ( UPDATECURRENTOBJECT | 
+                                     REDRAWVIEW          | 
+                                     UPDATECOORDS        |
+                                     REDRAWOBJECTLIST ) );
     }
 
     if ( obj && ( ( obj->type & MODIFIER         ) ||
@@ -1393,12 +1401,22 @@ uint64_t g3dui_triangulate ( G3DUI      *gui,
         G3DMESH *mes = ( G3DMESH * ) obj;
 
         if ( strcmp ( option, MENU_OPTION_CLOCKWISE ) == 0x00 ) {
-            g3durm_mesh_triangulate ( urm, mes, 0x01, gui->engine_flags, REDRAWVIEW );
+            g3durm_mesh_triangulate ( urm,
+                                      sce,
+                                      mes,
+                                      0x01,
+                                      gui->engine_flags,
+                                      REDRAWVIEW );
 
         }
 
         if ( strcmp ( option, MENU_OPTION_ANTICLOCKWISE ) == 0x00 ) {
-            g3durm_mesh_triangulate ( urm, mes, 0x00, gui->engine_flags, REDRAWVIEW );
+            g3durm_mesh_triangulate ( urm,
+                                      sce,
+                                      mes,
+                                      0x00,
+                                      gui->engine_flags,
+                                      REDRAWVIEW );
 
         }
     }
@@ -1415,7 +1433,11 @@ uint64_t g3dui_invertNormal ( G3DUI *gui ) {
     if ( obj && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
-        g3durm_mesh_invertNormal ( urm, mes, gui->engine_flags, REDRAWVIEW );
+        g3durm_mesh_invertNormal ( urm,
+                                   sce,
+                                   mes,
+                                   gui->engine_flags,
+                                   REDRAWVIEW );
     }
 
     return REDRAWVIEW | REDRAWOBJECTLIST;
@@ -1431,11 +1453,8 @@ uint64_t g3dui_alignNormals ( G3DUI *gui ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
         g3dmesh_alignFaces ( mes );
-/*
-        mes->obj.invalidationFlags |= RESETMODIFIERS;
-*/
-        /*** Update subdivision if we are in buffered mode. ***/
-        g3dmesh_update ( mes, 0x00, gui->engine_flags );
+
+        g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
 
     }
@@ -1452,7 +1471,11 @@ uint64_t g3dui_untriangulate ( G3DUI *gui ) {
     if ( obj && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
-        g3durm_mesh_untriangulate ( urm, mes, gui->engine_flags, REDRAWVIEW );
+        g3durm_mesh_untriangulate ( urm,
+                                    sce,
+                                    mes,
+                                    gui->engine_flags,
+                                    REDRAWVIEW );
     }
 
     return REDRAWVIEW | REDRAWOBJECTLIST | UPDATECOORDS;
@@ -2173,8 +2196,8 @@ void g3dui_mergeG3DFile ( G3DUI      *gui,
 
     /* import render settings module */
     r3dext = g3dimportv3extension_new ( SIG_RENDERSETTINGS_EXTENSION,
-                                      q3dsettings_read,
-                                     &gui->lrsg );
+                                        q3dsettings_read,
+                                       &gui->lrsg );
 
     list_insert ( &limportExtensions, r3dext );
 

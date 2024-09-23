@@ -82,9 +82,6 @@ void g3dmaterial_updateMeshes ( G3DMATERIAL *mat,
                 G3DMESH *mes = ( G3DMESH * ) obj;
 
                 g3dobject_invalidate( &mes->obj, INVALIDATE_MODIFIER_STACK_RESET );
-
-                g3dmesh_update ( mes, 0, engine_flags );
-
             }
         }
 

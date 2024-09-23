@@ -133,18 +133,6 @@ typedef struct _URMTRANSFORMOBJECT {
 #define UMPSAVESTATEBEFORE ( 0x01 )
 #define UMPSAVESTATEAFTER  ( 0x02 )
 
-typedef struct _URMMOVEPOINT {
-    G3DSCENE *sce;
-    G3DSPLINE     *spl;
-    LIST          *lpt;    /*** list of curve points ***/
-    G3DCURVEPOINT *curhan; /*** the current selected handle ***/
-    G3DVECTOR3F     *oldpos;
-    G3DVECTOR3F     *newpos;
-    G3DVECTOR3F      oldhanpos;
-    G3DVECTOR3F      newhanpos;
-    uint32_t       save_type;
-} URMMOVEPOINT;
-
 /******************************************************************************/
 typedef struct _URMSELECTITEM {
     G3DSCENE *sce;
@@ -199,44 +187,28 @@ typedef struct _URMOBJECTREMOVEKEYS {
 } URMOBJECTREMOVEKEYS;
 
 /******************************************************************************/
-typedef struct _URMADDSPLINEPOINT {
-    G3DSCENE *sce;
-    G3DSPLINE        *spline;
-    G3DSPLINEPOINT   *pt;
-    G3DSPLINESEGMENT *seg;
-} URMADDSPLINEPOINT;
-
-/******************************************************************************/
-typedef struct _URMROUNDSPLINEPOINT {
-    G3DSCENE *sce;
-    G3DSPLINE  *spline;
-    LIST       *lselectedPoints;
-    LIST       *lsegments;
-    G3DVECTOR3F (*pos)[0x02];
-} URMROUNDSPLINEPOINT;
-
-/******************************************************************************/
-typedef struct _URMADDSPLINESEGMENT {
-    G3DSCENE *sce;
-    G3DSPLINE        *spline;
-    G3DSPLINESEGMENT *seg;
-} URMADDSPLINESEGMENT;
-
-/******************************************************************************/
-typedef struct _URMDELETESPLINEPOINTS {
-    G3DSCENE *sce;
-    G3DSPLINE *spline;
-    LIST      *lremovedPoints;
-    LIST      *lremovedSegments;
-} URMDELETESPLINEPOINTS;
-
-/******************************************************************************/
 typedef struct _URMREMOVETEXTURE {
     G3DSCENE    *sce;
     G3DOBJECT   *obj;
     G3DTEXTURE  *tex;
     LIST        *lfacgrp;
 } URMREMOVETEXTURE;
+
+/******************************************************************************/
+typedef struct _URMSCULPTFACE {
+    G3DSCENE      *sce;
+    G3DSUBDIVIDER *sdr;
+    LIST          *lusfe;
+} URMSCULPTFACE;
+
+/******************************************************************************/
+typedef struct _URMSCULPTFACEEXTENSION {
+    G3DFACESCULPTEXTENSION *fse;
+    G3DFACE                *fac;
+    G3DVECTOR4F            *pos;
+    G3DHEIGHT              *hei;
+    G3DVECTOR3F            *nor;
+} URMSCULPTFACEEXTENSION;
 
 /******************************************************************************/
 typedef struct _G3DURMANAGER {
@@ -491,6 +463,7 @@ void g3durm_mesh_invertNormal ( G3DURMANAGER *urm,
 
 /******************************************************************************/
 void g3durm_spline_deletePoints ( G3DURMANAGER *urm,
+                                  G3DSCENE     *sce,
                                   G3DSPLINE    *spline, 
                                   LIST         *lremovedPoints,
                                   uint64_t      engine_flags,
@@ -505,18 +478,8 @@ void g3durm_spline_cut ( G3DURMANAGER *urm,
                          uint32_t      return_flags );
 
 /******************************************************************************/
-URMADDSPLINEPOINT *urmAddSplinePoint_new ( G3DSPLINE        *spline, 
-                                           G3DSPLINEPOINT   *pt,
-                                           G3DSPLINESEGMENT *seg );
-void urmAddSplinePoint_free ( URMADDSPLINEPOINT *asp );
-void addSplinePoint_free ( void *data, uint32_t commit );
-void addSplinePoint_undo ( G3DURMANAGER *urm, 
-                           void         *data,
-                           uint64_t engine_flags );
-void addSplinePoint_redo ( G3DURMANAGER *urm, 
-                           void         *data,
-                           uint64_t engine_flags );
 void g3durm_spline_addPoint ( G3DURMANAGER     *urm,
+                              G3DSCENE         *sce, 
                               G3DSPLINE        *spline, 
                               G3DSPLINEPOINT   *pt,
                               G3DSPLINESEGMENT *seg,
@@ -525,52 +488,33 @@ void g3durm_spline_addPoint ( G3DURMANAGER     *urm,
 
 /******************************************************************************/
 void g3durm_spline_addSegment ( G3DURMANAGER     *urm,
+                                G3DSCENE         *sce,
                                 G3DSPLINE        *spline,
                                 G3DSPLINESEGMENT *seg,
                                 uint64_t engine_flags,
                                 uint32_t          return_flags );
-void addSplineSegment_redo ( G3DURMANAGER *urm, 
-                             void         *data,
-                             uint64_t engine_flags );
-void addSplineSegment_undo ( G3DURMANAGER *urm, 
-                             void         *data,
-                             uint64_t engine_flags );
-void addSplineSegment_free ( void *data, uint32_t commit );
-void urmAddSplineSegment_free ( URMADDSPLINESEGMENT *ass );
-URMADDSPLINESEGMENT *urmAddSplineSegment_new ( G3DSPLINE        *spline,
-                                               G3DSPLINESEGMENT *seg );
 
 /******************************************************************************/
 void g3durm_spline_roundSelectedPoints ( G3DURMANAGER     *urm,
+                                         G3DSCENE         *sce,
                                          G3DSPLINE        *spline,
                                          uint64_t engine_flags,
                                          uint32_t          return_flags );
-void roundSplinePoint_redo ( G3DURMANAGER *urm, 
-                             void         *data,
-                             uint64_t engine_flags );
-void roundSplinePoint_undo ( G3DURMANAGER *urm, 
-                             void         *data,
-                             uint64_t engine_flags );
-void roundSplinePoint_free ( void *data, uint32_t commit );
-void urmRoundSplinePoint_free ( URMROUNDSPLINEPOINT *rsp );
-URMROUNDSPLINEPOINT *urmRoundSplinePoint_new ( G3DSPLINE  *spline,
-                                               LIST       *lselectedPoints,
-                                               LIST       *lsegments,
-                                               G3DVECTOR3F (*pos)[0x02] );
 
 /******************************************************************************/
 void g3durm_mesh_split ( G3DURMANAGER *urm, 
-                         G3DSCENE *sce,
-                         G3DMESH *mes,
-                         uint32_t splID,
-                         uint32_t keep,
-                         uint64_t engine_flags,
-                         uint32_t return_flags );
+                         G3DSCENE     *sce,
+                         G3DMESH      *mes,
+                         uint32_t      splID,
+                         uint32_t      keep,
+                         uint64_t      engine_flags,
+                         uint32_t      return_flags );
 
 /******************************************************************************/
 void g3durm_spline_revert ( G3DURMANAGER *urm, 
+                            G3DSCENE     *sce,
                             G3DSPLINE    *spline,
-                            uint64_t engine_flags,
+                            uint64_t      engine_flags,
                             uint32_t      return_flags );
 
 /******************************************************************************/
@@ -609,16 +553,11 @@ void g3durm_objectList_removeSelectedKeys ( G3DURMANAGER *urm,
                                             uint32_t      return_flags );
 
 /******************************************************************************/
-URMMOVEPOINT *g3durm_spline_movePoint ( G3DURMANAGER *urm,
-                                        G3DSPLINE    *spl,
-                                        uint32_t      save_type,
-                                        uint32_t      return_flags );
-void urmmovepoint_saveState ( URMMOVEPOINT *ump, uint32_t save_time );
-void movePoint_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags );
-void movePoint_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags );
-void movePoint_free ( void *data, uint32_t commit );
-void urmmovepoint_free ( URMMOVEPOINT *ump );
-URMMOVEPOINT *urmmovepoint_new ( G3DSPLINE *spl, uint32_t save_type );
+void g3durm_spline_movePoint ( G3DURMANAGER *urm,
+                               G3DSCENE     *sce,
+                               G3DSPLINE    *spl,
+                               uint32_t      save_type,
+                               uint32_t      return_flags );
 
 /******************************************************************************/
 void g3durm_morpher_moveVertices ( G3DURMANAGER       *urm,
@@ -652,6 +591,7 @@ void g3durm_mesh_removeTexture ( G3DURMANAGER *urm,
                                  G3DTEXTURE   *tex, 
                                  uint64_t      engine_flags,
                                  uint32_t      return_flags );
+void urmremovetexture_free ( URMREMOVETEXTURE *urt );
 
 /******************************************************************************/
 void g3durm_mesh_addTexture ( G3DURMANAGER *urm,
@@ -753,6 +693,7 @@ void g3durm_morpher_removeVertexPose ( G3DURMANAGER       *urm,
 
 /******************************************************************************/
 void g3durm_selection_addTag ( G3DURMANAGER *urm,
+                               G3DSCENE     *sce,
                                G3DOBJECT    *obj,
                                G3DTAG       *tag,
                                uint64_t      engine_flags,
@@ -760,6 +701,7 @@ void g3durm_selection_addTag ( G3DURMANAGER *urm,
 
 /******************************************************************************/
 void g3durm_selection_removeTag ( G3DURMANAGER *urm,
+                                  G3DSCENE     *sce,
                                   G3DOBJECT    *obj,
                                   G3DTAG       *tag,
                                   uint64_t      engine_flags,
@@ -789,10 +731,14 @@ void g3durm_objectList_scaleSelectedKeys ( G3DURMANAGER *urm,
                                            uint32_t      return_flags );
 
 /******************************************************************************/
-void g3durm_mesh_sculptFace ( G3DURMANAGER  *urm,
-                              G3DSCENE     *sce,
-                              G3DSUBDIVIDER *sdr,
-                              uint64_t       engine_flags,
-                              uint32_t       return_flags );
+URMSCULPTFACE *g3durm_mesh_sculptFace ( G3DURMANAGER  *urm,
+                                        G3DSCENE      *sce,
+                                        G3DSUBDIVIDER *sdr,
+                                        uint64_t       engine_flags,
+                                        uint32_t       return_flags );
+URMSCULPTFACEEXTENSION *urmsculptfaceextension_new ( G3DFACESCULPTEXTENSION *fse,
+                                                     G3DFACE                *fac );
+URMSCULPTFACEEXTENSION *urmsculptfaceextension_seek ( LIST                   *lusf,
+                                                      G3DFACESCULPTEXTENSION *fse );
 
 #endif

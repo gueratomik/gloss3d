@@ -32,12 +32,14 @@
 
 /******************************************************************************/
 typedef struct _URMREMOVETAG {
+    G3DSCENE  *sce;
     G3DOBJECT *obj;
     G3DTAG    *tag;
 } URMREMOVETAG;
 
 /******************************************************************************/
-static URMREMOVETAG *urmremovetag_new ( G3DOBJECT *obj,
+static URMREMOVETAG *urmremovetag_new ( G3DSCENE  *sce,
+                                        G3DOBJECT *obj,
                                         G3DTAG    *tag ) {
     uint32_t structsize = sizeof ( URMREMOVETAG );
 
@@ -49,6 +51,7 @@ static URMREMOVETAG *urmremovetag_new ( G3DOBJECT *obj,
         return NULL;
     }
 
+    urt->sce = sce;
     urt->obj = obj;
     urt->tag = tag;
 
@@ -76,6 +79,8 @@ static void removeTag_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flag
     URMREMOVETAG *urt = ( URMREMOVETAG * ) data;
 
     g3dobject_addTag ( urt->obj, urt->tag );
+
+    g3dobject_update_r ( G3DOBJECTCAST(urt->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -83,17 +88,22 @@ static void removeTag_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flag
     URMREMOVETAG *urt = ( URMREMOVETAG * ) data;
 
     g3dobject_removeTag ( urt->obj, urt->tag );
+
+    g3dobject_update_r ( G3DOBJECTCAST(urt->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
 void g3durm_selection_removeTag ( G3DURMANAGER *urm,
+                                  G3DSCENE     *sce,
                                   G3DOBJECT    *obj,
                                   G3DTAG       *tag,
                                   uint64_t      engine_flags,
                                   uint32_t      return_flags ) {
-    URMREMOVETAG *urt = urmremovetag_new ( obj, tag );
+    URMREMOVETAG *urt = urmremovetag_new ( sce, obj, tag );
 
     g3dobject_removeTag ( obj, tag );
+
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     g3durmanager_push ( urm, 
                         removeTag_undo,

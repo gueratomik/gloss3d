@@ -31,8 +31,16 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMADDSPLINESEGMENT *urmAddSplineSegment_new ( G3DSPLINE        *spline,
-                                               G3DSPLINESEGMENT *seg ) {
+typedef struct _URMADDSPLINESEGMENT {
+    G3DSCENE *sce;
+    G3DSPLINE        *spline;
+    G3DSPLINESEGMENT *seg;
+} URMADDSPLINESEGMENT;
+
+/******************************************************************************/
+static URMADDSPLINESEGMENT *urmAddSplineSegment_new ( G3DSCENE         *sce,
+                                                      G3DSPLINE        *spline,
+                                                      G3DSPLINESEGMENT *seg ) {
     uint32_t size = sizeof ( URMADDSPLINESEGMENT );
 
     URMADDSPLINESEGMENT *ass = ( URMADDSPLINESEGMENT * ) calloc ( 0x01, size );
@@ -43,6 +51,7 @@ URMADDSPLINESEGMENT *urmAddSplineSegment_new ( G3DSPLINE        *spline,
         return NULL;
     }
 
+    ass->sce    = sce;
     ass->spline = spline;
     ass->seg    = seg;
 
@@ -51,12 +60,12 @@ URMADDSPLINESEGMENT *urmAddSplineSegment_new ( G3DSPLINE        *spline,
 }
 
 /******************************************************************************/
-void urmAddSplineSegment_free ( URMADDSPLINESEGMENT *ass ) {
+static void urmAddSplineSegment_free ( URMADDSPLINESEGMENT *ass ) {
     free ( ass ); /* hehe */
 }
 
 /******************************************************************************/
-void addSplineSegment_free ( void *data, uint32_t commit ) {
+static void addSplineSegment_free ( void *data, uint32_t commit ) {
     URMADDSPLINESEGMENT *ass = ( URMADDSPLINESEGMENT * ) data;
 
     /*** Discard changes ***/
@@ -68,31 +77,30 @@ void addSplineSegment_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void addSplineSegment_undo ( G3DURMANAGER *urm, 
-                             void         *data,
-                             uint64_t engine_flags ) {
+static void addSplineSegment_undo ( G3DURMANAGER *urm, 
+                                    void         *data,
+                                    uint64_t engine_flags ) {
     URMADDSPLINESEGMENT *ass = ( URMADDSPLINESEGMENT * ) data;
 
     g3dcurve_removeSegment ( ass->spline->curve, ass->seg );
 
-    /*** Rebuild the subdivided mesh ***/
-    g3dspline_update ( ass->spline, NULL, 0, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(ass->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
-void addSplineSegment_redo ( G3DURMANAGER *urm, 
-                             void         *data,
-                             uint64_t engine_flags ) {
+static void addSplineSegment_redo ( G3DURMANAGER *urm, 
+                                    void         *data,
+                                    uint64_t engine_flags ) {
     URMADDSPLINESEGMENT *ass = ( URMADDSPLINESEGMENT * ) data;
 
     g3dcurve_addSegment ( ass->spline->curve, ass->seg );
 
-    /*** Rebuild the subdivided mesh ***/
-    g3dspline_update ( ass->spline, NULL, 0, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(ass->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
 void g3durm_spline_addSegment ( G3DURMANAGER     *urm,
+                                G3DSCENE         *sce,
                                 G3DSPLINE        *spline,
                                 G3DSPLINESEGMENT *seg,
                                 uint64_t engine_flags,
@@ -104,11 +112,10 @@ void g3durm_spline_addSegment ( G3DURMANAGER     *urm,
     g3dcurvepoint_roundCubicSegments ( seg->pt[0x00] );
     g3dcurvepoint_roundCubicSegments ( seg->pt[0x01] );
 
-    /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( spline, NULL, 0, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     /* remember it for undoing */
-    ass = urmAddSplineSegment_new ( spline, seg );
+    ass = urmAddSplineSegment_new ( sce, spline, seg );
 
     g3durmanager_push ( urm, addSplineSegment_undo,
                              addSplineSegment_redo,

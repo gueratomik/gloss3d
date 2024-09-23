@@ -131,7 +131,7 @@ static void extrudeMesh_undo ( G3DURMANAGER *urm,
 
     g3dmesh_updateBbox ( mes );
 
-    g3dobject_update ( G3DOBJECTCAST(ems->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(ems->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -152,7 +152,7 @@ static void extrudeMesh_redo ( G3DURMANAGER *urm,
 
     g3dmesh_updateBbox ( mes );
 
-    g3dobject_update ( G3DOBJECTCAST(ems->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(ems->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/

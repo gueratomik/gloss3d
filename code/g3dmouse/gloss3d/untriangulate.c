@@ -64,14 +64,17 @@ G3DMOUSETOOLUNTRIANGULATE *g3dmousetooluntriangulate_new ( ) {
 static uint32_t untriangulate_init  ( G3DMOUSETOOL *mou,
                                       G3DSCENE     *sce,
                                       G3DURMANAGER *urm,
-                                      uint64_t engine_flags ) {
+                                      uint64_t      engineFlags ) {
     G3DOBJECT *obj = g3dscene_getLastSelected ( sce );
 
     if ( ( obj ) && ( obj->type & MESH ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
 
-        g3durm_mesh_untriangulate ( urm, mes, engine_flags,
-                                              REDRAWVIEW );
+        g3durm_mesh_untriangulate ( urm,
+                                    sce,
+                                    mes,
+                                    engineFlags,
+                                    REDRAWVIEW );
 
         return REDRAWVIEW;
     }

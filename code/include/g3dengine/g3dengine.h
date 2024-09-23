@@ -490,9 +490,15 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 
 /*********************************** Casts ************************************/
 
-#define G3DOBJECTCAST(a) (((G3DOBJECT*)a))
-#define G3DMESHCAST(a)   (((G3DMESH*)a))
-#define G3DMODIFIERCAST(a) (((G3DMODIFIER*)a))
+#define G3DOBJECTCAST(a)    (((G3DOBJECT*)a))
+#define G3DMESHCAST(a)      (((G3DMESH*)a))
+#define G3DMODIFIERCAST(a)  (((G3DMODIFIER*)a))
+#define G3DPRIMITIVECAST(a) (((G3DPRIMITIVE*)a))
+
+#define G3DOBJECTVTABLECAST(a)     (((G3DOBJECTVTABLE*)a))
+#define G3DMESHVTABLECAST(a)      (((G3DMESHVTABLE*)a))
+#define G3DMODIFIERVTABLECAST(a)  (((G3DMODIFIERVTABLE*)a))
+#define G3DPRIMITIVEVTABLECAST(a) (((G3DPRIMITIVEVTABLE*)a))
 
 /******************************* Orientation **********************************/
 #define ORIENTATIONZX 0x00
@@ -837,75 +843,83 @@ typedef struct _G3DENGINE {
 } G3DENGINE;
 
 /******************************************************************************/
-typedef struct _G3DOBJECT {
-    uint32_t id;            /*** Object ID               ***/
-    uint64_t type;          /*** Flag for object type    ***/
-    uint32_t flags;         /*** selected or not etc ... ***/
-    uint64_t invalidationFlags;
-    char *name;             /*** Object's name           ***/
-    G3DVECTOR3F pos;          /*** Object center position  ***/
-    G3DVECTOR3F rot;          /*** Object center angles    ***/
-    G3DVECTOR3F rotXAxis;
-    G3DVECTOR3F rotYAxis;
-    G3DVECTOR3F rotZAxis;
-    G3DVECTOR3F sca;                      /*** Object's center scaling ***/
-    float     localMatrix[0x10];        /*** Local matrix, i.e relative to its parent ***/
-    float     inverseLocalMatrix[0x10]; /*** Inverse local matrix ***/  
-    float     worldMatrix[0x10];        /*** World matrix, i.e absolute ***/
-    float     inverseWorldMatrix[0x10]; /*** Inverse World matrix, i.e absolute ***/
-    float     rotationMatrix[0x10];     /*** rotation matrix ***/
+typedef struct _G3DOBJECTVTABLE {
     /*** Drawing function ***/
-    uint32_t (*draw)          ( struct _G3DOBJECT *obj, 
-                                struct _G3DCAMERA *cam,
-                                struct _G3DENGINE *engine,
-                                        uint64_t   engineFlags );
+    uint32_t   (*draw)        ( G3DOBJECT *obj, 
+                                G3DCAMERA *cam,
+                                G3DENGINE *engine,
+                                uint64_t   engineFlags );
     /*** Free memory function ***/
-    void     (*free)          ( struct _G3DOBJECT *obj );
+    void       (*free)        ( G3DOBJECT *obj );
     /*** Object selection ***/
-    uint32_t     (*pick)      ( struct _G3DOBJECT *obj, 
-                                struct _G3DCAMERA *cam,
-                                        uint64_t   engineFlags );
-    void     (*anim)          ( struct  _G3DOBJECT *obj,
-                                float    frame, 
-                                uint64_t engineFlags );
-    void     (*update)        ( struct  _G3DOBJECT *obj,
-                                         uint64_t   updateFlags,
-                                         uint64_t   engineFlags );
-    void     (*pose)          ( struct _G3DOBJECT *, G3DKEY * );
+    uint32_t   (*pick)        ( G3DOBJECT *obj, 
+                                G3DCAMERA *cam,
+                                uint64_t   engineFlags );
+    void       (*anim)        ( _G3DOBJECT *obj,
+                                float      frame, 
+                                uint64_t   engineFlags );
+    void       (*update)      ( G3DOBJECT *obj,
+                                uint64_t   updateFlags,
+                                uint64_t   engineFlags );
+    void       (*pose)        ( G3DOBJECT *,
+                                G3DKEY * );
     /* Object copy */
-    struct _G3DOBJECT*(*copy) ( struct _G3DOBJECT *, uint32_t,
-                                                     const char *,
-                                                     uint64_t );
+    G3DOBJECT* (*copy)        ( G3DOBJECT *,
+                                uint32_t,
+                                const char *,
+                                uint64_t );
     /*** On Matrix change ***/
-    void  (*transform)        ( struct _G3DOBJECT *, uint64_t );
-    void  (*activate)         ( struct _G3DOBJECT *, uint64_t );
-    void  (*deactivate)       ( struct _G3DOBJECT *, uint64_t );
-    struct _G3DOBJECT *(*commit) ( struct _G3DOBJECT *, uint32_t,
-                                                        const char *,
-                                                        uint64_t );
-    void  (*addChild)         ( struct _G3DOBJECT *obj, 
-                                struct _G3DOBJECT *child,
-                                         uint64_t  engineFlags );
-    void  (*removeChild)      ( struct _G3DOBJECT *obj, 
-                                struct _G3DOBJECT *child,
-                                         uint64_t  engineFlags );
-    void  (*setParent)        ( struct _G3DOBJECT *child, 
-                                struct _G3DOBJECT *parent,
-                                struct _G3DOBJECT *oldParent, 
-                                         uint64_t  engineFlags );
-    struct _G3DOBJECT *parent; /*** Parent Object ***/
-    LIST         *childList;        /*** List of children ***/
-    G3DBBOX       bbox;
-    G3DQUATERNION rotation;
-    G3DCURVE     *curve[0x03]; /* transformation dynamics */
-    LIST         *keyList; /*** keyframe list ***/
-    uint32_t      keyCount;
-    LIST         *selectedKeyList;
-    LIST         *extensionList; /* list of object extensions */
-    LIST         *tagList;
-    LIST         *invalidatedChildList;
-    G3DTAG       *selectedTag;
-    uint32_t      tagID;
+    void       (*transform)   ( G3DOBJECT *, uint64_t );
+    void       (*activate)    ( G3DOBJECT *, uint64_t );
+    void       (*deactivate)  ( G3DOBJECT *, uint64_t );
+    G3DOBJECT *(*commit)      ( G3DOBJECT *,
+                                uint32_t,
+                                const char *,
+                                uint64_t );
+    void  (*addChild)         ( G3DOBJECT *obj, 
+                                G3DOBJECT *child,
+                                uint64_t  engineFlags );
+    void  (*removeChild)      ( G3DOBJECT *obj, 
+                                G3DOBJECT *child,
+                                uint64_t  engineFlags );
+    void  (*setParent)        ( G3DOBJECT *child, 
+                                G3DOBJECT *parent,
+                                G3DOBJECT *oldParent, 
+                                uint64_t  engineFlags );
+} G3DOBJECTVTABLE;
+
+/******************************************************************************/
+typedef struct _G3DOBJECT {
+    G3DOBJECTVTABLE *vtable;
+    uint32_t         id;            /*** Object ID               ***/
+    uint64_t         type;          /*** Flag for object type    ***/
+    uint32_t         flags;         /*** selected or not etc ... ***/
+    uint64_t         invalidationFlags;
+    char            *name;             /*** Object's name           ***/
+    G3DVECTOR3F      pos;          /*** Object center position  ***/
+    G3DVECTOR3F      rot;          /*** Object center angles    ***/
+    G3DVECTOR3F      rotXAxis;
+    G3DVECTOR3F      rotYAxis;
+    G3DVECTOR3F      rotZAxis;
+    G3DVECTOR3F      sca;                      /*** Object's center scaling ***/
+    float            localMatrix[0x10];        /*** Local matrix, i.e relative to its parent ***/
+    float            inverseLocalMatrix[0x10]; /*** Inverse local matrix ***/  
+    float            worldMatrix[0x10];        /*** World matrix, i.e absolute ***/
+    float            inverseWorldMatrix[0x10]; /*** Inverse World matrix, i.e absolute ***/
+    float            rotationMatrix[0x10];     /*** rotation matrix ***/
+    G3DOBJECT       *parent; /*** Parent Object ***/
+    LIST            *childList;        /*** List of children ***/
+    G3DBBOX          bbox;
+    G3DQUATERNION    rotation;
+    G3DCURVE        *curve[0x03]; /* transformation dynamics */
+    LIST            *keyList; /*** keyframe list ***/
+    uint32_t         keyCount;
+    LIST            *selectedKeyList;
+    LIST            *extensionList; /* list of object extensions */
+    LIST            *tagList;
+    LIST            *invalidatedChildList;
+    G3DTAG          *selectedTag;
+    uint32_t         tagID;
 } G3DOBJECT;
 
 /******************************************************************************/
@@ -1232,6 +1246,23 @@ typedef enum  {
                                                   void *,               \
                                                   uint64_t))f)
 
+/******************************************************************************/
+typedef struct _G3DMESHVTABLE {
+    G3DOBJECTVTABLE objectVTable;
+    uint32_t      (*dump) ( G3DMESH *,
+                            void (*Alloc)( uint32_t, /* nbver */
+                                           uint32_t, /* nbtris */
+                                           uint32_t, /* nbquads */
+                                           uint32_t, /* nbuv */
+                                           void * ),
+                            void (*Dump) ( G3DFACE *,
+                                           G3DVECTOR3F *,
+                                           G3DVECTOR3F *,
+                                           void * ),
+                            void *data,
+                            uint64_t );
+} G3DMESHVTABLE;
+
 struct _G3DMESH {
     G3DOBJECT obj; /*** Mesh inherits G3DOBJECT ***/
     LIST *vertexList;    /*** List of vertices        ***/
@@ -1288,23 +1319,7 @@ struct _G3DMESH {
     G3DTEXTURE *curtex;
     G3DWEIGHTGROUP *curgrp;
     G3DFACE **faceindex; /*** Face index array in sculpt mode ***/
-    /*** callbacks ***/
-    void (*onGeometryMove) ( struct _G3DMESH *, LIST *,
-                                                LIST *,
-                                                LIST *,
-                                                G3DMODIFYOP,
-                                                uint64_t );
-    uint32_t (*dump) ( struct _G3DMESH *, void (*Alloc)( uint32_t, /* nbver */
-                                                         uint32_t, /* nbtris */
-                                                         uint32_t, /* nbquads */
-                                                         uint32_t, /* nbuv */
-                                                         void * ),
-                                          void (*Dump) ( G3DFACE *,
-                                                         G3DVECTOR3F *,
-                                                         G3DVECTOR3F *,
-                                                         void * ),
-                                          void *data,
-                                          uint64_t );
+
 };
 
 #include <g3dengine/g3dsubdivisionthread.h>
@@ -2286,52 +2301,54 @@ void g3dbbox_adjust  ( G3DBBOX *, G3DVERTEX * );
 void g3dbbox_getSize ( G3DBBOX *, float *, float *, float * );
 
 /******************************************************************************/
+uint32_t   g3dobject_vtable_draw        ( G3DOBJECT *obj,
+                                          G3DCAMERA *cam,
+                                          G3DENGINE *engine,
+                                           uint64_t   engineFlags );
+void       g3dobject_vtable_free        ( G3DOBJECT *obj );
+uint32_t   g3dobject_vtable_pick        ( G3DOBJECT *obj, 
+                                          G3DCAMERA *cam, 
+                                           uint64_t  engineFlags );
+void       g3dobject_vtable_anim        ( G3DOBJECT *obj,
+                                          float      frame,
+                                          uint64_t   engineFlags );
+void       g3dobject_vtable_update      ( G3DOBJECT *obj,
+                                          uint64_t   updateFlags,
+                                          uint64_t   engineFlags );
+void       g3dobject_vtable_pose        ( G3DOBJECT *obj,
+                                          G3DKEY    *key );
+G3DOBJECT* g3dobject_vtable_copy        ( G3DOBJECT  *obj,
+                                          uint32_t    id,
+                                          const char *name,
+                                          uint64_t    engineFlags );
+void       g3dobject_vtable_transform   ( G3DOBJECT *obj,
+                                          uint64_t   engineFlags );
+void       g3dobject_vtable_activate    ( G3DOBJECT *obj,
+                                          uint64_t   engineFlags );
+void       g3dobject_vtable_deactivate  ( G3DOBJECT *obj,
+                                          uint64_t   engineFlags );
+G3DOBJECT* g3dobject_vtable_commit      ( G3DOBJECT  *obj,
+                                          uint32_t    id,
+                                          const char *name,
+                                          uint64_t    engineFlags );
+void       g3dobject_vtable_addChild    ( G3DOBJECT *obj,
+                                          G3DOBJECT *child, 
+                                          uint64_t   engineFlags );
+void       g3dobject_vtable_removeChild ( G3DOBJECT *obj,
+                                          G3DOBJECT *child, 
+                                          uint64_t   engineFlags );
+void       g3dobject_vtable_setParent   ( G3DOBJECT *obj, 
+                                          G3DOBJECT *parent, 
+                                          G3DOBJECT *oldParent, 
+                                          uint64_t   engineFlags );
+
 G3DOBJECT *g3dobject_new  ( uint32_t, const char *, uint32_t );
-void g3dobject_init ( G3DOBJECT   *obj,
-                      uint32_t     type,
-                      uint32_t     id,
-                      const char  *name,
-                      uint32_t     object_flags,
-                      uint32_t   (*Draw)         ( G3DOBJECT *,
-                                                   G3DCAMERA *, 
-                                                   G3DENGINE *, 
-                                                   uint64_t   ),
-                      void       (*Free)         ( G3DOBJECT * ),
-                      uint32_t   (*Pick)         ( G3DOBJECT *,
-                                                   G3DCAMERA *, 
-                                                   uint64_t   ),
-                      void       (*Anim)         ( G3DOBJECT *,
-                                                   float      , 
-                                                   uint64_t   ),
-                      void       (*Update)       ( G3DOBJECT *,
-                                                   uint64_t   ,
-                                                   uint64_t    ),
-                      void       (*Pose)         ( G3DOBJECT *,
-                                                   G3DKEY    * ),
-                      G3DOBJECT* (*Copy)         ( G3DOBJECT  *,
-                                                   uint32_t    ,
-                                                   const char *,
-                                                   uint64_t    ),
-                      void       (*Transform)    ( G3DOBJECT *,
-                                                   uint64_t   ),
-                      void       (*Activate)     ( G3DOBJECT *,
-                                                   uint64_t   ),
-                      void       (*Deactivate)   ( G3DOBJECT *,
-                                                   uint64_t   ),
-                      G3DOBJECT* (*Commit)       ( G3DOBJECT  *,
-                                                   uint32_t    ,
-                                                   const char *,
-                                                   uint64_t    ),
-                      void       (*AddChild)     ( G3DOBJECT *,
-                                                   G3DOBJECT *,
-                                                   uint64_t   ),
-                      void       (*RemoveChild)  ( G3DOBJECT *,
-                                                   G3DOBJECT *,
-                                                   uint64_t   ),
-                      void       (*SetParent)    ( G3DOBJECT *, 
-                                                   G3DOBJECT *, 
-                                                   G3DOBJECT *, 
-                                                   uint64_t   ) );
+void g3dobject_init ( G3DOBJECT       *obj,
+                      uint32_t         type,
+                      uint32_t         id,
+                      const char      *name,
+                      uint32_t         object_flags
+                      G3DOBJECTVTABLE *vtable );
 void g3dobject_addTag ( G3DOBJECT *obj, 
                         G3DTAG    *tag );
 void g3dobject_removeTag ( G3DOBJECT *obj, 
@@ -2577,67 +2594,17 @@ void g3dtube_build ( G3DPRIMITIVE *pri,
 G3DPRIMITIVE *g3dtube_new ( uint32_t id, 
                             char    *name );
 
-/******************************************************************************/
-G3DMESH *g3dmesh_new ( uint32_t id, 
-                       char    *name, 
-                       uint64_t engineFlags );
-void g3dmesh_init ( G3DMESH     *mes,
-                    uint32_t     type,
-                    uint32_t     id,
-                    char        *name,
-                    uint32_t    object_flags,
-                    uint32_t   (*Draw)         ( G3DOBJECT *,
-                                                 G3DCAMERA *, 
-                                                 G3DENGINE *, 
-                                                 uint64_t   ),
-                    void       (*Free)         ( G3DOBJECT * ),
-                    uint32_t   (*Pick)         ( G3DOBJECT *,
-                                                 G3DCAMERA *, 
-                                                 uint64_t   ),
-                    void       (*Anim)         ( G3DOBJECT *,
-                                                 float      , 
-                                                 uint64_t   ),
-                    void       (*Update)       ( G3DOBJECT *,
-                                                 uint64_t   ,
-                                                 uint64_t    ),
-                    void       (*Pose)         ( G3DOBJECT *,
-                                                 G3DKEY    * ),
-                    G3DOBJECT* (*Copy)         ( G3DOBJECT  *,
-                                                 uint32_t    ,
-                                                 const char *,
-                                                 uint64_t    ),
-                    void       (*Transform)    ( G3DOBJECT *,
-                                                 uint64_t   ),
-                    void       (*Activate)     ( G3DOBJECT *,
-                                                 uint64_t   ),
-                    void       (*Deactivate)   ( G3DOBJECT *,
-                                                 uint64_t   ),
-                    G3DOBJECT* (*Commit)       ( G3DOBJECT  *,
-                                                 uint32_t    ,
-                                                 const char *,
-                                                 uint64_t    ),
-                    void       (*AddChild)     ( G3DOBJECT *,
-                                                 G3DOBJECT *,
-                                                 uint64_t   ),
-                    void       (*RemoveChild)  ( G3DOBJECT *,
-                                                 G3DOBJECT *,
-                                                 uint64_t   ),
-                    void       (*SetParent)    ( G3DOBJECT *, 
-                                                 G3DOBJECT *, 
-                                                 G3DOBJECT *, 
-                                                 uint64_t   ),
-                    uint32_t   (*Dump)         ( G3DMESH *,
-                                                 void   (*)( uint32_t,
-                                                             uint32_t,
-                                                             uint32_t,
-                                                             uint32_t,
-                                                             void * ),
-                                                 void   (*) ( G3DFACE     *,
-                                                              G3DVECTOR3F *,
-                                                              G3DVECTOR3F *,
-                                                              void        * ),
-                                                 void    *,
-                                                 uint64_t ) );
+/******************************** G3DMESH *************************************/
+
+G3DMESHVTABLE *g3dmesh_vtable();
+
+G3DMESH *g3dmesh_new ( uint32_t id, char *name );
+void g3dmesh_init ( G3DMESH       *mes,
+                    uint32_t       type,
+                    uint32_t       id,
+                    char          *name,
+                    uint32_t       objectFlags
+                    G3DMESHVTABLE *vtable );
 void g3dmesh_invalidate ( G3DMESH *mes,
                           uint64_t objectInvalidationflags,
                           uint64_t meshInvalidationflags );
@@ -2951,18 +2918,20 @@ uint32_t g3dmesh_default_dump ( G3DMESH *mes,
                                                void * ),
                                 void *data,
                                 uint64_t engineFlags );
-void g3dmesh_dump ( G3DMESH *mes, 
-                    void (*Alloc)( uint32_t, /* nbver */
-                                   uint32_t, /* nbtris */
-                                   uint32_t, /* nbquads */
-                                   uint32_t, /* nbuv */
-                                   void * ),
-                    void (*Dump) ( G3DFACE *,
-                                   G3DVECTOR3F *,
-                                   G3DVECTOR3F *,
-                                   void * ),
-                    void *data,
-                    uint64_t engineFlags );
+
+uint32_t g3dmesh_dump ( G3DMESH *mes, 
+                        void (*Alloc)( uint32_t, /*vertexCount */
+                                       uint32_t, /* nbtris */
+                                       uint32_t, /* nbquads */
+                                       uint32_t, /* nbuv */
+                                       void * ),
+                        void (*Dump) ( G3DFACE *,
+                                       G3DVECTOR3F *,
+                                       G3DVECTOR3F *,
+                                       void * ),
+                        void *data,
+                        uint64_t engineFlags );
+
 uint32_t g3dmesh_dumpModifiers_r ( G3DMESH *mes, 
                                    void (*Alloc)( uint32_t, /* nbver */
                                                   uint32_t, /* nbtris */

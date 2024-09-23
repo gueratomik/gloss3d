@@ -125,7 +125,7 @@ static void weldVertices_undo ( G3DURMANAGER *urm,
     list_execargdata ( wvs->loldfac, (void(*)(void*,void*)) g3dmesh_addFace, mes );
 
     /*** Rebuild the mesh with modifiers ***/
-    g3dobject_update ( G3DOBJECTCAST(wvs->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(wvs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -150,7 +150,7 @@ static void weldVertices_redo ( G3DURMANAGER *urm,
     list_execargdata ( wvs->lnewfac, (void(*)(void*,void*)) g3dmesh_addFace, mes );
 
     /*** Rebuild the mesh with modifiers ***/
-    g3dobject_update ( G3DOBJECTCAST(wvs->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(wvs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -173,7 +173,7 @@ void g3durm_mesh_weldSelectedVertices ( G3DURMANAGER *urm,
         list_insert ( &lnewver, newver );
 
         /*** Rebuild the mesh with modifiers ***/
-        g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
+        g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
         wvs = urmweldvertices_new ( sce,
                                     mes,
@@ -212,7 +212,7 @@ void g3durm_mesh_weldNeighbourVertices ( G3DURMANAGER *urm,
                                     &lnewfac );
 
     /*** Rebuild the mesh with modifiers ***/
-    g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     wvs = urmweldvertices_new ( sce, 
                                 mes,

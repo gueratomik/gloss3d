@@ -31,38 +31,76 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-void revertSpline_free ( void *data, uint32_t commit ) {
-    /* Nothing to do */
+typedef struct _URMREVERTSPLINE{
+    G3DSCENE  *sce;
+    G3DSPLINE *spline;
+} URMREVERTSPLINE;
+
+/******************************************************************************/
+static URMREVERTSPLINE *urmRevertSpline_new ( G3DSCENE  *sce,
+                                              G3DSPLINE *spline ) {
+    uint32_t size = sizeof ( URMREVERTSPLINE );
+
+    URMREVERTSPLINE *rsp = ( URMREVERTSPLINE * ) calloc ( 0x01, size );
+
+    if ( rsp == NULL ) {
+        fprintf ( stderr, "urmRevertSpline_new: memory allocation falied\n" );
+
+        return NULL;
+    }
+
+    rsp->sce    = sce;
+    rsp->spline = spline;
+
+
+    return rsp; /* hehe */
 }
 
 /******************************************************************************/
-void revertSpline_undo ( G3DURMANAGER *urm, 
-                         void         *data, 
-                         uint64_t engine_flags ) {
-    G3DSPLINE *spline = ( G3DSPLINE * ) data;
+static void revertSpline_free ( void *data, uint32_t commit ) {
+    URMREVERTSPLINE *rsp = ( URMREVERTSPLINE * ) data;
 
-    g3dcurve_revert ( spline->curve, engine_flags );
+    free ( rsp );
 }
 
 /******************************************************************************/
-void revertSpline_redo ( G3DURMANAGER *urm, 
-                         void         *data,
-                         uint64_t engine_flags ) {
-    G3DSPLINE *spline = ( G3DSPLINE * ) data;
+static void revertSpline_undo ( G3DURMANAGER *urm, 
+                                void         *data, 
+                                uint64_t engine_flags ) {
+    URMREVERTSPLINE *rsp = ( URMREVERTSPLINE * ) data;
 
-    g3dcurve_revert ( spline->curve, engine_flags );
+    g3dcurve_revert ( rsp->spline->curve, engine_flags );
+
+    g3dobject_update_r ( G3DOBJECTCAST(rsp->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
-void g3durm_spline_revert ( G3DURMANAGER *urm, 
+static void revertSpline_redo ( G3DURMANAGER *urm, 
+                                void         *data,
+                                uint64_t engine_flags ) {
+    URMREVERTSPLINE *rsp = ( URMREVERTSPLINE * ) data;
+
+    g3dcurve_revert ( rsp->spline->curve, engine_flags );
+
+    g3dobject_update_r ( G3DOBJECTCAST(rsp->sce), 0x00, engine_flags );
+}
+
+/******************************************************************************/
+void g3durm_spline_revert ( G3DURMANAGER *urm,
+                            G3DSCENE     *sce,
                             G3DSPLINE    *spline,
                             uint64_t engine_flags,
                             uint32_t      return_flags ) {
+    URMREVERTSPLINE *rsp;
+
     g3dcurve_revert ( spline->curve, engine_flags );
 
-    g3dspline_update ( spline, NULL, 0, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
+
+    /* remember it for undoing */
+    rsp = urmRevertSpline_new ( sce, spline );
 
     g3durmanager_push ( urm, revertSpline_undo,
                              revertSpline_redo,
-                             revertSpline_free, spline, return_flags );
+                             revertSpline_free, rsp, return_flags );
 }

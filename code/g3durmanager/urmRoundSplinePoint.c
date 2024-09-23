@@ -30,11 +30,22 @@
 #include <config.h>
 #include <g3durmanager.h>
 
+
 /******************************************************************************/
-URMROUNDSPLINEPOINT *urmRoundSplinePoint_new ( G3DSPLINE  *spline,
-                                               LIST       *lselectedPoints,
-                                               LIST       *lsegments,
-                                               G3DVECTOR3F (*pos)[0x02] ) {
+typedef struct _URMROUNDSPLINEPOINT {
+    G3DSCENE   *sce;
+    G3DSPLINE  *spline;
+    LIST       *lselectedPoints;
+    LIST       *lsegments;
+    G3DVECTOR3F (*pos)[0x02];
+} URMROUNDSPLINEPOINT;
+
+/******************************************************************************/
+static URMROUNDSPLINEPOINT *urmRoundSplinePoint_new ( G3DSCENE   *sce,
+                                                      G3DSPLINE  *spline,
+                                                      LIST       *lselectedPoints,
+                                                      LIST       *lsegments,
+                                                      G3DVECTOR3F (*pos)[0x02] ) {
     uint32_t size = sizeof ( URMROUNDSPLINEPOINT );
 
     URMROUNDSPLINEPOINT *rsp = ( URMROUNDSPLINEPOINT * ) calloc ( 0x01, size );
@@ -45,6 +56,7 @@ URMROUNDSPLINEPOINT *urmRoundSplinePoint_new ( G3DSPLINE  *spline,
         return NULL;
     }
 
+    rsp->sce = sce;
     rsp->spline = spline;
     rsp->lselectedPoints = lselectedPoints;
     rsp->lsegments = lsegments;
@@ -54,12 +66,12 @@ URMROUNDSPLINEPOINT *urmRoundSplinePoint_new ( G3DSPLINE  *spline,
 }
 
 /******************************************************************************/
-void urmRoundSplinePoint_free ( URMROUNDSPLINEPOINT *rsp ) {
+static void urmRoundSplinePoint_free ( URMROUNDSPLINEPOINT *rsp ) {
     free ( rsp );
 }
 
 /******************************************************************************/
-void roundSplinePoint_free ( void *data, uint32_t commit ) {
+static void roundSplinePoint_free ( void *data, uint32_t commit ) {
     URMROUNDSPLINEPOINT *rsp = ( URMROUNDSPLINEPOINT * ) data;
 
     list_free ( &rsp->lselectedPoints, NULL );
@@ -71,23 +83,20 @@ void roundSplinePoint_free ( void *data, uint32_t commit ) {
 }
 
 /******************************************************************************/
-void roundSplinePoint_undo ( G3DURMANAGER *urm, 
-                             void         *data,
-                             uint64_t engine_flags ) {
+static void roundSplinePoint_undo ( G3DURMANAGER *urm, 
+                                    void         *data,
+                                    uint64_t engine_flags ) {
     URMROUNDSPLINEPOINT *rsp = ( URMROUNDSPLINEPOINT * ) data;
 
     g3dcubicsegment_setHandlePositionFromList ( rsp->lsegments, rsp->pos );
 
-    /*** Rebuild the subdivided mesh ***/
-    g3dspline_update ( rsp->spline, 
-                       NULL,
-                       0, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(rsp->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
-void roundSplinePoint_redo ( G3DURMANAGER *urm, 
-                             void         *data,
-                             uint64_t engine_flags ) {
+static void roundSplinePoint_redo ( G3DURMANAGER *urm, 
+                                    void         *data,
+                                    uint64_t engine_flags ) {
     URMROUNDSPLINEPOINT *rsp = ( URMROUNDSPLINEPOINT * ) data;
     LIST *lbackupSelectedPoints = ((G3DMESH*)rsp->spline)->selectedVertexList;
 
@@ -97,14 +106,12 @@ void roundSplinePoint_redo ( G3DURMANAGER *urm,
 
     ((G3DMESH*)rsp->spline)->selectedVertexList = lbackupSelectedPoints;
 
-    /*** Rebuild the subdivided mesh ***/
-    g3dspline_update ( rsp->spline, 
-                       NULL,
-                       0, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(rsp->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
 void g3durm_spline_roundSelectedPoints ( G3DURMANAGER     *urm,
+                                         G3DSCENE         *sce,
                                          G3DSPLINE        *spline,
                                          uint64_t engine_flags,
                                          uint32_t          return_flags ) {
@@ -122,14 +129,11 @@ void g3durm_spline_roundSelectedPoints ( G3DURMANAGER     *urm,
         /* then perform the operation */
         g3dcurve_roundSelectedPoints  ( spline->curve );
 
-
-
-        /*** Rebuild the spline modifiers ***/
-        g3dspline_update ( spline, NULL,
-                                   0, engine_flags );
+        g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
         /* remember it for undoing */
-        rsp = urmRoundSplinePoint_new ( spline, 
+        rsp = urmRoundSplinePoint_new ( sce,
+                                        spline, 
                                         lselectedPoints, 
                                         lsegments, 
                                         pos );

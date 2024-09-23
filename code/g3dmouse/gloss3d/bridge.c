@@ -249,6 +249,7 @@ static int bridge_spline  ( G3DSPLINE    *spl,
                                                     0.0f, 0.0f, 0.0f );
 
                         g3durm_spline_addSegment ( urm,
+                                                   sce,
                                                    spline,
                             ( G3DSPLINESEGMENT * ) seg,
                                                    engine_flags,
@@ -405,7 +406,7 @@ static int bridge_mesh  ( G3DMESH      *mes,
                     g3durm_mesh_createFace ( urm, sce, mes, fac, REDRAWVIEW );
 
                     /*** regenerate subdivision buffer ***/
-                    g3dobject_update ( G3DOBJECTCAST(sce),
+                    g3dobject_update_r ( G3DOBJECTCAST(sce),
                                        0x00,
                                        engine_flags );
 

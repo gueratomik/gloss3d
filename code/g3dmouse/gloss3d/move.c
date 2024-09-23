@@ -224,7 +224,7 @@ static int move_spline ( G3DSPLINE    *spl,
     static float MVX[0x10];
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
-    static URMMOVEPOINT *ump;
+    /*static URMMOVEPOINT *ump;*/
     static G3DVECTOR3F  origin = { 0.0f, 0.0f, 0.0f };
 
     switch ( event->type ) {
@@ -253,13 +253,14 @@ static int move_spline ( G3DSPLINE    *spl,
 
                 /*** MUST be called after pick_item because based on ***/
                 /*** currently selected points ***/
-                ump = g3durm_spline_movePoint ( urm, 
+                /*ump = */g3durm_spline_movePoint ( urm, 
+                                                sce, 
                                                 spl, 
                                                 UMPSAVESELECTEDPOINTS |
                                                 UMPSAVECURRENTHANDLE,
                                                 REDRAWVIEW );
 
-                urmmovepoint_saveState ( ump, UMPSAVESTATEBEFORE );
+                /*urmmovepoint_saveState ( ump, UMPSAVESTATEBEFORE );*/
 
                 g3dcore_projectf ( 0.0f,
                                    0.0f,
@@ -355,9 +356,9 @@ static int move_spline ( G3DSPLINE    *spl,
         case G3DButtonRelease : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-            if ( engine_flags & VIEWVERTEX ) {
+            /*if ( engine_flags & VIEWVERTEX ) {
                 urmmovepoint_saveState ( ump, UMPSAVESTATEAFTER );
-            }
+            }*/
 
             spl->curve->curhan = NULL;
 
@@ -496,6 +497,7 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                                 g3duv_copyUVFromList ( lseluv, &newuv );
 
                                 g3durm_uvmap_moveUVList ( urm,
+                                                          sce,
                                                           uvmap, 
                                                           lseluv,
                                                           olduv, 
@@ -509,7 +511,7 @@ int moveUV_tool ( G3DMOUSETOOL *mou,
                             parmes->obj.invalidationFlags |= RESETMODIFIERS;
 */
                             /** TODO: do this only for subdivided meshes ***/
-                            g3dobject_update ( G3DOBJECTCAST(sce),
+                            g3dobject_update_r ( G3DOBJECTCAST(sce),
                                                0x00,
                                                engine_flags );
 
@@ -799,18 +801,9 @@ static int move_mesh ( G3DMESH      *mes,
                                              &oriy,
                                              &oriz );
 
-            if ( mes->onGeometryMove ) {
-                mes->onGeometryMove ( mes, lver, 
-                                           ledg, 
-                                           lfac, 
-                                           G3DMODIFYOP_STARTUPDATE,
-                                           engine_flags );
-            }
-
-            /*g3dmesh_modify ( mes,
-                             G3DMODIFYOP_STARTUPDATE,
-                             engine_flags );*/
-
+            g3dobject_update_r ( G3DOBJECTCAST(sce),
+                                 UPDATE_INTERACTIVE,
+                                 engine_flags );
         } return REDRAWVIEW;
 
         case G3DMotionNotify : {
@@ -843,16 +836,18 @@ static int move_mesh ( G3DMESH      *mes,
 
                     while ( ltmpver ) {
                         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
+                        G3DVECTOR3F vertexPos = ver->pos;
 
-                        if ( ( engine_flags & XAXIS ) && axis[0].w ) ver->pos.x += difx;
-                        if ( ( engine_flags & YAXIS ) && axis[1].w ) ver->pos.y += dify;
-                        if ( ( engine_flags & ZAXIS ) && axis[2].w ) ver->pos.z += difz;
-/*
-                        if ( obj->parent->childvertexchange ) {
-                            obj->parent->childvertexchange ( obj->parent,
-                                                             obj, ver );
-                        }
-*/
+                        if ( ( engine_flags & XAXIS ) && axis[0].w ) vertexPos.x += difx;
+                        if ( ( engine_flags & YAXIS ) && axis[1].w ) vertexPos.y += dify;
+                        if ( ( engine_flags & ZAXIS ) && axis[2].w ) vertexPos.z += difz;
+
+                        /* this call will invalidate the mesh */
+                        g3dvertex_setPosition( ver,
+                                               vertexPos.x,
+                                               vertexPos.y,
+                                               vertexPos.z );
+
                         sce->csr.pivot.x += ver->pos.x;
                         sce->csr.pivot.y += ver->pos.y;
                         sce->csr.pivot.z += ver->pos.z;
@@ -868,23 +863,15 @@ static int move_mesh ( G3DMESH      *mes,
                         sce->csr.pivot.z /= nbver;
                     }
 
-                    /*g3dmesh_modify ( mes,
-                                     G3DMODIFYOP_UPDATE,
-                                     engine_flags );*/
-
-                    if ( mes->onGeometryMove ) {
-                        mes->onGeometryMove ( mes, lver, 
-                                                   ledg, 
-                                                   lfac, 
-                                                   G3DMODIFYOP_UPDATE,
-                                                   engine_flags );
-                    }
-
                     orix = newx;
                     oriy = newy;
                     oriz = newz;
                 }
             }
+
+            g3dobject_update_r ( G3DOBJECTCAST(sce),
+                                 UPDATE_INTERACTIVE,
+                                 engine_flags );
         } return REDRAWVIEW;
 
         case G3DButtonRelease : {
@@ -908,7 +895,8 @@ static int move_mesh ( G3DMESH      *mes,
 
             g3dvertex_copyPositionFromList ( lver, &newpos );
 
-            g3durm_mesh_moveVertexList ( urm, 
+            g3durm_mesh_moveVertexList ( urm,
+                                         sce, 
                                          mes, 
                                          lver, 
                                          ledg, 
@@ -918,19 +906,9 @@ static int move_mesh ( G3DMESH      *mes,
                                          newpos, 
                                          REDRAWVIEW );
 
-            g3dmesh_updateBbox ( mes );
-
-            if ( mes->onGeometryMove ) {
-                mes->onGeometryMove ( mes, lver, 
-                                           ledg, 
-                                           lfac, 
-                                           G3DMODIFYOP_ENDUPDATE,
-                                           engine_flags );
-            }
-
-            /*g3dmesh_modify ( mes,
-                             G3DMODIFYOP_ENDUPDATE,
-                             engine_flags );*/
+            g3dobject_update_r ( G3DOBJECTCAST(sce),
+                                 0x00,
+                                 engine_flags );
 
             list_free ( &lver, NULL );
             list_free ( &lfac, NULL );
@@ -1035,6 +1013,10 @@ int move_object ( LIST        *lobj,
                 /*** PREVWMX is used in VIEWAXIS mode to move vertices back ***/
                 memcpy ( PREVWMVX, obj->worldMatrix, sizeof ( obj->worldMatrix ) );
             }
+
+            g3dobject_update_r ( G3DOBJECTCAST(sce),
+                                 UPDATE_INTERACTIVE,
+                                 engine_flags );
         } return REDRAWVIEW;
 
         case G3DMotionNotify : {
@@ -1181,6 +1163,10 @@ int move_object ( LIST        *lobj,
 
                 memcpy ( &startpos, &endpos, sizeof ( G3DVECTOR3F ) );
             }
+
+            g3dobject_update_r ( G3DOBJECTCAST(sce),
+                                 UPDATE_INTERACTIVE,
+                                 engine_flags );
         } return REDRAWVIEW | UPDATECOORDS;
 
         case G3DButtonRelease : {
@@ -1221,6 +1207,9 @@ int move_object ( LIST        *lobj,
                 urmtransform_saveState ( uto, UTOSAVESTATEAFTER );
             }
 
+            g3dobject_update_r ( G3DOBJECTCAST(sce),
+                                 0x00,
+                                 engine_flags );
         } return UPDATEANDREDRAWALL;
 
         default :

@@ -178,7 +178,7 @@ static int extrudeFace_event  ( G3DMOUSETOOL *mou,
                                                     COMPUTEUVMAPPING   |
                                                     RESETMODIFIERS );
 */
-                    g3dobject_update ( G3DOBJECTCAST(sce),
+                    g3dobject_update_r ( G3DOBJECTCAST(sce),
                                        0x00,
                                        engine_flags );
 
@@ -261,18 +261,6 @@ static int extrudeFace_event  ( G3DMOUSETOOL *mou,
                         sce->csr.pivot.z /= nbver;
                     }
                 }
-
-                /*g3dmesh_modify ( mes,
-                                 G3DMODIFYOP_UPDATE,
-                                 engine_flags );*/
-
-                if ( mes->onGeometryMove ) {
-                     mes->onGeometryMove ( mes, lselver, 
-                                                NULL, 
-                                                lselfac, 
-                                                G3DMODIFYOP_UPDATE,
-                                                engine_flags );
-                }
             }
 
             xold = mev->x;
@@ -282,21 +270,16 @@ static int extrudeFace_event  ( G3DMOUSETOOL *mou,
         case G3DButtonRelease : {
             g3dvertex_copyPositionFromList ( lver, &newpos );
 
-            g3durm_mesh_extrude ( urm, mes, lver, 
-                                            loldfac,
-                                            lnewver,
-                                            lnewfac,
-                                            oldpos,
-                                            newpos,
-                                            REDRAWVIEW );
-
-            if ( mes->onGeometryMove ) {
-                mes->onGeometryMove ( mes, lver,
-                                           NULL, 
-                                           NULL, 
-                                           G3DMODIFYOP_ENDUPDATE,
-                                           engine_flags );
-            }
+            g3durm_mesh_extrude ( urm,
+                                  sce,
+                                  mes,
+                                  lver, 
+                                  loldfac,
+                                  lnewver,
+                                  lnewfac,
+                                  oldpos,
+                                  newpos,
+                                  REDRAWVIEW );
 
             /*g3dmesh_modify ( mes,
                              G3DMODIFYOP_ENDUPDATE,

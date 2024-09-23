@@ -207,12 +207,6 @@ void g3dimportv2mesh ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                         g3dmesh_addFace ( mes, fac );
                     }
                 }
-/*
-                mes->obj.invalidationFlags |= ( UPDATEVERTEXNORMAL  |
-                                                UPDATEFACEPOSITION  |
-                                                UPDATEFACENORMAL );
-*/
-                g3dmesh_update ( mes, 0x00, gid->engineFlags );
             } break;
 
             default : {

@@ -31,7 +31,16 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-static URMDELETESPLINEPOINTS *urmDeleteSplinePoints_new ( G3DSPLINE *spline, 
+typedef struct _URMDELETESPLINEPOINTS {
+    G3DSCENE  *sce;
+    G3DSPLINE *spline;
+    LIST      *lremovedPoints;
+    LIST      *lremovedSegments;
+} URMDELETESPLINEPOINTS;
+
+/******************************************************************************/
+static URMDELETESPLINEPOINTS *urmDeleteSplinePoints_new ( G3DSCENE  *sce,
+                                                          G3DSPLINE *spline, 
                                                           LIST      *lremovedPoints,
                                                           LIST      *lremovedSegments ) {
     uint32_t size = sizeof ( URMDELETESPLINEPOINTS );
@@ -45,6 +54,7 @@ static URMDELETESPLINEPOINTS *urmDeleteSplinePoints_new ( G3DSPLINE *spline,
         return NULL;
     }
 
+    dsp->sce              = sce;
     dsp->spline           = spline;
     dsp->lremovedPoints   = lremovedPoints;
     dsp->lremovedSegments = lremovedSegments;
@@ -101,8 +111,7 @@ static void deleteSplinePoints_undo ( G3DURMANAGER *urm,
         ltmpRemovedSegments = ltmpRemovedSegments->next;
     }
 
-    /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( spline, NULL, 0, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(dsp->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -132,12 +141,12 @@ static void deleteSplinePoints_redo ( G3DURMANAGER *urm,
         ltmpRemovedSegments = ltmpRemovedSegments->next;
     }
 
-    /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( spline, NULL, 0, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(dsp->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
 void g3durm_spline_deletePoints ( G3DURMANAGER *urm,
+                                  G3DSCENE     *sce, 
                                   G3DSPLINE    *spline, 
                                   LIST         *lremovedPoints,
                                   uint64_t      engine_flags,
@@ -150,10 +159,10 @@ void g3durm_spline_deletePoints ( G3DURMANAGER *urm,
                            &lremovedSegments, 
                             engine_flags );
 
-    /*** Rebuild the spline modifiers ***/
-    g3dspline_update ( spline, NULL, 0, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
-    dsp = urmDeleteSplinePoints_new ( spline, 
+    dsp = urmDeleteSplinePoints_new ( sce,
+                                      spline, 
                                       lremovedPoints, 
                                       lremovedSegments );
 

@@ -110,7 +110,7 @@ static int rotate_spline ( G3DSPLINE    *spl,
     static float MVX[0x10];
     static GLint VPX[0x04];
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
-    static URMMOVEPOINT *ump;
+    /*static URMMOVEPOINT *ump;*/
 
     switch ( event->type ) {
         case G3DButtonPress : {
@@ -138,12 +138,13 @@ static int rotate_spline ( G3DSPLINE    *spl,
 
                 /*** MUST be called after pick_item because based on ***/
                 /*** currently selected points ***/
-                ump = g3durm_spline_movePoint ( urm, 
+                /*ump = */g3durm_spline_movePoint ( urm, 
+                                                sce, 
                                                 spl, 
                                                 UMPSAVESELECTEDPOINTS |
                                                 UMPSAVECURRENTHANDLE,
                                                 REDRAWVIEW );
-                urmmovepoint_saveState ( ump, UMPSAVESTATEBEFORE );
+                /*urmmovepoint_saveState ( ump, UMPSAVESTATEBEFORE );*/
 
                 g3dcore_projectf ( 0.0f,
                                    0.0f,
@@ -205,25 +206,22 @@ static int rotate_spline ( G3DSPLINE    *spl,
                         ltmppt = ltmppt->next;
                     }
 
-
-
-                	g3dspline_update ( spl,
-                                       NULL,
-                                       0, engine_flags );
-
                     orix = newx;
                     oriy = newy;
                     oriz = newz;
                 }
             }
+
+            g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, engine_flags );
+
         } return REDRAWVIEW;
 
         case G3DButtonRelease : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
 
-            if ( engine_flags & VIEWVERTEX ) {
+            /*if ( engine_flags & VIEWVERTEX ) {
                 urmmovepoint_saveState ( ump, UMPSAVESTATEAFTER );
-            }
+            }*/
 
             spl->curve->curhan = NULL;
         } return REDRAWVIEW;
@@ -345,6 +343,7 @@ static int rotateUV_tool ( G3DMOUSETOOL *mou,
                                 g3duv_copyUVFromList ( lseluv, &newuv );
 
                                 g3durm_uvmap_moveUVList ( urm,
+                                                          sce,
                                                           uvmap, 
                                                           lseluv,
                                                           olduv, 
@@ -354,11 +353,9 @@ static int rotateUV_tool ( G3DMOUSETOOL *mou,
                             }
 
                             list_free ( &lseluv, NULL );
-/*
-                            parmes->obj.invalidationFlags |= RESETMODIFIERS;
-*/
+
                             /** TODO: do this only for subdivided meshes ***/
-                            g3dobject_update ( G3DOBJECTCAST(sce),
+                            g3dobject_update_r ( G3DOBJECTCAST(sce),
                                                0x00,
                                                engine_flags );
 
@@ -716,11 +713,12 @@ static int rotate_mesh ( G3DMESH          *mes,
 
             g3dvertex_copyPositionFromList ( lver, &newpos );
 
-            g3durm_mesh_moveVertexList ( urm, 
-                                         mes, 
-                                         lver, 
-                                         ledg, 
-                                         lfac, 
+            g3durm_mesh_moveVertexList ( urm,
+                                         sce,
+                                         mes,
+                                         lver,
+                                         ledg,
+                                         lfac,
                                          NULL,
                                          oldpos, 
                                          newpos, 

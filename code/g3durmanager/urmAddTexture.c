@@ -147,7 +147,7 @@ static void addTexture_undo ( G3DURMANAGER *urm,
 
 
     /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-    g3dobject_update ( G3DOBJECTCAST(uat->sce), 0x00, flags );
+    g3dobject_update_r ( G3DOBJECTCAST(uat->sce), 0x00, flags );
 }
 
 /******************************************************************************/
@@ -173,7 +173,7 @@ static void addTexture_redo ( G3DURMANAGER *urm,
     }
 
     /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-    g3dobject_update ( G3DOBJECTCAST(uat->sce), 0x00, flags );
+    g3dobject_update_r ( G3DOBJECTCAST(uat->sce), 0x00, flags );
 }
 
 /******************************************************************************/
@@ -235,7 +235,7 @@ void g3durm_selection_addTexture ( G3DURMANAGER *urm,
     }
 
     /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-    g3dobject_update ( sce, 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     g3durmanager_push ( urm, 
                         addTexture_undo,

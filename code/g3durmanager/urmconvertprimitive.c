@@ -91,6 +91,8 @@ void convertPrimitive_undo ( G3DURMANAGER *urm,
     g3dobject_addChild    ( parent, ( G3DOBJECT * ) pri, engine_flags );
 
     g3dscene_selectObject ( sce   , ( G3DOBJECT * ) pri, engine_flags );
+
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -109,6 +111,8 @@ void convertPrimitive_redo ( G3DURMANAGER *urm,
     g3dobject_addChild    ( parent, ( G3DOBJECT * ) mes, engine_flags );
 
     g3dscene_selectObject ( sce   , ( G3DOBJECT * ) mes, engine_flags );
+
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -127,6 +131,8 @@ void g3durm_primitive_convert ( G3DURMANAGER *urm,
     mes = g3dprimitive_convert ( ( G3DPRIMITIVE * ) pri, engine_flags );
 
     g3dscene_selectObject ( sce, ( G3DOBJECT * ) mes, engine_flags );
+
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     /*** save state for undoing ***/
     cpv = urmconvertprimitive_new ( pri, mes, par, sce );

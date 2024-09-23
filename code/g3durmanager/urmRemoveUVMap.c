@@ -117,7 +117,7 @@ static void removeUVMap_undo ( G3DURMANAGER *urm,
 
     g3dmesh_addUVMap ( uru->mes, uru->uvmap, NULL, engine_flags );
 
-    g3dobject_update( G3DOBJECTCAST(uru->sce), 0x00, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(uru->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -132,7 +132,7 @@ static void removeUVMap_redo ( G3DURMANAGER *urm,
                           NULL, /** no need to backup textures this time **/
                           engine_flags );
 
-    g3dobject_update( G3DOBJECTCAST(uru->sce), 0x00, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(uru->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -148,7 +148,7 @@ void g3durm_mesh_removeUVMap ( G3DURMANAGER *urm,
 
     g3dmesh_removeUVMap ( mes, uvmap, &lolduvset, &loldtex, engine_flags );
 
-    g3dobject_update( G3DOBJECTCAST(sce), 0x00, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     /*** save state ***/
     uru = urmremoveuvmap_new ( sce,

@@ -98,17 +98,7 @@ void g3dwireframe_setThickness ( G3DWIREFRAME *wir,
             ltmpver = ltmpver->next;
         }
 
-/*
-        wir->mod.mes.obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                                                UPDATEFACENORMAL   |
-                                                UPDATEVERTEXNORMAL |
-                                                COMPUTEUVMAPPING   |
-                                           RESETMODIFIERS );
-*/
-
         g3dobject_invalidate( G3DOBJECTCAST(wir), INVALIDATE_SHAPE );
-
-        g3dmesh_update ( (G3DMESH*)wir, 0x00, engine_flags );
     }
 }
 
@@ -251,15 +241,7 @@ static uint32_t g3dwireframe_opUpdate ( G3DWIREFRAME *wir,
                 ltmpver = ltmpver->next;
             }
 #endif
-/*
-            wir->mod.mes.obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                                                    UPDATEFACENORMAL   |
-                                                    UPDATEVERTEXNORMAL |
-                                                    COMPUTEUVMAPPING );
-*/
             g3dobject_invalidate( G3DOBJECTCAST(wir), INVALIDATE_SHAPE );
-
-            g3dmesh_update ( (G3DMESH*)wir, 0x00, engine_flags );
         }
     }
 
@@ -585,15 +567,6 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
             }
         }
 
-#ifdef unused
-        g3dmesh_update ( (G3DMESH*)wir, NULL, /*** update vertices    ***/
-                                        NULL, /*** update faces       ***/
-                                        NULL, /*** update faces       ***/
-                                        UPDATEFACEPOSITION |
-                                        UPDATEFACENORMAL   |
-                                        UPDATEVERTEXNORMAL,
-                                        engine_flags );
-#endif
         /*((G3DMESH*)wir)->vertexList  = ltmpver;
         ((G3DMESH*)wir)->edgeList  = ltmpedg;
         ((G3DMESH*)wir)->faceList  = ltmpfac;

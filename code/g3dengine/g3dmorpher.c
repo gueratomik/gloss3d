@@ -267,19 +267,8 @@ void g3dmorpher_optimize ( G3DMORPHER *mpr ) {
         ltmpver = ltmpvernext;
     }
 
-    if ( ((G3DOBJECT*)mpr)->parent->type == G3DMESHTYPE ) {
-        G3DMESH *mes = ( G3DMESH * ) ((G3DOBJECT*)mpr)->parent;
-/*
-        mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                                        UPDATEFACENORMAL   |
-                                        UPDATEVERTEXNORMAL |
-                                        INVALIDATE_MODIFIER_STACK_RESET );
-*/
-        g3dobject_invalidate( G3DOBJECTCAST(mpr),
-                              INVALIDATE_MODIFIER_STACK_UPDATE );
-
-        g3dmesh_update ( mes, 0x00, 0x00 );
-    }
+    g3dobject_invalidate( G3DOBJECTCAST(mpr),
+                          INVALIDATE_MODIFIER_STACK_UPDATE );
 }
 
 /******************************************************************************/

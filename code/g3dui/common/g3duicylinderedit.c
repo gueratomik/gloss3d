@@ -54,6 +54,7 @@ uint64_t g3duicylinderedit_length ( G3DUICYLINDEREDIT *cyledit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }
@@ -120,6 +121,7 @@ uint64_t g3duicylinderedit_cap ( G3DUICYLINDEREDIT *cyledit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }
@@ -147,6 +149,7 @@ uint64_t g3duicylinderedit_slice ( G3DUICYLINDEREDIT *cyledit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }

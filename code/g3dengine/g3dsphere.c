@@ -50,13 +50,8 @@ void g3dsphere_size ( G3DPRIMITIVE *pri, float radius ) {
 
         ltmpver = ltmpver->next;
     }
-/*
-    mes->obj.invalidationFlags |= UPDATEFACEPOSITION;
-*/
-    g3dobject_invalidate( obj, INVALIDATE_SHAPE );
 
-    /*** update the precomputed values for Catmull-Clark Subdivision ***/
-    g3dmesh_update ( mes, 0x00, 0x00 );
+    g3dobject_invalidate( obj, INVALIDATE_SHAPE );
 
     /*** Set bounding box dimensions ***/
     obj->bbox.xmax = obj->bbox.ymax = obj->bbox.zmax =  radius;

@@ -31,7 +31,22 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-URMMOVEPOINT *urmmovepoint_new ( G3DSPLINE *spl, uint32_t save_type ) {
+typedef struct _URMMOVEPOINT {
+    G3DSCENE      *sce;
+    G3DSPLINE     *spl;
+    LIST          *lpt;    /*** list of curve points ***/
+    G3DCURVEPOINT *curhan; /*** the current selected handle ***/
+    G3DVECTOR3F   *oldpos;
+    G3DVECTOR3F   *newpos;
+    G3DVECTOR3F    oldhanpos;
+    G3DVECTOR3F    newhanpos;
+    uint32_t       save_type;
+} URMMOVEPOINT;
+
+/******************************************************************************/
+static URMMOVEPOINT *urmmovepoint_new ( G3DSCENE *sce, 
+                                        G3DSPLINE *spl,
+                                        uint32_t   save_type ) {
     uint32_t structsize = sizeof ( URMMOVEPOINT );
 
     URMMOVEPOINT *ump = ( URMMOVEPOINT * ) calloc ( 0x01, structsize );
@@ -42,6 +57,7 @@ URMMOVEPOINT *urmmovepoint_new ( G3DSPLINE *spl, uint32_t save_type ) {
         return NULL;
     }
 
+    ump->sce       = sce;
     ump->spl       = spl;
     ump->lpt       = spl->curve->lselpt; /*** selected points         ***/
     ump->curhan    = spl->curve->curhan; /*** current selected handle ***/
@@ -75,21 +91,20 @@ void movePoint_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     uint32_t i = 0x00;
 
     if ( ump->save_type & UMPSAVESELECTEDPOINTS ) {
-	while ( ltmppt ) {
-            G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
+	    while ( ltmppt ) {
+                G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
 
-            memcpy ( &pt->pos, &ump->oldpos[i++], sizeof ( G3DVECTOR3F ) );
+                memcpy ( &pt->pos, &ump->oldpos[i++], sizeof ( G3DVECTOR3F ) );
 
-            ltmppt = ltmppt->next;
-	}
+                ltmppt = ltmppt->next;
+	    }
     }
 
     if ( ump->save_type & UMPSAVECURRENTHANDLE ) {
         memcpy ( &ump->curhan->pos, &ump->oldhanpos, sizeof ( G3DVECTOR3F ) );
     }
 
-    /*** update faces and subdivided faces ***/
-    g3dspline_update ( ump->spl, ump->lpt, 0, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(ump->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -100,21 +115,20 @@ void movePoint_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     uint32_t i = 0x00;
 
     if ( ump->save_type & UMPSAVESELECTEDPOINTS ) {
-	while ( ltmppt ) {
-            G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
+	    while ( ltmppt ) {
+                G3DCURVEPOINT *pt = ( G3DCURVEPOINT * ) ltmppt->data;
 
-            memcpy ( &pt->pos, &ump->newpos[i++], sizeof ( G3DVECTOR3F ) );
+                memcpy ( &pt->pos, &ump->newpos[i++], sizeof ( G3DVECTOR3F ) );
 
-            ltmppt = ltmppt->next;
-	}
+                ltmppt = ltmppt->next;
+	    }
     }
 
     if ( ump->save_type & UMPSAVECURRENTHANDLE ) {
         memcpy ( &ump->curhan->pos, &ump->newhanpos, sizeof ( G3DVECTOR3F ) );
     }
 
-    /*** update faces and subdivided faces ***/
-    g3dspline_update ( ump->spl, ump->lpt, 0, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(ump->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -168,17 +182,16 @@ void urmmovepoint_saveState ( URMMOVEPOINT *ump, uint32_t save_time ) {
 }
 
 /******************************************************************************/
-URMMOVEPOINT *g3durm_spline_movePoint ( G3DURMANAGER *urm,
-                                        G3DSPLINE    *spl,
-                                        uint32_t      save_type,
-                                        uint32_t      return_flags ) {
+void g3durm_spline_movePoint ( G3DURMANAGER *urm,
+                               G3DSCENE     *sce,
+                               G3DSPLINE    *spl,
+                               uint32_t      save_type,
+                               uint32_t      return_flags ) {
     URMMOVEPOINT *ump;
 
-    ump = urmmovepoint_new ( spl, save_type );
+    ump = urmmovepoint_new ( sce, spl, save_type );
 
     g3durmanager_push ( urm, movePoint_undo,
                              movePoint_redo,
                              movePoint_free, ump, return_flags );
-
-    return ump;
 }

@@ -32,12 +32,14 @@
 
 /******************************************************************************/
 typedef struct _URMADDTAG {
+    G3DSCENE *sce;
     G3DOBJECT *obj;
     G3DTAG *tag;
 } URMADDTAG;
 
 /******************************************************************************/
-URMADDTAG *urmaddtag_new ( G3DOBJECT *obj,
+URMADDTAG *urmaddtag_new ( G3DSCENE *sce,
+                           G3DOBJECT *obj,
                            G3DTAG    *tag ) {
     uint32_t structsize = sizeof ( URMADDTAG );
 
@@ -49,6 +51,7 @@ URMADDTAG *urmaddtag_new ( G3DOBJECT *obj,
         return NULL;
     }
 
+    uat->sce = sce;
     uat->obj = obj;
     uat->tag = tag;
 
@@ -76,6 +79,8 @@ void addTag_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMADDTAG *uat = ( URMADDTAG * ) data;
 
     g3dobject_removeTag ( uat->obj, uat->tag );
+
+    g3dobject_update_r ( G3DOBJECTCAST(uat->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -83,17 +88,22 @@ void addTag_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flags ) {
     URMADDTAG *uat = ( URMADDTAG * ) data;
 
     g3dobject_addTag ( uat->obj, uat->tag );
+
+    g3dobject_update_r ( G3DOBJECTCAST(uat->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
 void g3durm_selection_addTag ( G3DURMANAGER *urm,
+                               G3DSCENE     *sce,
                                G3DOBJECT    *obj,
                                G3DTAG       *tag,
                                uint64_t      engine_flags,
                                uint32_t      return_flags ) {
-    URMADDTAG *uat = urmaddtag_new ( obj, tag );
+    URMADDTAG *uat = urmaddtag_new ( sce, obj, tag );
 
     g3dobject_addTag ( obj, tag );
+
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     g3durmanager_push ( urm, 
                         addTag_undo,

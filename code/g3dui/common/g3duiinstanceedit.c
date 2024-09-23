@@ -76,6 +76,7 @@ uint64_t g3duiinstanceedit_setReference ( G3DUIINSTANCEEDIT *insedit,
 
     list_free ( &lobj, NULL );
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }
@@ -102,6 +103,7 @@ uint64_t g3duiinstanceedit_mirroredToggle ( G3DUIINSTANCEEDIT *insedit ) {
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }
@@ -135,6 +137,7 @@ uint64_t g3duiinstanceedit_orientation ( G3DUIINSTANCEEDIT *insedit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }

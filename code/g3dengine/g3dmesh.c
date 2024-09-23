@@ -40,6 +40,50 @@ static void g3dmesh_addEdge    ( G3DMESH *mes,
                                  G3DEDGE *edg );
 
 /******************************************************************************/
+static void     _vtable_update ( G3DMESH *mes,
+                                 uint64_t updateFlags,
+                                 uint64_t engineFlags );
+static uint32_t _vtable_dump   ( G3DMESH *mes, 
+                                 void   (*Alloc)( uint32_t, /*vertexCount */
+                                                  uint32_t, /* nbtris */
+                                                  uint32_t, /* nbquads */
+                                                  uint32_t, /* nbuv */
+                                                  void * ),
+                                 void   (*Dump) ( G3DFACE *,
+                                                  G3DVECTOR3F *,
+                                                  G3DVECTOR3F *,
+                                                  void * ),
+                                 void    *data,
+                                 uint64_t engineFlags );
+static G3DMESH *_vtable_copy   ( G3DMESH       *mes, 
+                                 uint32_t       id, 
+                                 unsigned char *name,
+                                 uint64_t       engineFlags );
+static uint32_t _vtable_pick   ( G3DMESH   *mes, 
+                                 G3DCAMERA *curcam, 
+                                 uint64_t   engineFlags );
+static uint32_t _vtable_draw   ( G3DMESH *mes, 
+                                 G3DCAMERA *curcam, 
+                                 G3DENGINE *engine, 
+                                 uint64_t   engineFlags );
+
+/******************************************************************************/
+G3DMESHVTABLE *g3dmesh_vtable() {
+    static G3DMESHVTABLE vtable;
+    G3DOBJECTVTABLE *objectVTable = g3dobject_vtable();
+
+    memcpy( &vtable.objectVTable, objectVTable, sizeof( G3DOBJECTVTABLE ) );
+
+    vtable.objectVTable.draw = _vtable_draw;
+    vtable.objectVTable.free = _vtable_free;
+    vtable.objectVTable.pick = _vtable_pick;
+    vtable.objectVTable.pose = _vtable_pose;
+    vtable.objectVTable.copy = _vtable_copy;
+
+    vtable.dump = _vtable_dump;
+}
+
+/******************************************************************************/
 G3DFACEGROUP *g3dmesh_getFacegroupByID ( G3DMESH *mes, uint32_t id ) {
     LIST *ltmpfacgrp = mes->facegroupList;
 
@@ -879,7 +923,25 @@ uint32_t g3dmesh_modify ( G3DMESH    *mes,
 }
 
 /******************************************************************************/
-static uint32_t _default_dump ( G3DMESH *mes, 
+uint32_t g3dmesh_dump ( G3DMESH *mes, 
+                        void (*Alloc)( uint32_t, /*vertexCount */
+                                       uint32_t, /* nbtris */
+                                       uint32_t, /* nbquads */
+                                       uint32_t, /* nbuv */
+                                       void * ),
+                        void (*Dump) ( G3DFACE *,
+                                       G3DVECTOR3F *,
+                                       G3DVECTOR3F *,
+                                       void * ),
+                        void *data,
+                        uint64_t engineFlags ) {
+    if( mes->dump ) {
+        mes->dump ( mes, Alloc, Dump, data, engineFlags );
+    }
+}
+
+/******************************************************************************/
+static uint32_t _vtable_dump ( G3DMESH *mes, 
                                void (*Alloc)( uint32_t, /*vertexCount */
                                               uint32_t, /* nbtris */
                                               uint32_t, /* nbquads */
@@ -2223,10 +2285,10 @@ void g3dmesh_clone ( G3DMESH   *mes,
 }
 
 /******************************************************************************/
-static G3DMESH *_default_copy ( G3DMESH       *mes, 
-                                uint32_t       id, 
-                                unsigned char *name,
-                                uint64_t       engineFlags ) {
+static G3DMESH *_vtable_copy ( G3DMESH       *mes, 
+                               uint32_t       id, 
+                               unsigned char *name,
+                               uint64_t       engineFlags ) {
     G3DMESH *cpymes = g3dmesh_new ( G3DOBJECTCAST(mes)->id,
                                     G3DOBJECTCAST(mes)->name,
                                     engineFlags );
@@ -2236,14 +2298,6 @@ static G3DMESH *_default_copy ( G3DMESH       *mes,
 
 
     return cpymes;
-}
-
-/******************************************************************************/
-G3DMESH *g3dmesh_default_copy ( G3DMESH       *mes, 
-                                uint32_t       id, 
-                                unsigned char *name,
-                                uint64_t       engineFlags ) {
-    return _default_copy( mes, id, name, engineFlags );
 }
 
 /******************************************************************************/
@@ -3683,9 +3737,9 @@ void g3dmesh_drawSkin ( G3DMESH   *mes,
 }
 
 /******************************************************************************/
-static uint32_t _default_pick ( G3DMESH   *mes, 
-                                G3DCAMERA *curcam, 
-                                uint64_t   engineFlags ) {
+static uint32_t _vtable_pick ( G3DMESH   *mes, 
+                               G3DCAMERA *curcam, 
+                               uint64_t   engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
 
     /*** this means a modifier has taken over ***/
@@ -3716,17 +3770,10 @@ static uint32_t _default_pick ( G3DMESH   *mes,
 }
 
 /******************************************************************************/
-uint32_t g3dmesh_default_pick ( G3DMESH   *mes, 
-                                G3DCAMERA *curcam, 
-                                uint64_t   engineFlags ) {
-    _default_pick( mes, curcam, engineFlags );
-}
-
-/******************************************************************************/
-static uint32_t _default_draw ( G3DMESH *mes, 
-                                G3DCAMERA *curcam, 
-                                G3DENGINE *engine, 
-                                uint64_t   engineFlags ) {
+static uint32_t _vtable_draw ( G3DMESH *mes, 
+                               G3DCAMERA *curcam, 
+                               G3DENGINE *engine, 
+                               uint64_t   engineFlags ) {
     G3DOBJECT *obj = G3DOBJECTCAST(mes);
     uint32_t viewSkin = 0x00;
     uint32_t takenOver = 0x00;
@@ -3883,14 +3930,6 @@ static uint32_t _default_draw ( G3DMESH *mes,
     }
 
     return 0x00;
-}
-
-/******************************************************************************/
-uint32_t g3dmesh_default_draw ( G3DMESH   *mes, 
-                                G3DCAMERA *curcam, 
-                                G3DENGINE *engine, 
-                                uint64_t   engineFlags ) {
-    _default_draw( mes, curcam, engine, engineFlags );
 }
 
 /******************************************************************************/
@@ -4253,7 +4292,7 @@ void g3dmesh_attachFaceVertices ( G3DMESH *mes,
 
 
 /******************************************************************************/
-static void _default_free ( G3DMESH *mes ) {
+static void _vtable_free ( G3DMESH *mes ) {
     /*** Is the Undo-Redo manager ***/
     /*** going to handle freeing  ***/
     /*** memory ? I have to think ***/
@@ -4277,11 +4316,6 @@ static void _default_free ( G3DMESH *mes ) {
     list_free ( &mes->selectedFacegroupList  , NULL );
     list_free ( &mes->selectedWeightgroupList, NULL );
     list_free ( &mes->selectedUvmapList      , NULL );
-}
-
-/******************************************************************************/
-void g3dmesh_default_free( G3DMESH *mes ) {
-    _default_free( mes );
 }
 
 /******************************************************************************/
@@ -4705,34 +4739,9 @@ void g3dmesh_fillSubdividedFaces ( G3DMESH *mes,
 }
 
 /******************************************************************************/
-/*
-void g3dmesh_onGeometryMove ( G3DMESH    *mes,
-                              LIST       *vertexList,
-                              LIST       *edgeList,
-                              LIST       *faceList,
-                              G3DMODIFYOP op,
-                              uint64_t    engineFlags ) {
-
-    mes->obj.invalidationFlags |= ( INVALIDATE_MESH_FACEPOSITION |
-                                    INVALIDATE_MESH_FACENORMAL   |
-                                    INVALIDATE_MESH_VERTEXNORMAL |
-                                    INVALIDATE_MESH_UVMAPPING );
-
-    mes->invalidatedFaceList   = faceList;
-    mes->invalidatedEdgeList   = edgeList;
-    mes->invalidatedVertexList = vertexList;
-
-    g3dmesh_modify ( mes,
-                     op,
-                     engineFlags );
-}
-*/
-
-
-/******************************************************************************/
-static void _default_update ( G3DMESH *mes,
-                              uint64_t updateFlags,
-                              uint64_t engineFlags ) {
+static void _vtable_update ( G3DMESH *mes,
+                             uint64_t updateFlags,
+                             uint64_t engineFlags ) {
     G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
 
     if ( ( objmes->invalidationFlags & INVALIDATE_TOPOLOGY ) ||
@@ -4807,6 +4816,13 @@ static void _default_update ( G3DMESH *mes,
         list_free ( &lmap, NULL );
     }
 
+    if ( ( objmes->invalidationFlags & INVALIDATE_TOPOLOGY ) ||
+         ( objmes->invalidationFlags & INVALIDATE_SHAPE    ) ) {
+        if( ( updateFlags & UPDATE_INTERACTIVE ) == 0x00 ) {
+            g3dmesh_updateBbox ( mes );
+        }
+    }
+
     if ( mes->obj.invalidationFlags & INVALIDATE_MODIFIER_STACK_RESET ) {
         g3dmesh_modify ( mes,
                          G3DMODIFYOP_MODIFY,
@@ -4825,63 +4841,12 @@ static void _default_update ( G3DMESH *mes,
 }
 
 /******************************************************************************/
-void g3dmesh_init ( G3DMESH     *mes,
-                    uint32_t     type,
-                    uint32_t     id,
-                    char        *name,
-                    uint32_t    object_flags,
-                    uint32_t   (*Draw)         ( G3DOBJECT *,
-                                                 G3DCAMERA *, 
-                                                 G3DENGINE *, 
-                                                 uint64_t   ),
-                    void       (*Free)         ( G3DOBJECT * ),
-                    uint32_t   (*Pick)         ( G3DOBJECT *,
-                                                 G3DCAMERA *, 
-                                                 uint64_t   ),
-                    void       (*Anim)         ( G3DOBJECT *,
-                                                 float      , 
-                                                 uint64_t   ),
-                    void       (*Update)       ( G3DOBJECT *,
-                                                 uint64_t   ,
-                                                 uint64_t    ),
-                    void       (*Pose)         ( G3DOBJECT *,
-                                                 G3DKEY    * ),
-                    G3DOBJECT* (*Copy)         ( G3DOBJECT  *,
-                                                 uint32_t    ,
-                                                 const char *,
-                                                 uint64_t    ),
-                    void       (*Transform)    ( G3DOBJECT *,
-                                                 uint64_t   ),
-                    void       (*Activate)     ( G3DOBJECT *,
-                                                 uint64_t   ),
-                    void       (*Deactivate)   ( G3DOBJECT *,
-                                                 uint64_t   ),
-                    G3DOBJECT* (*Commit)       ( G3DOBJECT  *,
-                                                 uint32_t    ,
-                                                 const char *,
-                                                 uint64_t    ),
-                    void       (*AddChild)     ( G3DOBJECT *,
-                                                 G3DOBJECT *,
-                                                 uint64_t   ),
-                    void       (*RemoveChild)  ( G3DOBJECT *,
-                                                 G3DOBJECT *,
-                                                 uint64_t   ),
-                    void       (*SetParent)    ( G3DOBJECT *, 
-                                                 G3DOBJECT *, 
-                                                 G3DOBJECT *, 
-                                                 uint64_t   ),
-                    uint32_t   (*Dump)         ( G3DMESH *,
-                                                 void   (*)( uint32_t,
-                                                             uint32_t,
-                                                             uint32_t,
-                                                             uint32_t,
-                                                             void * ),
-                                                 void   (*) ( G3DFACE     *,
-                                                              G3DVECTOR3F *,
-                                                              G3DVECTOR3F *,
-                                                              void        * ),
-                                                 void    *,
-                                                 uint64_t ) ) {
+void g3dmesh_init ( G3DMESH       *mes,
+                    uint32_t       type,
+                    uint32_t       id,
+                    char          *name,
+                    uint32_t       objectFlags
+                    G3DMESHVTABLE *vtable ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     /*G3DMESHPOSEEXTENSION *ext = g3dmeshposeextension_new ( );*/
 
@@ -4889,23 +4854,8 @@ void g3dmesh_init ( G3DMESH     *mes,
                      G3DMESHTYPE,
                      id,
                      name,
-                     0x00,      /* object_flags */
-                     Draw         ? Draw        : DRAW_CALLBACK(_default_draw),
-                     Free         ? Free        : FREE_CALLBACK(_default_free),
-                     Pick         ? Pick        : PICK_CALLBACK(_default_pick),
-                     Anim         ? Anim        : NULL,
-                     Update       ? Update      : UPDATE_CALLBACK(_default_update),
-                     Pose         ? Pose        : NULL,
-                     Copy         ? Copy        : COPY_CALLBACK(_default_copy),
-                     Transform    ? Transform   : NULL,
-                     Activate     ? Activate    : NULL,
-                     Deactivate   ? Deactivate  : NULL,
-                     Commit       ? Commit      : NULL,
-                     AddChild     ? AddChild    : NULL,
-                     RemoveChild  ? RemoveChild : NULL,
-                     SetParent    ? SetParent   : NULL );
-
-    mes->dump = Dump ? Dump : _default_dump;
+                     objectFlags,
+                     g3dmesh_vtable() );
 
     mes->verid = 0x00; /*** start at 1 because we could have problem when ***/
                        /*** calling g3dface_getVertexByID for statically ***/
@@ -4944,6 +4894,10 @@ void g3dmesh_invalidateEdge ( G3DMESH *mes,
         mes->invalidatedEdgeList[mes->invalidatedEdgeCount].data = edg;
         mes->invalidatedEdgeList[mes->invalidatedEdgeCount].next = NULL;
 
+        if( prev ) {
+            prev->next = &mes->invalidatedEdgeList[mes->invalidatedEdgeCount];
+        }
+
         mes->invalidatedEdgeCount++;
     }
 
@@ -4962,6 +4916,10 @@ void g3dmesh_invalidateFace ( G3DMESH *mes,
         mes->invalidatedFaceList[mes->invalidatedFaceCount].prev = prev;
         mes->invalidatedFaceList[mes->invalidatedFaceCount].data = fac;
         mes->invalidatedFaceList[mes->invalidatedFaceCount].next = NULL;
+
+        if( prev ) {
+            prev->next = &mes->invalidatedFaceList[mes->invalidatedFaceCount];
+        }
 
         mes->invalidatedFaceCount++;
     }
@@ -4982,6 +4940,10 @@ void g3dmesh_invalidateVertex ( G3DMESH   *mes,
         mes->invalidatedVertexList[mes->invalidatedVertexCount].data = ver;
         mes->invalidatedVertexList[mes->invalidatedVertexCount].next = NULL;
 
+        if( prev ) {
+            prev->next = &mes->invalidatedVertexList[mes->invalidatedVertexCount];
+        }
+
         mes->invalidatedVertexCount++;
     }
 
@@ -4990,8 +4952,7 @@ void g3dmesh_invalidateVertex ( G3DMESH   *mes,
 
 /******************************************************************************/
 G3DMESH *g3dmesh_new ( uint32_t id, 
-                       char    *name, 
-                       uint64_t engineFlags ) {
+                       char    *name ) {
     G3DMESH *mes = ( G3DMESH * ) calloc ( 0x01, sizeof ( G3DMESH ) );
 
     if ( mes == NULL ) {
@@ -5004,22 +4965,7 @@ G3DMESH *g3dmesh_new ( uint32_t id,
                    G3DMESHTYPE,
                    id,
                    name,
-                   engineFlags,
-                   NULL,
-                   NULL,
-                   NULL,
-                   NULL,
-                   NULL,
-                   NULL,
-                   NULL,
-                   NULL,
-                   NULL,
-                   NULL,
-                   NULL,
-                   NULL,
-                   NULL,
-                   NULL,
-                   NULL );
+                   0x00 );
 
     return mes;
 }

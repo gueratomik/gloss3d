@@ -385,9 +385,6 @@ void g3dscene_removeMaterial ( G3DSCENE *sce, G3DMATERIAL *mat ) {
 
                 if ( tex->mat == mat ) {
                     g3dmesh_removeTexture ( mes, tex );
-
-                    /*** Rebuild the mesh with modifiers (e.g for displacement) ***/
-                    g3dmesh_update ( mes, 0x00, 0x00 );
                 }
 
                 ltmptex = ltmptexnext;
@@ -569,19 +566,6 @@ void g3dscene_selectObject ( G3DSCENE  *sce,
         if ( list_seek ( sce->lsel, obj ) == NULL ) {
             g3dobject_setSelected ( obj ); /*** set SELECTION flags ***/
 
-            /*** if it is a buffered subdivided mesh, we have to rebuild it ***/
-            /*** because in skin mode the object would be red and keep its red ***/
-            /*** color even if we pick another object ***/
-            if ( obj->type == G3DMESHTYPE ) {
-                G3DMESH *mes = ( G3DMESH * ) obj;
-
-                /*** Rebuild the subdivided mesh when the object is selected ***/
-                /*** This is needed when, for example, we are in vertex painting ***/
-                /*** mode, we change the object selection. Our buffered mesh ***/
-                /*** must be entirely rebuilt because it must change color (red)***/
-                g3dmesh_update ( mes, 0x00, engine_flags );
-            }
-
             list_append ( &sce->lsel, obj );
 
             printf ( "Selected: %s:%d\n", obj->name, obj->id );
@@ -683,7 +667,6 @@ uint32_t g3dscene_draw ( G3DOBJECT *obj,
 static uint32_t updateMeshesFromImage ( G3DOBJECT *obj, 
                                         G3DIMAGE  *img,
                                         uint64_t   engine_flags ) {
-
     if ( ( obj->type == G3DMESHTYPE ) ||
          ( obj->type  & PRIMITIVE   ) ) {
         G3DMESH *mes = ( G3DMESH * ) obj;
@@ -693,12 +676,8 @@ static uint32_t updateMeshesFromImage ( G3DOBJECT *obj,
             G3DTEXTURE *tex = ( G3DTEXTURE * ) ltmptex->data;
 
             if ( tex->mat->displacement.image == img ) {
-/*
-                mes->obj.invalidationFlags |= RESETMODIFIERS;
-*/
-                g3dobject_invalidate( &mes->obj, INVALIDATE_MODIFIER_STACK_RESET );
-
-                g3dmesh_update ( mes, 0x00, engine_flags );
+                g3dobject_invalidate( &mes->obj,
+                                      INVALIDATE_MODIFIER_STACK_RESET );
             }
 
             ltmptex = ltmptex->next;
@@ -798,6 +777,16 @@ static void _default_deactivate ( G3DSCENE *sce, uint64_t engine_flags ) {
 }
 
 /******************************************************************************/
+static void _default_update ( G3DSCENE *sce,
+                              uint64_t  updateFlags,
+                              uint64_t  engineFlags ) {
+
+
+    g3dscene_updatePivot ( sce, engineFlags );
+
+}
+
+/******************************************************************************/
 void g3dscene_resetAllLights ( G3DSCENE *sce ) {
     G3DGLOBALS *globals = g3dcore_getGlobals ( );
     uint32_t i;
@@ -831,7 +820,7 @@ G3DSCENE *g3dscene_new ( uint32_t id, char *name ) {
        FREE_CALLBACK(_default_free),
        PICK_CALLBACK(NULL),
        ANIM_CALLBACK(_default_anim),
-     UPDATE_CALLBACK(NULL),
+     UPDATE_CALLBACK(_default_update),
        POSE_CALLBACK(NULL),
        COPY_CALLBACK(NULL),
   TRANSFORM_CALLBACK(NULL),

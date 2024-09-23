@@ -138,6 +138,7 @@ static void Input ( GtkWidget *widget,
 
                             case UVMAPRECTHIT : {
                                 g3durm_mesh_removeUVMap ( urm,
+                                                          sce,
                                                           pob->obj,
                                                           pob->uvmap, 
                                                           gui->engine_flags,
@@ -146,6 +147,7 @@ static void Input ( GtkWidget *widget,
 
                             case TAGRECTHIT : {
                                 g3durm_selection_removeTag ( urm,
+                                                             sce,
                                                              pob->obj,
                                                              pob->tag,
                                                              gui->engine_flags,
@@ -461,18 +463,11 @@ static void Input ( GtkWidget *widget,
                                  ( G3DOBJECT * ) dst,
                                  ( G3DOBJECT * ) obj );
 
-                        if ( ( dst->type == G3DSYMMETRYTYPE ) &&
-                             ( obj->type == G3DMESHTYPE ) ) {
-                            g3dsymmetry_meshChildChange ( ( G3DSYMMETRY * ) dst, ( G3DMESH * ) obj );
-/*
-                            obj->invalidationFlags |= UPDATEFACEPOSITION;
-*/
-                            g3dmesh_update ( ( G3DMESH * ) obj, 0x00, gui->engine_flags );
-                        }
-
                         gtk3_interpretUIReturnFlags ( gtk3gui, UPDATECOORDS );
                     }
                 }
+
+            g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
             gtk3_interpretUIReturnFlags ( gtk3gui, 
                                           REDRAWVIEW       |

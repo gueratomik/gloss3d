@@ -472,12 +472,6 @@ void g3dtext_setThickness ( G3DTEXT *txt,
         if ( txt->text && txt->face ) {
             g3dtext_generate ( txt, 0x00, strlen ( txt->text ), engine_flags );
         }
-
-        /*g3dmesh_update ( txt, NULL,
-                              NULL,
-                              NULL,
-                              UPDATEFACEPOSITION |
-                              RESETMODIFIERS, engine_flags );*/
     } else {
         if ( newThickness ) {
             G3DMESH *txtmes = ( G3DMESH * ) txt;
@@ -494,16 +488,8 @@ void g3dtext_setThickness ( G3DTEXT *txt,
 
                 ltmpver = ltmpver->next;
             }
-
-            /*g3dmesh_update ( txt, NULL,
-                                  NULL,
-                                  NULL,
-                                  UPDATEFACEPOSITION |
-                                  UPDATEMODIFIERS, engine_flags );*/
         }
     }
-
-    g3dmesh_updateBbox ( ( G3DMESH * ) txt );
 }
 
 /******************************************************************************/
@@ -974,17 +960,8 @@ void g3dtext_generate ( G3DTEXT   *txt,
 
         gluDeleteTess(tobj);
     }
-/*
-    txt->mes.obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                                        UPDATEFACENORMAL   |
-                                        UPDATEVERTEXNORMAL | 
-                                        RESETMODIFIERS );
-*/
+
     g3dobject_invalidate( G3DOBJECTCAST(txt), INVALIDATE_TOPOLOGY );
-
-    g3dmesh_update ( ( G3DMESH * ) txt, 0x00, engine_flags );
-
-    g3dmesh_updateBbox ( ( G3DMESH * ) txt );
 
     /*FT_Render_Glyph ( text->face->glyph, FT_RENDER_MODE_NORMAL );*/
 }
@@ -997,7 +974,7 @@ static void _default_free ( G3DTEXT *txt ) {
         free ( txt->text );
     }
 
-    g3dmesh_free ( G3DMESHCAST(txt) );
+    g3dmesh_default_free ( G3DMESHCAST(txt) );
 }
 
 /******************************************************************************/

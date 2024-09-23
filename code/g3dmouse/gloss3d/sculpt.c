@@ -376,6 +376,7 @@ int sculpt_tool ( G3DMOUSETOOL *mou,
                         G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) obj;
 
                         usf = g3durm_mesh_sculptFace ( urm,
+                                                       sce,
                                                        sdr,
                                                        engine_flags,
                                                        REDRAWVIEW );

@@ -89,12 +89,16 @@ uint64_t g3duicoordinatesedit_pos ( G3DUICOORDINATESEDIT *coordedit,
 
                     ltmpver = ltmpver->next;
                 }
-/*
-                g3dmesh_moveVerticesTo ( mes, mes->selectedVertexList, &avg, &to, absolute, axis_flags, gui->engine_flags );
-*/
+
                 g3dvertex_copyPositionFromList ( mes->selectedVertexList, &newpos );
 
-                g3durm_mesh_moveVertexList ( gui->urm, mes, mes->selectedVertexList, NULL, NULL, NULL,
+                g3durm_mesh_moveVertexList ( gui->urm,
+                                             sce,
+                                             mes,
+                                             mes->selectedVertexList,
+                                             NULL,
+                                             NULL,
+                                             NULL,
                                              oldpos, 
                                              newpos, 
                                              REDRAWVIEW );
@@ -102,8 +106,7 @@ uint64_t g3duicoordinatesedit_pos ( G3DUICOORDINATESEDIT *coordedit,
         }
     }
 
-    g3dscene_updatePivot ( sce, gui->engine_flags );
-
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }
@@ -136,8 +139,7 @@ uint64_t g3duicoordinatesedit_rot ( G3DUICOORDINATESEDIT *coordedit,
         }
     }
 
-    g3dscene_updatePivot ( sce, gui->engine_flags );
-
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }
@@ -168,8 +170,7 @@ uint64_t g3duicoordinatesedit_sca ( G3DUICOORDINATESEDIT *coordedit,
         }
     }
 
-    g3dscene_updatePivot ( sce, gui->engine_flags );
-
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }

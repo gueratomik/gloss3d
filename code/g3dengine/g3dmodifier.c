@@ -200,43 +200,6 @@ static void _default_setParent ( G3DMODIFIER *mod,
                                  G3DOBJECT   *parent,
                                  G3DOBJECT   *oldParent,
                                  uint64_t     engineFlags ) {
-    if ( parent ) {
-        G3DMESH *mes = ( parent->type & EDITABLE ) ?
-                           ( G3DMESH * ) parent : 
-                           ( G3DMESH * ) g3dobject_getActiveParentByType ( parent,
-                                                                           EDITABLE );
-
-        if ( mes ) {
-/*
-            mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                                            UPDATEFACENORMAL   |
-                                            UPDATEVERTEXNORMAL |
-                                            RESETMODIFIERS );
-*/
-            g3dobject_invalidate( parent, INVALIDATE_MODIFIER_STACK_RESET );
-
-            g3dmesh_update ( mes, 0x00, engineFlags );
-        }
-    }
-
-    if ( oldParent ) {
-        G3DMESH *oldmes = ( oldParent->type & EDITABLE ) ?
-                           ( G3DMESH * ) oldParent : 
-                           ( G3DMESH * ) g3dobject_getActiveParentByType ( oldParent,
-                                                                           EDITABLE );
-
-        if ( oldmes ) {
-/*
-            oldmes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                                               UPDATEFACENORMAL   |
-                                               UPDATEVERTEXNORMAL |
-                                               RESETMODIFIERS );
-*/
-            g3dobject_invalidate( oldParent, INVALIDATE_MODIFIER_STACK_RESET );
-
-            g3dmesh_update ( oldmes, 0x00, engineFlags );
-        }
-    }
 }
 
 /******************************************************************************/

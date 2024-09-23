@@ -31,23 +31,7 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
-typedef struct _URMSCULPTFACE {
-    G3DSCENE      *sce;
-    G3DSUBDIVIDER *sdr;
-    LIST          *lusfe;
-} URMSCULPTFACE;
-
-/******************************************************************************/
-typedef struct _URMSCULPTFACEEXTENSION {
-    G3DFACESCULPTEXTENSION *fse;
-    G3DFACE                *fac;
-    G3DVECTOR4F            *pos;
-    G3DHEIGHT              *hei;
-    G3DVECTOR3F            *nor;
-} URMSCULPTFACEEXTENSION;
-
-/******************************************************************************/
-void urmsculptfaceextension_free ( URMSCULPTFACEEXTENSION *usfe ) {
+static void urmsculptfaceextension_free ( URMSCULPTFACEEXTENSION *usfe ) {
     if ( usfe->pos ) free ( usfe->pos );
     if ( usfe->nor ) free ( usfe->nor );
     if ( usfe->hei ) free ( usfe->hei );
@@ -191,7 +175,7 @@ void sculptFace_undo ( G3DURMANAGER *urm,
 
     list_free ( &lsubfac, NULL );
 
-    g3dobject_update( G3DOBJECTCAST(usf->sce), 0x00, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(usf->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -202,7 +186,7 @@ void sculptFace_redo ( G3DURMANAGER *urm,
 }
 
 /******************************************************************************/
-void g3durm_mesh_sculptFace ( G3DURMANAGER  *urm,
+URMSCULPTFACE *g3durm_mesh_sculptFace ( G3DURMANAGER  *urm,
                                         G3DSCENE      *sce,
                                         G3DSUBDIVIDER *sdr,
                                         uint64_t       engine_flags,
@@ -218,4 +202,6 @@ void g3durm_mesh_sculptFace ( G3DURMANAGER  *urm,
                         sculptFace_free, 
                         usf,
                         return_flags );
+
+    return usf;
 }

@@ -52,12 +52,6 @@ uint64_t g3duisymmetryedit_limit ( G3DUISYMMETRYEDIT *symedit,
                     G3DMESH *mes = ( G3DMESH * ) obj;
 
                     g3dsymmetry_meshChildChange ( sym, mes );
-/*
-                    mes->obj.invalidationFlags |= ( UPDATEVERTEXNORMAL |
-                                                    UPDATEFACENORMAL | 
-                                                    RESETMODIFIERS );
-*/
-                    g3dmesh_update ( mes, 0x00, gui->engine_flags );
                 }
 
                 ltmpobj = ltmpobj->next;
@@ -67,6 +61,7 @@ uint64_t g3duisymmetryedit_limit ( G3DUISYMMETRYEDIT *symedit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }

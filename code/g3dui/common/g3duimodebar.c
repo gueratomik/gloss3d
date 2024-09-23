@@ -84,53 +84,9 @@ uint64_t g3duimodebar_setMode ( G3DUIMODEBAR *gmb,
         }
     }
 
-    /*** Restore default behavior ***/
-    /*glDisable ( GL_COLOR_MATERIAL );*/
-
-    /*** restore default values ***/
-/*
-    glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, (GLfloat *) &defaultDiffuse );
-    glMaterialfv ( GL_FRONT_AND_BACK, GL_AMBIENT, (GLfloat *) &defaultAmbient );
-*/
-
     gui->engine_flags = ( curflags | newmode );
 
-    /*** Ths is usefull in paintmode for example, to redraw the object in ***/
-    /*** the paintmode color (red) ***/
-
-    if ( obj && ( obj->type == G3DMESHTYPE ) ) {
-        G3DMESH *mes = ( G3DMESH * ) obj;
-
-        if ( ( newmode & VIEWSKIN ) || ( oldmode & VIEWSKIN ) ) {
-/*
-            mes->obj.invalidationFlags |= RESETMODIFIERS;
-*/
-            g3dmesh_update ( mes, 0x00, gui->engine_flags );
-        }
-
-        /*** The below restores the face ***/
-        /*** color when we switch modes ***/
-        if ( ( newmode & VIEWFACE ) || ( oldmode & VIEWFACE ) ) {
-            if ( mes->selectedFaceList ) {
-/*
-                mes->obj.invalidationFlags |= RESETMODIFIERS;
-*/
-                g3dmesh_update ( mes, 0x00, gui->engine_flags );
-            }
-        }
-    }
-
-    /*** reposition camera pivot ***/
-    g3dscene_updatePivot ( sce, gui->engine_flags );
-
-    /* unset the mouse tool */
-    /* 
-     * COMMENTED OUT: not sure if that's wise. Some tools are compatible with
-     * several edition modes. This forces the user to reselect the tool
-     *  (let's say the move tool), which does not make sense.
-     */
-    /* common_g3dui_setMouseTool ( gui, NULL, NULL ); */
-
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return UPDATECURRENTMOUSETOOL | REDRAWVIEW | UPDATEMAINMENU;
 }

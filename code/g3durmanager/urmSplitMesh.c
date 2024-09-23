@@ -109,7 +109,7 @@ static void splitMesh_undo ( G3DURMANAGER *urm, void *data, uint64_t engine_flag
     g3dobject_removeChild ( ((G3DOBJECT*)mes)->parent, 
                             (G3DOBJECT*)sms->splmes, engine_flags );
 
-    g3dobject_update ( G3DOBJECTCAST(sms->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(sms->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -129,7 +129,7 @@ static void splitMesh_redo ( G3DURMANAGER *urm, void *data, uint64_t engine_flag
     g3dobject_addChild ( ((G3DOBJECT*)mes)->parent,
                           (G3DOBJECT*)sms->splmes, engine_flags );
 
-    g3dobject_update ( G3DOBJECTCAST(sms->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(sms->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -154,7 +154,7 @@ void g3durm_mesh_split ( G3DURMANAGER *urm,
 
     g3dobject_addChild ( ((G3DOBJECT*)mes)->parent, ( G3DOBJECT * ) splmes, engine_flags );
 
-    g3dobject_update ( G3DOBJECTCAST(sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
 
     sms = urmSplitMesh_new ( sce,
                              mes,

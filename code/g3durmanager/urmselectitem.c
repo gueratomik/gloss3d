@@ -129,7 +129,7 @@ static void selectUVSets_redo ( URMSELECTITEM *sit,
         ltmpnewfacsel = ltmpnewfacsel->next;
     }
 
-    g3dscene_updatePivot ( sit->sce, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sit->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -158,7 +158,7 @@ static void selectUVSets_undo ( URMSELECTITEM *sit,
         ltmpoldfacsel = ltmpoldfacsel->next;
     }
 
-    g3dscene_updatePivot ( sit->sce, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sit->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -187,7 +187,7 @@ static void selectUVs_undo ( URMSELECTITEM *sit,
         ltmpoldversel = ltmpoldversel->next;
     }
 
-    g3dscene_updatePivot ( sit->sce, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sit->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -216,7 +216,7 @@ static void selectUVs_redo ( URMSELECTITEM *sit,
         ltmpnewversel = ltmpnewversel->next;
     }
 
-    g3dscene_updatePivot ( sit->sce, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sit->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -245,7 +245,7 @@ static void selectPoints_undo ( URMSELECTITEM *sit,
         ltmpoldversel = ltmpoldversel->next;
     }
 
-    g3dscene_updatePivot ( sit->sce, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sit->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -274,7 +274,7 @@ static void selectPoints_redo ( URMSELECTITEM *sit,
         ltmpnewversel = ltmpnewversel->next;
     }
 
-    g3dscene_updatePivot ( sit->sce, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sit->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -303,7 +303,7 @@ static void selectVertices_undo ( URMSELECTITEM *sit,
         ltmpoldversel = ltmpoldversel->next;
     }
 
-    g3dscene_updatePivot ( sit->sce, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sit->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -334,7 +334,7 @@ static void selectVertices_redo ( URMSELECTITEM *sit,
         ltmpnewversel = ltmpnewversel->next;
     }
 
-    g3dscene_updatePivot ( sit->sce, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sit->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -363,7 +363,7 @@ static void selectEdges_undo ( URMSELECTITEM *sit,
         ltmpoldedgsel = ltmpoldedgsel->next;
     }
 
-    g3dscene_updatePivot ( sit->sce, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sit->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -394,7 +394,7 @@ static void selectEdges_redo ( URMSELECTITEM *sit,
         ltmpnewedgsel = ltmpnewedgsel->next;
     }
 
-    g3dscene_updatePivot ( sit->sce, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sit->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -423,7 +423,7 @@ static void selectFaces_undo ( URMSELECTITEM *sit,
         ltmpoldfacsel = ltmpoldfacsel->next;
     }
 
-    g3dscene_updatePivot ( sit->sce, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sit->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -452,7 +452,7 @@ static void selectFaces_redo ( URMSELECTITEM *sit,
         ltmpnewfacsel = ltmpnewfacsel->next;
     }
 
-    g3dscene_updatePivot ( sit->sce, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sit->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -481,7 +481,7 @@ static void selectObjects_undo ( URMSELECTITEM *sit,
         ltmpoldobjsel = ltmpoldobjsel->next;
     }
 
-    g3dscene_updatePivot ( sit->sce, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sit->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -510,7 +510,7 @@ static void selectObjects_redo ( URMSELECTITEM *sit,
         ltmpnewobjsel = ltmpnewobjsel->next;
     }
 
-    g3dscene_updatePivot ( sit->sce, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sit->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -537,20 +537,6 @@ static void selectItem_undo ( G3DURMANAGER *urm,
         if ( sit->engine_flags & VIEWFACE ) {
             selectFaces_undo ( sit, engine_flags );
         }
-
-        if ( ( sit->engine_flags & VIEWVERTEX ) || 
-             ( sit->engine_flags & VIEWEDGE   ) ||
-             ( sit->engine_flags & VIEWFACE   ) ) {
-            if ( obj->type & MESH ) {
-/*
-                mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                                           UPDATEFACENORMAL   |
-                                           UPDATEVERTEXNORMAL );
-*/
-                /*** Rebuild the subdivided mesh ***/
-                g3dmesh_update ( mes, 0x00, engine_flags );
-            }
-        }
     }
 
     if ( obj->type == G3DUVMAPTYPE ) {
@@ -563,13 +549,6 @@ static void selectItem_undo ( G3DURMANAGER *urm,
         if ( sit->engine_flags & VIEWFACEUV ) {
             selectUVSets_undo ( sit, engine_flags );
         }
-/*
-        mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                                   UPDATEFACENORMAL   |
-                                   UPDATEVERTEXNORMAL );
-*/
-        /*** Rebuild the subdivided mesh ***/
-        g3dmesh_update ( mes, 0x00, engine_flags );
     }
 
     if ( obj->type == G3DSPLINETYPE ) {
@@ -578,17 +557,9 @@ static void selectItem_undo ( G3DURMANAGER *urm,
         if ( sit->engine_flags & VIEWVERTEX ) {
             selectPoints_undo ( sit, engine_flags );
         }
-
-        /*** Rebuild the spline and modifiers ***/
-        /* Note: commented out: not really needed as this is just selection */
-        /*g3dspline_update ( spl,
-                           NULL,
-                           RESETMODIFIERS,
-                           engine_flags );*/
-
     }
 
-    g3dscene_updatePivot ( sit->sce, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sit->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -617,17 +588,6 @@ static void selectItem_redo ( G3DURMANAGER *urm,
         if ( sit->engine_flags & VIEWFACE ) {
             selectFaces_redo ( sit, engine_flags );
         }
-
-        if ( ( sit->engine_flags & VIEWVERTEX ) || 
-             ( sit->engine_flags & VIEWEDGE   ) ||
-             ( sit->engine_flags & VIEWFACE   ) ) {
-/*
-            mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                                       UPDATEFACENORMAL   |
-                                       UPDATEVERTEXNORMAL );
-*/
-            g3dmesh_update ( mes, 0x00, engine_flags );
-        }
     }
 
     if ( obj->type == G3DUVMAPTYPE ) {
@@ -640,13 +600,6 @@ static void selectItem_redo ( G3DURMANAGER *urm,
         if ( sit->engine_flags & VIEWFACEUV ) {
             selectUVSets_redo ( sit, engine_flags );
         }
-/*
-        mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
-                                   UPDATEFACENORMAL   |
-                                   UPDATEVERTEXNORMAL );
-*/
-        /*** Rebuild the subdivided mesh ***/
-        g3dmesh_update ( mes, 0x00, engine_flags );
     }
 
     if ( obj->type == G3DSPLINETYPE ) {
@@ -655,17 +608,9 @@ static void selectItem_redo ( G3DURMANAGER *urm,
         if ( sit->engine_flags & VIEWVERTEX ) {
             selectPoints_redo ( sit, engine_flags );
         }
-
-        /*** Rebuild the spline and modifiers ***/
-        /* Note: commented out: not really needed as this is just selection */
-        /*g3dspline_update ( spl,
-                           NULL,
-                           RESETMODIFIERS,
-                           engine_flags );*/
-
     }
 
-    g3dscene_updatePivot ( sit->sce, engine_flags );
+    g3dobject_update_r( G3DOBJECTCAST(sit->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -678,15 +623,17 @@ void g3durm_uvmap_pickUVSets ( G3DURMANAGER *urm,
                                uint32_t      return_flags ) {
     URMSELECTITEM *sit;
 
-    sit = urmselectitem_new ( sce, ( G3DOBJECT * ) uvmap, NULL,
-                                   NULL,
-                                   NULL,
-                                   loldseluvset,
-                                   NULL,
-                                   NULL,
-                                   NULL,
-                                   lnewseluvset,
-                                   engine_flags );
+    sit = urmselectitem_new ( sce,
+                              G3DOBJECTCAST(uvmap),
+                              NULL,
+                              NULL,
+                              NULL,
+                              loldseluvset,
+                              NULL,
+                              NULL,
+                              NULL,
+                              lnewseluvset,
+                              engine_flags );
 
     g3durmanager_push ( urm, selectItem_undo,
                              selectItem_redo,
@@ -703,15 +650,17 @@ void g3durm_uvmap_pickUVs ( G3DURMANAGER *urm,
                             uint32_t      return_flags ) {
     URMSELECTITEM *sit;
 
-    sit = urmselectitem_new ( sce, ( G3DOBJECT * ) uvmap, NULL,
-                                   loldseluv,
-                                   NULL,
-                                   NULL,
-                                   NULL,
-                                   lnewseluv,
-                                   NULL,
-                                   NULL,
-                                   engine_flags );
+    sit = urmselectitem_new ( sce,
+                              G3DOBJECTCAST(uvmap),
+                              NULL,
+                              loldseluv,
+                              NULL,
+                              NULL,
+                              NULL,
+                              lnewseluv,
+                              NULL,
+                              NULL,
+                              engine_flags );
 
     g3durmanager_push ( urm, selectItem_undo,
                              selectItem_redo,
@@ -728,16 +677,17 @@ void g3durm_spline_pickPoints ( G3DURMANAGER *urm,
                                 uint32_t      return_flags ) {
     URMSELECTITEM *sit;
 
-    sit = urmselectitem_new ( sce, ( G3DOBJECT * ) spl,
-                                   NULL,
-                                   loldselpt,
-                                   NULL,
-                                   NULL,
-                                   NULL,
-                                   lnewselpt,
-                                   NULL,
-                                   NULL,
-                                   engine_flags );
+    sit = urmselectitem_new ( sce,
+                              G3DOBJECTCAST(spl),
+                              NULL,
+                              loldselpt,
+                              NULL,
+                              NULL,
+                              NULL,
+                              lnewselpt,
+                              NULL,
+                              NULL,
+                              engine_flags );
 
     g3durmanager_push ( urm, selectItem_undo,
                              selectItem_redo,
@@ -754,15 +704,17 @@ void g3durm_mesh_pickVertices ( G3DURMANAGER *urm,
                                 uint32_t      return_flags ) {
     URMSELECTITEM *sit;
 
-    sit = urmselectitem_new ( sce, ( G3DOBJECT * ) mes, NULL,
-                                   loldversel,
-                                   NULL,
-                                   NULL,
-                                   NULL,
-                                   lnewversel,
-                                   NULL,
-                                   NULL,
-                                   engine_flags );
+    sit = urmselectitem_new ( sce,
+                              G3DOBJECTCAST(mes),
+                              NULL,
+                              loldversel,
+                              NULL,
+                              NULL,
+                              NULL,
+                              lnewversel,
+                              NULL,
+                              NULL,
+                              engine_flags );
 
     g3durmanager_push ( urm, selectItem_undo,
                              selectItem_redo,
@@ -779,15 +731,16 @@ void g3durm_mesh_pickEdges ( G3DURMANAGER *urm,
                              uint32_t      return_flags ) {
     URMSELECTITEM *sit;
 
-    sit = urmselectitem_new ( sce, ( G3DOBJECT * ) mes, NULL,
-                                   NULL,
-                                   loldedgsel,
-                                   NULL,
-                                   NULL,
-                                   NULL,
-                                   lnewedgsel,
-                                   NULL,
-                                   engine_flags );
+    sit = urmselectitem_new ( sce, 
+                              G3DOBJECTCAST(mes), NULL,
+                              NULL,
+                              loldedgsel,
+                              NULL,
+                              NULL,
+                              NULL,
+                              lnewedgsel,
+                              NULL,
+                              engine_flags );
 
     g3durmanager_push ( urm, selectItem_undo,
                              selectItem_redo,
@@ -804,15 +757,16 @@ void g3durm_mesh_pickFaces ( G3DURMANAGER *urm,
                              uint32_t      return_flags ) {
     URMSELECTITEM *sit;
 
-    sit = urmselectitem_new ( sce, ( G3DOBJECT * ) mes, NULL,
-                                   NULL,
-                                   NULL,
-                                   loldversel,
-                                   NULL,
-                                   NULL,
-                                   NULL,
-                                   lnewversel,
-                                   engine_flags );
+    sit = urmselectitem_new ( sce, 
+                              G3DOBJECTCAST(mes), NULL,
+                              NULL,
+                              NULL,
+                              loldversel,
+                              NULL,
+                              NULL,
+                              NULL,
+                              lnewversel,
+                              engine_flags );
 
     g3durmanager_push ( urm, selectItem_undo,
                              selectItem_redo,
@@ -829,15 +783,16 @@ void g3durm_scene_pickObject ( G3DURMANAGER *urm,
     URMSELECTITEM *sit;
 
     sit = urmselectitem_new ( sce,
-                              ( G3DOBJECT * ) sce, loldobjsel,
-                                   NULL,
-                                   NULL,
-                                   NULL,
-                                   lnewobjsel,
-                                   NULL,
-                                   NULL,
-                                   NULL,
-                                   engine_flags );
+                              G3DOBJECTCAST(sce),
+                              loldobjsel,
+                              NULL,
+                              NULL,
+                              NULL,
+                              lnewobjsel,
+                              NULL,
+                              NULL,
+                              NULL,
+                              engine_flags );
 
     g3durmanager_push ( urm, selectItem_undo,
                              selectItem_redo,

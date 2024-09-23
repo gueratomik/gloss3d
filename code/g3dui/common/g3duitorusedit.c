@@ -54,6 +54,7 @@ uint64_t g3duitorusedit_slice ( G3DUITORUSEDIT *toredit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }
@@ -83,6 +84,7 @@ uint64_t g3duitorusedit_cap ( G3DUITORUSEDIT *toredit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }
@@ -112,6 +114,7 @@ uint64_t g3duitorusedit_extRadius ( G3DUITORUSEDIT *toredit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }
@@ -141,6 +144,7 @@ uint64_t g3duitorusedit_intRadius ( G3DUITORUSEDIT *toredit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }
@@ -183,6 +187,7 @@ uint64_t g3duitorusedit_orientation ( G3DUITORUSEDIT *toredit,
         ltmpselobj = ltmpselobj->next;
     }
 
+    g3dobject_update_r( G3DOBJECTCAST(sce), 0x00, gui->engine_flags );
 
     return REDRAWVIEW;
 }

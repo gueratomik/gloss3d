@@ -114,7 +114,7 @@ static void moveVertices_undo ( G3DURMANAGER *urm,
 
     g3dmesh_updateBbox ( mvs->mes );
 
-    g3dobject_update ( G3DOBJECTCAST(mes), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(mes), 0x00, engine_flags );
 }
 
 /******************************************************************************/
@@ -137,7 +137,7 @@ static void moveVertices_redo ( G3DURMANAGER *urm,
 
     g3dmesh_updateBbox ( mvs->mes );
 
-    g3dobject_update ( G3DOBJECTCAST(mes), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(mes), 0x00, engine_flags );
 }
 
 /******************************************************************************/
