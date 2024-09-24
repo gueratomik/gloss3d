@@ -27,7 +27,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
+#include <g3dengine/vtable/g3dbonevtable.h>
 #include <g3dengine/g3dengine.h>
+
+/******************************************************************************/
+const G3DBONEVTABLE _vtable = { G3DBONEVTABLE_DEFAULT };
 
 /******************************************************************************/
 G3DBONE *g3dbone_clone ( G3DBONE *bon, uint32_t recurse, 
@@ -90,7 +94,7 @@ G3DBONE *g3dbone_mirror ( G3DBONE *bon,
 /******************************************************************************/
 /*** This function is called by g3dobject_updateMatrix ***/
 /*** after matrix transformations are done. ***/
-static void _default_transform ( G3DBONE *bon, 
+void g3dbone_default_transform ( G3DBONE *bon, 
                                  uint64_t   engineFlags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
 
@@ -136,12 +140,6 @@ void g3dbone_updateRigs ( G3DBONE *bon,
             ltmprig = ltmprig->next;
         }
     }
-}
-
-
-/******************************************************************************/
-static void _default_update ( G3DBONE *bon ) {
-
 }
 
 /******************************************************************************/
@@ -192,7 +190,7 @@ static uint32_t g3dbone_pickObject ( G3DBONE   *bon,
 
 
 /******************************************************************************/
-static uint32_t _default_pick ( G3DBONE *bon,
+uint32_t g3dbone_default_pick ( G3DBONE *bon,
                                 G3DCAMERA *cam, 
                                 uint64_t engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) bon;
@@ -450,14 +448,12 @@ void g3dbone_removeWeightGroup ( G3DBONE        *bon,
 }
 
 /******************************************************************************/
-static void _default_free ( G3DOBJECT *obj ) {
-    G3DBONE *bon = ( G3DBONE * ) obj;
-
+void g3dbone_default_free ( G3DBONE *bon ) {
     list_free ( &bon->lrig, (void(*)(void*)) g3drig_free );
 }
 
 /******************************************************************************/
-static void _default_activate ( G3DBONE *bon, 
+void g3dbone_default_activate ( G3DBONE *bon, 
                                uint64_t engineFlags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     LIST *ltmprig = bon->lrig;
@@ -516,7 +512,7 @@ void g3dbone_fix_r ( G3DBONE *bon, uint64_t engineFlags ) {
 }
 
 /******************************************************************************/
-static void _default_deactivate ( G3DBONE *bon, 
+void g3dbone_default_deactivate ( G3DBONE *bon, 
                                   uint64_t engineFlags ) {
     G3DOBJECT *objbon = ( G3DOBJECT * ) bon;
     LIST *ltmprig = bon->lrig;
@@ -578,21 +574,12 @@ G3DBONE *g3dbone_new ( uint32_t id,
         return NULL;
     }
 
-    g3dobject_init ( obj, G3DBONETYPE, id, name, OBJECTINACTIVE,
-                                   DRAW_CALLBACK(_default_draw),
-                                   FREE_CALLBACK(_default_free),
-                                   PICK_CALLBACK(_default_pick),
-                                   ANIM_CALLBACK(NULL),
-                                 UPDATE_CALLBACK(NULL),
-                                   POSE_CALLBACK(NULL),
-                                   COPY_CALLBACK(NULL),
-                              TRANSFORM_CALLBACK(_default_transform),
-                               ACTIVATE_CALLBACK(_default_activate),
-                             DEACTIVATE_CALLBACK(_default_deactivate),
-                                 COMMIT_CALLBACK(NULL),
-                               ADDCHILD_CALLBACK(NULL),
-                            REMOVECHILD_CALLBACK(NULL),
-                              SETPARENT_CALLBACK(NULL) );
+    g3dobject_init ( obj,
+                     G3DBONETYPE,
+                     id,
+                     name,
+                     OBJECTINACTIVE,
+                     G3DOBJECTVTABLECAST(&_vtable) );
 
     bon->len = len;
 

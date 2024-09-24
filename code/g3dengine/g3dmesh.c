@@ -27,6 +27,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
+#include <g3dengine/vtable/g3dmeshvtable.h>
 #include <g3dengine/g3dengine.h>
 
 #define MAX_INVALIDATED_VERTICES 0x100
@@ -40,48 +41,7 @@ static void g3dmesh_addEdge    ( G3DMESH *mes,
                                  G3DEDGE *edg );
 
 /******************************************************************************/
-static void     _vtable_update ( G3DMESH *mes,
-                                 uint64_t updateFlags,
-                                 uint64_t engineFlags );
-static uint32_t _vtable_dump   ( G3DMESH *mes, 
-                                 void   (*Alloc)( uint32_t, /*vertexCount */
-                                                  uint32_t, /* nbtris */
-                                                  uint32_t, /* nbquads */
-                                                  uint32_t, /* nbuv */
-                                                  void * ),
-                                 void   (*Dump) ( G3DFACE *,
-                                                  G3DVECTOR3F *,
-                                                  G3DVECTOR3F *,
-                                                  void * ),
-                                 void    *data,
-                                 uint64_t engineFlags );
-static G3DMESH *_vtable_copy   ( G3DMESH       *mes, 
-                                 uint32_t       id, 
-                                 unsigned char *name,
-                                 uint64_t       engineFlags );
-static uint32_t _vtable_pick   ( G3DMESH   *mes, 
-                                 G3DCAMERA *curcam, 
-                                 uint64_t   engineFlags );
-static uint32_t _vtable_draw   ( G3DMESH *mes, 
-                                 G3DCAMERA *curcam, 
-                                 G3DENGINE *engine, 
-                                 uint64_t   engineFlags );
-
-/******************************************************************************/
-G3DMESHVTABLE *g3dmesh_vtable() {
-    static G3DMESHVTABLE vtable;
-    G3DOBJECTVTABLE *objectVTable = g3dobject_vtable();
-
-    memcpy( &vtable.objectVTable, objectVTable, sizeof( G3DOBJECTVTABLE ) );
-
-    vtable.objectVTable.draw = _vtable_draw;
-    vtable.objectVTable.free = _vtable_free;
-    vtable.objectVTable.pick = _vtable_pick;
-    vtable.objectVTable.pose = _vtable_pose;
-    vtable.objectVTable.copy = _vtable_copy;
-
-    vtable.dump = _vtable_dump;
-}
+const G3DMESHVTABLE _vtable = { G3DMESHVTABLE_DEFAULT };
 
 /******************************************************************************/
 G3DFACEGROUP *g3dmesh_getFacegroupByID ( G3DMESH *mes, uint32_t id ) {
@@ -941,7 +901,7 @@ uint32_t g3dmesh_dump ( G3DMESH *mes,
 }
 
 /******************************************************************************/
-static uint32_t _vtable_dump ( G3DMESH *mes, 
+uint32_t g3dmesh_default_dump ( G3DMESH *mes, 
                                void (*Alloc)( uint32_t, /*vertexCount */
                                               uint32_t, /* nbtris */
                                               uint32_t, /* nbquads */
@@ -2285,7 +2245,7 @@ void g3dmesh_clone ( G3DMESH   *mes,
 }
 
 /******************************************************************************/
-static G3DMESH *_vtable_copy ( G3DMESH       *mes, 
+G3DMESH *g3dmesh_default_copy ( G3DMESH       *mes, 
                                uint32_t       id, 
                                unsigned char *name,
                                uint64_t       engineFlags ) {
@@ -3737,7 +3697,7 @@ void g3dmesh_drawSkin ( G3DMESH   *mes,
 }
 
 /******************************************************************************/
-static uint32_t _vtable_pick ( G3DMESH   *mes, 
+static uint32_t g3dmesh_default_pick ( G3DMESH   *mes, 
                                G3DCAMERA *curcam, 
                                uint64_t   engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
@@ -3770,10 +3730,10 @@ static uint32_t _vtable_pick ( G3DMESH   *mes,
 }
 
 /******************************************************************************/
-static uint32_t _vtable_draw ( G3DMESH *mes, 
-                               G3DCAMERA *curcam, 
-                               G3DENGINE *engine, 
-                               uint64_t   engineFlags ) {
+uint32_t g3dmesh_default_draw ( G3DMESH *mes, 
+                                G3DCAMERA *curcam, 
+                                G3DENGINE *engine, 
+                                uint64_t   engineFlags ) {
     G3DOBJECT *obj = G3DOBJECTCAST(mes);
     uint32_t viewSkin = 0x00;
     uint32_t takenOver = 0x00;
@@ -4292,7 +4252,7 @@ void g3dmesh_attachFaceVertices ( G3DMESH *mes,
 
 
 /******************************************************************************/
-static void _vtable_free ( G3DMESH *mes ) {
+void g3dmesh_default_free ( G3DMESH *mes ) {
     /*** Is the Undo-Redo manager ***/
     /*** going to handle freeing  ***/
     /*** memory ? I have to think ***/
@@ -4739,7 +4699,7 @@ void g3dmesh_fillSubdividedFaces ( G3DMESH *mes,
 }
 
 /******************************************************************************/
-static void _vtable_update ( G3DMESH *mes,
+void g3dmesh_default_update ( G3DMESH *mes,
                              uint64_t updateFlags,
                              uint64_t engineFlags ) {
     G3DOBJECT *objmes = ( G3DOBJECT * ) mes;
@@ -4855,7 +4815,7 @@ void g3dmesh_init ( G3DMESH       *mes,
                      id,
                      name,
                      objectFlags,
-                     g3dmesh_vtable() );
+                     _vtable );
 
     mes->verid = 0x00; /*** start at 1 because we could have problem when ***/
                        /*** calling g3dface_getVertexByID for statically ***/

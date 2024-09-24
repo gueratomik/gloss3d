@@ -27,28 +27,12 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
+#include <g3dengine/vtable/g3dobjectvtable.h>
 #include <g3dengine/g3dengine.h>
 
 
 /******************************************************************************/
-
-
-/******************************************************************************/
-const G3DOBJECTVTABLE
-_vtable = { .draw        = g3dobject_vtable_draw,
-            .free        = g3dobject_vtable_free,
-            .pick        = g3dobject_vtable_pick,
-            .anim        = g3dobject_vtable_anim,
-            .update      = g3dobject_vtable_update,
-            .pose        = g3dobject_vtable_pose,
-            .copy        = g3dobject_vtable_copy,
-            .transform   = g3dobject_vtable_transform,
-            .activate    = g3dobject_vtable_activate,
-            .deactivate  = g3dobject_vtable_deactivate,
-            .commit      = g3dobject_vtable_commit,
-            .addChild    = g3dobject_vtable_addChild,
-            .removeChild = g3dobject_vtable_removeChild,
-            .setParent   = g3dobject_vtable_setParent };
+const G3DOBJECTVTABLE _vtable = { G3DOBJECTVTABLE_DEFAULT };
 
 /******************************************************************************/
 uint32_t g3dobject_getNextTagID ( G3DOBJECT *obj ) {
@@ -2098,7 +2082,7 @@ void g3dobject_initMatrices ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-uint32_t g3dobject_vtable_draw ( G3DOBJECT *obj,
+uint32_t g3dobject_default_draw ( G3DOBJECT *obj,
                                  G3DCAMERA *cam,
                                  G3DENGINE *engine,
                                  uint64_t   engineFlags ) {
@@ -2111,7 +2095,7 @@ uint32_t g3dobject_vtable_draw ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-void g3dobject_vtable_free ( G3DOBJECT *obj ) {
+void g3dobject_default_free ( G3DOBJECT *obj ) {
     /*** commented out : too verbose ***/
     /*
     if ( obj->type ) {
@@ -2121,9 +2105,9 @@ void g3dobject_vtable_free ( G3DOBJECT *obj ) {
 }
 
 /******************************************************************************/
-static uint32_t g3dobject_vtable_pick ( G3DOBJECT *obj, 
-                                G3DCAMERA *cam, 
-                                uint64_t   engineFlags ) {
+uint32_t g3dobject_default_pick ( G3DOBJECT *obj, 
+                                  G3DCAMERA *cam, 
+                                  uint64_t   engineFlags ) {
     /*** commented out : too verbose ***/
     /*
     if ( obj->type != G3DSCENETYPE) {
@@ -2133,19 +2117,19 @@ static uint32_t g3dobject_vtable_pick ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-void g3dobject_vtable_anim ( G3DOBJECT *obj,
+void g3dobject_default_anim ( G3DOBJECT *obj,
                             float      frame,
                             uint64_t   engineFlags ) {
 }
 
 /******************************************************************************/
-void g3dobject_vtable_update ( G3DOBJECT *obj,
+void g3dobject_default_update ( G3DOBJECT *obj,
                               uint64_t   updateFlags,
                               uint64_t   engineFlags ) {
 }
 
 /******************************************************************************/
-void g3dobject_vtable_pose ( G3DOBJECT *obj,
+void g3dobject_default_pose ( G3DOBJECT *obj,
                              G3DKEY    *key ) {
     /*** commented out : too verbose ***/
     /*
@@ -2154,7 +2138,7 @@ void g3dobject_vtable_pose ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-G3DOBJECT* g3dobject_vtable_copy ( G3DOBJECT  *obj,
+G3DOBJECT* g3dobject_default_copy ( G3DOBJECT  *obj,
                                    uint32_t    id,
                                    const char *name,
                                    uint64_t    engineFlags ) {
@@ -2169,12 +2153,12 @@ G3DOBJECT* g3dobject_vtable_copy ( G3DOBJECT  *obj,
 }
 
 /******************************************************************************/
-void g3dobject_vtable_transform ( G3DOBJECT *obj,
+void g3dobject_default_transform ( G3DOBJECT *obj,
                                   uint64_t   engineFlags ) {
 }
 
 /******************************************************************************/
-void g3dobject_vtable_activate ( G3DOBJECT *obj,
+void g3dobject_default_activate ( G3DOBJECT *obj,
                                  uint64_t   engineFlags ) {
     /*** commented out : too verbose ***/
     /*
@@ -2185,7 +2169,7 @@ void g3dobject_vtable_activate ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-void g3dobject_vtable_deactivate ( G3DOBJECT *obj,
+void g3dobject_default_deactivate ( G3DOBJECT *obj,
                                    uint64_t engineFlags ) {
     /*** commented out : too verbose ***/
     /*
@@ -2196,7 +2180,7 @@ void g3dobject_vtable_deactivate ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-G3DOBJECT* g3dobject_vtable_commit ( G3DOBJECT  *obj,
+G3DOBJECT* g3dobject_default_commit ( G3DOBJECT  *obj,
                                      uint32_t    id,
                                      const char *name,
                                      uint64_t    engineFlags ) {
@@ -2213,7 +2197,7 @@ G3DOBJECT* g3dobject_vtable_commit ( G3DOBJECT  *obj,
 }
 
 /******************************************************************************/
-void g3dobject_vtable_addChild ( G3DOBJECT *obj,
+void g3dobject_default_addChild ( G3DOBJECT *obj,
                                  G3DOBJECT *child, 
                                  uint64_t   engineFlags ) {
     /*** commented out : too verbose ***/
@@ -2226,7 +2210,7 @@ void g3dobject_vtable_addChild ( G3DOBJECT *obj,
 
 
 /******************************************************************************/
-void g3dobject_vtable_removeChild ( G3DOBJECT *obj,
+void g3dobject_default_removeChild ( G3DOBJECT *obj,
                                     G3DOBJECT *child, 
                                     uint64_t   engineFlags ) {
     /*** commented out : too verbose ***/
@@ -2238,7 +2222,7 @@ void g3dobject_vtable_removeChild ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-void g3dobject_vtable_setParent ( G3DOBJECT *obj, 
+void g3dobject_default_setParent ( G3DOBJECT *obj, 
                                   G3DOBJECT *parent, 
                                   G3DOBJECT *oldParent, 
                                   uint64_t   engineFlags ) {
@@ -2256,7 +2240,7 @@ void g3dobject_init ( G3DOBJECT       *obj,
                       uint32_t         type,
                       uint32_t         id,
                       const char      *name,
-                      uint32_t         object_flags
+                      uint32_t         object_flags,
                       G3DOBJECTVTABLE *vtable ) {
     obj->vtable = vtable;
     obj->type   = type;
@@ -2467,7 +2451,8 @@ G3DOBJECT *g3dobject_new ( uint32_t id, const char *name, uint32_t object_flags 
                      G3DOBJECTTYPE,
                      id,
                      name,
-                     object_flags );
+                     object_flags
+                     &_vtable );
 
     return obj;
 }
