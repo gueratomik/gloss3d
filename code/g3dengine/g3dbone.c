@@ -562,6 +562,25 @@ void g3dbone_unfix_r ( G3DBONE *bon,
 }
 
 /******************************************************************************/
+void g3dbone_init ( G3DBONE      *bon,
+                    uint32_t      id, 
+                    char         *name,
+                    float         len,
+                    G3DBONEVTABLE *vtable ) {
+
+    g3dobject_init ( G3DOBJECTCAST(bon),
+                     G3DBONETYPE,
+                     id,
+                     name,
+                     OBJECTINACTIVE,
+                     vtable ? G3DOBJECTVTABLECAST(vtable)
+                            : G3DOBJECTVTABLECAST(&_vtable) );
+
+    bon->len = len;
+
+}
+
+/******************************************************************************/
 G3DBONE *g3dbone_new ( uint32_t id, 
                        char    *name,
                        float    len ) {
@@ -574,14 +593,9 @@ G3DBONE *g3dbone_new ( uint32_t id,
         return NULL;
     }
 
-    g3dobject_init ( obj,
-                     G3DBONETYPE,
-                     id,
-                     name,
-                     OBJECTINACTIVE,
-                     G3DOBJECTVTABLECAST(&_vtable) );
 
-    bon->len = len;
+
+
 
     return bon;
 }

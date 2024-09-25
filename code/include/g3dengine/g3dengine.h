@@ -726,8 +726,13 @@ typedef struct _SHADERVERTEX {
 #include <g3dengine/g3dvertex.h>
 
 /******************************************************************************/
-typedef struct _G3DOBJECTVTABLE G3DOBJECTVTABLE;
-typedef struct _G3DMESHVTABLE   G3DMESHVTABLE;
+typedef struct _G3DOBJECTVTABLE   G3DOBJECTVTABLE;
+typedef struct _G3DMESHVTABLE     G3DMESHVTABLE;
+typedef struct _G3DBONEVTABLE     G3DBONEVTABLE;
+typedef struct _G3DCAMERAVTABLE   G3DCAMERAVTABLE;
+typedef struct _G3DMODIFIERVTABLE G3DMODIFIERVTABLE;
+typedef struct _G3DFFDVTABLE      G3DFFDVTABLE;
+typedef struct _G3DINSTANCEVTABLE G3DINSTANCEVTABLE;
 
 /******************************************************************************/
 typedef struct _G3DCAMERA G3DCAMERA;
@@ -1298,18 +1303,7 @@ struct _G3DKEY {
 /******************************************************************************/
 typedef struct _G3DMODIFIER {
     G3DMESH    mes;
-    uint32_t (*modify)     ( struct _G3DMODIFIER *mod,
-                                     G3DMODIFYOP  op,
-                                     uint64_t     engineFlags );
-    uint32_t (*huddraw)    ( struct _G3DMODIFIER *mod,
-                                     G3DCAMERA   *curcam,
-                                     G3DENGINE   *engine,
-                                     uint64_t     engineFlags );
-    uint32_t (*hudpick)    ( struct _G3DMODIFIER *mod,
-                                     G3DCAMERA   *curcam,
-                                     uint64_t     engineFlags );
     G3DOBJECT    *oriobj;            /* original mesh   */
-
 
     /* for modifiers that just modifiy the geometry, e.g the morpher  */
     G3DVECTOR3F  *stkpos;            /* stack positions */
@@ -2961,13 +2955,14 @@ G3DCAMERA *g3dcamera_new ( uint32_t id,
                            float    ratio,
                            float    znear, 
                            float    zfar );
-void g3dcamera_init( G3DCAMERA *cam,
-                     uint32_t id,
-                     char    *name, 
-                     float    focal, 
-                     float    ratio,
-                     float    znear, 
-                     float    zfar );
+void g3dcamera_init( G3DCAMERA       *cam,
+                     uint32_t         id,
+                     char            *name, 
+                     float            focal, 
+                     float            ratio,
+                     float            znear, 
+                     float            zfar,
+                     G3DCAMERAVTABLE *vtable );
 void g3dcamera_setTarget ( G3DCAMERA *cam, 
                            G3DCURSOR *csr,
                            uint64_t   engineFlags );
@@ -3011,6 +3006,12 @@ void g3dcursor_reset ( G3DCURSOR * );
 
 /******************************************************************************/
 G3DFFD *g3dffd_new          ( uint32_t, char * );
+void    g3dffd_init ( G3DFFD       *ffd,
+                      uint32_t      type,
+                      uint32_t      id,
+                      char         *name,
+                      uint32_t      objectFlags,
+                      G3DFFDVTABLE *vtable );
 void    g3dffd_free         ( G3DOBJECT * );
 void    g3dffd_shape        ( G3DFFD *, uint32_t, uint32_t, uint32_t, float, float, float );
 void    g3dffd_assign       ( G3DFFD *, G3DMESH * );
@@ -3067,6 +3068,11 @@ void  g3drttriangle_getnormal   ( G3DRTTRIANGLE *, G3DVECTOR3D * );*/
 
 /******************************************************************************/
 G3DBONE *g3dbone_new                    ( uint32_t, char *, float );
+void     g3dbone_init ( G3DBONE       *bon,
+                        uint32_t       id, 
+                        char          *name,
+                        float          len,
+                        G3DBONEVTABLE *vtable );
 void     g3dbone_free                   ( G3DOBJECT * );
 uint32_t g3dbone_draw ( G3DOBJECT *obj, 
                         G3DCAMERA *curcam,
@@ -3255,74 +3261,13 @@ void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
                                uint32_t       fromBuffer );
 
 /******************************************************************************/
-void g3dmodifier_init ( G3DMODIFIER *mod,
-                        uint32_t     type,
-                        uint32_t     id,
-                        char        *name,
-                        uint32_t     object_flags,
-                        uint32_t   (*Draw)         ( G3DOBJECT *,
-                                                     G3DCAMERA *, 
-                                                     G3DENGINE *, 
-                                                     uint64_t   ),
-                        void       (*Free)         ( G3DOBJECT * ),
-                        uint32_t   (*Pick)         ( G3DOBJECT *,
-                                                     G3DCAMERA *, 
-                                                     uint64_t   ),
-                        void       (*Anim)         ( G3DOBJECT *,
-                                                     float      , 
-                                                     uint64_t   ),
-                        void       (*Update)       ( G3DOBJECT *,
-                                                     uint64_t   ,
-                                                     uint64_t    ),
-                        void       (*Pose)         ( G3DOBJECT *,
-                                                     G3DKEY    * ),
-                        G3DOBJECT* (*Copy)         ( G3DOBJECT  *,
-                                                     uint32_t    ,
-                                                     const char *,
-                                                     uint64_t    ),
-                        void       (*Transform)    ( G3DOBJECT *,
-                                                     uint64_t   ),
-                        void       (*Activate)     ( G3DOBJECT *,
-                                                     uint64_t   ),
-                        void       (*Deactivate)   ( G3DOBJECT *,
-                                                     uint64_t   ),
-                        G3DOBJECT* (*Commit)       ( G3DOBJECT  *,
-                                                     uint32_t    ,
-                                                     const char *,
-                                                     uint64_t    ),
-                        void       (*AddChild)     ( G3DOBJECT *,
-                                                     G3DOBJECT *,
-                                                     uint64_t   ),
-                        void       (*RemoveChild)  ( G3DOBJECT *,
-                                                     G3DOBJECT *,
-                                                     uint64_t   ),
-                        void       (*SetParent)    ( G3DOBJECT *, 
-                                                     G3DOBJECT *, 
-                                                     G3DOBJECT *, 
-                                                     uint64_t   ),
-                        uint32_t   (*Dump)         ( G3DMESH *,
-                                                     void   (*)( uint32_t,
-                                                                 uint32_t,
-                                                                 uint32_t,
-                                                                 uint32_t,
-                                                                 void * ),
-                                                     void   (*) ( G3DFACE     *,
-                                                                  G3DVECTOR3F *,
-                                                                  G3DVECTOR3F *,
-                                                                  void        * ),
-                                                     void    *,
-                                                     uint64_t ),
-                        uint32_t   (*Modify)      ( G3DMODIFIER *, 
-                                                    G3DMODIFYOP,
-                                                    uint64_t ),
-                        uint32_t   (*HUDDraw)     ( G3DMODIFIER *,
-                                                    G3DCAMERA   *, 
-                                                    G3DENGINE   *, 
-                                                    uint64_t     ),
-                        uint32_t   (*HUDPick)     ( G3DMODIFIER *,
-                                                    G3DCAMERA *, 
-                                                    uint64_t   ) );
-void g3dmodifier_default_free( G3DMODIFIER *mod );
+void g3dmodifier_init ( G3DMODIFIER       *mod,
+                        uint32_t           type,
+                        uint32_t           id,
+                        char              *name,
+                        uint32_t           object_flags,
+                        G3DMODIFIERVTABLE *vtable );
+
 uint32_t g3dmodifier_hudpick ( G3DMODIFIER *mod,
                                G3DCAMERA   *curcam, 
                                uint64_t     engineFlags );

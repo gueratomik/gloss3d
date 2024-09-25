@@ -56,7 +56,11 @@ typedef struct _G3DINSTANCE {
 G3DINSTANCE *g3dinstance_new ( uint32_t  id, 
                                char     *name,
                                G3DSCENE *sce );
-
+void g3dinstance_init ( G3DINSTANCE       *ins, 
+                        uint32_t          id, 
+                        char              *name,
+                        G3DSCENE          *sce,
+                        G3DINSTANCEVTABLE *vtable );
 void g3dinstance_setMirrored    ( G3DINSTANCE *ins );
 void g3dinstance_unsetMirrored  ( G3DINSTANCE *ins );
 void g3dinstance_setOrientation ( G3DINSTANCE *ins, 

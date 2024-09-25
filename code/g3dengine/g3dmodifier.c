@@ -27,14 +27,38 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3dengine/vtable/g3dmodifiervtable.h>
+
+/*****************************************************************************/
+const G3DMODIFERVTABLE _vtable = { G3DMODIFIERVTABLE_DEFAUILT };
+
+/*****************************************************************************/
+uint32_t g3dmodifier_default_hudpick ( G3DMODIFIER *mod,
+                                       G3DCAMERA   *curcam, 
+                                       uint64_t     engineFlags ) {
+
+    return 0x00;
+}
+
+/*****************************************************************************/
+ uint32_t g3dmodifier_default_huddraw ( G3DMODIFIER *mod,
+                                        G3DCAMERA   *curcam, 
+                                        G3DENGINE   *engine, 
+                                        uint64_t     engineFlags ) {
+    return 0x00;
+}
+
+/******************************************************************************/
+uint32_t g3dmodifier_default_modify( G3DMODIFIER *mod, 
+                                     G3DMODIFYOP  op,
+                                     uint64_t     engineFlags ) {
+    return 0x00;
+}
 
 /*****************************************************************************/
 uint32_t g3dmodifier_hudpick ( G3DMODIFIER *mod,
                                G3DCAMERA   *curcam, 
                                uint64_t     engineFlags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) mod;
-
     if ( mod->hudpick ) {
         mod->hudpick ( mod, curcam, engineFlags );
     }
@@ -48,8 +72,6 @@ uint32_t g3dmodifier_huddraw ( G3DMODIFIER *mod,
                                G3DCAMERA   *curcam, 
                                G3DENGINE   *engine, 
                                uint64_t     engineFlags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) mod;
-
     if ( mod->huddraw ) {
         mod->huddraw ( mod, curcam, engine, engineFlags );
     }
@@ -58,24 +80,19 @@ uint32_t g3dmodifier_huddraw ( G3DMODIFIER *mod,
     return 0x00;
 }
 
-/*****************************************************************************/
-static uint32_t _default_hudpick ( G3DMODIFIER *mod,
-                                   G3DCAMERA   *curcam, 
-                                   uint64_t     engineFlags ) {
+/******************************************************************************/
+uint32_t g3dmodifier_modify( G3DMODIFIER *mod, 
+                             G3DMODIFYOP  op,
+                             uint64_t     engineFlags ) {
+    if ( mod->modify ) {
+        mod->modify ( mod, op, engineFlags );
+    }
 
-    return 0x00;
-}
-
-/*****************************************************************************/
-static uint32_t _default_huddraw ( G3DMODIFIER *mod,
-                                   G3DCAMERA   *curcam, 
-                                   G3DENGINE   *engine, 
-                                   uint64_t     engineFlags ) {
     return 0x00;
 }
 
 /******************************************************************************/
-static uint32_t _default_dump ( G3DMODIFIER *mod, 
+uint32_t g3dmodifier_default_dump ( G3DMODIFIER *mod, 
                                     void (*Alloc)( uint32_t, /*vertexCount */
                                                    uint32_t, /* nbtris */
                                                    uint32_t, /* nbquads */
@@ -92,15 +109,22 @@ static uint32_t _default_dump ( G3DMODIFIER *mod,
         LIST *ltmpfac = mes->faceList;
         uint32_t i, verID = 0x00;
 
-        if ( Alloc ) Alloc ( mes->vertexCount, mes->triangleCount, mes->quadCount, 0x00, data );
+        if ( Alloc ) {
+            Alloc ( mes->vertexCount,
+                    mes->triangleCount,
+                    mes->quadCount,
+                    0x00,
+                    data );
+        }
 
         /*g3dmesh_renumberVertices ( mes );*/
 
         while ( ltmpfac ) {
             G3DFACE *fac = ltmpfac->data;
-            
 
-            if ( Dump ) Dump ( fac, mod->verpos, mod->vernor, data );
+            if ( Dump ) {
+                Dump ( fac, mod->verpos, mod->vernor, data );
+            }
 
             ltmpfac = ltmpfac->next;
         }
@@ -196,122 +220,20 @@ G3DMODIFIER *g3dmodifier_modify_r ( G3DMODIFIER *mod,
 }
 
 /******************************************************************************/
-static void _default_setParent ( G3DMODIFIER *mod, 
-                                 G3DOBJECT   *parent,
-                                 G3DOBJECT   *oldParent,
-                                 uint64_t     engineFlags ) {
-}
-
-/******************************************************************************/
-static uint32_t _default_modify( G3DMODIFIER *mod, 
-                                 G3DMODIFYOP  op,
-                                 uint64_t     engineFlags ) {
-
-}
-
-/******************************************************************************/
-static void _default_free( G3DMODIFIER *mod ) {
-    g3dmesh_default_free( G3DMESHCAST(mod) );
-}
-
-/******************************************************************************/
-void g3dmodifier_default_free( G3DMODIFIER *mod ) {
-    _default_free( mod );
-}
-
-/******************************************************************************/
-void g3dmodifier_init ( G3DMODIFIER *mod,
-                        uint32_t     type,
-                        uint32_t     id,
-                        char        *name,
-                        uint32_t     object_flags,
-                        uint32_t   (*Draw)         ( G3DOBJECT *,
-                                                     G3DCAMERA *, 
-                                                     G3DENGINE *, 
-                                                     uint64_t   ),
-                        void       (*Free)         ( G3DOBJECT * ),
-                        uint32_t   (*Pick)         ( G3DOBJECT *,
-                                                     G3DCAMERA *, 
-                                                     uint64_t   ),
-                        void       (*Anim)         ( G3DOBJECT *,
-                                                     float      , 
-                                                     uint64_t   ),
-                        void       (*Update)       ( G3DOBJECT *,
-                                                     uint64_t   ,
-                                                     uint64_t    ),
-                        void       (*Pose)         ( G3DOBJECT *,
-                                                     G3DKEY    * ),
-                        G3DOBJECT* (*Copy)         ( G3DOBJECT  *,
-                                                     uint32_t    ,
-                                                     const char *,
-                                                     uint64_t    ),
-                        void       (*Transform)    ( G3DOBJECT *,
-                                                     uint64_t   ),
-                        void       (*Activate)     ( G3DOBJECT *,
-                                                     uint64_t   ),
-                        void       (*Deactivate)   ( G3DOBJECT *,
-                                                     uint64_t   ),
-                        G3DOBJECT* (*Commit)       ( G3DOBJECT  *,
-                                                     uint32_t    ,
-                                                     const char *,
-                                                     uint64_t    ),
-                        void       (*AddChild)     ( G3DOBJECT *,
-                                                     G3DOBJECT *,
-                                                     uint64_t   ),
-                        void       (*RemoveChild)  ( G3DOBJECT *,
-                                                     G3DOBJECT *,
-                                                     uint64_t   ),
-                        void       (*SetParent)    ( G3DOBJECT *, 
-                                                     G3DOBJECT *, 
-                                                     G3DOBJECT *, 
-                                                     uint64_t   ),
-                        uint32_t   (*Dump)         ( G3DMESH *,
-                                                     void   (*)( uint32_t,
-                                                                 uint32_t,
-                                                                 uint32_t,
-                                                                 uint32_t,
-                                                                 void * ),
-                                                     void   (*) ( G3DFACE     *,
-                                                                  G3DVECTOR3F *,
-                                                                  G3DVECTOR3F *,
-                                                                  void        * ),
-                                                     void    *,
-                                                     uint64_t ),
-                        uint32_t   (*Modify)      ( G3DMODIFIER *, 
-                                                    G3DMODIFYOP,
-                                                    uint64_t ),
-                        uint32_t   (*HUDDraw)     ( G3DMODIFIER *,
-                                                    G3DCAMERA   *, 
-                                                    G3DENGINE   *, 
-                                                    uint64_t     ),
-                        uint32_t   (*HUDPick)     ( G3DMODIFIER *,
-                                                    G3DCAMERA *, 
-                                                    uint64_t   ) ) {
+void g3dmodifier_init ( G3DMODIFIER       *mod,
+                        uint32_t           type,
+                        uint32_t           id,
+                        char              *name,
+                        uint32_t           object_flags,
+                        G3DMODIFIERVTABLE *vtable ) {
 
     g3dmesh_init ( G3DMESHCAST(mod),
                    type,
                    id,
                    name,
                    object_flags,
-                   Draw,
-                   Free,
-                   Pick,
-                   Anim,
-                   Update,
-                   Pose,
-                   Copy,
-                   Transform,
-                   Activate,
-                   Deactivate,
-                   Commit,
-                   AddChild,
-                   RemoveChild,
-                   SetParent ? SetParent : SETPARENT_CALLBACK(_default_setParent),
-     DUMP_CALLBACK(_default_dump) );
-
-    mod->modify  = Modify  ? Modify  : MODIFY_CALLBACK(_default_modify);
-    mod->huddraw = HUDDraw ? HUDDraw : HUDDRAW_CALLBACK(_default_huddraw);
-    mod->hudpick = HUDPick ? HUDPick : HUDPICK_CALLBACK(_default_hudpick);
+                   vtable ? G3DOBJECTVTABLECAST(vtable)
+                          : G3DOBJECTVTABLECAST(&_vtable) );
 
     ((G3DMESH*)mod)->gouraudScalarLimit = cos ( 44.99 * M_PI / 180 );
 

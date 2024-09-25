@@ -39,6 +39,10 @@
 extern "C" {
 #endif
 
+/******************************************************************************/
+typedef struct _G3DLIGHTVTABLE G3DLIGHTVTABLE;
+
+/******************************************************************************/
 /**
  * @struct G3DLIGHT
  * @brief A structure to store a 3D Light.
@@ -115,9 +119,10 @@ G3DLIGHT *g3dlight_copy ( G3DLIGHT      *lig,
                           unsigned char *name,
                           uint64_t engine_flags );
 
-void g3dlight_init ( G3DLIGHT *lig, 
-                     uint32_t  id, 
-                     char     *name );
+void g3dlight_init ( G3DLIGHT      *lig, 
+                     uint32_t       id, 
+                     char           *name,
+                     G3DLIGHTVTABLE *vtable );
 
 void g3dlight_setSpot ( G3DLIGHT *lig );
 void g3dlight_unsetSpot ( G3DLIGHT *lig );

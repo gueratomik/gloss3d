@@ -2242,7 +2242,7 @@ void g3dobject_init ( G3DOBJECT       *obj,
                       const char      *name,
                       uint32_t         object_flags,
                       G3DOBJECTVTABLE *vtable ) {
-    obj->vtable = vtable;
+    obj->vtable = vtable ? vtable : &_vtable;
     obj->type   = type;
     obj->id     = id;
     obj->flags  = object_flags;
@@ -2451,8 +2451,8 @@ G3DOBJECT *g3dobject_new ( uint32_t id, const char *name, uint32_t object_flags 
                      G3DOBJECTTYPE,
                      id,
                      name,
-                     object_flags
-                     &_vtable );
+                     object_flags,
+                     NULL );
 
     return obj;
 }

@@ -4815,7 +4815,7 @@ void g3dmesh_init ( G3DMESH       *mes,
                      id,
                      name,
                      objectFlags,
-                     _vtable );
+                     vtable ? vtable : &_vtable );
 
     mes->verid = 0x00; /*** start at 1 because we could have problem when ***/
                        /*** calling g3dface_getVertexByID for statically ***/
@@ -4925,7 +4925,8 @@ G3DMESH *g3dmesh_new ( uint32_t id,
                    G3DMESHTYPE,
                    id,
                    name,
-                   0x00 );
+                   0x00,
+                   NULL );
 
     return mes;
 }

@@ -565,21 +565,22 @@ void g3dcamera_setOrtho ( G3DCAMERA *cam,
 }
 
 /******************************************************************************/
-void g3dcamera_init( G3DCAMERA *cam,
-                     uint32_t id,
-                     char    *name, 
-                     float    focal, 
-                     float    ratio,
-                     float    znear, 
-                     float    zfar ) {
-    G3DOBJECT *obj = ( G3DOBJECT  * ) cam;
+void g3dcamera_init( G3DCAMERA       *cam,
+                     uint32_t         id,
+                     char            *name, 
+                     float            focal, 
+                     float            ratio,
+                     float            znear, 
+                     float            zfar,
+                     G3DCAMERAVTABLE *vtable ) {
 
-    g3dobject_init ( obj,
+    g3dobject_init ( G3DOBJECTCAST(cam),
                      G3DCAMERATYPE,
                      id,
                      name,
                      0x00,
-                     G3DOBJECTVTABLECAST(&_vtable));
+                     vtable ? G3DOBJECTVTABLECAST(vtable)
+                            : G3DOBJECTVTABLECAST(&_vtable) );
 
     cam->focal = focal;
     cam->ratio = ratio;
@@ -619,7 +620,8 @@ G3DCAMERA *g3dcamera_new ( uint32_t id,
         return NULL;
     }
 
-    g3dcamera_init( cam, id, name, focal, ratio, znear, zfar );
+    g3dcamera_init( cam, id, name, focal, ratio, znear, zfar, NULL );
+
 
     return cam;
 }

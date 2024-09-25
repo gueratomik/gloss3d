@@ -59,16 +59,23 @@
                                                  uint64_t))f)
 
 /******************************************************************************/
-typedef struct _G3DCAMERA G3DCAMERA;
-typedef struct _G3DMESH   G3DMESH;
-typedef struct _G3DSPLINE G3DSPLINE;
-typedef struct _G3DKEY    G3DKEY;
-typedef struct _G3DCURVE  G3DCURVE;
-typedef struct _G3DRIG    G3DRIG;
-typedef struct _G3DTAG    G3DTAG;
-typedef struct _G3DSCENE  G3DSCENE;
-typedef struct _G3DENGINE G3DENGINE;
-typedef struct _G3DOBJECT G3DOBJECT;
+typedef struct _G3DCAMERA          G3DCAMERA;
+typedef struct _G3DMESH            G3DMESH;
+typedef struct _G3DSPLINE          G3DSPLINE;
+typedef struct _G3DKEY             G3DKEY;
+typedef struct _G3DCURVE           G3DCURVE;
+typedef struct _G3DRIG             G3DRIG;
+typedef struct _G3DTAG             G3DTAG;
+typedef struct _G3DSCENE           G3DSCENE;
+typedef struct _G3DENGINE          G3DENGINE;
+typedef struct _G3DOBJECT          G3DOBJECT;
+typedef struct _G3DMODIFIER        G3DMODIFIER;
+typedef struct _G3DFFD             G3DFFD;
+typedef struct _G3DSUBDIVIDER      G3DSUBDIVIDER;
+typedef struct _G3DPARTICLEEMITTER G3DPARTICLEEMITTER;
+typedef struct _G3DWIREFRAME       G3DWIREFRAME;
+typedef struct _G3DSYMMETRY        G3DSYMMETRY;
+typedef struct _G3DMORPHER         G3DMORPHER;
 
 /******************************************************************************/
 typedef struct _G3DOBJECTVTABLE {

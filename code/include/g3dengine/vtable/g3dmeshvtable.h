@@ -6,6 +6,10 @@
 #include "g3dobjectvtable.h"
 
 /******************************************************************************/
+typedef struct _G3DFACE     G3DFACE;
+typedef struct _G3DVECTOR3F G3DVECTOR3F;
+
+/******************************************************************************/
 typedef struct _G3DMESHVTABLE {
     G3DOBJECTVTABLE objectVTable;
     uint32_t      (*dump) ( G3DMESH *,
@@ -57,11 +61,11 @@ uint32_t g3dmesh_default_dump   ( G3DMESH *mes,
 
 #define G3DMESHVTABLE_DEFAULT \
 .objectVTable = { G3DOBJECTVTABLE_DEFAULT,  \
-                  .draw   = g3dmesh_default_draw, \
-                  .free   = g3dmesh_default_free, \
-                  .pick   = g3dmesh_default_pick, \
-                  .update = g3dmesh_default_update, \
-                  .copy   = g3dmesh_default_copy }, \
+                  .draw   = DRAW_CALLBACK(g3dmesh_default_draw), \
+                  .free   = FREE_CALLBACK(g3dmesh_default_free), \
+                  .pick   = PICK_CALLBACK(g3dmesh_default_pick), \
+                  .update = UPDATE_CALLBACK(g3dmesh_default_update), \
+                  .copy   = COPY_CALLBACK(g3dmesh_default_copy) }, \
 .dump = g3dmesh_default_dump
 
 

@@ -27,7 +27,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3dengine/vtable/g3dinstancevtable.h>
+
+/******************************************************************************/
+const G3DINSTANCEVTABLE _vtable = { G3DINSTANCEVTABLE_DEFAULT };
 
 /******************************************************************************/
 void g3dinstance_setReference ( G3DINSTANCE *ins, 
@@ -58,10 +61,10 @@ void g3dinstance_unsetMirrored ( G3DINSTANCE *ins ) {
 }
 
 /******************************************************************************/
-static G3DINSTANCE *_default_copy ( G3DINSTANCE   *ins, 
-                                    uint32_t       id, 
-                                    unsigned char *name,
-                                    uint64_t       engine_flags ) {
+G3DINSTANCE *g3dinstance_default_copy ( G3DINSTANCE   *ins, 
+                                        uint32_t       id, 
+                                        unsigned char *name,
+                                        uint64_t       engine_flags ) {
     G3DINSTANCE *cpyins = g3dinstance_new ( ((G3DOBJECT*)ins)->id,
                                             ((G3DOBJECT*)ins)->name, ins->sce );
 
@@ -75,13 +78,14 @@ static G3DINSTANCE *_default_copy ( G3DINSTANCE   *ins,
 }
 
 /******************************************************************************/
-static uint32_t _default_draw ( G3DINSTANCE *ins, 
-                                G3DCAMERA   *curcam, 
-                                uint64_t     engine_flags ) {
+uint32_t g3dinstance_default_draw ( G3DINSTANCE *ins, 
+                                    G3DCAMERA   *curcam,
+                                    G3DENGINE   *engine,
+                                    uint64_t     engine_flags ) {
 
     if ( ins->ref ) {
         if ( g3dscene_isObjectReferred ( ins->sce, ins->ref ) ) {
-            if ( ins->ref->draw ) {
+            if ( ins->ref->vtable->draw ) {
 #ifdef need_refactor
                 glPushMatrix ( );
 
@@ -109,21 +113,21 @@ static uint32_t _default_draw ( G3DINSTANCE *ins,
 }
 
 /******************************************************************************/
-static uint32_t _default_pick ( G3DINSTANCE *ins, 
-                                G3DCAMERA   *curcam, 
-                                uint64_t     engine_flags ) {
+uint32_t g3dinstance_default_pick ( G3DINSTANCE *ins, 
+                                    G3DCAMERA   *curcam, 
+                                    uint64_t     engine_flags ) {
 
     if ( ins->ref ) {
         if ( g3dscene_isObjectReferred ( ins->sce, ins->ref ) ) {
-            if ( ins->ref->pick ) {
+            if ( ins->ref->vtable->pick ) {
                 if ( engine_flags & VIEWOBJECT ) {
                     if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
                         g3dpick_multModelviewMatrixf ( ins->smatrix );
                     }
 
-                    ins->ref->pick ( ins->ref, 
-                                     curcam, 
-                                     engine_flags );
+                    ins->ref->vtable->pick ( ins->ref, 
+                                             curcam, 
+                                             engine_flags );
                 }
             }
         }
@@ -133,35 +137,22 @@ static uint32_t _default_pick ( G3DINSTANCE *ins,
 }
 
 /******************************************************************************/
-void g3dinstance_init ( G3DINSTANCE *ins, 
-                        uint32_t     id, 
-                        char        *name,
-                        G3DSCENE    *sce ) {
+void g3dinstance_init ( G3DINSTANCE       *ins, 
+                        uint32_t          id, 
+                        char              *name,
+                        G3DSCENE          *sce,
+                        G3DINSTANCEVTABLE *vtable ) {
 
-    g3dobject_init ( ( G3DOBJECT * ) ins, 
+    g3dobject_init ( G3DOBJECTCAST(ins), 
                      G3DINSTANCETYPE,
                      id, 
                      name, 
                      0x00,
-       DRAW_CALLBACK(_default_draw),
-       FREE_CALLBACK(NULL),
-       PICK_CALLBACK(_default_pick),
-       ANIM_CALLBACK(NULL),
-     UPDATE_CALLBACK(NULL),
-       POSE_CALLBACK(NULL),
-       COPY_CALLBACK(_default_copy),
-  TRANSFORM_CALLBACK(NULL),
-   ACTIVATE_CALLBACK(NULL),
- DEACTIVATE_CALLBACK(NULL),
-     COMMIT_CALLBACK(NULL),
-   ADDCHILD_CALLBACK(NULL),
-REMOVECHILD_CALLBACK(NULL),
-  SETPARENT_CALLBACK(NULL) );
+                     vtable ? G3DOBJECTVTABLECAST(vtable)
+                            : G3DOBJECTVTABLECAST(&_vtable) );
 
     ins->orientation = INSTANCEYZ;
     ins->sce = sce;
-
-    /*mes->dump           = g3dmesh_default_dump;*/
 }
 
 /******************************************************************************/
@@ -176,7 +167,7 @@ G3DINSTANCE *g3dinstance_new ( uint32_t id,
         return NULL;
     }
 
-    g3dinstance_init ( ins, id, name, sce );
+    g3dinstance_init ( ins, id, name, sce, NULL );
 
 
     return ins;
