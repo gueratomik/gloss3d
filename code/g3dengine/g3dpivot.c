@@ -27,19 +27,16 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3dengine/vtable/g3dpivotvtable.h>
 
 /******************************************************************************/
-static void _default_free ( G3DOBJECT *obj ) {
-
-
-}
+G3DPIVOTVTABLE _vtable = { G3DPIVOTVTABLE_DEFAULT };
 
 /******************************************************************************/
-static uint32_t _default_draw ( G3DOBJECT *obj, 
-                                G3DCAMERA *curcam, 
-                                G3DENGINE *engine, 
-                                uint64_t   engine_flags ) {
+uint32_t g3dpivot_default_draw ( G3DPIVOT  *piv, 
+                                 G3DCAMERA *curcam, 
+                                 G3DENGINE *engine, 
+                                 uint64_t   engine_flags ) {
 #ifdef need_refactor
     glPushAttrib( GL_ALL_ATTRIB_BITS );
     glDisable   ( GL_LIGHTING );
@@ -96,10 +93,11 @@ void g3dpivot_orbit ( G3DPIVOT *piv, float diffx, float diffy ) {
 /******************************************************************************/
 /*** The principle is to build a pivot that has its Zaxis parallel to the   ***/
 /*** Camera's world ZAxis, so we get nice rotation ***/
-void g3dpivot_init ( G3DPIVOT  *piv, 
-                     G3DCAMERA *cam, 
-                     G3DCURSOR *csr, 
-                     uint64_t engine_flags ) {
+void g3dpivot_init ( G3DPIVOT       *piv,
+                     G3DCAMERA      *cam,
+                     G3DCURSOR      *csr,
+                     uint64_t        engine_flags,
+                     G3DPIVOTVTABLE *vtable ) {
     G3DOBJECT *objpiv   = ( G3DOBJECT * ) piv;
     G3DOBJECT *objcam   = ( G3DOBJECT * ) cam;
     G3DOBJECT *yaxisobj = objpiv;
@@ -121,20 +119,8 @@ void g3dpivot_init ( G3DPIVOT  *piv,
                      0x00,
                      "YAxis",
                      0x00,
-       DRAW_CALLBACK(_default_draw),
-       FREE_CALLBACK(_default_free),
-                     NULL,
-                     NULL,
-                     NULL,
-                     NULL,
-                     NULL,
-                     NULL,
-                     NULL,
-                     NULL,
-                     NULL,
-                     NULL,
-                     NULL,
-                     NULL );
+                     vtable ? G3DOBJECTVTABLECAST(vtable)
+                            : G3DOBJECTVTABLECAST(&_vtable) );
 
     piv->cam = cam;
 
@@ -193,7 +179,7 @@ G3DPIVOT *g3dpivot_new ( G3DCAMERA *cam,
         return NULL;
     }
 
-    g3dpivot_init ( piv, cam, csr, engine_flags );
+    g3dpivot_init ( piv, cam, csr, engine_flags, NULL );
 
 
     return piv;

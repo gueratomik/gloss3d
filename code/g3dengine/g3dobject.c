@@ -32,7 +32,7 @@
 
 
 /******************************************************************************/
-const G3DOBJECTVTABLE _vtable = { G3DOBJECTVTABLE_DEFAULT };
+G3DOBJECTVTABLE _vtable = { G3DOBJECTVTABLE_DEFAULT };
 
 /******************************************************************************/
 uint32_t g3dobject_getNextTagID ( G3DOBJECT *obj ) {
@@ -1556,14 +1556,19 @@ void g3dobject_removeChild ( G3DOBJECT *obj,
 
     child->invalidationFlags &= (~INVALIDATE_REPORTED);
 
-    if ( obj->vtable->removeChild ) obj->removeChild  ( obj,
-                                                       child,
-                                                       engineFlags );
 
-    if ( child->vtable->setParent ) child->vtable->setParent ( child, 
-                                                               NULL, 
-                                                               oldParent, 
-                                                               engineFlags );
+    if ( obj->vtable->removeChild ) {
+        obj->vtable->removeChild  ( obj,
+                                    child,
+                                    engineFlags );
+    }
+
+    if ( child->vtable->setParent ) {
+        child->vtable->setParent ( child, 
+                                   NULL, 
+                                   oldParent, 
+                                   engineFlags );
+    }
 
     g3dobject_update_r ( child, 0x00, engineFlags );
 }
@@ -2046,7 +2051,10 @@ G3DOBJECT *g3dobject_copy ( G3DOBJECT  *obj,
                             uint32_t    id,
                             const char *name, 
                             uint64_t    engineFlags ) {
-    G3DOBJECT *cpyobj = ( G3DOBJECT * ) obj->copy ( obj, id, name, engineFlags );
+    G3DOBJECT *cpyobj = ( G3DOBJECT * ) obj->vtable->copy ( obj,
+                                                            id,
+                                                            name,
+                                                            engineFlags );
     LIST *ltmpchildren = obj->childList;
 
     g3dobject_importTransformations ( cpyobj, obj );
@@ -2297,7 +2305,9 @@ void g3dobject_activate ( G3DOBJECT *obj,
     if ( obj->flags & OBJECTINACTIVE ) {
         g3dobject_setActive ( obj );
 
-        if ( obj->activate ) obj->activate ( obj, engineFlags );
+        if ( obj->vtable->activate ) {
+            obj->vtable->activate ( obj, engineFlags );
+        }
     }
 }
 
@@ -2307,7 +2317,9 @@ void g3dobject_deactivate ( G3DOBJECT *obj,
     if ( ( obj->flags & OBJECTINACTIVE ) == 0x00 ) {
         g3dobject_setInactive ( obj );
 
-        if ( obj->deactivate ) obj->deactivate ( obj, engineFlags );
+        if ( obj->vtable->deactivate ) {
+            obj->vtable->deactivate ( obj, engineFlags );
+        }
     }
 }
 
@@ -2317,7 +2329,9 @@ G3DOBJECT *g3dobject_commit ( G3DOBJECT     *obj,
                               unsigned char *name,
                               uint64_t       engineFlags ) {
 
-    if ( obj->commit ) return obj->commit ( obj, id, name, engineFlags );
+    if ( obj->vtable->commit ) {
+        return obj->vtable->commit ( obj, id, name, engineFlags );
+    }
 
     return NULL;
 }

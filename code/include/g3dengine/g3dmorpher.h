@@ -44,6 +44,8 @@ extern "C" {
 
 #define MESHPOSESELECTED ( 1      )
 
+typedef struct _G3DMORPHERVTABLE G3DMORPHERVTABLE;
+
 /******************************************************************************/
 typedef struct _G3DMORPHERVERTEXPOSE {
     G3DVECTOR3F pos;
@@ -88,7 +90,11 @@ G3DMORPHERVERTEXPOSE *g3dmorpher_getVertexPose ( G3DMORPHER         *mpr,
 G3DMORPHER *g3dmorpher_new ( uint32_t id, 
                              char    *name, 
                              uint64_t engine_flags );
-
+void g3dmorpher_init ( G3DMORPHER       *mpr, 
+                       uint32_t          id, 
+                       char             *name, 
+                       uint64_t          engine_flags,
+                       G3DMORPHERVTABLE *vtable );
 G3DMORPHERMESHPOSE *g3dmorpher_createMeshPose ( G3DMORPHER *mpr, 
                                                 char       *name );
 void g3dmorpher_addMeshPose ( G3DMORPHER         *mpr, 

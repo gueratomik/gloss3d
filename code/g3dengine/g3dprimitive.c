@@ -27,12 +27,16 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3dengine/vtable/g3dprimitivevtable.h>
 
 /******************************************************************************/
-static G3DOBJECT *_default_copy ( G3DOBJECT *obj, 
-                                  uint64_t   engineFlags ) {
-    G3DPRIMITIVE *pri = ( G3DPRIMITIVE * ) obj;
+G3DPRIMITIVEVTABLE _vtable = { G3DPRIMITIVEVTABLE_DEFAULT };
+
+/******************************************************************************/
+G3DPRIMITIVE* g3dprimitive_default_copy ( G3DPRIMITIVE *pri,
+                                          uint32_t      id,
+                                          const char   *name,
+                                          uint64_t      engineFlags ) {
     G3DPRIMITIVE *cpypri;
     void *data;
     uint32_t i;
@@ -47,63 +51,54 @@ static G3DOBJECT *_default_copy ( G3DOBJECT *obj,
     memcpy ( data, pri->data, pri->datalen );
 
     /*** create the primitive ***/
-    cpypri = g3dprimitive_new ( ((G3DOBJECT*)pri)->id, 
-                                ((G3DOBJECT*)pri)->name, data, pri->datalen );
+    cpypri = g3dprimitive_new ( G3DOBJECTCAST(pri)->id, 
+                                G3DOBJECTCAST(pri)->name, data, pri->datalen );
 
-    ((G3DOBJECT*)cpypri)->type = ((G3DOBJECT*)pri)->type;
+    G3DOBJECTCAST(cpypri)->type = G3DOBJECTCAST(pri)->type;
 
     /*** A primitive is a mesh ***/
-    g3dmesh_clone ( ( G3DMESH * ) pri, NULL, ( G3DMESH * ) cpypri, engineFlags );
+    g3dmesh_clone ( G3DMESHCAST(pri), NULL, G3DMESHCAST(cpypri), engineFlags );
 
 
-    return ( G3DOBJECT * ) cpypri;
+    return cpypri;
 }
 
 /******************************************************************************/
 G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, 
                                 uint64_t      engineFlags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) pri;
+    LIST *ltmpchild = G3DOBJECTCAST(pri)->childList;
     G3DMESH *mes;
 
-    /*** some trick to force the creation of a Mesh, not a Primitive. ***/
-    obj->copy = COPY_CALLBACK(g3dmesh_default_copy);
+    mes = g3dmesh_default_copy ( G3DMESHCAST(pri),
+                                 G3DOBJECTCAST(pri)->id,
+                                 G3DOBJECTCAST(pri)->name,
+                                 engineFlags );
 
-    /* deep copy */
-    mes = ( G3DMESH * ) g3dobject_copy ( obj,
-                                         obj->id, 
-                                         obj->name, 
-                                         engineFlags );
+    while ( ltmpchild ) {
+        G3DOBJECT *child = ( G3DOBJECT * ) ltmpchild->data;
 
-    g3dobject_invalidate( ( G3DOBJECT * ) mes, INVALIDATE_ALL );
+       g3dobject_removeChild( child->parent     , child, engineFlags  );
+       g3dobject_addChild   ( G3DOBJECTCAST(mes), child, engineFlags  );
 
-    if ( obj->parent ) {
-        G3DOBJECT *parent = obj->parent;
-
-        g3dobject_removeChild ( parent, obj, engineFlags );
-        g3dobject_addChild    ( parent, ( G3DOBJECT * ) mes, engineFlags );
+       ltmpchild = ltmpchild->next;
     }
 
-    /*** Restore the default copy function ***/
-    obj->copy = COPY_CALLBACK(_default_copy);
+    if ( G3DOBJECTCAST(pri)->parent ) {
+        G3DOBJECT *parent = G3DOBJECTCAST(pri)->parent;
+
+        g3dobject_removeChild ( parent, G3DOBJECTCAST(pri), engineFlags );
+        g3dobject_addChild    ( parent, G3DOBJECTCAST(mes), engineFlags );
+    }
 
 
     return mes;
 }
 
 /******************************************************************************/
-static uint32_t _default_pick ( G3DPRIMITIVE *pri, 
-                                G3DCAMERA    *curcam, 
-                                uint64_t      engineFlags ) {
-    g3dmesh_default_pick( ( G3DMESH * ) pri, curcam, engineFlags );
-
-    return 0x00;
-}
-
-/******************************************************************************/
-static uint32_t _default_draw ( G3DPRIMITIVE *pri, 
-                                    G3DCAMERA    *curcam, 
-                                    G3DENGINE    *engine, 
-                                    uint64_t      engineFlags ) {
+uint32_t g3dprimitive_default_draw ( G3DPRIMITIVE *pri, 
+                                     G3DCAMERA    *curcam, 
+                                     G3DENGINE    *engine, 
+                                     uint64_t      engineFlags ) {
     g3dmesh_default_draw ( G3DMESHCAST(pri), 
                            curcam, 
                            engine, 
@@ -113,18 +108,19 @@ static uint32_t _default_draw ( G3DPRIMITIVE *pri,
 }
 
 /******************************************************************************/
-static void _default_free ( G3DPRIMITIVE *pri ) {
+void g3dprimitive_default_free ( G3DPRIMITIVE *pri ) {
     if ( pri->data ) {
         free ( pri->data );
     }
 }
 
 /******************************************************************************/
-void g3dprimitive_init ( G3DPRIMITIVE *pri, 
-                         uint32_t     id,
-                         char        *name,
-                         void        *data,
-                         uint32_t     datalen ) {
+void g3dprimitive_init ( G3DPRIMITIVE       *pri, 
+                         uint32_t            id,
+                         char               *name,
+                         void               *data,
+                         uint32_t            datalen,
+                         G3DPRIMITIVEVTABLE *vtable ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) pri;
 
     pri->data    = data;
@@ -135,21 +131,8 @@ void g3dprimitive_init ( G3DPRIMITIVE *pri,
                      id,
                      name,
                      0x00,
-       DRAW_CALLBACK(_default_draw),
-       FREE_CALLBACK(_default_free),
-       PICK_CALLBACK(_default_pick),
-       ANIM_CALLBACK(NULL),
-     UPDATE_CALLBACK(NULL),
-       POSE_CALLBACK(NULL),
-       COPY_CALLBACK(_default_copy),
-  TRANSFORM_CALLBACK(NULL),
-   ACTIVATE_CALLBACK(NULL),
- DEACTIVATE_CALLBACK(NULL),
-     COMMIT_CALLBACK(NULL),
-   ADDCHILD_CALLBACK(NULL),
-REMOVECHILD_CALLBACK(NULL),
-  SETPARENT_CALLBACK(NULL),
-       DUMP_CALLBACK(NULL) );
+                     vtable ? G3DMESHVTABLECAST(vtable)
+                            : G3DMESHVTABLECAST(&_vtable) );
 }
 
 /******************************************************************************/
@@ -165,7 +148,7 @@ G3DPRIMITIVE *g3dprimitive_new ( uint32_t id,
         return NULL;
     }
 
-    g3dprimitive_init ( pri, id, name, data, datalen );
+    g3dprimitive_init ( pri, id, name, data, datalen, NULL );
 
 
     return pri;

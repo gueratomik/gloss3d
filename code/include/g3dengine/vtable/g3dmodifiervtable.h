@@ -9,16 +9,16 @@
 /******************************************************************************/
 typedef struct _G3DMODIFIERVTABLE {
     G3DMESHVTABLE meshVTable;
-    uint32_t    (*huddraw) ( G3DMODIFIER *mod,
-                             G3DCAMERA   *curcam,
-                             G3DENGINE   *engine,
-                             uint64_t     engineFlags );
-    uint32_t    (*hudpick) ( G3DMODIFIER *mod,
-                             G3DCAMERA   *curcam,
-                             uint64_t     engineFlags );
-    uint32_t    (*modify)  ( G3DMODIFIER *mod,
-                             G3DMODIFYOP  op,
-                             uint64_t     engineFlags );
+    uint32_t    ( *const huddraw) ( G3DMODIFIER *mod,
+                                    G3DCAMERA   *curcam,
+                                    G3DENGINE   *engine,
+                                    uint64_t     engineFlags );
+    uint32_t    ( *const hudpick) ( G3DMODIFIER *mod,
+                                    G3DCAMERA   *curcam,
+                                    uint64_t     engineFlags );
+    uint32_t    ( *const modify)  ( G3DMODIFIER *mod,
+                                    G3DMODIFYOP  op,
+                                    uint64_t     engineFlags );
 } G3DMODIFIERVTABLE;
 
 /************************** Object vtable overrides ***************************/
@@ -57,7 +57,7 @@ uint32_t g3dmodifier_default_modify  ( G3DMODIFIER *mod,
 /******************************************************************************/
 
 #define G3DMODIFIERVTABLE_DEFAULT \
-.meshVTable = { .dump = g3dmodifier_default_dump }, \
+.meshVTable = { .dump = DUMP_CALLBACK(g3dmodifier_default_dump) }, \
 .huddraw = g3dmodifier_default_huddraw, \
 .hudpick = g3dmodifier_default_hudpick, \
 .modify = g3dmodifier_default_modify

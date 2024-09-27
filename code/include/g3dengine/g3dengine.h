@@ -726,13 +726,15 @@ typedef struct _SHADERVERTEX {
 #include <g3dengine/g3dvertex.h>
 
 /******************************************************************************/
-typedef struct _G3DOBJECTVTABLE   G3DOBJECTVTABLE;
-typedef struct _G3DMESHVTABLE     G3DMESHVTABLE;
-typedef struct _G3DBONEVTABLE     G3DBONEVTABLE;
-typedef struct _G3DCAMERAVTABLE   G3DCAMERAVTABLE;
-typedef struct _G3DMODIFIERVTABLE G3DMODIFIERVTABLE;
-typedef struct _G3DFFDVTABLE      G3DFFDVTABLE;
-typedef struct _G3DINSTANCEVTABLE G3DINSTANCEVTABLE;
+typedef struct _G3DOBJECTVTABLE    G3DOBJECTVTABLE;
+typedef struct _G3DMESHVTABLE      G3DMESHVTABLE;
+typedef struct _G3DBONEVTABLE      G3DBONEVTABLE;
+typedef struct _G3DCAMERAVTABLE    G3DCAMERAVTABLE;
+typedef struct _G3DMODIFIERVTABLE  G3DMODIFIERVTABLE;
+typedef struct _G3DFFDVTABLE       G3DFFDVTABLE;
+typedef struct _G3DINSTANCEVTABLE  G3DINSTANCEVTABLE;
+typedef struct _G3DPIVOTVTABLE     G3DPIVOTVTABLE;
+typedef struct _G3DPRIMITIVEVTABLE G3DPRIMITIVEVTABLE;
 
 /******************************************************************************/
 typedef struct _G3DCAMERA G3DCAMERA;
@@ -2384,11 +2386,12 @@ uint32_t g3dprimitive_draw ( G3DPRIMITIVE *pri,
                              uint64_t   engineFlags );
 G3DMESH *g3dprimitive_convert ( G3DPRIMITIVE *pri, 
                                 uint64_t      engineFlags );
-void g3dprimitive_init ( G3DPRIMITIVE *pri, 
-                         uint32_t     id,
-                         char        *name,
-                         void        *data,
-                         uint32_t     datalen );
+void g3dprimitive_init ( G3DPRIMITIVE       *pri, 
+                         uint32_t            id,
+                         char               *name,
+                         void               *data,
+                         uint32_t            datalen,
+                         G3DPRIMITIVEVTABLE *vtable );
 G3DOBJECT *g3dprimitive_copy ( G3DOBJECT *obj, 
                                uint64_t   engineFlags );
 
@@ -3193,7 +3196,8 @@ uint32_t g3dpivot_draw ( G3DOBJECT *obj,
 void g3dpivot_init ( G3DPIVOT  *piv, 
                      G3DCAMERA *cam, 
                      G3DCURSOR *csr, 
-                     uint64_t engineFlags );
+                     uint64_t   engine_flags,
+                     G3DPIVOTVTABLE *vtable );
 G3DPIVOT *g3dpivot_new ( G3DCAMERA *cam, 
                          G3DCURSOR *csr, 
                          uint64_t   engineFlags );

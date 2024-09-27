@@ -41,6 +41,8 @@ extern "C" {
 
 #define PARTICLE_ISALIVE ( 1 << 0 )
 
+typedef struct _G3DPARTICLEEMITTERVTABLE G3DPARTICLEEMITTERVTABLE;
+
 typedef struct _G3DPARTICLE {
     uint32_t   flags;
     G3DOBJECT *ref;
@@ -119,7 +121,11 @@ typedef struct _G3DPARTICLEEMITTER {
 G3DPARTICLEEMITTER *g3dparticleemitter_new ( uint32_t  id, 
                                              char     *name,
                                              G3DSCENE *sce );
-
+void g3dparticleemitter_init ( G3DPARTICLEEMITTER       *pem, 
+                               uint32_t                  id, 
+                               char                     *name,
+                               G3DSCENE                 *sce,
+                               G3DPARTICLEEMITTERVTABLE *vtable );
 void g3dparticleemitter_reset ( G3DPARTICLEEMITTER *pem );
 
 #ifdef __cplusplus

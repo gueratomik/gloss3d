@@ -3,6 +3,7 @@
 
 #define G3DCAMERAVTABLECAST(a)     (((G3DCAMERAVTABLE*)a))
 
+#include <g3dengine/g3dengine.h>
 #include "g3dobjectvtable.h"
 
 /******************************************************************************/

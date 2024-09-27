@@ -30,7 +30,7 @@
 #include <g3dengine/vtable/g3dmodifiervtable.h>
 
 /*****************************************************************************/
-const G3DMODIFERVTABLE _vtable = { G3DMODIFIERVTABLE_DEFAUILT };
+const G3DMODIFIERVTABLE _vtable = { G3DMODIFIERVTABLE_DEFAULT };
 
 /*****************************************************************************/
 uint32_t g3dmodifier_default_hudpick ( G3DMODIFIER *mod,
@@ -59,8 +59,10 @@ uint32_t g3dmodifier_default_modify( G3DMODIFIER *mod,
 uint32_t g3dmodifier_hudpick ( G3DMODIFIER *mod,
                                G3DCAMERA   *curcam, 
                                uint64_t     engineFlags ) {
-    if ( mod->hudpick ) {
-        mod->hudpick ( mod, curcam, engineFlags );
+    if ( G3DMODIFIERVTABLECAST(mod->mes.obj.vtable)->hudpick ) {
+        G3DMODIFIERVTABLECAST(mod->mes.obj.vtable)->hudpick ( mod,
+                                                              curcam,
+                                                              engineFlags );
     }
 
 
@@ -72,8 +74,11 @@ uint32_t g3dmodifier_huddraw ( G3DMODIFIER *mod,
                                G3DCAMERA   *curcam, 
                                G3DENGINE   *engine, 
                                uint64_t     engineFlags ) {
-    if ( mod->huddraw ) {
-        mod->huddraw ( mod, curcam, engine, engineFlags );
+    if ( G3DMODIFIERVTABLECAST(mod->mes.obj.vtable)->huddraw ) {
+        G3DMODIFIERVTABLECAST(mod->mes.obj.vtable)->huddraw ( mod,
+                                                              curcam,
+                                                              engine,
+                                                              engineFlags );
     }
 
 
@@ -84,8 +89,10 @@ uint32_t g3dmodifier_huddraw ( G3DMODIFIER *mod,
 uint32_t g3dmodifier_modify( G3DMODIFIER *mod, 
                              G3DMODIFYOP  op,
                              uint64_t     engineFlags ) {
-    if ( mod->modify ) {
-        mod->modify ( mod, op, engineFlags );
+    if ( G3DMODIFIERVTABLECAST(mod->mes.obj.vtable)->modify ) {
+        G3DMODIFIERVTABLECAST(mod->mes.obj.vtable)->modify ( mod,
+                                                             op,
+                                                             engineFlags );
     }
 
     return 0x00;
@@ -178,27 +185,25 @@ G3DMODIFIER *g3dmodifier_modify_r ( G3DMODIFIER *mod,
         }
 
         if ( g3dobject_isActive ( obj ) ) {
-            if ( mod->modify ) {
-                ret = mod->modify ( mod,
-                                    op,
-                                    engineFlags );
+            ret = g3dmodifier_modify ( mod,
+                                       op,
+                                       engineFlags );
 
-                if ( ret & MODIFIERCHANGESCOORDS ) {
-                    /*** original object stays unchanged ***/
-                    /*** but gets new vertices values ***/
-                    stkpos = mod->verpos;
-                    stknor = mod->vernor;
-                }
-
-                if ( ret & MODIFIERBUILDSNEWMESH ) {
-                    oriobj = ( G3DOBJECT * ) mod;
-
-                    stkpos = NULL;
-                    stknor = NULL;
-                }
-
-                lastmod = mod;
+            if ( ret & MODIFIERCHANGESCOORDS ) {
+                /*** original object stays unchanged ***/
+                /*** but gets new vertices values ***/
+                stkpos = mod->verpos;
+                stknor = mod->vernor;
             }
+
+            if ( ret & MODIFIERBUILDSNEWMESH ) {
+                oriobj = ( G3DOBJECT * ) mod;
+
+                stkpos = NULL;
+                stknor = NULL;
+            }
+
+            lastmod = mod;
         }
 
         while ( ltmpchildren ) {
@@ -232,8 +237,8 @@ void g3dmodifier_init ( G3DMODIFIER       *mod,
                    id,
                    name,
                    object_flags,
-                   vtable ? G3DOBJECTVTABLECAST(vtable)
-                          : G3DOBJECTVTABLECAST(&_vtable) );
+                   vtable ? G3DMESHVTABLECAST(vtable)
+                          : G3DMESHVTABLECAST(&_vtable) );
 
     ((G3DMESH*)mod)->gouraudScalarLimit = cos ( 44.99 * M_PI / 180 );
 

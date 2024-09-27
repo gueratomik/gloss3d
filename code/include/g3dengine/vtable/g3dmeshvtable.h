@@ -12,18 +12,18 @@ typedef struct _G3DVECTOR3F G3DVECTOR3F;
 /******************************************************************************/
 typedef struct _G3DMESHVTABLE {
     G3DOBJECTVTABLE objectVTable;
-    uint32_t      (*dump) ( G3DMESH *,
-                            void (*Alloc)( uint32_t, /* nbver */
-                                           uint32_t, /* nbtris */
-                                           uint32_t, /* nbquads */
-                                           uint32_t, /* nbuv */
-                                           void * ),
-                            void (*Dump) ( G3DFACE *,
-                                           G3DVECTOR3F *,
-                                           G3DVECTOR3F *,
-                                           void * ),
-                            void *data,
-                            uint64_t );
+    uint32_t ( *const dump) ( G3DMESH *,
+                              void (*Alloc)( uint32_t, /* nbver */
+                                             uint32_t, /* nbtris */
+                                             uint32_t, /* nbquads */
+                                             uint32_t, /* nbuv */
+                                             void * ),
+                              void (*Dump) ( G3DFACE *,
+                                             G3DVECTOR3F *,
+                                             G3DVECTOR3F *,
+                                             void * ),
+                              void *data,
+                              uint64_t );
 } G3DMESHVTABLE;
 
 /************************** Object vtable overrides ***************************/

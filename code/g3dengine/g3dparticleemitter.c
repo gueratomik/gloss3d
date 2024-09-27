@@ -27,7 +27,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3dengine/vtable/g3dparticleemittervtable.h>
+
+/******************************************************************************/
+G3DPARTICLEEMITTERVTABLE _vtable = { G3DPARTICLEEMITTERVTABLE_DEFAULT };
 
 /******************************************************************************/
 typedef struct _PARTICLEEMITTERKEYDATA {
@@ -54,8 +57,8 @@ PARTICLEEMITTERKEYDATA *particleemitterkeydata_new ( ) {
 }
 
 /******************************************************************************/
-static void _default_pose ( G3DPARTICLEEMITTER *pem,
-                            G3DKEY             *key ) {
+void g3dparticleemitter_default_pose ( G3DPARTICLEEMITTER *pem,
+                                       G3DKEY             *key ) {
     if ( key->data.ptr == NULL ) {
         PARTICLEEMITTERKEYDATA *pkd = particleemitterkeydata_new ( );
 
@@ -283,10 +286,10 @@ static void g3dparticleemitter_copySettings ( G3DPARTICLEEMITTER *dstpem,
 }
 
 /******************************************************************************/
-static G3DPARTICLEEMITTER *_default_copy ( G3DPARTICLEEMITTER *pem, 
-                                           uint32_t            id, 
-                                           unsigned char      *name,
-                                           uint64_t            engine_flags ) {
+G3DPARTICLEEMITTER *g3dparticleemitter_default_copy ( G3DPARTICLEEMITTER *pem, 
+                                                      uint32_t            id, 
+                                                      const char         *name,
+                                                      uint64_t            engine_flags ) {
     uint32_t cpyID = ((G3DOBJECT*)pem)->id; /*** Does not need to be unique ***/
     char *cpyname = ((G3DOBJECT*)pem)->name;
 
@@ -302,9 +305,10 @@ static G3DPARTICLEEMITTER *_default_copy ( G3DPARTICLEEMITTER *pem,
 }
 
 /******************************************************************************/
-static uint32_t _default_draw ( G3DPARTICLEEMITTER *pem, 
-                                G3DCAMERA          *curcam, 
-                                uint64_t            engine_flags ) {
+uint32_t g3dparticleemitter_default_draw ( G3DPARTICLEEMITTER *pem, 
+                                           G3DCAMERA          *curcam, 
+                                           G3DENGINE          *engine, 
+                                           uint64_t            engine_flags ) {
 #ifdef need_refactor
     if ( pem->maxParticles ) {
         uint32_t i, j;
@@ -374,16 +378,16 @@ static uint32_t _default_draw ( G3DPARTICLEEMITTER *pem,
 }
 
 /******************************************************************************/
-static void _default_free ( G3DPARTICLEEMITTER *pem ) {
+void g3dparticleemitter_default_free ( G3DPARTICLEEMITTER *pem ) {
     if ( pem->particles ) {
         free ( pem->particles );
    }
 }
 
 /******************************************************************************/
-static void _default_anim ( G3DPARTICLEEMITTER *pem, 
-                                      float               frame, 
-                                      uint64_t            engine_flags ) {
+void g3dparticleemitter_default_anim ( G3DPARTICLEEMITTER *pem, 
+                                       float               frame, 
+                                       uint64_t            engine_flags ) {
 
     G3DKEY *prevKey = NULL,
            *nextKey = NULL,
@@ -502,31 +506,18 @@ void g3dparticleemitter_reset ( G3DPARTICLEEMITTER *pem ) {
 }
 
 /******************************************************************************/
-void g3dparticleemitter_init ( G3DPARTICLEEMITTER *pem, 
-                               uint32_t            id, 
-                               char               *name,
-                               G3DSCENE           *sce ) {
+void g3dparticleemitter_init ( G3DPARTICLEEMITTER       *pem, 
+                               uint32_t                  id, 
+                               char                     *name,
+                               G3DSCENE                 *sce,
+                               G3DPARTICLEEMITTERVTABLE *vtable ) {
     g3dobject_init ( G3DOBJECTCAST(pem), 
                      G3DPARTICLEEMITTERTYPE,
                      id, 
                      name, 
                      0x00,
-       DRAW_CALLBACK(_default_draw),
-       FREE_CALLBACK(_default_free),
-       PICK_CALLBACK(NULL),
-       ANIM_CALLBACK(_default_anim),
-     UPDATE_CALLBACK(NULL),
-       POSE_CALLBACK(_default_pose),
-       COPY_CALLBACK(_default_copy),
-  TRANSFORM_CALLBACK(NULL),
-   ACTIVATE_CALLBACK(NULL),
- DEACTIVATE_CALLBACK(NULL),
-     COMMIT_CALLBACK(NULL),
-   ADDCHILD_CALLBACK(NULL),
-REMOVECHILD_CALLBACK(NULL),
-  SETPARENT_CALLBACK(NULL) );
-
-
+                     vtable ? G3DOBJECTVTABLECAST(vtable) 
+                            : G3DOBJECTVTABLECAST(&_vtable) );
 
     /*pem->orientation = INSTANCEYZ;*/
 
@@ -577,7 +568,7 @@ G3DPARTICLEEMITTER *g3dparticleemitter_new ( uint32_t  id,
         return NULL;
     }
 
-    g3dparticleemitter_init ( pem, id, name, sce );
+    g3dparticleemitter_init ( pem, id, name, sce, NULL );
 
     g3dparticleemitter_reset ( pem );
 

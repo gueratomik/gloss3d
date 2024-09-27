@@ -41,7 +41,7 @@ static void g3dmesh_addEdge    ( G3DMESH *mes,
                                  G3DEDGE *edg );
 
 /******************************************************************************/
-const G3DMESHVTABLE _vtable = { G3DMESHVTABLE_DEFAULT };
+G3DMESHVTABLE _vtable = { G3DMESHVTABLE_DEFAULT };
 
 /******************************************************************************/
 G3DFACEGROUP *g3dmesh_getFacegroupByID ( G3DMESH *mes, uint32_t id ) {
@@ -464,7 +464,7 @@ G3DMESH *g3dmesh_symmetricMerge ( G3DMESH *mes,
                                   float  *MVX,
                                   uint64_t engineFlags ) {
     uint32_t structSize = sizeof ( G3DVERTEX * );
-    G3DMESH *symmes = g3dmesh_new ( 0x00, "Mesh", engineFlags );
+    G3DMESH *symmes = g3dmesh_new ( 0x00, "Mesh" );
 
     g3dmesh_renumberVertices ( mes );
     g3dmesh_renumberEdges    ( mes );
@@ -895,8 +895,12 @@ uint32_t g3dmesh_dump ( G3DMESH *mes,
                                        void * ),
                         void *data,
                         uint64_t engineFlags ) {
-    if( mes->dump ) {
-        mes->dump ( mes, Alloc, Dump, data, engineFlags );
+    if( G3DMESHVTABLECAST(mes->obj.vtable)->dump ) {
+        G3DMESHVTABLECAST(mes->obj.vtable)->dump ( mes, 
+                                                   Alloc,
+                                                   Dump,
+                                                   data,
+                                                   engineFlags );
     }
 }
 
@@ -916,13 +920,11 @@ uint32_t g3dmesh_default_dump ( G3DMESH *mes,
 
 
     if ( mes->lastmod ) {
-        if ( mes->lastmod->mes.dump ) {
-            mes->lastmod->mes.dump ( ( G3DMESH * ) mes->lastmod,
-                                     Alloc, 
-                                     Dump, 
-                                     data, 
-                                     engineFlags );
-        }
+        g3dmesh_dump ( G3DMESHCAST(mes->lastmod),
+                                   Alloc, 
+                                   Dump, 
+                                   data, 
+                                   engineFlags );
     } else {
         LIST *ltmpfac = mes->faceList;
 
@@ -997,7 +999,7 @@ void g3dmesh_borrowGeometry ( G3DMESH *dst, G3DMESH *src ) {
 G3DMESH *g3dmesh_merge ( LIST    *lobj, 
                          uint32_t mesID, 
                          uint64_t engineFlags ) {
-    G3DMESH *mrg = g3dmesh_new ( mesID, "Merged mesh", engineFlags );
+    G3DMESH *mrg = g3dmesh_new ( mesID, "Merged mesh" );
     LIST *ltmpobj = lobj;
 
     while ( ltmpobj ) {
@@ -1087,7 +1089,7 @@ G3DMESH *g3dmesh_splitSelectedFaces ( G3DMESH *mes,
                                       LIST   **loldfac,
                                       uint64_t engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
-    G3DMESH *spl = g3dmesh_new ( splID, "Split mesh", engineFlags );
+    G3DMESH *spl = g3dmesh_new ( splID, "Split mesh" );
     LIST *selectedVertexList = g3dface_getVerticesFromList ( mes->selectedFaceList );
     G3DVERTEX **vertab = ( G3DVERTEX ** ) list_to_array ( selectedVertexList );
     uint32_t selectedVertexCount = list_count ( selectedVertexList );
@@ -2250,8 +2252,7 @@ G3DMESH *g3dmesh_default_copy ( G3DMESH       *mes,
                                unsigned char *name,
                                uint64_t       engineFlags ) {
     G3DMESH *cpymes = g3dmesh_new ( G3DOBJECTCAST(mes)->id,
-                                    G3DOBJECTCAST(mes)->name,
-                                    engineFlags );
+                                    G3DOBJECTCAST(mes)->name );
 
     /*** This is also used by g3dprimitive_copy ***/
     g3dmesh_clone ( mes, NULL, cpymes, engineFlags );
@@ -3697,9 +3698,9 @@ void g3dmesh_drawSkin ( G3DMESH   *mes,
 }
 
 /******************************************************************************/
-static uint32_t g3dmesh_default_pick ( G3DMESH   *mes, 
-                               G3DCAMERA *curcam, 
-                               uint64_t   engineFlags ) {
+uint32_t g3dmesh_default_pick ( G3DMESH   *mes, 
+                                G3DCAMERA *curcam, 
+                                uint64_t   engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
 
     /*** this means a modifier has taken over ***/
@@ -4805,7 +4806,7 @@ void g3dmesh_init ( G3DMESH       *mes,
                     uint32_t       type,
                     uint32_t       id,
                     char          *name,
-                    uint32_t       objectFlags
+                    uint32_t       objectFlags,
                     G3DMESHVTABLE *vtable ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     /*G3DMESHPOSEEXTENSION *ext = g3dmeshposeextension_new ( );*/
@@ -4815,7 +4816,8 @@ void g3dmesh_init ( G3DMESH       *mes,
                      id,
                      name,
                      objectFlags,
-                     vtable ? vtable : &_vtable );
+                     vtable ? G3DOBJECTVTABLECAST(vtable)
+                            : G3DOBJECTVTABLECAST(&_vtable) );
 
     mes->verid = 0x00; /*** start at 1 because we could have problem when ***/
                        /*** calling g3dface_getVertexByID for statically ***/

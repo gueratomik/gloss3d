@@ -80,47 +80,47 @@ typedef struct _G3DMORPHER         G3DMORPHER;
 /******************************************************************************/
 typedef struct _G3DOBJECTVTABLE {
     /*** Drawing function ***/
-    uint32_t   (*draw)        ( G3DOBJECT *obj, 
-                                G3DCAMERA *cam,
-                                G3DENGINE *engine,
-                                uint64_t   engineFlags );
+     uint32_t  ( *const draw)        ( G3DOBJECT *obj, 
+                                       G3DCAMERA *cam,
+                                       G3DENGINE *engine,
+                                       uint64_t   engineFlags );
     /*** Free memory function ***/
-    void       (*free)        ( G3DOBJECT *obj );
+    void       ( *const free)        ( G3DOBJECT *obj );
     /*** Object selection ***/
-    uint32_t   (*pick)        ( G3DOBJECT *obj, 
-                                G3DCAMERA *cam,
-                                uint64_t   engineFlags );
-    void       (*anim)        ( G3DOBJECT *obj,
-                                float      frame, 
-                                uint64_t   engineFlags );
-    void       (*update)      ( G3DOBJECT *obj,
-                                uint64_t   updateFlags,
-                                uint64_t   engineFlags );
-    void       (*pose)        ( G3DOBJECT *,
-                                G3DKEY * );
+    uint32_t   ( *const pick)        ( G3DOBJECT *obj, 
+                                       G3DCAMERA *cam,
+                                       uint64_t   engineFlags );
+    void       ( *const anim)        ( G3DOBJECT *obj,
+                                       float      frame, 
+                                       uint64_t   engineFlags );
+    void       ( *const update)      ( G3DOBJECT *obj,
+                                       uint64_t   updateFlags,
+                                       uint64_t   engineFlags );
+    void       ( *const pose)        ( G3DOBJECT *,
+                                       G3DKEY * );
     /* Object copy */
-    G3DOBJECT* (*copy)        ( G3DOBJECT *,
-                                uint32_t,
-                                const char *,
-                                uint64_t );
+    G3DOBJECT* ( *const copy)        ( G3DOBJECT *,
+                                       uint32_t,
+                                       const char *,
+                                       uint64_t );
     /*** On Matrix change ***/
-    void       (*transform)   ( G3DOBJECT *, uint64_t );
-    void       (*activate)    ( G3DOBJECT *, uint64_t );
-    void       (*deactivate)  ( G3DOBJECT *, uint64_t );
-    G3DOBJECT *(*commit)      ( G3DOBJECT *,
-                                uint32_t,
-                                const char *,
-                                uint64_t );
-    void  (*addChild)         ( G3DOBJECT *obj, 
-                                G3DOBJECT *child,
-                                uint64_t  engineFlags );
-    void  (*removeChild)      ( G3DOBJECT *obj, 
-                                G3DOBJECT *child,
-                                uint64_t  engineFlags );
-    void  (*setParent)        ( G3DOBJECT *child, 
-                                G3DOBJECT *parent,
-                                G3DOBJECT *oldParent, 
-                                uint64_t  engineFlags );
+    void       ( *const transform)   ( G3DOBJECT *, uint64_t );
+    void       ( *const activate)    ( G3DOBJECT *, uint64_t );
+    void       ( *const deactivate)  ( G3DOBJECT *, uint64_t );
+    G3DOBJECT *( *const commit)      ( G3DOBJECT *,
+                                       uint32_t,
+                                       const char *,
+                                       uint64_t );
+    void       ( *const addChild)    ( G3DOBJECT *obj, 
+                                       G3DOBJECT *child,
+                                       uint64_t   engineFlags );
+    void       ( *const removeChild) ( G3DOBJECT *obj, 
+                                       G3DOBJECT *child,
+                                       uint64_t   engineFlags );
+    void       ( *const setParent)   ( G3DOBJECT *child, 
+                                       G3DOBJECT *parent,
+                                       G3DOBJECT *oldParent, 
+                                       uint64_t   engineFlags );
 } G3DOBJECTVTABLE;
 
 /******************************************************************************/
