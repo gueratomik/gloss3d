@@ -30,7 +30,7 @@
 #include <g3dengine/vtable/g3dinstancevtable.h>
 
 /******************************************************************************/
-const G3DINSTANCEVTABLE _vtable = { G3DINSTANCEVTABLE_DEFAULT };
+static G3DINSTANCEVTABLE _vtable = { G3DINSTANCEVTABLE_DEFAULT };
 
 /******************************************************************************/
 void g3dinstance_setReference ( G3DINSTANCE *ins, 

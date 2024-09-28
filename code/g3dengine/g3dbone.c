@@ -31,7 +31,7 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-const G3DBONEVTABLE _vtable = { G3DBONEVTABLE_DEFAULT };
+static G3DBONEVTABLE _vtable = { G3DBONEVTABLE_DEFAULT };
 
 /******************************************************************************/
 G3DBONE *g3dbone_clone ( G3DBONE *bon, uint32_t recurse, 

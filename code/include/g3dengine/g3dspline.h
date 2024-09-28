@@ -42,6 +42,8 @@ extern "C" {
 /************************** Spline drawing flags ******************************/
 #define DRAW_FOR_TESSELLATION ( 1 << 0 )
 
+typedef struct _G3DSPLINEVTABLE G3DSPLINEVTABLE;
+
 /**
  * @struct G3DSPLINE
  * @brief A structure to store a cubic bezier spline.
@@ -57,27 +59,14 @@ typedef G3DCURVESEGMENT G3DSPLINESEGMENT;
 typedef G3DCURVEPOINT   G3DSPLINEPOINT;
 
 /******************************************************************************/
-G3DSPLINE *g3dspline_copy ( G3DSPLINE     *spline, 
-                            uint32_t       id, 
-                            char          *name, 
-                            uint64_t engine_flags );
-uint32_t g3dspline_draw ( G3DOBJECT *obj, 
-                          G3DCAMERA *curcam, 
-                          uint64_t engine_flags );
-void g3dspline_free ( G3DOBJECT *obj );
-void g3dspline_init ( G3DSPLINE *spline, 
-                      uint32_t   id, 
-                      char      *name,
-                      uint32_t   type,
-                      uint64_t engine_flags );
-G3DSPLINE *g3dspline_new ( uint32_t id, 
-                           char    *name, 
-                           uint32_t type, 
-                           uint64_t engine_flags );
-void g3dspline_update ( G3DSPLINE *spl,
-                        LIST      *lpt,
-                        uint32_t   update_flags,
-                        uint64_t engine_flags );
+void g3dspline_init ( G3DSPLINE       *spline,
+                      uint32_t         id,
+                      const char      *name,
+                      uint64_t         objectFlags,
+                      G3DSPLINEVTABLE *vtable );
+G3DSPLINE *g3dspline_new ( uint32_t    id, 
+                           const char *name, 
+                           uint64_t    type );
 void g3dspline_moveAxis ( G3DSPLINE *spl, 
                           float    *PREVMVX, /* previous world matrix */
                           uint64_t engine_flags );

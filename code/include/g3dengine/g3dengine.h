@@ -726,15 +726,19 @@ typedef struct _SHADERVERTEX {
 #include <g3dengine/g3dvertex.h>
 
 /******************************************************************************/
-typedef struct _G3DOBJECTVTABLE    G3DOBJECTVTABLE;
-typedef struct _G3DMESHVTABLE      G3DMESHVTABLE;
-typedef struct _G3DBONEVTABLE      G3DBONEVTABLE;
-typedef struct _G3DCAMERAVTABLE    G3DCAMERAVTABLE;
-typedef struct _G3DMODIFIERVTABLE  G3DMODIFIERVTABLE;
-typedef struct _G3DFFDVTABLE       G3DFFDVTABLE;
-typedef struct _G3DINSTANCEVTABLE  G3DINSTANCEVTABLE;
-typedef struct _G3DPIVOTVTABLE     G3DPIVOTVTABLE;
-typedef struct _G3DPRIMITIVEVTABLE G3DPRIMITIVEVTABLE;
+typedef struct _G3DOBJECTVTABLE     G3DOBJECTVTABLE;
+typedef struct _G3DMESHVTABLE       G3DMESHVTABLE;
+typedef struct _G3DBONEVTABLE       G3DBONEVTABLE;
+typedef struct _G3DCAMERAVTABLE     G3DCAMERAVTABLE;
+typedef struct _G3DMODIFIERVTABLE   G3DMODIFIERVTABLE;
+typedef struct _G3DFFDVTABLE        G3DFFDVTABLE;
+typedef struct _G3DINSTANCEVTABLE   G3DINSTANCEVTABLE;
+typedef struct _G3DPIVOTVTABLE      G3DPIVOTVTABLE;
+typedef struct _G3DPRIMITIVEVTABLE  G3DPRIMITIVEVTABLE;
+typedef struct _G3DSCENEVTABLE      G3DSCENEVTABLE;
+typedef struct _G3DSUBDIVIDERVTABLE G3DSUBDIVIDERVTABLE;
+typedef struct _G3DSYMMETRYVTABLE   G3DSYMMETRYVTABLE;
+typedef struct _G3DWIREFRAMEVTABLE  G3DWIREFRAMEVTABLE;
 
 /******************************************************************************/
 typedef struct _G3DCAMERA G3DCAMERA;
@@ -2361,11 +2365,15 @@ void g3dobject_browse ( G3DOBJECT  *obj,
                         uint64_t    engineFlags );
 
 /******************************************************************************/
-G3DSYMMETRY *g3dsymmetry_new      ( uint32_t, char * );
-void         g3dsymmetry_free     ( G3DOBJECT * );
-uint32_t g3dsymmetry_draw ( G3DOBJECT *obj,
-                            G3DCAMERA *curcam, 
-                            uint64_t   engineFlags );
+G3DSYMMETRY *g3dsymmetry_new      ( uint32_t, const char * );
+void g3dsymmetry_init( G3DSYMMETRY       *sym,
+                       uint64_t           type,
+                       uint32_t           id,
+                       const char        *name,
+                       uint64_t           objectFlags,
+                       G3DSYMMETRYVTABLE *vtable );
+
+
 void         g3dsymmetry_setPlane ( G3DSYMMETRY *, uint32_t );
 G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
                                LIST       **loldobj, 
@@ -2435,11 +2443,12 @@ G3DPRIMITIVE *g3dtube_new ( uint32_t id,
                             char    *name );
 
 /******************************** G3DMESH *************************************/
-G3DMESH *g3dmesh_new ( uint32_t id, char *name );
+G3DMESH *g3dmesh_new ( uint32_t id,
+                       const char *name );
 void g3dmesh_init ( G3DMESH       *mes,
                     uint32_t       type,
                     uint32_t       id,
-                    char          *name,
+                    const char    *name,
                     uint32_t       objectFlags,
                     G3DMESHVTABLE *vtable );
 void g3dmesh_invalidate ( G3DMESH *mes,
@@ -2723,10 +2732,6 @@ void g3dmesh_clone ( G3DMESH   *mes,
                      G3DVECTOR3F *verpos,
                      G3DMESH   *cpymes, 
                      uint64_t engineFlags );
-G3DMESH *g3dmesh_default_copy ( G3DMESH       *mes, 
-                                uint32_t       id, 
-                                unsigned char *name,
-                                uint64_t       engineFlags );
 G3DMESH *g3dmesh_splitSelectedFaces ( G3DMESH *mes, 
                                       uint32_t splID,
                                       uint32_t keep, 
@@ -2836,6 +2841,12 @@ void g3dmesh_invalidateFace ( G3DMESH *mes,
 
 /******************************************************************************/
 G3DSCENE  *g3dscene_new  ( uint32_t, char * );
+void g3dscene_init ( G3DSCENE       *sce,
+                     uint32_t        type,
+                     uint32_t        id,
+                     const char     *name,
+                     uint32_t        object_flags,
+                     G3DSCENEVTABLE *vtable );
 void g3dscene_checkReferredObjects ( G3DSCENE *sce );
 void g3dscene_removeReferredObject ( G3DSCENE *sce, 
                                      G3DOBJECT *obj );
@@ -3159,13 +3170,16 @@ void g3duvset_mapFaceWithBackgroundProjection ( G3DUVSET *uvs,
 void       g3duvmap_mapFace              ( G3DUVMAP *, G3DMESH *, G3DFACE * );
 void       g3duvmap_adjustFlatProjection ( G3DUVMAP *, G3DMESH *mes );
 void       g3duvmap_applyProjection      ( G3DUVMAP *, G3DMESH *mes );
-uint32_t g3duvmap_draw ( G3DOBJECT *obj, 
-                         G3DCAMERA *curcam, 
-                         G3DENGINE *engine, 
-                         uint64_t   engineFlags );
+
 void       g3duvmap_init                 ( G3DUVMAP *, char *, uint32_t );
 G3DUVMAP  *g3duvmap_new                  ( char *, uint32_t );
 void       g3duvmap_free                 ( G3DOBJECT * );
+void g3duvmap_default_transform ( G3DUVMAP *map,
+                                  uint64_t  engine_flags );
+uint32_t g3duvmap_default_draw ( G3DUVMAP  *map,
+                                 G3DCAMERA *curcam, 
+                                 G3DENGINE *engine, 
+                                 uint64_t   engine_flags );
 G3DUV     *g3duv_new                     ( G3DUVSET * );
 void       g3duvmap_unfix                ( G3DUVMAP * );
 void       g3duvmap_fix                  ( G3DUVMAP * );
@@ -3219,13 +3233,14 @@ void g3drttriangle_addUVW ( G3DRTTRIANGLE *, G3DRTTRIANGLEUVW * );
 void g3drttriangleuvw_free ( G3DRTTRIANGLEUVW * );
 
 /******************************************************************************/
-G3DSUBDIVIDER *g3dsubdivider_new ( uint32_t id, 
-                                   char    *name, 
-                                   uint64_t engineFlags );
-void g3dsubdivider_init ( G3DSUBDIVIDER *sdr, 
-                          uint32_t       id, 
-                          char          *name, 
-                          uint64_t       engineFlags );
+G3DSUBDIVIDER *g3dsubdivider_new ( uint32_t    id,
+                                   const char *name );
+void g3dsubdivider_init ( G3DSUBDIVIDER *sdr,
+                          uint64_t       type,
+                          uint32_t       id,
+                          const char    *name,
+                          uint64_t       objectFlags,
+                          G3DSUBDIVIDERVTABLE *vtable );
 void           g3dsubdivider_unsetSyncSubdivision ( G3DSUBDIVIDER * );
 void           g3dsubdivider_setSyncSubdivision   ( G3DSUBDIVIDER * );
 void g3dsubdivider_setLevels ( G3DSUBDIVIDER *sdr, 
@@ -3268,7 +3283,7 @@ void g3dprocedural_getNormal ( G3DPROCEDURAL *proc,
 void g3dmodifier_init ( G3DMODIFIER       *mod,
                         uint32_t           type,
                         uint32_t           id,
-                        char              *name,
+                        const char        *name,
                         uint32_t           object_flags,
                         G3DMODIFIERVTABLE *vtable );
 
@@ -3304,7 +3319,13 @@ uint32_t g3dmodifier_default_dump ( G3DMODIFIER *mod,
                                     uint64_t engineFlags );
 
 /******************************************************************************/
-G3DWIREFRAME *g3dwireframe_new          ( uint32_t, char * );
+G3DWIREFRAME *g3dwireframe_new          ( uint32_t, const char * );
+void g3dwireframe_init ( G3DWIREFRAME       *wir, 
+                         uint64_t            type, 
+                         uint32_t            id, 
+                         const char         *name, 
+                         uint64_t            objectFlags,
+                         G3DWIREFRAMEVTABLE *vtable );
 void g3dwireframe_setThickness ( G3DWIREFRAME *wir, 
                                  float         thickness,
                                  uint64_t      engineFlags );

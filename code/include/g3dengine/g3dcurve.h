@@ -194,8 +194,7 @@ void g3dcurve_addSegment ( G3DCURVE        *curve,
                             G3DCURVESEGMENT *seg );
 void g3dcurve_removeSegment ( G3DCURVE        *curve, 
                                G3DCURVESEGMENT *seg );
-G3DCURVE *g3dcurve_new ( uint32_t type, 
-                         uint64_t engine_flags );
+G3DCURVE *g3dcurve_new ( uint32_t type );
 void g3dcurve_unselectPoint ( G3DCURVE *curve, G3DCURVEPOINT *pt );
 void g3dcurve_selectPoint ( G3DCURVE *curve, G3DCURVEPOINT *pt );
 void g3dcurvepoint_unsetSelected ( G3DCURVEPOINT *pt );

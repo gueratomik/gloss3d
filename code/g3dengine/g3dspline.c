@@ -27,15 +27,20 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3dengine/vtable/g3dsplinevtable.h>
 
 /******************************************************************************/
-static G3DSPLINE *_default_copy ( G3DSPLINE *spline, 
-                                  uint32_t   id, 
-                                  char      *name, 
-                                  uint64_t   engineFlags ) {
+G3DSPLINEVTABLE _vtable = { G3DSPLINEVTABLE_DEFAULT };
+
+/******************************************************************************/
+G3DSPLINE *g3dspline_default_copy ( G3DSPLINE  *spline, 
+                                    uint32_t    id, 
+                                    const char *name, 
+                                    uint64_t    engineFlags ) {
     G3DOBJECT *obj       = ( G3DOBJECT * ) spline;
-    G3DSPLINE *newSpline = g3dspline_new ( id, name, obj->flags, engineFlags );
+    G3DSPLINE *newSpline = g3dspline_new ( id,
+                                           name,
+                                           obj->flags & ( CUBIC | QUADRATIC ) );
 
     newSpline->curve = g3dcurve_copy ( spline->curve, engineFlags );
 
@@ -43,23 +48,21 @@ static G3DSPLINE *_default_copy ( G3DSPLINE *spline,
 }
 
 /******************************************************************************/
-static uint32_t _default_pick ( G3DOBJECT *obj, 
-                                G3DCAMERA *curcam, 
-                                uint64_t   engineFlags ) {
-    G3DSPLINE *spline = ( G3DSPLINE * ) obj;
-
-    if ( obj->flags & OBJECTSELECTED ) {
+uint32_t g3dspline_default_pick ( G3DSPLINE *spl, 
+                                  G3DCAMERA *curcam, 
+                                  uint64_t   engineFlags ) {
+    if ( G3DOBJECTCAST(spl)->flags & OBJECTSELECTED ) {
         if ( engineFlags & VIEWEDGE ) {
-            g3dcurve_pickSegments ( spline->curve, engineFlags );
+            g3dcurve_pickSegments ( spl->curve, engineFlags );
         }
         if ( engineFlags & VIEWVERTEX ) {
-            g3dcurve_pickPoints  ( spline->curve, engineFlags );
-            g3dcurve_pickHandles ( spline->curve, engineFlags );
+            g3dcurve_pickPoints  ( spl->curve, engineFlags );
+            g3dcurve_pickHandles ( spl->curve, engineFlags );
         }
     } else {
         if ( engineFlags & VIEWOBJECT ) {
-            g3dpick_setName ( ( uint64_t ) spline );
-            g3dcurve_pick ( spline->curve, engineFlags );
+            g3dpick_setName ( ( uint64_t ) spl );
+            g3dcurve_pick ( spl->curve, engineFlags );
         }
     }
 
@@ -70,8 +73,7 @@ static uint32_t _default_pick ( G3DOBJECT *obj,
 void g3dspline_modify ( G3DSPLINE  *spl,
                         G3DMODIFYOP op,
                         uint64_t    engine_flags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) spl;
-    LIST *ltmpchildren = obj->childList;
+    LIST *ltmpchildren = G3DOBJECTCAST(spl)->childList;
 /*
     g3dmesh_renumberVertices ( mes );
     g3dmesh_renumberEdges    ( mes );
@@ -98,30 +100,27 @@ void g3dspline_modify ( G3DSPLINE  *spl,
 }
 
 /******************************************************************************/
-static void _default_update ( G3DSPLINE *spl,
-                              LIST      *lpt,
-                              uint32_t   update_flags,
-                              uint64_t   engine_flags ) {
+void g3dspline_default_update ( G3DSPLINE *spl,
+                                uint64_t   updateFlags,
+                                uint64_t   engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) spl;
 
     if ( obj->invalidationFlags & INVALIDATE_MODIFIER_STACK_RESET ) {
         g3dspline_modify ( spl,
                            G3DMODIFYOP_MODIFY,
-                           engine_flags );
+                           engineFlags );
     }
 
     if ( obj->invalidationFlags & INVALIDATE_MODIFIER_STACK_UPDATE ) {
-        /*** usually modifier update is based on selected vertices/faces/edges ***/
-        LIST *ltmpselpt = spl->curve->lselpt;
-
-        spl->curve->lselpt = ( lpt == NULL ) ? spl->curve->lpt : lpt;
+#ifdef need_refactor
+        LIST *ltmppt = ( spl->curve->invalidatedPointCount < MAX_INVALIDATED_POINTS ) ?
+                         spl->curve->invalidatedPointList
+                       : spl->curve->pointList;
 
         g3dspline_modify ( spl,
                            G3DMODIFYOP_UPDATE,
-                           engine_flags );
-
-        /*** restore selected items ***/
-        spl->curve->lselpt = ltmpselpt;
+                           engineFlags );
+#endif
     }
 }
 
@@ -163,16 +162,14 @@ void g3dspline_moveAxis ( G3DSPLINE *spl,
 }
 
 /******************************************************************************/
-static uint32_t _default_draw ( G3DOBJECT *obj, 
-                                G3DCAMERA *curcam, 
-                                uint64_t engine_flags ) {
-    G3DSPLINE *spl = ( G3DSPLINE * ) obj;
-
-
+uint32_t g3dspline_default_draw ( G3DSPLINE *spline, 
+                                  G3DCAMERA *curcam, 
+                                  G3DENGINE *engine, 
+                                  uint64_t   engineFlags ) {
 #ifdef need_refactor
     /*** this means a modifier has taken over ***/
     if ( spl->lastmod ) {
-        g3dmodifier_moddraw ( spl->lastmod, curcam, engine_flags );
+        g3dmodifier_moddraw ( spl->lastmod, curcam, engineFlags );
 
         glPushAttrib ( GL_ALL_ATTRIB_BITS );
         glLineWidth ( 2.0f );
@@ -186,9 +183,9 @@ static uint32_t _default_draw ( G3DOBJECT *obj,
             }
 
             if ( engine_flags & VIEWVERTEX ) {
-                g3dcurve_drawSegments ( spl->curve, engine_flags );
-                g3dcurve_drawHandles  ( spl->curve, engine_flags );
-                g3dcurve_drawPoints   ( spl->curve, engine_flags );
+                g3dcurve_drawSegments ( spl->curve, engineFlags );
+                g3dcurve_drawHandles  ( spl->curve, engineFlags );
+                g3dcurve_drawPoints   ( spl->curve, engineFlags );
             }
         }
 
@@ -214,12 +211,12 @@ static uint32_t _default_draw ( G3DOBJECT *obj,
             }
 
             if ( engine_flags & VIEWVERTEX ) {
-                g3dcurve_drawSegments ( spl->curve, engine_flags );
-                g3dcurve_drawHandles  ( spl->curve, engine_flags );
-                g3dcurve_drawPoints   ( spl->curve, engine_flags );
+                g3dcurve_drawSegments ( spl->curve, engineFlags );
+                g3dcurve_drawHandles  ( spl->curve, engineFlags );
+                g3dcurve_drawPoints   ( spl->curve, engineFlags );
             }
         } else {
-            g3dcurve_draw ( spl->curve, engine_flags );
+            g3dcurve_draw ( spl->curve, engineFlags );
         }
 
         glPopAttrib ( );
@@ -230,48 +227,33 @@ static uint32_t _default_draw ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-static void _default_free ( G3DOBJECT *obj ) {
-    G3DSPLINE *spline = ( G3DSPLINE * ) obj;
-
-    g3dcurve_free ( spline->curve );
+void g3dspline_default_free ( G3DSPLINE *spl ) {
+    g3dcurve_free ( spl->curve );
 }
 
 /******************************************************************************/
-void g3dspline_init ( G3DSPLINE *spline, 
-                      uint32_t   id, 
-                      char      *name,
-                      uint32_t   type,
-                      uint64_t engine_flags ) {
+void g3dspline_init ( G3DSPLINE       *spline,
+                      uint32_t         id,
+                      const char      *name,
+                      uint64_t         objectFlags,
+                      G3DSPLINEVTABLE *vtable ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) spline;
 
     g3dobject_init ( obj,
                      G3DSPLINETYPE,
                      id,
                      name,
-                     type,
-       DRAW_CALLBACK(_default_draw),
-       FREE_CALLBACK(_default_free),
-       PICK_CALLBACK(_default_pick),
-       ANIM_CALLBACK(NULL),
-     UPDATE_CALLBACK(NULL),
-       POSE_CALLBACK(NULL),
-       COPY_CALLBACK(_default_copy),
-  TRANSFORM_CALLBACK(NULL),
-   ACTIVATE_CALLBACK(NULL),
- DEACTIVATE_CALLBACK(NULL),
-     COMMIT_CALLBACK(NULL),
-   ADDCHILD_CALLBACK(NULL),
-REMOVECHILD_CALLBACK(NULL),
-  SETPARENT_CALLBACK(NULL) );
+                     objectFlags,
+                     vtable ? G3DOBJECTVTABLECAST(vtable) 
+                            : G3DOBJECTVTABLECAST(&_vtable) );
 
-    spline->curve = g3dcurve_new ( type, engine_flags );
+    spline->curve = g3dcurve_new ( objectFlags & ( CUBIC | QUADRATIC ) );
 }
 
 /******************************************************************************/
-G3DSPLINE *g3dspline_new ( uint32_t id, 
-                           char    *name, 
-                           uint32_t type, 
-                           uint64_t engine_flags ) {
+G3DSPLINE *g3dspline_new ( uint32_t    id, 
+                           const char *name, 
+                           uint64_t    type ) {
     G3DSPLINE *spline = ( G3DSPLINE * ) calloc ( 0x01, sizeof ( G3DSPLINE ) );
 
     if ( spline == NULL ) {
@@ -281,7 +263,8 @@ G3DSPLINE *g3dspline_new ( uint32_t id,
     }
 
     /** type is CUBIC or QUADRATIC **/
-    g3dspline_init ( spline, id, name, type, engine_flags );
+    g3dspline_init ( spline, id, name, type, NULL );
+
 
     return spline;
 }

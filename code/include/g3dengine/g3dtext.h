@@ -39,6 +39,8 @@
 extern "C" {
 #endif
 
+typedef struct _G3DTEXTVTABLE G3DTEXTVTABLE;
+
 /******************************************************************************/
 typedef struct _G3DCHARACTER {
     uint32_t code;
@@ -84,59 +86,49 @@ void g3dcharacter_addFace ( G3DCHARACTER *chr, G3DFACE *fac );
 G3DCHARACTER *g3dtext_getCharacterByCode ( G3DTEXT *txt, uint32_t code );
 void g3dtext_mergeCharacter ( G3DTEXT      *txt, 
                               G3DCHARACTER *chr,
-                              uint32_t      invert, /* 0 or 1 */
-                              uint64_t engine_flags );
+                              uint32_t      invert /* 0 or 1 */ );
 void g3dtext_empty ( G3DTEXT *txt );
 void g3dtext_setText ( G3DTEXT *txt,
-                       char    *text,
-                       uint64_t engine_flags );
+                       char    *text );
 void g3dtext_addText ( G3DTEXT *txt, 
-                       char    *addedString,
-                       uint64_t engine_flags );
+                       char    *addedString );
 void g3dtext_setFont ( G3DTEXT *txt,
                        char    *fontFaceName,
                        char    *fontFaceFile,
-                       uint32_t fontFaceSize,
-                       uint64_t engine_flags );
+                       uint32_t fontFaceSize );
 G3DCHARACTER *g3dtext_generateCharacter ( G3DTEXT       *txt,
                                           uint32_t       code,
-                                          GLUtesselator *tobj,
-                                          uint64_t engine_flags );
+                                          GLUtesselator *tobj );
 void g3dcharacter_generateThickness ( G3DCHARACTER *chr,
-                                      float         thickness,
-                                      uint64_t engine_flags );
+                                      float         thickness );
 void g3dtext_generate ( G3DTEXT   *txt,
                         uint32_t   fromCharacter,
-                        uint32_t   toCharacter,
-                        uint64_t engine_flags );
+                        uint32_t   toCharacter );
 void g3dtext_free ( G3DOBJECT *obj );
 
-void g3dtext_init ( G3DTEXT *txt, 
-                    uint32_t id, 
-                    char    *name,
-                    uint64_t engine_flags );
+void g3dtext_init ( G3DTEXT       *txt,
+                    uint64_t       type, 
+                    uint32_t       id, 
+                    const char          *name,
+                    uint64_t       objectFlags,
+                    G3DTEXTVTABLE *vtable );
 void g3dtext_configure ( G3DTEXT *txt, 
                          char    *fontFaceName,
                          char    *fontFaceFile,
                          uint32_t fontFaceSize,
                          float    thickness,
-                         uint32_t roundness,
-                         uint64_t engine_flags );
+                         uint32_t roundness );
 
 void g3dtext_setRoundness ( G3DTEXT *txt,
-                            uint32_t roundness,
-                            uint64_t engine_flags );
+                            uint32_t roundness );
 
 void g3dtext_setThickness ( G3DTEXT *txt,
-                            float    thickness,
-                            uint64_t engine_flags );
+                            float    thickness );
 
 G3DTEXT *g3dtext_new ( uint32_t id, 
-                       char    *name,
-                       uint64_t engine_flags );
+                       const char    *name );
 void g3dtext_setSize ( G3DTEXT *txt,
-                       uint32_t fontFaceSize,
-                       uint64_t engine_flags );
+                       uint32_t fontFaceSize );
 
 
 #ifdef __cplusplus

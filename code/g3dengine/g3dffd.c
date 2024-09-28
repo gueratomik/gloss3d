@@ -29,7 +29,7 @@
 #include <config.h>
 #include <g3dengine/vtable/g3dffdvtable.h>
 
-const G3DFFDVTABLE _vtable = { G3DFFDVTABLE_DEFAULT };
+static G3DFFDVTABLE _vtable = { G3DFFDVTABLE_DEFAULT };
 
 /******************************************************************************/
 static int fact ( int n ) {
@@ -491,12 +491,12 @@ uint32_t g3dffd_default_draw ( G3DFFD    *ffd,
 }
 
 /******************************************************************************/
-uint32_t g3dffd_default_huddraw ( G3DOBJECT *obj,
-                                   G3DCAMERA *cam, 
-                                   uint64_t   engine_flags ) {
-    G3DFFD *ffd = ( G3DFFD * ) obj;
+uint32_t g3dffd_default_huddraw ( G3DFFD    *ffd,
+                                  G3DCAMERA *cam, 
+                                  G3DENGINE *engine,
+                                  uint64_t   engine_flags ) {
 
-    if ( g3dobject_isActive ( obj ) ) {
+    if ( g3dobject_isActive ( G3DOBJECTCAST(ffd) ) ) {
         if ( ffd->mod.oriobj ) {
             G3DMESH * mes = ( G3DMESH * ) ffd->mod.oriobj;
 

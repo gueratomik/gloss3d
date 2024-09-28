@@ -30,7 +30,7 @@
 #include <g3dengine/vtable/g3dmodifiervtable.h>
 
 /*****************************************************************************/
-const G3DMODIFIERVTABLE _vtable = { G3DMODIFIERVTABLE_DEFAULT };
+static G3DMODIFIERVTABLE _vtable = { G3DMODIFIERVTABLE_DEFAULT };
 
 /*****************************************************************************/
 uint32_t g3dmodifier_default_hudpick ( G3DMODIFIER *mod,
@@ -228,7 +228,7 @@ G3DMODIFIER *g3dmodifier_modify_r ( G3DMODIFIER *mod,
 void g3dmodifier_init ( G3DMODIFIER       *mod,
                         uint32_t           type,
                         uint32_t           id,
-                        char              *name,
+                        const char        *name,
                         uint32_t           object_flags,
                         G3DMODIFIERVTABLE *vtable ) {
 

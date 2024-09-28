@@ -30,7 +30,7 @@
 #include <g3dengine/vtable/g3dparticleemittervtable.h>
 
 /******************************************************************************/
-G3DPARTICLEEMITTERVTABLE _vtable = { G3DPARTICLEEMITTERVTABLE_DEFAULT };
+static G3DPARTICLEEMITTERVTABLE _vtable = { G3DPARTICLEEMITTERVTABLE_DEFAULT };
 
 /******************************************************************************/
 typedef struct _PARTICLEEMITTERKEYDATA {

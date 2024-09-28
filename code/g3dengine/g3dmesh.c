@@ -41,7 +41,7 @@ static void g3dmesh_addEdge    ( G3DMESH *mes,
                                  G3DEDGE *edg );
 
 /******************************************************************************/
-G3DMESHVTABLE _vtable = { G3DMESHVTABLE_DEFAULT };
+static G3DMESHVTABLE _vtable = { G3DMESHVTABLE_DEFAULT };
 
 /******************************************************************************/
 G3DFACEGROUP *g3dmesh_getFacegroupByID ( G3DMESH *mes, uint32_t id ) {
@@ -2247,10 +2247,10 @@ void g3dmesh_clone ( G3DMESH   *mes,
 }
 
 /******************************************************************************/
-G3DMESH *g3dmesh_default_copy ( G3DMESH       *mes, 
-                               uint32_t       id, 
-                               unsigned char *name,
-                               uint64_t       engineFlags ) {
+G3DMESH *g3dmesh_default_copy ( G3DMESH   *mes, 
+                                uint32_t    id, 
+                                const char *name,
+                                uint64_t    engineFlags ) {
     G3DMESH *cpymes = g3dmesh_new ( G3DOBJECTCAST(mes)->id,
                                     G3DOBJECTCAST(mes)->name );
 
@@ -4805,7 +4805,7 @@ void g3dmesh_default_update ( G3DMESH *mes,
 void g3dmesh_init ( G3DMESH       *mes,
                     uint32_t       type,
                     uint32_t       id,
-                    char          *name,
+                    const char    *name,
                     uint32_t       objectFlags,
                     G3DMESHVTABLE *vtable ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) mes;
@@ -4914,7 +4914,7 @@ void g3dmesh_invalidateVertex ( G3DMESH   *mes,
 
 /******************************************************************************/
 G3DMESH *g3dmesh_new ( uint32_t id, 
-                       char    *name ) {
+                       const char *name ) {
     G3DMESH *mes = ( G3DMESH * ) calloc ( 0x01, sizeof ( G3DMESH ) );
 
     if ( mes == NULL ) {

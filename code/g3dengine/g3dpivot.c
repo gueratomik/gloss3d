@@ -30,7 +30,7 @@
 #include <g3dengine/vtable/g3dpivotvtable.h>
 
 /******************************************************************************/
-G3DPIVOTVTABLE _vtable = { G3DPIVOTVTABLE_DEFAULT };
+static G3DPIVOTVTABLE _vtable = { G3DPIVOTVTABLE_DEFAULT };
 
 /******************************************************************************/
 uint32_t g3dpivot_default_draw ( G3DPIVOT  *piv, 

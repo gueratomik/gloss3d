@@ -32,7 +32,7 @@
 
 
 /******************************************************************************/
-G3DOBJECTVTABLE _vtable = { G3DOBJECTVTABLE_DEFAULT };
+static G3DOBJECTVTABLE _vtable = { G3DOBJECTVTABLE_DEFAULT };
 
 /******************************************************************************/
 uint32_t g3dobject_getNextTagID ( G3DOBJECT *obj ) {
@@ -2276,9 +2276,9 @@ void g3dobject_init ( G3DOBJECT       *obj,
 
     g3dobject_initMatrices ( obj );
 
-    obj->curve[0x00] = g3dcurve_new ( CUBIC, 0x00 );
-    obj->curve[0x01] = g3dcurve_new ( CUBIC, 0x00 );
-    obj->curve[0x02] = g3dcurve_new ( CUBIC, 0x00 );
+    obj->curve[0x00] = g3dcurve_new ( CUBIC );
+    obj->curve[0x01] = g3dcurve_new ( CUBIC );
+    obj->curve[0x02] = g3dcurve_new ( CUBIC );
 
     /*** COMMENTED: Because this maybe called before OpenGL initialization ***/
     /*** we dont use OpenGL functions. Instead, we use some home-made func ***/

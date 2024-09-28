@@ -27,11 +27,16 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3dengine/vtable/g3dsymmetryvtable.h>
 
 /******************************************************************************/
-static G3DSYMMETRY *_default_copy ( G3DSYMMETRY *sym,
-                                    uint64_t     engine_flags ) {
+static G3DSYMMETRYVTABLE _vtable = { G3DSYMMETRYVTABLE_DEFAULT };
+
+/******************************************************************************/
+G3DSYMMETRY *g3dsymmetry_default_copy ( G3DSYMMETRY *sym,
+                                        uint32_t     id,
+                                        const char  *name,
+                                        uint64_t     engineFlags ) {
     G3DOBJECT *objsym = ( G3DOBJECT * ) sym;
     G3DSYMMETRY *newsym = g3dsymmetry_new ( objsym->id, objsym->name );
 
@@ -88,8 +93,10 @@ void g3dsymmetry_convert_r ( G3DOBJECT *obj,
             } break;
    
             default:
-                symobj = child->copy ( child, child->id, 
-                                              child->name, engine_flags );
+                symobj = g3dobject_copy( child,
+                                         child->id, 
+                                         child->name,
+                                         engine_flags );
 
                 g3dobject_importTransformations ( ( G3DOBJECT * ) symobj,
                                                   ( G3DOBJECT * ) child );
@@ -107,8 +114,10 @@ void g3dsymmetry_convert_r ( G3DOBJECT *obj,
 }
 
 /*****************************************************************************/
-static G3DOBJECT *_default_commit ( G3DSYMMETRY *sym, 
-                                       uint64_t     engine_flags ) {
+G3DOBJECT *g3dsymmetry_default_commit ( G3DSYMMETRY *sym,
+                                        uint32_t     id,
+                                        const char  *name,
+                                        uint64_t     engine_flags ) {
     G3DOBJECT *obj = g3dobject_new ( g3dobject_getID   ( ( G3DOBJECT * ) sym ),
                                      g3dobject_getName ( ( G3DOBJECT * ) sym ), 0x00 );
     float *worldMatrix = ((G3DOBJECT*)sym)->worldMatrix;
@@ -127,7 +136,7 @@ static G3DOBJECT *_default_commit ( G3DSYMMETRY *sym,
 }
 
 /*****************************************************************************/
-#ifdef unused
+#ifdef need_refactor /* ? */
 G3DMESH *g3dsymmetry_convert ( G3DSYMMETRY *sym,
                                LIST       **loldobj, 
                                uint64_t     engine_flags ) {
@@ -314,12 +323,12 @@ void g3dsymmetry_childVertexChange ( G3DOBJECT *obj,
 }
 
 /*****************************************************************************/
-static uint32_t _default_draw ( G3DOBJECT *obj,
-                                G3DCAMERA *curcam, 
-                                uint64_t   engine_flags ) {
+uint32_t g3dsymmetry_default_draw ( G3DSYMMETRY *sym,
+                                    G3DCAMERA   *curcam, 
+                                    G3DENGINE   *engine, 
+                                    uint64_t     engine_flags ) {
     uint64_t next_engine_flags = engine_flags;
-    G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;
-    LIST *ltmpobj = obj->childList;
+    LIST *ltmpobj = G3DOBJECTCAST(sym)->childList;
 #ifdef need_refactor
     /* Alternate symmety flags in case of nested symmetry objects */
     if ( engine_flags & SYMMETRYVIEW ) {
@@ -350,7 +359,7 @@ static uint32_t _default_draw ( G3DOBJECT *obj,
 }
 
 /*****************************************************************************/
-static void _default_free ( G3DOBJECT *obj ) {
+void g3dsymmetry_default_free ( G3DSYMMETRY *sym ) {
     /*G3DSYMMETRY *sym = ( G3DSYMMETRY * ) obj;*/
 
     /*** Is the Undo-Redo manager ***/
@@ -374,11 +383,32 @@ void g3dsymmetry_setMergeLimit ( G3DSYMMETRY *sym,
 }
 
 /******************************************************************************/
-G3DSYMMETRY *g3dsymmetry_new ( uint32_t id, 
-                               char    *name ) {
+void g3dsymmetry_init( G3DSYMMETRY       *sym,
+                       uint64_t           type,
+                       uint32_t           id,
+                       const char        *name,
+                       uint64_t           objectFlags,
+                       G3DSYMMETRYVTABLE *vtable ) {
+
+    g3dobject_init ( G3DOBJECTCAST(sym),
+                     type,
+                     id,
+                     name,
+                     objectFlags,
+                     vtable ? G3DOBJECTVTABLECAST(vtable)
+                            : G3DOBJECTVTABLECAST(&_vtable) );
+
+    /*** default orientation ***/
+    g3dsymmetry_setPlane ( sym, SYMMETRYYZ );
+
+    g3dsymmetry_setMergeLimit ( sym, 0.02f );
+}
+
+/******************************************************************************/
+G3DSYMMETRY *g3dsymmetry_new ( uint32_t    id, 
+                               const char *name ) {
     uint32_t structsize = sizeof ( G3DSYMMETRY );
     G3DSYMMETRY *sym = ( G3DSYMMETRY * ) calloc ( 0x01, structsize );
-    G3DOBJECT *obj = ( G3DOBJECT * ) sym;
 
     if ( sym == NULL ) {
         fprintf ( stderr, "g3dsymmetry_new: calloc failed\n" );
@@ -386,30 +416,12 @@ G3DSYMMETRY *g3dsymmetry_new ( uint32_t id,
         return NULL;
     }
 
-    /*** default orientation ***/
-    g3dsymmetry_setPlane ( sym, SYMMETRYYZ );
-
-    g3dsymmetry_setMergeLimit ( sym, 0.02f );
-
-    g3dobject_init ( obj,
-                     G3DSYMMETRYTYPE,
-                     id,
-                     name,
-                     0x00,
-       DRAW_CALLBACK(_default_draw),
-       FREE_CALLBACK(_default_free),
-       PICK_CALLBACK(NULL),
-       ANIM_CALLBACK(NULL),
-     UPDATE_CALLBACK(NULL),
-       POSE_CALLBACK(NULL),
-       COPY_CALLBACK(_default_copy),
-  TRANSFORM_CALLBACK(NULL),
-   ACTIVATE_CALLBACK(NULL),
- DEACTIVATE_CALLBACK(NULL),
-     COMMIT_CALLBACK(_default_commit),
-   ADDCHILD_CALLBACK(NULL),
-REMOVECHILD_CALLBACK(NULL),
-  SETPARENT_CALLBACK(NULL) );
+    g3dsymmetry_init ( sym,
+                       G3DSYMMETRYTYPE,
+                       id,
+                       name,
+                       0x00,
+                       NULL );
 
     return sym;
 }

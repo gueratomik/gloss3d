@@ -27,7 +27,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3dengine/vtable/g3duvmapvtable.h>
+
+/******************************************************************************/
+static G3DUVMAPVTABLE _vtable = { G3DUVMAPVTABLE_DEFAULT };
 
 /******************************************************************************/
 LIST *g3duvset_getUVsFromList ( LIST *luvset ) {
@@ -617,12 +620,10 @@ void g3duvmap_applyProjection ( G3DUVMAP *map, G3DMESH *mes ) {
 }
 
 /******************************************************************************/
-static uint32_t _default_draw ( G3DOBJECT *obj, 
-                                G3DCAMERA *curcam, 
-                                G3DENGINE *engine, 
-                                uint64_t   engine_flags ) {
-    G3DUVMAP *map = ( G3DUVMAP * ) obj;
-
+uint32_t g3duvmap_default_draw ( G3DUVMAP  *map,
+                                 G3DCAMERA *curcam, 
+                                 G3DENGINE *engine, 
+                                 uint64_t   engine_flags ) {
     if ( ( engine_flags & VIEWUVWMAP ) == 0x00 ) return 0x00;
 
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
@@ -666,27 +667,29 @@ static uint32_t _default_draw ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-static void _default_transform ( G3DOBJECT *obj, 
-                                 uint64_t   engine_flags ) {
-    G3DOBJECT *parent = obj->parent;
-    G3DUVMAP *map = ( G3DUVMAP * ) obj;
+void g3duvmap_default_transform ( G3DUVMAP *map,
+                                  uint64_t  engine_flags ) {
+    G3DOBJECT *parent = G3DOBJECTCAST(map)->parent;
 
     if ( parent->type  & MESH ) {
         G3DMESH *mes = ( G3DMESH * ) parent;
 
         if ( ( ( engine_flags     & ONGOINGANIMATION ) == 0x00 ) ||
              ( ( map->projection == UVMAPBACKGROUND  )         ) ) {
-            if ( ( obj->flags & UVMAPFIXED ) == 0x00 ) {
+            if ( ( G3DOBJECTCAST(map)->flags & UVMAPFIXED ) == 0x00 ) {
                 g3duvmap_applyProjection ( map, mes );
 
-                g3dobject_invalidate( obj->parent, INVALIDATE_UVMAPPING );
+                g3dobject_invalidate( G3DOBJECTCAST(map)->parent,
+                                      INVALIDATE_UVMAPPING );
             }
         }
     }
 }
 
 /******************************************************************************/
-void g3duvmap_init ( G3DUVMAP *map, char *name, uint32_t projection ) {
+void g3duvmap_init ( G3DUVMAP *map,
+                     char     *name,
+                     uint32_t projection ) {
     G3DOBJECT *objmap = ( G3DOBJECT * ) map;
 
     g3dobject_init ( objmap,
@@ -694,20 +697,7 @@ void g3duvmap_init ( G3DUVMAP *map, char *name, uint32_t projection ) {
                      0x00,
                      name,
                      0x00,
-       DRAW_CALLBACK(_default_draw),
-       FREE_CALLBACK(NULL),
-       PICK_CALLBACK(NULL),
-       ANIM_CALLBACK(NULL),
-     UPDATE_CALLBACK(NULL),
-       POSE_CALLBACK(NULL),
-       COPY_CALLBACK(NULL),
-  TRANSFORM_CALLBACK(_default_transform),
-   ACTIVATE_CALLBACK(NULL),
- DEACTIVATE_CALLBACK(NULL),
-     COMMIT_CALLBACK(NULL),
-   ADDCHILD_CALLBACK(NULL),
-REMOVECHILD_CALLBACK(NULL),
-  SETPARENT_CALLBACK(NULL) );
+                     G3DOBJECTVTABLECAST(&_vtable) );
 
     /*obj->copy = g3dprimitive_copy;*/
 

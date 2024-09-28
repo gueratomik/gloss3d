@@ -33,7 +33,7 @@ static void g3dmorpher_removeVertex ( G3DMORPHER *mpr,
                                       G3DVERTEX  *ver );
 
 /******************************************************************************/
-G3DMORPHERVTABLE _vtable = { G3DMORPHERVTABLE_DEFAULT };
+static G3DMORPHERVTABLE _vtable = { G3DMORPHERVTABLE_DEFAULT };
 
 /******************************************************************************/
 typedef struct _VERTEXPOSEEXTENSION {

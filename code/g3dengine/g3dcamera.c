@@ -31,7 +31,7 @@
 #include <g3dengine/g3dengine.h>
 
 /******************************************************************************/
-const G3DCAMERAVTABLE _vtable = { G3DCAMERAVTABLE_DEFAULT };
+static G3DCAMERAVTABLE _vtable = { G3DCAMERAVTABLE_DEFAULT };
 
 /******************************************************************************/
 typedef struct _CAMERAKEYDATA {

@@ -39,6 +39,8 @@
 extern "C" {
 #endif
 
+typedef struct _G3DSKINVTABLE G3DSKINVTABLE ;
+
 /**
  * @struct G3DSKIN
  * @brief A modifier to revolve a spline
@@ -51,7 +53,11 @@ typedef struct _G3DSKIN {
 G3DSKIN *g3dskin_new ( uint32_t id, 
                        char    *name, 
                        uint64_t engine_flags );
-
+void g3dskin_init ( G3DSKIN *skn, 
+                    uint32_t id, 
+                    char    *name, 
+                    uint64_t engineFlags,
+                    G3DSKINVTABLE *vtable );
 void g3dskin_fixBone ( G3DSKIN *skn, 
                        G3DBONE *bon );
 

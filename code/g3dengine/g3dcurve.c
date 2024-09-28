@@ -608,7 +608,7 @@ G3DQUADRATICSEGMENT *g3dquadraticsegment_new ( G3DCURVEPOINT *pt0,
 /******************************************************************************/
 G3DCURVE *g3dcurve_copy ( G3DCURVE *curve, uint64_t engine_flags ) {
     G3DOBJECT *obj      = ( G3DOBJECT * ) curve;
-    G3DCURVE *newSpline = g3dcurve_new ( curve->type, engine_flags );
+    G3DCURVE *newSpline = g3dcurve_new ( curve->type );
     G3DLOOKUP  pointLookup;
 
     if ( curve->nbpt ) {
@@ -1208,8 +1208,7 @@ void g3dcurve_removeSegment ( G3DCURVE        *curve,
 }
 
 /******************************************************************************/
-G3DCURVE *g3dcurve_new ( uint32_t type, 
-                         uint64_t engine_flags ) {
+G3DCURVE *g3dcurve_new ( uint32_t type ) {
     G3DCURVE *curve = ( G3DCURVE * ) calloc ( 0x01, sizeof ( G3DCURVE ) );
 
     if ( curve == NULL ) {

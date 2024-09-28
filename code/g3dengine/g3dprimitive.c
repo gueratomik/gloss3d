@@ -30,7 +30,7 @@
 #include <g3dengine/vtable/g3dprimitivevtable.h>
 
 /******************************************************************************/
-G3DPRIMITIVEVTABLE _vtable = { G3DPRIMITIVEVTABLE_DEFAULT };
+static G3DPRIMITIVEVTABLE _vtable = { G3DPRIMITIVEVTABLE_DEFAULT };
 
 /******************************************************************************/
 G3DPRIMITIVE* g3dprimitive_default_copy ( G3DPRIMITIVE *pri,

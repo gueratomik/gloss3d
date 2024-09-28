@@ -30,7 +30,7 @@
 #include <g3dengine/vtable/g3dlightvtable.h>
 
 /******************************************************************************/
-const G3DLIGHTVTABLE _vtable = { G3DLIGHTVTABLE_DEFAULT };
+static G3DLIGHTVTABLE _vtable = { G3DLIGHTVTABLE_DEFAULT };
 
 /******************************************************************************/
 typedef struct _LIGHTKEYDATA {

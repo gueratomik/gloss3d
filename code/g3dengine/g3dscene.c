@@ -27,7 +27,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3dengine/vtable/g3dscenevtable.h>
+
+/******************************************************************************/
+static G3DSCENEVTABLE _vtable = { G3DSCENEVTABLE_DEFAULT };
 
 /******************************************************************************/
 void g3dscene_checkReferredObjects ( G3DSCENE *sce ) {
@@ -801,9 +804,30 @@ void g3dscene_resetAllLights ( G3DSCENE *sce ) {
 }
 
 /******************************************************************************/
+void g3dscene_init ( G3DSCENE       *sce,
+                     uint32_t        type,
+                     uint32_t        id,
+                     const char     *name,
+                     uint32_t        object_flags,
+                     G3DSCENEVTABLE *vtable ) {
+    g3dobject_init ( G3DOBJECTCAST(sce),
+                     G3DSCENETYPE,
+                     id,
+                     name,
+                     0x00,
+                     vtable ? G3DOBJECTVTABLECAST(vtable)
+                            : G3DOBJECTVTABLECAST(&_vtable) );
+
+    g3dcursor_init ( &sce->csr );
+
+    sce->fps = 24;
+
+    g3dscene_resetAllLights ( sce );
+}
+
+/******************************************************************************/
 G3DSCENE *g3dscene_new ( uint32_t id, char *name ) {
     G3DSCENE *sce = ( G3DSCENE * ) calloc ( 0x01, sizeof ( G3DSCENE ) );
-    G3DOBJECT *obj = ( G3DOBJECT * ) sce;
 
     if ( sce == NULL ) {
         fprintf ( stderr, "g3dscene_new: calloc failed\n" );
@@ -811,32 +835,12 @@ G3DSCENE *g3dscene_new ( uint32_t id, char *name ) {
         return NULL;
     }
 
-    g3dobject_init ( obj,
-                     G3DSCENETYPE,
-                     id,
-                     name,
-                     0x00,
-       DRAW_CALLBACK(NULL),
-       FREE_CALLBACK(_default_free),
-       PICK_CALLBACK(NULL),
-       ANIM_CALLBACK(_default_anim),
-     UPDATE_CALLBACK(_default_update),
-       POSE_CALLBACK(NULL),
-       COPY_CALLBACK(NULL),
-  TRANSFORM_CALLBACK(NULL),
-   ACTIVATE_CALLBACK(_default_activate),
- DEACTIVATE_CALLBACK(_default_deactivate),
-     COMMIT_CALLBACK(NULL),
-   ADDCHILD_CALLBACK(NULL),
-REMOVECHILD_CALLBACK(NULL),
-  SETPARENT_CALLBACK(NULL) );
-
-    g3dcursor_init ( &sce->csr );
-
-    sce->fps = 24;
-
-    g3dscene_resetAllLights ( sce );
-
+    g3dscene_init ( sce,
+                    G3DSCENETYPE,
+                    id,
+                    name,
+                    0x00,
+                    NULL );
 
     return sce;
 }

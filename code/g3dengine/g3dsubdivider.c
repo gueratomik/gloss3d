@@ -27,12 +27,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3dengine/vtable/g3dsubdividervtable.h>
 
 /******************************************************************************/
-static uint32_t _default_modify ( G3DSUBDIVIDER *sdr,
-                                       G3DMODIFYOP    op,
-                                       uint64_t       engine_flags );
+static G3DSUBDIVIDERVTABLE _vtable = { G3DSUBDIVIDERVTABLE_DEFAULT };
 
 /******************************************************************************/
 void g3dfacesculptextension_free ( G3DFACESCULPTEXTENSION *fse ) {
@@ -340,7 +338,7 @@ void g3dsubdivider_setSculptResolution ( G3DSUBDIVIDER *sdr,
 /******************************************************************************/
 void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
                                    uint32_t       sculptMode, 
-                                   uint64_t       engine_flags ) {
+                                   uint64_t       engineFlags ) {
     if ( sculptMode != sdr->sculptMode ) {
         if ( sdr->mod.oriobj ) {
             if ( sdr->mod.oriobj->type & MESH ) {
@@ -393,7 +391,7 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
                                                              sdr->sculptResolution,
                                                              SUBDIVISIONCOMPUTE | 
                                                              SUBDIVISIONNOELEVATE,
-                                                             engine_flags );
+                                                             engineFlags );
 
                                 pos = ( G3DVECTOR4F * ) realloc ( pos, fse->vertexCount * sizeof ( *fse->pos ) ); 
 
@@ -456,8 +454,8 @@ void g3dsubdivider_setSculptMode ( G3DSUBDIVIDER *sdr,
 
                 sdr->sculptMode = sculptMode;
 
-                g3dsubdivider_allocBuffers ( sdr, engine_flags );
-                g3dsubdivider_fillBuffers  ( sdr, NULL, engine_flags );
+                g3dsubdivider_allocBuffers ( sdr, engineFlags );
+                g3dsubdivider_fillBuffers  ( sdr, NULL, engineFlags );
             }
         }
     }
@@ -488,7 +486,7 @@ uint32_t g3dsubdivider_hasScultMaps ( G3DSUBDIVIDER *sdr ) {
 /******************************************************************************/
 static void _default_pick ( G3DSUBDIVIDER *sdr,
                             G3DCAMERA     *curcam, 
-                            uint64_t       engine_flags ) {
+                            uint64_t       engineFlags ) {
     if ( g3dobject_isActive ( ( G3DOBJECT * ) sdr ) ) {
         if ( g3dobject_isSelected ( ( G3DOBJECT * ) sdr ) ) {
             if ( sdr->subdiv_preview ) {
@@ -509,7 +507,7 @@ static void _default_pick ( G3DSUBDIVIDER *sdr,
 
                             fac->id = facID++;
 
-                            if ( engine_flags & VIEWSCULPT ) {
+                            if ( engineFlags & VIEWSCULPT ) {
                                 for ( i = 0x00; i < nbrtver; i++ ) {
                                     uint64_t name = ( ( uint64_t ) fac->id << 0x20 ) |
                                                       ( uint64_t ) i;
@@ -523,7 +521,7 @@ static void _default_pick ( G3DSUBDIVIDER *sdr,
                                 }
                             }
 
-                            if ( engine_flags & VIEWFACE ) {
+                            if ( engineFlags & VIEWFACE ) {
                                 uint32_t nbrtfac  = ( fac->vertexCount == 0x04 ) ? sdr->nbFacesPerQuad :
                                                                              sdr->nbFacesPerTriangle;
                                 G3DRTQUAD *rtquamem = sdr->rtquamem;
@@ -558,7 +556,7 @@ static void _default_pick ( G3DSUBDIVIDER *sdr,
                                 }
                             }
 /*
-                            if ( engine_flags & VIEWOBJECT ) {
+                            if ( engineFlags & VIEWOBJECT ) {
                                 uint32_t nbrtfac  = ( fac->vertexCount == 0x04 ) ? sdr->nbFacesPerQuad : sdr->nbFacesPerTriangle;
                                 G3DRTQUAD *rtquamem = sdr->rtquamem;
 
@@ -600,11 +598,14 @@ static void _default_pick ( G3DSUBDIVIDER *sdr,
 }
 
 /******************************************************************************/
-static void _default_update ( G3DSUBDIVIDER *sdr, 
-                              uint64_t       engine_flags ) {
+void g3dsubdivider_default_update ( G3DSUBDIVIDER *sdr,
+                                    uint64_t       updateFlags,
+                                    uint64_t       engineFlags ) {
     if ( g3dobject_isActive ( ( G3DOBJECT * ) sdr ) ) {
         if ( ((G3DOBJECT*)sdr)->parent->type == G3DSKINTYPE ) {
-            _default_modify ( sdr, G3DMODIFYOP_MODIFY, engine_flags );
+            g3dsubdivider_default_modify ( sdr,
+                                           G3DMODIFYOP_MODIFY,
+                                           engineFlags );
         }
     }
 }
@@ -635,21 +636,17 @@ static void g3dsubdivider_reset ( G3DSUBDIVIDER *sdr ) {
 }
 
 /******************************************************************************/
-static void _default_free ( G3DSUBDIVIDER *sdr ) {
+void g3dsubdivider_default_free ( G3DSUBDIVIDER *sdr ) {
     g3dsubdivider_reset ( sdr );
 
-    g3dmodifier_default_free( G3DMODIFIERCAST(sdr) );
+    /*g3dmodifier_default_free( G3DMODIFIERCAST(sdr) );*/
 }
 
 /******************************************************************************/
-static void _default_activate ( G3DSUBDIVIDER *sdr,
-                                     uint64_t       engine_flags );
-
-/******************************************************************************/
-static void _default_setParent ( G3DSUBDIVIDER *sdr, 
-                               G3DOBJECT     *parent,
-                               G3DOBJECT     *oldParent,
-                               uint64_t       engine_flags ) {
+void g3dsubdivider_default_setParent ( G3DSUBDIVIDER *sdr, 
+                                       G3DOBJECT     *parent,
+                                       G3DOBJECT     *oldParent,
+                                       uint64_t       engineFlags ) {
     g3dsubdivider_reset ( sdr );
 }
 
@@ -669,28 +666,29 @@ void g3dsubdivider_unsetSyncSubdivision ( G3DSUBDIVIDER *sdr ) {
 void g3dsubdivider_setLevels ( G3DSUBDIVIDER *sdr, 
                                uint32_t       preview,
                                uint32_t       render,
-                               uint64_t       engine_flags ) {
+                               uint64_t       engineFlags ) {
     sdr->subdiv_preview = preview;
     sdr->subdiv_render  = render;
 
     if ( sdr->subdiv_preview ) {
-        g3dsubdivider_allocBuffers ( sdr, engine_flags );
-        g3dsubdivider_fillBuffers  ( sdr, NULL, engine_flags );
+        g3dsubdivider_allocBuffers ( sdr, engineFlags );
+        g3dsubdivider_fillBuffers  ( sdr, NULL, engineFlags );
     }
 }
 
 /******************************************************************************/
-static uint32_t _default_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* vertexCount */
-                                                                 uint32_t, /* nbtris */
-                                                                 uint32_t, /* nbquads */
-                                                                 uint32_t, /* nbuv */
-                                                                 void * ),
-                                                  void (*Dump) ( G3DFACE *,
-                                                                 G3DVECTOR3F *,
-                                                                 G3DVECTOR3F *,
-                                                                 void * ),
-                                                  void *data,
-                                                  uint64_t engine_flags ) {
+uint32_t g3dsubdivider_default_dump ( G3DSUBDIVIDER *sdr,
+                                      void (*Alloc)( uint32_t, /* vertexCount */
+                                                     uint32_t, /* nbtris */
+                                                     uint32_t, /* nbquads */
+                                                     uint32_t, /* nbuv */
+                                                     void * ),
+                                      void (*Dump) ( G3DFACE *,
+                                                     G3DVECTOR3F *,
+                                                     G3DVECTOR3F *,
+                                                     void * ),
+                                      void *data,
+                                      uint64_t engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = sdr->mod.oriobj;
 
@@ -736,9 +734,9 @@ static uint32_t _default_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* 
                              ( uvmapCount ),                          /* nbuvmaps */
                               data );
 
-        if ( g3dmesh_isDisplaced ( mes, engine_flags ) == 0x00 ) {
+        if ( g3dmesh_isDisplaced ( mes, engineFlags ) == 0x00 ) {
             /*** Force the flag in case our mesh does not need displacement ***/
-            engine_flags |= NODISPLACEMENT;
+            engineFlags |= NODISPLACEMENT;
         }
 
         while ( ltmpfac ) {
@@ -782,7 +780,7 @@ static uint32_t _default_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* 
                                                    sdr->subdiv_render,
                                                    SUBDIVISIONCOMPUTE | 
                                                    SUBDIVISIONDUMP,
-                                                   engine_flags );
+                                                   engineFlags );
 
 
             for ( i = 0x00; i < nbrtfac; i++ ) {
@@ -859,10 +857,10 @@ static uint32_t _default_dump ( G3DSUBDIVIDER *sdr, void (*Alloc)( uint32_t, /* 
 }
 
 /******************************************************************************/
-static G3DMESH *_default_commit ( G3DSUBDIVIDER *sdr, 
-                                  uint32_t       commitMeshID,
-                                  unsigned char *commitMeshName,
-                                  uint64_t engine_flags ) {
+G3DMESH *g3dsubdivider_default_commit ( G3DSUBDIVIDER *sdr, 
+                                        uint32_t       commitMeshID,
+                                        unsigned char *commitMeshName,
+                                        uint64_t engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
     G3DMESH *commitMesh = NULL;
@@ -870,8 +868,7 @@ static G3DMESH *_default_commit ( G3DSUBDIVIDER *sdr,
     if ( sdr->subdiv_preview <= 0x00 ) return NULL;
 
     commitMesh = g3dmesh_new ( commitMeshID,
-                               commitMeshName, 
-                               engine_flags );
+                               commitMeshName );
 
     if ( parent ) {
         G3DMESH *mes = ( G3DMESH * ) parent;
@@ -924,7 +921,7 @@ static G3DMESH *_default_commit ( G3DSUBDIVIDER *sdr,
                                   (uint32_t (*)[4])g3dsubindex_get ( 0x03, sdr->subdiv_preview ),
                                                    sdr->subdiv_preview,
                                                    SUBDIVISIONCOMMIT,
-                                                   engine_flags );
+                                                   engineFlags );
 
             ltmpfac = ltmpfac->next;
         }
@@ -962,7 +959,7 @@ static G3DMESH *_default_commit ( G3DSUBDIVIDER *sdr,
 /******************************************************************************/
 void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
                                  LIST          *faceList,
-                                 uint64_t       engine_flags ) {
+                                 uint64_t       engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
 
     if ( sdr->subdiv_preview ) {
@@ -977,9 +974,9 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
             pthread_attr_t attr;
             uint32_t i;
 
-            if ( g3dmesh_isDisplaced ( mes, engine_flags ) == 0x00 ) {
+            if ( g3dmesh_isDisplaced ( mes, engineFlags ) == 0x00 ) {
                 /*** Force the flag in case our mesh does not need displacement ***/
-                engine_flags |= NODISPLACEMENT;
+                engineFlags |= NODISPLACEMENT;
             }
 
             /*** init face list ***/
@@ -1008,7 +1005,7 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
                                                         sdr->subdiv_preview,
                                                         ( uint64_t ) sdr,
                                                         sdr->sculptMode,
-                                                        engine_flags );
+                                                        engineFlags );
 
                 g3dsubdivisionV3_subdivide_t ( &std[0x00] );
             } else {
@@ -1040,7 +1037,7 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
                                                          sdr->subdiv_preview,
                                                          ( uint64_t ) sdr,
                                                          sdr->sculptMode,
-                                                         engine_flags | 
+                                                         engineFlags | 
                                                          G3DMULTITHREADING  );
 
                     pthread_create ( &tid[i], 
@@ -1059,7 +1056,7 @@ void g3dsubdivider_fillBuffers ( G3DSUBDIVIDER *sdr,
 
 /******************************************************************************/
 void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr, 
-                                  uint64_t       engine_flags ) {
+                                  uint64_t       engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
 
     if ( sdr->mod.oriobj ) {
@@ -1120,52 +1117,54 @@ void g3dsubdivider_allocBuffers ( G3DSUBDIVIDER *sdr,
 }
 
 /******************************************************************************/
-static G3DSUBDIVIDER *_default_copy ( G3DSUBDIVIDER *sdr,
-                                           uint64_t       engine_flags ) {
+G3DSUBDIVIDER *g3dsubdivider_default_copy ( G3DSUBDIVIDER *sdr,
+                                            uint32_t       id,
+                                            const char    *name,
+                                            uint64_t       engineFlags ) {
     G3DOBJECT *objsdr = ( G3DOBJECT * ) sdr;
 
-    return g3dsubdivider_new ( objsdr->id, objsdr->name, engine_flags );
+    return g3dsubdivider_new ( objsdr->id, objsdr->name );
 }
 
 /******************************************************************************/
-static uint32_t _default_modify ( G3DSUBDIVIDER *sdr,
-                                       G3DMODIFYOP    op,
-                                       uint64_t       engine_flags ) {
+ uint32_t g3dsubdivider_default_modify ( G3DSUBDIVIDER *sdr,
+                                         G3DMODIFYOP    op,
+                                         uint64_t       engineFlags ) {
     if ( sdr->mod.oriobj ) {
         if ( sdr->subdiv_preview > 0x00 ) {
             G3DMESH *parmes = ( G3DMESH * ) sdr->mod.oriobj;
             uint32_t subdiv_preview = sdr->subdiv_preview;
 
             /*** force subdiv level to 1 if scene is playing ***/ 
-            if (   ( engine_flags & ONGOINGANIMATION ) &&
+            if (   ( engineFlags & ONGOINGANIMATION ) &&
                   /*** this flag to prevent subdivider ***/
                   /*** from recomputing when rendering ***/
-                 ( ( engine_flags & ONGOINGRENDERING ) == 0x00 ) ) {
+                 ( ( engineFlags & ONGOINGRENDERING ) == 0x00 ) ) {
                 sdr->subdiv_preview = 0x01;
             }
 
             if ( op == G3DMODIFYOP_MODIFY ) {
-                g3dsubdivider_allocBuffers ( sdr, engine_flags );
+                g3dsubdivider_allocBuffers ( sdr, engineFlags );
 
                 g3dsubdivider_fillBuffers  ( sdr,
                                              NULL, 
-                                             engine_flags );
+                                             engineFlags );
 
             }
 
             if ( op == G3DMODIFYOP_STARTUPDATE ) {
                 LIST *lver = NULL;
 
-                if ( ( engine_flags & VIEWVERTEX ) || 
-                     ( engine_flags & VIEWSKIN   ) ) {
+                if ( ( engineFlags & VIEWVERTEX ) || 
+                     ( engineFlags & VIEWSKIN   ) ) {
                     lver = g3dmesh_getVertexListFromSelectedVertices ( parmes );
                 }
 
-                if ( engine_flags & VIEWEDGE ) {
+                if ( engineFlags & VIEWEDGE ) {
                     lver = g3dmesh_getVertexListFromSelectedEdges ( parmes );
                 }
 
-                if ( engine_flags & VIEWFACE ) {
+                if ( engineFlags & VIEWFACE ) {
                     lver = g3dmesh_getVertexListFromSelectedFaces ( parmes );
                 }
 
@@ -1184,22 +1183,22 @@ static uint32_t _default_modify ( G3DSUBDIVIDER *sdr,
                 /*** knowing that the buffers should be large enough as the
                 subdiv level is smaller when playing the animation ***/
 
-                g3dsubdivider_allocBuffers ( sdr, engine_flags );
+                g3dsubdivider_allocBuffers ( sdr, engineFlags );
 
 
                 g3dsubdivider_fillBuffers  ( sdr,
                                              sdr->lsubfac, 
-                                             engine_flags );
+                                             engineFlags );
             }
 
             if ( op == G3DMODIFYOP_ENDUPDATE ) {
                 list_free ( &sdr->lsubfac, NULL );
             }
 
-            if (   ( engine_flags & ONGOINGANIMATION ) &&
+            if (   ( engineFlags & ONGOINGANIMATION ) &&
                   /*** this flag to prevent subdivider ***/
                   /*** from recomputing when rendering ***/
-                 ( ( engine_flags & ONGOINGRENDERING ) == 0x00 ) ) {
+                 ( ( engineFlags & ONGOINGRENDERING ) == 0x00 ) ) {
                 sdr->subdiv_preview = subdiv_preview;
             }
 
@@ -1211,28 +1210,28 @@ static uint32_t _default_modify ( G3DSUBDIVIDER *sdr,
 }
 
 /******************************************************************************/
-static void _default_activate ( G3DSUBDIVIDER *sdr,
-                                     uint64_t       engine_flags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
-    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, EDITABLE );
+void g3dsubdivider_default_activate ( G3DSUBDIVIDER *sdr,
+                                      uint64_t       engineFlags ) {
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( G3DOBJECTCAST(sdr),
+                                                          EDITABLE );
 
     if ( parent ) {
-        g3dmesh_modify ( (G3DMESH*) parent, 
-                                    G3DMODIFYOP_MODIFY,
-                                    engine_flags );
+        g3dmesh_modify ( G3DMESHCAST(parent), 
+                         G3DMODIFYOP_MODIFY,
+                         engineFlags );
     }
 }
 
 /******************************************************************************/
-static void _default_deactivate ( G3DSUBDIVIDER *sdr, 
-                                       uint64_t       engine_flags ) {
+void g3dsubdivider_default_deactivate ( G3DSUBDIVIDER *sdr, 
+                                        uint64_t       engineFlags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, EDITABLE );
 
     if ( parent ) {
         g3dmesh_modify ( (G3DMESH*) parent, 
                                     G3DMODIFYOP_MODIFY,
-                                    engine_flags );
+                                    engineFlags );
     }
 
     g3dsubdivider_reset ( sdr );
@@ -1243,7 +1242,7 @@ static void bindMaterials ( G3DSUBDIVIDER *sdr,
                             G3DMESH       *mes, 
                             G3DFACE       *fac, 
                             G3DRTUV       *rtluim,
-                            uint64_t       engine_flags ) {
+                            uint64_t       engineFlags ) {
     static GLfloat blackDiffuse[]  = { 0.0f, 0.0f, 0.0f, 1.0f },
                    blackAmbient[]  = { 0.2f, 0.2f, 0.2f, 1.0f },
                    blackSpecular[] = { 0.0f, 0.0f, 0.0f, 1.0f },
@@ -1269,7 +1268,7 @@ static void bindMaterials ( G3DSUBDIVIDER *sdr,
 
     if ( ( ((G3DOBJECT*)mes)->flags & OBJECTSELECTED ) &&
          ( fac->flags & FACESELECTED ) &&
-         ( engine_flags & VIEWFACE ) ) {
+         ( engineFlags & VIEWFACE ) ) {
         glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectDiffuse );
 
         memcpy ( whiteDiffuse, selectDiffuse, sizeof ( whiteDiffuse ) );
@@ -1279,7 +1278,7 @@ static void bindMaterials ( G3DSUBDIVIDER *sdr,
 
     if ( ( ((G3DOBJECT*)sdr)->flags & OBJECTSELECTED ) &&
          ( fac->flags & FACESELECTED ) &&
-         ( engine_flags & VIEWSCULPT ) ) {
+         ( engineFlags & VIEWSCULPT ) ) {
         glMaterialfv ( GL_FRONT_AND_BACK, GL_DIFFUSE, ( GLfloat * ) selectSculptDiffuse );
 
         memcpy ( whiteDiffuse, selectSculptDiffuse, sizeof ( whiteDiffuse ) );
@@ -1382,7 +1381,7 @@ I dont't know why.
 static void unbindMaterials ( G3DMESH *mes, 
                               G3DFACE *fac, 
                               G3DRTUV *rtluim,
-                              uint64_t engine_flags ) {
+                              uint64_t engineFlags ) {
     GLint arbid = GL_TEXTURE0_ARB;
     LIST *ltmptex = mes->textureList;
 
@@ -1443,10 +1442,10 @@ static void unbindMaterials ( G3DMESH *mes,
 }
 
 /******************************************************************************/
-static uint32_t _default_draw ( G3DSUBDIVIDER *sdr,
-                                G3DCAMERA     *cam,
-                                G3DENGINE     *engine,
-                                uint64_t       engine_flags ) {
+uint32_t g3dsubdivider_default_draw ( G3DSUBDIVIDER *sdr,
+                                      G3DCAMERA     *cam,
+                                      G3DENGINE     *engine,
+                                      uint64_t       engineFlags ) {
     int mvwMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
                                                   "mvwMatrix" );
     int mvpMatrixLocation = glGetUniformLocation( engine->triangleShaderProgram,
@@ -1455,7 +1454,7 @@ static uint32_t _default_draw ( G3DSUBDIVIDER *sdr,
                                                   "norMatrix" );
     G3DOBJECT *obj = ( G3DOBJECT * ) sdr;
     G3DOBJECT *parent = sdr->mod.oriobj;
-    uint64_t viewSkin = ( ( engine_flags  & VIEWSKIN       ) &&
+    uint64_t viewSkin = ( ( engineFlags  & VIEWSKIN       ) &&
                           ( parent->flags & OBJECTSELECTED ) ) ? 0x01: 0x00;
     float mvp[0x10];
     float inv[0x10];
@@ -1528,9 +1527,9 @@ static uint32_t _default_draw ( G3DSUBDIVIDER *sdr,
             }
 
 #ifdef need_refactor
-            if ( ( engine_flags & VIEWSKIN ) == 0x00 ) {
-                if ( ( engine_flags & NOTEXTURE ) == 0x00 ) {
-                    bindMaterials ( sdr, mes, fac, rtluim, engine_flags );
+            if ( ( engineFlags & VIEWSKIN ) == 0x00 ) {
+                if ( ( engineFlags & NOTEXTURE ) == 0x00 ) {
+                    bindMaterials ( sdr, mes, fac, rtluim, engineFlags );
                 }
  
                 /*glEnableClientState ( GL_NORMAL_ARRAY );*/
@@ -1562,11 +1561,11 @@ static uint32_t _default_draw ( G3DSUBDIVIDER *sdr,
             glBindBuffer( GL_ARRAY_BUFFER, 0 );
 
 #ifdef need_refactor
-            if ( ( engine_flags & VIEWSKIN ) == 0x00 ) {
+            if ( ( engineFlags & VIEWSKIN ) == 0x00 ) {
                 /*glDisableClientState ( GL_NORMAL_ARRAY );*/
 
-                if ( ( engine_flags & NOTEXTURE ) == 0x00 ) {
-                    unbindMaterials ( mes, fac, rtluim, engine_flags );
+                if ( ( engineFlags & NOTEXTURE ) == 0x00 ) {
+                    unbindMaterials ( mes, fac, rtluim, engineFlags );
                 }
             }
 #endif
@@ -1584,47 +1583,28 @@ static uint32_t _default_draw ( G3DSUBDIVIDER *sdr,
 }
 
 /******************************************************************************/
-void g3dsubdivider_init ( G3DSUBDIVIDER *sdr, 
-                          uint32_t       id, 
-                          char          *name, 
-                          uint64_t       engine_flags ) {
-    G3DMODIFIER *mod = ( G3DMODIFIER * ) sdr;
+void g3dsubdivider_init ( G3DSUBDIVIDER       *sdr,
+                          uint64_t             type,
+                          uint32_t             id, 
+                          const char          *name, 
+                          uint64_t             objectFlags,
+                          G3DSUBDIVIDERVTABLE *vtable ) {
+
+    g3dmodifier_init ( G3DMODIFIERCAST(sdr),
+                       type,
+                       id,
+                       name,
+                       objectFlags,
+                       vtable ? G3DMODIFIERVTABLECAST(vtable)
+                              : G3DMODIFIERVTABLECAST(&_vtable) );
 
     sdr->subdiv_preview = 0x01;
     sdr->subdiv_render  = 0x01;
-
-    g3dmodifier_init ( mod,
-                       G3DSUBDIVIDERTYPE,
-                       id,
-                       name,
-                       OBJECTNOTRANSLATION | 
-                       OBJECTNOROTATION    |
-                       OBJECTNOSCALING     |
-                       SYNCLEVELS,
-         DRAW_CALLBACK(_default_draw),
-         FREE_CALLBACK(_default_free),
-         PICK_CALLBACK(_default_pick),
-         ANIM_CALLBACK(NULL),
-       UPDATE_CALLBACK(_default_update),
-         POSE_CALLBACK(NULL),
-         COPY_CALLBACK(_default_copy),
-    TRANSFORM_CALLBACK(NULL),
-     ACTIVATE_CALLBACK(_default_activate),
-   DEACTIVATE_CALLBACK(_default_deactivate),
-       COMMIT_CALLBACK(_default_commit),
-     ADDCHILD_CALLBACK(NULL),
-  REMOVECHILD_CALLBACK(NULL),
-    SETPARENT_CALLBACK(_default_setParent),
-         DUMP_CALLBACK(_default_dump),
-       MODIFY_CALLBACK(_default_modify),
-      HUDDRAW_CALLBACK(NULL),
-      HUDPICK_CALLBACK(NULL) );
 }
 
 /******************************************************************************/
-G3DSUBDIVIDER *g3dsubdivider_new ( uint32_t id, 
-                                   char    *name, 
-                                   uint64_t engine_flags ) {
+G3DSUBDIVIDER *g3dsubdivider_new ( uint32_t   id, 
+                                   const char *name ) {
     uint32_t structSize = sizeof ( G3DSUBDIVIDER );
     G3DSUBDIVIDER *sdr = ( G3DSUBDIVIDER * ) calloc ( 0x01, structSize );
 
@@ -1634,7 +1614,15 @@ G3DSUBDIVIDER *g3dsubdivider_new ( uint32_t id,
         return NULL;
     }
 
-    g3dsubdivider_init ( sdr, id, name, engine_flags );
+    g3dsubdivider_init ( sdr,
+                         G3DSUBDIVIDERTYPE,
+                         id,
+                         name, 
+                         OBJECTNOTRANSLATION | 
+                         OBJECTNOROTATION    |
+                         OBJECTNOSCALING     |
+                         SYNCLEVELS,
+                         NULL );
 
 
     return sdr;

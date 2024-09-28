@@ -27,10 +27,13 @@
 /*                                                                            */
 /******************************************************************************/
 #include <config.h>
-#include <g3dengine/g3dengine.h>
+#include <g3dengine/vtable/g3dwireframevtable.h>
 
 static void g3dwireframe_activate ( G3DWIREFRAME *wir, 
                                     uint64_t      engine_flags );
+
+/******************************************************************************/
+static  G3DWIREFRAMEVTABLE _vtable = { G3DWIREFRAMEVTABLE_DEFAULT };
 
 /******************************************************************************/
 static G3DWIREFRAME *_default_copy ( G3DWIREFRAME *wir,
@@ -54,7 +57,7 @@ void g3dwireframe_setThickness ( G3DWIREFRAME *wir,
         uint32_t nbVerPerFace = ( obj->flags & TRIANGULAR ) ?  4 :  8;
         uint32_t nbEdgPerFace = ( obj->flags & TRIANGULAR ) ? 12 : 16;
         uint32_t nbFacPerFace = ( obj->flags & TRIANGULAR ) ?  8 : 12;
-        G3DSUBVERTEX *wirVertices = wir->subedgeArray;
+        G3DSUBVERTEX *wirVertices = wir->subvertexArray;
         G3DSUBEDGE   *wirEdges = wir->subedgeArray;
         G3DSUBFACE   *wirFaces = wir->subfaceArray;
         LIST *ltmpver = mes->vertexList;
@@ -608,65 +611,64 @@ static uint32_t _default_modify ( G3DWIREFRAME *wir,
 }
 
 /******************************************************************************/
-static void _default_activate ( G3DWIREFRAME *wir, 
-                                uint64_t      engine_flags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) wir;
-    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+void g3dwireframe_default_activate ( G3DWIREFRAME *wir, 
+                                     uint64_t      engine_flags ) {
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( G3DOBJECTCAST(wir),
+                                                          MESH );
 
     if ( parent ) {
-        g3dmesh_modify ( (G3DMESH*) parent, 
-                                    G3DMODIFYOP_MODIFY,
-                                    engine_flags );
+        g3dmesh_modify ( G3DMESHCAST(parent), 
+                         G3DMODIFYOP_MODIFY,
+                         engine_flags );
     }
 }
 
 /******************************************************************************/
-static void _default_deactivate ( G3DWIREFRAME *wir, 
-                                  uint64_t      engine_flags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) wir;
-    G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+void g3dwireframe_default_deactivate ( G3DWIREFRAME *wir, 
+                                       uint64_t      engine_flags ) {
+    G3DOBJECT *parent = g3dobject_getActiveParentByType ( G3DOBJECTCAST(wir),
+                                                          MESH );
 
     if ( parent ) {
-        g3dmesh_modify ( ( G3DMESH * ) wir, 
-                                       G3DMODIFYOP_MODIFY,
-                                       engine_flags );
+        g3dmesh_modify ( G3DMESHCAST(parent), 
+                         G3DMODIFYOP_MODIFY,
+                         engine_flags );
     }
 }
 
 /******************************************************************************/
-static uint32_t _default_draw ( G3DWIREFRAME *wir, 
-                                G3DCAMERA    *cam, 
-                                G3DENGINE    *engine, 
-                                uint64_t      engine_flags ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) wir;
+uint32_t g3dwireframe_default_draw ( G3DWIREFRAME *wir, 
+                                     G3DCAMERA    *cam, 
+                                     G3DENGINE    *engine, 
+                                     uint64_t      engine_flags ) {
     uint32_t forbidden_modes = 0x00;
 
     forbidden_modes = VIEWVERTEX | VIEWFACE | VIEWEDGE;
 
-    if ( obj->flags & OBJECTINACTIVE ) {
+    if ( G3DOBJECTCAST(wir)->flags & OBJECTINACTIVE ) {
         return 0x00;
     } else {
-        G3DOBJECT *parent = g3dobject_getActiveParentByType ( obj, MESH );
+        G3DOBJECT *parent = g3dobject_getActiveParentByType ( G3DOBJECTCAST(wir), MESH );
         uint64_t viewSkin = ( ( engine_flags  & VIEWSKIN       ) &&
                               ( parent->flags & OBJECTSELECTED ) ) ? 0x01: 0x00;
         /* quick and dirty hack to force g3dmesh_draw() */
         /* to draw the red skinning for this modifier when its parent */
         /* is selected */
-        if ( viewSkin ) obj->flags |= OBJECTSELECTED;
+        if ( viewSkin ) G3DOBJECTCAST(wir)->flags |= OBJECTSELECTED;
 
-        g3dmesh_default_draw ( G3DOBJECTCAST(wir),
+        g3dmesh_default_draw ( G3DMESHCAST(wir),
                                cam,
                                engine,
                                engine_flags & (~forbidden_modes) );
 
-        if ( viewSkin ) obj->flags &= (~OBJECTSELECTED);
+        if ( viewSkin ) G3DOBJECTCAST(wir)->flags &= (~OBJECTSELECTED);
     }
 
     return 0x00;
 }
 
 /******************************************************************************/
-static void _default_free ( G3DWIREFRAME *wir ) {
+void g3dwireframe_default_free ( G3DWIREFRAME *wir ) {
     if ( wir->subvertexArray ) free ( wir->subvertexArray );
     if ( wir->subedgeArray   ) free ( wir->subedgeArray   );
     if ( wir->subfaceArray   ) free ( wir->subfaceArray   );
@@ -687,15 +689,32 @@ static void _default_free ( G3DWIREFRAME *wir ) {
     G3DMESHCAST(wir)->edgeCount     = 0;
     G3DMESHCAST(wir)->vertexCount   = 0;
 
-    g3dmodifier_default_free( G3DMODIFIERCAST(wir) );
+    /*g3dmodifier_default_free( G3DMODIFIERCAST(wir) );*/
 }
 
 /******************************************************************************/
-G3DWIREFRAME *g3dwireframe_new ( uint32_t id, 
-                                 char    *name ) {
+void g3dwireframe_init ( G3DWIREFRAME       *wir,
+                         uint64_t            type,
+                         uint32_t            id,
+                         const char         *name,
+                         uint64_t            objectFlags,
+                         G3DWIREFRAMEVTABLE *vtable ) {
+    g3dmodifier_init ( G3DMODIFIERCAST(wir), 
+                       type,
+                       id, 
+                       name, 
+                       objectFlags,
+                       vtable ? G3DMODIFIERVTABLECAST(vtable) 
+                              : G3DMODIFIERVTABLECAST(&_vtable) );
+
+    wir->thickness = 0.05f;
+}
+
+/******************************************************************************/
+G3DWIREFRAME *g3dwireframe_new ( uint32_t   id, 
+                                 const char *name ) {
     uint32_t structSize = sizeof ( G3DWIREFRAME );
     G3DWIREFRAME *wir = ( G3DWIREFRAME * ) calloc ( 0x01, structSize );
-    G3DMODIFIER *mod = ( G3DMODIFIER * ) wir;
 
     if ( wir == NULL ) {
         fprintf ( stderr, "g3dwireframe_new: calloc failed\n" );
@@ -703,37 +722,15 @@ G3DWIREFRAME *g3dwireframe_new ( uint32_t id,
         return NULL;
     }
 
-    g3dmodifier_init ( mod, 
-                       G3DWIREFRAMETYPE, 
-                       id,
-                       name, 
-                       OBJECTNOTRANSLATION     | 
-                       OBJECTNOROTATION        |
-                       OBJECTNOSCALING         |
-                       TRIANGULAR              |
-                       MODIFIERNEEDSNORMALUPDATE,
-
-         DRAW_CALLBACK(_default_draw),
-         FREE_CALLBACK(_default_free),
-         PICK_CALLBACK(NULL),
-         ANIM_CALLBACK(NULL),
-       UPDATE_CALLBACK(NULL),
-         POSE_CALLBACK(NULL),
-         COPY_CALLBACK(_default_copy),
-    TRANSFORM_CALLBACK(NULL),
-     ACTIVATE_CALLBACK(_default_activate),
-   DEACTIVATE_CALLBACK(_default_deactivate),
-       COMMIT_CALLBACK(NULL),
-     ADDCHILD_CALLBACK(NULL),
-  REMOVECHILD_CALLBACK(NULL),
-    SETPARENT_CALLBACK(NULL),
-         DUMP_CALLBACK(NULL),
-       MODIFY_CALLBACK(_default_modify),
-      HUDDRAW_CALLBACK(NULL),
-      HUDPICK_CALLBACK(NULL) );
-
-    wir->thickness = 0.05f;
-
-
+    g3dwireframe_init ( wir, 
+                        G3DWIREFRAMETYPE, 
+                        id,
+                        name, 
+                        OBJECTNOTRANSLATION     | 
+                        OBJECTNOROTATION        |
+                        OBJECTNOSCALING         |
+                        TRIANGULAR              |
+                        MODIFIERNEEDSNORMALUPDATE,
+                        NULL );
     return wir;
 }

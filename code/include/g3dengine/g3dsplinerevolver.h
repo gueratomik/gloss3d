@@ -39,6 +39,8 @@
 extern "C" {
 #endif
 
+typedef struct _G3DSPLINEREVOLVERVTABLE G3DSPLINEREVOLVERVTABLE;
+
 /**
  * @struct G3DSPLINEREVOLVER
  * @brief A modifier to revolve a spline
@@ -63,6 +65,12 @@ typedef struct _G3DSPLINEREVOLVER {
 /******************************************************************************/
 
 G3DSPLINEREVOLVER *g3dsplinerevolver_new ( uint32_t id, char *name );
+void g3dsplinerevolver_init ( G3DSPLINEREVOLVER       *srv,
+                              uint32_t                 type,
+                              uint32_t                 id,
+                              const char              *name,
+                              uint32_t                 object_flags,
+                              G3DSPLINEREVOLVERVTABLE *vtable );
 uint32_t g3dsplinerevolver_reshape ( G3DSPLINEREVOLVER *srv,
                                      uint64_t           engine_flags );
 

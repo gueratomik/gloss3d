@@ -38,10 +38,10 @@ uint32_t g3dmesh_default_pick   ( G3DMESH   *mes,
 void     g3dmesh_default_update ( G3DMESH *mes,
                                   uint64_t updateFlags,
                                   uint64_t engineFlags );
-G3DMESH *g3dmesh_default_copy   ( G3DMESH       *mes, 
-                                  uint32_t       id, 
-                                  unsigned char *name,
-                                  uint64_t       engineFlags );
+G3DMESH *g3dmesh_default_copy   ( G3DMESH    *mes, 
+                                  uint32_t    id, 
+                                  const char *name,
+                                  uint64_t    engineFlags );
 
 /******************************************************************************/
 uint32_t g3dmesh_default_dump   ( G3DMESH *mes, 

@@ -14,7 +14,7 @@ typedef struct _G3DFFDVTABLE {
 /************************** Object vtable overrides ***************************/
 uint32_t   g3dffd_default_draw       ( G3DFFD    *ffd,
                                        G3DCAMERA *cam, 
-                                       G3DENGINE *engine, 
+                                       G3DENGINE *engine,
                                        uint64_t   engine_flags );
 
 void       g3dffd_default_free       ( G3DOBJECT *obj );
@@ -38,9 +38,10 @@ uint32_t g3dffd_default_modify ( G3DFFD     *ffd,
                                  G3DMODIFYOP op,
                                  uint64_t    engine_flags );
 
-uint32_t g3dffd_default_huddraw ( G3DOBJECT *obj,
-                                   G3DCAMERA *cam, 
-                                   uint64_t   engine_flags );
+uint32_t g3dffd_default_huddraw ( G3DFFD     *ffd,
+                                  G3DCAMERA *cam,
+                                  G3DENGINE *engine,
+                                  uint64_t   engine_flags );
 
 /******************************************************************************/
 
@@ -51,7 +52,7 @@ uint32_t g3dffd_default_huddraw ( G3DOBJECT *obj,
                             .free       = FREE_CALLBACK(g3dffd_default_free), \
                             .activate   = ACTIVATE_CALLBACK(g3dffd_default_activate), \
                             .deactivate = DEACTIVATE_CALLBACK(g3dffd_default_deactivate), \
-                            .commit     = COMMIT_CALLBACK(g3dffd_default_commit) }, \
+                            .commit     = COMMIT_CALLBACK(g3dffd_default_commit) } \
         }, \
         .modify = MODIFY_CALLBACK(g3dffd_default_modify), \
         .huddraw = HUDDRAW_CALLBACK(g3dffd_default_huddraw) \
