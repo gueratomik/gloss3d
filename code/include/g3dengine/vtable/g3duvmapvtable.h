@@ -12,12 +12,12 @@ typedef struct _G3DUVMAPVTABLE {
 } G3DUVMAPVTABLE;
 
 /************************** Object vtable overrides ***************************/
-uint32_t g3dtext_default_draw      ( G3DUVMAP   *uvmap,
-                                     G3DCAMERA *curcam,
-                                     G3DENGINE *engine,
-                                     uint64_t   engineFlags );
-void     g3dtext_default_transform ( G3DOBJECT *obj,
-                                     uint64_t   engineFlags );
+uint32_t g3duvmap_default_draw      ( G3DUVMAP   *uvmap,
+                                      G3DCAMERA *curcam,
+                                      G3DENGINE *engine,
+                                      uint64_t   engineFlags );
+void     g3duvmap_default_transform ( G3DUVMAP   *uvmap,
+                                      uint64_t   engineFlags );
 
 /************************** Mesh vtable overrides ***************************/
 
@@ -29,8 +29,8 @@ void     g3dtext_default_transform ( G3DOBJECT *obj,
 { \
     .objectVTable = \
     { \
-        .draw = DRAW_CALLBACK(g3dtext_default_draw), \
-        .transform = TRANSFORM_CALLBACK(g3dtext_default_transform) \
+        .draw = DRAW_CALLBACK(g3duvmap_default_draw), \
+        .transform = TRANSFORM_CALLBACK(g3duvmap_default_transform) \
     } \
 }
 

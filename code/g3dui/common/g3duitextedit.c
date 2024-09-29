@@ -46,9 +46,9 @@ uint64_t g3duitextedit_setText ( G3DUITEXTEDIT *txtedit,
                 char *firstOccurence = strstr ( newText, txt->text );
 
                 if ( firstOccurence == newText ) {
-                    g3dtext_addText ( txt, newText + strlen ( txt->text ), gui->engine_flags );
+                    g3dtext_addText ( txt, newText + strlen ( txt->text ) );
                 } else {
-                    g3dtext_setText ( txt, newText, gui->engine_flags );
+                    g3dtext_setText ( txt, newText );
                 }
             }
         }
@@ -73,7 +73,7 @@ uint64_t g3duitextedit_thickness ( G3DUITEXTEDIT *txtedit,
         if ( sel->type == G3DTEXTTYPE ) {
             G3DTEXT *txt = ( G3DTEXT * ) sel;
 
-            g3dtext_setThickness ( txt, thickness, gui->engine_flags );
+            g3dtext_setThickness ( txt, thickness );
         }
 
         ltmpselobj = ltmpselobj->next;
@@ -96,7 +96,7 @@ uint64_t g3duitextedit_roundness ( G3DUITEXTEDIT *txtedit,
         if ( sel->type == G3DTEXTTYPE ) {
             G3DTEXT *txt = ( G3DTEXT * ) sel;
 
-            g3dtext_setRoundness ( txt, roundness, gui->engine_flags );
+            g3dtext_setRoundness ( txt, roundness );
         }
 
         ltmpselobj = ltmpselobj->next;
@@ -119,7 +119,7 @@ uint64_t g3duitextedit_size ( G3DUITEXTEDIT *txtedit,
         if ( sel->type == G3DTEXTTYPE ) {
             G3DTEXT *txt = ( G3DTEXT * ) sel;
 
-            g3dtext_setSize ( txt, size, gui->engine_flags );
+            g3dtext_setSize ( txt, size );
         }
 
         ltmpselobj = ltmpselobj->next;

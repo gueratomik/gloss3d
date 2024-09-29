@@ -36,11 +36,11 @@ static void g3dwireframe_activate ( G3DWIREFRAME *wir,
 static  G3DWIREFRAMEVTABLE _vtable = { G3DWIREFRAMEVTABLE_DEFAULT };
 
 /******************************************************************************/
-static G3DWIREFRAME *_default_copy ( G3DWIREFRAME *wir,
-                                     uint64_t      engine_flags ) {
-    G3DOBJECT *objwir = ( G3DOBJECT * ) wir;
-
-    return g3dwireframe_new ( objwir->id, objwir->name );
+G3DWIREFRAME *g3dwireframe_default_copy ( G3DWIREFRAME *wir,
+                                          uint32_t    id,
+                                          const char *name,
+                                          uint64_t      engine_flags ) {
+    return g3dwireframe_new ( id, name );
 }
 
 /******************************************************************************/
@@ -540,7 +540,7 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
                     g3dface_initWithEdges ( (G3DFACE*)&wirFaces[facOffset+(i*2)+0], ver, 
                                                                                        edg, 0x04 );
 
-                    g3dmesh_addFace ( (G3DMESH*)wir, (G3DFACE*)&wirFaces[facOffset+(i*2)+0] );
+                    g3dmesh_addFace ( (G3DMESH*)wir, (G3DFACE*)&wirFaces[facOffset+(i*2)+0], NULL );
 
                     ver[0x00] = (G3DVERTEX*)&wirVertices[(fac->ver[i]->id*2)+1];
                     ver[0x01] = (G3DVERTEX*)&wirVertices[verOffset+i];
@@ -555,7 +555,7 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
                     g3dface_initWithEdges ( (G3DFACE*)&wirFaces[facOffset+(i*2)+1], ver, 
                                                                                        edg, 0x04 );
 
-                    g3dmesh_addFace ( (G3DMESH*)wir, (G3DFACE*)&wirFaces[facOffset+(i*2)+1] );
+                    g3dmesh_addFace ( (G3DMESH*)wir, (G3DFACE*)&wirFaces[facOffset+(i*2)+1], NULL );
 
                     /*modfac[facOffset+(i*0x03)+2].vertexCount = 0x04;
                     modfac[facOffset+(i*0x03)+2].ver[0x00] = &modver[(fac->ver[i]->id*2)];
@@ -583,9 +583,9 @@ static uint32_t g3dwireframe_opModify ( G3DWIREFRAME *wir,
 }
 
 /******************************************************************************/
-static uint32_t _default_modify ( G3DWIREFRAME *wir,
-                                  G3DMODIFYOP op,
-                                  uint64_t engine_flags ) {
+uint32_t g3dwireframe_default_modify ( G3DWIREFRAME *wir,
+                                       G3DMODIFYOP op,
+                                       uint64_t engine_flags ) {
     switch ( op ) {
         case G3DMODIFYOP_MODIFY :
             return g3dwireframe_opModify ( wir, engine_flags );

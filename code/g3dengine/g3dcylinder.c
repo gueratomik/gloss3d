@@ -96,7 +96,7 @@ void g3dcylinder_build ( G3DPRIMITIVE *pri, int slice,
                                          ver[(i*slice)+k],
                                          ver[(n*slice)+k] );
 
-            g3dmesh_addFace ( mes, fac );
+            g3dmesh_addFace ( mes, fac, NULL );
         }
     }
 

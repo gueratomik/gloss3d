@@ -32,8 +32,8 @@
 
 /******************************************************************************/
 typedef struct _URMADDVERTEX {
-    G3DSCENE *sce;
-    G3DMESH *mes;
+    G3DSCENE  *sce;
+    G3DMESH   *mes;
     G3DVERTEX *ver;
 } URMADDVERTEX;
 
@@ -90,8 +90,6 @@ static void addVertex_undo ( G3DURMANAGER *urm,
 
     g3dmesh_removeVertex ( mes, ver );
 
-    g3dmesh_updateBbox ( mes );
-
     g3dobject_update_r ( G3DOBJECTCAST(avs->sce), 0x00, engine_flags );
 }
 
@@ -106,8 +104,6 @@ static void addVertex_redo ( G3DURMANAGER *urm,
     uint32_t i = 0x00;
 
     g3dmesh_addVertex ( mes, ver );
-
-    g3dmesh_updateBbox ( mes );
 
     g3dobject_update_r ( G3DOBJECTCAST(avs->sce), 0x00, engine_flags );
 }

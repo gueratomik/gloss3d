@@ -77,10 +77,10 @@ static uint32_t bridge_init ( G3DMOUSETOOL *mou,
                               uint64_t      engine_flags ) {
     G3DMOUSETOOLBRIDGE *bt = ( G3DMOUSETOOLBRIDGE * ) mou;
 
-    bt->ver[0x00] = 
-    bt->ver[0x01] = 
-    bt->ver[0x02] = 
-    bt->ver[0x03] = NULL;
+    bt->pickedVertex[0x00] = 
+    bt->pickedVertex[0x01] = 
+    bt->pickedVertex[0x02] = 
+    bt->pickedVertex[0x03] = NULL;
 
     bt->pt[0x00]  = 
     bt->pt[0x01]  = NULL;
@@ -99,12 +99,13 @@ static void bridge_draw ( G3DMOUSETOOL *mou,
                           uint64_t      engine_flags ) {
     G3DMOUSETOOLBRIDGE *bt = ( G3DMOUSETOOLBRIDGE * ) mou;
 
-    if ( bt && bt->draw ) {
+    /*if ( bt && bt->draw ) {*/
         if ( bt->obj ) {
             int mvpMatrixLocation = glGetUniformLocation( engine->coloredShaderProgram,
                                                           "mvpMatrix" );
             float mvp[0x10];
             float mvw[0x10];
+            uint32_t i;
 
             g3dcore_multMatrixf( curcam->obj.inverseWorldMatrix,
                                  bt->obj->worldMatrix,
@@ -119,26 +120,47 @@ static void bridge_draw ( G3DMOUSETOOL *mou,
 
             glPushAttrib( GL_ALL_ATTRIB_BITS );
             glDisable   ( GL_DEPTH_TEST );
+            glPointSize ( 3.0f );
+
+            if( bt->hoveredVertex ) {
+                SHADERVERTEX vertex = { 0 };
+
+                vertex.pos   = bt->hoveredVertex->pos;
+                vertex.col.g = 1.0f;
+
+                g3dengine_drawPoint ( engine, &vertex, 0, engine_flags );
+            }
+
+            for( i = 0; i < 4; i++ ) {
+                if( bt->pickedVertex[i] ) {
+                    SHADERVERTEX vertex = { 0 };
+
+                    vertex.pos   = bt->pickedVertex[i]->pos;
+                    vertex.col.g = 1.0f;
+
+                    g3dengine_drawPoint ( engine, &vertex, 0, engine_flags );
+                }
+            }
 
             if ( bt->obj->type & MESH ) {
-        	    if ( bt->ver[0x02] && bt->ver[0x03] ) {
+        	    if ( bt->pickedVertex[0x02] && bt->pickedVertex[0x03] ) {
                     SHADERVERTEX vertices[0x02] = { 0 };
 
-                    vertices[0x00].pos   = bt->ver[0x02]->pos;
-                    vertices[0x00].col.r = 1.0f;
-                    vertices[0x01].pos   = bt->ver[0x03]->pos;
-                    vertices[0x01].col.r = 1.0f;
+                    vertices[0x00].pos   = bt->pickedVertex[0x02]->pos;
+                    vertices[0x00].col.g = 1.0f;
+                    vertices[0x01].pos   = bt->pickedVertex[0x03]->pos;
+                    vertices[0x01].col.g = 1.0f;
 
                     g3dengine_drawLine ( engine, vertices, 0, engine_flags );
         	    }
 
-        	    if ( bt->ver[0x00] && bt->ver[0x01] ) {
+        	    if ( bt->pickedVertex[0x00] && bt->pickedVertex[0x01] ) {
                     SHADERVERTEX vertices[0x02] = { 0 };
 
-                    vertices[0x00].pos   = bt->ver[0x00]->pos;
-                    vertices[0x00].col.r = 1.0f;
-                    vertices[0x01].pos   = bt->ver[0x01]->pos;
-                    vertices[0x01].col.r = 1.0f;
+                    vertices[0x00].pos   = bt->pickedVertex[0x00]->pos;
+                    vertices[0x00].col.g = 1.0f;
+                    vertices[0x01].pos   = bt->pickedVertex[0x01]->pos;
+                    vertices[0x01].col.g = 1.0f;
 
                     g3dengine_drawLine ( engine, vertices, 0, engine_flags );
         	    }
@@ -149,10 +171,10 @@ static void bridge_draw ( G3DMOUSETOOL *mou,
         	    if ( bt->pt[0x00] && bt->pt[0x01] ) {
                     SHADERVERTEX vertices[0x02] = { 0 };
 
-                    vertices[0x00].pos   = bt->ver[0x00]->pos;
-                    vertices[0x00].col.r = 1.0f;
-                    vertices[0x01].pos   = bt->ver[0x01]->pos;
-                    vertices[0x01].col.r = 1.0f;
+                    vertices[0x00].pos   = bt->pt[0x00]->pos;
+                    vertices[0x00].col.g = 1.0f;
+                    vertices[0x01].pos   = bt->pt[0x01]->pos;
+                    vertices[0x01].col.g = 1.0f;
 
                     g3dengine_drawLine ( engine, vertices, 0, engine_flags );
         	    }
@@ -162,7 +184,7 @@ static void bridge_draw ( G3DMOUSETOOL *mou,
 
             glUseProgram( 0 );
         }
-    }
+    /*}*/
 }
 
 /******************************************************************************/
@@ -277,151 +299,76 @@ static int bridge_spline  ( G3DSPLINE    *spl,
 static int bridge_mesh  ( G3DMESH      *mes,
                           G3DMOUSETOOL *mou, 
                           G3DSCENE     *sce, 
-                          G3DCAMERA    *cam,
+                          G3DCAMERA    *curcam,
                           G3DURMANAGER *urm, 
                           uint64_t      engine_flags,
                           G3DEvent     *event ) {
-    G3DOBJECT *obj = ( G3DOBJECT * ) mes;
     G3DMOUSETOOLBRIDGE *bt = ( G3DMOUSETOOLBRIDGE * ) mou;
-    G3DVERTEX **ver = bt->ver;
     static GLint VPX[0x04];
     static G3DMOUSETOOLPICK ptool = { .coord = { 0 },
                                       .only_visible = 0x01,
                                       .weight = 0.0f,
                                       .radius = 0x08 };
 
+    bt->obj = G3DOBJECTCAST(mes);
+
     switch ( event->type ) {
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
+            G3DVERTEX *pickedVertex = pick_vertex( sce,
+                                                   curcam,
+                                                   mes,
+                                                   bev->x,
+                                                   curcam->vmatrix[0x03] - bev->y,
+                                                   0x08 );
 
-            /*** Start drawing ***/
-            bt->draw = 0x01;
+            if( pickedVertex && ( pickedVertex != bt->pickedVertex[0x00] ) ) {
+                bt->pickedVertex[0x02] = pickedVertex;
 
-            glGetIntegerv ( GL_VIEWPORT, VPX );
-
-            /*** Selection rectangle ***/
-            /*** Selection rectangle ***/
-            ptool.coord[0x00] = bev->x;
-            ptool.coord[0x01] = VPX[0x03] - bev->y;
-            ptool.coord[0x02] = ptool.coord[0x00];
-            ptool.coord[0x03] = ptool.coord[0x01];
-
-            if ( !ver[0x00] && !ver[0x01] && !ver[0x02] && !ver[0x03] ) {
-                g3dmesh_unselectAllVertices ( mes );
-            }
-
-            pick_Item ( &ptool, sce, cam, 0x00, engine_flags );
-
-            /*** remember our Mesh for the drawing part ***/
-            /*** because we need its world matrix.      ***/
-            bt->obj = obj;
-
-            /*** if any selected vertex ***/
-            if ( mes->selectedVertexList ) {
-                if ( ver[0x00] ) {
-                    ver[0x02] = g3dmesh_getLastSelectedVertex ( mes );
-                } else {
-                    ver[0x00] = g3dmesh_getLastSelectedVertex ( mes );
-                }
-            } else {
-            /*** reset if click fails to pick a vertex ***/
-                ver[0x00] = ver[0x01] = ver[0x02] = ver[0x03] = NULL;
+                /*** Start drawing ***/
+                bt->draw = 0x01;
             }
         } return REDRAWVIEW;
 
         case G3DMotionNotify : {
             G3DMotionEvent *bev = ( G3DMotionEvent * ) event;
 
-            if ( bev->state & G3DButton1Mask ) {
-                /*** Selection rectangle ***/
-                ptool.coord[0x00] = bev->x;
-                ptool.coord[0x01] = VPX[0x03] - bev->y;
-                ptool.coord[0x02] = ptool.coord[0x00];
-                ptool.coord[0x03] = ptool.coord[0x01];
+            bt->hoveredVertex = pick_vertex( sce,
+                                             curcam,
+                                             mes,
+                                             bev->x,
+                                             curcam->vmatrix[0x03] - bev->y,
+                                             0x08 );
 
-                pick_Item ( &ptool, sce, cam, 0x00, VIEWVERTEX );
-
-                if ( mes->selectedVertexList ) {
-                    if ( ver[0x02] ) {
-                        ver[0x03] = g3dmesh_getLastSelectedVertex ( mes );
-
-                        g3dmesh_unselectAllVertices ( mes );
-                        g3dmesh_selectVertex ( mes, ver[0x02] );
-                        g3dmesh_selectVertex ( mes, ver[0x03] );
-                    } else {
-                        if ( ver[0x00] ) {
-                            ver[0x01] = g3dmesh_getLastSelectedVertex ( mes );
-
-                            g3dmesh_unselectAllVertices ( mes );
-                            g3dmesh_selectVertex ( mes, ver[0x00] );
-                            g3dmesh_selectVertex ( mes, ver[0x01] );
-                        }
-                    }
+            if ( bt->hoveredVertex ) {
+                if ( bev->state & G3DButton1Mask ) {
+                    bt->pickedVertex[0x03] = bt->hoveredVertex;
                 }
             }
         } return REDRAWVIEW;
 
         case G3DButtonRelease : {
-            if ( ver[0x00] && ver[0x01] && 
-                 ver[0x02] && ver[0x03] ) {
-                /*** Must not be the same vertices ***/
-                if ( ( ( ver[0x00] != ver[0x02] ) && 
-                       ( ver[0x01] != ver[0x03] ) ) ||
-                     ( ( ver[0x00] != ver[0x03] ) && 
-                       ( ver[0x01] != ver[0x02] ) ) ) {
-                    G3DMESH *mes = ( G3DMESH * ) obj;
-                    G3DFACE *fac = NULL;
-                    G3DVERTEX *tmpver2 = ver[0x02],
-                              *tmpver3 = ver[0x03];
-
-                    /*** Triangle - ver[3] differs from the first 2 vertices ***/
-                    if ( ( ver[0x02] == ver[0x00] ) ||
-                         ( ver[0x02] == ver[0x01] ) ) {
-                        ver[0x02] = ver[0x03];
-                        ver[0x03] = NULL;
-                    }
-
-                    /*** Triangle - ver[2] differs from the first 2 vertices ***/
-                    if ( ( ver[0x03] == ver[0x00] ) ||
-                         ( ver[0x03] == ver[0x01] ) ) {
-                        ver[0x03] = NULL;
-                    }
-
-                    /*** if ver[0x03] != NULL, then we did not create any ***/ 
-                    /*** triangle. Then, create a QUAD ***/
-                    if ( ver[0x03] ) {
-                        fac = g3dquad_new ( ver[0x00], ver[0x01],
-                                            ver[0x03], ver[0x02] );
-                    } else {
-                        fac = g3dtriangle_new ( ver[0x00], ver[0x01],
-                                                           ver[0x02] );
-                    }
-
-                    g3dmesh_addFace ( mes, fac );
-
-                    if ( g3dface_checkOrientation ( fac ) ) {
-                        g3dface_invertNormal ( fac );
-                    }
-
-                    g3durm_mesh_createFace ( urm, sce, mes, fac, REDRAWVIEW );
-
-                    /*** regenerate subdivision buffer ***/
-                    g3dobject_update_r ( G3DOBJECTCAST(sce),
-                                       0x00,
-                                       engine_flags );
-
-                    /*** be ready for another bridging ***/
-                    ver[0x00] = tmpver2;
-                    ver[0x01] = tmpver3;
-
-                    ver[0x02] = NULL;
-                    ver[0x03] = NULL;
-                }
+            if ( bt->pickedVertex[0x00] && bt->pickedVertex[0x01] && 
+                 bt->pickedVertex[0x02] && bt->pickedVertex[0x03] ) {
+                G3DFACE *fac = g3durm_mesh_createFace ( urm,
+                                                        sce,
+                                                        mes,
+                                                        bt->pickedVertex[0x00],
+                                                        bt->pickedVertex[0x01],
+                                                        bt->pickedVertex[0x02],
+                                                        bt->pickedVertex[0x03],
+                                                        engine_flags,
+                                                        REDRAWVIEW );
             }
+
+            bt->pickedVertex[0x00] = bt->pickedVertex[0x02];
+            bt->pickedVertex[0x01] = bt->pickedVertex[0x03];
+            bt->pickedVertex[0x02] = NULL;
+            bt->pickedVertex[0x03] = NULL;
+            bt->hoveredVertex = NULL;
 
             /*** end drawing ***/
             bt->draw = 0x00;
-            bt->obj = NULL;
         } return REDRAWVIEW;
 
         default :

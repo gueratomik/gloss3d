@@ -230,7 +230,7 @@ void g3dtext_mergeCharacter ( G3DTEXT      *txt,
                         }
                     }
 
-                    g3dmesh_addFace ( txtmes, g3dface_newWithEdges ( v, e, fac->vertexCount ) );
+                    g3dmesh_addFace ( txtmes, g3dface_newWithEdges ( v, e, fac->vertexCount ), NULL );
 
                     ltmpfac = ltmpfac->next;
                 }
@@ -967,6 +967,13 @@ void g3dtext_default_free ( G3DTEXT *txt ) {
     }
 
     g3dmesh_default_free ( G3DMESHCAST(txt) );
+}
+
+/******************************************************************************/
+uint32_t g3dtext_default_pick ( G3DTEXT   *txt,
+                                G3DCAMERA *curcam,
+                                uint64_t   engineFlags ) {
+    return 0x00;
 }
 
 /******************************************************************************/

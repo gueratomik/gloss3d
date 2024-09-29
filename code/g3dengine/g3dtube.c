@@ -119,7 +119,7 @@ void g3dtube_build ( G3DPRIMITIVE *pri,
                                                   outerVer[(i*slice)+k],
                                                   outerVer[(i*slice)+j],
                                                   innerVer[(i*slice)+j] );
-                g3dmesh_addFace ( mes, thickFac );
+                g3dmesh_addFace ( mes, thickFac, NULL );
             }
 
             if ( i == ( capx - 1 ) ) {
@@ -127,11 +127,11 @@ void g3dtube_build ( G3DPRIMITIVE *pri,
                                                   outerVer[(n*slice)+j],
                                                   outerVer[(n*slice)+k],
                                                   innerVer[(n*slice)+k] );
-                g3dmesh_addFace ( mes, thickFac );
+                g3dmesh_addFace ( mes, thickFac, NULL );
             }
 
-            g3dmesh_addFace ( mes, innerFac  );
-            g3dmesh_addFace ( mes, outerFac  );
+            g3dmesh_addFace ( mes, innerFac, NULL );
+            g3dmesh_addFace ( mes, outerFac, NULL );
         }
     }
 

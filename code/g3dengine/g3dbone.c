@@ -205,11 +205,10 @@ uint32_t g3dbone_default_pick ( G3DBONE *bon,
 
 
 /******************************************************************************/
-static uint32_t _default_draw ( G3DOBJECT *obj, 
-                                G3DCAMERA *cam, 
+uint32_t g3dbone_default_draw ( G3DBONE   *bon, 
+                                G3DCAMERA *curcam, 
                                 G3DENGINE *engine, 
                                 uint64_t   engineFlags ) {
-    G3DBONE *bon = ( G3DBONE * ) obj;
     float ybase = bon->len * 0.1f;
     float xbase = ybase;
     float zbase = ybase;
@@ -224,12 +223,12 @@ static uint32_t _default_draw ( G3DOBJECT *obj,
     float mvw[0x10];
     uint32_t i, j;
 
-    g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
+    g3dcore_multMatrixf( curcam->obj.inverseWorldMatrix,
                          bon->obj.worldMatrix,
                          mvw );
 
     /*** the matrix by which vertices coords are transformed ***/
-    g3dcore_multMatrixf( cam->pmatrix, mvw, mvp );
+    g3dcore_multMatrixf( curcam->pmatrix, mvw, mvp );
 
     glUseProgram( engine->coloredShaderProgram );
 
@@ -241,7 +240,7 @@ static uint32_t _default_draw ( G3DOBJECT *obj,
     glPushAttrib ( GL_ALL_ATTRIB_BITS );
     glDisable    ( GL_DEPTH_TEST );
 
-    if ( obj->flags & OBJECTSELECTED ) {
+    if ( G3DOBJECTCAST(bon)->flags & OBJECTSELECTED ) {
         col.r = 1.0f;
     } else {
         col.b = 1.0f;

@@ -35,13 +35,14 @@ typedef struct _URMCREATEFACE {
     G3DSCENE *sce;
     G3DMESH *mes;
     G3DFACE *fac;
-    LIST    *lnewedg;
+    LIST    *addedEdgeList;
 } URMCREATEFACE;
 
 /******************************************************************************/
 static URMCREATEFACE *urmcreateface_new ( G3DSCENE *sce,
                                           G3DMESH  *mes, 
-                                          G3DFACE  *fac ) {
+                                          G3DFACE  *fac,
+                                          LIST     *addedEdgeList ) {
     uint32_t structsize = sizeof ( URMCREATEFACE );
     LIST lnewfac = { .next = NULL, .prev = NULL, .data = fac };
 
@@ -53,19 +54,17 @@ static URMCREATEFACE *urmcreateface_new ( G3DSCENE *sce,
         return NULL;
     }
 
-    cfs->sce = sce;
-    cfs->mes = mes;
-    cfs->fac = fac;
-
-    g3dface_getSharedEdgesFromList   ( &lnewfac, &cfs->lnewedg );
-
+    cfs->sce           = sce;
+    cfs->mes           = mes;
+    cfs->fac           = fac;
+    cfs->addedEdgeList = addedEdgeList;
 
     return cfs;
 }
 
 /******************************************************************************/
 static void urmcreateface_free ( URMCREATEFACE *cfs ) {
-    list_free ( &cfs->lnewedg, NULL );
+    list_free ( &cfs->addedEdgeList, NULL );
 
     free ( cfs );
 }
@@ -75,9 +74,10 @@ static void createFace_free ( void    *data,
                               uint32_t commit ) {
     URMCREATEFACE *cfs = ( URMCREATEFACE * ) data;
 
-    /*** Discard changes ***/
-    if ( commit == 0x00 ) {
-        list_exec ( cfs->lnewedg, (void(*)(void*)) g3dedge_free );
+    if ( commit ) {
+
+    } else { /*** Discard changes ***/
+        list_exec ( cfs->addedEdgeList, (void(*)(void*)) g3dedge_free );
 
         g3dface_free ( cfs->fac );
     }
@@ -90,20 +90,12 @@ static void createFace_undo ( G3DURMANAGER *urm,
                               void         *data, 
                               uint64_t      engine_flags ) {
     URMCREATEFACE *cfs = ( URMCREATEFACE * ) data;
-    G3DOBJECT *obj = ( G3DOBJECT * ) cfs->mes;
     G3DMESH *mes = cfs->mes;
     G3DFACE *fac = cfs->fac;
     uint32_t i = 0x00;
 
-    g3dmesh_removeFace ( mes, fac );
-
-    g3dmesh_updateBbox ( mes );
-
-    /*** TODO: understand why those 2 calls are needed. It's becoming ***/
-    /*** messy I  dont even know why the faces dont get correctly ***/
-    /*** update by the  above call to g3dface_update ***/
-    g3dmesh_faceNormal   ( mes );
-    g3dmesh_vertexNormal ( mes );
+    /* Note: will remove unused edges automatically */
+    g3dmesh_removeFace ( mes, fac, NULL );
 
     /*** Rebuild the subdivided mesh ***/
     g3dobject_update_r ( G3DOBJECTCAST(cfs->sce), 0x00, engine_flags );
@@ -114,34 +106,52 @@ static void createFace_redo ( G3DURMANAGER *urm,
                               void         *data, 
                               uint64_t      engine_flags ) {
     URMCREATEFACE *cfs = ( URMCREATEFACE * ) data;
-    G3DOBJECT *obj = ( G3DOBJECT * ) cfs->mes;
     G3DMESH *mes = cfs->mes;
     G3DFACE *fac = cfs->fac;
     uint32_t i = 0x00;
+    LIST *ltmpnewedg = cfs->addedEdgeList;
 
-    g3dmesh_addFace ( mes, fac );
+    /* add added egdes for linking with faces */
+    while ( ltmpnewedg ) {
+        g3dmesh_addEdge ( cfs->mes, ( G3DEDGE * ) ltmpnewedg->data );
+        ltmpnewedg = ltmpnewedg->next;
+    }
 
-    g3dmesh_updateBbox ( mes );
-
-    /*** TODO: understand why those 2 calls are needed. It's becoming ***/
-    /*** messy I  dont even know why the faces dont get correctly ***/
-    /*** update by the  above call to g3dface_update ***/
-    g3dmesh_faceNormal   ( mes );
-    g3dmesh_vertexNormal ( mes );
+    /* Note: it wil not add any edge, as we added them just before */
+    g3dmesh_addFace ( mes, fac, NULL );
 
     /*** Rebuild the subdivided mesh ***/
     g3dobject_update_r ( G3DOBJECTCAST(cfs->sce), 0x00, engine_flags );
 }
 
 /******************************************************************************/
-void g3durm_mesh_createFace ( G3DURMANAGER *urm,
-                              G3DSCENE     *sce,
-                              G3DMESH      *mes, 
-                              G3DFACE      *fac, 
-                              uint32_t      return_flags ) {
-    URMCREATEFACE *cfs;
+G3DFACE *g3durm_mesh_createFace ( G3DURMANAGER *urm,
+                                  G3DSCENE     *sce,
+                                  G3DMESH      *mes, 
+                                  G3DVERTEX    *v0,
+                                  G3DVERTEX    *v1,
+                                  G3DVERTEX    *v2,
+                                  G3DVERTEX    *v3,
+                                  uint64_t      engine_flags,
+                                  uint32_t      return_flags ) {
 
-    cfs = urmcreateface_new ( sce, mes, fac );
+    /*** if ver[0x03] != NULL, then we did not create any ***/ 
+    /*** triangle. Then, create a QUAD ***/
+    G3DFACE *fac = ( v3 == v1 ) ? g3dtriangle_new ( v0, v1, v2 )
+                                : g3dquad_new ( v0, v1, v3, v2 );
+    URMCREATEFACE *cfs;
+    LIST *addedEdgeList = NULL;
+
+    g3dmesh_addFace ( mes, fac, &addedEdgeList );
+
+    if ( g3dface_checkOrientation ( fac ) ) {
+        g3dface_invertNormal ( fac );
+    }
+
+    /*** regenerate subdivision buffer ***/
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
+
+    cfs = urmcreateface_new ( sce, mes, fac, addedEdgeList );
 
     g3durmanager_push ( urm,
                         createFace_undo,
@@ -149,4 +159,6 @@ void g3durm_mesh_createFace ( G3DURMANAGER *urm,
                         createFace_free,
                         cfs,
                         return_flags );
+
+    return fac;
 }

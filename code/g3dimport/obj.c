@@ -80,7 +80,7 @@ static G3DMESH *readMesh ( const char *str,
 
     sscanf ( str, "o %63s", name );
 
-    mes = g3dmesh_new ( oid, name, engine_flags );
+    mes = g3dmesh_new ( oid, name );
 
     return mes;
 }
@@ -186,7 +186,7 @@ static G3DSCENE *readFile ( FILE    *fsrc,
                 if ( mes == NULL ) {
                     uint32_t oid = g3dscene_getNextObjectID ( sce );
 
-                    mes = g3dmesh_new ( oid, "Mesh", engine_flags );
+                    mes = g3dmesh_new ( oid, "Mesh" );
 
                     g3dobject_addChild ( ( G3DOBJECT * ) sce, 
                                          ( G3DOBJECT * ) mes, engine_flags );
@@ -211,7 +211,7 @@ static G3DSCENE *readFile ( FILE    *fsrc,
 
                 fac = readFace   ( str, vertab, nbver ); 
 
-                g3dmesh_addFace ( mes, fac );
+                g3dmesh_addFace ( mes, fac, NULL );
 
                 /*str = readEntry ( fsrc ); */continue;
             }

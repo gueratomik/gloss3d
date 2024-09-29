@@ -70,8 +70,7 @@ void g3dimportv3text ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                 g3dtext_setFont ( txt,
                                   fontFace,
                                   fontFile,
-                                  fontSize,
-                                  gid->engineFlags );
+                                  fontSize );
 
                 if ( fontFile ) free ( fontFile );
                 if ( fontFace ) free ( fontFace );
@@ -101,7 +100,7 @@ void g3dimportv3text ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                 g3dimportv3_fread ( str, chunkSize, 0x01, fsrc );
 
-                g3dtext_setText ( txt, str, gid->engineFlags );
+                g3dtext_setText ( txt, str );
 
                 free ( str );
             } break;

@@ -185,7 +185,7 @@ static int extrudeFace_event  ( G3DMOUSETOOL *mou,
                     ltmpver = lver = g3dmesh_getVertexListFromSelectedFaces ( mes );
 
                     nbver = list_count ( lver );
-
+/*
                     if ( mes->onGeometryMove ) {
                         mes->onGeometryMove ( mes, lver,
                                                    NULL, 
@@ -193,7 +193,7 @@ static int extrudeFace_event  ( G3DMOUSETOOL *mou,
                                                    G3DMODIFYOP_STARTUPDATE,
                                                    engine_flags );
                     }
-
+*/
                     /*g3dmesh_modify ( mes,
                                      G3DMODIFYOP_STARTUPDATE,
                                      engine_flags );*/
@@ -242,24 +242,25 @@ static int extrudeFace_event  ( G3DMOUSETOOL *mou,
                         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
                         G3DVECTOR3F *dir = ( G3DVECTOR3F * ) ltmpdir->data;
 
-
-                        ver->pos.x = ver->pos.x + ( dir->x * diff / factor );
-                        ver->pos.y = ver->pos.y + ( dir->y * diff / factor );
-                        ver->pos.z = ver->pos.z + ( dir->z * diff / factor );
-
+                        g3dvertex_setPosition( ver,
+                                               ver->pos.x + ( dir->x * diff / factor ),
+                                               ver->pos.y + ( dir->y * diff / factor ),
+                                               ver->pos.z + ( dir->z * diff / factor ) );
+/*
                         sce->csr.pivot.x += ver->pos.x;
                         sce->csr.pivot.y += ver->pos.y;
                         sce->csr.pivot.z += ver->pos.z;
-
+*/
                         ltmpver = ltmpver->next;
                         ltmpdir = ltmpdir->next;
                     }
-
+/*
                     if ( nbver ) {
                         sce->csr.pivot.x /= nbver;
                         sce->csr.pivot.y /= nbver;
                         sce->csr.pivot.z /= nbver;
                     }
+*/
                 }
             }
 

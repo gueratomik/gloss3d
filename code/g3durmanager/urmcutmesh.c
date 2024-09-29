@@ -31,11 +31,24 @@
 #include <g3durmanager.h>
 
 /******************************************************************************/
+typedef struct _URMCUTMESH {
+    G3DSCENE *sce;
+    G3DMESH  *mes;
+    LIST     *removedEdgeList;
+    LIST     *removedFaceList;
+    LIST     *addedVertexList;
+    LIST     *addedEdgeList;
+    LIST     *addedFaceList;
+} URMCUTMESH;
+
+/******************************************************************************/
 static URMCUTMESH *urmcutmesh_new ( G3DSCENE *sce,
                                     G3DMESH  *mes,
-                                    LIST     *loldfac,
-                                    LIST     *lnewver,
-                                    LIST     *lnewfac ) {
+                                    LIST     *removedEdgeList,
+                                    LIST     *removedFaceList,
+                                    LIST     *addedVertexList,
+                                    LIST     *addedEdgeList,
+                                    LIST     *addedFaceList ) {
     uint32_t structsize = sizeof ( URMCUTMESH );
 
     URMCUTMESH *cms = ( URMCUTMESH * ) calloc ( 0x01, structsize );
@@ -46,26 +59,24 @@ static URMCUTMESH *urmcutmesh_new ( G3DSCENE *sce,
         return NULL;
     }
 
-    cms->sce     = sce;
-    cms->mes     = mes;
-    cms->loldfac = loldfac;
-    cms->lnewver = lnewver;
-    cms->lnewfac = lnewfac;
-
-    /*** for freeing unused edges later ***/
-    g3dface_getOrphanedEdgesFromList ( loldfac, &cms->loldedg );
-    g3dface_getSharedEdgesFromList   ( lnewfac, &cms->lnewedg );
+    cms->sce             = sce;
+    cms->mes             = mes;
+    cms->removedEdgeList = removedEdgeList;
+    cms->removedFaceList = removedFaceList;
+    cms->addedVertexList = addedVertexList;
+    cms->addedEdgeList   = addedEdgeList;
+    cms->addedFaceList   = addedFaceList;
 
     return cms;
 }
 
 /******************************************************************************/
 static void urmcutmesh_free ( URMCUTMESH *cms ) {
-    list_free ( &cms->loldfac, NULL );
-    list_free ( &cms->loldedg, NULL );
-    list_free ( &cms->lnewver, NULL );
-    list_free ( &cms->lnewfac, NULL );
-    list_free ( &cms->lnewedg, NULL );
+    list_free ( &cms->removedFaceList, NULL );
+    list_free ( &cms->removedEdgeList, NULL );
+    list_free ( &cms->addedVertexList, NULL );
+    list_free ( &cms->addedFaceList  , NULL );
+    list_free ( &cms->addedEdgeList  , NULL );
 
     free ( cms );
 }
@@ -76,12 +87,12 @@ static void cutMesh_free ( void    *data,
     URMCUTMESH *cms = ( URMCUTMESH * ) data;
 
     if ( commit ) {
-        list_exec ( cms->loldfac, (void(*)(void*)) g3dface_free );
-        list_exec ( cms->loldedg, (void(*)(void*)) g3dedge_free );
+        list_exec ( cms->removedEdgeList, (void(*)(void*)) g3dedge_free   );
+        list_exec ( cms->removedFaceList, (void(*)(void*)) g3dface_free   );
     } else {
-        list_exec ( cms->lnewver, (void(*)(void*)) g3dvertex_free );
-        list_exec ( cms->lnewfac, (void(*)(void*)) g3dface_free   );
-        list_exec ( cms->lnewedg, (void(*)(void*)) g3dedge_free   );
+        list_exec ( cms->addedVertexList, (void(*)(void*)) g3dvertex_free );
+        list_exec ( cms->addedEdgeList  , (void(*)(void*)) g3dedge_free   );
+        list_exec ( cms->addedFaceList  , (void(*)(void*)) g3dface_free   );
     }
 
     urmcutmesh_free ( cms );
@@ -90,43 +101,88 @@ static void cutMesh_free ( void    *data,
 /******************************************************************************/
 static void cutMesh_undo ( G3DURMANAGER *urm, 
                            void         *data, 
-                           uint64_t      engine_flags ) {
+                           uint64_t      engineFlags ) {
     URMCUTMESH *cms = ( URMCUTMESH * ) data;
-    G3DOBJECT *obj = ( G3DOBJECT * ) cms->mes;
-    G3DMESH *mes = cms->mes;
+    LIST *ltmpoldedg = cms->removedEdgeList;
+    LIST *ltmpoldfac = cms->removedFaceList;
+    LIST *ltmpnewver = cms->addedVertexList;
+    LIST *ltmpnewedg = cms->addedEdgeList;
+    LIST *ltmpnewfac = cms->addedFaceList;
 
     /*** We have to restore the selection in order to avoid crash ***/
     /*** because other functions are based on the select flag set ***/
     g3dmesh_unselectAllFaces ( cms->mes );
 
-    list_execargdata ( cms->lnewfac, (void(*)(void*,void*)) g3dmesh_removeFace  , cms->mes );
-    list_execargdata ( cms->lnewver, (void(*)(void*,void*)) g3dmesh_removeVertex, cms->mes );
+    /* Remove new faces - Note: will remove unused edges automatically */
+    while( ltmpnewfac ) {
+        g3dmesh_removeFace ( cms->mes, ( G3DFACE * ) ltmpnewfac->data, NULL );
+        ltmpnewfac = ltmpnewfac->next;
+    }
 
-    list_execargdata ( cms->loldfac, (void(*)(void*,void*)) g3dmesh_addFace, cms->mes );
+    /* Remove new vertices */
+    while( ltmpnewver ) {
+        g3dmesh_removeVertex ( cms->mes, ( G3DVERTEX * ) ltmpnewver->data );
+        ltmpnewver = ltmpnewver->next;
+    }
+
+    /* re-add old edges for topology linking */
+    while( ltmpoldedg ) {
+        g3dmesh_addEdge ( cms->mes, ( G3DEDGE * ) ltmpoldedg->data );
+        ltmpoldedg = ltmpoldedg->next;
+    }
+
+    /* re-add old faces */
+    while( ltmpoldfac ) {
+        g3dmesh_addFace ( cms->mes, ( G3DFACE * ) ltmpoldfac->data, NULL );
+        ltmpoldfac = ltmpoldfac->next;
+    }
 
     /*** Rebuild the cut mesh ***/
-    g3dobject_update_r ( G3DOBJECTCAST(cms->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(cms->sce), 0x00, engineFlags );
 }
 
 /******************************************************************************/
 static void cutMesh_redo ( G3DURMANAGER *urm, 
                            void         *data, 
-                           uint64_t      engine_flags ) {
+                           uint64_t      engineFlags ) {
     URMCUTMESH *cms = ( URMCUTMESH * ) data;
-    G3DOBJECT *obj = ( G3DOBJECT * ) cms->mes;
     G3DMESH *mes = cms->mes;
+    LIST *ltmpoldedg = cms->removedEdgeList;
+    LIST *ltmpoldfac = cms->removedFaceList;
+    LIST *ltmpnewver = cms->addedVertexList;
+    LIST *ltmpnewedg = cms->addedEdgeList;
+    LIST *ltmpnewfac = cms->addedFaceList;
 
     /*** We have to restore the selection in order to avoid crash ***/
     /*** because other functions are based on the select flag set ***/
     g3dmesh_unselectAllFaces ( cms->mes );
 
-    list_execargdata ( cms->loldfac, (void(*)(void*,void*)) g3dmesh_removeFace, cms->mes );
+    /* remove removed faces - Note: will automatically remove unused edges */
+    while( ltmpoldfac ) {
+        g3dmesh_removeFace ( cms->mes, ( G3DFACE * ) ltmpoldfac->data, NULL );
+        ltmpoldfac = ltmpoldfac->next;
+    }
 
-    list_execargdata ( cms->lnewver, (void(*)(void*,void*)) g3dmesh_addVertex, cms->mes );
-    list_execargdata ( cms->lnewfac, (void(*)(void*,void*)) g3dmesh_addFace  , cms->mes );
+    /* add added vertices */
+    while( ltmpnewver ) {
+        g3dmesh_addVertex ( cms->mes, ( G3DVERTEX * ) ltmpnewver->data );
+        ltmpnewver = ltmpnewver->next;
+    }
+
+    /* add added edges for topology linking */
+    while( ltmpnewedg ) {
+        g3dmesh_addEdge ( cms->mes, ( G3DEDGE * ) ltmpnewedg->data );
+        ltmpnewedg = ltmpnewedg->next;
+    }
+
+    /* add added faces */
+    while( ltmpnewfac ) {
+        g3dmesh_addFace ( cms->mes, ( G3DFACE * ) ltmpnewfac->data, NULL );
+        ltmpnewfac = ltmpnewfac->next;
+    }
 
     /*** Rebuild the cut mesh ***/
-    g3dobject_update_r ( G3DOBJECTCAST(cms->sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(cms->sce), 0x00, engineFlags );
 }
 
 /******************************************************************************/
@@ -135,29 +191,39 @@ void g3durm_mesh_cut ( G3DURMANAGER *urm,
                        G3DMESH      *mes,
                        G3DFACE      *knife,
                        int           restricted,
-                       uint64_t      engine_flags,
-                       uint32_t      return_flags ) {
-    LIST *loldfac = NULL,
-         *lnewver = NULL, 
-         *lnewfac = NULL;
+                       uint64_t      engineFlags,
+                       uint32_t      returnFlags ) {
+    LIST *removedEdgeList   = NULL,
+         *removedFaceList   = NULL,
+         *addedVertexList = NULL,
+         *addedEdgeList   = NULL,
+         *addedFaceList   = NULL;
     URMCUTMESH *cms;
 
     g3dmesh_cut ( mes, 
                   knife, 
-                 &loldfac,
-                 &lnewver,
-                 &lnewfac, 
+                 &removedEdgeList,
+                 &removedFaceList,
+                 &addedVertexList,
+                 &addedEdgeList,
+                 &addedFaceList,
                   restricted, 
-                  engine_flags );
+                  engineFlags );
 
-    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engine_flags );
+    g3dobject_update_r ( G3DOBJECTCAST(sce), 0x00, engineFlags );
 
-    cms = urmcutmesh_new ( sce, mes, loldfac, lnewver, lnewfac );
+    cms = urmcutmesh_new ( sce,
+                           mes,
+                           removedEdgeList,
+                           removedFaceList,
+                           addedVertexList,
+                           addedEdgeList,
+                           addedFaceList );
 
     g3durmanager_push ( urm,
                         cutMesh_undo,
                         cutMesh_redo,
                         cutMesh_free,
                         cms,
-                        return_flags );
+                        returnFlags );
 }

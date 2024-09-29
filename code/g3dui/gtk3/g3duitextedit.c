@@ -191,8 +191,7 @@ static void pickFontCbk ( GtkFontChooser *self,
                  ( fontSize != txt->fontFaceSize ) ) {
                 g3dtext_setFont ( txt, fontFamilyName,
                                        fontFile,
-                                       fontSize,
-                                       gui->engine_flags );
+                                       fontSize );
             }
 
             gtk3_interpretUIReturnFlags ( gtk3gui, REDRAWVIEW | 

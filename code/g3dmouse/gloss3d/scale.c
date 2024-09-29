@@ -558,7 +558,7 @@ static int scale_mesh ( G3DMESH          *mes,
             /*g3dmesh_modify ( mes,
                              G3DMODIFYOP_STARTUPDATE,
                              engine_flags );*/
-
+/*
             if ( mes->onGeometryMove ) {
                 mes->onGeometryMove ( mes, lver, 
                                            ledg, 
@@ -566,7 +566,7 @@ static int scale_mesh ( G3DMESH          *mes,
                                            G3DMODIFYOP_STARTUPDATE,
                                            engine_flags );
             }
-
+*/
         } return REDRAWVIEW;
 
         case G3DMotionNotify : {
@@ -590,9 +590,10 @@ static int scale_mesh ( G3DMESH          *mes,
                     while ( ltmpver ) {
                         G3DVERTEX *ver = ( G3DVERTEX * ) ltmpver->data;
 
-                        ver->pos.x = localPivot.x + ( ( oldpos[verID].x - localPivot.x ) * ( 1.0f + ( difx * 0.01f ) ) );
-                        ver->pos.y = localPivot.y + ( ( oldpos[verID].y - localPivot.y ) * ( 1.0f + ( dify * 0.01f ) ) );
-                        ver->pos.z = localPivot.z + ( ( oldpos[verID].z - localPivot.z ) * ( 1.0f + ( difz * 0.01f ) ) );
+                        g3dvertex_setPosition( ver,
+                                               localPivot.x + ( ( oldpos[verID].x - localPivot.x ) * ( 1.0f + ( difx * 0.01f ) ) ),
+                                               localPivot.y + ( ( oldpos[verID].y - localPivot.y ) * ( 1.0f + ( dify * 0.01f ) ) ),
+                                               localPivot.z + ( ( oldpos[verID].z - localPivot.z ) * ( 1.0f + ( difz * 0.01f ) ) ) );
 /*
                         if ( obj->parent->childvertexchange ) {
                             obj->parent->childvertexchange ( obj->parent,
@@ -607,7 +608,7 @@ static int scale_mesh ( G3DMESH          *mes,
                     /*g3dmesh_modify ( mes,
                                      G3DMODIFYOP_UPDATE,
                                      engine_flags );*/
-
+/*
                     if ( mes->onGeometryMove ) {
                         mes->onGeometryMove ( mes, lver, 
                                                    ledg, 
@@ -615,6 +616,7 @@ static int scale_mesh ( G3DMESH          *mes,
                                                    G3DMODIFYOP_UPDATE,
                                                    engine_flags );
                     }
+*/
                 }
             }
         } return REDRAWVIEW;
@@ -652,7 +654,7 @@ static int scale_mesh ( G3DMESH          *mes,
                                          REDRAWVIEW );
 
             g3dmesh_updateBbox ( mes );
-
+/*
             if ( mes->onGeometryMove ) {
                 mes->onGeometryMove ( mes, 
                                       lver, 
@@ -661,7 +663,7 @@ static int scale_mesh ( G3DMESH          *mes,
                                       G3DMODIFYOP_ENDUPDATE,
                                       engine_flags );
             }
-
+*/
             /*g3dmesh_modify ( mes,
                              G3DMODIFYOP_ENDUPDATE,
                              engine_flags );*/

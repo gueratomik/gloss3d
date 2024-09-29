@@ -61,9 +61,9 @@ static uint32_t drawTarget ( G3DOBJECT *obj,
 }
 
 /******************************************************************************/
-static void g3dcamera_anim ( G3DCAMERA *cam,
-                            float     frame, 
-                            uint64_t  engine_flags ) {
+void g3dcamera_default_anim ( G3DCAMERA *cam,
+                              float     frame, 
+                              uint64_t  engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
     G3DKEY *prevKey = NULL,
            *nextKey = NULL,
@@ -117,8 +117,8 @@ static void g3dcamerakey_free ( G3DKEY *key ) {
 }
 
 /******************************************************************************/
-static void g3dcamera_pose ( G3DCAMERA *cam,
-                            G3DKEY   *key ) {
+void g3dcamera_default_pose ( G3DCAMERA *cam,
+                      G3DKEY   *key ) {
     if ( key->data.ptr == NULL ) {
         CAMERAKEYDATA *ckd = camerakeydata_new ( );
 
@@ -234,8 +234,10 @@ void g3dcamera_orbit ( G3DCAMERA *cam,
 }
 
 /******************************************************************************/
-G3DCAMERA *g3dcamera_copy ( G3DCAMERA *cam,
-                            uint64_t   engine_flags ) {
+G3DCAMERA* g3dcamera_default_copy ( G3DCAMERA  *cam,
+                                    uint32_t    id,
+                                    const char *name,
+                                    uint64_t    engineFlags ) {
     G3DOBJECT *objcam = ( G3DOBJECT * ) cam;
     G3DCAMERA *newcam = g3dcamera_new ( objcam->id, 
                                         objcam->name, 
@@ -266,8 +268,8 @@ float g3dcamera_getDistanceToCursor ( G3DCAMERA *cam,
 }
 
 /******************************************************************************/
-void g3dcamera_transform ( G3DCAMERA *cam, 
-                           uint64_t   engine_flags ) {
+void g3dcamera_default_transform ( G3DCAMERA *cam, 
+                                   uint64_t   engine_flags ) {
     g3dcamera_project( cam, engine_flags );
 }
 
@@ -398,9 +400,9 @@ static  uint32_t _pickObject ( G3DCAMERA *cam,
 }
 
 /******************************************************************************/
-uint32_t g3dcamera_pick ( G3DCAMERA *cam, 
-                          G3DCAMERA *curcam, 
-                          uint64_t engine_flags ) {
+uint32_t g3dcamera_default_pick ( G3DCAMERA *cam, 
+                                  G3DCAMERA *curcam, 
+                                  uint64_t engine_flags ) {
     G3DOBJECT *obj = ( G3DOBJECT * ) cam;
 
     if ( obj->type & OBJECTSELECTED ) {
@@ -416,10 +418,10 @@ uint32_t g3dcamera_pick ( G3DCAMERA *cam,
 }
 
 /******************************************************************************/
-uint32_t g3dcamera_draw ( G3DCAMERA *cam,
-                          G3DCAMERA *curcam, 
-                          G3DENGINE *engine,
-                          uint64_t   engine_flags ) {
+uint32_t g3dcamera_default_draw ( G3DCAMERA *cam,
+                                  G3DCAMERA *curcam, 
+                                  G3DENGINE *engine,
+                                  uint64_t   engine_flags ) {
     G3DVECTOR3F box[0x08] = { { -0.25f,   0.5f,  0.5f },
                               {  0.25f,   0.5f,  0.5f },
                               {  0.25f,  -0.5f,  0.5f },

@@ -131,11 +131,11 @@ void g3dsphere_build ( G3DPRIMITIVE *pri, int slice,
         int k = ( j + 0x01 ) % slice;
         g3dmesh_addFace ( mes, g3dtriangle_new ( capver[0x00],
                                                  bdyver[j],
-                                                 bdyver[k] ) );
+                                                 bdyver[k] ), NULL );
 
         g3dmesh_addFace ( mes, g3dtriangle_new ( capver[0x01],
                                                  bdyver[vid+k],
-                                                 bdyver[vid+j] ) );
+                                                 bdyver[vid+j] ), NULL );
     }
 
     /*** body ***/
@@ -149,7 +149,7 @@ void g3dsphere_build ( G3DPRIMITIVE *pri, int slice,
                                          bdyver[(n*slice)+k],
                                          bdyver[(i*slice)+k] );
 
-            g3dmesh_addFace ( mes, fac );
+            g3dmesh_addFace ( mes, fac, NULL );
         }
     }
 

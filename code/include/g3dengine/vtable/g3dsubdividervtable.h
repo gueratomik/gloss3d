@@ -17,9 +17,9 @@ uint32_t       g3dsubdivider_default_draw       ( G3DSUBDIVIDER *sdv,
                                                   G3DENGINE     *engine,
                                                   uint64_t       engineFlags );
 void           g3dsubdivider_default_free       ( G3DSUBDIVIDER *sdv );
-uint32_t       g3dsubdivider_default_pick       ( G3DOBJECT *obj, 
-                                                  G3DCAMERA *cam, 
-                                                  uint64_t   engineFlags );
+uint32_t       g3dsubdivider_default_pick       ( G3DSUBDIVIDER *sdv, 
+                                                  G3DCAMERA     *cam,
+                                                  uint64_t       engineFlags );
 void           g3dsubdivider_default_update     ( G3DSUBDIVIDER *sdv,
                                                   uint64_t       updateFlags,
                                                   uint64_t       engineFlags );

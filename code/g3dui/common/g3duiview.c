@@ -290,7 +290,8 @@ void g3duiview_init ( G3DUIVIEW *view,
                      focal,
                      ratio,
                      znear,
-                     zfar );
+                     zfar,
+                     NULL );
 
     view->pressedButtonID = -1;
 }

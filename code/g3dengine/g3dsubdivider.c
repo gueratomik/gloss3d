@@ -484,9 +484,9 @@ uint32_t g3dsubdivider_hasScultMaps ( G3DSUBDIVIDER *sdr ) {
 }
 
 /******************************************************************************/
-static void _default_pick ( G3DSUBDIVIDER *sdr,
-                            G3DCAMERA     *curcam, 
-                            uint64_t       engineFlags ) {
+uint32_t g3dsubdivider_default_pick ( G3DSUBDIVIDER *sdr,
+                                  G3DCAMERA     *curcam,
+                                  uint64_t       engineFlags ) {
     if ( g3dobject_isActive ( ( G3DOBJECT * ) sdr ) ) {
         if ( g3dobject_isSelected ( ( G3DOBJECT * ) sdr ) ) {
             if ( sdr->subdiv_preview ) {
@@ -595,6 +595,8 @@ static void _default_pick ( G3DSUBDIVIDER *sdr,
             }
         }
     }
+
+    return 0x00;
 }
 
 /******************************************************************************/
@@ -941,7 +943,7 @@ G3DMESH *g3dsubdivider_default_commit ( G3DSUBDIVIDER *sdr,
 
         for ( i = 0x00; i < nbCommitFac; i++ ) {
             if ( commitFaces[i] ) {
-                g3dmesh_addFace ( commitMesh, commitFaces[i] );
+                g3dmesh_addFace ( commitMesh, commitFaces[i], NULL );
             }
         }
 

@@ -952,7 +952,7 @@ uint64_t g3dui_addSubdivider ( G3DUI *gui ) {
     G3DSCENE      *sce = gui->sce;
     G3DOBJECT     *obj = g3dscene_getLastSelected ( sce );
     uint32_t       oid = g3dscene_getNextObjectID ( sce );
-    G3DSUBDIVIDER *sdr = g3dsubdivider_new ( oid, "Subdivider", gui->engine_flags );
+    G3DSUBDIVIDER *sdr = g3dsubdivider_new ( oid, "Subdivider" );
 
     if ( obj ) {
         g3durm_object_addChild ( urm, sce, gui->engine_flags, 
@@ -1019,7 +1019,7 @@ uint64_t g3dui_addEmptyMesh ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
-    G3DMESH *mes = g3dmesh_new ( pid, "Mesh", gui->engine_flags );
+    G3DMESH *mes = g3dmesh_new ( pid, "Mesh" );
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
@@ -1043,7 +1043,7 @@ uint64_t g3dui_addSpline ( G3DUI *gui ) {
     G3DSCENE *sce = gui->sce;
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
-    G3DSPLINE *spline = g3dspline_new ( pid, "Spline", CUBIC, gui->engine_flags );
+    G3DSPLINE *spline = g3dspline_new ( pid, "Spline", CUBIC );
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |
@@ -1102,18 +1102,16 @@ uint64_t g3dui_addText ( G3DUI *gui ) {
     G3DURMANAGER *urm = gui->urm;
     uint32_t pid = g3dscene_getNextObjectID ( sce );
     G3DTEXT *txt = g3dtext_new ( pid, 
-                                 "Text",     /* object name    */
-                                 gui->engine_flags  );
+                                 "Text" );
 
     g3dtext_configure ( txt,
                         NULL,    /* font face name */
                         NULL,/* font file name */
                         16,         /* font face size */
                         0.0f,
-                        12,
-                        gui->engine_flags );
+                        12 );
 
-    g3dtext_setText ( txt, "Gloss3D", gui->engine_flags  );
+    g3dtext_setText ( txt, "Gloss3D" );
 
     g3durm_object_addChild ( urm, sce, gui->engine_flags, 
                                        ( REDRAWVIEW |

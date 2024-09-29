@@ -153,7 +153,7 @@ void g3dtorus_build ( G3DPRIMITIVE *pri, int orientation,
                                          ver[(i*tds->cap)+o],
                                          ver[(i*tds->cap)+j] );
 
-            g3dmesh_addFace ( mes, fac );
+            g3dmesh_addFace ( mes, fac, NULL );
         }
     }
 

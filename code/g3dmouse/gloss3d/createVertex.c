@@ -183,7 +183,8 @@ static int createVertex_event ( G3DMOUSETOOL *mou,
                         g3dmesh_unselectAllVertices ( mes );
 
 
-                        g3dmesh_addSelectedVertex ( mes, ver );
+                        g3dmesh_addVertex ( mes, ver );
+                        g3dmesh_selectVertex ( mes, ver );
 /*
                         mes->obj.invalidationFlags |= ( UPDATEFACEPOSITION |
                                                         UPDATEFACENORMAL   |

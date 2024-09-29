@@ -148,14 +148,14 @@ void g3dcubeedge_makeFaces ( G3DMESH *mes, G3DCUBEEDGE *edg0,
                                      ( G3DVERTEX * ) edg1->ver[i],
                                      ( G3DVERTEX * ) edg0->ver[i] };
 
-            g3dmesh_addFace ( mes, g3dface_new ( ver, 0x04 ) );
+            g3dmesh_addFace ( mes, g3dface_new ( ver, 0x04 ), NULL );
         } else {
             G3DVERTEX *ver[0x04] = { ( G3DVERTEX * ) edg0->ver[i],
                                      ( G3DVERTEX * ) edg1->ver[i],
                                      ( G3DVERTEX * ) edg1->ver[n],
                                      ( G3DVERTEX * ) edg0->ver[n] };
 
-            g3dmesh_addFace ( mes, g3dface_new ( ver, 0x04 ) );
+            g3dmesh_addFace ( mes, g3dface_new ( ver, 0x04 ), NULL );
         }
     }
 }

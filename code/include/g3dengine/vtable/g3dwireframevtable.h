@@ -12,19 +12,19 @@ typedef struct _G3DWIREFRAMEVTABLE {
 } G3DWIREFRAMEVTABLE;
 
 /************************** Object vtable overrides ***************************/
-uint32_t   g3dwireframe_default_draw       ( G3DWIREFRAME *wir, 
-                                             G3DCAMERA    *curcam, 
-                                             G3DENGINE    *engine, 
-                                             uint64_t      engineFlags );
-void       g3dwireframe_default_free       ( G3DWIREFRAME *wir );
-G3DOBJECT* g3dwireframe_default_copy       ( G3DWIREFRAME *wir,
-                                             uint32_t      id,
-                                             const char   *name,
-                                             uint64_t      engineFlags );
-void       g3dwireframe_default_activate   ( G3DWIREFRAME *wir,
-                                             uint64_t      engineFlags );
-void       g3dwireframe_default_deactivate ( G3DWIREFRAME *wir,
-                                             uint64_t      engineFlags );
+uint32_t      g3dwireframe_default_draw       ( G3DWIREFRAME *wir, 
+                                                G3DCAMERA    *curcam, 
+                                                G3DENGINE    *engine, 
+                                                uint64_t      engineFlags );
+void          g3dwireframe_default_free       ( G3DWIREFRAME *wir );
+G3DWIREFRAME* g3dwireframe_default_copy       ( G3DWIREFRAME *wir,
+                                                uint32_t      id,
+                                                const char   *name,
+                                                uint64_t      engineFlags );
+void          g3dwireframe_default_activate   ( G3DWIREFRAME *wir,
+                                                uint64_t      engineFlags );
+void          g3dwireframe_default_deactivate ( G3DWIREFRAME *wir,
+                                                uint64_t      engineFlags );
 
 /**************************** Mesh vtable overrides ***************************/
 

@@ -453,6 +453,68 @@ static uint32_t actionSelectVertexForPose ( uint64_t         name,
     return 0x01;
 }
 
+/******************************************************************************/
+typedef struct _VERTEXPICKINGDATA {
+    G3DVERTEX* pickedVertex;
+} VERTEXPICKINGDATA;
+
+/******************************************************************************/
+static uint32_t actionPickVertex ( uint64_t name, VERTEXPICKINGDATA *vpd ) {
+    G3DVERTEX *ver = ( G3DVERTEX * ) name;
+
+    vpd->pickedVertex = ver;
+
+    return 0x01;
+}
+
+/******************************************************************************/
+/*** We basically draw the scene in 2D with pointer values as pixels ***/
+G3DVERTEX *pick_vertex ( G3DSCENE  *sce,
+                         G3DCAMERA *curcam,
+                         G3DMESH   *mes,
+                         int32_t    screenX,
+                         int32_t    screenY,
+                         int32_t    radius ) {
+    VERTEXPICKINGDATA vpd = { 0 };
+    int screenX1 = curcam->vmatrix[0x00];
+    int screenY1 = curcam->vmatrix[0x01];
+    int screenX2 = curcam->vmatrix[0x00] + curcam->vmatrix[0x02] - 0x01;
+    int screenY2 = curcam->vmatrix[0x01] + curcam->vmatrix[0x03] - 0x01;
+    int x1 = screenX - radius;
+    int y1 = screenY - radius;
+    int x2 = screenX + radius;
+    int y2 = screenY + radius;
+
+    if( x1 < screenX1 ) x1 = screenX1;
+    if( y1 < screenY1 ) y1 = screenY1;
+    if( x2 > screenX2 ) x2 = screenX2;
+    if( y2 > screenY2 ) y2 = screenY2;
+
+    g3dpick_setViewportMatrix    ( curcam->vmatrix );
+    g3dpick_setProjectionMatrixf ( curcam->pmatrix );
+    g3dpick_setAreaMatrix        ( ( int32_t [] ) { x1, y1, x2, y2 }, 0x00 );
+
+    g3dpick_setEpsilon ( 0.00001f );
+
+    /*** clear must be called once the VPX is set and depth test is toggled ***/
+    g3dpick_clear ( );
+
+/*** commented out: we now use glreadpixel to get the depth value ****/
+/*
+    g3dpick_setAction ( NULL, NULL );
+
+    g3dobject_pick_r ( G3DOBJECTCAST(mes), 
+                       cam, 
+                       VIEWOBJECT );
+*/
+
+    g3dpick_setAction ( G3DPICK_ACTIONFUNC ( actionPickVertex ), &vpd );
+    g3dobject_pick ( G3DOBJECTCAST(mes), 
+                     curcam, 
+                     VIEWVERTEX );
+
+    return vpd.pickedVertex;
+}
 
 /******************************************************************************/
 /*** We basically draw the scene in 2D with pointer values as pixels ***/
@@ -461,19 +523,13 @@ void pick_Item ( G3DMOUSETOOLPICK *pt,
                  G3DCAMERA        *cam,
                  uint32_t          ctrlClick,
                  uint64_t          engine_flags ) {
-    /*static GLint  VPX[0x04];
-    static double MVX[0x10];
-    static double PJX[0x10];*/
-
-    /*glGetIntegerv ( GL_VIEWPORT, VPX );*/
-
     closeSelectionRectangle ( pt, cam->vmatrix /*VPX*/, engine_flags );
 
     /*** Note: calling setViewportMatrix before setProjectionMatrix ***/
     /*** is mandatory ***/
 
-    g3dpick_setViewportMatrix    ( /*VPX*/ cam->vmatrix  );
-    g3dpick_setProjectionMatrixf ( /*PJX*/ cam->pmatrix  );
+    g3dpick_setViewportMatrix    ( cam->vmatrix );
+    g3dpick_setProjectionMatrixf ( cam->pmatrix );
     g3dpick_setAreaMatrix        ( pt->coord, pt->circular );
 
     if ( ( ( engine_flags & VIEWVERTEXUV ) == 0x00 ) &&

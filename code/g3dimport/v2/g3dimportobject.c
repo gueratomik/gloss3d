@@ -68,8 +68,7 @@ void g3dimportv2_identityType ( G3DIMPORTV2DATA *gid,
 
             case SIG_OBJECT_MESH : {
                 gid->currentObject = ( G3DOBJECT * ) g3dmesh_new ( gid->currentObjectID++ ,
-                                                                   gid->currentObjectName,
-                                                                   gid->engineFlags );
+                                                                   gid->currentObjectName );
 
                 g3dobject_addChild ( gid->parentObject, 
                                      gid->currentObject, 
@@ -145,8 +144,7 @@ void g3dimportv2_identityType ( G3DIMPORTV2DATA *gid,
 
             case SIG_OBJECT_SUBDIVIDER : {
                 gid->currentObject = ( G3DOBJECT * ) g3dsubdivider_new ( gid->currentObjectID++ ,
-                                                                         gid->currentObjectName,
-                                                                         gid->engineFlags );
+                                                                         gid->currentObjectName );
 
                 g3dobject_addChild ( gid->parentObject, 
                                      gid->currentObject, 
@@ -187,8 +185,7 @@ void g3dimportv2_identityType ( G3DIMPORTV2DATA *gid,
             case SIG_OBJECT_SPLINE : {
                 gid->currentObject = ( G3DOBJECT * ) g3dspline_new ( gid->currentObjectID++ ,
                                                                      gid->currentObjectName,
-                                                                     CUBIC,
-                                                                     gid->engineFlags );
+                                                                     CUBIC );
 
                 g3dobject_addChild ( gid->parentObject, 
                                      gid->currentObject, 
@@ -214,8 +211,7 @@ void g3dimportv2_identityType ( G3DIMPORTV2DATA *gid,
 
             case SIG_OBJECT_TEXT : {
                 gid->currentObject = ( G3DOBJECT * ) g3dtext_new ( gid->currentObjectID++ ,
-                                                                   gid->currentObjectName,
-                                                                   gid->engineFlags );
+                                                                   gid->currentObjectName );
 
                 g3dobject_addChild ( gid->parentObject, 
                                      gid->currentObject, 

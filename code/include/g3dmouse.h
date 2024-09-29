@@ -257,9 +257,10 @@ typedef struct _G3DMOUSETOOL {
 
 /******************************************************************************/
 typedef struct _G3DMOUSETOOLBRIDGE {
-    G3DMOUSETOOL  tool;
-    uint32_t      draw; /*** true or false ***/
-    G3DVERTEX    *ver[0x04];
+    G3DMOUSETOOL   tool;
+    uint32_t       draw; /*** true or false ***/
+    G3DVERTEX     *pickedVertex[0x04];
+    G3DVERTEX     *hoveredVertex;
     G3DCURVEPOINT *pt[0x02];
     G3DOBJECT     *obj; /*** the mesh that gest the new face ****/
 } G3DMOUSETOOLBRIDGE;
@@ -435,7 +436,12 @@ void pick_cursor ( G3DMOUSETOOLPICK *pt,
                    G3DSCENE         *sce, 
                    G3DCAMERA        *cam,
                    uint64_t engine_flags );
-
+G3DVERTEX *pick_vertex ( G3DSCENE  *sce,
+                         G3DCAMERA *curcam,
+                         G3DMESH   *mes,
+                         int32_t    screenX,
+                         int32_t    screenY,
+                         int32_t    radius );
 void closeSelectionRectangle ( G3DMOUSETOOLPICK *pt, 
                                int              *VPX, 
                                uint64_t          engine_flags );

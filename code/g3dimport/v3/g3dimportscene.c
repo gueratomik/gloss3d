@@ -129,8 +129,7 @@ void g3dimportv3objects_declare ( G3DIMPORTV3DATA *gid,
 
                     case SIG_OBJECT_DECLARE_MESH : {
                         obj = ( G3DOBJECT * ) g3dmesh_new ( gid->currentObjectID++ ,
-                                                            gid->currentObjectName,
-                                                            gid->engineFlags );
+                                                            gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_NULL : {
@@ -180,15 +179,13 @@ void g3dimportv3objects_declare ( G3DIMPORTV3DATA *gid,
 
                     case SIG_OBJECT_DECLARE_SUBDIVIDER : {
                         obj = ( G3DOBJECT * ) g3dsubdivider_new ( gid->currentObjectID++ ,
-                                                                  gid->currentObjectName,
-                                                                  gid->engineFlags );
+                                                                  gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_SPLINE : {
                         obj = ( G3DOBJECT * ) g3dspline_new ( gid->currentObjectID++ ,
                                                               gid->currentObjectName,
-                                                              CUBIC,
-                                                              gid->engineFlags );
+                                                              CUBIC );
                     } break;
 
                     case SIG_OBJECT_DECLARE_SPLINEREVOLVER : {
@@ -219,8 +216,7 @@ void g3dimportv3objects_declare ( G3DIMPORTV3DATA *gid,
 
                     case SIG_OBJECT_DECLARE_TEXT : {
                         obj = ( G3DOBJECT * ) g3dtext_new ( gid->currentObjectID++ ,
-                                                            gid->currentObjectName,
-                                                            gid->engineFlags );
+                                                            gid->currentObjectName );
                     } break;
 
                     case SIG_OBJECT_DECLARE_BONE : {

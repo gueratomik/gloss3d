@@ -635,7 +635,7 @@ void xmlpolylist_createPolygons ( XMLPOLYLIST *xply, VERTEXARRAY *varray,
                 }
             }
 
-            g3dmesh_addFace ( mes, g3dface_new ( vpos, 0x03 ) );
+            g3dmesh_addFace ( mes, g3dface_new ( vpos, 0x03 ), NULL );
         }
     } else {
     /*** Polylist ***/
@@ -691,7 +691,7 @@ void xmlpolylist_createPolygons ( XMLPOLYLIST *xply, VERTEXARRAY *varray,
 
             }
 
-            if ( fac ) g3dmesh_addFace ( mes, fac );
+            if ( fac ) g3dmesh_addFace ( mes, fac, NULL );
         }
     }
 }
@@ -848,8 +848,7 @@ void geometryStartElement ( void *userData, const XML_Char *name,
 
     if ( strcmp ( name, "mesh" ) == 0x00 ) {
         xgeo->obj = ( G3DOBJECT * ) g3dmesh_new ( 0x01, 
-                                                  xgeo->id, 
-                                                  xdt->engine_flags );
+                                                  xgeo->id );
 
         xmldata_pushElementHandlers ( xdt, meshStartElement,
                                            meshEndElement );

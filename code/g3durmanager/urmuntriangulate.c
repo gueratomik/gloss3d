@@ -105,7 +105,8 @@ void unTriangulate_undo ( G3DURMANAGER *urm,
 
     list_execargdata ( ums->lnewfac, (void(*)(void*,void*)) g3dmesh_removeFace     , ums->mes );
 
-    list_execargdata ( ums->loldfac, (void(*)(void*,void*)) g3dmesh_addSelectedFace, ums->mes );
+    /** TODO when reviewing: select the faces **/
+    list_execargdata ( ums->loldfac, (void(*)(void*,void*)) g3dmesh_addFace, ums->mes );
 
     g3dobject_update_r ( G3DOBJECTCAST(ums->sce), 0x00, engine_flags );
 }
@@ -123,7 +124,8 @@ void unTriangulate_redo ( G3DURMANAGER *urm,
 
     list_execargdata ( ums->loldfac, (void(*)(void*,void*)) g3dmesh_removeFace     , ums->mes );
 
-    list_execargdata ( ums->lnewfac, (void(*)(void*,void*)) g3dmesh_addSelectedFace, ums->mes );
+    /** TODO when reviewing: select the faces **/
+    list_execargdata ( ums->lnewfac, (void(*)(void*,void*)) g3dmesh_addFace, ums->mes );
 
     /*** Rebuild the mesh with modifiers ***/
     g3dobject_update_r ( G3DOBJECTCAST(ums->sce), 0x00, engine_flags );

@@ -76,7 +76,7 @@ G3DSCENE *g3dscene_import3ds ( const char *filename,
             } break;
 
             case 0x4100 :
-                mes = g3dmesh_new ( g3dscene_getNextObjectID ( sce ), "Mesh", engine_flags );
+                mes = g3dmesh_new ( g3dscene_getNextObjectID ( sce ), "Mesh" );
                 g3dobject_addChild ( ( G3DOBJECT * ) sce, ( G3DOBJECT * ) mes, engine_flags );
             break;
 
@@ -140,7 +140,7 @@ G3DSCENE *g3dscene_import3ds ( const char *filename,
                     /*** Create face ***/
                     fac = g3dtriangle_new ( v0, v1, v2 );
 
-                    g3dmesh_addFace ( mes, fac );
+                    g3dmesh_addFace ( mes, fac, NULL );
                 }
 
                 g3dmesh_vertexNormal ( mes );

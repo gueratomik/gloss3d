@@ -148,7 +148,7 @@ static void deleteSelectedItems_undo ( G3DURMANAGER *urm,
                 G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
                 int i;
 
-                g3dmesh_addFace ( mes, fac );
+                g3dmesh_addFace ( mes, fac, NULL );
 
                 ltmpfac = ltmpfac->next;
             }
@@ -198,7 +198,7 @@ static void deleteSelectedItems_redo ( G3DURMANAGER *urm,
                 G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
 
                 /*** Note: removing unselects the item ***/
-                g3dmesh_removeFace ( mes, fac );
+                g3dmesh_removeFace ( mes, fac, NULL );
 
 
                 ltmpfac = ltmpfac->next;

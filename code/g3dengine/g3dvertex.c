@@ -43,6 +43,15 @@ void g3dvertex_addEdge ( G3DVERTEX *ver,
     list_insert ( &ver->edgeList, edg );
 
     ver->edgeCount++;
+
+    if( ver->owner )
+    {
+        if( ver->owner->type & MESH ) {
+            g3dmesh_invalidateVertex( ( G3DMESH * ) ver->owner,
+                                                    ver,
+                                                    INVALIDATE_TOPOLOGY );
+        }
+    }
 }
 
 /******************************************************************************/
@@ -51,6 +60,15 @@ void g3dvertex_addFace ( G3DVERTEX *ver,
     list_insert ( &ver->faceList, fac );
 
     ver->faceCount++;
+
+    if( ver->owner )
+    {
+        if( ver->owner->type & MESH ) {
+            g3dmesh_invalidateVertex( ( G3DMESH * ) ver->owner,
+                                                    ver,
+                                                    INVALIDATE_TOPOLOGY );
+        }
+    }
 }
 
 /******************************************************************************/

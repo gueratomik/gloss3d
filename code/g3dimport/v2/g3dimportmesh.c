@@ -202,9 +202,9 @@ void g3dimportv2mesh ( G3DIMPORTV2DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
 
                         /*** kept for legac but edegs are no longer stored ***/
                         /*** int the file. Too complicated ***/
-                        g3dmesh_addFace ( mes, fac );
+                        g3dmesh_addFace ( mes, fac, NULL );
                     } else {
-                        g3dmesh_addFace ( mes, fac );
+                        g3dmesh_addFace ( mes, fac, NULL );
                     }
                 }
             } break;

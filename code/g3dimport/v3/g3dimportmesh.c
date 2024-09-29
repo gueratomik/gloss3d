@@ -210,9 +210,9 @@ void g3dimportv3mesh ( G3DIMPORTV3DATA *gid, uint32_t chunkEnd, FILE *fsrc ) {
                         g3dimportv3_freadl ( &e2ID, fsrc );
                         g3dimportv3_freadl ( &e3ID, fsrc );
 
-                        g3dmesh_addFace ( mes, fac );
+                        g3dmesh_addFace ( mes, fac, NULL );
                     } else {
-                        g3dmesh_addFace ( mes, fac );
+                        g3dmesh_addFace ( mes, fac, NULL );
                     }
                 }
             } break;

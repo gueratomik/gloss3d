@@ -131,7 +131,7 @@ void g3dplane_build ( G3DPRIMITIVE *pri, int orientation,
                                          ver[(i*nbverv)+j+0x01],
                                          ver[(i*nbverv)+j+0x00] );
 
-            g3dmesh_addFace ( mes, fac );
+            g3dmesh_addFace ( mes, fac, NULL );
         }
     }
 

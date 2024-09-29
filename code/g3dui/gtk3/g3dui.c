@@ -1581,9 +1581,10 @@ uint64_t gtk3_setMouseTool ( GTK3G3DUI *gtk3gui,
     G3DUI * gui = ( G3DUI * ) gtk3gui;
     G3DUIMOUSETOOL *mou = g3dui_getMouseTool ( gui, toolName );
     /*G3DCAMERA *cam = gui->currentView->cam;*/
+    uint64_t ret = 0;
 
     if ( mou ) {
-        g3dui_setMouseTool ( gui, mou );
+        ret = g3dui_setMouseTool ( gui, mou );
 
         if ( ( mou->tool->flags & MOUSETOOLNOCURRENT ) == 0x00 ) {
             /*** Remember that widget ID, for example to be unset when a toggle button 
@@ -1610,7 +1611,7 @@ uint64_t gtk3_setMouseTool ( GTK3G3DUI *gtk3gui,
         fprintf ( stderr, "No such mousetool %s\n", toolName );
     }
 
-    return UPDATECURRENTMOUSETOOL;
+    return UPDATECURRENTMOUSETOOL | ret;
 }
 
 /******************************************************************************/
@@ -1985,10 +1986,8 @@ static void gtk3_redrawGLViews ( GTK3G3DUI *gtk3gui ) {
 
     while ( ltmpview ) {
         GTK3G3DUIVIEW *gtk3view = ( GTK3G3DUIVIEW * ) ltmpview->data;
-        GdkWindow *window = gtk_widget_get_window ( GTK_WIDGET(gtk3view->glarea) );
 
-        gdk_window_invalidate_rect ( window, NULL, FALSE );
-
+        gtk_gl_area_queue_render ( gtk3view->glarea );
 
         ltmpview = ltmpview->next;
     }

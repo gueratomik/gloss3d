@@ -69,18 +69,6 @@ typedef struct _URMCONVERTPRIMITIVE {
 } URMCONVERTPRIMITIVE;
 
 /******************************************************************************/
-typedef struct _URMCUTMESH {
-    G3DSCENE *sce;
-    G3DMESH *mes;
-    LIST *loldfac;
-    LIST *loldedg;
-    LIST *lnewver;
-    LIST *lnewfac;
-    LIST *lnewedg;
-} URMCUTMESH;
-
-
-/******************************************************************************/
 typedef struct _URMFILLHEIGTHMAP {
     G3DSCENE *sce;
     G3DSUBDIVIDER *sdr;
@@ -390,11 +378,15 @@ void g3durm_mesh_triangulate ( G3DURMANAGER *urm,
                                uint32_t      return_flags );
 
 /******************************************************************************/
-void g3durm_mesh_createFace ( G3DURMANAGER *urm,
-                              G3DSCENE     *sce, 
-                              G3DMESH      *mes, 
-                              G3DFACE      *fac, 
-                              uint32_t      return_flags );
+G3DFACE * g3durm_mesh_createFace ( G3DURMANAGER *urm,
+                                   G3DSCENE     *sce, 
+                                   G3DMESH      *mes, 
+                                   G3DVERTEX    *v0,
+                                   G3DVERTEX    *v1,
+                                   G3DVERTEX    *v2,
+                                   G3DVERTEX    *v3,
+                                   uint64_t      engine_flags,
+                                   uint32_t      return_flags );
 
 /******************************************************************************/
 void g3durm_uvmap_pickUVSets ( G3DURMANAGER *urm, 

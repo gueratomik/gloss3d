@@ -495,6 +495,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define G3DMODIFIERCAST(a)  (((G3DMODIFIER*)a))
 #define G3DPRIMITIVECAST(a) (((G3DPRIMITIVE*)a))
 
+#define G3DVERTEXCAST(a) (((G3DVERTEX*)a))
+#define G3DEDGECAST(a)   (((G3DEDGE*)a))
+#define G3DFACECAST(a)   (((G3DFACE*)a))
 
 #define G3DMESHVTABLECAST(a)      (((G3DMESHVTABLE*)a))
 #define G3DMODIFIERVTABLECAST(a)  (((G3DMODIFIERVTABLE*)a))
@@ -2476,8 +2479,13 @@ uint32_t g3dmesh_getWeightgroupCount ( G3DMESH        *mes,
 G3DUVMAP  *g3dmesh_getSelectedUVMap     ( G3DMESH *mes );
 void       g3dmesh_selectUVMap          ( G3DMESH *mes, G3DUVMAP *map );
 void       g3dmesh_unselectAllUVMaps    ( G3DMESH *mes );
-void       g3dmesh_addFace              ( G3DMESH *, G3DFACE * );
-void g3dmesh_attachFaceEdges ( G3DMESH *mes, G3DFACE *fac );
+
+void       g3dmesh_addFace ( G3DMESH *mes, 
+                             G3DFACE *fac,
+                             LIST   **newEdgeList );
+void       g3dmesh_attachFaceEdges ( G3DMESH *mes,
+                                     G3DFACE *fac,
+                                     LIST   **newEdgeList );
 void       g3dmesh_addFaceWithEdges     ( G3DMESH   *mes, 
                                           G3DFACE   *fac,
                                           G3DEDGE   *edg0,
@@ -2497,8 +2505,6 @@ void       g3dmesh_addFaceFromSplitEdge ( G3DMESH *, G3DSPLITEDGE * );
 void       g3dmesh_addMaterial          ( G3DMESH *, G3DMATERIAL  *,
                                                      G3DUVMAP     * );
 void       g3dmesh_addVertex            ( G3DMESH *, G3DVERTEX * );
-void       g3dmesh_addSelectedFace      ( G3DMESH *, G3DFACE * );
-void       g3dmesh_addSelectedVertex    ( G3DMESH *, G3DVERTEX * );
 void       g3dmesh_addTexture           ( G3DMESH *, G3DTEXTURE * );
 void       g3dmesh_appendTexture        ( G3DMESH    *mes,
                                           G3DTEXTURE *tex );
@@ -2519,7 +2525,6 @@ void       g3dmesh_drawSelectedUVMap ( G3DMESH   *mes,
                                        G3DCAMERA *curcam,
                                        G3DENGINE *engine,
                                        uint64_t   engineFlags );
-void       g3dmesh_attachFaceEdges      ( G3DMESH *, G3DFACE * );
 void g3dmesh_attachFaceVertices ( G3DMESH *mes,
                                   G3DFACE *fac );
 void g3dmesh_fixBones ( G3DMESH *mes, 
@@ -2531,11 +2536,17 @@ void g3dmesh_drawModified ( G3DMESH   *mes,
                             uint64_t   engineFlags );
 void g3dmesh_cut ( G3DMESH *mes, 
                    G3DFACE *knife,
-                   LIST   **loldfac,
-                   LIST   **lnewver,
-                   LIST   **lnewfac,
+                   LIST   **oldEdgeList,
+                   LIST   **oldFaceList,
+                   LIST   **newVertexList,
+                   LIST   **newEdgeList,
+                   LIST   **newFaceList,
                    uint32_t restricted,
                    uint64_t engineFlags );
+void g3dmesh_addEdge ( G3DMESH *mes,
+                       G3DEDGE *edg );
+void g3dmesh_removeEdge ( G3DMESH *mes,
+                          G3DEDGE *edg );
 void g3dmesh_setGeometryInArrays ( G3DMESH *mes, G3DVERTEX *ver,
                                                  uint32_t   nbver,
                                                  G3DEDGE   *edg,
@@ -2608,7 +2619,7 @@ void       g3dmesh_vertexNormal         ( G3DMESH * );
 void       g3dmesh_getCenterFromVertexList ( LIST *, G3DVECTOR3F * );
 G3DVERTEX *g3dmesh_getLastSelectedVertex ( G3DMESH * );
 void       g3dmesh_updateFacesFromVertexList ( G3DMESH *, LIST * );
-void       g3dmesh_removeFace ( G3DMESH *, G3DFACE * );
+void       g3dmesh_removeFace ( G3DMESH *, G3DFACE *, LIST ** );
 void       g3dmesh_untriangulate ( G3DMESH *, LIST **, LIST ** );
 void       g3dmesh_invertNormal ( G3DMESH * );
 void       g3dmesh_unselectFace ( G3DMESH *, G3DFACE * );
@@ -2623,16 +2634,22 @@ void       g3dmesh_getSelectedVerticesWorldPosition ( G3DMESH *, G3DVECTOR3F * )
 void       g3dmesh_getSelectedVerticesLocalPosition ( G3DMESH *, G3DVECTOR3F * );
 void       g3dmesh_getSelectedFacesWorldPosition    ( G3DMESH *, G3DVECTOR3F * );
 void       g3dmesh_getSelectedFacesLocalPosition    ( G3DMESH *, G3DVECTOR3F * );
-G3DVERTEX *g3dmesh_weldSelectedVertices ( G3DMESH *, uint32_t, LIST **,
-                                                               LIST ** );
+G3DVERTEX *g3dmesh_weldSelectedVertices ( G3DMESH *mes,
+                                          LIST   **removedVertexList,
+                                          LIST   **removedEdgeList,
+                                          LIST   **removedFaceList,
+                                          LIST   **addedEdgeList,
+                                          LIST   **addedFaceList );
 void g3dmesh_removeTexture ( G3DMESH    *mes,
                              G3DTEXTURE *tex );
 void g3dmesh_weldNeighbourVertices ( G3DMESH *mes,
-                                      float   distance,
-                                      LIST **lnewver,
-                                      LIST **loldver,
-                                      LIST **lnewfac,
-                                      LIST **loldfac );
+                                     float   distance,
+                                     LIST  **removedVertexList,
+                                     LIST  **removedEdgeList,
+                                     LIST  **removedFaceList,
+                                     LIST  **addedVertexList,
+                                     LIST  **addedEdgeList,
+                                     LIST  **addedFaceList );
 void       g3dmesh_removeFacesFromVertex ( G3DMESH *, G3DVERTEX * );
 void       g3dmesh_removeFacesFromSelectedVertices ( G3DMESH * );
 void       g3dmesh_getSelectedEdgesLocalPosition ( G3DMESH *, G3DVECTOR3F * );

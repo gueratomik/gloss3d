@@ -604,15 +604,14 @@ static int rotate_mesh ( G3DMESH          *mes,
  
             lfac = g3dvertex_getFacesFromList  ( lver );
             ledg = g3dface_getEdgesFromList    ( lfac );
-
+/*
             if ( mes->onGeometryMove ) {
                 mes->onGeometryMove ( mes, lver, 
                                            ledg, 
                                            lfac, 
-                                           G3DMODIFYOP_STARTUPDATE,
-                                           engine_flags );
+                                           G3DMODIFYOP_STARTUPDATE );
             }
-
+*/
             /*g3dmesh_modify ( mes,
                              G3DMODIFYOP_STARTUPDATE,
                              engine_flags );*/
@@ -678,7 +677,7 @@ static int rotate_mesh ( G3DMESH          *mes,
                     /*g3dmesh_modify ( mes,
                                      G3DMODIFYOP_UPDATE,
                                      engine_flags );*/
-
+/*
                     if ( mes->onGeometryMove ) {
                         mes->onGeometryMove ( mes, lver, 
                                                    ledg, 
@@ -686,7 +685,7 @@ static int rotate_mesh ( G3DMESH          *mes,
                                                    G3DMODIFYOP_UPDATE,
                                                    engine_flags );
                     }
-
+*/
                     orix = newx;
                 }
             }
@@ -725,7 +724,7 @@ static int rotate_mesh ( G3DMESH          *mes,
                                          REDRAWVIEW );
 
             g3dmesh_updateBbox ( mes );
-
+/*
             if ( mes->onGeometryMove ) {
                 mes->onGeometryMove ( mes, lver, 
                                            ledg, 
@@ -733,7 +732,7 @@ static int rotate_mesh ( G3DMESH          *mes,
                                            G3DMODIFYOP_ENDUPDATE,
                                            engine_flags );
             }
-
+*/
             /*g3dmesh_modify ( mes,
                              G3DMODIFYOP_ENDUPDATE,
                              engine_flags );*/
