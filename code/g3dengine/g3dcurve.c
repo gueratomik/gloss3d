@@ -452,19 +452,18 @@ void g3dcurvesegment_pick ( G3DCURVESEGMENT *seg,
 }
 
 /******************************************************************************/
-#ifdef need_refactor
 void g3dcurvesegment_draw ( G3DCURVESEGMENT *seg,
                             float             from, /* range 0 - 1 */
                             float             to,   /* range 0 - 1 */
                             float             nbSteps,
                             GLUtesselator    *tobj,
                             double          (*coords)[0x03],
-                            uint32_t          spline_flags,
-                                          uint64_t engine_flags ) {
+                            uint32_t          splineFlags,
+                            uint64_t          engineFlags ) {
     float factor = ( to - from ) / nbSteps;
     uint32_t i;
 
-    if ( spline_flags & DRAW_FOR_TESSELLATION ) {
+    if ( splineFlags & DRAW_FOR_TESSELLATION ) {
         /*** We skip the first and last points. They are drawn already 
              by points lying on the curve ***/
         for( i = 0x01; i < nbSteps - 1; i++ ) {
@@ -481,7 +480,7 @@ void g3dcurvesegment_draw ( G3DCURVESEGMENT *seg,
         }
     } else {
         G3DVECTOR3F pone, ptwo;
-
+#ifdef need_refactor
         memcpy ( &pone, &seg->pt[P0IDX]->pos, sizeof ( G3DVECTOR3F ) );
 
         for( i = 0x01; i <= nbSteps; i++ ) {
@@ -494,9 +493,10 @@ void g3dcurvesegment_draw ( G3DCURVESEGMENT *seg,
 
             memcpy ( &pone, &ptwo, sizeof ( G3DVECTOR3F ) );
         }
+#endif
     }
 }
-#endif
+
 
 /******************************************************************************/
 G3DCUBICSEGMENT *g3dcubicsegment_new ( G3DCURVEPOINT *pt0,

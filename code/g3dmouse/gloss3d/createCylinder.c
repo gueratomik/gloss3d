@@ -65,49 +65,66 @@ G3DMOUSETOOLCREATECYLINDER *g3dmousetoolcreatecylinder_new ( ) {
 /******************************************************************************/
 static int createCylinder_tool ( G3DMOUSETOOL *mou, 
                                  G3DSCENE     *sce, 
-                                 G3DCAMERA    *cam,
+                                 G3DCAMERA    *curcam,
                                  G3DURMANAGER *urm, 
                                  uint64_t engine_flags, 
                                  G3DEvent     *event ) {
-    static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static double objx, objy, objz,
                   winx, winy, winz;
     static G3DPRIMITIVE *pri, *cyl;
+    static float MVX[0x10];
 
     switch ( event->type ) {
         case G3DButtonPress : {
             /*** if step2 and step1 are over ***/
             if ( ( cyl == NULL ) && ( pri == NULL ) ) {
                 G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-                G3DOBJECT *obj;
-                /*** we dont need to get the mvx as we use the world matrix ***/
-                /*** from the scene object ***/
-                glGetDoublev  ( GL_MODELVIEW_MATRIX, MVX  );
-                glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
+
+                /* can be replaced with cam->vmatrix */
                 glGetIntegerv ( GL_VIEWPORT, VPX );
 
-                gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
-                gluUnProject ( ( GLdouble ) bev->x,
-                               ( GLdouble ) VPX[0x03] - bev->y,
-                               ( GLdouble ) winz,
-                               MVX, PJX, VPX,
-                               &objx, &objy, &objz );
+                g3dcore_projectf ( 0.0f,
+                                   0.0f,
+                                   0.0f,
+                                   curcam->obj.inverseWorldMatrix,
+                                   curcam->pmatrix,
+                                   VPX,
+                                  &winx,
+                                  &winy,
+                                  &winz );
+
+                g3dcore_unprojectf ( ( GLdouble ) bev->x,
+                                     ( GLdouble ) VPX[0x03] - bev->y,
+                                     ( GLdouble ) winz,
+                                                  curcam->obj.inverseWorldMatrix,
+                                                  curcam->pmatrix,
+                                                  VPX,
+                                                 &objx,
+                                                 &objy,
+                                                 &objz );
 
                 pri = g3dcylinder_new ( g3dscene_getNextObjectID ( sce ), "Cylinder" );
 
                 g3dcylinder_build ( pri, 0x18, 0x01, 0x01, 0.0f, 0.0f );
 
+                G3DOBJECTCAST(pri)->pos.x = objx;
+                G3DOBJECTCAST(pri)->pos.y = objy;
+                G3DOBJECTCAST(pri)->pos.z = objz;
 
-                obj = ( G3DOBJECT * ) pri;
-                obj->pos.x = objx;
-                obj->pos.y = objy;
-                obj->pos.z = objz;
+                g3durm_object_addChild ( urm, 
+                                         sce,
+                                         engine_flags,
+                                         REDRAWVIEW | REDRAWOBJECTLIST,
+                                         NULL,
+                                         G3DOBJECTCAST(sce),
+                                         G3DOBJECTCAST(pri) );
 
-                g3dobject_updateMatrix_r ( obj, 0x00 );
+                g3dobject_updateMatrix_r ( G3DOBJECTCAST(pri), 0x00 );
 
-                g3durm_object_addChild ( urm, sce, engine_flags, REDRAWVIEW | REDRAWOBJECTLIST,
-                                         NULL, ( G3DOBJECT * ) sce, obj );
+                g3dcore_multMatrixf( curcam->obj.inverseWorldMatrix,
+                                     G3DOBJECTCAST(pri)->worldMatrix,
+                                     MVX );
             }
         } return UPDATEANDREDRAWALL;
 
@@ -116,26 +133,41 @@ static int createCylinder_tool ( G3DMOUSETOOL *mou,
 
             /*** step1, the radius ***/
             if ( pri ) {
-                G3DOBJECT *obj = ( G3DOBJECT * ) pri;
                 CYLINDERDATASTRUCT *data = ( CYLINDERDATASTRUCT * ) pri->data;
                 float length, radius;
 
-                gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
-                gluUnProject ( ( GLdouble ) mev->x,
-                               ( GLdouble ) VPX[0x03] - mev->y,
-                               ( GLdouble ) winz,
-                               MVX, PJX, VPX,
-                               &objx, &objy, &objz );
+                g3dcore_projectf ( 0.0f,
+                                   0.0f,
+                                   0.0f,
+                                   MVX,
+                                   curcam->pmatrix,
+                                   VPX,
+                                  &winx,
+                                  &winy,
+                                  &winz );
 
-                radius = sqrt ( ( objx - obj->pos.x ) * ( objx - obj->pos.x ) +
-                                ( objy - obj->pos.y ) * ( objy - obj->pos.y ) +
-                                ( objz - obj->pos.z ) * ( objz - obj->pos.z ) );
+                g3dcore_unprojectf ( ( GLdouble ) mev->x,
+                                     ( GLdouble ) VPX[0x03] - mev->y,
+                                     ( GLdouble ) winz,
+                                                  MVX,
+                                                  curcam->pmatrix,
+                                                  VPX,
+                                                 &objx,
+                                                 &objy,
+                                                 &objz );
+
+                radius = sqrt ( ( objx ) * ( objx ) +
+                                ( objy ) * ( objy ) +
+                                ( objz ) * ( objz ) );
 
                 length = radius;
 
-                g3dcylinder_build ( pri, data->slice,
-                                         data->capx, data->capy,
-                                         radius, length );
+                g3dcylinder_build ( pri,
+                                    data->slice,
+                                    data->capx,
+                                    data->capy,
+                                    radius,
+                                    length );
 
                 return REDRAWVIEW | UPDATECURRENTOBJECT;
             }
@@ -146,20 +178,38 @@ static int createCylinder_tool ( G3DMOUSETOOL *mou,
                 CYLINDERDATASTRUCT *data = ( CYLINDERDATASTRUCT * ) cyl->data;
                 float length;
 
-                gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
-                gluUnProject ( ( GLdouble ) mev->x,
-                               ( GLdouble ) VPX[0x03] - mev->y,
-                               ( GLdouble ) winz,
-                               MVX, PJX, VPX,
-                               &objx, &objy, &objz );
+                g3dcore_projectf ( 0.0f,
+                                   0.0f,
+                                   0.0f,
+                                   MVX,
+                                   curcam->pmatrix,
+                                   VPX,
+                                  &winx,
+                                  &winy,
+                                  &winz );
 
-                length = sqrt ( ( objx - obj->pos.x ) * ( objx - obj->pos.x ) +
-                                ( objy - obj->pos.y ) * ( objy - obj->pos.y ) +
-                                ( objz - obj->pos.z ) * ( objz - obj->pos.z ) );
+                g3dcore_unprojectf ( ( GLdouble ) mev->x,
+                                     ( GLdouble ) VPX[0x03] - mev->y,
+                                     ( GLdouble ) winz,
+                                                  MVX,
+                                                  curcam->pmatrix,
+                                                  VPX,
+                                                 &objx,
+                                                 &objy,
+                                                 &objz );
+/*
+                length = sqrt ( ( objx ) * ( objx ) +
+                                ( objy ) * ( objy ) +
+                                ( objz ) * ( objz ) );
+*/
+                length = objz;
 
-                g3dcylinder_build ( cyl, data->slice,
-                                         data->capx, data->capy,
-                                         data->radius, length );
+                g3dcylinder_build ( cyl,
+                                    data->slice,
+                                    data->capx,
+                                    data->capy,
+                                    data->radius,
+                                    length );
 
                 return REDRAWVIEW | UPDATECURRENTOBJECT;
             }

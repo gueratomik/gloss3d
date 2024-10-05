@@ -239,9 +239,12 @@ void g3dmesh_drawQuadList ( G3DMESH *mes,
     /*g3dcore_identityMatrixf( cam->pmatrix );*/
     /*g3dcore_identityMatrixf( cam->obj.inverseWorldMatrix );*/
 
+    g3dengine_getModelMatrixf ( engine, mvw );
+/*
     g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
                          mes->obj.worldMatrix,
                          mvw );
+*/
 
     /*** the matrix by which vertices coords are transformed ***/
     g3dcore_multMatrixf( cam->pmatrix, mvw, mvp );
@@ -340,9 +343,13 @@ void g3dmesh_drawTriangleList ( G3DMESH   *mes,
     /*g3dcore_identityMatrixf( cam->pmatrix );*/
     /*g3dcore_identityMatrixf( cam->obj.inverseWorldMatrix );*/
 
+    g3dengine_getModelMatrixf ( engine, mvw );
+/*
     g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
                          mes->obj.worldMatrix,
                          mvw );
+*/
+    
 
     /*** the matrix by which vertices coords are transformed ***/
     g3dcore_multMatrixf( cam->pmatrix, mvw, mvp );
@@ -2827,9 +2834,12 @@ void g3dmesh_drawFaceNormal ( G3DMESH   *mes,
     /*g3dcore_identityMatrixf( cam->pmatrix );*/
     /*g3dcore_identityMatrixf( cam->obj.inverseWorldMatrix );*/
 
+    g3dengine_getModelMatrixf ( engine, mod );
+/*
     g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
                          mes->obj.worldMatrix,
                          mod );
+*/
 
     /*** the matrix by which vertices coords are transformed ***/
     g3dcore_multMatrixf( cam->pmatrix, mod, mvp );
@@ -2949,10 +2959,12 @@ void g3dmesh_drawVertexNormal ( G3DMESH *mes,
     float nor[0x10];
     float mod[0x10];
 
+    g3dengine_getModelMatrixf ( engine, mod );
+/*
     g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
                          mes->obj.worldMatrix,
                          mod );
-
+*/
     /*** the matrix by which vertices coords are transformed ***/
     g3dcore_multMatrixf( cam->pmatrix, mod, mvp );
 
@@ -3371,10 +3383,12 @@ void g3dmesh_drawVertices  ( G3DMESH   *mes,
     glPointSize ( 4.0f );
     /*glDepthFunc( GL_EQUAL );*/
 
+    g3dengine_getModelMatrixf ( engine, mod );
+/*
     g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
                          mes->obj.worldMatrix,
                          mod );
-
+*/
     /*** the matrix by which vertices coords are transformed ***/
     g3dcore_multMatrixf( cam->pmatrix, mod, mvp );
 
@@ -3478,10 +3492,12 @@ void g3dmesh_drawEdges ( G3DMESH   *mes,
     /*g3dcore_identityMatrixf( cam->pmatrix );*/
     /*g3dcore_identityMatrixf( cam->obj.inverseWorldMatrix );*/
 
+    g3dengine_getModelMatrixf ( engine, mod );
+/*
     g3dcore_multMatrixf( cam->obj.inverseWorldMatrix,
                          mes->obj.worldMatrix,
                          mod );
-
+*/
     /*** the matrix by which vertices coords are transformed ***/
     g3dcore_multMatrixf( cam->pmatrix, mod, mvp );
 
@@ -4750,9 +4766,11 @@ void g3dmesh_default_update ( G3DMESH *mes,
     if ( ( objmes->invalidationFlags & INVALIDATE_TOPOLOGY ) ||
          ( objmes->invalidationFlags & INVALIDATE_SHAPE    ) ) {
 
-        LIST *ltmpfac = ( mes->invalidatedFaceCount < MAX_INVALIDATED_FACES ) ?
+        LIST *ltmpfac = ( mes->invalidatedFaceCount ) && 
+                        ( mes->invalidatedFaceCount < MAX_INVALIDATED_FACES ) ?
                           mes->invalidatedFaceList
                         : mes->faceList;
+
         /*** Always update face first. Vertices normals are computed from it***/
         while ( ltmpfac ) {
             G3DFACE *fac = ( G3DFACE * ) ltmpfac->data;
@@ -4767,7 +4785,8 @@ void g3dmesh_default_update ( G3DMESH *mes,
     if ( ( objmes->invalidationFlags & INVALIDATE_TOPOLOGY ) ||
          ( objmes->invalidationFlags & INVALIDATE_SHAPE    ) ) {
 
-        LIST *ltmpver = ( mes->invalidatedVertexCount < MAX_INVALIDATED_VERTICES ) ?
+        LIST *ltmpver = ( mes->invalidatedVertexCount ) &&
+                        ( mes->invalidatedVertexCount < MAX_INVALIDATED_VERTICES ) ?
                           mes->invalidatedVertexList
                         : mes->vertexList;
 
@@ -4795,7 +4814,8 @@ void g3dmesh_default_update ( G3DMESH *mes,
             G3DUVMAP *map = ( G3DUVMAP * ) ltmpmap->data;
             G3DOBJECT *objmap = ( G3DOBJECT * ) map;
 
-            LIST *ltmpfac = ( mes->invalidatedFaceCount < MAX_INVALIDATED_FACES ) ?
+            LIST *ltmpfac = ( mes->invalidatedFaceCount ) &&
+                            ( mes->invalidatedFaceCount < MAX_INVALIDATED_FACES ) ?
                               mes->invalidatedFaceList
                             : mes->faceList;
 
@@ -4854,7 +4874,7 @@ void g3dmesh_init ( G3DMESH       *mes,
     /*G3DMESHPOSEEXTENSION *ext = g3dmeshposeextension_new ( );*/
 
     g3dobject_init ( obj,
-                     G3DMESHTYPE,
+                     type,
                      id,
                      name,
                      objectFlags,

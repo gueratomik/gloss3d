@@ -66,68 +66,97 @@ G3DMOUSETOOLCREATEPLANE *g3dmousetoolcreateplane_new ( ) {
 /******************************************************************************/
 static int createPlane ( G3DMOUSETOOL *mou, 
                          G3DSCENE     *sce, 
-                         G3DCAMERA    *cam,
+                         G3DCAMERA    *curcam,
                          G3DURMANAGER *urm, 
                          uint64_t      engine_flags, 
                          G3DEvent     *event ) {
-    static GLdouble MVX[0x10], PJX[0x10];
     static GLint VPX[0x04];
     static double objx, objy, objz,
                   winx, winy, winz;
     static G3DPRIMITIVE *pri;
+    static float MVX[0x10];
 
     switch ( event->type ) {
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-            G3DOBJECT *obj;
             uint32_t pid = g3dscene_getNextObjectID ( sce );
 
-            /** we dont need to get the mvx as we use the world matrix from the scene object ***/
-            glGetDoublev  ( GL_MODELVIEW_MATRIX, MVX  );
-            glGetDoublev  ( GL_PROJECTION_MATRIX, PJX );
+            /* can be replaced with cam->vmatrix */
             glGetIntegerv ( GL_VIEWPORT, VPX );
 
-            gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
-            gluUnProject ( ( GLdouble ) bev->x,
-                           ( GLdouble ) VPX[0x03] - bev->y,
-                           ( GLdouble ) winz,
-                           MVX, PJX, VPX,
-                           &objx, &objy, &objz );
+            g3dcore_projectf ( 0.0f,
+                               0.0f,
+                               0.0f,
+                               curcam->obj.inverseWorldMatrix,
+                               curcam->pmatrix,
+                               VPX,
+                              &winx,
+                              &winy,
+                              &winz );
+
+            g3dcore_unprojectf ( ( GLdouble ) bev->x,
+                                 ( GLdouble ) VPX[0x03] - bev->y,
+                                 ( GLdouble ) winz,
+                                              curcam->obj.inverseWorldMatrix,
+                                              curcam->pmatrix,
+                                              VPX,
+                                             &objx,
+                                             &objy,
+                                             &objz );
 
             pri = g3dplane_new ( pid, "Plane" );
 
             g3dplane_build ( pri, PLANEZX, 0x01, 0x01, 0.0f, 0.0f );
 
+            G3DOBJECTCAST(pri)->pos.x = objx;
+            G3DOBJECTCAST(pri)->pos.y = objy;
+            G3DOBJECTCAST(pri)->pos.z = objz;
 
-            obj = ( G3DOBJECT * ) pri;
-            obj->pos.x = objx;
-            obj->pos.y = objy;
-            obj->pos.z = objz;
+            g3durm_object_addChild ( urm, 
+                                     sce,
+                                     engine_flags,
+                                     REDRAWVIEW | REDRAWOBJECTLIST,
+                                     NULL,
+                                     G3DOBJECTCAST(sce),
+                                     G3DOBJECTCAST(pri) );
 
-            g3dobject_updateMatrix_r ( obj, 0x00 );
+            g3dobject_updateMatrix_r ( G3DOBJECTCAST(pri), 0x00 );
 
-            g3durm_object_addChild ( urm, sce, engine_flags, REDRAWVIEW | REDRAWOBJECTLIST,
-                                     NULL, ( G3DOBJECT * ) sce, obj );
+            g3dcore_multMatrixf( curcam->obj.inverseWorldMatrix,
+                                 G3DOBJECTCAST(pri)->worldMatrix,
+                                 MVX );
         } return UPDATEANDREDRAWALL;
 
         case G3DMotionNotify : {
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
 
             if ( pri ) {
-                G3DOBJECT *obj = ( G3DOBJECT * ) pri;
                 PLANEDATASTRUCT *data = ( PLANEDATASTRUCT * ) pri->data;
                 float radius;
 
-                gluProject ( 0.0f, 0.0f, 0.0f, MVX, PJX, VPX, &winx, &winy, &winz );
-                gluUnProject ( ( GLdouble ) mev->x,
-                               ( GLdouble ) VPX[0x03] - mev->y,
-                               ( GLdouble ) winz,
-                               MVX, PJX, VPX,
-                               &objx, &objy, &objz );
+                g3dcore_projectf ( 0.0f,
+                                   0.0f,
+                                   0.0f,
+                                   MVX,
+                                   curcam->pmatrix,
+                                   VPX,
+                                  &winx,
+                                  &winy,
+                                  &winz );
 
-                radius = sqrt ( ( objx - obj->pos.x ) * ( objx - obj->pos.x ) +
-                                ( objy - obj->pos.y ) * ( objy - obj->pos.y ) +
-                                ( objz - obj->pos.z ) * ( objz - obj->pos.z ) );
+                g3dcore_unprojectf ( ( GLdouble ) mev->x,
+                                     ( GLdouble ) VPX[0x03] - mev->y,
+                                     ( GLdouble ) winz,
+                                                  MVX,
+                                                  curcam->pmatrix,
+                                                  VPX,
+                                                 &objx,
+                                                 &objy,
+                                                 &objz );
+
+                radius = sqrt ( ( objx ) * ( objx ) +
+                                ( objy ) * ( objy ) +
+                                ( objz ) * ( objz ) );
 
                 g3dplane_build  ( pri, PLANEZX, 0x01, 0x01, radius, radius );
 

@@ -289,7 +289,7 @@ static void g3dparticleemitter_copySettings ( G3DPARTICLEEMITTER *dstpem,
 G3DPARTICLEEMITTER *g3dparticleemitter_default_copy ( G3DPARTICLEEMITTER *pem, 
                                                       uint32_t            id, 
                                                       const char         *name,
-                                                      uint64_t            engine_flags ) {
+                                                      uint64_t            engineFlags ) {
     uint32_t cpyID = ((G3DOBJECT*)pem)->id; /*** Does not need to be unique ***/
     char *cpyname = ((G3DOBJECT*)pem)->name;
 
@@ -308,25 +308,17 @@ G3DPARTICLEEMITTER *g3dparticleemitter_default_copy ( G3DPARTICLEEMITTER *pem,
 uint32_t g3dparticleemitter_default_draw ( G3DPARTICLEEMITTER *pem, 
                                            G3DCAMERA          *curcam, 
                                            G3DENGINE          *engine, 
-                                           uint64_t            engine_flags ) {
-#ifdef need_refactor
+                                           uint64_t            engineFlags ) {
     if ( pem->maxParticles ) {
         uint32_t i, j;
 
-        glPushMatrix ( );
+        g3dengine_pushModelMatrix ( engine );
 
         /** cancel world transformation, particles are in world corrdinates **/
+        g3dengine_multModelMatrixf ( pem->obj.iwmatrix );
 
-        glMultMatrixd ( pem->obj.iwmatrix );
-
-        if ( ( pem->obj.flags & DISPLAYPARTICLES ) == 0x00 ) {
-            glPushAttrib( GL_ALL_ATTRIB_BITS );
-            glDisable   ( GL_LIGHTING );
-            glColor3ub  ( 0xFF, 0xFF, 0xFF );
-            glPointSize ( 3.0f );
-
-            glBegin ( GL_POINTS );
-        }
+        glPushAttrib( GL_ALL_ATTRIB_BITS );
+        glPointSize ( 3.0f );
 
         for ( i = 0x00; i < pem->particleLifetime; i++ ) {
             G3DPARTICLE *prt = pem->particles + ( pem->maxParticlesPerFrame * i );
@@ -335,44 +327,53 @@ uint32_t g3dparticleemitter_default_draw ( G3DPARTICLEEMITTER *pem,
                 if ( prt[j].flags & PARTICLE_ISALIVE ) {
                     if ( prt[j].ref ) {
                         if ( pem->obj.flags & DISPLAYPARTICLES ) {
-                            glPushMatrix ( );
+                            g3dengine_pushModelMatrix ( engine );
 
-                            glTranslatef ( prt[j].pos.x, 
-                                           prt[j].pos.y, 
-                                           prt[j].pos.z );
+                            g3dengine_translateModelMatrixf ( engine,
+                                                              prt[j].pos.x, 
+                                                              prt[j].pos.y, 
+                                                              prt[j].pos.z );
 
+                            g3dengine_scaleModelMatrixf ( engine,
+                                                          prt[j].sca.x, 
+                                                          prt[j].sca.y, 
+                                                          prt[j].sca.z );
 
-                                if ( prt[j].ref->draw ) {
-                                    glScalef ( prt[j].sca.x, 
-                                               prt[j].sca.y, 
-                                               prt[j].sca.z );
-
-                                    prt[j].ref->draw ( prt[j].ref, 
-                                                       curcam, 
-                                                       engine_flags & (~MODEMASK) );
-                                }
-
-
-                            glPopMatrix();
-                        } else {
-                            glVertex3f ( prt[j].pos.x, 
-                                         prt[j].pos.y, 
-                                         prt[j].pos.z );
+                            if ( prt[j].ref->vtable->draw ) {
+                                prt[j].ref->vtable->draw ( prt[j].ref, 
+                                                           curcam, 
+                                                           engine,
+                                                           engineFlags & (~MODEMASK) );
+                            }
                         }
+/*
+ else {
+                            SHADERVERTEX vertex = { .pos = { prt[j].pos.x,
+                                                             prt[j].pos.y,
+                                                             prt[j].pos.z },
+                                                    .col = { 1.0f,
+                                                             1.0f,
+                                                             1.0f,
+                                                             1.0f } };
+
+                            g3dengine_drawPoint ( engine,
+                                                  vertex,
+                                                  0x00,
+                                                  engineFlags );
+
+                        }
+*/
                     }
                 }
             }
         }
 
-        if ( ( pem->obj.flags & DISPLAYPARTICLES ) == 0x00 ) {
-            glEnd ( );
 
-            glPopAttrib ( );
-        }
+        glPopAttrib ( );
 
-        glPopMatrix();
+        g3dengine_popModelMatrix ( engine );
     }
-#endif
+
 
     return 0x00;
 }
@@ -387,7 +388,7 @@ void g3dparticleemitter_default_free ( G3DPARTICLEEMITTER *pem ) {
 /******************************************************************************/
 void g3dparticleemitter_default_anim ( G3DPARTICLEEMITTER *pem, 
                                        float               frame, 
-                                       uint64_t            engine_flags ) {
+                                       uint64_t            engineFlags ) {
 
     G3DKEY *prevKey = NULL,
            *nextKey = NULL,
@@ -445,7 +446,7 @@ void g3dparticleemitter_default_anim ( G3DPARTICLEEMITTER *pem,
                                                      &prt[j],
                                                       deltaFrame );
 
-                    if ( engine_flags & ONGOINGRENDERING ) {
+                    if ( engineFlags & ONGOINGRENDERING ) {
                         g3dcore_identityMatrixf( prt[j].MVX );
                         g3dcore_translateMatrixf( prt[j].MVX,
                                                   prt[j].pos.x, 

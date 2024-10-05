@@ -149,8 +149,8 @@ static int cutMesh_event ( G3DMOUSETOOL *mou,
                     /*** We need the selected object matrix in order to create ***/
                     /*** the cutting plan and find its coords, but do not ***/
                     /*** forget the current matrix is the camera transformations **/
-                    g3dcore_multMatrixf ( mes->obj.worldMatrix,
-                                          cam->obj.inverseWorldMatrix,
+                    g3dcore_multMatrixf ( cam->obj.inverseWorldMatrix,
+                                          mes->obj.worldMatrix,
                                           MVX );
 
                     glGetIntegerv ( GL_VIEWPORT, VPX );
@@ -197,7 +197,7 @@ static int cutMesh_event ( G3DMOUSETOOL *mou,
 
                     g3dcore_unprojectf ( ( double ) bev->x,
                                          ( double ) VPX[0x03] - bev->y, 
-                                                    0.000001f,
+                                                    0.0001f,
                                                     MVX,
                                                     cam->pmatrix,
                                                     VPX,
@@ -211,7 +211,7 @@ static int cutMesh_event ( G3DMOUSETOOL *mou,
 
                     g3dcore_unprojectf ( ( double ) bev->x,
                                          ( double ) VPX[0x03] - bev->y,
-                                                    0.999999f,
+                                                    0.9999f,
                                                     MVX,
                                                     cam->pmatrix,
                                                     VPX,

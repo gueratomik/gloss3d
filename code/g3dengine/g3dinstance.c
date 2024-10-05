@@ -83,31 +83,33 @@ uint32_t g3dinstance_default_draw ( G3DINSTANCE *ins,
                                     G3DENGINE   *engine,
                                     uint64_t     engine_flags ) {
 
+    glPushAttrib( GL_ALL_ATTRIB_BITS );
+
     if ( ins->ref ) {
         if ( g3dscene_isObjectReferred ( ins->sce, ins->ref ) ) {
             if ( ins->ref->vtable->draw ) {
-#ifdef need_refactor
-                glPushMatrix ( );
-
                 if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
-                    glMultMatrixd ( ins->smatrix );
+                    
+                    g3dengine_multModelMatrixf ( engine, ins->smatrix );
 
         glEnable ( GL_RESCALE_NORMAL );
                     glFrontFace(  GL_CW );
                 }
-    glColor3ub ( 0xFF, 0xFF, 0xFF );
-                ins->ref->draw ( ins->ref, curcam, ( engine_flags & (~VIEWDETAILS) ) | VIEWOBJECT );
+
+                ins->ref->vtable->draw ( ins->ref,
+                                         curcam,
+                                         engine,
+                                         ( engine_flags & (~VIEWDETAILS) ) | VIEWOBJECT );
 
                 if ( ((G3DOBJECT*)ins)->flags & INSTANCEMIRRORED ) {
         glDisable ( GL_RESCALE_NORMAL );
                     glFrontFace(  GL_CCW );
                 }
-
-                glPopMatrix ( );
-#endif
             }
         }
     }
+
+    glPopAttrib ( );
 
     return 0x00;
 }

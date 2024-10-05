@@ -346,7 +346,7 @@ void gtk3_g3duitextedit_update ( GTK3G3DUITEXTEDIT *gtk3ted ) {
 
             if ( g3dobjectlist_checkType ( sce->lsel, G3DTEXTTYPE ) ) {
                 gtk3ted->core.multi = ( nbsel > 0x01 ) ? 0x01 : 0x00;
-
+/*printf("%s\n", __func__);*/
                 gtk3ted->core.editedText = ( G3DTEXT * ) g3dscene_getLastSelected ( sce );
 
                 if ( gtk3ted->core.editedText ) {

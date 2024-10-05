@@ -55,10 +55,10 @@ extern "C" {
 /******************************************************************************/
 typedef struct _G3DCURVEPOINT {
     G3DVECTOR3F pos;
-    uint32_t  id;
-    uint32_t  flags;
-    LIST     *lseg;
-    uint32_t  nbseg;
+    uint32_t    id;
+    uint32_t    flags;
+    LIST       *lseg;
+    uint32_t    nbseg;
 } G3DCURVEPOINT, 
   G3DCUBICHANDLE,
   G3DQUADRATICHANDLE;
@@ -221,14 +221,14 @@ void g3dcurve_draw         ( G3DCURVE  *curve,
                              G3DCAMERA *curcam,
                              G3DENGINE *engine,
                              uint64_t   engine_flags  );
-void g3dcurvesegment_draw ( G3DCURVESEGMENT *seg,
+void g3dcurvesegment_draw  ( G3DCURVESEGMENT *seg,
                              float             from, /* range 0 - 1 */
                              float             to,   /* range 0 - 1 */
                              float             nbSteps,
                              GLUtesselator    *tobj,
                              double          (*coords)[0x03],
-                             uint32_t          spline_flags,
-                             uint64_t engine_flags );
+                             uint32_t          splineFlags,
+                             uint64_t          engineFlags );
 
 void g3dcurve_pickSegments ( G3DCURVE *curve, uint64_t engine_flags );
 void g3dcurve_pickPoints ( G3DCURVE *curve, uint64_t engine_flags );

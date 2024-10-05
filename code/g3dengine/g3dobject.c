@@ -1802,9 +1802,14 @@ uint32_t g3dobject_draw ( G3DOBJECT *obj,
                           uint64_t   engineFlags ) {
     uint32_t ret = 0x00;
 
-        if ( obj->vtable->draw ) {
-            ret = obj->vtable->draw ( obj, curcam, engine, engineFlags );
-        }
+    g3dengine_pushModelMatrix ( engine );
+    g3dengine_multModelMatrixf ( engine, obj->localMatrix );
+
+    if ( obj->vtable->draw ) {
+        ret = obj->vtable->draw ( obj, curcam, engine, engineFlags );
+    }
+
+    g3dengine_popModelMatrix ( engine );
 
 #ifdef need_refactor
     /*** default color for all objects ***/

@@ -584,6 +584,9 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
             }
         }
 
+        g3dengine_pushModelMatrix ( engine );
+        g3dengine_multModelMatrixf ( engine, cam->obj.inverseWorldMatrix );
+
         ret = g3dobject_draw_r ( ( G3DOBJECT * ) sce,
                                                  cam,
                                                  engine,
@@ -610,5 +613,7 @@ void g3duiview_showGL ( G3DUIVIEW    *view,
             /*** Re-enable real time subdivision ***/
             gui->engine_flags &= (~ONGOINGANIMATION);
         }
+
+        g3dengine_popModelMatrix ( engine );
     }
 }

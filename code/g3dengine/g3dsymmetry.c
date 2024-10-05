@@ -329,7 +329,7 @@ uint32_t g3dsymmetry_default_draw ( G3DSYMMETRY *sym,
                                     uint64_t     engine_flags ) {
     uint64_t next_engine_flags = engine_flags;
     LIST *ltmpobj = G3DOBJECTCAST(sym)->childList;
-#ifdef need_refactor
+
     /* Alternate symmety flags in case of nested symmetry objects */
     if ( engine_flags & SYMMETRYVIEW ) {
         next_engine_flags &= (~SYMMETRYVIEW);
@@ -337,24 +337,20 @@ uint32_t g3dsymmetry_default_draw ( G3DSYMMETRY *sym,
         next_engine_flags |=   SYMMETRYVIEW;
     }
 
-    if ( g3dobject_isActive ( obj ) ) {
-        glPushMatrix ( );
-
-        glMultMatrixd ( sym->smatrix );
+    if ( g3dobject_isActive ( G3DOBJECTCAST(sym) ) ) {
+        g3dengine_multModelMatrixf ( engine, sym->smatrix );
 
         next_engine_flags = next_engine_flags & (~VIEWDETAILS);
 
         while ( ltmpobj ) {
             G3DOBJECT *child = ( G3DOBJECT * ) ltmpobj->data;
 
-            g3dobject_draw_r ( child, curcam, next_engine_flags );
+            g3dobject_draw_r ( child, curcam, engine, next_engine_flags );
 
             ltmpobj = ltmpobj->next;
         }
-
-        glPopMatrix ( );
     }
-#endif
+
     return 0x00;
 }
 

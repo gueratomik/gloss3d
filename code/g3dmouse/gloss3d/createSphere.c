@@ -74,14 +74,14 @@ static int createSphere ( G3DMOUSETOOL *mou,
     static double objx, objy, objz,
                   winx, winy, winz;
     static G3DPRIMITIVE *pri;
+    static float MVX[0x10];
 
     switch ( event->type ) {
         case G3DButtonPress : {
             G3DButtonEvent *bev = ( G3DButtonEvent * ) event;
-            G3DOBJECT *obj;
             uint32_t pid = g3dscene_getNextObjectID ( sce );
 
-            /** we dont need to get the mvx as we use the world matrix from the scene object ***/
+            /* can be replaced with cam->vmatrix */
             glGetIntegerv ( GL_VIEWPORT, VPX );
 
             g3dcore_projectf ( 0.0f,
@@ -108,29 +108,36 @@ static int createSphere ( G3DMOUSETOOL *mou,
 
             g3dsphere_build ( pri, 0x20, 0x10, 0.0f );
 
-            obj = ( G3DOBJECT * ) pri;
-            obj->pos.x = objx;
-            obj->pos.y = objy;
-            obj->pos.z = objz;
+            G3DOBJECTCAST(pri)->pos.x = objx;
+            G3DOBJECTCAST(pri)->pos.y = objy;
+            G3DOBJECTCAST(pri)->pos.z = objz;
 
-            g3dobject_updateMatrix_r ( obj, 0x00 );
+            g3durm_object_addChild ( urm, 
+                                     sce,
+                                     engine_flags,
+                                     REDRAWVIEW | REDRAWOBJECTLIST,
+                                     NULL,
+                                     G3DOBJECTCAST(sce),
+                                     G3DOBJECTCAST(pri) );
 
-            g3durm_object_addChild ( urm, sce, engine_flags, REDRAWVIEW | REDRAWOBJECTLIST,
-                                     NULL, ( G3DOBJECT * ) sce, obj );
+            g3dobject_updateMatrix_r ( G3DOBJECTCAST(pri), 0x00 );
+
+            g3dcore_multMatrixf( curcam->obj.inverseWorldMatrix,
+                                 G3DOBJECTCAST(pri)->worldMatrix,
+                                 MVX );
         } return UPDATEANDREDRAWALL;
 
         case G3DMotionNotify : {
             G3DMotionEvent *mev = ( G3DMotionEvent * ) event;
 
             if ( pri ) {
-                G3DOBJECT *obj = ( G3DOBJECT * ) pri;
                 SPHEREDATASTRUCT *data = ( SPHEREDATASTRUCT * ) pri->data;
                 float radius;
 
                 g3dcore_projectf ( 0.0f,
                                    0.0f,
                                    0.0f,
-                                   curcam->obj.inverseWorldMatrix,
+                                   MVX,
                                    curcam->pmatrix,
                                    VPX,
                                   &winx,
@@ -140,16 +147,16 @@ static int createSphere ( G3DMOUSETOOL *mou,
                 g3dcore_unprojectf ( ( GLdouble ) mev->x,
                                      ( GLdouble ) VPX[0x03] - mev->y,
                                      ( GLdouble ) winz,
-                                                 curcam->obj.inverseWorldMatrix,
-                                                 curcam->pmatrix,
-                                                 VPX,
+                                                  MVX,
+                                                  curcam->pmatrix,
+                                                  VPX,
                                                  &objx,
                                                  &objy,
                                                  &objz );
 
-                radius = sqrt ( ( objx - obj->pos.x ) * ( objx - obj->pos.x ) +
-                                ( objy - obj->pos.y ) * ( objy - obj->pos.y ) +
-                                ( objz - obj->pos.z ) * ( objz - obj->pos.z ) );
+                radius = sqrt ( ( objx ) * ( objx ) +
+                                ( objy ) * ( objy ) +
+                                ( objz ) * ( objz ) );
 
                 g3dsphere_size  ( pri, radius );
 

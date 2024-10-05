@@ -45,12 +45,118 @@ G3DENGINE* g3dengine_new ( ) {
 
     g3dengine_initShaders( engine );
 
+    engine->maxModelMatrixCount = 32;
+    engine->modelMatrixStack = ( float (*)[0x10] ) calloc ( engine->maxModelMatrixCount,
+                                                            sizeof ( float ) * 0x10 );
+    engine->curModelMatrixIndex = 0x00;
+
+    g3dcore_identityMatrixf ( engine->modelMatrixStack[0x00] );
+
+
     return engine;
 }
+
 
 /******************************************************************************/
 void g3dengine_free( G3DENGINE *engine ) {
     free( engine );
+
+    free( engine->modelMatrixStack );
+}
+
+/******************************************************************************/
+uint32_t g3dengine_pushModelMatrix ( G3DENGINE *engine ) {
+    uint32_t oldModelMatrixIndex = engine->curModelMatrixIndex;
+
+    engine->curModelMatrixIndex++;
+
+    if ( engine->curModelMatrixIndex < engine->maxModelMatrixCount ) {
+        memcpy ( engine->modelMatrixStack[engine->curModelMatrixIndex],
+                 engine->modelMatrixStack[oldModelMatrixIndex],
+                 sizeof ( float ) * 0x10 );
+
+        return 0x00;
+    }
+
+    return 0x01;
+}
+
+/******************************************************************************/
+uint32_t g3dengine_popModelMatrix ( G3DENGINE *engine ) {
+    uint32_t oldModelMatrixIndex = engine->curModelMatrixIndex;
+
+    engine->curModelMatrixIndex--;
+
+    return ( engine->curModelMatrixIndex < engine->maxModelMatrixCount ) ? 0x00
+                                                                         : 0x01;
+}
+
+/******************************************************************************/
+uint32_t g3dengine_multModelMatrixf ( G3DENGINE *engine, float *matrix ) {
+    if ( engine->curModelMatrixIndex < engine->maxModelMatrixCount ) {
+        uint32_t curModelMatrixIndex = engine->curModelMatrixIndex;
+
+        g3dcore_multMatrixf ( engine->modelMatrixStack[curModelMatrixIndex],
+                              matrix,
+                              engine->modelMatrixStack[curModelMatrixIndex] );
+
+        return 0x00;
+    }
+
+    return 0x01;
+}
+
+/******************************************************************************/
+uint32_t g3dengine_getModelMatrixf ( G3DENGINE *engine, float *matrix ) {
+    if ( engine->curModelMatrixIndex < engine->maxModelMatrixCount ) {
+        uint32_t curModelMatrixIndex = engine->curModelMatrixIndex;
+
+        memcpy ( matrix,
+                 engine->modelMatrixStack[curModelMatrixIndex],
+                 sizeof ( float ) * 0x10 );
+
+        return 0x00;
+    }
+
+    return 0x01;
+}
+
+/******************************************************************************/
+uint32_t g3dengine_translateModelMatrixf( float *matrix,
+                                          float  x,
+                                          float  y,
+                                          float  z ) {
+    if ( engine->curModelMatrixIndex < engine->maxModelMatrixCount ) {
+        uint32_t curModelMatrixIndex = engine->curModelMatrixIndex;
+
+        g3dcore_translateMatrixf( engine->modelMatrixStack[curModelMatrixIndex],
+                                  x,
+                                  y,
+                                  z );
+
+        return 0x00;
+    }
+
+    return 0x01;
+}
+
+/******************************************************************************/
+uint32_t g3dengine_scaleModelMatrixf( float *matrix,
+                                      float  x,
+                                      float  y,
+                                      float  z ) {
+    if ( engine->curModelMatrixIndex < engine->maxModelMatrixCount ) {
+        uint32_t curModelMatrixIndex = engine->curModelMatrixIndex;
+
+        g3dcore_scaleMatrixf( engine->modelMatrixStack[curModelMatrixIndex],
+                              x,
+                              y,
+                              z );
+
+        return 0x00;
+    }
+
+    return 0x01;
 }
 
 /******************************************************************************/

@@ -120,9 +120,9 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
 #define VIEWNORMALS        ( VIEWFACENORMAL | VIEWVERTEXNORMAL )
 #define VIEWSKIN           ( 1ULL  <<  6 )
 #define VIEWUVWMAP         ( 1ULL  <<  7 )
-#define VIEWAXIS           ( 1ULL  <<  9 )
-#define VIEWSCULPT         ( 1ULL  << 10 )
-#define VIEWPATH           ( 1ULL  << 11 )
+#define VIEWAXIS           ( 1ULL  <<  8 )
+#define VIEWSCULPT         ( 1ULL  <<  9 )
+#define VIEWPATH           ( 1ULL  << 10 )
 
 #define VIEWDETAILS        ( VIEWUVWMAP       | \
                              VIEWSKIN         | \
@@ -142,6 +142,7 @@ void                          (*ext_glGenerateMipmap) (GLenum target);
                              VIEWAXIS   | \
                              VIEWSCULPT )
 
+#define CENTERONLY         ( 1ULL  << 11 )
 #define FILLINGGOURAUD     ( 1ULL  << 12 )
 #define FILLINGFLAT        ( 1ULL  << 13 )
 #define FILLINGWIREFRAME   ( 1ULL  << 14 )
@@ -777,7 +778,7 @@ typedef struct _G3DENGINE G3DENGINE;
 #define ENGINE_SUBDIV_INDEX_BUFFER_INITIALIZED      ( 1ULL << 9 )
 
 typedef struct _G3DENGINE {
-    uint64_t flags;
+    uint64_t     flags;
     unsigned int vertexArray;
     unsigned int vertexBuffer;
 
@@ -793,11 +794,12 @@ typedef struct _G3DENGINE {
     unsigned int subdivVertexBuffer;
     unsigned int subdivIndexBuffer;
 
+    float      (*modelMatrixStack)[0x10];
+    uint32_t     maxModelMatrixCount;
+    uint32_t     curModelMatrixIndex;
 
-
-
-    uint32_t subdivVertexBufferSize;
-    uint32_t subdivIndexBufferSize;
+    uint32_t     subdivVertexBufferSize;
+    uint32_t     subdivIndexBufferSize;
 
     char log[512];
 } G3DENGINE;
@@ -1752,7 +1754,7 @@ void g3dedge_getAverageModifiedPosition ( G3DEDGE   *edg,
                                           G3DVECTOR3F *vout );
 void g3dedge_getAverageNormal ( G3DEDGE *, G3DVECTOR3F * );
 void g3dedge_drawSimple ( G3DEDGE *edg,
-                          uint32_t object_flags,
+                          uint32_t objectFlags,
                           uint64_t engineFlags );
 void g3dsubedge_position ( G3DSUBEDGE * );
 G3DSUBEDGE *g3dsubedge_getSubEdge ( G3DSUBEDGE *, G3DVERTEX *, G3DVERTEX * );
@@ -1820,7 +1822,7 @@ void g3dface_draw  ( G3DFACE   *fac,
                      G3DVECTOR3F *vernor,
                      float      gouraudScalarLimit,
                      LIST      *ltex,
-                     uint32_t   object_flags,
+                     uint32_t   objectFlags,
                      uint64_t   engineFlags );
 void     g3dface_drawSkin               ( G3DFACE *fac, 
                                           uint32_t oflags,
@@ -1930,12 +1932,12 @@ LIST    *g3dface_getEdgesFromList ( LIST * );
 void g3dface_drawTriangle  ( G3DFACE *fac,
                              float    gouraudScalarLimit,
                              LIST    *ltex, 
-                             uint32_t object_flags,
+                             uint32_t objectFlags,
                              uint64_t engineFlags );
 void g3dface_drawQuad ( G3DFACE *fac,
                         float    gouraudScalarLimit,
                         LIST    *ltex, 
-                        uint32_t object_flags,
+                        uint32_t objectFlags,
                         uint64_t engineFlags );
 void     g3dface_updateBufferedSubdivision ( G3DFACE *, G3DSUBDIVISION *,
                                                         uint32_t, 
@@ -1953,7 +1955,7 @@ uint32_t g3dface_convert ( G3DFACE *fac,
                            G3DRTTRIANGLE **rttriptr,
                            G3DRTQUAD     **rtquaptr,
                            G3DRTUVSET    **rtuvsptr,
-                           uint32_t        object_flags,
+                           uint32_t        objectFlags,
                            uint64_t        engineFlags );
 G3DUVSET *g3dface_getUVSet        ( G3DFACE *, G3DUVMAP * );
 void     g3dface_addUVSet         ( G3DFACE *, G3DUVSET * );
@@ -1977,11 +1979,11 @@ uint32_t g3dface_setInnerVertex ( G3DFACE *, G3DSUBVERTEX **,
 uint32_t g3dface_bindMaterials ( G3DFACE        *fac, 
                                  LIST           *ltex, 
                                  G3DARBTEXCOORD *texcoord,
-                                 uint32_t        object_flags,
+                                 uint32_t        objectFlags,
                                  uint64_t        engineFlags );
 void g3dface_unbindMaterials ( G3DFACE *fac, 
                                LIST    *ltex,
-                               uint32_t object_flags,
+                               uint32_t objectFlags,
                                uint64_t engineFlags );
 void     g3dface_removeAllUVSets ( G3DFACE * );
 uint32_t g3dface_countUVSetsFromList ( LIST *, uint32_t );
@@ -1999,7 +2001,7 @@ uint32_t g3dface_setAllEdges ( G3DFACE *, G3DSUBVERTEX  *,
 G3DVERTEX *g3dface_getVertexByID ( G3DFACE *, uint32_t );
 G3DEDGE   *g3dface_getEdgeByID   ( G3DFACE *, uint32_t );
 void g3dface_drawSimple  ( G3DFACE *fac, 
-                           uint32_t object_flags,
+                           uint32_t objectFlags,
                            uint64_t engineFlags );
 uint32_t g3dface_checkOrientation ( G3DFACE * );
 void g3dface_initSubface ( G3DFACE *fac, 
@@ -2011,7 +2013,7 @@ void g3dface_initSubface ( G3DFACE *fac,
                            uint32_t    (*tri_indexes)[0x04],
                            uint32_t      iteration,
                            uint32_t      curdiv,
-                           uint32_t      object_flags,
+                           uint32_t      objectFlags,
                            uint32_t      subdiv_flags,
                            uint64_t      engineFlags );
 void g3dface_subdivideUVSets ( G3DFACE * );
@@ -2193,7 +2195,7 @@ void g3dobject_init ( G3DOBJECT       *obj,
                       uint32_t         type,
                       uint32_t         id,
                       const char      *name,
-                      uint32_t         object_flags,
+                      uint32_t         objectFlags,
                       G3DOBJECTVTABLE *vtable );
 void g3dobject_addTag ( G3DOBJECT *obj, 
                         G3DTAG    *tag );
@@ -2561,11 +2563,11 @@ uint32_t g3dmesh_default_draw ( G3DMESH   *mes,
 void g3dmesh_drawEdges ( G3DMESH *mes,
                          G3DCAMERA *cam,
                          G3DENGINE *engine,
-                         uint32_t object_flags, 
+                         uint32_t objectFlags, 
                          uint64_t engineFlags );
 void       g3dmesh_drawFace             ( G3DMESH *, uint32_t );
 void g3dmesh_drawFaces ( G3DMESH *mes,
-                         uint32_t object_flags, 
+                         uint32_t objectFlags, 
                          uint64_t engineFlags );
 void g3dmesh_drawFaceNormal ( G3DMESH *mes,
                               G3DCAMERA *curcam, 
@@ -2862,7 +2864,7 @@ void g3dscene_init ( G3DSCENE       *sce,
                      uint32_t        type,
                      uint32_t        id,
                      const char     *name,
-                     uint32_t        object_flags,
+                     uint32_t        objectFlags,
                      G3DSCENEVTABLE *vtable );
 void g3dscene_checkReferredObjects ( G3DSCENE *sce );
 void g3dscene_removeReferredObject ( G3DSCENE *sce, 
@@ -2946,38 +2948,52 @@ void g3dsubvertex_addEdge ( G3DSUBVERTEX *subver, G3DEDGE *edg );
 void g3dsubvertex_addFace ( G3DSUBVERTEX *subver, G3DFACE *fac );
 
 /******************************************************************************/
-G3DENGINE* g3dengine_new    ( );
-void g3dengine_free         ( G3DENGINE *engine );
-void g3dengine_initShaders  ( G3DENGINE *engine );
-void g3dengine_drawTriangle ( G3DENGINE     *engine,
-                              SHADERVERTEX  *vertices,
-                              float          gouraudScalarLimit,
-                              LIST          *ltex, 
-                              uint32_t       object_flags,
-                              uint64_t       engineFlags );
-void g3dengine_drawQuad     ( G3DENGINE    *engine,
-                              SHADERVERTEX *vertices,
-                              float         gouraudScalarLimit,
-                              LIST         *ltex, 
-                              uint32_t      object_flags,
-                              uint64_t      engineFlags );
-void g3dengine_drawLine     ( G3DENGINE    *engine,
-                              SHADERVERTEX *vertices,
-                              uint32_t      object_flags,
-                              uint64_t      engineFlags );
-void g3dengine_drawSegment  ( G3DENGINE    *engine,
-                              SHADERVERTEX *vertices,
-                              uint32_t      object_flags,
-                              uint64_t      engineFlags );
-void g3dengine_drawPoint    ( G3DENGINE    *engine,
-                              SHADERVERTEX *vertex,
-                              uint32_t      object_flags,
-                              uint64_t      engineFlags );
-unsigned int g3dengine_bindSubdivVertexBuffer( G3DENGINE *engine,
-                                               uint32_t   maxSubdivVertexCount );
-unsigned int g3dengine_bindSubdivVertexArray( G3DENGINE *engine );
-unsigned int g3dengine_bindSubdivIndexBuffer( G3DENGINE *engine,
-                                              uint32_t   maxSubdivIndexCount );
+G3DENGINE* g3dengine_new                      ( );
+void       g3dengine_free                     ( G3DENGINE *engine );
+uint32_t   g3dengine_pushModelMatrix          ( G3DENGINE *engine );
+uint32_t   g3dengine_popModelMatrix           ( G3DENGINE *engine );
+uint32_t   g3dengine_multModelMatrixf         ( G3DENGINE *engine,
+                                                float     *matrix );
+uint32_t   g3dengine_getModelMatrixf          ( G3DENGINE *engine,
+                                                float     *matrix );
+uint32_t   g3dengine_translateModelMatrixf    ( float *matrix,
+                                                float  x,
+                                                float  y,
+                                                float  z );
+uint32_t   g3dengine_scaleModelMatrixf        ( float *matrix,
+                                                float  x,
+                                                float  y,
+                                                float  z );
+void       g3dengine_initShaders              ( G3DENGINE    *engine );
+void       g3dengine_drawTriangle             ( G3DENGINE    *engine,
+                                                SHADERVERTEX *vertices,
+                                                float         gouraudScalarLimit,
+                                                LIST         *ltex,
+                                                uint32_t      objectFlags,
+                                                uint64_t      engineFlags );
+void       g3dengine_drawQuad                 ( G3DENGINE    *engine,
+                                                SHADERVERTEX *vertices,
+                                                float         gouraudScalarLimit,
+                                                LIST         *ltex,
+                                                uint32_t      objectFlags,
+                                                uint64_t      engineFlags );
+void       g3dengine_drawLine                 ( G3DENGINE    *engine,
+                                                SHADERVERTEX *vertices,
+                                                uint32_t      objectFlags,
+                                                uint64_t      engineFlags );
+void       g3dengine_drawSegment              ( G3DENGINE    *engine,
+                                                SHADERVERTEX *vertices,
+                                                uint32_t      objectFlags,
+                                                uint64_t      engineFlags );
+void       g3dengine_drawPoint                ( G3DENGINE    *engine,
+                                                SHADERVERTEX *vertex,
+                                                uint32_t      objectFlags,
+                                                uint64_t      engineFlags );
+unsigned int g3dengine_bindSubdivVertexBuffer ( G3DENGINE *engine,
+                                                uint32_t   maxSubdivVertexCount );
+unsigned int g3dengine_bindSubdivVertexArray  ( G3DENGINE *engine );
+unsigned int g3dengine_bindSubdivIndexBuffer  ( G3DENGINE *engine,
+                                                uint32_t   maxSubdivIndexCount );
 
 /******************************************************************************/
 G3DCAMERA *g3dcamera_new ( uint32_t id,
@@ -3301,7 +3317,7 @@ void g3dmodifier_init ( G3DMODIFIER       *mod,
                         uint32_t           type,
                         uint32_t           id,
                         const char        *name,
-                        uint32_t           object_flags,
+                        uint32_t           objectFlags,
                         G3DMODIFIERVTABLE *vtable );
 
 uint32_t g3dmodifier_hudpick ( G3DMODIFIER *mod,
